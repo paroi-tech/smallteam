@@ -3,8 +3,8 @@ import {Component, Dash, Bkb} from 'bkb'
 import Task from "../Task/Task"
 import App from '../App/App'
 
-const containerTpl = require("html!./container.html")
-const liTpl = require("html!./li.html")
+const containerTpl = require("html-loader!./container.html")
+const liTpl = require("html-loader!./li.html")
 
 export default class TaskList implements Component {
   static readonly componentName = 'TaskList'

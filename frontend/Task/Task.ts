@@ -2,7 +2,7 @@ import * as $ from 'jquery'
 import {Component, Dash, Bkb} from 'bkb'
 import App from '../App/App'
 
-const template = require("html!./task.html")
+const template = require("html-loader!./task.html")
 
 export default class Task implements Component {
   static readonly componentName = 'Task'
@@ -25,4 +25,4 @@ export default class Task implements Component {
       this.$container.removeClass("focus")
     }
   }
-} 
+}
