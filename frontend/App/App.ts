@@ -11,12 +11,13 @@ export default class App implements Application {
     this.log = dash.bkb.log
     this.nextTick = dash.bkb.nextTick
 
-    this.bkb.listen<LogItem>('log').call('dataFirst', data => {
+    this.dash.on('log', 'dataFirst', (data: LogItem) => {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
+  }
 
+  public start() {
     let $app = $('.js-app')
-
     const list = this.dash.create(TaskList, 'TODO List')
     list.attachTo($app[0])
   }
