@@ -1,13 +1,13 @@
-// Placez vos paramètres dans ce fichier pour remplacer les paramètres par défaut et les paramètres utilisateur.
 {
-    "typescript.check.tscVersion": false,
-    "git.autofetch": false,
     "editor.tabSize": 2,
     "editor.insertSpaces": true,
     "editor.wrappingColumn": 120,
     "editor.rulers": [120],
+    "files.trimTrailingWhitespace": true,
     "files.associations": {
         "*.monk": "html"
     },
+    "git.autofetch": false,
+    "typescript.check.tscVersion": false,
     "typescript.tsdk": "./node_modules/typescript/lib"
-}
+  }
