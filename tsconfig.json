@@ -9,9 +9,9 @@
   },
   "exclude": [
     "node_modules"
-  ],
-  "include": [
-    "frontend/**/*",
-    "backend/**/*"
   ]
+  // "include": [
+  //   "frontend/**/*",
+  //   "backend/**/*"
+  // ]
 }
