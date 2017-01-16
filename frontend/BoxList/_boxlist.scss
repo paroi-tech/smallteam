@@ -1,2 +1,33 @@
 @import "../definitions/definitions";
 
+$main-color: dodgerblue;
+
+.box-list {
+  font-family: sans-serif;
+  border: 1px solid $main-color;
+  border-radius: 5px;
+  padding: 0 0 5px 0;
+  width: 30%;
+  font-size: $f12;
+
+  h1 {
+    color: white;
+    background-color: $main-color;
+    text-align: center;
+    margin: 0;
+    padding: 0;
+    border: 0;
+  }
+
+  ul {
+    list-style: none;
+  }
+
+  li {
+    margin: 5px;
+  }
+
+  li:hover {
+    background-color: whitesmoke;
+  }
+}

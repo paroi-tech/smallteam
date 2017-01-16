@@ -36,7 +36,7 @@ export default class BoxList implements Component {
     const $li = $(boxTpl)
     const taskBox = this.dash.create(TaskBox, {
       group: 'items',
-      args: ["Box " + id]
+      args: ["Box " + id, "Content of the box"]
     }).attachTo($li.find('.js-box')[0])
     $li.appendTo(this.$ul).find('.js-handle').click(() => {
       console.log(`Button of task ${id} clicked...`)
