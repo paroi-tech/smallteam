@@ -1,16 +1,19 @@
+var path = require("path");
+
 module.exports = {
-  entry: './main.ts',
+  entry: path.join(__dirname, "main.ts"),
   output: {
-    filename: '../www/bundle.js'
+    path: path.join(__dirname, "..", "www"),
+    filename: "bundle.js"
   },
   resolve: {
-    extensions: ['.webpack.js', '.web.js', '.ts', '.js']
+    extensions: [".webpack.js", ".web.js", ".ts", ".js"]
   },
   module: {
     loaders: [
       {
         test: /\.ts?$/,
-        loader: 'ts-loader',
+        loader: "ts-loader",
         query: {
           "compilerOptions": {
             "noEmit": false

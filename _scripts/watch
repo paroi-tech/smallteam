@@ -1,0 +1,23 @@
+#!/bin/bash
+DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+
+cd $DIR/..
+
+# Thanks to http://unix.stackexchange.com/a/55922
+trap 'killall' INT
+
+killall() {
+  trap '' INT TERM # ignore INT and TERM while shutting down
+  echo "";
+  echo "End of background processes..."
+  kill -TERM 0
+  wait
+  echo "... done."
+}
+
+node_modules/.bin/node-sass --recursive --sourceMapEmbed=true frontend/ -o www/
+
+node_modules/.bin/node-sass --watch --recursive --sourceMapEmbed=true frontend/ -o www/ &
+node_modules/.bin/webpack --watch --config frontend/webpack.config.js &
+
+cat # wait forever
