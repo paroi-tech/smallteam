@@ -3,5 +3,5 @@ import {createApplication} from 'bkb'
 import App from './App/App'
 
 $(() => {
-  createApplication(App)
+  createApplication(App).start()
 })
