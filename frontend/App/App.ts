@@ -17,7 +17,7 @@ export default class App implements Application {
 
     let $app = $('.js-app')
 
-    const list = this.dash.create(TaskList, 'TODO List')
+    const list = this.dash.create(TaskList, {args: ['TODO List']})
     list.attachTo($app[0])
   }
 }
