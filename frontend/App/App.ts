@@ -1,6 +1,6 @@
 import * as $ from 'jquery'
 import {Application, ApplicationDash, ApplicationBkb, Log, LogItem} from 'bkb'
-import TaskList from "../BoxList/BoxList"
+import BoxList from "../BoxList/BoxList"
 
 export default class App implements Application {
   readonly bkb: ApplicationBkb
@@ -18,7 +18,11 @@ export default class App implements Application {
 
   public start() {
     let $app = $('.js-app')
-    const list = this.dash.create(TaskList, {args: ['Todo']})
+    let list = this.dash.create(BoxList, {args: ['Todo']})
+    list.attachTo($app[0])
+    list = this.dash.create(BoxList, {args: ['Working']})
+    list.attachTo($app[0])
+    list = this.dash.create(BoxList, {args: ['Done']})
     list.attachTo($app[0])
   }
 }

@@ -3,31 +3,38 @@
 $main-color: dodgerblue;
 
 .box-list {
-  font-family: sans-serif;
-  border: 1px solid $main-color;
-  border-radius: 5px;
-  padding: 0 0 5px 0;
-  width: 30%;
-  font-size: $f12;
+  margin:  0;
+  padding: 0;
+  border:  0;
+  width: 200px;
+}
 
-  h1 {
-    color: white;
-    background-color: $main-color;
-    text-align: center;
-    margin: 0;
-    padding: 0;
-    border: 0;
-  }
+.box-list-title {
+  margin:  0;
+  padding: 5px;
+  color: white;
+  background-color: $main-color;
+}
 
-  ul {
-    list-style: none;
-  }
+.box-list-ul {
+  margin:  0;
+  padding: 0;
+  border:  0;
+  list-style: none;
+  background-color: darkgray;
+}
 
-  li {
-    margin: 5px;
-  }
+.box-list-ul li {
+  margin:  0;
+  padding: 5px 5px 5px 40px;
+  position: relative;
+}
 
-  li:hover {
-    background-color: whitesmoke;
-  }
+.box-list-ul li .handle {
+  position: absolute;
+  display: block;
+  width: 30px;
+  top: 5px;
+  left: 5px;
+  bottom: 5px;
 }

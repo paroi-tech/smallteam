@@ -10,10 +10,9 @@ export default class TaskBox implements Component {
   readonly bkb: Bkb
   private $container: JQuery
 
-  constructor(private dash: Dash<App>, title: string, description: string) {
+  constructor(private dash: Dash<App>, title: string) {
     this.$container = $(template)
     this.$container.find('.js-span').text(title)
-    this.$container.find('.js-p').text(description)
   }
 
   public attachTo(el: HTMLElement) {
