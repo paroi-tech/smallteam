@@ -1,0 +1,91 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Diagram>
+  <ID>DATABASE</ID>
+  <OriginalElement>272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.comment</OriginalElement>
+  <nodes>
+    <node x="352.0" y="417.0">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task</node>
+    <node x="467.6246575342466" y="306.85479452054796">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project_task</node>
+    <node x="710.931506849315" y="328.63013698630135">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_description</node>
+    <node x="789.2273972602741" y="667.6164383561644">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.comment</node>
+    <node x="971.345205479452" y="551.2383561643834">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.flag</node>
+    <node x="700.7671232876712" y="445.67123287671234">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_child</node>
+    <node x="775.4931506849315" y="566.958904109589">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_flag</node>
+    <node x="86.30958904109582" y="657.0000000000001">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log</node>
+    <node x="122.02739726027409" y="247.70136986301375">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step_type</node>
+    <node x="479.9260273972602" y="679.2109589041095">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor</node>
+    <node x="139.3808219178082" y="409.23561643835626">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step</node>
+    <node x="459.04657534246576" y="167.41369863013688">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project</node>
+  </nodes>
+  <notes />
+  <edges>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor">
+      <point x="6.5967148461706415" y="0.0" />
+      <point x="6.596714846170585" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_flag" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor">
+      <point x="1.110446645275033" y="4.875131613402601" />
+      <point x="1.110446645275033" y="4.875131613402598" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.comment" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.comment" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_child" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task">
+      <point x="1.4167307050869908" y="-4.7950885402945005" />
+      <point x="1.416730705087005" y="-4.7950885402945005" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step_type">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_description" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_flag" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.flag">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project_task" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project_task" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task">
+      <point x="0.0" y="0.0" />
+      <point x="0.0" y="0.0" />
+    </edge>
+  </edges>
+  <settings layout="Hierarchic Group" zoom="1.0" x="619.0" y="510.0" />
+  <SelectedNodes>
+    <node>272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project</node>
+  </SelectedNodes>
+  <Categories>
+    <Category>Key columns</Category>
+    <Category>Columns</Category>
+  </Categories>
+</Diagram>
+
