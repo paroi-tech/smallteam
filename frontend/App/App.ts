@@ -1,6 +1,6 @@
 import * as $ from 'jquery'
 import {Application, ApplicationDash, ApplicationBkb, Log, LogItem} from 'bkb'
-import TaskList from "../TaskList/TaskList"
+import TaskList from "../BoxList/BoxList"
 
 export default class App implements Application {
   readonly bkb: ApplicationBkb
