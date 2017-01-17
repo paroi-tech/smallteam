@@ -57,6 +57,8 @@ interface TaskModel extends TaskFields {
   readonly flags: FlagModel[]
   readonly attachments: Attachment[]
   readonly logs: TaskLogModel[]
+  setCurrentStep(stepId: string): Promise<StepModel>
+  createChildTask(label: string): Promise<TaskModel>
 }
 
 interface FlagFields {
