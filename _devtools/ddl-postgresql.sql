@@ -5,7 +5,7 @@
 drop table if exists comment;
 drop table if exists task_flag;
 drop table if exists flag;
-drop table if exists project_task;
+drop table if exists root_task;
 drop table if exists task_log;
 drop table if exists task_description;
 drop table if exists task_child;
@@ -39,9 +39,9 @@ create table project (
 
 create table step (
     step_id bigserial not null primary key,
-    type_id bigint not null references step_type(step_type_id),
+    step_type_id bigint not null references step_type(step_type_id),
     project_id bigint not null references project(project_id),
-    unique (type_id, project_id)
+    unique (step_type_id, project_id)
 );
 
 create table task (
@@ -49,7 +49,7 @@ create table task (
     code varchar(255) not null unique,
     created_by bigint not null references contributor(contributor_id),
     affected_to bigint references contributor(contributor_id),
-    step_id bigint not null references step(step_id),
+    cur_step_id bigint not null references step(step_id),
     label varchar(255) not null,
     create_dt timestamp not null default current_timestamp,
     update_dt timestamp not null default current_timestamp
@@ -77,7 +77,7 @@ create table task_log (
     ended_by bigint references contributor(contributor_id)
 );
 
-create table project_task (
+create table root_task (
     project_id bigint not null primary key references project(project_id),
     task_id bigint not null unique references task(task_id)
 );

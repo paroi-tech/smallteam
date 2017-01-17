@@ -12,7 +12,7 @@ module.exports = {
   module: {
     loaders: [
       {
-        test: /\.ts?$/,
+        test: /\.ts$/,
         loader: "ts-loader",
         query: {
           "compilerOptions": {
