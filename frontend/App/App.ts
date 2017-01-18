@@ -1,6 +1,6 @@
-import * as $ from 'jquery'
-import {Application, ApplicationDash, ApplicationBkb, Log, LogItem} from 'bkb'
-import BoxList from "../BoxList/BoxList"
+import * as $ from "jquery"
+import {Application, ApplicationDash, ApplicationBkb, Log, LogItem} from "bkb"
+import StepsPanel from "../StepsPanel/StepsPanel"
 
 export default class App implements Application {
   readonly bkb: ApplicationBkb
@@ -11,18 +11,15 @@ export default class App implements Application {
     this.log = dash.bkb.log
     this.nextTick = dash.bkb.nextTick
 
-    this.dash.on('log', 'dataFirst', (data: LogItem) => {
+    this.dash.on("log", "dataFirst", (data: LogItem) => {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
   }
 
   public start() {
-    let $app = $('.js-app')
-    let list = this.dash.create(BoxList, {args: ['Todo']})
-    list.attachTo($app[0])
-    list = this.dash.create(BoxList, {args: ['Working']})
-    list.attachTo($app[0])
-    list = this.dash.create(BoxList, {args: ['Done']})
-    list.attachTo($app[0])
+    let $app = $(".js-app")
+    let panel = this.dash.create(StepsPanel, {args: ["1", "My StepsPanel"]})
+    panel.init()
+    panel.attachTo($app[0])
   }
 }

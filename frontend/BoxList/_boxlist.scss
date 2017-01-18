@@ -1,40 +1,28 @@
 @import "../definitions/definitions";
 
-$main-color: dodgerblue;
-
-.box-list {
-  margin:  0;
-  padding: 0;
-  border:  0;
-  width: 200px;
+.BoxList {
+  display: inline-block;
+  margin: 10px 5px 5px;
+  vertical-align: top;
+  width: 290px;
 }
 
-.box-list-title {
-  margin:  0;
-  padding: 5px;
-  color: white;
-  background-color: $main-color;
-}
-
-.box-list-ul {
-  margin:  0;
-  padding: 0;
-  border:  0;
-  list-style: none;
+.BoxListUl {
   background-color: darkgray;
+  min-height: 30px;
 }
 
-.box-list-ul li {
-  margin:  0;
+.BoxListUl > li {
   padding: 5px 5px 5px 40px;
+  min-height: 25px;
   position: relative;
 }
 
-.box-list-ul li .handle {
-  position: absolute;
-  display: block;
-  width: 30px;
-  top: 5px;
-  left: 5px;
+.BoxListHandle {
   bottom: 5px;
+  display: block;
+  left: 5px;
+  position: absolute;
+  top: 5px;
+  width: 30px;
 }

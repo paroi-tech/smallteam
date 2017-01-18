@@ -1,2 +1,14 @@
 @import "../definitions/definitions";
+@import "./reset";
 
+$mainColor: dodgerblue;
+
+.BlockTitle {
+  background-color: $mainColor;
+  color: white;
+  padding: 10px;
+}
+
+button, label, input, textarea {
+  font-family: Roboto, Cantarell, sans-serif;
+}

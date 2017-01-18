@@ -1,18 +1,18 @@
-import * as $ from 'jquery'
-import {Component, Dash, Bkb} from 'bkb'
-import App from '../App/App'
+import * as $ from "jquery"
+import {Component, Dash, Bkb} from "bkb"
+import App from "../App/App"
 
-// const template = require("html-loader!./task.html")
 import * as template from "html-loader!./taskbox.html"
 
 export default class TaskBox implements Component {
-  static readonly componentName = 'Task'
+  static readonly componentName = "TaskBox"
   readonly bkb: Bkb
+
   private $container: JQuery
 
   constructor(private dash: Dash<App>, title: string) {
     this.$container = $(template)
-    this.$container.find('.js-span').text(title)
+    this.$container.find(".js-span").text(title)
   }
 
   public attachTo(el: HTMLElement) {

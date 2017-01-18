@@ -15,9 +15,9 @@ killall() {
   echo "... done."
 }
 
-node_modules/.bin/node-sass --recursive --sourceMapEmbed=true frontend/ -o www/
+node_modules/.bin/node-sass --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www/
 
-node_modules/.bin/node-sass --watch --recursive --sourceMapEmbed=true frontend/ -o www/ &
+node_modules/.bin/node-sass --watch --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www/ &
 node_modules/.bin/webpack --watch --config frontend/webpack.config.js &
 
 cat # wait forever
