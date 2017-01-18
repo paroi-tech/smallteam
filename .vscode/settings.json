@@ -9,5 +9,9 @@
     },
     "git.autofetch": false,
     "typescript.check.tscVersion": false,
-    "typescript.tsdk": "./node_modules/typescript/lib"
+    "typescript.tsdk": "./node_modules/typescript/lib",
+    //"typescript.disableAutomaticTypeAcquisition": true,
+    "html.format.extraLiners": "",
+    "html.suggest.ionic": false,
+    "html.suggest.angular1": false
   }

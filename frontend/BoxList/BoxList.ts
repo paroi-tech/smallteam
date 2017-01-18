@@ -16,19 +16,20 @@ export default class BoxList implements Component {
 
   constructor(private dash: Dash<App>, title: string, groupName: string) {
     this.$container = $(boxListTpl)
-    this.$ul = this.$container.find(".BoxListUl")
-    this.$container.find(".BlockTitle").text(title)
+    this.$ul = this.$container.find("ul")
+    this.$container.find(".js-title").text(title)
 
     Sortable.create(this.$ul[0], {
       "handle": ".js-handle",
       "group":  groupName
     })
-    dash.listenToChildren("grabFocus", { group: "items" }).call((evt) => {
-      for (const child of dash.find<TaskBox>({ group: "items", componentName: "TaskBox" })) {
-        if (child !== evt.source)
-          child.setWithFocus(false)
-      }
-    })
+    // FIXME Cannot work, because the TaskBox are not the children of the BoxList
+    // dash.listenToChildren("grabFocus", { group: "items" }).call((evt) => {
+    //   for (const child of dash.find<TaskBox>({ group: "items", componentName: "TaskBox" })) {
+    //     if (child !== evt.source)
+    //       child.setWithFocus(false)
+    //   }
+    // })
   }
 
   public attachTo(el: HTMLElement) {

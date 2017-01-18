@@ -3,7 +3,6 @@ import { Component, Dash, Bkb } from "bkb"
 import BoxList from "../BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
-import Sortable from "sortablejs"
 
 const tpl = require("html-loader!./stepspanel.html")
 
