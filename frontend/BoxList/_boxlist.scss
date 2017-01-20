@@ -2,12 +2,10 @@
 
 .BoxList {
   display: inline-block;
-  margin: 10px 5px 5px;
   vertical-align: top;
-  width: 290px;
   &-ul {
     background-color: darkgray;
-    min-height: 30px;
+    height: 100%;
   }
 }
 

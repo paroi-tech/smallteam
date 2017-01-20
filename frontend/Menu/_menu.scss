@@ -1,0 +1,19 @@
+@import "../definitions/definitions";
+
+.Menu {
+  position: relative;
+
+  &-ul {
+    padding-right: 40px;
+    li {
+      display: inline-block;
+    }
+  }
+}
+
+.MenuAddBtn {
+  display: block;
+  position: absolute;
+  right: 0;
+  top: 0;
+}

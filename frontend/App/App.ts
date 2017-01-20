@@ -1,6 +1,6 @@
 import * as $ from "jquery"
-import {Application, ApplicationDash, ApplicationBkb, Log, LogItem} from "bkb"
-import StepsPanel from "../StepsPanel/StepsPanel"
+import { Application, ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
+import PanelSelector from "../PanelSelector/PanelSelector"
 
 export default class App implements Application {
   readonly bkb: ApplicationBkb
@@ -18,7 +18,7 @@ export default class App implements Application {
 
   public start() {
     let $app = $(".js-app")
-    let panel = this.dash.create(StepsPanel, {args: ["1", "My StepsPanel"]})
+    let panel = this.dash.create(PanelSelector, { args: [] })
     panel.init()
     panel.attachTo($app[0])
   }

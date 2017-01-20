@@ -12,7 +12,7 @@ export default class EditPanel implements Component {
 
   constructor(private dash: Dash<App>, title: string) {
     this.$container = $(panelTpl)
-    this.$container.find(".BlockTitle").text(title)
+    this.$container.find(".js-title").text(title)
   }
 
   public attachTo(el: HTMLElement) {
