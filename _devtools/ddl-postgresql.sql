@@ -34,6 +34,7 @@ create table step_type (
 create table project (
     project_id bigserial not null primary key,
     code varchar(255) not null unique,
+    archived bit not null default 0,
     task_seq bigint not null default 0
 );
 
