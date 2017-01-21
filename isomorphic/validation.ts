@@ -10,6 +10,7 @@ export interface FieldMeta {
   dataType: "string" | "boolean" | "number"
   nullable?: boolean
   emptyable?: boolean
+  id?: boolean
 }
 
 export function validateDataArray<T>(meta: Meta, data: any[]): T[] {

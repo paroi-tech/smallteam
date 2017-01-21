@@ -1,10 +1,9 @@
 # Dependences
 node_modules
 
-backend/**/*.js
-backend/**/*.js.map
-
 www/bundle.js
 www/smallteam.css
+
+www-server
 
 *.sqlite

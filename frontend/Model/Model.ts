@@ -1,5 +1,5 @@
-import { Meta, validateDataArray } from "./validation"
-import { ProjectFields, ProjectModel, projectMeta } from "./entities/project"
+import { Meta, validateDataArray } from "../../isomorphic/validation"
+import { ProjectFields, ProjectModel, projectMeta } from "../../isomorphic/entities/project"
 
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
@@ -25,7 +25,7 @@ export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<P
 }
 
 function createProjectModel(data: ProjectFields[]): ProjectModel[] {
-  return data;
+  return data as any; // TODO
   // for (let item of data) {
   //   item.rootTask =
   // }

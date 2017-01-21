@@ -1,4 +1,5 @@
 import { ProjectModel } from "./project"
+import { TaskModel } from "./task"
 
 interface ImageFields {
   url: string
@@ -28,28 +29,6 @@ interface StepFields {
 
 interface StepModel extends StepFields {
   readonly project: ProjectModel
-}
-
-interface TaskFields {
-  id: string
-  code: string
-  label: string
-  description?: string
-  createTs: number
-  updateTs: number
-}
-
-interface TaskModel extends TaskFields {
-  readonly currentStep: StepModel
-  readonly parent?: TaskModel
-  readonly createdBy: ContributorModel
-  readonly affectedTo?: ContributorModel
-  readonly comments: CommentModel[]
-  readonly flags: FlagModel[]
-  readonly attachments: Attachment[]
-  readonly logs: TaskLogModel[]
-  setCurrentStep(stepId: string): Promise<StepModel>
-  createChildTask(label: string): Promise<TaskModel>
 }
 
 interface FlagFields {

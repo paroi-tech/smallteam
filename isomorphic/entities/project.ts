@@ -1,4 +1,5 @@
 import { Meta } from "../validation"
+import { TaskModel } from "./task"
 
 export interface ProjectFields {
   id: string
@@ -8,7 +9,7 @@ export interface ProjectFields {
 }
 
 export interface ProjectModel extends ProjectFields {
-  //readonly rootTask: TaskModel
+  readonly rootTask: TaskModel
   //readonly steps: StepModel[]
 }
 
@@ -17,6 +18,7 @@ export const projectMeta: Meta = {
   fields: {
     id: {
       dataType: "string",
+      id: true
     },
     code: {
       dataType: "string",
