@@ -13,5 +13,11 @@
     //"typescript.disableAutomaticTypeAcquisition": true,
     "html.format.extraLiners": "",
     "html.suggest.ionic": false,
-    "html.suggest.angular1": false
+    "html.suggest.angular1": false,
+    "search.exclude": {
+      "**/node_modules": true,
+      "**/bower_components": true,
+      "www": true,
+      "www/index.html": false
+    }
   }
