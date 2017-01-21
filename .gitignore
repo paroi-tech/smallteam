@@ -1,9 +1,9 @@
 # Dependences
 node_modules
 
-www/bundle.js
-www/smallteam.css
-
-www-server
+www-server/*
+!www-server/www
+www-server/www/*
+!www-server/www/index.html
 
 *.sqlite
