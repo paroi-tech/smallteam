@@ -6,7 +6,7 @@ import ProjectBoard from "../ProjectBoard/ProjectBoard"
 
 const template = require("html-loader!./panelselector.html")
 
-export default class PanelSelector {
+export default class PanelSelector implements Component {
   static readonly componentName = "Menu"
   readonly bkb: Bkb
 
@@ -18,12 +18,21 @@ export default class PanelSelector {
 
   constructor(private dash: Dash<App>) {
     this.$container = $(template)
+    console.log(this.$container)
     this.$menuContainer = this.$container.find(".js-menu-container")
     this.$panelContainer = this.$container.find(".js-panel-container")
+    // We listen to 'createProject' and 'selectProject' events from the dash
+     this.dash.listenToChildren("createProject").call("dataFirst", data => {
+      console.log("Projectee", JSON.stringify(data))
+    })
   }
 
   public init() {
     this.menu = this.dash.create(Menu, { args: [] })
+    this.menu.init()
+    this.menu.bkb.on("selectProject", "dataFirst", data => {
+      console.log("Project", JSON.stringify(data))
+    })
     this.menu.attachTo(this.$menuContainer[0])
 
     // FIXME Add elements to the menu for tests.

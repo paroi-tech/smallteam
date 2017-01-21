@@ -6,7 +6,7 @@ import App from "../App/App"
 
 const template = require("html-loader!./projectboard.html")
 
-export default class ProjectBoard {
+export default class ProjectBoard implements Component {
   static readonly componentName = "ProjectBoard"
   readonly bkb: Bkb
 

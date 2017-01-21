@@ -4,7 +4,7 @@ import App from "../App/App"
 
 const template = require("html-loader!./menu.html")
 
-export default class Menu {
+export default class Menu implements Component {
   static readonly componentName = "Menu"
   readonly bkb: Bkb
 
@@ -20,14 +20,25 @@ export default class Menu {
     this.elements = []
   }
 
+  public init() {
+    this.$container.find(".js-btn").click(() => {
+      console.log("Add project button clicked...")
+      this.dash.emit("createProject")
+    })
+  }
+
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
 
-  public addMenuElement(el: string) {
-    this.elements.push(new MenuElement(el))
+  public addMenuElement(elementName: string) {
+    this.elements.push(new MenuElement(elementName))
     let $li = $("<li></li>")
-    $li.text(el)
+    $li.text(elementName)
+    $li.click((ev) => {
+      console.log(`Click on project ${elementName}`)
+      this.dash.emit("selectProject", { project: elementName });
+    })
     this.$ul.append($li)
   }
 }
