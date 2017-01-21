@@ -115,13 +115,6 @@ interface ImageAttachment extends AttachmentMeta, ImageFields {
 type Attachment = ImageAttachment | PdfAttachment
 
 
-//type t = Readonly<Attachment>
-
-// let data = {
-// }
-
-
-
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
 }
@@ -138,7 +131,7 @@ export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<P
     })
   })
   try {
-    return createProjectModel(await response.json())
+    return createProjectModel(validateData(projectMeta, await response.json()))
   } catch (err) {
     console.log('parsing failed', err)
     throw err
@@ -146,10 +139,71 @@ export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<P
 }
 
 function createProjectModel(data: ProjectFields[]): Promise<ProjectModel[]> {
-return null as any;
+  return null as any;
   // for (let item of data) {
   //   item.rootTask =
   // }
+}
+
+function validateData(meta: Meta, data: any): any {
+  for (let fieldName in meta.fields) {
+    if (!meta.fields.hasOwnProperty(fieldName))
+      continue
+    let res = isValidValue(meta.fields[fieldName], data[fieldName])
+    if (res !== true)
+      throw new Error(`Type ${meta.type}, field "${fieldName}": ${res}`)
+  }
+  let remaining: string[] = []
+  for (let fieldName in data) {
+    if (!data.hasOwnProperty(fieldName))
+      continue
+    if (!meta.fields[fieldName])
+      remaining.push(fieldName)
+  }
+  if (remaining.length > 0)
+    throw new Error(`Type ${meta.type}, unknown fields: ${remaining.join(", ")}`)
+  return data
+}
+
+function isValidValue(field: FieldMeta, value: any): true | string {
+  if (value === undefined || value === null)
+    return field.nullable ? true : `required value`
+  if (typeof value !== field.dataType)
+    return `invalid type "${typeof value}", required: "${field.dataType}"`
+  if (typeof value === "string" && !field.emptyable && value.trim() === "")
+    return `cannot be empty`
+  return true
+}
+
+interface FieldMeta {
+  dataType: "string" | "boolean" | "number"
+  nullable?: boolean
+  emptyable?: boolean
+}
+
+interface Meta {
+  type: string
+  fields: {
+    [name: string]: FieldMeta
+  }
+}
+
+const projectMeta: Meta = {
+  type: "Project",
+  fields: {
+    id: {
+      dataType: "string",
+    },
+    code: {
+      dataType: "string",
+    },
+    archived: {
+      dataType: "boolean",
+    },
+    rootTaskId: {
+      dataType: "string",
+    }
+  }
 }
 
 // interface ProjectFields {
