@@ -5,8 +5,8 @@ import App from "../App/App"
 import * as template from "html-loader!./taskbox.html"
 
 export default class TaskBox implements Component {
-  static readonly componentName = "TaskBox"
   readonly bkb: Bkb
+  static readonly componentName = "TaskBox"
 
   private $container: JQuery
 

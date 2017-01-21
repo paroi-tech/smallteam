@@ -3,10 +3,11 @@ import { Component, Dash, Bkb } from "bkb"
 import StepsPanel from "../StepsPanel/StepsPanel"
 import EditPanel  from "../EditPanel/EditPanel"
 import App from "../App/App"
+import { Panel } from "../PanelSelector/PanelSelector"
 
 const template = require("html-loader!./projectboard.html")
 
-export default class ProjectBoard implements Component {
+export default class ProjectBoard implements Component, Panel {
   static readonly componentName = "ProjectBoard"
   readonly bkb: Bkb
 
@@ -16,29 +17,12 @@ export default class ProjectBoard implements Component {
 
   private editPanel: EditPanel
 
-  private id: string
-
-  constructor(private dash: Dash<App>, id: string, title: string) {
-    this.id = id
+  constructor(private dash: Dash<App>, private projectId: string, title: string) {
 
     this.$container = $(template)
     this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
     this.$editPanelContainer = this.$container.find(".js-editpanel-container")
     this.$container.find(".js-title").text(title)
-  }
-
-  public init() {
-    // We create the EditPanel here because we cannot do it in the constructor
-    this.editPanel = this.dash.create(EditPanel, { args: [ "Edit panel" ] })
-    this.editPanel.attachTo(this.$editPanelContainer[0])
-
-    // FIXME This is only for tests. We add two StepsPanels to the project board
-    let p = this.dash.create(StepsPanel, {args: [ "1", "Learn jQuery" ]})
-    p.init()
-    this.addStepsPanel(p)
-    let q = this.dash.create(StepsPanel, {args: [ "2", "Create a dummy project" ]})
-    q.init()
-    this.addStepsPanel(q)
   }
 
   public addStepsPanel(p: StepsPanel) {
@@ -47,5 +31,27 @@ export default class ProjectBoard implements Component {
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
+  }
+
+  public hide() {
+    this.$container.hide();
+  }
+
+  public init(): ProjectBoard {
+    this.editPanel = this.dash.create(EditPanel, { args: [ "Edit panel" ] })
+    this.editPanel.attachTo(this.$editPanelContainer[0])
+    // FIXME This is only for tests. We add two StepsPanels to the project board
+    let p = this.dash.create(StepsPanel, {args: [ "1", "Learn jQuery" ]})
+    p.init()
+    this.addStepsPanel(p)
+    let q = this.dash.create(StepsPanel, {args: [ "2", "Create a dummy project" ]})
+    q.init()
+    this.addStepsPanel(q)
+
+    return this;
+  }
+
+  public show() {
+    this.$container.show();
   }
 }

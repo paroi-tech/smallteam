@@ -11,41 +11,36 @@ export default class Menu implements Component {
   private $container: JQuery
   private $ul: JQuery
 
-  private elements: Array<MenuElement>
+  private elements: Map<string, JQuery>
 
   constructor(private dash: Dash<App>, id: string, title: string) {
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
 
-    this.elements = []
+    this.elements = new Map<string, JQuery>()
   }
 
-  public init() {
-    this.$container.find(".js-btn").click(() => {
-      console.log("Add project button clicked...")
-      this.dash.emit("createProject")
+  public addMenuEntry(entryId: string, entryLabel: string) {
+    let $li = $("<li></li>")
+    $li.text(entryLabel)
+    $li.click((ev) => {
+      console.log(`Click on menu entry ${entryLabel}`)
+      this.dash.emit("menuEntrySelected", { entryId });
     })
+    this.$ul.append($li)
+    this.elements.set(entryId, $li)
   }
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
 
-  public addMenuElement(elementName: string) {
-    this.elements.push(new MenuElement(elementName))
-    let $li = $("<li></li>")
-    $li.text(elementName)
-    $li.click((ev) => {
-      console.log(`Click on project ${elementName}`)
-      this.dash.emit("selectProject", { project: elementName });
+  public init(): Menu {
+    this.$container.find(".js-btn").click(() => {
+      console.log("Add project button clicked...")
+      this.dash.emit("menuEntrySelected", { entryId: null })
     })
-    this.$ul.append($li)
-  }
-}
 
-class MenuElement {
-
-  constructor(private title: string) {
-
+    return this
   }
 }

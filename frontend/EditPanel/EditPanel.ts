@@ -1,10 +1,11 @@
 import * as $ from "jquery"
 import { Component, Dash, Bkb } from "bkb"
 import App from "../App/App"
+import { Panel } from "../PanelSelector/PanelSelector"
 
 const panelTpl = require("html-loader!./editpanel.html")
 
-export default class EditPanel implements Component {
+export default class EditPanel implements Component, Panel {
   static readonly componentName = "EditPanel"
   readonly bkb: Bkb
 
@@ -17,5 +18,13 @@ export default class EditPanel implements Component {
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
+  }
+
+  public hide() {
+    this.$container.hide()
+  }
+
+  public show() {
+    this.$container.show()
   }
 }

@@ -38,7 +38,6 @@ function badJsonRequest(res: Response, body: string) {
 }
 
 function executeRequest(res: Response, data) {
-
   res.setHeader("Content-Type", "application/json")
   res.status(200)
   res.send(JSON.stringify({ a: 1 }))

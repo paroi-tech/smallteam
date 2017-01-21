@@ -32,13 +32,13 @@ export default class BoxList implements Component {
     // })
   }
 
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
-  }
-
   public addBox(t: TaskBox) {
     let $li = $(boxTpl)
     t.attachTo($li[0])
     $li.appendTo(this.$ul)
+  }
+
+  public attachTo(el: HTMLElement) {
+    $(el).append(this.$container)
   }
 }

@@ -25,7 +25,11 @@ export default class StepsPanel implements Component {
     this.map = new Map<string, BoxList>()
   }
 
-  public init() {
+  public attachTo(el: HTMLElement) {
+    $(el).append(this.$panel)
+  }
+
+  public init(): StepsPanel {
     // FIXME We add elements to the panel only for test purpose
     this.map.set("todo", this.dash.create(BoxList, { args: [ "Todo", this.id ] }))
     this.map.set("running", this.dash.create(BoxList, { args: [ "Running", this.id ] }))
@@ -46,10 +50,10 @@ export default class StepsPanel implements Component {
         console.log(`Task Added in StepsPanel ${this.id}`)
       }
     })
+
+    return this;
   }
 
 
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$panel)
-  }
+
 }
