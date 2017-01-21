@@ -4,7 +4,7 @@ import BoxList from "../BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 
-const tpl = require("html-loader!./stepspanel.html")
+const template = require("html-loader!./stepspanel.html")
 
 export default class StepsPanel implements Component {
   static readonly componentName = "StepsPanel"
@@ -17,8 +17,8 @@ export default class StepsPanel implements Component {
   private $boxListContainer: JQuery
 
   constructor(private dash: Dash<App>, id: string, title: string) {
-    this.$panel = $(tpl)
-    this.$panel.find(".BlockTitle").text(title)
+    this.$panel = $(template)
+    this.$panel.find(".js-title").text(title)
     this.$boxListContainer = this.$panel.find(".js-boxlist-container")
 
     this.id = id
@@ -26,6 +26,7 @@ export default class StepsPanel implements Component {
   }
 
   public init() {
+    // FIXME We add elements to the panel only for test purpose
     this.map.set("todo", this.dash.create(BoxList, { args: [ "Todo", this.id ] }))
     this.map.set("running", this.dash.create(BoxList, { args: [ "Running", this.id ] }))
     this.map.set("done", this.dash.create(BoxList, { args: [ "Done", this.id ] }))
