@@ -31,7 +31,7 @@ export default class PanelSelector implements Component {
   private $panelContainer: JQuery
 
   constructor(private dash: Dash<App>) {
-    this.map = new Map()
+    this.map = new Map<string, PanelInfo>()
     this.$container = $(template)
     this.$menuContainer = this.$container.find(".js-menu-container")
     this.$panelContainer = this.$container.find(".js-panel-container")
@@ -43,7 +43,9 @@ export default class PanelSelector implements Component {
 
   public init(): PanelSelector {
     this.menu = this.dash.create(Menu, { args: [] }).init()
-    this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => this.showPanel(data.entryId))
+    this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => {
+        this.showPanel(data.entryId? data.entryId: "projectForm")
+    })
     this.menu.attachTo(this.$menuContainer[0])
 
     // FIXME: Add elements to the menu for tests.
@@ -59,6 +61,7 @@ export default class PanelSelector implements Component {
     this.menu.addMenuEntry(`prj-${"456"}`, "Project 2")
     // Project Form
     this.map.set("projectForm", {
+      projectId: "projectForm",
       type: ProjectForm
     })
 
@@ -66,22 +69,33 @@ export default class PanelSelector implements Component {
   }
 
   private showPanel(panelId: string) {
-    if (!panelId)
-      panelId = "projectForm"
-    console.log("Selected entry:", panelId)
     let info = this.map.get(panelId)
     if (!info)
       throw new Error(`Unknown panel id: ${panelId}`)
+
     if (!info.panel) {
       if (info.type == ProjectBoard)
-        info.panel = this.dash.create<Panel>(info.type, {
+        info.panel = this.dash.create<ProjectBoard>(info.type, {
           args: [info.projectId, panelId]
-        })
-      else
-        info.panel = this.dash.create<Panel>(info.type, {
+        }).init()
+      else if (info.type == ProjectForm)
+        info.panel = this.dash.create<ProjectForm>(info.type, {
           args: []
         })
+      else
+        throw new Error(`Unknown Panel type: ${info.type}`)
+
       info.panel.attachTo(this.$panelContainer[0])
     }
+
+    // Hide all panels, except the selected one
+    this.map.forEach((v, k, map) => {
+      if (!v.panel)
+        return
+      if (k === panelId)
+        v.panel.show()
+      else
+        v.panel.hide()
+    })
   }
 }

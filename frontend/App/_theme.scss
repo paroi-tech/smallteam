@@ -1,13 +1,17 @@
 @import "../definitions/definitions";
 
-$mainColor: dodgerblue;
+$titleColor: dodgerblue;
 
 .BlockTitle {
-  background-color: $mainColor;
+  background-color: $titleColor;
   color: white;
   padding: 10px;
 }
 
-button, label, input, textarea {
+body {
   font-family: Roboto, Cantarell, sans-serif;
+}
+
+button, label, input, textarea {
+  font-family: inherit;
 }

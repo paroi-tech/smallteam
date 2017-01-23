@@ -15,6 +15,7 @@ export default class ProjectForm implements Component {
   constructor(private dash: Dash<App>) {
     this.$container = $(template)
     this.$form = this.$container.find(".js-form")
+    this.$container.find(".js-title").text("Project Form")
   }
 
   public attachTo(el: HTMLElement) {
