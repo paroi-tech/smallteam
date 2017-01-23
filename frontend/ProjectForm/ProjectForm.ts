@@ -11,15 +11,37 @@ export default class ProjectForm implements Component {
 
   private $container: JQuery
   private $form: JQuery
+  private $projectCode: JQuery
+  private $projectName: JQuery
+
+  private generateCode: boolean = true;
 
   constructor(private dash: Dash<App>) {
     this.$container = $(template)
     this.$form = this.$container.find(".js-form")
+    this.$projectCode = this.$form.find(".js-project-code")
+    this.$projectName = this.$form.find(".js-project-name")
     this.$container.find(".js-title").text("Project Form")
+    this.listenToForm()
   }
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
+  }
+
+  private listenToForm() {
+    this.$projectCode.keyup(ev => {
+      this.generateCode = false;
+    })
+    this.$projectName.keyup(ev => {
+      if (this.generateCode && this.$projectName.val().length > 0) {
+        let s = this.$projectName.val().slice(0, 5).toUpperCase()
+        this.$projectCode.val(s)
+      }
+    })
+    this.$form.find("js-submit-btn").click(ev => {
+
+    })
   }
 
   public hide() {
@@ -28,5 +50,6 @@ export default class ProjectForm implements Component {
 
   public show() {
     this.$container.show();
+    // Reset state variable used to decide if the project code should be generated from the name.
   }
 }
