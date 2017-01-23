@@ -1,7 +1,8 @@
 import * as path from "path"
 import * as express from "express"
 import { Response } from "express"
-import CargoLoader, { Cargo } from "./CargoLoader"
+import CargoLoader from "./CargoLoader"
+import { Cargo } from "../isomorphic/Cargo"
 import { fetchProjects, createProject } from "./dbqueries/fetchProjects"
 
 process.on("uncaughtException", err => {

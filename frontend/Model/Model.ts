@@ -1,28 +1,27 @@
 import { Meta, validateDataArray } from "../../isomorphic/validation"
-import { ProjectFields, ProjectModel, projectMeta } from "../../isomorphic/entities/project"
+import { ProjectFields, ProjectModel, projectMeta, NewProjectFields } from "../../isomorphic/entities/project"
+import { Cargo } from "../../isomorphic/Cargo"
 
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
 }
 
-export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<ProjectModel[]> {
-  let response = await fetch("/api/query", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: JSON.stringify({
-      type: "Project",
-      filters
-    })
-  })
-  try {
-    return createProjectModel(validateDataArray<ProjectFields>(projectMeta, await response.json()))
-  } catch (err) {
-    console.log("parsing failed", err)
-    throw err
-  }
-}
+// export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<ProjectModel[]> {
+//   let cargo: Cargo = await httpPostJson("/api/exec", {
+//       type: "Project",
+//       filters
+//     })
+//   return createProjectModel(validateDataArray<ProjectFields>(projectMeta, cargo.entities.))
+// }
+
+// export async function createProject(values: NewProjectFields): Promise<ProjectModel[]> {
+//   let cargo: Cargo = await httpPostJson("/api/exec", {
+//     cmd: "create",
+//     type: "Project",
+//     values
+//   })
+//   return createProjectModel(validateDataArray<ProjectFields>(projectMeta, ))
+// }
 
 function createProjectModel(data: ProjectFields[]): ProjectModel[] {
   return data as any; // TODO
@@ -47,3 +46,19 @@ function createProjectModel(data: ProjectFields[]): ProjectModel[] {
 //   get()
 // }
 
+
+async function httpPostJson(url, data): Promise<any> {
+  let response = await fetch(url, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(data)
+  })
+  try {
+    return await response.json()
+  } catch (err) {
+    console.log("Parsing failed", err)
+    throw err
+  }
+}

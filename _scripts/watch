@@ -3,6 +3,13 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd $DIR/..
 
+# Compile SCSS once
+node_modules/.bin/node-sass --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www-server/www
+
+# Clean old backend files
+rm -rf www-server/{backend,isomorphic}/*
+node_modules/.bin/tsc --project backend/
+
 # Thanks to http://unix.stackexchange.com/a/55922
 trap 'killall' INT
 
@@ -15,17 +22,14 @@ killall() {
   echo "... done."
 }
 
-# Compile SCSS once
-node_modules/.bin/node-sass --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www-server/www
-
 # Watch the frontend
 node_modules/.bin/node-sass --watch --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www-server/www/ &
 node_modules/.bin/webpack --watch --config frontend/webpack.config.js &
 
-# Clean old backend files
-rm -rf www-server/{backend,isomorphic}
-
 # Watch the backend
 node_modules/.bin/tsc --watch --project backend/ &
+
+# Start the server (in developer mode with "nodemon")
+node_modules/.bin/nodemon --watch www-server -e "js" www-server/backend/ &
 
 cat # wait forever

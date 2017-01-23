@@ -1,12 +1,4 @@
-import { ProjectFields } from "../isomorphic/entities/project"
-import { TaskFields } from "../isomorphic/entities/task"
-
-export interface Cargo {
-  entities: {
-    Project?: ProjectFields[]
-    Task?: TaskFields[]
-  }
-}
+import { Cargo } from "../isomorphic/Cargo"
 
 export default class CargoLoader {
 
