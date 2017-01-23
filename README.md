@@ -1,7 +1,7 @@
 # smallteam
 
-# Watchers
+Start the server (dev mode):
 
 ```
-node_modules/.bin/node-sass --watch --recursive --sourceMapEmbed=true frontend/ -o www/
+node_modules/.bin/nodemon www-server/backend/
 ```

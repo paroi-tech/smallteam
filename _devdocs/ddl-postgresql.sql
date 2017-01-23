@@ -52,8 +52,8 @@ create table task (
     affected_to bigint references contributor(contributor_id),
     cur_step_id bigint not null references step(step_id),
     label varchar(255) not null,
-    create_dt timestamp not null default current_timestamp,
-    update_dt timestamp not null default current_timestamp
+    create_ts timestamp not null default current_timestamp,
+    update_ts timestamp not null default current_timestamp
     -- attachments as files
 );
 
@@ -72,9 +72,9 @@ create table task_log (
     task_log_id bigserial not null primary key,
     task_id bigint not null references task(task_id),
     step_id bigint not null references step(step_id),
-    start_dt timestamp not null default current_timestamp,
+    start_ts timestamp not null default current_timestamp,
     started_by bigint not null references contributor(contributor_id),
-    end_dt timestamp,
+    end_ts timestamp,
     ended_by bigint references contributor(contributor_id)
 );
 
@@ -100,6 +100,6 @@ create table comment (
     task_id bigint not null references task(task_id),
     written_by bigint not null references contributor(contributor_id),
     body text not null,
-    create_dt timestamp not null default current_timestamp,
-    update_dt timestamp not null default current_timestamp
+    create_ts timestamp not null default current_timestamp,
+    update_ts timestamp not null default current_timestamp
 );

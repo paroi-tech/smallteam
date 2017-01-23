@@ -2,6 +2,7 @@
 node_modules
 
 www-server/*
+!www-server/sqlite-scripts
 !www-server/www
 www-server/www/*
 !www-server/www/index.html

@@ -1,6 +1,11 @@
 import { Meta } from "../validation"
 import { TaskModel } from "./task"
 
+export interface NewProjectFields {
+  code: string
+  name: string
+}
+
 export interface ProjectFields {
   id: string
   code: string

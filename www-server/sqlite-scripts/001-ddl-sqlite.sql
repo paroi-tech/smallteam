@@ -1,19 +1,8 @@
 --
 -- Project SmallTeam
 --
-
-drop table if exists comment;
-drop table if exists task_flag;
-drop table if exists flag;
-drop table if exists root_task;
-drop table if exists task_log;
-drop table if exists task_description;
-drop table if exists task_child;
-drop table if exists task;
-drop table if exists step;
-drop table if exists project;
-drop table if exists step_type;
-drop table if exists contributor;
+-- Up
+--
 
 create table contributor (
     contributor_id integer not null primary key autoincrement,
@@ -34,7 +23,8 @@ create table step_type (
 create table project (
     project_id integer not null primary key autoincrement,
     code varchar(255) not null unique,
-    task_seq bigint not null default 0
+    archived bit not null default 0,
+    task_seq bigint not null
 );
 
 create table step (
@@ -51,8 +41,8 @@ create table task (
     affected_to bigint references contributor(contributor_id),
     cur_step_id bigint not null references step(step_id),
     label varchar(255) not null,
-    create_dt timestamp not null default current_timestamp,
-    update_dt timestamp not null default current_timestamp
+    create_ts timestamp not null default current_timestamp,
+    update_ts timestamp not null default current_timestamp
     -- attachments as files
 );
 
@@ -71,9 +61,9 @@ create table task_log (
     task_log_id integer not null primary key autoincrement,
     task_id bigint not null references task(task_id),
     step_id bigint not null references step(step_id),
-    start_dt timestamp not null default current_timestamp,
+    start_ts timestamp not null default current_timestamp,
     started_by bigint not null references contributor(contributor_id),
-    end_dt timestamp,
+    end_ts timestamp,
     ended_by bigint references contributor(contributor_id)
 );
 
@@ -99,6 +89,29 @@ create table comment (
     task_id bigint not null references task(task_id),
     written_by bigint not null references contributor(contributor_id),
     body text not null,
-    create_dt timestamp not null default current_timestamp,
-    update_dt timestamp not null default current_timestamp
+    create_ts timestamp not null default current_timestamp,
+    update_ts timestamp not null default current_timestamp
 );
+
+insert into step_type (name, order_num) values ('Not started', 0);
+insert into step_type (name, order_num) values ('Finished', -1);
+
+-- Fake data
+insert into contributor (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '123');
+
+--
+-- Down
+--
+
+drop table if exists comment;
+drop table if exists task_flag;
+drop table if exists flag;
+drop table if exists root_task;
+drop table if exists task_log;
+drop table if exists task_description;
+drop table if exists task_child;
+drop table if exists task;
+drop table if exists step;
+drop table if exists project;
+drop table if exists step_type;
+drop table if exists contributor;
