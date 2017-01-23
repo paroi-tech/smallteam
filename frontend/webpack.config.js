@@ -3,7 +3,7 @@ var path = require("path");
 module.exports = {
   entry: ['whatwg-fetch', path.join(__dirname, "main.ts")],
   output: {
-    path: path.join(__dirname, "..", "www"),
+    path: path.join(__dirname, "..", "www-server", "www"),
     filename: "bundle.js"
   },
   resolve: {
