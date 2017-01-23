@@ -57,19 +57,30 @@ export default class PanelSelector implements Component {
       type: ProjectBoard
     })
     this.menu.addMenuEntry(`prj-${"456"}`, "Project 2")
+    // Project Form
+    this.map.set("projectForm", {
+      type: ProjectForm
+    })
 
     return this;
   }
 
   private showPanel(panelId: string) {
+    if (!panelId)
+      panelId = "projectForm"
     console.log("Selected entry:", panelId)
     let info = this.map.get(panelId)
     if (!info)
       throw new Error(`Unknown panel id: ${panelId}`)
     if (!info.panel) {
-      info.panel = this.dash.create<Panel>(info.type, {
-        args: [info.projectId, panelId]
-      })
+      if (info.type == ProjectBoard)
+        info.panel = this.dash.create<Panel>(info.type, {
+          args: [info.projectId, panelId]
+        })
+      else
+        info.panel = this.dash.create<Panel>(info.type, {
+          args: []
+        })
       info.panel.attachTo(this.$panelContainer[0])
     }
   }
