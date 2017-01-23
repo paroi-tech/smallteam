@@ -1,5 +1,5 @@
 
-export interface Meta {
+export interface EntityMeta {
   type: string
   fields: {
     [name: string]: FieldMeta
@@ -13,13 +13,13 @@ export interface FieldMeta {
   id?: boolean
 }
 
-export function validateDataArray<T>(meta: Meta, data: any[]): T[] {
+export function validateDataArray<T>(meta: EntityMeta, data: any[]): T[] {
   for (let item of data)
     validateData<T>(meta, item)
   return data
 }
 
-export function validateData<T>(meta: Meta, data: any): T {
+export function validateData<T>(meta: EntityMeta, data: any): T {
   for (let fieldName in meta.fields) {
     if (!meta.fields.hasOwnProperty(fieldName))
       continue

@@ -1,4 +1,4 @@
-import { Meta } from "../validation"
+import { EntityMeta } from "../validation"
 import { TaskModel } from "./task"
 
 export interface NewProjectFields {
@@ -18,7 +18,7 @@ export interface ProjectModel extends ProjectFields {
   //readonly steps: StepModel[]
 }
 
-export const projectMeta: Meta = {
+const projectMeta: EntityMeta = {
   type: "Project",
   fields: {
     id: {
@@ -35,4 +35,35 @@ export const projectMeta: Meta = {
       dataType: "string",
     }
   }
+}
+
+const taskMeta: EntityMeta = {
+  type: "Task",
+  fields: {
+    id: {
+      dataType: "string",
+      id: true
+    },
+    code: {
+      dataType: "string",
+    },
+    label: {
+      dataType: "string",
+    },
+    description: {
+      dataType: "string",
+      nullable: true
+    },
+    createTs: {
+      dataType: "number",
+    },
+    updateTs: {
+      dataType: "number",
+    }
+  }
+}
+
+export const meta = {
+  Project: projectMeta,
+  Task: taskMeta
 }
