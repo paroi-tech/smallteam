@@ -35,7 +35,7 @@ export default class ProjectForm implements Component {
     })
     this.$projectName.keyup(ev => {
       if (this.generateCode && this.$projectName.val().length > 0) {
-        let s = this.$projectName.val().slice(0, 5).toUpperCase()
+        let s = this.$projectName.val().replace(/\s/g, "").slice(0, 5).toUpperCase()
         this.$projectCode.val(s)
       }
     })
