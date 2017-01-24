@@ -4,6 +4,7 @@ import App from "../App/App"
 import Menu from "../Menu/Menu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
+import { createProject, queryProjects } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -35,6 +36,19 @@ export default class PanelSelector implements Component {
     this.$container = $(template)
     this.$menuContainer = this.$container.find(".js-menu-container")
     this.$panelContainer = this.$container.find(".js-panel-container")
+    this.$container.find(".js-test1").click(() => {
+      createProject({
+        code: "ABC123",
+        name: "Hello, World!"
+      }).then(project => console.log("createProject:", project, project.rootTask))
+      .catch(err => console.log(err))
+    })
+    this.$container.find(".js-test2").click(() => {
+      queryProjects({
+        archived: false
+      }).then(list => console.log("queryProjects:", list))
+      .catch(err => console.log(err))
+    })
   }
 
   public attachTo(el: HTMLElement) {

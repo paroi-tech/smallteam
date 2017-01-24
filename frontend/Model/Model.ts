@@ -8,7 +8,7 @@ type AsFilter<T> = {
 }
 
 export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<ProjectModel[]> {
-  let projects: ProjectFields[] = await httpPostAndUpdate("/api/exec", {
+  let projects: ProjectFields[] = await httpPostAndUpdate("/api/query", {
     type: "Project",
     filters
   }, "entities")
@@ -53,8 +53,7 @@ function addModelGetters(model, entityMeta: EntityMeta, data) {
       continue
     Object.defineProperty(model, fieldName, {
       get: function () { return data[fieldName] },
-      configurable: false,
-      writable: false
+      configurable: false
     })
   }
 }
@@ -166,6 +165,7 @@ function isEntityRef(ref: EntityRef | EntitiesRef): ref is EntityRef {
 }
 
 async function httpPostJson(url, data): Promise<any> {
+  console.log(">> POST", url, data)
   let response = await fetch(url, {
     method: "POST",
     headers: {
@@ -174,7 +174,9 @@ async function httpPostJson(url, data): Promise<any> {
     body: JSON.stringify(data)
   })
   try {
-    return await response.json()
+    let respData = await response.json()
+    console.log("  ... FETCHED:", respData)
+    return respData
   } catch (err) {
     console.log("Parsing failed", err)
     throw err

@@ -3,7 +3,8 @@ import * as express from "express"
 import { Response } from "express"
 import CargoLoader from "./CargoLoader"
 import { Cargo } from "../isomorphic/Cargo"
-import { fetchProjects, createProject } from "./dbqueries/fetchProjects"
+import { meta } from "../isomorphic/entities/project"
+import { queryProjects, createProject, fetchProjects, fetchTasks } from "./dbqueries/fetchProjects"
 
 process.on("uncaughtException", err => {
   console.log(err)
@@ -62,7 +63,8 @@ async function executeQuery(resp: Response, data): Promise<Cargo> {
   if (data.type !== "Project")
     throw new Error(`Invalid query type: "${data.type}"`)
   let loader = new CargoLoader()
-  await fetchProjects(loader, data.filters || {})
+  await queryProjects(loader, data.filters || {})
+  await completeCargo(loader)
   return loader.toCargo()
 }
 
@@ -73,5 +75,17 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
     throw new Error(`Invalid type: "${data.type}"`)
   let loader = new CargoLoader()
   await createProject(loader, data.values)
+  await completeCargo(loader)
   return loader.toCargo()
+}
+
+async function completeCargo(loader: CargoLoader) {
+  let count = 0,
+    types = Object.keys(meta)
+  while (!loader.isComplete()) {
+    if (++count > 100)
+      throw new Error(`Cannot complete the cargo, infinite loop`)
+    await fetchProjects(loader, loader.getNeeded("Project") as any)
+    await fetchTasks(loader, loader.getNeeded("Task") as any)
+  }
 }

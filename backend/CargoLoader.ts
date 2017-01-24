@@ -26,7 +26,7 @@ export default class CargoLoader {
   private result: Result | undefined
   private done = true
 
-  public add(type: Type, id: Identifier, data?) {
+  public addEntity(type: Type, id: Identifier, data?) {
     let entities = this.map.get(type)
     if (!entities) {
       entities = new Map()
@@ -111,23 +111,23 @@ export default class CargoLoader {
   }
 
   public toCargo(): Cargo {
-    let entities
+    let resultEntities
     if (this.map.size > 0) {
-      entities = {}
+      resultEntities = {}
       for (let [type, entities] of this.map.entries()) {
-        entities[type] = []
+        resultEntities[type] = []
         for (let data of entities.values()) {
           if (data === undefined)
             throw new Error(`Cannot call "toCargo()", the loader is not completed`)
-          entities[type] = data
+          resultEntities[type].push(data)
         }
       }
     }
     let cargo: Cargo = {
       done: this.done
     }
-    if (entities)
-      cargo[entities] = entities
+    if (resultEntities)
+      cargo.entities = resultEntities
     if (this.displayError.length > 0)
       cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
     if (this.debugData.length > 0)
