@@ -11,8 +11,8 @@ export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<P
   let projects: ProjectFields[] = await httpPostAndUpdate("/api/exec", {
     type: "Project",
     filters
-  }, "list")
-  let list = []
+  }, "entities")
+  let list: ProjectModel[] = []
   for (let p of projects)
     list.push(getProjectModel(p))
   return list
@@ -94,8 +94,8 @@ function updateStore(entities: Entities) {
 }
 
 function toIdentifier(data: any, entityMeta: EntityMeta): Identifier {
-  let singleVal: string,
-    values: { [fieldName: string]: string }
+  let singleVal: string | undefined,
+    values: { [fieldName: string]: string } | undefined
   for (let fieldName in entityMeta.fields) {
     if (entityMeta.fields.hasOwnProperty(fieldName) && entityMeta.fields[fieldName].id) {
       if (data[fieldName] === undefined)
@@ -127,7 +127,7 @@ function getEntities(ref: EntitiesRef) {
   if (!store[ref.type])
     throw new Error(`Unknown type: ${ref.type}`)
   let map = store[ref.type],
-    list = []
+    list: (ProjectFields | TaskFields)[] = []
   for (let id of ref.list) {
     let data = map.get(id)
     if (!data)
@@ -137,28 +137,24 @@ function getEntities(ref: EntitiesRef) {
   return list
 }
 
-async function httpPostAndUpdate(url, data, resultType?: "result" | "entity" | "list" | "none"): Promise<any> {
+async function httpPostAndUpdate(url, data, resultType?: "data" | "entity" | "entities" | "none"): Promise<any> {
   let cargo: Cargo = await httpPostJson(url, data)
   if (cargo.entities)
     updateStore(cargo.entities)
   if (!cargo.done) {
-    console.log("Error on server", cargo.error, cargo.errorData)
-    throw new Error("Error on server: " + cargo.error)
+    console.log("Error on server", cargo.displayError, cargo.debugData)
+    throw new Error("Error on server")
   }
   if (cargo.result) {
-    if (resultType && resultType !== "result")
+    if (resultType && resultType !== cargo.result.type)
       throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
-    return cargo.result
-  }
-  if (cargo.ref) {
-    if (isEntityRef(cargo.ref)) {
-      if (resultType && resultType !== "entity")
-        throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
-      return getEntity(cargo.ref)
-    } else {
-      if (resultType && resultType !== "list")
-        throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
-      return getEntities(cargo.ref)
+    switch (cargo.result.type) {
+      case "data":
+        return cargo.result.val
+      case "entity":
+        return getEntity(cargo.result.val)
+      case "entities":
+        return getEntities(cargo.result.val)
     }
   }
   if (resultType && resultType !== "none")

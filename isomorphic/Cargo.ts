@@ -18,11 +18,27 @@ export interface EntitiesRef {
   list: Identifier[]
 }
 
+export interface DataResult {
+  type: "data"
+  val: any
+}
+
+export interface EntityResult {
+  type: "entity"
+  val: EntityRef
+}
+
+export interface EntitiesResult {
+  type: "entities"
+  val: EntitiesRef
+}
+
+export type Result = DataResult | EntityResult | EntitiesResult
+
 export interface Cargo {
   done: boolean
-  error?: string
-  errorData?: any
-  result?: any
-  ref?: EntityRef | EntitiesRef
+  displayError?: string | string[]
+  debugData?: any
+  result?: Result
   entities?: Entities
 }

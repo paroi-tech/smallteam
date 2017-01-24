@@ -23,6 +23,7 @@ where p.archived = ${filters.archived ? 1 : 0}`)
 
   console.log(arr)
 
+
 }
 
 export async function createProject(loader: CargoLoader, values: NewProjectFields) {
