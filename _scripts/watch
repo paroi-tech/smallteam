@@ -3,12 +3,14 @@ DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 cd $DIR/..
 
-# Compile SCSS once
-node_modules/.bin/node-sass --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www-server/www
-
 # Clean old backend files
+echo ">> Compile the backend"
 rm -rf www-server/{backend,isomorphic}/*
 node_modules/.bin/tsc --project backend/
+
+# Compile SCSS once
+echo ">> Compile the SCSS once"
+node_modules/.bin/node-sass --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www-server/www
 
 # Thanks to http://unix.stackexchange.com/a/55922
 trap 'killall' INT
@@ -22,6 +24,8 @@ killall() {
   echo "... done."
 }
 
+echo ">> Start the watchers"
+
 # Watch the frontend
 node_modules/.bin/node-sass --watch --recursive --output-style expanded --sourceMapEmbed=true frontend/ -o www-server/www/ &
 node_modules/.bin/webpack --watch --config frontend/webpack.config.js &
@@ -29,7 +33,9 @@ node_modules/.bin/webpack --watch --config frontend/webpack.config.js &
 # Watch the backend
 node_modules/.bin/tsc --watch --project backend/ &
 
-# Start the server (in developer mode with "nodemon")
-node_modules/.bin/nodemon --watch www-server -e "js" www-server/backend/ &
+# Start the Web server (in developer mode with "nodemon")
+sleep 5
+echo ">> Start the Web server"
+node_modules/.bin/nodemon --watch www-server -e "js" www-server/backend/ # wait forever
 
-cat # wait forever
+#cat # wait forever

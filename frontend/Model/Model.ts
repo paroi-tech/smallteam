@@ -1,6 +1,9 @@
-import { EntityMeta, validateDataArray } from "../../isomorphic/validation"
-import { ProjectFields, ProjectModel, meta, NewProjectFields } from "../../isomorphic/entities/project"
-import { TaskFields, TaskModel } from "../../isomorphic/entities/task"
+import { EntityMeta } from "../../isomorphic/entities/EntityMeta"
+import { validateDataArray } from "../../isomorphic/validation"
+import { ProjectFields, NewProjectFields } from "../../isomorphic/entities/project"
+import { meta } from "../../isomorphic/meta"
+import { ProjectModel, TaskModel } from "./EntitiesModel"
+import { TaskFields } from "../../isomorphic/entities/task"
 import { Cargo, EntityRef, EntitiesRef, Entities, Identifier } from "../../isomorphic/Cargo"
 
 type AsFilter<T> = {

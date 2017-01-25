@@ -1,3 +1,4 @@
+import { EntityMeta } from "./EntityMeta"
 
 export interface TaskFields {
   id: string
@@ -8,15 +9,28 @@ export interface TaskFields {
   updateTs: number
 }
 
-export interface TaskModel extends TaskFields {
-  // readonly currentStep: StepModel
-  // readonly parent?: TaskModel
-  // readonly createdBy: ContributorModel
-  // readonly affectedTo?: ContributorModel
-  // readonly comments: CommentModel[]
-  // readonly flags: FlagModel[]
-  // readonly attachments: Attachment[]
-  // readonly logs: TaskLogModel[]
-  // setCurrentStep(stepId: string): Promise<StepModel>
-  // createChildTask(label: string): Promise<TaskModel>
+export const taskMeta: EntityMeta = {
+  type: "Task",
+  fields: {
+    id: {
+      dataType: "string",
+      id: true
+    },
+    code: {
+      dataType: "string",
+    },
+    label: {
+      dataType: "string",
+    },
+    description: {
+      dataType: "string",
+      nullable: true
+    },
+    createTs: {
+      dataType: "number",
+    },
+    updateTs: {
+      dataType: "number",
+    }
+  }
 }

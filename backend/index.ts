@@ -3,7 +3,7 @@ import * as express from "express"
 import { Response } from "express"
 import CargoLoader from "./CargoLoader"
 import { Cargo } from "../isomorphic/Cargo"
-import { meta } from "../isomorphic/entities/project"
+import { meta } from "../isomorphic/meta"
 import { queryProjects, createProject, fetchProjects, fetchTasks } from "./dbqueries/fetchProjects"
 
 process.on("uncaughtException", err => {

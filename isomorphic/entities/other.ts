@@ -1,84 +1,55 @@
-import { ProjectModel } from "./project"
-import { TaskModel } from "./task"
-
-interface ImageFields {
+export interface ImageFields {
   url: string
   width?: number
   height?: number
 }
 
-interface ImageModel extends ImageFields {
-}
-
-interface ContributorFields {
+export interface ContributorFields {
   id: string
   name: string
   login: string
   email: string
 }
 
-interface ContributorModel extends ContributorFields {
-  readonly avatar: ImageModel
-}
-
-interface StepFields {
+export interface StepFields {
   id: string
   name: string
   typeId: string
 }
 
-interface StepModel extends StepFields {
-  readonly project: ProjectModel
-}
-
-interface FlagFields {
+export interface FlagFields {
   id: string
   label: string
   color: string
 }
 
-interface FlagModel extends FlagFields {
-}
-
-interface CommentFields {
+export interface CommentFields {
   id: string
   body: string
   createTs: number
   updateTs: number
 }
 
-interface CommentModel extends CommentFields {
-  readonly task: TaskModel
-  readonly writtenBy: ContributorModel
-}
-
-interface TaskLogFields {
+export interface TaskLogFields {
   id: string
   startedTs: number
   endedTs?: number
 }
 
-interface TaskLogModel extends TaskLogFields {
-  readonly task: TaskModel
-  readonly step: StepModel
-  readonly startedBy: ContributorModel
-  readonly endedBy?: ContributorModel
-}
-
-interface AttachmentMeta {
-  attachedBy: ContributorModel
+export interface AttachmentInfo {
+  attachedById: string //ContributorModel
   attachedTs: number
   weightKb: number
 }
 
-interface PdfAttachment extends AttachmentMeta {
+export interface PdfAttachment extends AttachmentInfo {
   type: 'pdf'
   url: string
 }
 
-interface ImageAttachment extends AttachmentMeta, ImageFields {
+export interface ImageAttachment extends AttachmentInfo, ImageFields {
   type: 'image'
 }
 
-type Attachment = ImageAttachment | PdfAttachment
+export type Attachment = ImageAttachment | PdfAttachment
 

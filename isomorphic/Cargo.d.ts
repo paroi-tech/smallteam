@@ -6,15 +6,17 @@ export interface Entities {
   Task?: TaskFields[]
 }
 
-export type Identifier = string | { [field: string]: string }
+export type Type = keyof Entities
+
+export type Identifier = string | { [fieldName: string]: string }
 
 export interface EntityRef {
-  type: keyof Entities
+  type: Type
   id: Identifier
 }
 
 export interface EntitiesRef {
-  type: keyof Entities
+  type: Type
   list: Identifier[]
 }
 

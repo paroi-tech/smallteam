@@ -108,5 +108,3 @@ export async function createProject(loader: CargoLoader, values: NewProjectField
   loader.addEntity("Project", projectId.toString())
   loader.setResultEntity("Project", projectId.toString())
 }
-
-

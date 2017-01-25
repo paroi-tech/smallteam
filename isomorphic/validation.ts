@@ -1,17 +1,4 @@
-
-export interface EntityMeta {
-  type: string
-  fields: {
-    [name: string]: FieldMeta
-  }
-}
-
-export interface FieldMeta {
-  dataType: "string" | "boolean" | "number"
-  nullable?: boolean
-  emptyable?: boolean
-  id?: boolean
-}
+import { EntityMeta, FieldMeta } from "./entities/EntityMeta"
 
 export function validateDataArray<T>(meta: EntityMeta, data: any[]): T[] {
   for (let item of data)

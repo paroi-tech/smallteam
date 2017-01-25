@@ -1,23 +1,4 @@
-import { Cargo, Identifier, EntityRef, EntitiesRef } from "../isomorphic/Cargo"
-
-type Type = "Task" | "Project"
-
-interface DataResult {
-  type: "data"
-  val: any
-}
-
-interface EntityResult {
-  type: "entity"
-  val: EntityRef
-}
-
-interface EntitiesResult {
-  type: "entities"
-  val: EntitiesRef
-}
-
-type Result = DataResult | EntityResult | EntitiesResult
+import { Cargo, Identifier, EntityRef, EntitiesRef, Result, Type } from "../isomorphic/Cargo"
 
 export default class CargoLoader {
   private map = new Map<Type, Map<Identifier, any | undefined>>()
