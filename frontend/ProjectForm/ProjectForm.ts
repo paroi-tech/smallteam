@@ -2,6 +2,7 @@ import * as $ from "jquery"
 import { Component, Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
+import { createProject } from "../Model/Model"
 
 const template = require("html-loader!./projectform.html")
 
@@ -39,8 +40,20 @@ export default class ProjectForm implements Component {
         this.$projectCode.val(s)
       }
     })
-    this.$form.find("js-submit-btn").click(ev => {
-
+    let $btn = this.$form.find(".js-submit-btn").click(ev => {
+      let $indicator = $btn.find("span").show()
+      setTimeout(() => {
+        createProject({
+          code: this.$form.find(".js-project-code").val(),
+          name: this.$form.find(".js-project-name").val()
+        }).then(project => {
+          $indicator.hide()
+          alert("Project successfully created...")
+        }).catch(error => {
+          $indicator.hide()
+          alert(error)
+        })
+      }, 1500)
     })
   }
 
@@ -51,5 +64,6 @@ export default class ProjectForm implements Component {
   public show() {
     this.$container.show();
     // Reset state variable used to decide if the project code should be generated from the name.
+    this.generateCode = true;
   }
 }

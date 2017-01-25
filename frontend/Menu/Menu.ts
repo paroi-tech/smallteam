@@ -10,12 +10,14 @@ export default class Menu implements Component {
 
   private $container: JQuery
   private $ul: JQuery
+  private $dropdownList: JQuery
 
   private elements: Map<string, JQuery>
 
   constructor(private dash: Dash<App>, id: string, title: string) {
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
+    this.$dropdownList = this.$container.find(".js-dropdown-list")
 
     this.elements = new Map<string, JQuery>()
   }
@@ -37,7 +39,12 @@ export default class Menu implements Component {
 
   public init(): Menu {
     this.$container.find(".js-btn").click(() => {
+      console.log("Dropdown menu button clicked...")
+      this.$dropdownList.toggle()
+    })
+    this.$dropdownList.find(".js-add-project-btn").click(() => {
       console.log("Add project button clicked...")
+      this.$dropdownList.toggle()
       this.dash.emit("menuEntrySelected", { entryId: null })
     })
 

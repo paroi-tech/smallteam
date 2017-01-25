@@ -9,11 +9,20 @@
       display: inline-block;
     }
   }
+  &-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }
 
-.MenuAddBtn {
-  display: block;
-  position: absolute;
+.DropdownList {
+  display: none;
   right: 0;
-  top: 0;
+  position: absolute;
+  width: 150px;
+
+  > li {
+    text-align: right;
+  }
 }

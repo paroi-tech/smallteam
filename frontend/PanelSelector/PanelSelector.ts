@@ -38,7 +38,7 @@ export default class PanelSelector implements Component {
     this.$panelContainer = this.$container.find(".js-panel-container")
     this.$container.find(".js-test1").click(() => {
       createProject({
-        code: "ABC123",
+        code: "ABC123yy",
         name: "Hello, World!"
       }).then(project => console.log("createProject:", project, project.rootTask))
       .catch(err => console.log(err))

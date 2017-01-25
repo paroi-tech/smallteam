@@ -1,4 +1,4 @@
-# Dependences
+# Dependencies
 node_modules
 
 www-server/*
@@ -6,5 +6,6 @@ www-server/*
 !www-server/www
 www-server/www/*
 !www-server/www/index.html
+!www-server/www/font-awesome
 
 *.sqlite
