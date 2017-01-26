@@ -1,8 +1,8 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
-import { ProjectFields, NewProjectFields } from "../../isomorphic/entities/project"
-import { TaskFields } from "../../isomorphic/entities/task"
+import { ProjectFragment, NewProjectFragment } from "../../isomorphic/entities/project"
+import { TaskFragment } from "../../isomorphic/entities/task"
 
 async function openDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
@@ -12,14 +12,14 @@ async function openDbConnection() {
   return cn
 }
 
-export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFields>) {
+export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
   let cn = await openDbConnection()
   let rs = await cn.all(`select p.project_id, p.code, p.archived, rt.task_id as root_task_id
 from project p
 inner join root_task rt using(project_id)
 where p.archived = ${filters.archived ? 1 : 0}`)
   for (let row of rs) {
-    let data = toProjectFields(row)
+    let data = toProjectFragment(row)
     loader.addEntity("Project", data.id, data)
     loader.addToResultEntities("Project", data.id)
   }
@@ -33,7 +33,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
 from task t
 where t.task_id in (${escSqlIdList(idList)})`)
   for (let row of rs) {
-    let data = toTaskFields(row)
+    let data = toTaskFragment(row)
     loader.addEntity("Task", data.id, data)
   }
 }
@@ -47,7 +47,7 @@ from project p
 inner join root_task rt using(project_id)
 where p.project_id in (${escSqlIdList(idList)})`)
   for (let row of rs) {
-    let data = toProjectFields(row)
+    let data = toProjectFragment(row)
     loader.addEntity("Project", data.id, data)
     loader.addEntity("Task", data.rootTaskId)
   }
@@ -60,8 +60,8 @@ function escSqlIdList(idList: string[]): string {
   return arr.join(", ")
 }
 
-function toTaskFields(row): TaskFields {
-  let data: TaskFields = {
+function toTaskFragment(row): TaskFragment {
+  let data: TaskFragment = {
     id: row["task_id"].toString(),
     code: row["code"],
     label: row["label"],
@@ -73,7 +73,7 @@ function toTaskFields(row): TaskFields {
   return data
 }
 
-function toProjectFields(row): ProjectFields {
+function toProjectFragment(row): ProjectFragment {
   return {
     id: row["project_id"].toString(),
     code: row["code"],
@@ -82,7 +82,7 @@ function toProjectFields(row): ProjectFields {
   }
 }
 
-export async function createProject(loader: CargoLoader, values: NewProjectFields) {
+export async function createProject(loader: CargoLoader, values: NewProjectFragment) {
   let cn = await openDbConnection()
 
   // Project

@@ -1,36 +1,36 @@
-export interface ImageFields {
+export interface ImageFragment {
   url: string
   width?: number
   height?: number
 }
 
-export interface ContributorFields {
+export interface ContributorFragment {
   id: string
   name: string
   login: string
   email: string
 }
 
-export interface StepFields {
+export interface StepFragment {
   id: string
   name: string
   typeId: string
 }
 
-export interface FlagFields {
+export interface FlagFragment {
   id: string
   label: string
   color: string
 }
 
-export interface CommentFields {
+export interface CommentFragment {
   id: string
   body: string
   createTs: number
   updateTs: number
 }
 
-export interface TaskLogFields {
+export interface TaskLogFragment {
   id: string
   startedTs: number
   endedTs?: number
@@ -47,7 +47,7 @@ export interface PdfAttachment extends AttachmentInfo {
   url: string
 }
 
-export interface ImageAttachment extends AttachmentInfo, ImageFields {
+export interface ImageAttachment extends AttachmentInfo, ImageFragment {
   type: 'image'
 }
 

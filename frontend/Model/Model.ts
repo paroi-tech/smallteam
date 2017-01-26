@@ -1,17 +1,17 @@
 import { EntityMeta } from "../../isomorphic/entities/EntityMeta"
 import { validateDataArray } from "../../isomorphic/validation"
-import { ProjectFields, NewProjectFields } from "../../isomorphic/entities/project"
+import { ProjectFragment, NewProjectFragment } from "../../isomorphic/entities/project"
 import { meta } from "../../isomorphic/meta"
 import { ProjectModel, TaskModel } from "./EntitiesModel"
-import { TaskFields } from "../../isomorphic/entities/task"
+import { TaskFragment } from "../../isomorphic/entities/task"
 import { Cargo, EntityRef, EntitiesRef, Entities, Identifier } from "../../isomorphic/Cargo"
 
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
 }
 
-export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<ProjectModel[]> {
-  let projects: ProjectFields[] = await httpPostAndUpdate("/api/query", {
+export async function queryProjects(filters: AsFilter<ProjectFragment>): Promise<ProjectModel[]> {
+  let projects: ProjectFragment[] = await httpPostAndUpdate("/api/query", {
     type: "Project",
     filters
   }, "entities")
@@ -21,8 +21,8 @@ export async function queryProjects(filters: AsFilter<ProjectFields>): Promise<P
   return list
 }
 
-export async function createProject(values: NewProjectFields): Promise<ProjectModel> {
-  let project: ProjectFields = await httpPostAndUpdate("/api/exec", {
+export async function createProject(values: NewProjectFragment): Promise<ProjectModel> {
+  let project: ProjectFragment = await httpPostAndUpdate("/api/exec", {
     cmd: "create",
     type: "Project",
     values
@@ -30,7 +30,7 @@ export async function createProject(values: NewProjectFields): Promise<ProjectMo
   return getProjectModel(project)
 }
 
-function getProjectModel(data: ProjectFields): ProjectModel {
+function getProjectModel(data: ProjectFragment): ProjectModel {
   let model = {
     get rootTask() {
       return getTaskModel(data.rootTaskId)
@@ -61,14 +61,14 @@ function addModelGetters(model, entityMeta: EntityMeta, data) {
   }
 }
 
-// interface ProjectFields {
+// interface ProjectFragment {
 //   id: string
 //   code: string
 //   archived: boolean
 //   rootTaskId: string
 // }
 //
-// interface ProjectModel extends ProjectFields {
+// interface ProjectModel extends ProjectFragment {
 //   readonly rootTask: TaskModel
 //   readonly steps: StepModel[]
 // }
@@ -78,8 +78,8 @@ function addModelGetters(model, entityMeta: EntityMeta, data) {
 // }
 
 const store = {
-  Project: new Map<Identifier, ProjectFields>(),
-  Task: new Map<Identifier, TaskFields>()
+  Project: new Map<Identifier, ProjectFragment>(),
+  Task: new Map<Identifier, TaskFragment>()
 }
 
 function updateStore(entities: Entities) {
@@ -129,7 +129,7 @@ function getEntities(ref: EntitiesRef) {
   if (!store[ref.type])
     throw new Error(`Unknown type: ${ref.type}`)
   let map = store[ref.type],
-    list: (ProjectFields | TaskFields)[] = []
+    list: (ProjectFragment | TaskFragment)[] = []
   for (let id of ref.list) {
     let data = map.get(id)
     if (!data)

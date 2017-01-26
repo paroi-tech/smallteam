@@ -1,13 +1,13 @@
-import { ProjectFields } from "../../isomorphic/entities/project"
-import { TaskFields } from "../../isomorphic/entities/task"
-import { ImageFields, ContributorFields, StepFields, FlagFields, CommentFields, TaskLogFields } from "../../isomorphic/entities/other"
+import { ProjectFragment } from "../../isomorphic/entities/project"
+import { TaskFragment } from "../../isomorphic/entities/task"
+import { ImageFragment, ContributorFragment, StepFragment, FlagFragment, CommentFragment, TaskLogFragment } from "../../isomorphic/entities/other"
 
-export interface ProjectModel extends ProjectFields {
+export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
   //readonly steps: StepModel[]
 }
 
-export interface TaskModel extends TaskFields {
+export interface TaskModel extends TaskFragment {
   // readonly currentStep: StepModel
   // readonly parent?: TaskModel
   // readonly createdBy: ContributorModel
@@ -20,26 +20,26 @@ export interface TaskModel extends TaskFields {
   // createChildTask(label: string): Promise<TaskModel>
 }
 
-interface ImageModel extends ImageFields {
+interface ImageModel extends ImageFragment {
 }
 
-interface ContributorModel extends ContributorFields {
+interface ContributorModel extends ContributorFragment {
   readonly avatar: ImageModel
 }
 
-interface StepModel extends StepFields {
+interface StepModel extends StepFragment {
   readonly project: ProjectModel
 }
 
-interface FlagModel extends FlagFields {
+interface FlagModel extends FlagFragment {
 }
 
-interface CommentModel extends CommentFields {
+interface CommentModel extends CommentFragment {
   readonly task: TaskModel
   readonly writtenBy: ContributorModel
 }
 
-interface TaskLogModel extends TaskLogFields {
+interface TaskLogModel extends TaskLogFragment {
   readonly task: TaskModel
   readonly step: StepModel
   readonly startedBy: ContributorModel

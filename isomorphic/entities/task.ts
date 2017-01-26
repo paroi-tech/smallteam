@@ -1,10 +1,13 @@
-import { EntityMeta } from "./EntityMeta"
+import { EntityMeta, pickEntityMeta } from "./EntityMeta"
 
-export interface TaskFields {
+export interface TaskFragment {
   id: string
   code: string
   label: string
   description?: string
+  createdById: string
+  affectedToId?: string
+  curStepId: string
   createTs: number
   updateTs: number
 }
@@ -18,19 +21,39 @@ export const taskMeta: EntityMeta = {
     },
     code: {
       dataType: "string",
+      update: true
     },
     label: {
       dataType: "string",
+      update: true
     },
     description: {
       dataType: "string",
-      nullable: true
+      optional: true,
+      update: true
+    },
+    createdById: {
+      dataType: "string",
+      update: true
+    },
+    affectedToId: {
+      dataType: "string",
+      optional: true,
+      update: true
+    },
+    curStepId: {
+      dataType: "string",
+      update: true
     },
     createTs: {
-      dataType: "number",
+      dataType: "number"
     },
     updateTs: {
-      dataType: "number",
+      dataType: "number"
     }
   }
 }
+
+export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId">
+
+export const newTaskMeta = pickEntityMeta("NewTask", taskMeta, ["label", "description", "createdById", "curStepId"])

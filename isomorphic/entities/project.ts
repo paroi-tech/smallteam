@@ -1,13 +1,10 @@
-import { EntityMeta } from "./EntityMeta"
+import { EntityMeta, pickEntityMeta } from "./EntityMeta"
 
-export interface NewProjectFields {
-  code: string
-  name: string
-}
-
-export interface ProjectFields {
+export interface ProjectFragment {
   id: string
   code: string
+  name: string
+  description?: string
   archived: boolean
   rootTaskId: string
 }
@@ -21,12 +18,27 @@ export const projectMeta: EntityMeta = {
     },
     code: {
       dataType: "string",
+      update: true
+    },
+    name: {
+      dataType: "string",
+      update: true
+    },
+    description: {
+      dataType: "string",
+      optional: true,
+      update: true
     },
     archived: {
       dataType: "boolean",
+      update: true
     },
     rootTaskId: {
-      dataType: "string",
+      dataType: "string"
     }
   }
 }
+
+export type NewProjectFragment = Pick<ProjectFragment, "code" | "name" | "description">
+
+export const newProjectMeta = pickEntityMeta("NewProject", projectMeta, ["code", "name", "description"])

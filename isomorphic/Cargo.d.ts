@@ -1,9 +1,9 @@
-import { ProjectFields } from "./entities/project"
-import { TaskFields } from "./entities/task"
+import { ProjectFragment } from "./entities/project"
+import { TaskFragment } from "./entities/task"
 
 export interface Entities {
-  Project?: ProjectFields[]
-  Task?: TaskFields[]
+  Project?: ProjectFragment[]
+  Task?: TaskFragment[]
 }
 
 export type Type = keyof Entities

@@ -17,7 +17,8 @@
     "search.exclude": {
       "**/node_modules": true,
       "**/bower_components": true,
-      "www": true,
-      "www/index.html": false
+      "www-server": true,
+      "www-server/font-awesone": false,
+      "www-server/**/index.html": false
     }
   }

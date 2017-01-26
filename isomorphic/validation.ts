@@ -28,10 +28,10 @@ export function validateData<T>(meta: EntityMeta, data: any): T {
 
 export function isValidValue(field: FieldMeta, value: any): true | string {
   if (value === undefined || value === null)
-    return field.nullable ? true : `required value`
+    return field.optional ? true : `required value`
   if (typeof value !== field.dataType)
     return `invalid type "${typeof value}", required: "${field.dataType}"`
-  if (typeof value === "string" && !field.emptyable && value.trim() === "")
+  if (typeof value === "string" && !field.allowEmpty && value.trim() === "")
     return `cannot be empty`
   return true
 }
