@@ -35,10 +35,12 @@ function declareRoute(app: express.Express, route: string, cb: (resp: Response, 
           throw new Error(`Invalid JSON request`)
         }
         if (reqData) {
-          cb(resp, reqData).then(
-            respData => writeServerResponse(resp, 200, respData),
-            err => writeServerResponseError(resp, err)
-          )
+          setTimeout(() => {
+            cb(resp, reqData).then(
+              respData => writeServerResponse(resp, 200, respData),
+              err => writeServerResponseError(resp, err)
+            )
+          }, 1500)
         }
       } catch (err) {
         writeServerResponseError(resp, err)

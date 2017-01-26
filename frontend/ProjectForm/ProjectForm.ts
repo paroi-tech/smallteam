@@ -42,18 +42,16 @@ export default class ProjectForm implements Component {
     })
     let $btn = this.$form.find(".js-submit-btn").click(ev => {
       let $indicator = $btn.find("span").show()
-      setTimeout(() => {
-        createProject({
-          code: this.$form.find(".js-project-code").val(),
-          name: this.$form.find(".js-project-name").val()
-        }).then(project => {
-          $indicator.hide()
-          alert("Project successfully created...")
-        }).catch(error => {
-          $indicator.hide()
-          alert(error)
-        })
-      }, 1500)
+      createProject({
+        code: this.$form.find(".js-project-code").val(),
+        name: this.$form.find(".js-project-name").val()
+      }).then(project => {
+        $indicator.hide()
+        alert("Project successfully created...")
+      }).catch(error => {
+        $indicator.hide()
+        alert(error)
+      })
     })
   }
 
