@@ -1,0 +1,14 @@
+{
+  "compilerOptions": {
+    "target": "ES2016",
+    "lib": [
+      "dom",
+      "es2016"
+    ],
+    "noEmit": true,
+    "strictNullChecks": true
+  },
+  "exclude": [
+    "../node_modules"
+  ]
+}

@@ -1,6 +1,7 @@
-import { ProjectFragment } from "../../isomorphic/fragments/project"
-import { TaskFragment } from "../../isomorphic/fragments/task"
-import { ImageFragment, ContributorFragment, StepFragment, FlagFragment, CommentFragment, TaskLogFragment } from "../../isomorphic/fragments/other"
+import { ProjectFragment } from "../../isomorphic/fragments/Project"
+import { TaskFragment } from "../../isomorphic/fragments/Task"
+import { ImageFragment } from "../../isomorphic/fragments/Attachment"
+import { ContributorFragment, StepFragment, FlagFragment, CommentFragment, TaskLogFragment } from "../../isomorphic/fragments/other"
 
 export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel

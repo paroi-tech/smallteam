@@ -1,5 +1,5 @@
-import { ProjectFragment } from "./fragments/project"
-import { TaskFragment } from "./fragments/task"
+import { ProjectFragment } from "./fragments/Project"
+import { TaskFragment } from "./fragments/Task"
 
 export interface Fragments {
   Project?: ProjectFragment[]

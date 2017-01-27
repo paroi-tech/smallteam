@@ -1,12 +1,12 @@
-import { FragmentMeta, pickFragmentMeta } from "./FragmentMeta"
+import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
 
 export interface ProjectFragment {
-  id: string
+  readonly id: string
   code: string
   name: string
   description?: string
   archived: boolean
-  rootTaskId: string
+  readonly rootTaskId: string
 }
 
 export const projectMeta: FragmentMeta = {

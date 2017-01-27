@@ -11,6 +11,7 @@ export interface FieldMeta {
   update?: boolean
   optional?: boolean
   allowEmpty?: boolean
+  values?: string[] | boolean[] | number[]
 }
 
 export function pickFragmentMeta(type: string, base: FragmentMeta, fieldNames: string[]): FragmentMeta {

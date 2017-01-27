@@ -1,9 +1,9 @@
-import { FragmentMeta } from "../../isomorphic/fragments/FragmentMeta"
+import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { validateDataArray } from "../../isomorphic/validation"
-import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/project"
+import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
 import { meta } from "../../isomorphic/meta"
 import { ProjectModel, TaskModel } from "./FragmentsModel"
-import { TaskFragment } from "../../isomorphic/fragments/task"
+import { TaskFragment } from "../../isomorphic/fragments/Task"
 import { Cargo, FragmentRef, FragmentsRef, Fragments, Identifier } from "../../isomorphic/Cargo"
 
 type AsFilter<T> = {

@@ -1,16 +1,11 @@
 {
   "compilerOptions": {
     "module": "commonjs",
-    "target": "es6",
-    // "lib": [
-    //   "dom",
-    //   "es5",
-    //   "es2015.core",
-    //   "es2015.iterable",
-    //   "es2015.collection",
-    //   "es2015.promise",
-    //   "es2015.symbol"
-    // ],
+    "target": "es2016",
+    "lib": [
+      "es2016",
+      "dom" // for jQuery! FIXME
+    ],
     "moduleResolution": "node",
     "sourceMap": true,
     "strictNullChecks": true,

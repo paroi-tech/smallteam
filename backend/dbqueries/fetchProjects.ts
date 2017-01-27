@@ -1,8 +1,8 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
-import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/project"
-import { TaskFragment } from "../../isomorphic/fragments/task"
+import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
+import { TaskFragment } from "../../isomorphic/fragments/Task"
 
 async function openDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
@@ -14,14 +14,16 @@ async function openDbConnection() {
 
 export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
   let cn = await openDbConnection()
-  let rs = await cn.all(`select p.project_id, p.code, p.archived, rt.task_id as root_task_id
+  let rs = await cn.all(`select p.project_id, p.code, p.archived, rt.task_id as root_task_id, t.label as name, d.description
 from project p
 inner join root_task rt using(project_id)
+inner join task t using(task_id)
+left join task_description d using(task_id)
 where p.archived = ${filters.archived ? 1 : 0}`)
   for (let row of rs) {
-    let data = toProjectFragment(row)
-    loader.addFragment("Project", data.id, data)
-    loader.addToResultFragments("Project", data.id)
+    let frag = toProjectFragment(row)
+    loader.addFragment("Project", frag.id, frag)
+    loader.addToResultFragments("Project", frag.id)
   }
 }
 
@@ -77,18 +79,18 @@ function toProjectFragment(row): ProjectFragment {
   return {
     id: row["project_id"].toString(),
     code: row["code"],
-    name: "", // TODO
-    //description: "", // TODO
+    name: row["name"],
+    description: row["description"],
     archived: row["archived"] === 1,
     rootTaskId: row["root_task_id"].toString()
   }
 }
 
-export async function createProject(loader: CargoLoader, values: NewProjectFragment) {
+export async function createProject(loader: CargoLoader, newFrag: NewProjectFragment) {
   let cn = await openDbConnection()
 
   // Project
-  let ps = await cn.run(`insert into project (code, task_seq) values (?, 0)`, [values.code]),
+  let ps = await cn.run(`insert into project (code, task_seq) values (?, 0)`, [newFrag.code]),
     projectId = ps.lastID
 
   // Step "Not Started"
@@ -96,16 +98,20 @@ export async function createProject(loader: CargoLoader, values: NewProjectFragm
   let notStartedStepId = ps.lastID
 
   // Step "Finished"
-  ps = await cn.run(`insert into step (step_type_id, project_id) values (?, ?)`, [1, projectId])
+  await cn.run(`insert into step (step_type_id, project_id) values (?, ?)`, [1, projectId])
 
   // Task
   ps = await cn.run(`insert into task (code, created_by, cur_step_id, label) values (?, ?, ?, ?)`, [
-    values.code + "-0", 0, notStartedStepId, values.name
+    newFrag.code + "-0", 0, notStartedStepId, newFrag.name
   ])
   let taskId = ps.lastID
 
   // Mark as root task
   await cn.run(`insert into root_task (project_id, task_id) values (?, ?)`, [projectId, taskId])
+
+  // Description
+  if (newFrag.description)
+    await cn.run(`insert into task_description (task_id, description) values (?, ?)`, [taskId, newFrag.description])
 
   loader.addFragment("Project", projectId.toString())
   loader.setResultFragment("Project", projectId.toString())

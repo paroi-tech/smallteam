@@ -1,5 +1,5 @@
-import { projectMeta } from "./fragments/project"
-import { taskMeta } from "./fragments/task"
+import { projectMeta } from "./fragments/Project"
+import { taskMeta } from "./fragments/Task"
 
 export const meta = {
   Project: projectMeta,

@@ -1,4 +1,4 @@
-import { FragmentMeta, FieldMeta } from "./fragments/FragmentMeta"
+import { FragmentMeta, FieldMeta } from "./FragmentMeta"
 
 export function validateDataArray<T>(meta: FragmentMeta, data: any[]): T[] {
   for (let item of data)
@@ -33,5 +33,7 @@ export function isValidValue(field: FieldMeta, value: any): true | string {
     return `invalid type "${typeof value}", required: "${field.dataType}"`
   if (typeof value === "string" && !field.allowEmpty && value.trim() === "")
     return `cannot be empty`
+  if (field.values && !field.values.includes(value))
+    return `invalid value "${value}", authorized: ${field.values.join(",")}`
   return true
 }
