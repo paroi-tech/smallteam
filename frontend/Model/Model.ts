@@ -1,10 +1,10 @@
-import { EntityMeta } from "../../isomorphic/entities/EntityMeta"
+import { FragmentMeta } from "../../isomorphic/fragments/FragmentMeta"
 import { validateDataArray } from "../../isomorphic/validation"
-import { ProjectFragment, NewProjectFragment } from "../../isomorphic/entities/project"
+import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/project"
 import { meta } from "../../isomorphic/meta"
-import { ProjectModel, TaskModel } from "./EntitiesModel"
-import { TaskFragment } from "../../isomorphic/entities/task"
-import { Cargo, EntityRef, EntitiesRef, Entities, Identifier } from "../../isomorphic/Cargo"
+import { ProjectModel, TaskModel } from "./FragmentsModel"
+import { TaskFragment } from "../../isomorphic/fragments/task"
+import { Cargo, FragmentRef, FragmentsRef, Fragments, Identifier } from "../../isomorphic/Cargo"
 
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
@@ -14,7 +14,7 @@ export async function queryProjects(filters: AsFilter<ProjectFragment>): Promise
   let projects: ProjectFragment[] = await httpPostAndUpdate("/api/query", {
     type: "Project",
     filters
-  }, "entities")
+  }, "fragments")
   let list: ProjectModel[] = []
   for (let p of projects)
     list.push(getProjectModel(p))
@@ -26,7 +26,7 @@ export async function createProject(values: NewProjectFragment): Promise<Project
     cmd: "create",
     type: "Project",
     values
-  }, "entity")
+  }, "fragment")
   return getProjectModel(project)
 }
 
@@ -41,7 +41,7 @@ function getProjectModel(data: ProjectFragment): ProjectModel {
 }
 
 function getTaskModel(taskId: string): TaskModel {
-  let data = getEntity({
+  let data = getFragment({
     id: taskId,
     type: "Task"
   })
@@ -50,9 +50,9 @@ function getTaskModel(taskId: string): TaskModel {
   return model as any
 }
 
-function addModelGetters(model, entityMeta: EntityMeta, data) {
-  for (let fieldName in entityMeta.fields) {
-    if (!entityMeta.fields.hasOwnProperty(fieldName))
+function addModelGetters(model, FragmentMeta: FragmentMeta, data) {
+  for (let fieldName in FragmentMeta.fields) {
+    if (!FragmentMeta.fields.hasOwnProperty(fieldName))
       continue
     Object.defineProperty(model, fieldName, {
       get: function () { return data[fieldName] },
@@ -82,26 +82,26 @@ const store = {
   Task: new Map<Identifier, TaskFragment>()
 }
 
-function updateStore(entities: Entities) {
-  for (let type in entities) {
-    if (!entities.hasOwnProperty(type))
+function updateStore(fragments: Fragments) {
+  for (let type in fragments) {
+    if (!fragments.hasOwnProperty(type))
       continue
     if (!store[type])
       throw new Error(`Unknown type: ${type}`)
-    for (let data of entities[type]) {
+    for (let data of fragments[type]) {
       let id = toIdentifier(data, meta[type])
       store[type].set(id, data)
     }
   }
 }
 
-function toIdentifier(data: any, entityMeta: EntityMeta): Identifier {
+function toIdentifier(data: any, FragmentMeta: FragmentMeta): Identifier {
   let singleVal: string | undefined,
     values: { [fieldName: string]: string } | undefined
-  for (let fieldName in entityMeta.fields) {
-    if (entityMeta.fields.hasOwnProperty(fieldName) && entityMeta.fields[fieldName].id) {
+  for (let fieldName in FragmentMeta.fields) {
+    if (FragmentMeta.fields.hasOwnProperty(fieldName) && FragmentMeta.fields[fieldName].id) {
       if (data[fieldName] === undefined)
-        throw new Error(`[${entityMeta.type}] Missing value for field: ${fieldName}`)
+        throw new Error(`[${FragmentMeta.type}] Missing value for field: ${fieldName}`)
       if (values)
         singleVal = undefined
       else {
@@ -112,11 +112,11 @@ function toIdentifier(data: any, entityMeta: EntityMeta): Identifier {
     }
   }
   if (!values)
-    throw new Error(`[${entityMeta.type}] No identifier`)
+    throw new Error(`[${FragmentMeta.type}] No identifier`)
   return singleVal !== undefined ? singleVal : values
 }
 
-function getEntity(ref: EntityRef) {
+function getFragment(ref: FragmentRef) {
   if (!store[ref.type])
     throw new Error(`Unknown type: ${ref.type}`)
   let data = store[ref.type].get(ref.id)
@@ -125,7 +125,7 @@ function getEntity(ref: EntityRef) {
   return data
 }
 
-function getEntities(ref: EntitiesRef) {
+function getFragments(ref: FragmentsRef) {
   if (!store[ref.type])
     throw new Error(`Unknown type: ${ref.type}`)
   let map = store[ref.type],
@@ -139,10 +139,10 @@ function getEntities(ref: EntitiesRef) {
   return list
 }
 
-async function httpPostAndUpdate(url, data, resultType?: "data" | "entity" | "entities" | "none"): Promise<any> {
+async function httpPostAndUpdate(url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
   let cargo: Cargo = await httpPostJson(url, data)
-  if (cargo.entities)
-    updateStore(cargo.entities)
+  if (cargo.fragments)
+    updateStore(cargo.fragments)
   if (!cargo.done) {
     console.log("Error on server", cargo.displayError, cargo.debugData)
     throw new Error("Error on server")
@@ -153,17 +153,17 @@ async function httpPostAndUpdate(url, data, resultType?: "data" | "entity" | "en
     switch (cargo.result.type) {
       case "data":
         return cargo.result.val
-      case "entity":
-        return getEntity(cargo.result.val)
-      case "entities":
-        return getEntities(cargo.result.val)
+      case "fragment":
+        return getFragment(cargo.result.val)
+      case "fragments":
+        return getFragments(cargo.result.val)
     }
   }
   if (resultType && resultType !== "none")
     throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
 }
 
-function isEntityRef(ref: EntityRef | EntitiesRef): ref is EntityRef {
+function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
   return !ref['list']
 }
 

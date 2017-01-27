@@ -1,4 +1,4 @@
-export interface EntityMeta {
+export interface FragmentMeta {
   type: string
   fields: {
     [name: string]: FieldMeta
@@ -13,7 +13,7 @@ export interface FieldMeta {
   allowEmpty?: boolean
 }
 
-export function pickEntityMeta(type: string, base: EntityMeta, fieldNames: string[]): EntityMeta {
+export function pickFragmentMeta(type: string, base: FragmentMeta, fieldNames: string[]): FragmentMeta {
   let fields = {}
   for (let name of fieldNames) {
     if (!base.fields[name])

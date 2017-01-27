@@ -1,4 +1,4 @@
-import { EntityMeta, pickEntityMeta } from "./EntityMeta"
+import { FragmentMeta, pickFragmentMeta } from "./FragmentMeta"
 
 export interface ProjectFragment {
   id: string
@@ -9,7 +9,7 @@ export interface ProjectFragment {
   rootTaskId: string
 }
 
-export const projectMeta: EntityMeta = {
+export const projectMeta: FragmentMeta = {
   type: "Project",
   fields: {
     id: {
@@ -41,4 +41,4 @@ export const projectMeta: EntityMeta = {
 
 export type NewProjectFragment = Pick<ProjectFragment, "code" | "name" | "description">
 
-export const newProjectMeta = pickEntityMeta("NewProject", projectMeta, ["code", "name", "description"])
+export const newProjectMeta = pickFragmentMeta("NewProject", projectMeta, ["code", "name", "description"])

@@ -1,12 +1,12 @@
-import { EntityMeta, FieldMeta } from "./entities/EntityMeta"
+import { FragmentMeta, FieldMeta } from "./fragments/FragmentMeta"
 
-export function validateDataArray<T>(meta: EntityMeta, data: any[]): T[] {
+export function validateDataArray<T>(meta: FragmentMeta, data: any[]): T[] {
   for (let item of data)
     validateData<T>(meta, item)
   return data
 }
 
-export function validateData<T>(meta: EntityMeta, data: any): T {
+export function validateData<T>(meta: FragmentMeta, data: any): T {
   for (let fieldName in meta.fields) {
     if (!meta.fields.hasOwnProperty(fieldName))
       continue

@@ -1,4 +1,4 @@
-import { Cargo, Identifier, EntityRef, EntitiesRef, Result, Type } from "../isomorphic/Cargo"
+import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type } from "../isomorphic/Cargo"
 
 export default class CargoLoader {
   private map = new Map<Type, Map<Identifier, any | undefined>>()
@@ -7,21 +7,21 @@ export default class CargoLoader {
   private result: Result | undefined
   private done = true
 
-  public addEntity(type: Type, id: Identifier, data?) {
-    let entities = this.map.get(type)
-    if (!entities) {
-      entities = new Map()
-      this.map.set(type, entities)
+  public addFragment(type: Type, id: Identifier, frag?) {
+    let fragments = this.map.get(type)
+    if (!fragments) {
+      fragments = new Map()
+      this.map.set(type, fragments)
     }
-    entities.set(id, data)
+    fragments.set(id, frag)
   }
 
   public getNeeded(type: Type): Identifier[] {
     let idList: Identifier[] = [],
-      entities = this.map.get(type)
-    if (!entities)
+      fragments = this.map.get(type)
+    if (!fragments)
       return idList
-    for (let [id, data] of entities) {
+    for (let [id, data] of fragments) {
       if (data === undefined)
         idList.push(id)
     }
@@ -29,8 +29,8 @@ export default class CargoLoader {
   }
 
   public isComplete(): boolean {
-    for (let [type, entities] of this.map.entries()) {
-      for (let [id, data] of entities.entries()) {
+    for (let [type, fragments] of this.map.entries()) {
+      for (let [id, data] of fragments.entries()) {
         if (data === undefined)
           return false
       }
@@ -39,8 +39,8 @@ export default class CargoLoader {
   }
 
   public contains(type: Type, id: Identifier): boolean {
-    let entities = this.map.get(type)
-    return entities !== undefined && entities.has(id)
+    let fragments = this.map.get(type)
+    return fragments !== undefined && fragments.has(id)
   }
 
   public addDisplayError(msg: string) {
@@ -60,30 +60,30 @@ export default class CargoLoader {
     }
   }
 
-  public setResultEntity(type: Type, id: Identifier) {
+  public setResultFragment(type: Type, id: Identifier) {
     if (this.result !== undefined)
       throw new Error(`Cannot define result twice`)
     if (!this.contains(type, id))
-      throw new Error(`Cannot define a result entity without data (${type}, ${JSON.stringify(id)})`)
+      throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
     this.result = {
-      type: "entity",
+      type: "fragment",
       val: { type, id }
     }
   }
 
-  public addToResultEntities(type: Type, id: Identifier) {
+  public addToResultFragments(type: Type, id: Identifier) {
     if (!this.result) {
       this.result = {
-        type: "entities",
+        type: "fragments",
         val: { type, list: [] }
       }
     }
-    if (this.result.type !== "entities")
+    if (this.result.type !== "fragments")
       throw new Error(`Cannot define result twice`)
     if (this.result.val.type !== type)
-      throw new Error(`Conflict with entities types, cannot add ${type} in result of type ${this.result.val.type}`)
+      throw new Error(`Conflict with fragments types, cannot add ${type} in result of type ${this.result.val.type}`)
     if (!this.contains(type, id))
-      throw new Error(`Cannot define a result entity without data (${type}, ${JSON.stringify(id)})`)
+      throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
     this.result.val.list.push(id)
   }
 
@@ -92,23 +92,23 @@ export default class CargoLoader {
   }
 
   public toCargo(): Cargo {
-    let resultEntities
+    let resultFragments
     if (this.map.size > 0) {
-      resultEntities = {}
-      for (let [type, entities] of this.map.entries()) {
-        resultEntities[type] = []
-        for (let data of entities.values()) {
+      resultFragments = {}
+      for (let [type, fragments] of this.map.entries()) {
+        resultFragments[type] = []
+        for (let data of fragments.values()) {
           if (data === undefined)
             throw new Error(`Cannot call "toCargo()", the loader is not completed`)
-          resultEntities[type].push(data)
+          resultFragments[type].push(data)
         }
       }
     }
     let cargo: Cargo = {
       done: this.done
     }
-    if (resultEntities)
-      cargo.entities = resultEntities
+    if (resultFragments)
+      cargo.fragments = resultFragments
     if (this.displayError.length > 0)
       cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
     if (this.debugData.length > 0)

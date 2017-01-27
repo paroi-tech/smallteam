@@ -1,8 +1,8 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
-import { ProjectFragment, NewProjectFragment } from "../../isomorphic/entities/project"
-import { TaskFragment } from "../../isomorphic/entities/task"
+import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/project"
+import { TaskFragment } from "../../isomorphic/fragments/task"
 
 async function openDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
@@ -20,8 +20,8 @@ inner join root_task rt using(project_id)
 where p.archived = ${filters.archived ? 1 : 0}`)
   for (let row of rs) {
     let data = toProjectFragment(row)
-    loader.addEntity("Project", data.id, data)
-    loader.addToResultEntities("Project", data.id)
+    loader.addFragment("Project", data.id, data)
+    loader.addToResultFragments("Project", data.id)
   }
 }
 
@@ -34,7 +34,7 @@ from task t
 where t.task_id in (${escSqlIdList(idList)})`)
   for (let row of rs) {
     let data = toTaskFragment(row)
-    loader.addEntity("Task", data.id, data)
+    loader.addFragment("Task", data.id, data)
   }
 }
 
@@ -48,8 +48,8 @@ inner join root_task rt using(project_id)
 where p.project_id in (${escSqlIdList(idList)})`)
   for (let row of rs) {
     let data = toProjectFragment(row)
-    loader.addEntity("Project", data.id, data)
-    loader.addEntity("Task", data.rootTaskId)
+    loader.addFragment("Project", data.id, data)
+    loader.addFragment("Task", data.rootTaskId)
   }
 }
 
@@ -61,7 +61,7 @@ function escSqlIdList(idList: string[]): string {
 }
 
 function toTaskFragment(row): TaskFragment {
-  let data: TaskFragment = {
+  let frag: TaskFragment = {
     id: row["task_id"].toString(),
     code: row["code"],
     label: row["label"],
@@ -69,14 +69,16 @@ function toTaskFragment(row): TaskFragment {
     updateTs: row["update_ts"],
   }
   if (row["description"])
-    data.description = row["description"]
-  return data
+    frag.description = row["description"]
+  return frag
 }
 
 function toProjectFragment(row): ProjectFragment {
   return {
     id: row["project_id"].toString(),
     code: row["code"],
+    name: "", // TODO
+    //description: "", // TODO
     archived: row["archived"] === 1,
     rootTaskId: row["root_task_id"].toString()
   }
@@ -105,6 +107,6 @@ export async function createProject(loader: CargoLoader, values: NewProjectFragm
   // Mark as root task
   await cn.run(`insert into root_task (project_id, task_id) values (?, ?)`, [projectId, taskId])
 
-  loader.addEntity("Project", projectId.toString())
-  loader.setResultEntity("Project", projectId.toString())
+  loader.addFragment("Project", projectId.toString())
+  loader.setResultFragment("Project", projectId.toString())
 }

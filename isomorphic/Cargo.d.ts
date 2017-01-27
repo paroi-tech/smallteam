@@ -1,21 +1,21 @@
-import { ProjectFragment } from "./entities/project"
-import { TaskFragment } from "./entities/task"
+import { ProjectFragment } from "./fragments/project"
+import { TaskFragment } from "./fragments/task"
 
-export interface Entities {
+export interface Fragments {
   Project?: ProjectFragment[]
   Task?: TaskFragment[]
 }
 
-export type Type = keyof Entities
+export type Type = keyof Fragments
 
 export type Identifier = string | { [fieldName: string]: string }
 
-export interface EntityRef {
+export interface FragmentRef {
   type: Type
   id: Identifier
 }
 
-export interface EntitiesRef {
+export interface FragmentsRef {
   type: Type
   list: Identifier[]
 }
@@ -25,22 +25,22 @@ export interface DataResult {
   val: any
 }
 
-export interface EntityResult {
-  type: "entity"
-  val: EntityRef
+export interface FragmentResult {
+  type: "fragment"
+  val: FragmentRef
 }
 
-export interface EntitiesResult {
-  type: "entities"
-  val: EntitiesRef
+export interface FragmentsResult {
+  type: "fragments"
+  val: FragmentsRef
 }
 
-export type Result = DataResult | EntityResult | EntitiesResult
+export type Result = DataResult | FragmentResult | FragmentsResult
 
 export interface Cargo {
   done: boolean
   displayError?: string | string[]
   debugData?: any
   result?: Result
-  entities?: Entities
+  fragments?: Fragments
 }
