@@ -3,9 +3,9 @@ import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
 import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
 import { TaskFragment } from "../../isomorphic/fragments/Task"
-import { SelectBuilder } from "../sqlbuilder/Sql92Builder"
+import { buildSelect } from "../sql92builder/Sql92Builder"
 
-async function openDbConnection() {
+async function getDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
   await cn.migrate({
     migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts")
@@ -13,23 +13,17 @@ async function openDbConnection() {
   return cn
 }
 
-function escSqlIdList(idList: string[]): string {
-  let arr: number[] = []
-  for (let id of idList)
-    arr.push(parseInt(id, 10))
-  return arr.join(", ")
-}
-
 export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
-  let cn = await openDbConnection()
-  let sql = new SelectBuilder()
-  sql.select('p.project_id, p.code, p.archived, rt.task_id as root_task_id, t.label as name, d.description')
-    .from('project p')
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("p.project_id, p.code, p.archived, rt.task_id as root_task_id, t.label as name, d.description")
+    .from("project p")
     .join("root_task rt", "using", "project_id")
     .join("task t", "using", "task_id")
     .join("task_description d", "using", "task_id")
     .leftJoin("task_description d", "using", "task_id")
-    .where("p.archived", filters.archived)
+  if (filters.archived !== undefined)
+    sql.andWhere("p.archived", filters.archived)
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toProjectFragment(row)
@@ -41,9 +35,9 @@ export async function queryProjects(loader: CargoLoader, filters: Partial<Projec
 export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await openDbConnection()
-  let sql = new SelectBuilder()
-  sql.select("t.task_id, t.code, t.created_by, t.affected_to, t.cur_step_id, t.label, t.create_ts, t.update_ts")
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("t.task_id, t.code, t.created_by, t.affected_to, t.cur_step_id, t.label, t.create_ts, t.update_ts")
     .from("task t")
     .where("t.task_id", "in", idList)
   let rs = await cn.all(sql.toSql())
@@ -56,9 +50,9 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
 export async function fetchProjects(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await openDbConnection()
-  let sql = new SelectBuilder()
-  sql.select("p.project_id, p.code, p.archived, rt.task_id as root_task_id")
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("p.project_id, p.code, p.archived, rt.task_id as root_task_id")
     .from("project p")
     .join("root_task rt", "using", "project_id")
     .where("p.project_id", "in", idList)
@@ -95,7 +89,7 @@ function toProjectFragment(row): ProjectFragment {
 }
 
 export async function createProject(loader: CargoLoader, newFrag: NewProjectFragment) {
-  let cn = await openDbConnection()
+  let cn = await getDbConnection()
 
   // Project
   let ps = await cn.run(`insert into project (code, task_seq) values (?, 0)`, [newFrag.code]),

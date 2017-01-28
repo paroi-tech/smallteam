@@ -40,7 +40,7 @@ export default class ProjectBoard implements Component, Panel {
   public init(): ProjectBoard {
     this.editPanel = this.dash.create(EditPanel, { args: [ "Edit panel" ] })
     this.editPanel.attachTo(this.$editPanelContainer[0])
-    // FIXME This is only for tests. We add two StepsPanels to the project board
+    // FIXME: This is only for tests. We add two StepsPanels to the project board
     let p = this.dash.create(StepsPanel, {args: [ "1", "Learn jQuery" ]})
     p.init()
     this.addStepsPanel(p)

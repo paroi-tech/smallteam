@@ -30,7 +30,7 @@ export default class StepsPanel implements Component {
   }
 
   public init(): StepsPanel {
-    // FIXME We add elements to the panel only for test purpose
+    // FIXME: We add elements to the panel only for test purpose
     this.map.set("todo", this.dash.create(BoxList, { args: [ "Todo", this.id ] }))
     this.map.set("running", this.dash.create(BoxList, { args: [ "Running", this.id ] }))
     this.map.set("done", this.dash.create(BoxList, { args: [ "Done", this.id ] }))

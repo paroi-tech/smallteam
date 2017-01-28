@@ -23,7 +23,7 @@ export default class BoxList implements Component {
       "handle": ".js-handle",
       "group":  groupName
     })
-    // FIXME Cannot work, because the TaskBox are not the children of the BoxList
+    // FIXME: Cannot work, because the TaskBox are not the children of the BoxList
     // dash.listenToChildren("grabFocus", { group: "items" }).call((evt) => {
     //   for (const child of dash.find<TaskBox>({ group: "items", componentName: "TaskBox" })) {
     //     if (child !== evt.source)

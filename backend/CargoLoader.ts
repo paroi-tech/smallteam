@@ -114,7 +114,7 @@ export default class CargoLoader {
     if (this.debugData.length > 0)
       cargo.debugData = this.debugData.length === 1 ? this.debugData[0] : [...this.debugData]
     if (this.result !== undefined)
-      cargo.result = this.result // TODO copy?
+      cargo.result = this.result // TODO: copy?
     return cargo
   }
 }
