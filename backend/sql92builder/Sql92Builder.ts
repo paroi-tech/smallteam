@@ -59,6 +59,16 @@ export function buildSelect(): SelectBuilder {
   return new BSelect()
 }
 
+export interface InsertBuilder {
+  insertInto(table: string): this
+  values(values: ValueMap): this
+  toSql(): string
+}
+
+export function buildInsert(): InsertBuilder {
+  return new BInsert()
+}
+
 export interface UpdateBuilder {
   update(table: string): this
   set(values: ValueMap): this
@@ -70,6 +80,18 @@ export interface UpdateBuilder {
 
 export function buildUpdate(): UpdateBuilder {
   return new BUpdate()
+}
+
+export interface DeleteBuilder {
+  deleteFrom(table: string): this
+  where(leftOperand: string, op: Operator, val: Value): this
+  where(leftOperand: string, val: Value): this
+  where(filter: string): this
+  toSql(): string
+}
+
+export function buildDelete(): DeleteBuilder {
+  return new BDelete()
 }
 
 interface GroupFilter {
@@ -99,9 +121,29 @@ export interface ValueMap {
   [column: string]: PrimitiveValue | VanillaValue
 }
 
+interface SelectQuery {
+  select: string[]
+  from: string
+  joins: Join[]
+  where: Filter
+  groupBy: string[]
+  having: Filter
+  orderBy: (string | number)[]
+}
+
+interface InsertQuery {
+  table: string
+  values: ValueMap
+}
+
 interface UpdateQuery {
   table: string
   set: ValueMap
+  where: Filter
+}
+
+interface DeleteQuery {
+  table: string
   where: Filter
 }
 
@@ -151,7 +193,7 @@ class BUpdate implements UpdateBuilder {
       throw new Error(`Missing: set`)
     let lines = [
       `update ${this.q.table}`,
-      `set ${setToSql(this.q.set)}`
+      `set ${updateSetToSql(this.q.set)}`
     ]
     if (this.q.where !== undefined)
       lines.push(`where ${filterToSql(this.q.where)}`)
@@ -159,7 +201,7 @@ class BUpdate implements UpdateBuilder {
   }
 }
 
-function setToSql(set: ValueMap) {
+function updateSetToSql(set: ValueMap) {
   let arr: string[] = []
   for (let column in set) {
     if (set.hasOwnProperty(column))
@@ -168,14 +210,86 @@ function setToSql(set: ValueMap) {
   return arr.join(", ")
 }
 
-interface SelectQuery {
-  select: string[]
-  from: string
-  joins: Join[]
-  where: Filter
-  groupBy: string[]
-  having: Filter
-  orderBy: (string | number)[]
+class BInsert implements InsertBuilder {
+  private q: Partial<InsertQuery> = {}
+
+  public insertInto(table: string): this {
+    if (this.q.table)
+      throw new Error(`Cannot call "insertInto" twice`)
+    this.q.table = table
+    return this
+  }
+
+  public values(values: ValueMap): this {
+    if (!this.q.values)
+      this.q.values = { ...values }
+    else {
+      for (let column in values) {
+        if (values.hasOwnProperty(column))
+          this.q.values[column] = values[column]
+      }
+    }
+    return this
+  }
+
+  public toSql(): string {
+    if (this.q.table === undefined)
+      throw new Error(`Missing: insertInto`)
+    if (this.q.values === undefined)
+      throw new Error(`Missing: values`)
+    let columns: string[] = [],
+      values: string[] = []
+    for (let column in this.q.values) {
+      if (!this.q.values.hasOwnProperty(column))
+        continue
+      columns.push(column)
+      values.push(toSqlPrimVal(this.q.values[column]))
+    }
+    let lines = [
+      `insert into ${this.q.table} (${columns.join(", ")})`,
+      `values (${values.join(", ")})`
+    ]
+    return lines.join("\n")
+  }
+}
+
+class BDelete implements DeleteBuilder {
+  private q: Partial<DeleteQuery> = {}
+
+  public deleteFrom(table: string): this {
+    if (this.q.table)
+      throw new Error(`Cannot call "deleteFrom" twice`)
+    this.q.table = table
+    return this
+  }
+
+  public where(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+    if (this.q.where)
+      throw new Error(`Cannot call "where" twice`)
+    this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
+    return this
+  }
+
+  public andWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+    this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
+    return this
+  }
+
+  public orWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+    this.q.where = addFilter("or", filter, opOrVal, val, this.q.where)
+    return this
+  }
+
+  public toSql(): string {
+    if (this.q.table === undefined)
+      throw new Error(`Missing: deleteFrom`)
+    let lines = [
+      `delete from ${this.q.table}`
+    ]
+    if (this.q.where !== undefined)
+      lines.push(`where ${filterToSql(this.q.where)}`)
+    return lines.join("\n")
+  }
 }
 
 class BSelect implements SelectBuilder {

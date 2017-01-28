@@ -3,7 +3,7 @@ import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
 import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
 import { TaskFragment } from "../../isomorphic/fragments/Task"
-import { buildSelect } from "../sql92builder/Sql92Builder"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 
 async function getDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
@@ -92,7 +92,13 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
   let cn = await getDbConnection()
 
   // Project
-  let ps = await cn.run(`insert into project (code, task_seq) values (?, 0)`, [newFrag.code]),
+  let sql = buildInsert()
+    .insertInto("project")
+    .values({
+      "code": newFrag.code,
+      "task_seq": 0
+    })
+  let ps = await cn.run(sql.toSql()),
     projectId = ps.lastID
 
   // Step "Not Started"
