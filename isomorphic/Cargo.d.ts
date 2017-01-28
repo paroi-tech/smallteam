@@ -1,9 +1,19 @@
+import { CommentFragment } from "./fragments/Comment"
+import { ContributorFragment } from "./fragments/Contributor"
+import { FlagFragment } from "./fragments/Flag"
 import { ProjectFragment } from "./fragments/Project"
+import { StepFragment } from "./fragments/Step"
 import { TaskFragment } from "./fragments/Task"
+import { TaskLogFragment } from "./fragments/TaskLog"
 
 export interface Fragments {
+  Comment?: CommentFragment[]
+  Contributor?: ContributorFragment[]
+  Flag?: FlagFragment[]
   Project?: ProjectFragment[]
+  Step?: StepFragment[]
   Task?: TaskFragment[]
+  TaskLog?: TaskLogFragment[]
 }
 
 export type Type = keyof Fragments

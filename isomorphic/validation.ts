@@ -33,7 +33,7 @@ export function isValidValue(field: FieldMeta, value: any): true | string {
     return `invalid type "${typeof value}", required: "${field.dataType}"`
   if (typeof value === "string" && !field.allowEmpty && value.trim() === "")
     return `cannot be empty`
-  if (field.values && !field.values.includes(value))
+  if (field.values && !(field.values as any[]).includes(value))
     return `invalid value "${value}", authorized: ${field.values.join(",")}`
   return true
 }

@@ -3,6 +3,7 @@ import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
 import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
 import { TaskFragment } from "../../isomorphic/fragments/Task"
+import { SelectBuilder } from "../sqlbuilder/Sql92Builder"
 
 async function openDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
@@ -12,14 +13,24 @@ async function openDbConnection() {
   return cn
 }
 
+function escSqlIdList(idList: string[]): string {
+  let arr: number[] = []
+  for (let id of idList)
+    arr.push(parseInt(id, 10))
+  return arr.join(", ")
+}
+
 export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
   let cn = await openDbConnection()
-  let rs = await cn.all(`select p.project_id, p.code, p.archived, rt.task_id as root_task_id, t.label as name, d.description
-from project p
-inner join root_task rt using(project_id)
-inner join task t using(task_id)
-left join task_description d using(task_id)
-where p.archived = ${filters.archived ? 1 : 0}`)
+  let sql = new SelectBuilder()
+  sql.select('p.project_id, p.code, p.archived, rt.task_id as root_task_id, t.label as name, d.description')
+    .from('project p')
+    .join("root_task rt", "using", "project_id")
+    .join("task t", "using", "task_id")
+    .join("task_description d", "using", "task_id")
+    .leftJoin("task_description d", "using", "task_id")
+    .where("p.archived", filters.archived)
+  let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toProjectFragment(row)
     loader.addFragment("Project", frag.id, frag)
@@ -31,9 +42,11 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await openDbConnection()
-  let rs = await cn.all(`select t.task_id, t.code, t.created_by, t.affected_to, t.cur_step_id, t.label, t.create_ts, t.update_ts
-from task t
-where t.task_id in (${escSqlIdList(idList)})`)
+  let sql = new SelectBuilder()
+  sql.select("t.task_id, t.code, t.created_by, t.affected_to, t.cur_step_id, t.label, t.create_ts, t.update_ts")
+    .from("task t")
+    .where("t.task_id", "in", idList)
+  let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toTaskFragment(row)
     loader.addFragment("Task", data.id, data)
@@ -44,22 +57,17 @@ export async function fetchProjects(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await openDbConnection()
-  let rs = await cn.all(`select p.project_id, p.code, p.archived, rt.task_id as root_task_id
-from project p
-inner join root_task rt using(project_id)
-where p.project_id in (${escSqlIdList(idList)})`)
+  let sql = new SelectBuilder()
+  sql.select("p.project_id, p.code, p.archived, rt.task_id as root_task_id")
+    .from("project p")
+    .join("root_task rt", "using", "project_id")
+    .where("p.project_id", "in", idList)
+  let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toProjectFragment(row)
     loader.addFragment("Project", data.id, data)
     loader.addFragment("Task", data.rootTaskId)
   }
-}
-
-function escSqlIdList(idList: string[]): string {
-  let arr: number[] = []
-  for (let id of idList)
-    arr.push(parseInt(id, 10))
-  return arr.join(", ")
 }
 
 function toTaskFragment(row): TaskFragment {
