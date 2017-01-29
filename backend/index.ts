@@ -4,7 +4,8 @@ import { Response } from "express"
 import CargoLoader from "./CargoLoader"
 import { Cargo } from "../isomorphic/Cargo"
 import { meta } from "../isomorphic/meta"
-import { queryProjects, createProject, fetchProjects, fetchTasks } from "./dbqueries/fetchProjects"
+import { queryProjects, createProject, fetchProjects } from "./dbqueries/queryProject"
+import { createTask, fetchTasks } from "./dbqueries/queryTask"
 
 process.on("uncaughtException", err => {
   console.log(err)

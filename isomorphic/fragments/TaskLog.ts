@@ -5,9 +5,9 @@ export interface TaskLogFragment {
   readonly taskId: string
   readonly stepId: string
   readonly startTs: number
-  readonly startedBy: string
+  readonly startedById: string
   readonly endTs?: number
-  readonly endedBy: string
+  readonly endedById: string
 }
 
 export const taskLogMeta: FragmentMeta = {
@@ -26,13 +26,13 @@ export const taskLogMeta: FragmentMeta = {
     startTs: {
       dataType: "number"
     },
-    startedBy: {
+    startedById: {
       dataType: "string"
     },
     endTs: {
       dataType: "number"
     },
-    endedBy: {
+    endedById: {
       dataType: "string"
     },
   }

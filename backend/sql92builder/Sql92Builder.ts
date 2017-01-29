@@ -249,6 +249,7 @@ class BInsert implements InsertBuilder {
       `insert into ${this.q.table} (${columns.join(", ")})`,
       `values (${values.join(", ")})`
     ]
+console.log(lines.join("\n"))
     return lines.join("\n")
   }
 }
@@ -387,7 +388,7 @@ class BSelect implements SelectBuilder {
     ]
     if (this.q.joins) {
       for (let j of this.q.joins) {
-        let crit = j.criterion.type === "using" ? j.criterion.val.join(", ") : filterToSql(j.criterion.val)
+        let crit = j.criterion.type === "using" ? `(${j.criterion.val.join(", ")})` : filterToSql(j.criterion.val)
         lines.push(`${j.type} join ${j.table} ${j.criterion.type} ${crit}`)
       }
     }
@@ -399,6 +400,7 @@ class BSelect implements SelectBuilder {
       lines.push(`having ${filterToSql(this.q.having)}`)
     if (this.q.orderBy !== undefined)
       lines.push(`order by ${this.q.orderBy.join(", ")}`)
+console.log(lines.join("\n"))
     return lines.join("\n")
   }
 }
@@ -416,15 +418,15 @@ function addColumns<T>(toAdd: T | string, to?: (T | string)[]): (T | string)[] {
   return to
 }
 
-function addJoin(type: "inner" | "left" | "right" | "outer", table: string, critType: "on" | "using", critValue: any,
+function addJoin(type: "inner" | "left" | "right" | "outer", table: string, critType: any, critValue: any,
     opOrVal?: Value | Operator, val?: Value, to?: Join[]): Join[] {
-  if (!this.q.joins)
-    this.q.joins = []
+  if (!to)
+    to = []
   if (critType === "using" && typeof critValue === "string")
     critValue = [critValue]
   else if (critType === "on")
     critValue = toFilter(critValue, opOrVal, val)
-  this.q.joins.push({
+  to.push({
     type,
     table,
     criterion: {
@@ -432,7 +434,7 @@ function addJoin(type: "inner" | "left" | "right" | "outer", table: string, crit
       val: critValue
     }
   })
-  return this
+  return to
 }
 
 function addFilter(type: "or" | "and", newFilter: string, opOrVal?: Value | Operator, val?: Value, to?: Filter): Filter | undefined {
@@ -468,7 +470,7 @@ function toFilter(filter: string, opOrVal?: Value | Operator, val?: Value): stri
     val = opOrVal as Value
   } else {
     op = opOrVal as Operator
-    if (op === "in" || op === "not in" && !Array.isArray(val))
+    if ((op === "in" || op === "not in") && !Array.isArray(val))
       val = [val as any]
   }
   let escVal = toSqlVal(val)

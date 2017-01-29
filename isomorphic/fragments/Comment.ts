@@ -3,7 +3,7 @@ import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
 export interface CommentFragment {
   readonly id: string
   readonly taskId: string
-  readonly writtenBy: string
+  readonly writtenById: string
   body: string
   readonly createTs: number
   readonly updateTs: number
@@ -19,7 +19,7 @@ export const commentMeta: FragmentMeta = {
     taskId: {
       dataType: "string"
     },
-    writtenBy: {
+    writtenById: {
       dataType: "string"
     },
     body: {
@@ -35,6 +35,6 @@ export const commentMeta: FragmentMeta = {
   }
 }
 
-export type NewCommentFragment = Pick<CommentFragment, "taskId" | "writtenBy" | "body">
+export type NewCommentFragment = Pick<CommentFragment, "taskId" | "writtenById" | "body">
 
-export const newCommentMeta = pickFragmentMeta("NewComment", commentMeta, ["taskId", "writtenBy", "body"])
+export const newCommentMeta = pickFragmentMeta("NewComment", commentMeta, ["taskId", "writtenById", "body"])

@@ -5,8 +5,8 @@ export interface TaskFragment {
   code: string
   label: string
   description?: string
-  createdBy: string
-  affectedTo?: string
+  createdById: string
+  affectedToId?: string
   curStepId: string
   readonly createTs: number
   readonly updateTs: number
@@ -32,11 +32,11 @@ export const taskMeta: FragmentMeta = {
       optional: true,
       update: true
     },
-    createdBy: {
+    createdById: {
       dataType: "string",
       update: true
     },
-    affectedTo: {
+    affectedToId: {
       dataType: "string",
       optional: true,
       update: true
@@ -54,6 +54,6 @@ export const taskMeta: FragmentMeta = {
   }
 }
 
-export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdBy" | "curStepId">
+export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId">
 
-export const newTaskMeta = pickFragmentMeta("NewTask", taskMeta, ["label", "description" , "createdBy", "curStepId"])
+export const newTaskMeta = pickFragmentMeta("NewTask", taskMeta, ["label", "description" , "createdById", "curStepId"])
