@@ -25,8 +25,8 @@ export default class ProjectBoard implements Component, Panel {
     this.$container.find(".js-title").text(title)
   }
 
-  public addStepsPanel(p: StepsPanel) {
-    p.attachTo(this.$stepsPanelContainer[0])
+  public addStepsPanel(panel: StepsPanel) {
+    panel.attachTo(this.$stepsPanelContainer[0])
   }
 
   public attachTo(el: HTMLElement) {
