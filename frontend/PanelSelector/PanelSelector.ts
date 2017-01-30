@@ -37,19 +37,6 @@ export default class PanelSelector implements Component {
     this.$container = $(template)
     this.$menuContainer = this.$container.find(".js-menu-container")
     this.$panelContainer = this.$container.find(".js-panel-container")
-    this.$container.find(".js-test1").click(() => {
-      createProject({
-        code: "ABC123yy",
-        name: "Hello, World!"
-      }).then(project => console.log("createProject:", project, project.rootTask))
-      .catch(err => console.log(err))
-    })
-    this.$container.find(".js-test2").click(() => {
-      queryProjects({
-        archived: false
-      }).then(list => console.log("queryProjects:", list))
-      .catch(err => console.log(err))
-    })
   }
 
   public attachTo(el: HTMLElement) {
@@ -63,7 +50,7 @@ export default class PanelSelector implements Component {
         this.showPanel(data.entryId? data.entryId: "ProjectForm")
     })
 
-    this.dash.on("projectCreated", "dataFirst", (data: any) => {
+    this.dash.listenToChildren("projectCreated").call("dataFirst",  (data: any) => {
       let projectModel: ProjectModel = data.projectModel as ProjectModel
       this.map.set(projectModel.id, {
         projectId: projectModel.id,
@@ -73,12 +60,13 @@ export default class PanelSelector implements Component {
       this.showPanel(projectModel.id)
     })
 
-    this.loadProjects()
     // Add a ProjectForm to the PanelSelector.
     this.map.set("ProjectForm", {
       projectId: "ProjectForm",
       type: ProjectForm
     })
+
+    this.loadProjects()
 
     return this;
   }
