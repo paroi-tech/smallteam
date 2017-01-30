@@ -6,6 +6,7 @@ import { Cargo } from "../isomorphic/Cargo"
 import meta from "../isomorphic/meta"
 import { queryProjects, createProject, fetchProjects } from "./dbqueries/queryProject"
 import { createTask, fetchTasks } from "./dbqueries/queryTask"
+import "./backendMeta/initBackendMeta"
 
 process.on("uncaughtException", err => {
   console.log(err)

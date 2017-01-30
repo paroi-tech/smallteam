@@ -1,4 +1,4 @@
-import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
 
 export interface TaskFragment {
   readonly id: string
@@ -55,5 +55,6 @@ export const taskMeta: FragmentMeta = {
 
 export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId">
 export const newTaskMeta = pickFragmentMeta("New", taskMeta, ["label", "description" , "createdById", "curStepId"])
-export type UpdTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "affectedToId" | "curStepId">
-export const updTaskMeta = pickFragmentMeta("Upd", taskMeta, ["label", "description" , "createdById", "affectedToId", "curStepId"])
+
+export type UpdTaskFragment = UpdPick<TaskFragment, "id", "label" | "description" | "createdById" | "affectedToId" | "curStepId">
+export const updTaskMeta = updPickFragmentMeta("Upd", taskMeta, ["id"], ["label", "description" , "createdById", "affectedToId", "curStepId"])

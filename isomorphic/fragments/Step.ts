@@ -1,4 +1,4 @@
-import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
 
 export interface StepFragment {
   readonly id: string
@@ -15,8 +15,7 @@ export const stepMeta: FragmentMeta = {
       id: true
     },
     name: {
-      dataType: "string",
-      update: true
+      dataType: "string"
     },
     typeId: {
       dataType: "string"
@@ -28,5 +27,4 @@ export const stepMeta: FragmentMeta = {
 }
 
 export type NewStepFragment = Pick<StepFragment, "name" | "typeId" | "projectId">
-
 export const newStepMeta = pickFragmentMeta("New", stepMeta, ["name", "typeId", "projectId"])
