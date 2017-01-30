@@ -1,6 +1,6 @@
 @import "../definitions/definitions";
 
-$titleColor: dodgerblue;
+$titleColor: darken(royalblue, 5);
 
 .BlockTitle {
   background-color: $titleColor;

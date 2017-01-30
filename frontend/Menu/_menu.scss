@@ -1,6 +1,10 @@
 @import "../definitions/definitions";
 
 .Menu {
+  background-color: $titleColor;
+  color: white;
+  font-weight: bold;
+  min-height: 40px;
   position: relative;
 
   &-ul {
