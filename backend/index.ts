@@ -65,7 +65,7 @@ function writeServerResponse(resp: Response, httpCode, data) {
 async function executeQuery(resp: Response, data): Promise<Cargo> {
   if (data.type !== "Project")
     throw new Error(`Invalid query type: "${data.type}"`)
-  let loader = new CargoLoader()
+  let loader = new CargoLoader("fragments")
   await queryProjects(loader, data.filters || {})
   await completeCargo(loader)
   return loader.toCargo()
@@ -76,7 +76,7 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
     throw new Error(`Invalid command: "${data.cmd}"`)
   if (data.type !== "Project")
     throw new Error(`Invalid type: "${data.type}"`)
-  let loader = new CargoLoader()
+  let loader = new CargoLoader("fragment")
   await createProject(loader, data.values)
   await completeCargo(loader)
   return loader.toCargo()

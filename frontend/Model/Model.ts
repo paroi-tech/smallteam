@@ -125,7 +125,7 @@ function getFragment(ref: FragmentRef) {
   return data
 }
 
-function getFragments(ref: FragmentsRef) {
+function getFragments(ref: FragmentsRef): (ProjectFragment | TaskFragment)[] {
   if (!store[ref.type])
     throw new Error(`Unknown type: ${ref.type}`)
   let map = store[ref.type],
@@ -154,9 +154,9 @@ async function httpPostAndUpdate(url, data, resultType?: "data" | "fragment" | "
       case "data":
         return cargo.result.val
       case "fragment":
-        return getFragment(cargo.result.val)
+        return cargo.result.val ? getFragment(cargo.result.val) : null
       case "fragments":
-        return getFragments(cargo.result.val)
+        return cargo.result.val ? getFragments(cargo.result.val) : []
     }
   }
   if (resultType && resultType !== "none")

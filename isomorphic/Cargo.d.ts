@@ -20,6 +20,8 @@ export type Type = keyof Fragments
 
 export type Identifier = string | { [fieldName: string]: string }
 
+export type ResultType = "data" | "fragment" | "fragments" | "none"
+
 export interface FragmentRef {
   type: Type
   id: Identifier
@@ -32,17 +34,17 @@ export interface FragmentsRef {
 
 export interface DataResult {
   type: "data"
-  val: any
+  val?: any
 }
 
 export interface FragmentResult {
   type: "fragment"
-  val: FragmentRef
+  val?: FragmentRef
 }
 
 export interface FragmentsResult {
   type: "fragments"
-  val: FragmentsRef
+  val?: FragmentsRef
 }
 
 export type Result = DataResult | FragmentResult | FragmentsResult
