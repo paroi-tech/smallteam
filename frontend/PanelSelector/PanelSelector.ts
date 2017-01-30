@@ -5,6 +5,7 @@ import Menu from "../Menu/Menu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import { createProject, queryProjects } from "../Model/Model"
+import { ProjectModel, TaskModel } from "../Model/FragmentsModel"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -36,19 +37,6 @@ export default class PanelSelector implements Component {
     this.$container = $(template)
     this.$menuContainer = this.$container.find(".js-menu-container")
     this.$panelContainer = this.$container.find(".js-panel-container")
-    this.$container.find(".js-test1").click(() => {
-      createProject({
-        code: "ABC123yy",
-        name: "Hello, World!"
-      }).then(project => console.log("createProject:", project, project.rootTask))
-      .catch(err => console.log(err))
-    })
-    this.$container.find(".js-test2").click(() => {
-      queryProjects({
-        archived: false
-      }).then(list => console.log("queryProjects:", list))
-      .catch(err => console.log(err))
-    })
   }
 
   public attachTo(el: HTMLElement) {
@@ -57,29 +45,54 @@ export default class PanelSelector implements Component {
 
   public init(): PanelSelector {
     this.menu = this.dash.create(Menu, { args: [] }).init()
-    this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => {
-        this.showPanel(data.entryId? data.entryId: "projectForm")
-    })
     this.menu.attachTo(this.$menuContainer[0])
+    this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => {
+        this.showPanel(data.entryId? data.entryId: "ProjectForm")
+    })
 
-    // FIXME: Add elements to the menu for tests.
-    this.map.set(`prj-${"123"}`, {
-      projectId: "123",
-      type: ProjectBoard
+    this.dash.listenToChildren("projectCreated").call("dataFirst",  (data: any) => {
+      let projectModel: ProjectModel = data.projectModel as ProjectModel
+      this.map.set(projectModel.id, {
+        projectId: projectModel.id,
+        type: ProjectBoard
+      })
+      this.menu.addMenuEntry(projectModel.id, projectModel.code)
+      this.showPanel(projectModel.id)
     })
-    this.menu.addMenuEntry(`prj-${"123"}`, "Project 1")
-    this.map.set(`prj-${"456"}`, {
-      projectId: "456",
-      type: ProjectBoard
-    })
-    this.menu.addMenuEntry(`prj-${"456"}`, "Project 2")
-    // Project Form
-    this.map.set("projectForm", {
-      projectId: "projectForm",
+
+    // Add a ProjectForm to the PanelSelector.
+    this.map.set("ProjectForm", {
+      projectId: "ProjectForm",
       type: ProjectForm
     })
 
+    this.loadProjects()
+
     return this;
+  }
+
+  private loadProjects() {
+    queryProjects({
+        archived: false
+      }).then(list => {
+        console.log("queryProjects:", list)
+        if(list.length === 0) {
+          alert("No project to load from server.")
+          this.showPanel("projectForm")
+        } else {
+          for(let projectModel of list) {
+            this.map.set(projectModel.id, {
+              projectId: projectModel.id,
+              type: ProjectBoard
+            })
+            this.menu.addMenuEntry(projectModel.id, projectModel.code)
+          }
+        }
+      })
+      .catch(err => {
+        alert("An error occured while loading projects from server.")
+        console.log("Unable to load projects.", err)
+      })
   }
 
   private showPanel(panelId: string) {

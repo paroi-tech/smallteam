@@ -89,17 +89,17 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   // Task
   let sql = buildInsert()
     .insertInto("task")
-    .values(toSqlValues(updFrag, updTaskMeta))
+  //   .values(toSqlValues(updFrag, updTaskMeta))
 
-  let values = {} as any
-  for (let column of Object.keys(updFrag)) {
-    values[column] =
-  }
-    sql.values({
-      "label": updFrag.label,
-      "created_by": int(updFrag.createdById),
-      "cur_step_id": int(updFrag.curStepId)
-    })
+  // let values = {} as any
+  // for (let column of Object.keys(updFrag)) {
+  //   values[column] =
+  // }
+  //   sql.values({
+  //     "label": updFrag.label,
+  //     "created_by": int(updFrag.createdById),
+  //     "cur_step_id": int(updFrag.curStepId)
+  //   })
 
   let ps = await cn.run(sql.toSql()),
     taskId = ps.lastID

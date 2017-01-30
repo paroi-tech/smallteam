@@ -1,4 +1,4 @@
-import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type } from "../isomorphic/Cargo"
+import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType } from "../isomorphic/Cargo"
 
 export default class CargoLoader {
   private map = new Map<Type, Map<Identifier, any | undefined>>()
@@ -6,6 +6,9 @@ export default class CargoLoader {
   private debugData: any[] = []
   private result: Result | undefined
   private done = true
+
+  constructor(private resultType: ResultType) {
+  }
 
   public addFragment(type: Type, id: Identifier, frag?) {
     let fragments = this.map.get(type)
@@ -53,6 +56,8 @@ export default class CargoLoader {
   }
 
   public setResultData(data: any) {
+    if (this.resultType !== "data")
+      throw new Error(`Result type conflict in cargo, "data" should be ${this.resultType}`)
     if (this.result !== undefined)
       throw new Error(`Cannot define result twice`)
     this.result = {
@@ -62,6 +67,8 @@ export default class CargoLoader {
   }
 
   public setResultFragment(type: Type, id: Identifier, frag?) {
+    if (this.resultType !== "fragment")
+      throw new Error(`Result type conflict in cargo, "fragment" should be ${this.resultType}`)
     if (this.result !== undefined)
       throw new Error(`Cannot define result twice`)
     // if (!this.contains(type, id))
@@ -74,13 +81,15 @@ export default class CargoLoader {
   }
 
   public addToResultFragments(type: Type, id: Identifier, frag?) {
+    if (this.resultType !== "fragments")
+      throw new Error(`Result type conflict in cargo, "fragments" should be ${this.resultType}`)
     // if (!this.contains(type, id))
     //   throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
     if (this.result) {
       if (this.result.type !== "fragments")
         throw new Error(`Cannot define result twice`)
-      if (this.result.val.type !== type)
-        throw new Error(`Conflict with fragments types, cannot add ${type} in result of type ${this.result.val.type}`)
+      if (this.result.val!.type !== type)
+        throw new Error(`Conflict with fragments types, cannot add ${type} in result of type ${this.result.val!.type}`)
     } else {
       this.result = {
         type: "fragments",
@@ -88,7 +97,7 @@ export default class CargoLoader {
       }
     }
     this.addFragment(type, id, frag)
-    this.result.val.list.push(id)
+    this.result.val!.list.push(id)
   }
 
   public setDone(done: boolean) {
@@ -119,6 +128,8 @@ export default class CargoLoader {
       cargo.debugData = this.debugData.length === 1 ? this.debugData[0] : [...this.debugData]
     if (this.result !== undefined)
       cargo.result = this.result // TODO: copy?
+    else if (this.resultType !== undefined && this.resultType !== "none")
+      cargo.result = { type: this.resultType } as Result
     return cargo
   }
 }

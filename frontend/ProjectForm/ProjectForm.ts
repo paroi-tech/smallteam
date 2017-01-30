@@ -30,6 +30,10 @@ export default class ProjectForm implements Component {
     $(el).append(this.$container)
   }
 
+  public hide() {
+    this.$container.hide();
+  }
+
   private listenToForm() {
     this.$projectCode.keyup(ev => {
       this.generateCode = false;
@@ -42,21 +46,20 @@ export default class ProjectForm implements Component {
     })
     let $btn = this.$form.find(".js-submit-btn").click(ev => {
       let $indicator = $btn.find("span").show()
+      let code = this.$form.find(".js-project-code").val()
+      let name = this.$form.find(".js-project-name").val()
       createProject({
-        code: this.$form.find(".js-project-code").val(),
-        name: this.$form.find(".js-project-name").val()
-      }).then(project => {
+        code,
+        name
+      }).then(projectModel => {
         $indicator.hide()
-        alert("Project successfully created...")
+        alert("Project successfully created.")
+        this.dash.emit("projectCreated", { projectModel })
       }).catch(error => {
         $indicator.hide()
         alert(error)
       })
     })
-  }
-
-  public hide() {
-    this.$container.hide();
   }
 
   public show() {
