@@ -78,7 +78,7 @@ export default class PanelSelector implements Component {
         console.log("queryProjects:", list)
         if(list.length === 0) {
           alert("No project to load from server.")
-          this.showPanel("projectForm")
+          this.showPanel("ProjectForm")
         } else {
           for(let projectModel of list) {
             this.map.set(projectModel.id, {
