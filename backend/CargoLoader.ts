@@ -13,7 +13,8 @@ export default class CargoLoader {
       fragments = new Map()
       this.map.set(type, fragments)
     }
-    fragments.set(id, frag)
+    if (!fragments.has(id) || frag)
+      fragments.set(id, frag)
   }
 
   public getNeeded(type: Type): Identifier[] {
@@ -60,30 +61,33 @@ export default class CargoLoader {
     }
   }
 
-  public setResultFragment(type: Type, id: Identifier) {
+  public setResultFragment(type: Type, id: Identifier, frag?) {
     if (this.result !== undefined)
       throw new Error(`Cannot define result twice`)
-    if (!this.contains(type, id))
-      throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
+    // if (!this.contains(type, id))
+    //   throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
+    this.addFragment(type, id, frag)
     this.result = {
       type: "fragment",
       val: { type, id }
     }
   }
 
-  public addToResultFragments(type: Type, id: Identifier) {
-    if (!this.result) {
+  public addToResultFragments(type: Type, id: Identifier, frag?) {
+    // if (!this.contains(type, id))
+    //   throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
+    if (this.result) {
+      if (this.result.type !== "fragments")
+        throw new Error(`Cannot define result twice`)
+      if (this.result.val.type !== type)
+        throw new Error(`Conflict with fragments types, cannot add ${type} in result of type ${this.result.val.type}`)
+    } else {
       this.result = {
         type: "fragments",
         val: { type, list: [] }
       }
     }
-    if (this.result.type !== "fragments")
-      throw new Error(`Cannot define result twice`)
-    if (this.result.val.type !== type)
-      throw new Error(`Conflict with fragments types, cannot add ${type} in result of type ${this.result.val.type}`)
-    if (!this.contains(type, id))
-      throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
+    this.addFragment(type, id, frag)
     this.result.val.list.push(id)
   }
 

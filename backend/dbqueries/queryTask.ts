@@ -1,9 +1,14 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
-import { TaskFragment, NewTaskFragment } from "../../isomorphic/fragments/Task"
+import { TaskFragment, NewTaskFragment, UpdTaskFragment, updTaskMeta } from "../../isomorphic/fragments/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList } from "./dbUtils"
+import { getDbConnection, toIntList, int } from "./dbUtils"
+import { makeTaskCodeFromStep } from "./queryProject"
+
+// --
+// -- Select
+// --
 
 export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
@@ -41,70 +46,74 @@ function toTaskFragment(row): TaskFragment {
   return frag
 }
 
+// --
+// -- Create
+// --
+
 export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) {
-  // let cn = await getDbConnection()
+  let cn = await getDbConnection()
 
-  // // Project
-  // let sql = buildInsert()
-  //   .insertInto("project")
-  //   .values({
-  //     "code": newFrag.code,
-  //     "task_seq": 0
-  //   })
-  // let ps = await cn.run(sql.toSql()),
-  //   projectId = ps.lastID
+  // Task
+  let sql = buildInsert()
+    .insertInto("task")
+    .values({
+      "code": await makeTaskCodeFromStep(int(newFrag.curStepId)),
+      "label": newFrag.label,
+      "created_by": int(newFrag.createdById),
+      "cur_step_id": int(newFrag.curStepId)
+    })
+  let ps = await cn.run(sql.toSql()),
+    taskId = ps.lastID
 
-  // // Step "Not Started"
-  // sql = buildInsert()
-  //   .insertInto("step")
-  //   .values({
-  //     "step_type_id": 0,
-  //     "project_id": projectId
-  //   })
-  // ps = await cn.run(sql.toSql())
-  // let notStartedStepId = ps.lastID
+  // Description
+  if (newFrag.description) {
+    sql = buildInsert()
+      .insertInto("task_description")
+      .values({
+        "task_id": taskId,
+        "description": newFrag.description
+      })
+    await cn.run(sql.toSql())
+  }
 
-  // // Step "Finished"
-  // sql = buildInsert()
-  //   .insertInto("step")
-  //   .values({
-  //     "step_type_id": 1,
-  //     "project_id": projectId
-  //   })
-  // await cn.run(sql.toSql())
+  loader.setResultFragment("Task", taskId.toString())
+}
 
-  // // Task
-  // sql = buildInsert()
-  //   .insertInto("task")
-  //   .values({
-  //     "code": `${newFrag.code}-0`,
-  //     "created_by": 0,
-  //     "cur_step_id": notStartedStepId,
-  //     "label": newFrag.name
-  //   })
-  // ps = await cn.run(sql.toSql())
-  // let taskId = ps.lastID
+// --
+// -- Update
+// --
 
-  // // Mark as root task
-  // sql = buildInsert()
-  //   .insertInto("root_task")
-  //   .values({
-  //     "project_id": projectId,
-  //     "task_id": taskId
-  //   })
-  // await cn.run(sql.toSql())
+export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) {
+  let cn = await getDbConnection()
 
-  // // Description
-  // if (newFrag.description) {
-  //   sql = buildInsert()
-  //     .insertInto("task_description")
-  //     .values({
-  //       "task_id": taskId,
-  //       "description": newFrag.description
-  //     })
-  //   await cn.run(sql.toSql())
-  // }
+  // Task
+  let sql = buildInsert()
+    .insertInto("task")
+    .values(toSqlValues(updFrag, updTaskMeta))
 
-  // loader.addFragment("Project", projectId.toString())
-  // loader.setResultFragment("Project", projectId.toString())
+  let values = {} as any
+  for (let column of Object.keys(updFrag)) {
+    values[column] =
+  }
+    sql.values({
+      "label": updFrag.label,
+      "created_by": int(updFrag.createdById),
+      "cur_step_id": int(updFrag.curStepId)
+    })
+
+  let ps = await cn.run(sql.toSql()),
+    taskId = ps.lastID
+
+  // Description
+  if (updFrag.description) {
+    sql = buildInsert()
+      .insertInto("task_description")
+      .values({
+        "task_id": taskId,
+        "description": updFrag.description
+      })
+    await cn.run(sql.toSql())
+  }
+
+  loader.setResultFragment("Task", taskId.toString())
 }

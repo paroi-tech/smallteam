@@ -26,4 +26,4 @@ export const flagMeta: FragmentMeta = {
 
 export type NewFlagFragment = Pick<FlagFragment, "label" | "color">
 
-export const newFlagMeta = pickFragmentMeta("NewFlag", flagMeta, ["label", "color"])
+export const newFlagMeta = pickFragmentMeta("New", flagMeta, ["label", "color"])

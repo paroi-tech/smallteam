@@ -37,4 +37,4 @@ export const commentMeta: FragmentMeta = {
 
 export type NewCommentFragment = Pick<CommentFragment, "taskId" | "writtenById" | "body">
 
-export const newCommentMeta = pickFragmentMeta("NewComment", commentMeta, ["taskId", "writtenById", "body"])
+export const newCommentMeta = pickFragmentMeta("New", commentMeta, ["taskId", "writtenById", "body"])

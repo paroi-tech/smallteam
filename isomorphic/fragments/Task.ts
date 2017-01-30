@@ -2,7 +2,7 @@ import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
 
 export interface TaskFragment {
   readonly id: string
-  code: string
+  readonly code: string
   label: string
   description?: string
   createdById: string
@@ -20,8 +20,7 @@ export const taskMeta: FragmentMeta = {
       id: true
     },
     code: {
-      dataType: "string",
-      update: true
+      dataType: "string"
     },
     label: {
       dataType: "string",
@@ -55,5 +54,6 @@ export const taskMeta: FragmentMeta = {
 }
 
 export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId">
-
-export const newTaskMeta = pickFragmentMeta("NewTask", taskMeta, ["label", "description" , "createdById", "curStepId"])
+export const newTaskMeta = pickFragmentMeta("New", taskMeta, ["label", "description" , "createdById", "curStepId"])
+export type UpdTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "affectedToId" | "curStepId">
+export const updTaskMeta = pickFragmentMeta("Upd", taskMeta, ["label", "description" , "createdById", "affectedToId", "curStepId"])

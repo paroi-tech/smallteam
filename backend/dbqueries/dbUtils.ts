@@ -15,3 +15,7 @@ export function toIntList(strList: string[]): number[] {
     res.push(parseInt(val, 10))
   return res
 }
+
+export function int(str: string): number {
+  return parseInt(str, 10)
+}

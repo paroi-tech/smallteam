@@ -1,4 +1,4 @@
-import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta } from "../FragmentMeta"
 
 export interface AttachmentInfo {
   readonly attachedById: string //ContributorModel

@@ -7,7 +7,7 @@ import { stepMeta, newStepMeta } from "./fragments/Step"
 import { taskMeta, newTaskMeta } from "./fragments/Task"
 import { taskLogMeta } from "./fragments/TaskLog"
 
-export const meta = {
+export default {
   FileAttachment: fileAttachmentMeta,
   ImageAttachment: imageAttachmentMeta,
   Comment: commentMeta,

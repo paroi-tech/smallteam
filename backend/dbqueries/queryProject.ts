@@ -13,8 +13,7 @@ export async function queryProjects(loader: CargoLoader, filters: Partial<Projec
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toProjectFragment(row)
-    loader.addFragment("Project", frag.id, frag)
-    loader.addToResultFragments("Project", frag.id)
+    loader.addToResultFragments("Project", frag.id, frag)
   }
 }
 
@@ -118,6 +117,51 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
     await cn.run(sql.toSql())
   }
 
-  loader.addFragment("Project", projectId.toString())
   loader.setResultFragment("Project", projectId.toString())
+}
+
+export async function makeTaskCodeFromStep(stepId: number): Promise<string> {
+  let cn = await getDbConnection()
+
+  // Select project_id, code
+  let sql = buildSelect()
+    .select("p.project_id, p.code")
+    .from("project p")
+    .innerJoin("step", "using", "project_id")
+    .where("step_id", stepId)
+  let rs = await cn.all(sql.toSql())
+  if (rs.length !== 1)
+    throw new Error(`Cannot find the step "${stepId}"`)
+  let projectId = rs[0]["project_id"],
+    code = rs[0]["code"]
+
+  // Update the sequence
+  let ps: sqlite.Statement | undefined,
+    tries = 0,
+    prevSeqVal: number
+  do {
+    if (tries++ >= 10)
+      throw new Error(`Cannot get a new sequence value for project "${projectId}, (last changes: ${ps!.changes})"`)
+    // Select previous task_seq
+    let sql = buildSelect()
+      .select("task_seq")
+      .from("project")
+      .where("project_id", projectId)
+    let rs = await cn.all(sql.toSql())
+    if (rs.length !== 1)
+      throw new Error(`Cannot find the project "${projectId}"`)
+    prevSeqVal = rs[0]["task_seq"]
+
+    // Increment the task_seq
+    let upd = buildUpdate()
+      .update("project")
+      .set({
+        "task_seq": {"vanilla": "task_seq + 1"}
+      })
+      .where("project_id", projectId)
+      .andWhere("task_seq", prevSeqVal)
+    ps = await cn.run(upd.toSql())
+  } while (ps.changes !== 1)
+
+  return `${code}-${prevSeqVal + 1}`
 }

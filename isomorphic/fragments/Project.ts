@@ -41,4 +41,4 @@ export const projectMeta: FragmentMeta = {
 
 export type NewProjectFragment = Pick<ProjectFragment, "code" | "name" | "description">
 
-export const newProjectMeta = pickFragmentMeta("NewProject", projectMeta, ["code", "name", "description"])
+export const newProjectMeta = pickFragmentMeta("New", projectMeta, ["code", "name", "description"])

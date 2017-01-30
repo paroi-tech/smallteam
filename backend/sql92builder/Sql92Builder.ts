@@ -1,8 +1,8 @@
-import { Database } from "sqlite"
+// import { Database } from "sqlite"
 
 export type PrimitiveValue = string | number | boolean
 export type SqlFn = "current_timestamp" | "current_date" | "current_time"
-export type VanillaValue = { "vanilla": SqlFn }
+export type VanillaValue = { "vanilla": SqlFn | string }
 export type Value = PrimitiveValue | VanillaValue | (string | VanillaValue)[] | (number | VanillaValue)[] | (boolean | VanillaValue)[]
 //export type NullOperator = "is null" | "is not null"
 export type InOperator = "in" | "not in"
@@ -75,6 +75,12 @@ export interface UpdateBuilder {
   where(leftOperand: string, op: Operator, val: Value): this
   where(leftOperand: string, val: Value): this
   where(filter: string): this
+  andWhere(leftOperand: string, op: Operator, val: Value): this
+  andWhere(leftOperand: string, val: Value): this
+  andWhere(filter: string): this
+  orWhere(leftOperand: string, op: Operator, val: Value): this
+  orWhere(leftOperand: string, val: Value): this
+  orWhere(filter: string): this
   toSql(): string
 }
 
@@ -87,6 +93,12 @@ export interface DeleteBuilder {
   where(leftOperand: string, op: Operator, val: Value): this
   where(leftOperand: string, val: Value): this
   where(filter: string): this
+  andWhere(leftOperand: string, op: Operator, val: Value): this
+  andWhere(leftOperand: string, val: Value): this
+  andWhere(filter: string): this
+  orWhere(leftOperand: string, op: Operator, val: Value): this
+  orWhere(leftOperand: string, val: Value): this
+  orWhere(filter: string): this
   toSql(): string
 }
 
