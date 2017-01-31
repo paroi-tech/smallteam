@@ -2,7 +2,7 @@ import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "..
 
 export interface StepFragment {
   readonly id: string
-  name: string
+  readonly name: string
   readonly typeId: string
   readonly projectId: string
 }

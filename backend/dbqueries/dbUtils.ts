@@ -19,3 +19,11 @@ export function toIntList(strList: string[]): number[] {
 export function int(str: string): number {
   return parseInt(str, 10)
 }
+
+// export function isObjectEmpty(obj): boolean {
+//   for (let k in obj) {
+//     if (obj.hasOwnProperty(k))
+//       return false
+//   }
+//   return true
+// }

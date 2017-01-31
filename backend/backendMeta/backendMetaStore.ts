@@ -100,18 +100,26 @@ export function getDbColumnMeta(type: Type | string, fieldName: string): DbColum
 // -- toSqlValues
 // --
 
-export function toSqlValues(frag, meta: FragmentMeta, includesId: boolean) {
-  let result = {}
+export function toSqlValues(frag, meta: FragmentMeta, restrict?: "exceptId" | "onlyId"): any | null {
+  let result = {},
+    empty = true
   for (let fieldName in meta.fields) {
     if (!meta.fields.hasOwnProperty(fieldName))
       continue
     let fieldMeta = meta.fields[fieldName]
-    if (!includesId && fieldMeta.id)
+    if ((restrict === "exceptId" && fieldMeta.id) || (restrict === "onlyId" && !fieldMeta.id))
       continue
     let colMeta = getDbColumnMeta(meta.type, fieldName),
       val = frag[fieldName]
-    if (colMeta && val !== undefined)
+    if (colMeta && val !== undefined) {
       result[colMeta.column] = toSqlValue(val, colMeta, fieldMeta)
+      empty = false
+    }
+  }
+  if (empty) {
+    if (restrict === "onlyId")
+      throw new Error(`Missing ID in type "${meta.type}"`)
+    return null
   }
   return result
 }

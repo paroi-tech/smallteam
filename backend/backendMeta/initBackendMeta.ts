@@ -3,7 +3,6 @@ import { projectMeta } from "../../isomorphic/fragments/Project"
 import { taskMeta } from "../../isomorphic/fragments/Task"
 import { stepMeta } from "../../isomorphic/fragments/Step"
 
-
 addBackendFragmentMeta(
   projectMeta,
   {

@@ -1,9 +1,10 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
-import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
+import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta } from "../../isomorphic/fragments/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList } from "./dbUtils"
+import { toSqlValues } from "../backendMeta/backendMetaStore"
 
 export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
   let cn = await getDbConnection()
@@ -53,6 +54,10 @@ function toProjectFragment(row): ProjectFragment {
   return frag
 }
 
+// --
+// -- Create
+// --
+
 export async function createProject(loader: CargoLoader, newFrag: NewProjectFragment) {
   let cn = await getDbConnection()
 
@@ -76,7 +81,7 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
   ps = await cn.run(sql.toSql())
   let notStartedStepId = ps.lastID
 
-  // Step "Finished"
+  // Step "Archived"
   sql = buildInsert()
     .insertInto("step")
     .values({
@@ -119,6 +124,39 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
 
   loader.setResultFragment("Project", projectId.toString())
 }
+
+// --
+// -- Update
+// --
+
+export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFragment) {
+  let cn = await getDbConnection()
+
+  let values = toSqlValues(updFrag, updProjectMeta, "exceptId")
+  if (values === null)
+    return
+
+  let sql = buildUpdate()
+    .update("project")
+    .set(values)
+    .where(toSqlValues(updFrag, updProjectMeta, "onlyId")!)
+
+  // Description
+  if (updFrag.description) {
+    // TODO: insert or update the description
+    // sql = buildInsert()
+    //   .insertInto("task_description")
+    //   .values({
+    //     "task_id": taskId,
+    //     "description": updFrag.description
+    //   })
+    // await cn.run(sql.toSql())
+  }
+}
+
+// --
+// -- Utils
+// --
 
 export async function makeTaskCodeFromStep(stepId: number): Promise<string> {
   let cn = await getDbConnection()

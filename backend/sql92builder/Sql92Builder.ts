@@ -35,22 +35,28 @@ export interface SelectBuilder {
   where(leftOperand: string, op: Operator, val: Value): this
   where(leftOperand: string, val: Value): this
   where(filter: string): this
+  where(andFilters: { [leftOperand: string]: Value }): this
   andWhere(leftOperand: string, op: Operator, val: Value): this
   andWhere(leftOperand: string, val: Value): this
   andWhere(filter: string): this
+  andWhere(andFilters: { [leftOperand: string]: Value }): this
   orWhere(leftOperand: string, op: Operator, val: Value): this
   orWhere(leftOperand: string, val: Value): this
   orWhere(filter: string): this
+  orWhere(orFilters: { [leftOperand: string]: Value }): this
   groupBy(groupBy: string): this
   having(leftOperand: string, op: Operator, val: Value): this
   having(leftOperand: string, val: Value): this
   having(filter: string): this
+  having(andFilters: { [leftOperand: string]: Value }): this
   andHaving(leftOperand: string, op: Operator, val: Value): this
   andHaving(leftOperand: string, val: Value): this
   andHaving(filter: string): this
+  andHaving(andFilters: { [leftOperand: string]: Value }): this
   orHaving(leftOperand: string, op: Operator, val: Value): this
   orHaving(leftOperand: string, val: Value): this
   orHaving(filter: string): this
+  orHaving(orFilters: { [leftOperand: string]: Value }): this
   orderBy(orderBy: string | number): this
   toSql(): string
 }
@@ -75,12 +81,15 @@ export interface UpdateBuilder {
   where(leftOperand: string, op: Operator, val: Value): this
   where(leftOperand: string, val: Value): this
   where(filter: string): this
+  where(andFilters: { [leftOperand: string]: Value }): this
   andWhere(leftOperand: string, op: Operator, val: Value): this
   andWhere(leftOperand: string, val: Value): this
   andWhere(filter: string): this
+  andWhere(andFilters: { [leftOperand: string]: Value }): this
   orWhere(leftOperand: string, op: Operator, val: Value): this
   orWhere(leftOperand: string, val: Value): this
   orWhere(filter: string): this
+  orWhere(orFilters: { [leftOperand: string]: Value }): this
   toSql(): string
 }
 
@@ -93,12 +102,15 @@ export interface DeleteBuilder {
   where(leftOperand: string, op: Operator, val: Value): this
   where(leftOperand: string, val: Value): this
   where(filter: string): this
+  where(andFilters: { [leftOperand: string]: Value }): this
   andWhere(leftOperand: string, op: Operator, val: Value): this
   andWhere(leftOperand: string, val: Value): this
   andWhere(filter: string): this
+  andWhere(andFilters: { [leftOperand: string]: Value }): this
   orWhere(leftOperand: string, op: Operator, val: Value): this
   orWhere(leftOperand: string, val: Value): this
   orWhere(filter: string): this
+  orWhere(orFilters: { [leftOperand: string]: Value }): this
   toSql(): string
 }
 
@@ -181,19 +193,19 @@ class BUpdate implements UpdateBuilder {
     return this
   }
 
-  public where(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public where(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     if (this.q.where)
       throw new Error(`Cannot call "where" twice`)
     this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
     return this
   }
 
-  public andWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public andWhere(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
     return this
   }
 
-  public orWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public orWhere(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.where = addFilter("or", filter, opOrVal, val, this.q.where)
     return this
   }
@@ -216,8 +228,10 @@ class BUpdate implements UpdateBuilder {
 function updateSetToSql(set: ValueMap) {
   let arr: string[] = []
   for (let column in set) {
-    if (set.hasOwnProperty(column))
-      arr.push(`${column} = ${toSqlPrimVal(set[column])}`)
+    if (!set.hasOwnProperty(column))
+      continue
+    let val = toSqlPrimVal(set[column], true)
+    arr.push(`${column} = ${val === null ? "null" : val}`)
   }
   return arr.join(", ")
 }
@@ -255,13 +269,14 @@ class BInsert implements InsertBuilder {
       if (!this.q.values.hasOwnProperty(column))
         continue
       columns.push(column)
-      values.push(toSqlPrimVal(this.q.values[column]))
+      let val = toSqlPrimVal(this.q.values[column], true)
+      values.push(val === null ? "null" : val)
     }
     let lines = [
       `insert into ${this.q.table} (${columns.join(", ")})`,
       `values (${values.join(", ")})`
     ]
-console.log(lines.join("\n"))
+    console.log(lines.join("\n"))
     return lines.join("\n")
   }
 }
@@ -276,19 +291,19 @@ class BDelete implements DeleteBuilder {
     return this
   }
 
-  public where(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public where(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     if (this.q.where)
       throw new Error(`Cannot call "where" twice`)
     this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
     return this
   }
 
-  public andWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public andWhere(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
     return this
   }
 
-  public orWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public orWhere(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.where = addFilter("or", filter, opOrVal, val, this.q.where)
     return this
   }
@@ -345,19 +360,19 @@ class BSelect implements SelectBuilder {
     return this
   }
 
-  public where(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public where(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     if (this.q.where)
       throw new Error(`Cannot call "where" twice`)
     this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
     return this
   }
 
-  public andWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public andWhere(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.where = addFilter("and", filter, opOrVal, val, this.q.where)
     return this
   }
 
-  public orWhere(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public orWhere(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.where = addFilter("or", filter, opOrVal, val, this.q.where)
     return this
   }
@@ -367,19 +382,19 @@ class BSelect implements SelectBuilder {
     return this
   }
 
-  public having(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public having(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     if (this.q.having)
       throw new Error(`Cannot call "having" twice`)
     this.q.having = addFilter("and", filter, opOrVal, val, this.q.having)
     return this
   }
 
-  public andHaving(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public andHaving(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.having = addFilter("and", filter, opOrVal, val, this.q.having)
     return this
   }
 
-  public orHaving(filter: string, opOrVal?: Value | Operator, val?: Value): this {
+  public orHaving(filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator, val?: Value): this {
     this.q.having = addFilter("or", filter, opOrVal, val, this.q.having)
     return this
   }
@@ -412,7 +427,7 @@ class BSelect implements SelectBuilder {
       lines.push(`having ${filterToSql(this.q.having)}`)
     if (this.q.orderBy !== undefined)
       lines.push(`order by ${this.q.orderBy.join(", ")}`)
-console.log(lines.join("\n"))
+    console.log(lines.join("\n"))
     return lines.join("\n")
   }
 }
@@ -431,13 +446,13 @@ function addColumns<T>(toAdd: T | string, to?: (T | string)[]): (T | string)[] {
 }
 
 function addJoin(type: "inner" | "left" | "right" | "outer", table: string, critType: any, critValue: any,
-    opOrVal?: Value | Operator, val?: Value, to?: Join[]): Join[] {
+  opOrVal?: Value | Operator, val?: Value, to?: Join[]): Join[] {
   if (!to)
     to = []
   if (critType === "using" && typeof critValue === "string")
     critValue = [critValue]
   else if (critType === "on")
-    critValue = toFilter(critValue, opOrVal, val)
+    critValue = toFilter("and", critValue, opOrVal, val)
   to.push({
     type,
     table,
@@ -449,9 +464,10 @@ function addJoin(type: "inner" | "left" | "right" | "outer", table: string, crit
   return to
 }
 
-function addFilter(type: "or" | "and", newFilter: string, opOrVal?: Value | Operator, val?: Value, to?: Filter): Filter | undefined {
-  let toAdd = toFilter(newFilter, opOrVal, val)
-  if (toAdd === null)
+function addFilter(type: "or" | "and", newFilter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator,
+    val?: Value, to?: Filter): Filter | undefined {
+  let toAdd = toFilter(type, newFilter, opOrVal, val)
+  if (toAdd === undefined)
     return to
   if (!to)
     to = toAdd
@@ -471,9 +487,10 @@ function addFilter(type: "or" | "and", newFilter: string, opOrVal?: Value | Oper
 /**
  * @returns null if the filter must be ignored
  */
-function toFilter(filter: string, opOrVal?: Value | Operator, val?: Value): string | null {
+function toFilter(type: "or" | "and", filter: string | { [leftOperand: string]: Value }, opOrVal?: Value | Operator,
+    val?: Value) : string | undefined {
   if (opOrVal === undefined)
-    return filter
+    return typeof filter === "string" ? filter : toMultipleFilters(type, filter)
   // if (opOrVal === "is null" || opOrVal === "is not null")
   //   return `${filter} ${opOrVal}`
   let op: Operator
@@ -485,26 +502,50 @@ function toFilter(filter: string, opOrVal?: Value | Operator, val?: Value): stri
     if ((op === "in" || op === "not in") && !Array.isArray(val))
       val = [val as any]
   }
-  let escVal = toSqlVal(val)
-  return escVal === null ? null : `${filter} ${op} ${escVal}`
+  let escVal = toSqlVal(val, (op === "=" || op === "<>") as any)
+  if (escVal === undefined)
+    return undefined
+  if (escVal === null)
+    return op === "=" ? `${filter} is null` : `${filter} is not null`
+  return `${filter} ${op} ${escVal}`
+}
+
+function toMultipleFilters(type: "or" | "and", filter: { [leftOperand: string]: Value }): string | undefined {
+  let arr: string[] = []
+  for (let leftOperande in filter) {
+    if (!filter.hasOwnProperty(leftOperande))
+      continue
+    let escVal = toSqlVal(filter[leftOperande], true)
+    arr.push(escVal === null ? `${filter} is null` : `${filter} = ${escVal}`)
+  }
+  return arr.length === 0 ? undefined : arr.join(` ${type} `)
 }
 
 /**
- * @returns null if the value must be ignored
+ * @returns undefined if the value must be ignored
  */
-function toSqlVal(val: Value): string | null {
+function toSqlVal(val: Value, acceptNull: true): string | null | undefined
+function toSqlVal(val: Value, acceptNull: false): string | undefined
+function toSqlVal(val: Value, acceptNull: any): string | null | undefined {
   if (Array.isArray(val)) {
     if (val.length === 0)
-      return null
+      return undefined
     let arr: string[] = []
     for (let v of val)
-      arr.push(toSqlPrimVal(v))
+      arr.push(toSqlPrimVal(v, false))
     return "(" + arr.join(", ") + ")"
   }
-  return toSqlPrimVal(val)
+  return toSqlPrimVal(val, acceptNull)
 }
 
-function toSqlPrimVal(val: PrimitiveValue | VanillaValue): string {
+function toSqlPrimVal(val: PrimitiveValue | VanillaValue | null, acceptNull: true): string | null
+function toSqlPrimVal(val: PrimitiveValue | VanillaValue | null, acceptNull: false): string
+function toSqlPrimVal(val: PrimitiveValue | VanillaValue | null, acceptNull: boolean): string | null {
+  if (val === null) {
+    if (!acceptNull)
+      throw new Error(`Invalid null value here`)
+    return null
+  }
   switch (typeof val) {
     case "string":
       return "'" + (val as string).replace("'", "''") + "'"

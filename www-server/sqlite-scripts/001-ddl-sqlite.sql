@@ -47,13 +47,13 @@ create table task (
 );
 
 create table task_child (
-    task_id bigint not null primary key references task(task_id),
+    task_id bigint not null primary key references task(task_id) on delete cascade,
     parent_task_id bigint not null references task(task_id),
     order_num integer not null
 );
 
 create table task_description (
-    task_id bigint not null primary key references task(task_id),
+    task_id bigint not null primary key references task(task_id) on delete cascade,
     description text not null
 );
 
@@ -94,7 +94,7 @@ create table comment (
 );
 
 insert into step_type (name, order_num) values ('Not started', 0);
-insert into step_type (name, order_num) values ('Finished', -1);
+insert into step_type (name, order_num) values ('Archived', -1);
 
 -- Fake data
 insert into contributor (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '123');
