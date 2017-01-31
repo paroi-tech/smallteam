@@ -2,7 +2,7 @@ import { StepFragment } from "../../isomorphic/fragments/Step"
 import { TaskFragment } from "../../isomorphic/fragments/Task"
 import { ProjectFragment } from "../../isomorphic/fragments/Project"
 
-export function querySteps(project: ProjectFragment): Promise<StepFragment[]> {
+export function querySteps(project: ProjectFragment): Array<StepFragment> {
   let steps: Array<StepFragment> = [
     {
       id: `${project.id}-1`,
@@ -23,14 +23,11 @@ export function querySteps(project: ProjectFragment): Promise<StepFragment[]> {
       projectId: project.id
     },
   ]
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(steps)
-    }, 1500)
-  })
+
+  return steps;
 }
 
-export function queryTasks(project: ProjectFragment): Promise<TaskFragment[]> {
+export function queryTasks(project: ProjectFragment): Array<TaskFragment> {
   let tasks: Array<TaskFragment> = [
     {
       id: `${project.id}-11`,
@@ -69,9 +66,6 @@ export function queryTasks(project: ProjectFragment): Promise<TaskFragment[]> {
       updateTs: 12548965600
     }
   ]
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve(tasks)
-    }, 1500)
-  })
+
+  return tasks
 }

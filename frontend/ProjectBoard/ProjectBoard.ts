@@ -4,6 +4,7 @@ import StepsPanel from "../StepsPanel/StepsPanel"
 import EditPanel  from "../EditPanel/EditPanel"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
+import { ProjectModel } from "../Model/FragmentsModel"
 
 const template = require("html-loader!./projectboard.html")
 
@@ -16,17 +17,13 @@ export default class ProjectBoard implements Component, Panel {
   private $editPanelContainer: JQuery
 
   private editPanel: EditPanel
+  private stepsPanel: StepsPanel
 
-  constructor(private dash: Dash<App>, private projectId: string, title: string) {
-
+  constructor(private dash: Dash<App>, private projectModel: ProjectModel) {
     this.$container = $(template)
     this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
     this.$editPanelContainer = this.$container.find(".js-editpanel-container")
-    this.$container.find(".js-title").text(title)
-  }
-
-  public addStepsPanel(panel: StepsPanel) {
-    panel.attachTo(this.$stepsPanelContainer[0])
+    this.$container.find(".js-title").text(projectModel.name)
   }
 
   public attachTo(el: HTMLElement) {
@@ -38,15 +35,11 @@ export default class ProjectBoard implements Component, Panel {
   }
 
   public init(): ProjectBoard {
-    this.editPanel = this.dash.create(EditPanel, { args: [ "Edit panel" ] })
+    this.editPanel = this.dash.create(EditPanel, { args: [ "Edit panel" ] }).init()
     this.editPanel.attachTo(this.$editPanelContainer[0])
-    // FIXME: This is only for tests. We add two StepsPanels to the project board
-    let p = this.dash.create(StepsPanel, {args: [ "1", "Learn jQuery" ]})
-    p.init()
-    this.addStepsPanel(p)
-    let q = this.dash.create(StepsPanel, {args: [ "2", "Create a dummy project" ]})
-    q.init()
-    this.addStepsPanel(q)
+
+    this.stepsPanel = this.dash.create(StepsPanel, { args: [ this.projectModel ] }).init()
+    this.stepsPanel.attachTo(this.$stepsPanelContainer[0])
 
     return this;
   }

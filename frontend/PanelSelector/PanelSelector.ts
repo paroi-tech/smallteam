@@ -11,14 +11,14 @@ const template = require("html-loader!./panelselector.html")
 
 export interface Panel {
   attachTo(el: HTMLElement)
-  show()
   hide()
+  show()
 }
 
 interface PanelInfo {
-  type: typeof ProjectBoard | typeof ProjectForm
-  projectId?: string
   panel?: Panel
+  projectModel?: ProjectModel
+  type: typeof ProjectBoard | typeof ProjectForm
 }
 
 export default class PanelSelector implements Component {
@@ -26,7 +26,9 @@ export default class PanelSelector implements Component {
   readonly bkb: Bkb
 
   private menu: Menu;
-  private map: Map<string, PanelInfo>
+  // TODO: Need Thomas advice about this.
+  // We use null as key for the ProjectForm element.
+  private map: Map<string | null, PanelInfo>
 
   private $container: JQuery
   private $menuContainer: JQuery
@@ -47,13 +49,13 @@ export default class PanelSelector implements Component {
     this.menu = this.dash.create(Menu, { args: [] }).init()
     this.menu.attachTo(this.$menuContainer[0])
     this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => {
-        this.showPanel(data.entryId? data.entryId: "ProjectForm")
+        this.showPanel(data.entryId)
     })
 
     this.dash.listenToChildren("projectCreated").call("dataFirst",  (data: any) => {
       let projectModel: ProjectModel = data.projectModel as ProjectModel
       this.map.set(projectModel.id, {
-        projectId: projectModel.id,
+        projectModel: projectModel,
         type: ProjectBoard
       })
       this.menu.addMenuEntry(projectModel.id, projectModel.code)
@@ -61,8 +63,7 @@ export default class PanelSelector implements Component {
     })
 
     // Add a ProjectForm to the PanelSelector.
-    this.map.set("ProjectForm", {
-      projectId: "ProjectForm",
+    this.map.set(null, {
       type: ProjectForm
     })
 
@@ -78,11 +79,11 @@ export default class PanelSelector implements Component {
         console.log("queryProjects:", list)
         if(list.length === 0) {
           alert("No project to load from server.")
-          this.showPanel("ProjectForm")
+          this.showPanel("projectForm")
         } else {
           for(let projectModel of list) {
             this.map.set(projectModel.id, {
-              projectId: projectModel.id,
+              projectModel: projectModel,
               type: ProjectBoard
             })
             this.menu.addMenuEntry(projectModel.id, projectModel.code)
@@ -100,10 +101,11 @@ export default class PanelSelector implements Component {
     if (!info)
       throw new Error(`Unknown panel id: ${panelId}`)
 
+    // Create a new panel if the PanelInfo does not embed one.
     if (!info.panel) {
       if (info.type == ProjectBoard)
         info.panel = this.dash.create<ProjectBoard>(info.type, {
-          args: [info.projectId, panelId]
+          args: [info.projectModel]
         }).init()
       else if (info.type == ProjectForm)
         info.panel = this.dash.create<ProjectForm>(info.type, {
@@ -117,6 +119,7 @@ export default class PanelSelector implements Component {
 
     // Hide all panels, except the selected one
     this.map.forEach((v, k, map) => {
+      // TODO: Is this test really useful?
       if (!v.panel)
         return
       if (k === panelId)

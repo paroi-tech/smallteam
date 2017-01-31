@@ -41,4 +41,8 @@ export default class BoxList implements Component {
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
+
+  public init(): BoxList {
+    return this
+  }
 }
