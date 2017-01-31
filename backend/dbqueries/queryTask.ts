@@ -5,6 +5,7 @@ import { TaskFragment, NewTaskFragment, UpdTaskFragment, updTaskMeta } from "../
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { makeTaskCodeFromStep } from "./queryProject"
+import { toSqlValues } from "../backendMeta/backendMetaStore"
 
 // --
 // -- Select
@@ -86,11 +87,21 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
 export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) {
   let cn = await getDbConnection()
 
-  // Task
-  let sql = buildInsert()
-    .insertInto("task")
-  //   .values(toSqlValues(updFrag, updTaskMeta)) // TODO: here
+  // let taskId
+  // loader.setResultFragment("Task", taskId.toString())
 
+  // let values = toSqlValues(updFrag, updTaskMeta, "exceptId")
+  // if (values === null)
+  //   return
+
+  // // Task
+  // let sql = buildUpdate()
+  //   .update("task")
+  //   .set(toSqlValues(updFrag, updTaskMeta, "exceptId"))
+  //   .where(toSqlValues(updFrag, updTaskMeta, "onlyId"))
+
+
+   // TODO: here
   // let values = {} as any
   // for (let column of Object.keys(updFrag)) {
   //   values[column] =
@@ -101,19 +112,18 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   //     "cur_step_id": int(updFrag.curStepId)
   //   })
 
-  let ps = await cn.run(sql.toSql()),
-    taskId = ps.lastID
+  // let ps = await cn.run(sql.toSql()),
+  //   taskId = ps.lastID
 
-  // Description
-  if (updFrag.description) {
-    sql = buildInsert()
-      .insertInto("task_description")
-      .values({
-        "task_id": taskId,
-        "description": updFrag.description
-      })
-    await cn.run(sql.toSql())
-  }
+  // // Description
+  // if (updFrag.description) {
+  //   sql = buildInsert()
+  //     .insertInto("task_description")
+  //     .values({
+  //       "task_id": taskId,
+  //       "description": updFrag.description
+  //     })
+  //   await cn.run(sql.toSql())
+  // }
 
-  loader.setResultFragment("Task", taskId.toString())
 }

@@ -79,7 +79,7 @@ function camelToUnderscoredName(camelName: string): string {
 // -- Getters
 // --
 
-export function getFieldName(type: Type, columnName: string): string {
+export function getFieldName(type: Type | string, columnName: string): string {
   let bm = backendMetaMap.get(type)
   if (!bm)
     throw new Error(`Unknown type: ${type}`)
@@ -89,12 +89,70 @@ export function getFieldName(type: Type, columnName: string): string {
   return fieldName
 }
 
-export function getDbColumnMeta(type: Type, fieldName: string): DbColumnMeta {
+export function getDbColumnMeta(type: Type | string, fieldName: string): DbColumnMeta | null {
   let bm = backendMetaMap.get(type)
   if (!bm)
     throw new Error(`Unknown type: ${type}`)
-  let column = bm.columns[fieldName]
-  if (column === undefined)
-    throw new Error(`Unknown field "${fieldName}" in type: ${type}`)
-  return column
+  return bm.columns[fieldName] || null
+}
+
+// --
+// -- toSqlValues
+// --
+
+export function toSqlValues(frag, meta: FragmentMeta, includesId: boolean) {
+  let result = {}
+  for (let fieldName in meta.fields) {
+    if (!meta.fields.hasOwnProperty(fieldName))
+      continue
+    let fieldMeta = meta.fields[fieldName]
+    if (!includesId && fieldMeta.id)
+      continue
+    let colMeta = getDbColumnMeta(meta.type, fieldName),
+      val = frag[fieldName]
+    if (colMeta && val !== undefined)
+      result[colMeta.column] = toSqlValue(val, colMeta, fieldMeta)
+  }
+  return result
+}
+
+function toSqlValue(val, colMeta: DbColumnMeta, fieldMeta: FieldMeta) {
+  //fieldMeta.
+  if (val === null)
+    return null
+  let colType = colMeta.columnType
+  if (colType === "timestamp" || colType === "datetime" || colType === "date") {
+    if (typeof val === "number")
+      return timestampToSqlValue(val, colType === "timestamp" ? "datetime" : colType)
+    if (typeof val !== "string")
+      throw new Error(`Invalid datetime value: "${val}"`)
+    return val
+  }
+  if (colType === "time") {
+    if (typeof val !== "string")
+      throw new Error(`Invalid time value: "${val}"`)
+    return val
+  }
+  if (colType === "bigint" || colType === "integer" || colType === "smallint") {
+    if (typeof val === "string")
+      return parseInt(val, 10)
+    if (typeof val !== "number")
+      throw new Error(`Invalid integer value: "${val}"`)
+    return val
+  }
+  if (colType === "bit") {
+    if (typeof val === "boolean")
+      return val ? 1 : 0
+    if (val !== 1 && val !== 0)
+      throw new Error(`Invalid bit value: "${val}"`)
+    return val
+  }
+  throw new Error(`Unknown column type "${colType}"`)
+}
+
+function timestampToSqlValue(val: number, type: "datetime" | "date"): string {
+  let dt = new Date(val).toISOString()
+  if (type === "datetime")
+    return dt.slice(0, 10)
+  return dt.slice(0, 19).replace('T', ' ')
 }
