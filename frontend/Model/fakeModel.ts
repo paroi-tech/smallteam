@@ -5,21 +5,21 @@ import { ProjectFragment } from "../../isomorphic/fragments/Project"
 export function querySteps(project: ProjectFragment): Promise<StepFragment[]> {
   let steps: Array<StepFragment> = [
     {
-      id: "122",
+      id: `${project.id}-1`,
       name: "Not started",
       typeId: "1",
       projectId: project.id
     },
     {
-      id: "123",
+      id: `${project.id}-2`,
       name: "Running",
-      typeId: "3",
+      typeId: "2",
       projectId: project.id
     },
     {
-      id: "124",
+      id: `${project.id}-3`,
       name: "Finished",
-      typeId: "2",
+      typeId: "3",
       projectId: project.id
     },
   ]
@@ -33,38 +33,38 @@ export function querySteps(project: ProjectFragment): Promise<StepFragment[]> {
 export function queryTasks(project: ProjectFragment): Promise<TaskFragment[]> {
   let tasks: Array<TaskFragment> = [
     {
-      id: "1",
+      id: `${project.id}-11`,
       code: "TASK-1",
       label: "First task",
       createdById: "Kitihounel",
-      curStepId: "124",
+      curStepId: `${project.id}-3`,
       createTs: 12548965412,
       updateTs: 12548965630
     },
     {
-      id: "2",
+      id: `${project.id}-12`,
       code: "TASK-2",
       label: "Second task",
       createdById: "Kitihounel",
-      curStepId: "123",
+      curStepId: `${project.id}-2`,
       createTs: 12548965452,
       updateTs: 12548965452
     },
     {
-      id: "3",
+      id: `${project.id}-13`,
       code: "TASK-3",
       label: "Another task",
       createdById: "Paleo",
-      curStepId: "122",
+      curStepId: `${project.id}-1`,
       createTs: 12548965500,
       updateTs: 12548965500
     },
     {
-      id: "4",
+      id: `${project.id}-14`,
       code: "TASK-4",
       label: "Hard task",
       createdById: "Kitihounel",
-      curStepId: "122",
+      curStepId: `${project.id}-1`,
       createTs: 12548965600,
       updateTs: 12548965600
     }
