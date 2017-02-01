@@ -3,6 +3,7 @@ import { ContributorFragment } from "./fragments/Contributor"
 import { FlagFragment } from "./fragments/Flag"
 import { ProjectFragment } from "./fragments/Project"
 import { StepFragment } from "./fragments/Step"
+import { StepTypeFragment } from "./fragments/StepType"
 import { TaskFragment } from "./fragments/Task"
 import { TaskLogFragment } from "./fragments/TaskLog"
 
@@ -12,6 +13,7 @@ export interface Fragments {
   Flag?: FlagFragment[]
   Project?: ProjectFragment[]
   Step?: StepFragment[]
+  StepType?: StepTypeFragment[]
   Task?: TaskFragment[]
   TaskLog?: TaskLogFragment[]
 }

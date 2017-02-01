@@ -7,7 +7,8 @@ addBackendFragmentMeta(
   projectMeta,
   {
     id: {
-      column: "project_id"
+      column: "project_id",
+      columnType: "bigint"
     },
     code: {}
   }
@@ -17,16 +18,21 @@ addBackendFragmentMeta(
   taskMeta,
   {
     id: {
-      column: "task_id"
+      column: "task_id",
+      columnType: "bigint"
     },
     code: {},
     createdById: {
-      column: "created_by"
+      column: "created_by",
+      columnType: "bigint"
     },
     affectedToId: {
-      column: "affected_to"
+      column: "affected_to",
+      columnType: "bigint"
     },
-    curStepId: {},
+    curStepId: {
+      columnType: "bigint"
+    },
     createTs: {
       columnType: "timestamp"
     },
@@ -40,9 +46,15 @@ addBackendFragmentMeta(
   stepMeta,
   {
     id: {
-      column: "step_id"
+      column: "step_id",
+      columnType: "bigint"
     },
-    typeId: {},
-    projectId: {}
+    typeId: {
+      column: "step_type_id",
+      columnType: "bigint"
+    },
+    projectId: {
+      columnType: "bigint"
+    }
   }
 )

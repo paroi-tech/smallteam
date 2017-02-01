@@ -4,8 +4,10 @@ import { Response } from "express"
 import CargoLoader from "./CargoLoader"
 import { Cargo } from "../isomorphic/Cargo"
 import meta from "../isomorphic/meta"
-import { queryProjects, createProject, fetchProjects } from "./dbqueries/queryProject"
-import { createTask, fetchTasks } from "./dbqueries/queryTask"
+import { queryProjects, createProject, fetchProjects, updateProject } from "./dbqueries/queryProject"
+import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
+import { createTask, updateTask, fetchTasks } from "./dbqueries/queryTask"
+import { createStepType, fetchStepTypes, queryStepTypes, updateStepType } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
 
 process.on("uncaughtException", err => {
@@ -64,21 +66,49 @@ function writeServerResponse(resp: Response, httpCode, data) {
 }
 
 async function executeQuery(resp: Response, data): Promise<Cargo> {
-  if (data.type !== "Project")
-    throw new Error(`Invalid query type: "${data.type}"`)
   let loader = new CargoLoader("fragments")
-  await queryProjects(loader, data.filters || {})
+  if (data.type === "Project")
+    await queryProjects(loader, data.filters || {})
+  else if (data.type === "StepType")
+    await queryStepTypes(loader)
+  else
+    throw new Error(`Invalid query type: "${data.type}"`)
   await completeCargo(loader)
   return loader.toCargo()
 }
 
 async function executeExec(resp: Response, data): Promise<Cargo> {
-  if (data.cmd !== "create")
-    throw new Error(`Invalid command: "${data.cmd}"`)
-  if (data.type !== "Project")
-    throw new Error(`Invalid type: "${data.type}"`)
   let loader = new CargoLoader("fragment")
-  await createProject(loader, data.values)
+  if (data.type === "Project") {
+    if (data.cmd === "create")
+      await createProject(loader, data.values)
+    else if (data.cmd === "update")
+      await updateProject(loader, data.values)
+    else
+      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+  } else if (data.type === "Step") {
+    if (data.cmd === "create")
+      await createStep(loader, data.values)
+    else if (data.cmd === "delete")
+      await deleteStep(loader, data.values)
+    else
+      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+  } else if (data.type === "StepType") {
+    if (data.cmd === "create")
+      await createStepType(loader, data.values)
+    else if (data.cmd === "update")
+      await updateStepType(loader, data.values)
+    else
+      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+  } else if (data.type === "Task") {
+    if (data.cmd === "create")
+      await createTask(loader, data.values)
+    else if (data.cmd === "update")
+      await updateTask(loader, data.values)
+    else
+      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+  } else
+    throw new Error(`Invalid type: "${data.type}"`)
   await completeCargo(loader)
   return loader.toCargo()
 }
@@ -91,5 +121,7 @@ async function completeCargo(loader: CargoLoader) {
       throw new Error(`Cannot complete the cargo, infinite loop`)
     await fetchProjects(loader, loader.getNeeded("Project") as any)
     await fetchTasks(loader, loader.getNeeded("Task") as any)
+    await fetchSteps(loader, loader.getNeeded("Step") as any)
+    await fetchStepTypes(loader, loader.getNeeded("StepType") as any)
   }
 }
