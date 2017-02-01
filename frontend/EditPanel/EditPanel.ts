@@ -3,7 +3,7 @@ import { Component, Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
 
-const panelTpl = require("html-loader!./editpanel.html")
+const template = require("html-loader!./editpanel.html")
 
 export default class EditPanel implements Component, Panel {
   static readonly componentName = "EditPanel"
@@ -12,7 +12,7 @@ export default class EditPanel implements Component, Panel {
   private $container: JQuery
 
   constructor(private dash: Dash<App>, title: string) {
-    this.$container = $(panelTpl)
+    this.$container = $(template)
     this.$container.find(".js-title").text(title)
   }
 
@@ -22,6 +22,10 @@ export default class EditPanel implements Component, Panel {
 
   public hide() {
     this.$container.hide()
+  }
+
+  public init(): EditPanel {
+    return this
   }
 
   public show() {
