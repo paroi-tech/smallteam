@@ -90,7 +90,7 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
     if (data.cmd === "create")
       await createStep(loader, data.values)
     else if (data.cmd === "delete")
-      await deleteStep(loader, data.values)
+      await deleteStep(loader, data.id)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else if (data.type === "StepType") {

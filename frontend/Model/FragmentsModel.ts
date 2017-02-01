@@ -3,6 +3,7 @@ import { TaskFragment } from "../../isomorphic/fragments/Task"
 import { ImageFragment } from "../../isomorphic/fragments/Attachment"
 import { ContributorFragment } from "../../isomorphic/fragments/Contributor"
 import { StepFragment } from "../../isomorphic/fragments/Step"
+import { StepTypeFragment } from "../../isomorphic/fragments/StepType"
 import { FlagFragment } from "../../isomorphic/fragments/Flag"
 import { CommentFragment } from "../../isomorphic/fragments/Comment"
 import { TaskLogFragment } from "../../isomorphic/fragments/TaskLog"
@@ -13,7 +14,7 @@ export interface ProjectModel extends ProjectFragment {
 }
 
 export interface TaskModel extends TaskFragment {
-  // readonly currentStep: StepModel
+  readonly currentStep: StepModel
   // readonly parent?: TaskModel
   // readonly createdBy: ContributorModel
   // readonly affectedTo?: ContributorModel
@@ -32,8 +33,11 @@ interface ContributorModel extends ContributorFragment {
   readonly avatar: ImageModel
 }
 
-interface StepModel extends StepFragment {
+export interface StepModel extends StepFragment {
   readonly project: ProjectModel
+}
+
+export interface StepTypeModel extends StepTypeFragment {
 }
 
 interface FlagModel extends FlagFragment {

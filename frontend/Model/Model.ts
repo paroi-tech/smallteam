@@ -1,14 +1,20 @@
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { validateDataArray } from "../../isomorphic/validation"
-import { ProjectFragment, NewProjectFragment } from "../../isomorphic/fragments/Project"
+import { ProjectFragment, NewProjectFragment, UpdProjectFragment } from "../../isomorphic/fragments/Project"
+import { StepFragment, NewStepFragment } from "../../isomorphic/fragments/Step"
+import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
+import { TaskFragment, NewTaskFragment, UpdTaskFragment } from "../../isomorphic/fragments/Task"
 import meta from "../../isomorphic/meta"
-import { ProjectModel, TaskModel } from "./FragmentsModel"
-import { TaskFragment } from "../../isomorphic/fragments/Task"
+import { ProjectModel, TaskModel, StepModel, StepTypeModel } from "./FragmentsModel"
 import { Cargo, FragmentRef, FragmentsRef, Fragments, Identifier } from "../../isomorphic/Cargo"
 
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
 }
+
+// --
+// -- Project
+// --
 
 export async function queryProjects(filters: AsFilter<ProjectFragment>): Promise<ProjectModel[]> {
   let projects: ProjectFragment[] = await httpPostAndUpdate("/api/query", {
@@ -17,7 +23,7 @@ export async function queryProjects(filters: AsFilter<ProjectFragment>): Promise
   }, "fragments")
   let list: ProjectModel[] = []
   for (let p of projects)
-    list.push(getProjectModel(p))
+    list.push(toProjectModel(p))
   return list
 }
 
@@ -27,10 +33,19 @@ export async function createProject(values: NewProjectFragment): Promise<Project
     type: "Project",
     values
   }, "fragment")
-  return getProjectModel(project)
+  return toProjectModel(project)
 }
 
-function getProjectModel(data: ProjectFragment): ProjectModel {
+export async function updateProject(values: UpdProjectFragment): Promise<ProjectModel> {
+  let project: ProjectFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "update",
+    type: "Project",
+    values
+  }, "fragment")
+  return toProjectModel(project)
+}
+
+function toProjectModel(data: ProjectFragment): ProjectModel {
   let model = {
     get rootTask() {
       return getTaskModel(data.rootTaskId)
@@ -40,15 +55,141 @@ function getProjectModel(data: ProjectFragment): ProjectModel {
   return model as any
 }
 
+function getProjectModel(projectId: string): ProjectModel {
+  let data: ProjectFragment = getFragment({
+    id: projectId,
+    type: "Project"
+  })
+  return toProjectModel(data)
+}
+
+// --
+// -- Task
+// --
+
+export async function createTask(values: NewTaskFragment): Promise<TaskModel> {
+  let frag: TaskFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "create",
+    type: "Task",
+    values
+  }, "fragment")
+  return getTaskModel(frag.id)
+}
+
+export async function updateTask(values: UpdTaskFragment): Promise<TaskModel> {
+  let frag: TaskFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "update",
+    type: "Task",
+    values
+  }, "fragment")
+  return getTaskModel(frag.id)
+}
+
 function getTaskModel(taskId: string): TaskModel {
-  let data = getFragment({
+  let data: TaskFragment = getFragment({
     id: taskId,
     type: "Task"
   })
-  let model = {}
+  let model = {
+    get currentStep() {
+      return getStepModel(data.curStepId)
+    }
+  }
   addModelGetters(model, meta.Task, data)
   return model as any
 }
+
+// --
+// -- Step
+// --
+
+export async function createStep(values: NewStepFragment): Promise<StepModel> {
+  let frag: StepFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "create",
+    type: "Step",
+    values
+  }, "fragment")
+  return getStepModel(frag.id)
+}
+
+export async function deleteStep(stepId: string): Promise<void> {
+  let frag: StepFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "update",
+    type: "Step",
+    id: stepId
+  }, "fragment")
+}
+
+function getStepModel(stepId: string): StepModel {
+  let data: StepFragment = getFragment({
+    id: stepId,
+    type: "Step"
+  })
+  let model = {
+    get project() {
+      return getProjectModel(data.projectId)
+    }
+  }
+  addModelGetters(model, meta.Step, data)
+  return model as any
+}
+
+// --
+// -- StepType
+// --
+
+export async function queryStepTypes(): Promise<StepTypeModel[]> {
+  let fragments: StepTypeFragment[] = await httpPostAndUpdate("/api/query", {
+    type: "StepType"
+  }, "fragments")
+  let list: StepTypeModel[] = []
+  for (let item of fragments)
+    list.push(getStepTypeModel(item.id))
+  return list
+}
+
+export async function createStepType(values: NewStepTypeFragment): Promise<StepTypeModel> {
+  let frag: StepTypeFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "create",
+    type: "StepType",
+    values
+  }, "fragment")
+  return getStepTypeModel(frag.id)
+}
+
+export async function updateStepType(values: UpdStepTypeFragment): Promise<StepTypeModel> {
+  let frag: StepTypeFragment = await httpPostAndUpdate("/api/exec", {
+    cmd: "update",
+    type: "StepType",
+    values
+  }, "fragment")
+  return getStepTypeModel(frag.id)
+}
+
+function getStepTypeModel(stepTypeId: string): StepTypeModel {
+  let data: StepTypeFragment = getFragment({
+    id: stepTypeId,
+    type: "StepType"
+  })
+  let model = {}
+  addModelGetters(model, meta.StepType, data)
+  return model as any
+}
+
+// --
+// -- The common fragment store
+// --
+
+const store = {
+  Project: new Map<Identifier, ProjectFragment>(),
+  Task: new Map<Identifier, TaskFragment>(),
+  Step: new Map<Identifier, StepFragment>(),
+  StepType: new Map<Identifier, StepTypeFragment>(),
+}
+
+// --
+// -- Model tools
+// --
 
 function addModelGetters(model, FragmentMeta: FragmentMeta, data) {
   for (let fieldName in FragmentMeta.fields) {
@@ -59,27 +200,6 @@ function addModelGetters(model, FragmentMeta: FragmentMeta, data) {
       configurable: false
     })
   }
-}
-
-// interface ProjectFragment {
-//   id: string
-//   code: string
-//   archived: boolean
-//   rootTaskId: string
-// }
-//
-// interface ProjectModel extends ProjectFragment {
-//   readonly rootTask: TaskModel
-//   readonly steps: StepModel[]
-// }
-
-// export default class Model {
-//   get()
-// }
-
-const store = {
-  Project: new Map<Identifier, ProjectFragment>(),
-  Task: new Map<Identifier, TaskFragment>()
 }
 
 function updateStore(fragments: Fragments) {
@@ -125,11 +245,11 @@ function getFragment(ref: FragmentRef) {
   return data
 }
 
-function getFragments(ref: FragmentsRef): (ProjectFragment | TaskFragment)[] {
+function getFragments(ref: FragmentsRef): any[] {
   if (!store[ref.type])
     throw new Error(`Unknown type: ${ref.type}`)
   let map = store[ref.type],
-    list: (ProjectFragment | TaskFragment)[] = []
+    list: any[] = []
   for (let id of ref.list) {
     let data = map.get(id)
     if (!data)
