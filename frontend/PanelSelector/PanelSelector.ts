@@ -4,8 +4,10 @@ import App from "../App/App"
 import Menu from "../Menu/Menu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
-import { createProject, queryProjects } from "../Model/Model"
 import { ProjectModel, TaskModel } from "../Model/FragmentsModel"
+
+// Test
+import { createProject, queryProjects } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -42,17 +44,18 @@ export default class PanelSelector implements Component {
   }
 
   public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
+    makeTests(el)
+    this.$container.appendTo(el)
   }
 
   public init(): PanelSelector {
     this.menu = this.dash.create(Menu, { args: [] }).init()
     this.menu.attachTo(this.$menuContainer[0])
     this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => {
-        this.showPanel(data.entryId)
+      this.showPanel(data.entryId)
     })
 
-    this.dash.listenToChildren("projectCreated").call("dataFirst",  (data: any) => {
+    this.dash.listenToChildren("projectCreated").call("dataFirst", (data: any) => {
       let projectModel: ProjectModel = data.projectModel as ProjectModel
       this.map.set(projectModel.id, {
         projectModel: projectModel,
@@ -74,22 +77,22 @@ export default class PanelSelector implements Component {
 
   private loadProjects() {
     queryProjects({
-        archived: false
-      }).then(list => {
-        console.log("queryProjects:", list)
-        if(list.length === 0) {
-          alert("No project to load from server.")
-          this.showPanel("projectForm")
-        } else {
-          for(let projectModel of list) {
-            this.map.set(projectModel.id, {
-              projectModel: projectModel,
-              type: ProjectBoard
-            })
-            this.menu.addMenuEntry(projectModel.id, projectModel.code)
-          }
+      archived: false
+    }).then(list => {
+      console.log("queryProjects:", list)
+      if (list.length === 0) {
+        alert("No project to load from server.")
+        this.showPanel("projectForm")
+      } else {
+        for (let projectModel of list) {
+          this.map.set(projectModel.id, {
+            projectModel: projectModel,
+            type: ProjectBoard
+          })
+          this.menu.addMenuEntry(projectModel.id, projectModel.code)
         }
-      })
+      }
+    })
       .catch(err => {
         alert("An error occured while loading projects from server.")
         console.log("Unable to load projects.", err)
@@ -128,4 +131,33 @@ export default class PanelSelector implements Component {
         v.panel.hide()
     })
   }
+}
+
+import { createStep, createStepType, createTask, deleteStep, queryStepTypes, updateProject, updateStepType, updateTask } from "../Model/Model"
+import { StepModel, StepTypeModel } from "../Model/FragmentsModel"
+
+function makeTests(el) {
+  let type: StepTypeModel
+  $(`<button type="button">Add type</button>`).appendTo(el).click(async () => {
+    createStepType({
+      name: "TODO"
+    }).then(t => {
+      console.log("Created type:", t)
+      type = t
+    })
+  })
+  $(`<button type="button">Get types</button>`).appendTo(el).click(async () => {
+    queryStepTypes().then(types => {
+      console.log("Loaded types:", types)
+    })
+  })
+  $(`<button type="button">Add step</button>`).appendTo(el).click(async () => {
+    createStep({
+      projectId: "1",
+      typeId: type.id
+    }).then(step => {
+      console.log("Created step:", step)
+    })
+  })
+
 }

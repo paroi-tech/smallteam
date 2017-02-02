@@ -155,6 +155,11 @@ function toSqlValue(val, colMeta: DbColumnMeta, fieldMeta: FieldMeta) {
       throw new Error(`Invalid bit value: "${val}"`)
     return val
   }
+  if (colType === "string") {
+    if (typeof val !== "string")
+      throw new Error(`Invalid string value: "${val}"`)
+    return val
+  }
   throw new Error(`Unknown column type "${colType}"`)
 }
 

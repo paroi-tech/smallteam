@@ -2,6 +2,7 @@ import { addBackendFragmentMeta } from "./backendMetaStore"
 import { projectMeta } from "../../isomorphic/fragments/Project"
 import { taskMeta } from "../../isomorphic/fragments/Task"
 import { stepMeta } from "../../isomorphic/fragments/Step"
+import { stepTypeMeta } from "../../isomorphic/fragments/StepType"
 
 addBackendFragmentMeta(
   projectMeta,
@@ -56,5 +57,17 @@ addBackendFragmentMeta(
     projectId: {
       columnType: "bigint"
     }
+  }
+)
+
+addBackendFragmentMeta(
+  stepTypeMeta,
+  {
+    id: {
+      column: "step_type_id",
+      columnType: "bigint"
+    },
+    name: {},
+    orderNum: {}
   }
 )
