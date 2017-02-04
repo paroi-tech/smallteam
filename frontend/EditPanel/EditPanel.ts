@@ -1,14 +1,11 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
 
 const template = require("html-loader!./editpanel.html")
 
-export default class EditPanel implements Component, Panel {
-  static readonly componentName = "EditPanel"
-  readonly bkb: Bkb
-
+export default class EditPanel implements Panel {
   private $container: JQuery
 
   constructor(private dash: Dash<App>, title: string) {

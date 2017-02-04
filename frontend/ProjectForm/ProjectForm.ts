@@ -1,15 +1,12 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
 import { createProject } from "../Model/Model"
 
 const template = require("html-loader!./projectform.html")
 
-export default class ProjectForm implements Component {
-  static readonly componentName = "ProjectForm"
-  readonly bkb: Bkb
-
+export default class ProjectForm {
   private $container: JQuery
   private $form: JQuery
   private $projectCode: JQuery

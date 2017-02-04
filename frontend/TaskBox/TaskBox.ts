@@ -1,13 +1,10 @@
 import * as $ from "jquery"
-import {Component, Dash, Bkb} from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 
 import * as template from "html-loader!./taskbox.html"
 
-export default class TaskBox implements Component {
-  readonly bkb: Bkb
-  static readonly componentName = "TaskBox"
-
+export default class TaskBox {
   private $container: JQuery
 
   constructor(private dash: Dash<App>, title: string) {
@@ -20,7 +17,7 @@ export default class TaskBox implements Component {
   }
 
   public setWithFocus(focus: boolean) {
-    if(focus) {
+    if (focus) {
       this.$container.addClass("focus")
     } else {
       this.$container.removeClass("focus")

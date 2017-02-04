@@ -10,10 +10,7 @@ import { querySteps, queryTasks } from "../Model/fakeModel"
 
 const template = require("html-loader!./stepspanel.html")
 
-export default class StepsPanel implements Component {
-  static readonly componentName = "StepsPanel"
-  readonly bkb: Bkb
-
+export default class StepsPanel {
   private $container: JQuery
   private $stepsContainer: JQuery
 

@@ -1,5 +1,5 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb } from "bkb"
 import StepsPanel from "../StepsPanel/StepsPanel"
 import EditPanel  from "../EditPanel/EditPanel"
 import App from "../App/App"
@@ -8,10 +8,7 @@ import { ProjectModel } from "../Model/FragmentsModel"
 
 const template = require("html-loader!./projectboard.html")
 
-export default class ProjectBoard implements Component, Panel {
-  static readonly componentName = "ProjectBoard"
-  readonly bkb: Bkb
-
+export default class ProjectBoard implements Panel {
   private $container: JQuery
   private $stepsPanelContainer: JQuery
   private $editPanelContainer: JQuery

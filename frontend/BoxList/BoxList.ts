@@ -1,5 +1,5 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb } from "bkb"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import * as Sortable from "sortablejs"
@@ -7,10 +7,7 @@ import * as Sortable from "sortablejs"
 const boxListTpl = require("html-loader!./boxlist.html")
 const boxTpl = require("html-loader!./box.html")
 
-export default class BoxList implements Component {
-  static readonly componentName = "BoxList"
-  readonly bkb: Bkb
-
+export default class BoxList {
   private $container: JQuery
   private $ul: JQuery
 

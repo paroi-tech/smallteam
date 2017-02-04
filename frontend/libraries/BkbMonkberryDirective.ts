@@ -1,14 +1,13 @@
 import { Log, Component } from 'bkb'
 
-type Comp = Component & MonkberryComponent
+type Comp = Component<MonkberryComponent>
 
 export interface MonkberryComponent {
-  attachTo(el: HTMLElement): void
   update?(value?: string): void
 }
 
 export interface ComponentMakers {
-  [directiveName: string]: (el: HTMLElement, value?: string) => Component & MonkberryComponent
+  [directiveName: string]: (el: HTMLElement, value?: string) => Component<MonkberryComponent>
 }
 
 export default function createBkbDirectives(log: Log, makers: ComponentMakers) {
@@ -49,10 +48,8 @@ function createDirective(log: Log, maker: (el: HTMLElement, value?: string) => C
           if (!this.comp.update)
             throw new Error(`Missing method "update" in component of the Monkberry directive "${directiveName}"`)
           this.comp.update(value)
-        } else {
+        } else
           this.comp = maker(this.el, value)
-          this.comp.attachTo(this.el)
-        }
       } catch (e) {
         log.error(e)
       }

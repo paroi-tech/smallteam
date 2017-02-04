@@ -1,9 +1,8 @@
 import * as $ from "jquery"
-import { Application, ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
+import { ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
 import PanelSelector from "../PanelSelector/PanelSelector"
 
-export default class App implements Application {
-  readonly bkb: ApplicationBkb
+export default class App {
   readonly log: Log
   readonly nextTick: (cb: () => void) => void
 

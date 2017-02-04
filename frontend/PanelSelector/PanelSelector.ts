@@ -1,5 +1,5 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import Menu from "../Menu/Menu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
@@ -23,10 +23,7 @@ interface PanelInfo {
   type: typeof ProjectBoard | typeof ProjectForm
 }
 
-export default class PanelSelector implements Component {
-  static readonly componentName = "PanelSelector"
-  readonly bkb: Bkb
-
+export default class PanelSelector {
   private menu: Menu;
   // TODO: Need Thomas advice about this.
   // We use null as key for the ProjectForm element.

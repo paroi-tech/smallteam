@@ -1,11 +1,10 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
 
 const template = require("html-loader!./menu.html")
 
-export default class Menu implements Component {
-  static readonly componentName = "Menu"
+export default class Menu {
   readonly bkb: Bkb
 
   private $container: JQuery
@@ -37,7 +36,7 @@ export default class Menu implements Component {
     $(el).append(this.$container)
   }
 
-  public init(): Menu {
+  public init() {
     this.$container.find(".js-btn").click(() => {
       console.log("Dropdown menu button clicked...")
       this.$dropdownList.toggle()
@@ -47,7 +46,6 @@ export default class Menu implements Component {
       this.$dropdownList.toggle()
       this.dash.emit("menuEntrySelected", { entryId: null })
     })
-
     return this
   }
 }

@@ -1,14 +1,11 @@
 import * as $ from "jquery"
-import { Component, Dash, Bkb } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { createStepType } from "../Model/Model"
 
 const template = require("html-loader!./projectform.html")
 
 export default class StepTypeForm {
-  static readonly componentName = "ProjectForm"
-  readonly bkb: Bkb
-
   private $container: JQuery
   private $form: JQuery
   private $stepTypeName: JQuery
