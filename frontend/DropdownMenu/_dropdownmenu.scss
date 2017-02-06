@@ -1,0 +1,30 @@
+@import "../definitions/definitions";
+
+.DropdownMenu {
+  &-btn {
+    display: block;
+  }
+
+  &-ItemBtn {
+    text-align: left;
+    border: 0;
+    background-color: white;
+    background-image: none;
+    display: block;
+    width: 100%;
+  }
+
+  &-ItemBtn:hover {
+      background-color: royalblue;
+      color: white;
+  }
+
+  &-ul {
+    border: 1px solid gray;
+    border-radius: 3px;
+    display: none;
+    position: absolute;
+    right: 0;
+    width: 150px;
+  }
+}

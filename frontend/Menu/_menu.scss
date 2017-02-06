@@ -5,28 +5,10 @@
   color: white;
   font-weight: bold;
   min-height: 40px;
-  position: relative;
 
   &-ul {
-    padding-right: 40px;
     li {
       display: inline-block;
     }
-  }
-  &-right {
-    position: absolute;
-    right: 0;
-    top: 0;
-  }
-}
-
-.DropdownList {
-  display: none;
-  right: 0;
-  position: absolute;
-  width: 150px;
-
-  > li {
-    text-align: right;
   }
 }

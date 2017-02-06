@@ -21,18 +21,40 @@ export default class StepsPanel {
 
     this.$container = $(template)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
+
+    this.loadSteps()
+    this.listenToEvents()
   }
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
 
-  public init(): StepsPanel {
+  private listenToEvents() {
+    this.$container.find(".js-add-task-button").click((ev) => {
+      console.log(`Add Task button click from StepsPanel ${this.projectModel.code}`)
+      let s: string = this.$container.find("input").val().trim()
+      if(s.length > 0) {
+        let t = this.dash.create(TaskBox, {
+          group: "items",
+          args: [s]
+        })
+        let l = this.map.get("1")
+        if (l) {
+          l.addBox(t)
+          console.log(`Task Added in StepsPanel ${this.projectModel.code}`)
+        }
+      } else
+        alert("The task name should contain more characters...")
+    })
+  }
+
+  private loadSteps() {
     let steps = querySteps(this.projectModel)
     let tasks = queryTasks(this.projectModel)
     for (let step of steps) {
-      let bl = this.dash.create(BoxList, { args: [ step.name, this.projectModel.code ] }).init()
-      for (let task of tasks)
+      let bl = this.dash.create(BoxList, { args: [ step.name, this.projectModel.code ] })
+      for (let task of tasks) {
         if (task.curStepId === step.id) {
           let box = this.dash.create(TaskBox, {
             group: "items",
@@ -40,26 +62,13 @@ export default class StepsPanel {
           })
           bl.addBox(box)
         }
-      this.map.set(step.id, bl)
+      }
+      // TODO: Improve this. The key of the BoxList in the map should be its stepId.
+      // But since we add new tasks in the BoxList which key is 1, we have to use
+      // the typeId as key in the map.
+      this.map.set(step.typeId, bl)
       bl.attachTo(this.$stepsContainer[0])
     }
-
-    this.$container.find(".js-add-task-button").click((ev) => {
-      console.log(`Add Task button click from StepsPanel ${this.projectModel.code}`)
-      let s: string = this.$container.find("input").val()
-      if(s.length > 0) {
-        let t = this.dash.create(TaskBox, {
-          group: "items",
-          args: [s]
-        })
-        this.map.get("todo")!.addBox(t)
-        console.log(`Task Added in StepsPanel ${this.projectModel.code}`)
-      }
-    })
-
-    return this;
   }
-
-
 
 }

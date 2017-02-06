@@ -38,8 +38,4 @@ export default class BoxList {
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
-
-  public init(): BoxList {
-    return this
-  }
 }

@@ -21,10 +21,6 @@ export default class EditPanel implements Panel {
     this.$container.hide()
   }
 
-  public init(): EditPanel {
-    return this
-  }
-
   public show() {
     this.$container.show()
   }
