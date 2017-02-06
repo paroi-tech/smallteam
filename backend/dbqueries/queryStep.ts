@@ -7,7 +7,7 @@ import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 
 // --
-// -- Select
+// -- Read
 // --
 
 export async function fetchSteps(loader: CargoLoader, idList: string[]) {

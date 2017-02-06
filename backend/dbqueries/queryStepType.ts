@@ -6,6 +6,10 @@ import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92buil
 import { getDbConnection, toIntList } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 
+// --
+// -- Read
+// --
+
 export async function queryStepTypes(loader: CargoLoader) {
   let cn = await getDbConnection()
   let sql = selectFromStepType()

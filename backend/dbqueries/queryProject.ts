@@ -6,6 +6,10 @@ import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92buil
 import { getDbConnection, toIntList } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 
+// --
+// -- Read
+// --
+
 export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
   let cn = await getDbConnection()
   let sql = selectFromProject()
@@ -15,6 +19,7 @@ export async function queryProjects(loader: CargoLoader, filters: Partial<Projec
   for (let row of rs) {
     let frag = toProjectFragment(row)
     loader.addToResultFragments("Project", frag.id, frag)
+    loader.addFragment("Task", frag.rootTaskId)
   }
 }
 
@@ -26,9 +31,9 @@ export async function fetchProjects(loader: CargoLoader, idList: string[]) {
     .where("p.project_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    let data = toProjectFragment(row)
-    loader.addFragment("Project", data.id, data)
-    loader.addFragment("Task", data.rootTaskId)
+    let frag = toProjectFragment(row)
+    loader.addFragment("Project", frag.id, frag)
+    loader.addFragment("Task", frag.rootTaskId)
   }
 }
 
@@ -123,6 +128,7 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
   }
 
   loader.setResultFragment("Project", projectId.toString())
+  loader.addFragment("Task", taskId.toString())
 }
 
 // --
@@ -132,27 +138,91 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
 export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFragment) {
   let cn = await getDbConnection()
 
-  let values = toSqlValues(updFrag, updProjectMeta, "exceptId")
-  if (values === null)
-    return
+  let projectId = parseInt(updFrag.id, 10)
 
-  let sql = buildUpdate()
-    .update("project")
-    .set(values)
-    .where(toSqlValues(updFrag, updProjectMeta, "onlyId")!)
+  let valuesToUpd = toSqlValues(updFrag, updProjectMeta, "exceptId")
+  if (valuesToUpd) {
+    if (updFrag.code !== undefined && await hasTasks(projectId))
+      throw new Error(`Cannot update the project "${updFrag.id}" because it has tasks`)
+    let sql = buildUpdate()
+      .update("project")
+      .set(valuesToUpd)
+      .where(toSqlValues(updFrag, updProjectMeta, "onlyId"))
+    await cn.run(sql.toSql())
+  }
 
-  // Description
-  if (updFrag.description) {
-    // TODO: insert or update the description
-    // sql = buildInsert()
-    //   .insertInto("task_description")
-    //   .values({
-    //     "task_id": taskId,
-    //     "description": updFrag.description
-    //   })
-    // await cn.run(sql.toSql())
+  if (updFrag.name !== undefined || updFrag.description !== undefined) {
+    let taskId = await getRootTaskId(projectId)
+
+    if (updFrag.description !== undefined)
+      updateTaskDescription(taskId, updFrag.description)
+
+    let sql = buildUpdate()
+      .update("task")
+      .set({
+        update_ts: { "vanilla": "current_timestamp" }
+      })
+      .where("task_id", taskId)
+    if (updFrag.name !== undefined)
+      sql.set({ label: updFrag.name })
+    await cn.run(sql.toSql())
+    loader.addFragment("Task", taskId.toString())
+  }
+
+  loader.setResultFragment("Project", projectId.toString())
+}
+
+async function updateTaskDescription(taskId: number, description: string | null) {
+  let cn = await getDbConnection()
+  if (description === null) {
+    let sql = buildDelete()
+      .deleteFrom("task_description")
+      .where("task_id", taskId)
+    await cn.run(sql.toSql())
+  } else {
+    let sql = buildUpdate()
+      .update("task_description")
+      .set({
+        description: description
+      })
+      .where("task_id", taskId)
+    let st = await cn.run(sql.toSql())
+    if (st.changes === 0) {
+      let sql = buildInsert()
+        .insertInto("task_description")
+        .values({
+          description: description,
+          task_id: taskId
+        })
+      await cn.run(sql.toSql())
+    }
   }
 }
+
+async function hasTasks(projectId: number) {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("count(t.task_id) as task_count")
+    .from("task t")
+    .innerJoin("step s", "on", "t.cur_step_id = s.step_id")
+    .where("s.project_id", projectId)
+  let rs = await cn.all(sql.toSql())
+  return rs[0]["task_count"] > 0
+}
+
+async function getRootTaskId(projectId: number) {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("task_id")
+    .from("root_task")
+    .where("project_id", projectId)
+  let rs = await cn.all(sql.toSql())
+  if (rs.length !== 1)
+    throw new Error(`Missing root task for the project "${projectId}"`)
+  return rs[0]["task_id"]
+}
+
+
 
 // --
 // -- Utils
@@ -194,7 +264,7 @@ export async function makeTaskCodeFromStep(stepId: number): Promise<string> {
     let upd = buildUpdate()
       .update("project")
       .set({
-        "task_seq": {"vanilla": "task_seq + 1"}
+        "task_seq": { "vanilla": "task_seq + 1" }
       })
       .where("project_id", projectId)
       .andWhere("task_seq", prevSeqVal)

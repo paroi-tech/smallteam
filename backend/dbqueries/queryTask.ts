@@ -8,7 +8,7 @@ import { makeTaskCodeFromStep } from "./queryProject"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 
 // --
-// -- Select
+// -- Read
 // --
 
 export async function fetchTasks(loader: CargoLoader, idList: string[]) {

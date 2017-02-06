@@ -274,7 +274,9 @@ async function httpPostAndUpdate(url, data, resultType?: "data" | "fragment" | "
       case "data":
         return cargo.result.val
       case "fragment":
-        return cargo.result.val ? getFragment(cargo.result.val) : null
+        if (!cargo.result.val)
+          throw new Error(`Missing fragment result for HTTP query`)
+        return getFragment(cargo.result.val)
       case "fragments":
         return cargo.result.val ? getFragments(cargo.result.val) : []
     }

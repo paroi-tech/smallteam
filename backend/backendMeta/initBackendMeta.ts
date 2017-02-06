@@ -11,7 +11,8 @@ addBackendFragmentMeta(
       column: "project_id",
       columnType: "bigint"
     },
-    code: {}
+    code: {},
+    archived: {}
   }
 )
 

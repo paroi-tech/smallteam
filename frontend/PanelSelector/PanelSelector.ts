@@ -151,7 +151,16 @@ function makeTests(el) {
   $(`<button type="button">Add step</button>`).appendTo(el).click(async () => {
     createStep({
       projectId: "1",
-      typeId: type.id
+      typeId: "2"
+    }).then(step => {
+      console.log("Created step:", step)
+    })
+  })
+  $(`<button type="button">Update project</button>`).appendTo(el).click(async () => {
+    updateProject({
+      id: "1",
+      description: "Hop la description",
+      name: "Beau projet"
     }).then(step => {
       console.log("Created step:", step)
     })
