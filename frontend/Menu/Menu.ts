@@ -4,48 +4,43 @@ import App from "../App/App"
 
 const template = require("html-loader!./menu.html")
 
-export default class Menu {
+export interface MenuItem {
+  id: string,
+  label: string
+}
+
+export class Menu {
   readonly bkb: Bkb
 
   private $container: JQuery
   private $ul: JQuery
-  private $dropdownList: JQuery
 
   private elements: Map<string, JQuery>
 
   constructor(private dash: Dash<App>, id: string, title: string) {
+    this.elements = new Map<string, JQuery>()
+
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
-    this.$dropdownList = this.$container.find(".js-dropdown-list")
-
-    this.elements = new Map<string, JQuery>()
   }
 
-  public addMenuEntry(entryId: string, entryLabel: string) {
+  public addItem(item: MenuItem) {
     let $li = $("<li></li>")
-    $li.text(entryLabel)
+    $li.text(item.label)
     $li.click((ev) => {
-      console.log(`Click on menu entry ${entryLabel}`)
-      this.dash.emit("menuEntrySelected", { entryId });
+      console.log(`Click on menu item ${item.label}`)
+      this.dash.emit("menuItemSelected", { itemId: item.id });
     })
     this.$ul.append($li)
-    this.elements.set(entryId, $li)
+    this.elements.set(item.id, $li)
+  }
+
+  public addItems(items: Array<MenuItem>) {
+    for (let i of items)
+      this.addItem(i)
   }
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
-  }
-
-  public init() {
-    this.$container.find(".js-btn").click(() => {
-      console.log("Dropdown menu button clicked...")
-      this.$dropdownList.toggle()
-    })
-    this.$dropdownList.find(".js-add-project-btn").click(() => {
-      console.log("Add project button clicked...")
-      this.$dropdownList.toggle()
-      this.dash.emit("menuEntrySelected", { entryId: null })
-    })
-    return this
   }
 }

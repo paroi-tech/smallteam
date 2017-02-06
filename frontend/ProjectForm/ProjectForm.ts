@@ -62,7 +62,6 @@ export default class ProjectForm {
   public show() {
     (this.$form[0] as HTMLFormElement).reset()
     this.$container.show();
-    // Reset state variable used to decide if the project code should be generated from the name.
     this.generateCode = true;
   }
 }

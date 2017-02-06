@@ -18,6 +18,8 @@ export default class StepTypeForm {
     this.$stepTypeName = this.$form.find(".js-steptype-name")
     this.$stepTypeIndex = this.$form.find(".js-steptype-index")
     this.$submitButton = this.$form.find("js-submit-btn")
+
+    this.listenToForm()
   }
 
   public attachTo(el: HTMLElement) {
@@ -28,15 +30,15 @@ export default class StepTypeForm {
     this.$submitButton.click(ev => {
       let name = this.$stepTypeName.val().trim()
       if (name.length == 0) {
-        alert("The name should contain more characters...")
+        alert("The name of the step type should contain more characters...")
         return
       }
       let index = parseInt(this.$stepTypeIndex.val())
-      this.registerStepType(name, index)
+      this.saveStepType(name, index)
     })
   }
 
-  private registerStepType(name: string, index: number) {
+  private saveStepType(name: string, index: number) {
     let o: any = {
       name
     }

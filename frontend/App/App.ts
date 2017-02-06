@@ -18,7 +18,6 @@ export default class App {
   public start() {
     let $app = $(".js-app")
     let panel = this.dash.create(PanelSelector, { args: [] })
-    panel.init()
     panel.attachTo($app[0])
   }
 }

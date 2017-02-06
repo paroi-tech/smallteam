@@ -1,5 +1,17 @@
 @import "../definitions/definitions";
 
 .PanelSelector {
+  &-Menu {
+    position: relative;
 
+    &Left {
+      padding-right: 50px;
+    }
+
+    &Right {
+      position: absolute;
+      right: 0;
+      top: 0;
+    }
+  }
 }

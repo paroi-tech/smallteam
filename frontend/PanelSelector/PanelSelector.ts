@@ -1,12 +1,11 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import Menu from "../Menu/Menu"
+import { Menu, MenuItem } from "../Menu/Menu"
+import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import { ProjectModel, TaskModel } from "../Model/FragmentsModel"
-
-// Test
 import { createProject, queryProjects } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
@@ -25,32 +24,46 @@ interface PanelInfo {
 
 export default class PanelSelector {
   private menu: Menu;
+  private dropdownMenu: DropdownMenu
+
   // TODO: Need Thomas advice about this.
   // We use null as key for the ProjectForm element.
   private map: Map<string | null, PanelInfo>
 
   private $container: JQuery
-  private $menuContainer: JQuery
-  private $panelContainer: JQuery
+  private $menu: JQuery
+  private $dropdownMenu: JQuery
+  private $panel: JQuery
 
   constructor(private dash: Dash<App>) {
     this.map = new Map<string, PanelInfo>()
+
     this.$container = $(template)
-    this.$menuContainer = this.$container.find(".js-menu-container")
-    this.$panelContainer = this.$container.find(".js-panel-container")
-  }
+    this.$menu = this.$container.find(".js-menu-left")
+    this.$dropdownMenu = this.$container.find(".js-menu-right")
+    this.$panel = this.$container.find(".js-panel-container")
 
-  public attachTo(el: HTMLElement) {
-    makeTests(el)
-    this.$container.appendTo(el)
-  }
-
-  public init(): PanelSelector {
-    this.menu = this.dash.create(Menu, { args: [] }).init()
-    this.menu.attachTo(this.$menuContainer[0])
-    this.menu.bkb.on("menuEntrySelected", "dataFirst", (data: any) => {
-      this.showPanel(data.entryId)
+    this.menu = this.dash.create(Menu, { args: [] })
+    this.menu.attachTo(this.$menu[0])
+    this.menu.bkb.on("menuItemSelected", "dataFirst", (data: any) => {
+      this.showPanel(data.itemId)
     })
+
+    this.dropdownMenu = this.dash.create(DropdownMenu, { args: [] })
+    this.dropdownMenu.attachTo(this.$dropdownMenu[0])
+    this.dropdownMenu.bkb.on("dropdownMenuItemSelected", "dataFirst", (data: any) => {
+      // TODO: Add code here...
+    })
+    this.dropdownMenu.addItems([
+      {
+        id: "1",
+        label: "New project"
+      },
+      {
+        id: "2",
+        label: "Manage steps"
+      }
+    ])
 
     this.dash.listenToChildren("projectCreated").call("dataFirst", (data: any) => {
       let projectModel: ProjectModel = data.projectModel as ProjectModel
@@ -58,18 +71,23 @@ export default class PanelSelector {
         projectModel: projectModel,
         type: ProjectBoard
       })
-      this.menu.addMenuEntry(projectModel.id, projectModel.code)
+      this.menu.addItem({
+        id: projectModel.id,
+        label: projectModel.code
+      })
       this.showPanel(projectModel.id)
     })
 
-    // Add a ProjectForm to the PanelSelector.
     this.map.set(null, {
       type: ProjectForm
     })
 
     this.loadProjects()
+  }
 
-    return this;
+  public attachTo(el: HTMLElement) {
+    makeTests(el)
+    this.$container.appendTo(el)
   }
 
   private loadProjects() {
@@ -86,7 +104,10 @@ export default class PanelSelector {
             projectModel: projectModel,
             type: ProjectBoard
           })
-          this.menu.addMenuEntry(projectModel.id, projectModel.code)
+          this.menu.addItem({
+            id: projectModel.id,
+            label: projectModel.code
+          })
         }
       }
     })
@@ -106,7 +127,7 @@ export default class PanelSelector {
       if (info.type == ProjectBoard)
         info.panel = this.dash.create<ProjectBoard>(info.type, {
           args: [info.projectModel]
-        }).init()
+        })
       else if (info.type == ProjectForm)
         info.panel = this.dash.create<ProjectForm>(info.type, {
           args: []
@@ -114,7 +135,7 @@ export default class PanelSelector {
       else
         throw new Error(`Unknown Panel type: ${info.type}`)
 
-      info.panel.attachTo(this.$panelContainer[0])
+      info.panel.attachTo(this.$panel[0])
     }
 
     // Hide all panels, except the selected one
