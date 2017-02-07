@@ -6,7 +6,7 @@ export type VanillaValue = { "vanilla": SqlFn | string }
 export type Value = PrimitiveValue | VanillaValue | (string | VanillaValue)[] | (number | VanillaValue)[] | (boolean | VanillaValue)[]
 //export type NullOperator = "is null" | "is not null"
 export type InOperator = "in" | "not in"
-export type PrimitiveOperator = "=" | ">" | ">=" | "<" | "<=" | "<>"
+export type PrimitiveOperator = "=" | ">" | ">=" | "<" | "<=" | "<>" | "like"
 export type Operator = PrimitiveOperator | InOperator
 
 export interface SelectBuilder {

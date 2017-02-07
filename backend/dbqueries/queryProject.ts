@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
-import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta } from "../../isomorphic/fragments/Project"
+import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery } from "../../isomorphic/fragments/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -10,11 +10,27 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function queryProjects(loader: CargoLoader, filters: Partial<ProjectFragment>) {
+export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) {
   let cn = await getDbConnection()
   let sql = selectFromProject()
   if (filters.archived !== undefined)
     sql.andWhere("p.archived", filters.archived)
+  if (filters.code)
+    sql.andWhere("p.code", "like", `%${filters.code}%`)
+  if (filters.name)
+    sql.andWhere("t.label", "like", `%${filters.name}%`)
+  if (filters.description)
+    sql.andWhere("d.description", "like", `%${filters.description}%`)
+//   if (filters.search) {
+//     sql.andWhere("d.description", "like", `%${filters.description}%`) // TODO: build search criterion
+
+//     filter = buildFilter("and" | "or")
+//       .add()
+//     sql.andWhere(filter)
+//     sql.andWhere(filter.clone("and" | "or").replaceValuesWith(filters.search))
+// // {[filterSymbol]: any}
+
+//   }
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toProjectFragment(row)

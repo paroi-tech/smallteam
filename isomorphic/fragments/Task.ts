@@ -4,9 +4,9 @@ export interface TaskFragment {
   readonly id: string
   readonly code: string
   label: string
-  description?: string
+  description?: string | null
   createdById: string
-  affectedToId?: string
+  affectedToId?: string | null
   curStepId: string
   readonly createTs: number
   readonly updateTs: number

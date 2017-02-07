@@ -11,6 +11,18 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
+export async function queryTasks(loader: CargoLoader, filters: Partial<TaskFragment>) {
+  let cn = await getDbConnection()
+  let sql = selectFromTask()
+  // if (filters.archived !== undefined) // TODO:
+  //   sql.andWhere("p.archived", filters.archived)
+  let rs = await cn.all(sql.toSql())
+  for (let row of rs) {
+    let frag = toTaskFragment(row)
+    loader.addToResultFragments("Task", frag.id, frag)
+  }
+}
+
 export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
     return

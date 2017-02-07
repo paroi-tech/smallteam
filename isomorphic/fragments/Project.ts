@@ -1,10 +1,10 @@
-import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta, SearchPick, searchPickFragmentMeta } from "../FragmentMeta"
 
 export interface ProjectFragment {
   readonly id: string
   code: string
   name: string
-  description?: string
+  description?: string | null
   archived: boolean
   readonly rootTaskId: string
 }
@@ -45,3 +45,5 @@ export const newProjectMeta = pickFragmentMeta("New", projectMeta, ["code", "nam
 export type UpdProjectFragment = UpdPick<ProjectFragment, "id", "code" | "name" | "description" | "archived">
 export const updProjectMeta = updPickFragmentMeta("Upd", projectMeta, ["id"], ["code", "name", "description", "archived"])
 
+export type ProjectQuery = SearchPick<ProjectFragment, "code" | "name" | "description" | "archived">
+export const projectQueryMeta = searchPickFragmentMeta("New", projectMeta, ["code", "name", "description", "archived"])

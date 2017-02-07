@@ -3,7 +3,7 @@ import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "..
 export interface StepTypeFragment {
   readonly id: string
   name: string
-  orderNum?: number
+  orderNum?: number | null
 }
 
 export const stepTypeMeta: FragmentMeta = {
