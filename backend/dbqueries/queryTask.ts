@@ -39,6 +39,7 @@ export async function fetchProjectTasks(loader: CargoLoader, projectIdList: numb
   let cn = await getDbConnection()
   let sql = selectFromTask()
   sql.where("s.project_id", "in", projectIdList)
+  sql.andWhere("s.step_type_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toTaskFragment(row)
