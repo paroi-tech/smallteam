@@ -23,6 +23,17 @@ export async function fetchSteps(loader: CargoLoader, idList: string[]) {
   }
 }
 
+export async function fetchProjectSteps(loader: CargoLoader, projectIdList: number[]) {
+  let cn = await getDbConnection()
+  let sql = selectFromStep()
+  sql.where("s.project_id", "in", projectIdList)
+  let rs = await cn.all(sql.toSql())
+  for (let row of rs) {
+    let frag = toStepFragment(row)
+    loader.addFragment("Step", frag.id, frag)
+  }
+}
+
 function selectFromStep() {
   return buildSelect()
     .select("s.step_id, s.project_id, st.step_type_id, st.name")

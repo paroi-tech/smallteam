@@ -5,6 +5,8 @@ import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { fetchProjectTasks } from "./queryTask"
+import { fetchProjectSteps } from "./queryStep"
 
 // --
 // -- Read
@@ -31,12 +33,16 @@ export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) 
 // // {[filterSymbol]: any}
 
 //   }
-  let rs = await cn.all(sql.toSql())
+  let rs = await cn.all(sql.toSql()),
+    projectIdList: number[] = []
   for (let row of rs) {
     let frag = toProjectFragment(row)
     loader.addToResultFragments("Project", frag.id, frag)
     loader.addFragment("Task", frag.rootTaskId)
+    projectIdList.push(row["project_id"])
   }
+  fetchProjectSteps(loader, projectIdList)
+  fetchProjectTasks(loader, projectIdList)
 }
 
 export async function fetchProjects(loader: CargoLoader, idList: string[]) {
