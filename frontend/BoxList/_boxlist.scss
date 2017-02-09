@@ -1,8 +1,7 @@
-@import "../definitions/definitions";
-
 .BoxList {
   display: inline-block;
   vertical-align: top;
+  width: 200px;
   &-ul {
     background-color: darkgray;
     height: 100%;
@@ -14,7 +13,7 @@
   }
 }
 
-.BoxHandle {
+.BoxListHandle {
   background-color: #eee;
   bottom: 5px;
   display: block;
@@ -23,4 +22,8 @@
   text-align: center;
   top: 5px;
   width: 30px;
+
+  &:hover {
+    cursor: move;
+  }
 }

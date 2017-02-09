@@ -1,20 +1,14 @@
-@import "../definitions/definitions";
-
 $titleColor: darken(royalblue, 5);
+
+body {
+  font-family: Roboto, Cantarell, sans-serif;
+}
 
 .BlockTitle {
   background-color: $titleColor;
   color: white;
   font-weight: bold;
   padding: 10px;
-}
-
-body {
-  font-family: Roboto, Cantarell, sans-serif;
-}
-
-button, label, input, textarea {
-  font-family: inherit;
 }
 
 .PageWrapper {

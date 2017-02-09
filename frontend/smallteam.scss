@@ -61,6 +61,7 @@ table {
 
 
 @import "definitions/definitions";
+@import "App/form";
 @import "App/theme";
 @import "BoxList/boxlist";
 @import "DropdownMenu/dropdownmenu";
@@ -68,7 +69,9 @@ table {
 @import "Menu/menu";
 @import "PanelSelector/panelselector";
 @import "ProjectBoard/projectboard";
+@import "ProjectForm/projectform";
 @import "StepsPanel/stepspanel";
 @import "StepTypeBox/steptypebox";
 @import "StepTypeForm/steptypeform";
+@import "StepTypePanel/steptypepanel";
 @import "TaskBox/taskbox";

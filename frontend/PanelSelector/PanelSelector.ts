@@ -5,6 +5,7 @@ import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
+import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import { ProjectModel, TaskModel } from "../Model/FragmentsModel"
 import { createProject, queryProjects } from "../Model/Model"
 
@@ -19,7 +20,7 @@ export interface Panel {
 interface PanelInfo {
   panel?: Panel
   projectModel?: ProjectModel
-  type: typeof ProjectBoard | typeof ProjectForm
+  type: typeof ProjectBoard | typeof ProjectForm | typeof StepTypePanel
 }
 
 export default class PanelSelector {
@@ -52,8 +53,8 @@ export default class PanelSelector {
     this.settingMenu.bkb.on("createProject", "dataFirst", (data: any) => {
       this.showSettingPanel("projectForm")
     })
-    this.settingMenu.bkb.on("manageSteps", "dataFirst", (data: any) => {
-      // TODO: Add code here...
+    this.settingMenu.bkb.on("manageStepTypes", "dataFirst", (data: any) => {
+      this.showSettingPanel("stepTypePanel")
     })
 
     // TODO: This is for tests only. Add elements to dropdown menu
@@ -66,7 +67,7 @@ export default class PanelSelector {
       {
         id: "2",
         label: "Manage steps",
-        eventName: "manageSteps"
+        eventName: "manageStepTypes"
       }
     ])
 
@@ -86,6 +87,10 @@ export default class PanelSelector {
 
     this.settingPanels.set("projectForm", {
       type: ProjectForm
+    })
+
+    this.settingPanels.set("stepTypePanel", {
+      type: StepTypePanel
     })
 
     this.loadProjects()
@@ -123,6 +128,13 @@ export default class PanelSelector {
     })
   }
 
+  private setCurrentPanel(p: Panel) {
+    if (this.currentPanel)
+      this.currentPanel.hide()
+    this.currentPanel = p
+    p.show()
+  }
+
   private showProjectPanel(panelId: string) {
     let info = this.projectPanels.get(panelId)
     if (!info)
@@ -135,10 +147,7 @@ export default class PanelSelector {
       info.panel.attachTo(this.$panel[0])
     }
 
-    if (this.currentPanel)
-      this.currentPanel.hide()
-    this.currentPanel = info.panel
-    this.currentPanel.show()
+    this.setCurrentPanel(info.panel)
   }
 
   private showSettingPanel(panelId: string) {
@@ -152,16 +161,17 @@ export default class PanelSelector {
         info.panel = this.dash.create<ProjectForm>(info.type, {
           args: []
         })
+      else if (info.type == StepTypePanel)
+        info.panel = this.dash.create<StepTypePanel>(info.type, {
+          args: []
+        })
       else
         throw new Error(`Unknown Panel type: ${info.type}`)
 
       info.panel.attachTo(this.$panel[0])
     }
 
-    if (this.currentPanel)
-      this.currentPanel.hide()
-    this.currentPanel = info.panel
-    this.currentPanel.show()
+    this.setCurrentPanel(info.panel)
   }
 
 }

@@ -3,7 +3,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { createStepType } from "../Model/Model"
 
-const template = require("html-loader!./projectform.html")
+const template = require("html-loader!./steptypeform.html")
 
 export default class StepTypeForm {
   private $container: JQuery

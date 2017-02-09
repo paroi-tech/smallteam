@@ -1,0 +1,11 @@
+button, label, input, textarea {
+  font-family: inherit;
+}
+
+.FormField {
+  display: block;
+
+  &-span {
+    display: block;
+  }
+}
