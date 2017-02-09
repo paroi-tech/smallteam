@@ -24,11 +24,11 @@ interface PanelInfo {
 
 export default class PanelSelector {
   private menu: Menu;
-  private dropdownMenu: DropdownMenu
+  private settingMenu: DropdownMenu
+  private currentPanel: Panel | null = null
 
-  // TODO: Need Thomas advice about this.
-  // We use null as key for the ProjectForm element.
-  private map: Map<string | null, PanelInfo>
+  private projectPanels: Map<string, PanelInfo> = new Map<string, PanelInfo>()
+  private settingPanels: Map<string, PanelInfo> = new Map<string, PanelInfo>()
 
   private $container: JQuery
   private $menu: JQuery
@@ -36,8 +36,6 @@ export default class PanelSelector {
   private $panel: JQuery
 
   constructor(private dash: Dash<App>) {
-    this.map = new Map<string, PanelInfo>()
-
     this.$container = $(template)
     this.$menu = this.$container.find(".js-menu-left")
     this.$dropdownMenu = this.$container.find(".js-menu-right")
@@ -45,40 +43,48 @@ export default class PanelSelector {
 
     this.menu = this.dash.create(Menu, { args: [] })
     this.menu.attachTo(this.$menu[0])
-    this.menu.bkb.on("menuItemSelected", "dataFirst", (data: any) => {
-      this.showPanel(data.itemId)
+    this.menu.bkb.on("projectSelected", "dataFirst", (data: any) => {
+      this.showProjectPanel(data.itemId)
     })
 
-    this.dropdownMenu = this.dash.create(DropdownMenu, { args: [] })
-    this.dropdownMenu.attachTo(this.$dropdownMenu[0])
-    this.dropdownMenu.bkb.on("dropdownMenuItemSelected", "dataFirst", (data: any) => {
+    this.settingMenu = this.dash.create(DropdownMenu, { args: [] })
+    this.settingMenu.attachTo(this.$dropdownMenu[0])
+    this.settingMenu.bkb.on("createProject", "dataFirst", (data: any) => {
+      this.showSettingPanel("projectForm")
+    })
+    this.settingMenu.bkb.on("manageSteps", "dataFirst", (data: any) => {
       // TODO: Add code here...
     })
-    this.dropdownMenu.addItems([
+
+    // TODO: This is for tests only. Add elements to dropdown menu
+    this.settingMenu.addItems([
       {
         id: "1",
-        label: "New project"
+        label: "New project",
+        eventName: "createProject"
       },
       {
         id: "2",
-        label: "Manage steps"
+        label: "Manage steps",
+        eventName: "manageSteps"
       }
     ])
 
     this.dash.listenToChildren("projectCreated").call("dataFirst", (data: any) => {
       let projectModel: ProjectModel = data.projectModel as ProjectModel
-      this.map.set(projectModel.id, {
+      this.projectPanels.set(projectModel.id, {
         projectModel: projectModel,
         type: ProjectBoard
       })
       this.menu.addItem({
         id: projectModel.id,
-        label: projectModel.code
+        label: projectModel.code,
+        eventName: "projectSelected"
       })
-      this.showPanel(projectModel.id)
+      this.showProjectPanel(projectModel.id)
     })
 
-    this.map.set(null, {
+    this.settingPanels.set("projectForm", {
       type: ProjectForm
     })
 
@@ -97,38 +103,52 @@ export default class PanelSelector {
       console.log("queryProjects:", list)
       if (list.length === 0) {
         alert("No project to load from server.")
-        this.showPanel("projectForm")
+        this.showSettingPanel("projectForm")
       } else {
         for (let projectModel of list) {
-          this.map.set(projectModel.id, {
+          this.projectPanels.set(projectModel.id, {
             projectModel: projectModel,
             type: ProjectBoard
           })
           this.menu.addItem({
             id: projectModel.id,
-            label: projectModel.code
+            label: projectModel.code,
+            eventName: "projectSelected"
           })
         }
       }
+    }).catch(err => {
+      alert("An error occured while loading projects from server.")
+      console.log("Unable to load projects.", err)
     })
-      .catch(err => {
-        alert("An error occured while loading projects from server.")
-        console.log("Unable to load projects.", err)
-      })
   }
 
-  private showPanel(panelId: string) {
-    let info = this.map.get(panelId)
+  private showProjectPanel(panelId: string) {
+    let info = this.projectPanels.get(panelId)
     if (!info)
-      throw new Error(`Unknown panel id: ${panelId}`)
+      throw new Error(`Unknown project panel id: ${panelId}`)
+
+    if (!info.panel) {
+      info.panel = this.dash.create(ProjectBoard, {
+        args: [info.projectModel]
+      })
+      info.panel.attachTo(this.$panel[0])
+    }
+
+    if (this.currentPanel)
+      this.currentPanel.hide()
+    this.currentPanel = info.panel
+    this.currentPanel.show()
+  }
+
+  private showSettingPanel(panelId: string) {
+    let info = this.settingPanels.get(panelId)
+    if (!info)
+      throw new Error(`Unknown settings panel id: ${panelId}`)
 
     // Create a new panel if the PanelInfo does not embed one.
     if (!info.panel) {
-      if (info.type == ProjectBoard)
-        info.panel = this.dash.create<ProjectBoard>(info.type, {
-          args: [info.projectModel]
-        })
-      else if (info.type == ProjectForm)
+      if (info.type == ProjectForm)
         info.panel = this.dash.create<ProjectForm>(info.type, {
           args: []
         })
@@ -138,20 +158,16 @@ export default class PanelSelector {
       info.panel.attachTo(this.$panel[0])
     }
 
-    // Hide all panels, except the selected one
-    this.map.forEach((v, k, map) => {
-      // TODO: Is this test really useful?
-      if (!v.panel)
-        return
-      if (k === panelId)
-        v.panel.show()
-      else
-        v.panel.hide()
-    })
+    if (this.currentPanel)
+      this.currentPanel.hide()
+    this.currentPanel = info.panel
+    this.currentPanel.show()
   }
+
 }
 
-import { createStep, createStepType, createTask, deleteStep, queryStepTypes, updateProject, updateStepType, updateTask } from "../Model/Model"
+import { createStep, createStepType, createTask, deleteStep, queryStepTypes } from "../Model/Model"
+import { updateProject, updateStepType, updateTask } from "../Model/Model"
 import { StepModel, StepTypeModel } from "../Model/FragmentsModel"
 
 function makeTests(el) {

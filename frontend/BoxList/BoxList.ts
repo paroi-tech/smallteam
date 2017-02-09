@@ -7,7 +7,11 @@ import * as Sortable from "sortablejs"
 const boxListTpl = require("html-loader!./boxlist.html")
 const boxTpl = require("html-loader!./box.html")
 
-export default class BoxList {
+export interface Box {
+  attachTo(HTMLElement)
+}
+
+export class BoxList {
   private $container: JQuery
   private $ul: JQuery
 
@@ -29,9 +33,9 @@ export default class BoxList {
     // })
   }
 
-  public addBox(t: TaskBox) {
+  public addBox(b: Box) {
     let $li = $(boxTpl)
-    t.attachTo($li[0])
+    b.attachTo($li[0])
     $li.appendTo(this.$ul)
   }
 

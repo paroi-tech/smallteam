@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 import { Component, Dash, Bkb } from "bkb"
-import BoxList from "../BoxList/BoxList"
+import { BoxList } from "../BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import { ProjectModel } from "../Model/FragmentsModel"

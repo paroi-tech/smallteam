@@ -8,6 +8,7 @@ const itemTemplate = require("html-loader!./element.html")
 export interface DropdownMenuItem {
   id: string,
   label: string
+  eventName: string
 }
 
 export class DropdownMenu {
@@ -38,7 +39,7 @@ export class DropdownMenu {
     $btn.click(ev => {
       this.$ul.toggle()
       console.log(`Click on dropdown menu item ${item.label}`)
-      this.dash.emit("menuItemSelected", { itemId: item.id })
+      this.dash.emit(item.eventName, { itemId: item.id })
     })
     this.items.set(item.id, $li)
     this.$ul.append($li)

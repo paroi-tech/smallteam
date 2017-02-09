@@ -7,20 +7,20 @@
     background-color: darkgray;
     height: 100%;
   }
+  &-li {
+    min-height: 25px;
+    padding: 5px 5px 5px 40px;
+    position: relative;
+  }
 }
 
-.BoxListLi {
-  min-height: 25px;
-  padding: 5px 5px 5px 40px;
-  position: relative;
-  &-handle {
-    background-color: #eee;
-    bottom: 5px;
-    display: block;
-    left: 5px;
-    position: absolute;
-    text-align: center;
-    top: 5px;
-    width: 30px;
-  }
+.BoxHandle {
+  background-color: #eee;
+  bottom: 5px;
+  display: block;
+  left: 5px;
+  position: absolute;
+  text-align: center;
+  top: 5px;
+  width: 30px;
 }

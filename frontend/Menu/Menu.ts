@@ -7,6 +7,7 @@ const template = require("html-loader!./menu.html")
 export interface MenuItem {
   id: string,
   label: string
+  eventName: string
 }
 
 export class Menu {
@@ -29,7 +30,7 @@ export class Menu {
     $li.text(item.label)
     $li.click((ev) => {
       console.log(`Click on menu item ${item.label}`)
-      this.dash.emit("menuItemSelected", { itemId: item.id });
+      this.dash.emit(item.eventName, { itemId: item.id });
     })
     this.$ul.append($li)
     this.elements.set(item.id, $li)

@@ -3,9 +3,9 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 
-const template = require("html-loader!./taskbox.html")
+const template = require("html-loader!./steptypebox.html")
 
-export default class TaskBox implements Box {
+export default class StepTypeBox implements Box {
   private $container: JQuery
 
   constructor(private dash: Dash<App>, title: string) {
