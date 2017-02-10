@@ -66,7 +66,7 @@ export default class PanelSelector {
       },
       {
         id: "2",
-        label: "Manage steps",
+        label: "Manage step types",
         eventName: "manageStepTypes"
       }
     ])

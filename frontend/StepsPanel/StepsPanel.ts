@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 import { Component, Dash, Bkb } from "bkb"
-import { BoxList } from "../BoxList/BoxList"
+import { Boxlist } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import { ProjectModel } from "../Model/FragmentsModel"
@@ -14,10 +14,10 @@ export default class StepsPanel {
   private $container: JQuery
   private $stepsContainer: JQuery
 
-  private map: Map<string, BoxList>
+  private map: Map<string, Boxlist>
 
   constructor(private dash: Dash<App>, private projectModel: ProjectModel) {
-    this.map = new Map<string, BoxList>()
+    this.map = new Map<string, Boxlist>()
 
     this.$container = $(template)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
@@ -33,17 +33,18 @@ export default class StepsPanel {
   private listenToEvents() {
     this.$container.find(".js-add-task-button").click((ev) => {
       console.log(`Add Task button click from StepsPanel ${this.projectModel.code}`)
-      let s: string = this.$container.find("input").val().trim()
-      if(s.length > 0) {
-        let t = this.dash.create(TaskBox, {
-          group: "items",
-          args: [s]
-        })
-        let l = this.map.get("1")
-        if (l) {
-          l.addBox(t)
-          console.log(`Task Added in StepsPanel ${this.projectModel.code}`)
-        }
+      let name: string = this.$container.find("input").val().trim()
+      if(name.length > 0) {
+        alert("Task adding is not yet implemented...")
+        // let t = this.dash.create(TaskBox, {
+        //   group: "items",
+        //   args: [name]
+        // })
+        // let l = this.map.get("1")
+        // if (l) {
+        //   l.addBox(t)
+        //   console.log(`Task Added in StepsPanel ${this.projectModel.code}`)
+        // }
       } else
         alert("The task name should contain more characters...")
     })
@@ -53,12 +54,12 @@ export default class StepsPanel {
     let steps = querySteps(this.projectModel)
     let tasks = queryTasks(this.projectModel)
     for (let step of steps) {
-      let bl = this.dash.create(BoxList, { args: [ step.name, this.projectModel.code ] })
+      let bl = this.dash.create(Boxlist, { args: [ step.id, step.name, this.projectModel.code ] })
       for (let task of tasks) {
         if (task.curStepId === step.id) {
           let box = this.dash.create(TaskBox, {
             group: "items",
-            args: [ task.label ]
+            args: [ task.id, task.label ]
           })
           bl.addBox(box)
         }

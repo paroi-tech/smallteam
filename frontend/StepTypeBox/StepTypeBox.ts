@@ -1,15 +1,17 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { Box } from "../BoxList/BoxList"
+import { Box } from "../Boxlist/Boxlist"
 
 const template = require("html-loader!./steptypebox.html")
 
 export default class StepTypeBox implements Box {
   private $container: JQuery
+  public readonly id: string
 
-  constructor(private dash: Dash<App>, title: string) {
+  constructor(private dash: Dash<App>, id: string, title: string) {
     this.$container = $(template)
+    this.id = id
     this.$container.find(".js-span").text(title)
   }
 
