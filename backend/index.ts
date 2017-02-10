@@ -44,7 +44,7 @@ function declareRoute(app: express.Express, route: string, cb: (resp: Response, 
               respData => writeServerResponse(resp, 200, respData),
               err => writeServerResponseError(resp, err)
             )
-          }, 1500)
+          }, 500)
         }
       } catch (err) {
         writeServerResponseError(resp, err)
