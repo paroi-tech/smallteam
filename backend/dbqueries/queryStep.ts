@@ -36,7 +36,7 @@ export async function fetchProjectSteps(loader: CargoLoader, projectIdList: numb
 
 function selectFromStep() {
   return buildSelect()
-    .select("s.step_id, s.project_id, st.step_type_id, st.name")
+    .select("s.step_id, s.project_id, st.step_type_id, st.name, st.order_num")
     .from("step s")
     .innerJoin("step_type st", "using", "step_type_id")
     .orderBy("st.order_num")
@@ -46,6 +46,7 @@ function toStepFragment(row): StepFragment {
   let frag: StepFragment = {
     id: row["step_id"].toString(),
     name: row["name"],
+    orderNum: row["order_num"],
     typeId: row["step_type_id"].toString(),
     projectId: row["project_id"].toString()
   }

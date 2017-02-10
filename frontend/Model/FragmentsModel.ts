@@ -10,12 +10,14 @@ import { TaskLogFragment } from "../../isomorphic/fragments/TaskLog"
 
 export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
-  //readonly steps: StepModel[]
+  readonly steps: StepModel[]
 }
 
 export interface TaskModel extends TaskFragment {
+  readonly project: ProjectModel
   readonly currentStep: StepModel
-  // readonly parent?: TaskModel
+  readonly parent?: TaskModel
+  readonly children?: TaskModel[]
   // readonly createdBy: ContributorModel
   // readonly affectedTo?: ContributorModel
   // readonly comments: CommentModel[]

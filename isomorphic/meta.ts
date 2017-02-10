@@ -7,6 +7,9 @@ import { stepMeta, newStepMeta } from "./fragments/Step"
 import { stepTypeMeta } from "./fragments/StepType"
 import { taskMeta, newTaskMeta } from "./fragments/Task"
 import { taskLogMeta } from "./fragments/TaskLog"
+import { Type } from "./Cargo"
+
+export let types: Type[] = ["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLog"]
 
 export default {
   FileAttachment: fileAttachmentMeta,
