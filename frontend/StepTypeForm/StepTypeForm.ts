@@ -54,4 +54,16 @@ export default class StepTypeForm {
       $indicator.hide()
     })
   }
+
+  public resetFields() {
+    (this.$form[0] as HTMLFormElement).reset()
+  }
+
+  public setName(name: string) {
+    this.$stepTypeName.val(name)
+  }
+
+  public setOrderNumber(n: number) {
+    this.$stepTypeIndex.val(n)
+  }
 }

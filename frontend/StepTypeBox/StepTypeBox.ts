@@ -14,6 +14,11 @@ export default class StepTypeBox implements Box {
     this.$container = $(template)
     this.id = this.model.id
     this.$container.find(".js-span").text(this.model.name)
+    this.$container.click(ev => {
+      this.dash.emit("stepTypeBoxSelected", {
+        boxId: this.id
+      })
+    })
   }
 
   public attachTo(el: HTMLElement) {
