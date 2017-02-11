@@ -176,6 +176,16 @@ registerType("Step", function (frag: StepFragment): StepModel {
   let model = {
     get project() {
       return getModel("Project", frag.projectId)
+    },
+    get tasks() {
+      return getModels({
+        type: "Task",
+        index: "curStepId",
+        key: {
+          curStepId: frag.id
+        },
+        orderBy: ["orderNum", "asc"]
+      })
     }
   }
   addModelGetters(model, meta.Step, frag)
@@ -215,7 +225,18 @@ export async function updateStepType(values: UpdStepTypeFragment): Promise<StepT
 }
 
 registerType("StepType", function (frag: StepTypeFragment): StepTypeModel {
-  let model = {}
+  let model = {
+    get tasks() {
+      return getModels({
+        type: "Step",
+        index: "stepTypeId",
+        key: {
+          stepTypeId: frag.id
+        },
+        orderBy: ["projectId", "asc"] // TODO: implement a function here => sort on project name
+      })
+    }
+  }
   addModelGetters(model, meta.StepType, frag)
   return model as any
 })
