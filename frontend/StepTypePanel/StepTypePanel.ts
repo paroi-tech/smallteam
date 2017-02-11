@@ -44,6 +44,15 @@ export default class StepTypePanel {
 
     this.initComponents()
     this.loadStepTypes()
+
+    this.dash.listenToChildren("stepTypeBoxSelected").call("dataFirst", (data: any) => {
+      this.form.reset()
+      let step = this.stepTypes.find((t: StepTypeModel): boolean => {
+        return t.id === data.boxId
+      })
+      if (step)
+        this.form.fillWith(step)
+    })
   }
 
   private doAdd() {

@@ -1,7 +1,9 @@
 <div class="js-container StepTypeForm">
   <div class="BlockTitle">Edit form</div>
 
-  <form class="js-form">
+  <div class="js-field-container">
+    <input type="hidden" class="js-steptype-id">
+
     <label class="FormField">
       <span class="FormField-span">Name</span>
       <input type="text" class="js-steptype-name" required>
@@ -9,7 +11,7 @@
 
     <label class="FormField">
       <span class="FormField-span">Index</span>
-      <input type="number" class="js-steptype-index">
+      <input type="number" class="js-steptype-index" disabled>
     </label>
 
     <div>
@@ -17,7 +19,7 @@
         <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
         Submit
       </button>
-      <input type="reset" value="Annuler">
     </div>
-  </form>
+
+  </div>
 </div>
