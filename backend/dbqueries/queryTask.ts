@@ -62,7 +62,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
 
 function selectFromTask() {
   return buildSelect()
-    .select("t.task_id, t.code, t.label, t.created_by, t.affected_to, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id")
+    .select("t.task_id, t.code, t.label, t.created_by, t.affected_to, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num")
     .from("task t")
     .innerJoin("step s", "on", "t.cur_step_id = s.step_id")
     .leftJoin("task_description d", "using", "task_id")
@@ -78,10 +78,12 @@ function toTaskFragment(row): TaskFragment {
     curStepId: row["cur_step_id"].toString(),
     projectId: row["project_id"].toString(),
     createTs: row["create_ts"],
-    updateTs: row["update_ts"],
+    updateTs: row["update_ts"]
   }
   if (row["parent_task_id"])
     frag.parentTaskId = row["parent_task_id"]
+  if (row["order_num"])
+    frag.orderNum = row["order_num"]
   if (row["description"])
     frag.description = row["description"]
   if (row["affected_to"] !== null)

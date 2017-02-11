@@ -92,6 +92,17 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
         },
         orderBy: ["orderNum", "asc"]
       })
+    },
+    get tasks() {
+      return getModels({
+        type: "Task",
+        index: ["projectId", "parentTaskId"],
+        key: {
+          projectId: frag.id,
+          parentTaskId: frag.rootTaskId
+        },
+        orderBy: ["orderNum", "asc"]
+      })
     }
   }
   addModelGetters(model, meta.Project, frag)
@@ -124,6 +135,16 @@ registerType("Task", function (frag: TaskFragment): TaskModel {
   let model = {
     get currentStep() {
       return getModel("Step", frag.curStepId)
+    },
+    get children() {
+      return getModels({
+        type: "Task",
+        index: "parentTaskId",
+        key: {
+          parentTaskId: frag.id
+        },
+        orderBy: ["orderNum", "asc"]
+      })
     }
   }
   addModelGetters(model, meta.Task, frag)
