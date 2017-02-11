@@ -7,6 +7,7 @@ import { TaskFragment, NewTaskFragment, UpdTaskFragment } from "../../isomorphic
 import meta from "../../isomorphic/meta"
 import { ProjectModel, TaskModel, StepModel, StepTypeModel } from "./FragmentsModel"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Identifier } from "../../isomorphic/Cargo"
+import { newJkMap, newJkSet } from "../libraries/jkMapSet"
 
 type AsFilter<T> = {
   readonly [P in keyof T]?: T[P] | [string, T[P]]
@@ -17,18 +18,32 @@ interface Entity {
   model?: any
 }
 
+type Index = string | string[]
+
 interface IndexKey {
-  index: string,
-  key: any
+  [fieldName: string]: string
 }
 
+/**
+ * Map keys are `IndexKey` as string
+ *
+ * Set keys are `Identifier` as string
+ */
+type IndexMap = Map<IndexKey, Set<Identifier>>
+
 interface TypeStorage {
+  /**
+   * Keys are `Identifier` as string
+   */
   entities: Map<Identifier, Entity>
-  indexes: Map<IndexKey, Set<Identifier>>
+  /**
+   * Keys are `Index` as string
+   */
+  indexes: Map<Index, IndexMap>
   modelMaker: (frag) => any
 }
 
-const store = new Map<Type, TypeStorage>()
+const store = newJkMap<Type, TypeStorage>()
 
 // --
 // -- Project
@@ -72,7 +87,9 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
       return getModels({
         type: "Step",
         index: "projectId",
-        key: frag.id,
+        key: {
+          projectId: frag.id
+        },
         orderBy: ["orderNum", "asc"]
       })
     }
@@ -188,19 +205,11 @@ registerType("StepType", function (frag: StepTypeFragment): StepTypeModel {
 
 function registerType(type: Type, modelMaker: (frag) => any) {
   store.set(type, {
-    entities: new Map(),
-    indexes: new Map(),
+    entities: newJkMap<any, any>(),
+    indexes: newJkMap<any, any>(),
     modelMaker
   })
 }
-
-// const store = {
-//   Project: new Map<Identifier, Entity>(),
-//   Task: new Map<Identifier, Entity>(),
-//   Step: new Map<Identifier, Entity>(),
-//   StepType: new Map<Identifier, Entity>(),
-// }
-//const indexes = new Map<IndexKey, Set<Identifier>>()
 
 // --
 // -- Model tools
@@ -213,15 +222,29 @@ function getTypeStorage(type: Type): TypeStorage {
   return storage
 }
 
-interface ModelsQuery extends IndexKey {
+interface ModelsQuery {
   type: Type
+  index: Index
+  key: IndexKey
   orderBy: [string, "asc" | "desc"] | ((a, b) => number)
 }
 
-function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
-  let storage = getTypeStorage(type)
+// function keyStr(key: {}): string {
+//   return JSON.stringify(key)
+// }
 
-  let identifiers = storage.indexes.get({index, key})
+function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
+  index = cleanIndex(index)
+  let storage = getTypeStorage(type)
+  let indexMap = storage.indexes.get(index)
+  //console.log("getModels A", index, storage, indexMap)
+  if (!indexMap) {
+    storage.indexes.set(index, indexMap = newJkMap<any, any>())
+    fillIndex(storage, index, indexMap)
+  }
+
+  let identifiers = indexMap.get(key)
+
   if (!identifiers)
     return []
 
@@ -232,6 +255,39 @@ function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
   let sortFn = Array.isArray(orderBy) ? makeDefaultSortFn(orderBy) : orderBy;
   list.sort(sortFn)
   return list
+}
+
+function cleanIndex(index: Index): Index {
+  if (Array.isArray(index)) {
+    if (index.length === 1)
+      index = index[0]
+    else
+      index.sort()
+  }
+  return index
+}
+
+function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
+  //console.log("fillIndex A", index, storage, indexMap)
+  for (let [id, entity] of storage.entities)
+    tryToAddToIndex(index, indexMap, id, entity.fragment)
+}
+
+function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag) {
+  for (let [index, indexMap] of storage.indexes)
+    tryToAddToIndex(index, indexMap, id, frag)
+}
+
+function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag: any) {
+  let fieldNames = typeof index === "string" ? [index] : index,
+    key = {}
+  for (let name of fieldNames)
+    key[name] = frag[name]
+  let identifiers = indexMap.get(key)
+  if (!identifiers)
+    indexMap.set(key, identifiers = newJkSet<any>())
+  identifiers.add(id)
+  // console.log("tryToAddToIndex A", key, identifiers, id, frag)
 }
 
 function getModel(type: Type, id: Identifier): any {
@@ -252,14 +308,6 @@ function makeDefaultSortFn([fieldName, direction]: [string, "asc" | "desc"]) {
   }
 }
 
-function addItemToIndex(type: Type, indexKey: IndexKey, itemId: Identifier) {
-  let indexes = getTypeStorage(type).indexes
-  let identifiers = indexes.get(indexKey)
-  if (!identifiers)
-    indexes.set(indexKey, identifiers = new Set())
-  identifiers.add(itemId)
-}
-
 function addModelGetters(model, fragMeta: FragmentMeta, frag) {
   for (let fieldName in fragMeta.fields) {
     if (!fragMeta.fields.hasOwnProperty(fieldName))
@@ -278,11 +326,12 @@ function updateStore(fragments: Fragments) {
     let storage = store.get(type as Type)
     if (!storage)
       throw new Error(`Unknown fragment type: ${type}`)
-    for (let data of fragments[type]) {
-      let id = toIdentifier(data, meta[type])
+    for (let frag of fragments[type]) {
+      let id = toIdentifier(frag, meta[type])
       storage.entities.set(id, {
-        fragment: data
+        fragment: frag
       })
+      addFragmentToIndexes(storage, id, frag)
     }
   }
 }
