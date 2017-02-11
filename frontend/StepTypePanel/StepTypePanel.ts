@@ -4,9 +4,11 @@ import { Dash, Bkb } from "bkb"
 import { Panel } from "../PanelSelector/PanelSelector"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
-import { Box, Boxlist } from "../Boxlist/Boxlist"
+import { Box, Boxlist, BoxlistParams } from "../Boxlist/Boxlist"
 import { queryStepTypes, createStepType } from "../Model/Model"
 import { StepTypeModel } from "../Model/FragmentsModel"
+import { UpdateStepTypeOrders } from "../Model/fakeModel"
+import { equal } from "../libraries/utils"
 
 const template = require("html-loader!./steptypepanel.html")
 
@@ -17,13 +19,16 @@ export default class StepTypePanel {
   private $addBtn: JQuery
   private $input: JQuery
 
-  private list: Boxlist
+  private boxlist: Boxlist
   private form: StepTypeForm
 
   private stepTypes: Array<StepTypeModel>
+  private timer: any
 
   constructor(private dash: Dash<App>) {
     this.stepTypes = []
+    this.timer = null
+
     this.$container = $(template)
     this.$listContainer = this.$container.find(".js-boxlist-container")
     this.$formContainer = this.$container.find(".js-edit-form-container")
@@ -46,7 +51,7 @@ export default class StepTypePanel {
     if (name.length > 0) {
       this.saveStepType(name)
     } else {
-      alert("The name you type for the step type is invalid.")
+      alert("The name you entered for the step type is invalid.")
       this.$input.focus()
     }
   }
@@ -60,12 +65,28 @@ export default class StepTypePanel {
   }
 
   private initComponents() {
-    this.list = this.dash.create(Boxlist, {
-      args: [ null, "Step types" ]
-    })
-    this.list.attachTo(this.$listContainer[0])
-    this.dash.listenToChildren("boxlistUpdated").call("arguments", (data: any) => {
-      console.log(`reacting to event ${data.boxlistId}`)
+    let params: BoxlistParams = {
+      id: null,
+      name: "Step types"
+    }
+    this.boxlist = this.dash.create(Boxlist, { args: [ params ] })
+    this.boxlist.attachTo(this.$listContainer[0])
+    this.dash.listenToChildren("boxlistUpdated").call("dataFirst", (data: any) => {
+      if (this.timer)
+        clearTimeout(this.timer)
+      this.timer = setTimeout(() => {
+        console.log(`Requesting updating of step types orders...`)
+        UpdateStepTypeOrders(data.boxIds).then(response => {
+          if (equal(response, data.boxIds)) {
+            alert("Step types order sucessfully updated.")
+          } else {
+            alert("Sorry. Server rejected new order of step types...")
+            this.boxlist.setBoxesOrder(data.boxIds)
+          }
+        }).catch(err => {
+          alert("Sorry. Unable to save the new order of steps on server.")
+        })
+      }, 2000)
     })
 
     this.form = this.dash.create(StepTypeForm, {
@@ -82,11 +103,11 @@ export default class StepTypePanel {
       }
 
       this.stepTypes = stepTypes
-      for (let t of stepTypes) {
-        let b = this.dash.create(StepTypeBox, {
-          args: [ t.id, t.name ]
+      for (let model of stepTypes) {
+        let box = this.dash.create(StepTypeBox, {
+          args: [ model ]
         })
-        this.list.addBox(b)
+        this.boxlist.addBox(box)
       }
     }).catch(err => {
       alert("Unable to load step types from server...")
@@ -99,13 +120,11 @@ export default class StepTypePanel {
       name
     }).then(model => {
       this.stepTypes.push(model)
-      let b = this.dash.create(StepTypeBox, {
-        args: [
-          model.name
-        ]
+      let box = this.dash.create(StepTypeBox, {
+        args: [ model ]
       })
+      this.boxlist.addBox(box)
       alert("Step type successfully created.")
-      this.list.addBox(b)
       spinner.hide()
     }).catch(err => {
       alert("Unable to create new step type...")

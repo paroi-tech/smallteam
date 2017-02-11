@@ -73,3 +73,11 @@ export function queryTasks(project: ProjectFragment): Array<TaskFragment> {
 
   return tasks
 }
+
+export function UpdateStepTypeOrders(ids: string[]): Promise<string[]> {
+  return new Promise<string[]>((resolve, reject) => {
+    setTimeout(() => {
+      resolve(ids)
+    }, 1500)
+  })
+}

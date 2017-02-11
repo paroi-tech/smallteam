@@ -1,5 +1,5 @@
 import * as $ from "jquery"
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import * as Sortable from "sortablejs"
@@ -12,18 +12,31 @@ export interface Box {
   attachTo(HTMLElement)
 }
 
+export interface BoxlistParams {
+  id: string | null,
+  name: string,
+  group?: string
+}
+
 export class Boxlist {
+  private id: string | null
+
   private $container: JQuery
   private $ul: JQuery
 
-  constructor(private dash: Dash<App>, private id: string | null, title: string, group?: string) {
+  private sortable: Sortable;
+
+  constructor(private dash: Dash<App>, params: BoxlistParams) {
+    this.id = params.id
+
     this.$container = $(listTemplate)
     this.$ul = this.$container.find("ul")
-    this.$container.find(".js-title").text(title)
+    this.$container.find(".js-title").text(params.name)
 
-    Sortable.create(this.$ul[0], {
+    this.sortable = Sortable.create(this.$ul[0], {
       "handle": ".js-handle",
-      "group": group,
+      "group": params.group,
+
       /* Element is dropped into the list from another list. */
       onAdd: (ev) => {
           let boxId = ev.item.dataset.id;
@@ -32,6 +45,7 @@ export class Boxlist {
             boxId: boxId
           })
       },
+
       /* Element is removed from the list into another list. */
       onRemove: (ev) => {
           let boxId = ev.item.dataset.id;
@@ -40,12 +54,13 @@ export class Boxlist {
             boxId: boxId
           })
       },
+
       /* Changed sorting within list. */
       onUpdate: (ev) => {
-        console.log("boxlist updated")
         let boxId = ev.item.dataset.id;
         this.dash.emit("boxlistUpdated", {
-          id: this.id
+          boxlistId: this.id,
+          boxIds: this.sortable.toArray()
         })
       }
     })
@@ -68,5 +83,9 @@ export class Boxlist {
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
+  }
+
+  public setBoxesOrder(ids: Array<String>) {
+    this.sortable.sort(ids)
   }
 }

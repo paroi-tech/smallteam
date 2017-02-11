@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 import { Component, Dash, Bkb } from "bkb"
-import { Boxlist } from "../Boxlist/Boxlist"
+import { Boxlist, BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import { ProjectModel } from "../Model/FragmentsModel"
@@ -54,7 +54,12 @@ export default class StepsPanel {
     let steps = querySteps(this.projectModel)
     let tasks = queryTasks(this.projectModel)
     for (let step of steps) {
-      let bl = this.dash.create(Boxlist, { args: [ step.id, step.name, this.projectModel.code ] })
+      let params: BoxlistParams = {
+          id: step.id,
+          name: step.name,
+          group: this.projectModel.code
+      }
+      let bl = this.dash.create(Boxlist, { args: [ params ] })
       for (let task of tasks) {
         if (task.curStepId === step.id) {
           let box = this.dash.create(TaskBox, {

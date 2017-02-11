@@ -2,6 +2,7 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../Boxlist/Boxlist"
+import { StepTypeModel } from "../Model/FragmentsModel"
 
 const template = require("html-loader!./steptypebox.html")
 
@@ -9,10 +10,10 @@ export default class StepTypeBox implements Box {
   private $container: JQuery
   public readonly id: string
 
-  constructor(private dash: Dash<App>, id: string, title: string) {
+  constructor(private dash: Dash<App>, private model: StepTypeModel) {
     this.$container = $(template)
-    this.id = id
-    this.$container.find(".js-span").text(title)
+    this.id = this.model.id
+    this.$container.find(".js-span").text(this.model.name)
   }
 
   public attachTo(el: HTMLElement) {
