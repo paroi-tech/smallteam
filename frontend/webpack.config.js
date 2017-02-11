@@ -7,7 +7,10 @@ module.exports = {
     filename: "bundle.js"
   },
   resolve: {
-    extensions: [".webpack.js", ".web.js", ".ts", ".js"]
+    extensions: [".webpack.js", ".web.js", ".ts", ".js"],
+    // alias: {
+    //   bkb: path.join(__dirname, "..", "bkb-source.ts")
+    // }
   },
   module: {
     loaders: [
