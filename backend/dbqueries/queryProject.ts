@@ -1,5 +1,5 @@
 import * as path from "path"
-import * as sqlite from "sqlite"
+//import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
 import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery } from "../../isomorphic/fragments/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
@@ -102,7 +102,7 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
   sql = buildInsert()
     .insertInto("step")
     .values({
-      "step_type_id": 0,
+      "step_type_id": 1,
       "project_id": projectId
     })
   ps = await cn.run(sql.toSql())
@@ -112,7 +112,7 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
   sql = buildInsert()
     .insertInto("step")
     .values({
-      "step_type_id": 1,
+      "step_type_id": 2,
       "project_id": projectId
     })
   await cn.run(sql.toSql())
@@ -122,7 +122,7 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
     .insertInto("task")
     .values({
       "code": `${newFrag.code}-0`,
-      "created_by": 0,
+      "created_by": 1,
       "cur_step_id": notStartedStepId,
       "label": newFrag.name
     })
@@ -266,7 +266,7 @@ export async function makeTaskCodeFromStep(stepId: number): Promise<string> {
     code = rs[0]["code"]
 
   // Update the sequence
-  let ps: sqlite.Statement | undefined,
+  let ps: /* sqlite.Statement */ any | undefined,
     tries = 0,
     prevSeqVal: number
   do {

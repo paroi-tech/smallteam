@@ -34,7 +34,7 @@ create table step_type (
 create table project (
     project_id bigserial not null primary key,
     code varchar(255) not null unique,
-    archived bit not null default 0,
+    archived boolean not null default false,
     task_seq bigint not null default 0
 );
 
@@ -103,3 +103,9 @@ create table comment (
     create_ts timestamp not null default current_timestamp,
     update_ts timestamp not null default current_timestamp
 );
+
+insert into step_type (name, order_num) values ('Not started', 0);
+insert into step_type (name, order_num) values ('Archived', -1);
+
+-- Fake data
+insert into contributor (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '123');
