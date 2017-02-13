@@ -14,6 +14,12 @@ import { TaskLogFragment } from "../../isomorphic/fragments/TaskLog"
 // -- Project
 // --
 
+export interface ProjectModel extends ProjectFragment {
+  readonly rootTask: TaskModel
+  readonly steps: StepModel[]
+  readonly tasks?: TaskModel[]
+}
+
 registerType("Project", function (frag: ProjectFragment): ProjectModel {
   let model = {
     get rootTask() {
@@ -36,12 +42,6 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
   appendGettersToModel(model, "Project", frag)
   return model as any
 })
-
-export interface ProjectModel extends ProjectFragment {
-  readonly rootTask: TaskModel
-  readonly steps: StepModel[]
-  readonly tasks?: TaskModel[]
-}
 
 // --
 // -- Task
@@ -102,17 +102,17 @@ registerType("Step", function (frag: StepFragment): StepModel {
   let model = {
     get project() {
       return getModel("Project", frag.projectId)
-    },
-    get tasks() {
-      return getModels({
-        type: "Task",
-        index: "curStepId",
-        key: {
-          curStepId: frag.id
-        },
-        orderBy: ["orderNum", "asc"]
-      })
     }
+    // get tasks() {
+    //   return getModels({
+    //     type: "Task",
+    //     index: "curStepId",
+    //     key: {
+    //       curStepId: frag.id
+    //     },
+    //     orderBy: ["orderNum", "asc"]
+    //   })
+    // }
   }
   appendGettersToModel(model, "Step", frag)
   return model as any
@@ -123,11 +123,12 @@ registerType("Step", function (frag: StepFragment): StepModel {
 // --
 
 export interface StepTypeModel extends StepTypeFragment {
+  readonly hasProjects: boolean
 }
 
 registerType("StepType", function (frag: StepTypeFragment): StepTypeModel {
   let model = {
-    get hasTasks() {
+    get hasProjects() {
       return getModels({
         type: "Step",
         index: "stepTypeId",
