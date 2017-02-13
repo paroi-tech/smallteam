@@ -6,7 +6,7 @@ import App from "../App/App"
 import { ProjectModel } from "../Model/FragmentsModel"
 import { StepFragment } from "../../isomorphic/fragments/Step"
 import { TaskFragment } from "../../isomorphic/fragments/Task"
-import { querySteps, queryTasks } from "../Model/fakeModel"
+import { exec, query } from "../Model/Model"
 
 const template = require("html-loader!./stepspanel.html")
 
@@ -22,7 +22,7 @@ export default class StepsPanel {
     this.$container = $(template)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
 
-    this.loadSteps()
+    this.createBoxlists()
     this.listenToEvents()
   }
 
@@ -33,34 +33,47 @@ export default class StepsPanel {
   private listenToEvents() {
     this.$container.find(".js-add-task-button").click((ev) => {
       console.log(`Add Task button click from StepsPanel ${this.projectModel.code}`)
+
       let name: string = this.$container.find("input").val().trim()
-      if(name.length > 0) {
-        alert("Task adding is not yet implemented...")
-        // let t = this.dash.create(TaskBox, {
-        //   group: "items",
-        //   args: [name]
-        // })
-        // let l = this.map.get("1")
-        // if (l) {
-        //   l.addBox(t)
-        //   console.log(`Task Added in StepsPanel ${this.projectModel.code}`)
-        // }
-      } else
-        alert("The task name should contain more characters...")
+      if(name.length < 1) {
+        console.log("Invalid task name. The name should contain more characters.")
+        return
+      }
+
+      exec("create", "Task", {
+        label: name,
+        createdById: "1",
+        parentTaskId: this.projectModel.rootTaskId,
+        // FIXME: there can be project without steps
+        curStepId: this.projectModel.steps[0].id
+      }).then(taskModel => {
+        this.projectModel.tasks!.push(taskModel)
+        let box = this.dash.create(TaskBox, {
+          group: "items",
+          args: [
+            taskModel.label
+          ]
+        })
+        this.map.get(taskModel.curStepId)!.addBox(box)
+        console.log(`Task Added in StepsPanel ${this.projectModel.code}`)
+      }).catch(error => {
+        console.error("Unable to create task.", error)
+      })
     })
   }
 
-  private loadSteps() {
-    let steps = querySteps(this.projectModel)
-    let tasks = queryTasks(this.projectModel)
-    for (let step of steps) {
-      let params: BoxlistParams = {
-          id: step.id,
-          name: step.name,
-          group: this.projectModel.code
-      }
-      let bl = this.dash.create(Boxlist, { args: [ params ] })
-      for (let task of tasks) {
+  private createBoxlists() {
+    for (let step of this.projectModel.steps) {
+      let bl = this.dash.create(Boxlist, {
+        args: [
+          {
+            id: step.id,
+            name: step.name,
+            group: this.projectModel.code
+          }
+        ]
+      })
+      for (let task of this.projectModel.tasks!) {
         if (task.curStepId === step.id) {
           let box = this.dash.create(TaskBox, {
             group: "items",
@@ -69,8 +82,8 @@ export default class StepsPanel {
           bl.addBox(box)
         }
       }
-      // TODO: Improve this. The key of the BoxList in the map should be its stepId.
-      // But since we add new tasks in the BoxList which key is 1, we have to use
+      // TODO: Improve this. The key of the Boxlist in the map should be its stepId.
+      // But since we add new tasks in the Boxlist which key is 1, we have to use
       // the typeId as key in the map.
       this.map.set(step.typeId, bl)
       bl.attachTo(this.$stepsContainer[0])
