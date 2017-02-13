@@ -107,8 +107,8 @@ export default class PanelSelector {
     }).then(list => {
       console.log("queryProjects:", list)
       if (list.length === 0) {
-        alert("No project to load from server.")
-        this.showSettingPanel("projectForm")
+        if (confirm("No project to load from server. Do you want to create a new one ?"))
+          this.showSettingPanel("projectForm")
       } else {
         for (let projectModel of list) {
           this.projectPanels.set(projectModel.id, {
