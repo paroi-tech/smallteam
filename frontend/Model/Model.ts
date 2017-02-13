@@ -241,7 +241,9 @@ function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
   //console.log("getModels A", index, storage, indexMap)
   if (!indexMap) {
     storage.indexes.set(index, indexMap = makeJkMap<any, any>())
+//console.log("[storage.indexes] getModels A", toDebugStr(storage.indexes))
     fillIndex(storage, index, indexMap)
+//console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
 // console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
   }
 
@@ -254,6 +256,10 @@ function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
 // yesy.set({"a": undefined, "b": 123}, "boum")
 // let za = yesy.get({"b": 123, "a": 123})
 // console.log("+++==>", toDebugStr(yesy), "resp", za, JSON.stringify({"b": 123, "a": 123}), JSON.stringify({"a": 123, "b": 123}))
+
+// for (let [key, val] of yesy) {
+//   console.log("  ...", key, val)
+// }
 
   if (!identifiers)
     return []
@@ -285,12 +291,16 @@ function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
 
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag) {
   for (let [index, indexMap] of storage.indexes)
+  {
+    //console.log("[storage.indexes] addFragmentToIndexes A", toDebugStr(storage.indexes))
     tryToAddToIndex(index, indexMap, id, frag)
+  }
 }
 
 function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag: any) {
   let fieldNames = typeof index === "string" ? [index] : index,
     key = {}
+//console.log("tryToAddToIndex", fieldNames, index)
   for (let name of fieldNames)
     key[name] = frag[name]
   let identifiers = indexMap.get(key)

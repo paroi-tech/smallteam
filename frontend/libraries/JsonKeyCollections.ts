@@ -80,5 +80,7 @@ function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" 
  * Thanks to http://stackoverflow.com/a/35810961/3786294
  */
 function orderedJsonStringify(o) {
+  if (typeof o !== "object" || Array.isArray(o))
+    return JSON.stringify(o)
   return JSON.stringify(Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {}));
 }
