@@ -4,7 +4,7 @@ import StepsPanel from "../StepsPanel/StepsPanel"
 import EditPanel  from "../EditPanel/EditPanel"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
-import { ProjectModel } from "../Model/FragmentsModel"
+import { ProjectModel } from "../Model/Model"
 
 const template = require("html-loader!./projectboard.html")
 
