@@ -8,7 +8,7 @@ export interface TaskFragment {
   createdById: string
   affectedToId?: string | null
   curStepId: string
-  parentTaskId?: string
+  parentTaskId?: string // TODO: make required!
   orderNum?: number
   readonly projectId: string
   readonly createTs: number

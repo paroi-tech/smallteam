@@ -24,6 +24,7 @@ addBackendFragmentMeta(
       columnType: "bigint"
     },
     code: {},
+    label: {},
     createdById: {
       column: "created_by",
       columnType: "bigint"
