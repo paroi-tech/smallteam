@@ -6,7 +6,7 @@ import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../.
 import { TaskFragment, NewTaskFragment, UpdTaskFragment, taskMeta } from "../../isomorphic/fragments/Task"
 import { getFragmentMeta } from "../../isomorphic/meta"
 import { ProjectModel, TaskModel, StepModel, StepTypeModel } from "./FragmentsModel"
-import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Identifier } from "../../isomorphic/Cargo"
+import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Deleted, Identifier } from "../../isomorphic/Cargo"
 import { makeJkMap, makeJkSet } from "../libraries/JsonKeyCollections"
 
 const store = makeJkMap<Type, TypeStorage>()
@@ -31,15 +31,6 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
       })
     },
     get tasks() {
-      // return getModels({
-      //   type: "Task",
-      //   index: ["projectId", "parentTaskId"],
-      //   key: {
-      //     projectId: frag.id,
-      //     parentTaskId: frag.rootTaskId
-      //   },
-      //   orderBy: ["orderNum", "asc"]
-      // })
       return this.rootTask.children
     }
   }
@@ -291,10 +282,7 @@ function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
 
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag) {
   for (let [index, indexMap] of storage.indexes)
-  {
-    //console.log("[storage.indexes] addFragmentToIndexes A", toDebugStr(storage.indexes))
     tryToAddToIndex(index, indexMap, id, frag)
-  }
 }
 
 function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag: any) {
@@ -308,33 +296,6 @@ function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag:
     indexMap.set(key, identifiers = makeJkSet<any>())
   identifiers.add(id)
   // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
-}
-
-function toDebugStr(entry?: Map<any, any> | Set<any>) {
-  return JSON.stringify(toObj(entry), null, 2)
-}
-
-function toObj(entry?: Map<any, any> | Set<any>) {
-  if (!entry)
-    return entry
-  if (entry[Symbol.toStringTag] === "Map") {
-    let list: any[] = ["MAP"]
-    for (let [key, val] of entry) {
-      if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))
-        val = toObj(val)
-      list.push([key, val])
-    }
-    return list
-  } else {
-    //console.log("+++", entry[Symbol.toStringTag], entry.values())
-    let list: any[] = ["SET"]
-    for (let val of entry.values()) {
-      if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))
-        val = toObj(val)
-      list.push(val)
-    }
-    return list
-  }
 }
 
 function getModel(type: Type, id: Identifier): any {
@@ -371,9 +332,7 @@ function updateStore(fragments: Fragments) {
   for (let type in fragments) {
     if (!fragments.hasOwnProperty(type))
       continue
-    let storage = store.get(type as Type)
-    if (!storage)
-      throw new Error(`Unknown fragment type: ${type}`)
+    let storage = getTypeStorage(type as Type)
     let fragMeta = getFragmentMeta(type as Type)
     for (let frag of fragments[type]) {
       let id = toIdentifier(frag, fragMeta)
@@ -381,6 +340,26 @@ function updateStore(fragments: Fragments) {
         fragment: frag
       })
       addFragmentToIndexes(storage, id, frag)
+    }
+  }
+}
+
+function deleteFromStore(deleted: Deleted) {
+  for (let type in deleted) {
+    if (!deleted.hasOwnProperty(type))
+      continue
+    let storage = getTypeStorage(type as Type)
+    for (let id of deleted[type])
+      storage.entities.delete(id)
+    rmFragmentFromIndexes(storage, deleted[type])
+  }
+}
+
+function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
+  for (let [index, indexMap] of storage.indexes) {
+    for (let identifiers of indexMap.values()) {
+      for (let id of idList)
+        identifiers.delete(id)
     }
   }
 }
@@ -407,9 +386,7 @@ function toIdentifier(frag: any, fragMeta: FragmentMeta): Identifier {
 }
 
 function getFragment(ref: FragmentRef) {
-  let storage = store.get(ref.type)
-  if (!storage)
-    throw new Error(`Unknown type: ${ref.type}`)
+  let storage = getTypeStorage(ref.type)
   let entity = storage.entities.get(ref.id)
   if (!entity)
     throw new Error(`[${ref.type}] Missing data for: ${JSON.stringify(ref.id)}`)
@@ -417,9 +394,7 @@ function getFragment(ref: FragmentRef) {
 }
 
 function getFragments(ref: FragmentsRef): any[] {
-  let storage = store.get(ref.type)
-  if (!storage)
-    throw new Error(`Unknown type: ${ref.type}`)
+  let storage = getTypeStorage(ref.type)
   let list: any[] = []
   for (let id of ref.list) {
     let entity = storage.entities.get(id)
@@ -432,8 +407,12 @@ function getFragments(ref: FragmentsRef): any[] {
 
 async function httpPostAndUpdate(url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
   let cargo: Cargo = await httpPostJson(url, data)
-  if (cargo.fragments)
-    updateStore(cargo.fragments)
+  if (cargo.updModel) {
+    if (cargo.updModel.fragments)
+      updateStore(cargo.updModel.fragments)
+    if (cargo.updModel.deleted)
+      deleteFromStore(cargo.updModel.deleted)
+  }
   if (!cargo.done) {
     console.log("Error on server", cargo.displayError, cargo.debugData)
     throw new Error("Error on server")

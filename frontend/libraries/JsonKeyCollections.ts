@@ -1,6 +1,6 @@
-export function makeJkMap<K, V>(): Map<K, V> {
+export function makeJkMap<K, V>(iterable?: Iterable<[K, V]>): Map<K, V> {
   let map = new Map<string, V>()
-  return {
+  let jkMap = {
     clear: () => map.clear(),
     delete: (key: K) => map.delete(stableJsonStringify(key)),
     forEach: (callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any) => {
@@ -23,11 +23,16 @@ export function makeJkMap<K, V>(): Map<K, V> {
     keys: () => makeIterableIterator(() => map["keys"](), "key"),
     values: () => map.values()
   }
+  if (iterable) {
+    for (let [key, val] of iterable)
+      jkMap.set(key, val)
+  }
+  return jkMap
 }
 
-export function makeJkSet<T>(): Set<T> {
+export function makeJkSet<T>(iterable?: Iterable<T>): Set<T> {
   let set = new Set<string>()
-  return {
+  let jkSet = {
     clear: () => set.clear(),
     delete: (key: T) => set.delete(stableJsonStringify(key)),
     forEach: (callbackfn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any) => {
@@ -49,6 +54,11 @@ export function makeJkSet<T>(): Set<T> {
     keys: () => makeIterableIterator(() => set["keys"](), "key"),
     values: () => makeIterableIterator(() => set["keys"](), "key")
   }
+  if (iterable) {
+    for (let key of iterable)
+      jkSet.add(key)
+  }
+  return jkSet
 }
 
 function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" | "key" | "keyKey"): IterableIterator<any> {

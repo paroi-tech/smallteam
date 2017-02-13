@@ -138,8 +138,11 @@ export default class CargoLoader {
     let cargo: Cargo = {
       done: this.done
     }
-    if (resultFragments)
-      cargo.fragments = resultFragments
+    if (resultFragments) {
+      cargo.updModel = {
+        fragments: resultFragments
+      }
+    }
     if (this.displayError.length > 0)
       cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
     if (this.debugData.length > 0)
