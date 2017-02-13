@@ -2,14 +2,14 @@ export function makeJkMap<K, V>(): Map<K, V> {
   let map = new Map<string, V>()
   return {
     clear: () => map.clear(),
-    delete: (key: K) => map.delete(orderedJsonStringify(key)),
+    delete: (key: K) => map.delete(stableJsonStringify(key)),
     forEach: (callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any) => {
       map.forEach((value: V, key: string) => callbackfn(value, JSON.parse(key), this), thisArg)
     },
-    get: (key: K) => map.get(orderedJsonStringify(key)),
-    has: (key: K) => map.has(orderedJsonStringify(key)),
+    get: (key: K) => map.get(stableJsonStringify(key)),
+    has: (key: K) => map.has(stableJsonStringify(key)),
     set: (key: K, value?: V) => {
-      map.set(orderedJsonStringify(key), value)
+      map.set(stableJsonStringify(key), value)
       return this
     },
     get size() {
@@ -29,13 +29,13 @@ export function makeJkSet<T>(): Set<T> {
   let set = new Set<string>()
   return {
     clear: () => set.clear(),
-    delete: (key: T) => set.delete(orderedJsonStringify(key)),
+    delete: (key: T) => set.delete(stableJsonStringify(key)),
     forEach: (callbackfn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any) => {
       set.forEach((key, key2) => callbackfn(JSON.parse(key), JSON.parse(key2), this), thisArg)
     },
-    has: (key: T) => set.has(orderedJsonStringify(key)),
+    has: (key: T) => set.has(stableJsonStringify(key)),
     add: (key: T) => {
-      set.add(orderedJsonStringify(key))
+      set.add(stableJsonStringify(key))
       return this
     },
     get size() {
@@ -76,11 +76,49 @@ function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" 
   }
 }
 
+// /**
+//  * Thanks to http://stackoverflow.com/a/35810961/3786294
+//  */
+// function stableJsonStringify(o) {
+//   if (typeof o !== "object" || Array.isArray(o))
+//     return JSON.stringify(o)
+//   return JSON.stringify(Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {}))
+// }
+
 /**
- * Thanks to http://stackoverflow.com/a/35810961/3786294
+ * Thanks to https://github.com/substack/json-stable-stringify
  */
-function orderedJsonStringify(o) {
-  if (typeof o !== "object" || Array.isArray(o))
-    return JSON.stringify(o)
-  return JSON.stringify(Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {}));
+function stableJsonStringify(obj): string {
+  let seen: any[] = []
+  let res = (function stringify(parent: any, key: string | number, node: any) {
+    let colonSeparator = ":"
+    if (node && node.toJSON && typeof node.toJSON === "function")
+      node = node.toJSON()
+    if (node === undefined)
+      return
+    if (typeof node !== "object" || node === null)
+      return JSON.stringify(node)
+    if (Array.isArray(node)) {
+      let out: any[] = []
+      for (let i = 0; i < node.length; i++)
+        out.push(stringify(node, i, node[i]) || JSON.stringify(null))
+      return "[" + out.join(",") + "]"
+    }
+    else {
+      if (seen.indexOf(node) !== -1)
+        throw new TypeError("Converting circular structure to JSON")
+      seen.push(node)
+      let keys = Object.keys(node).sort()
+      let out: any[] = []
+      for (let key of keys) {
+        let value = stringify(node, key, node[key])
+        if (value === undefined)
+          continue
+        out.push(JSON.stringify(key) + colonSeparator + value)
+      }
+      seen.splice(seen.indexOf(node), 1)
+      return "{" + out.join(",") + "}"
+    }
+  })({ "": obj }, "", obj)
+  return res === undefined ? JSON.stringify(undefined) : res
 }
