@@ -3,7 +3,6 @@ import * as express from "express"
 import { Response } from "express"
 import CargoLoader from "./CargoLoader"
 import { Cargo } from "../isomorphic/Cargo"
-import meta from "../isomorphic/meta"
 import { queryProjects, createProject, fetchProjects, updateProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks } from "./dbqueries/queryTask"
@@ -81,30 +80,30 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
   let loader = new CargoLoader("fragment")
   if (data.type === "Project") {
     if (data.cmd === "create")
-      await createProject(loader, data.values)
+      await createProject(loader, data.frag)
     else if (data.cmd === "update")
-      await updateProject(loader, data.values)
+      await updateProject(loader, data.frag)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else if (data.type === "Step") {
     if (data.cmd === "create")
-      await createStep(loader, data.values)
+      await createStep(loader, data.frag)
     else if (data.cmd === "delete")
       await deleteStep(loader, data.id)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else if (data.type === "StepType") {
     if (data.cmd === "create")
-      await createStepType(loader, data.values)
+      await createStepType(loader, data.frag)
     else if (data.cmd === "update")
-      await updateStepType(loader, data.values)
+      await updateStepType(loader, data.frag)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else if (data.type === "Task") {
     if (data.cmd === "create")
-      await createTask(loader, data.values)
+      await createTask(loader, data.frag)
     else if (data.cmd === "update")
-      await updateTask(loader, data.values)
+      await updateTask(loader, data.frag)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else
@@ -114,8 +113,7 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
 }
 
 async function completeCargo(loader: CargoLoader) {
-  let count = 0,
-    types = Object.keys(meta)
+  let count = 0
   while (!loader.isComplete()) {
     if (++count > 100)
       throw new Error(`Cannot complete the cargo, infinite loop`)

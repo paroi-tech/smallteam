@@ -7,7 +7,7 @@ import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import { ProjectModel, TaskModel } from "../Model/FragmentsModel"
-import { createProject, queryProjects } from "../Model/Model"
+import { query } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -102,7 +102,7 @@ export default class PanelSelector {
   }
 
   private loadProjects() {
-    queryProjects({
+    query("Project", {
       archived: false
     }).then(list => {
       console.log("queryProjects:", list)
@@ -176,14 +176,13 @@ export default class PanelSelector {
 
 }
 
-import { createStep, createStepType, createTask, deleteStep, queryStepTypes } from "../Model/Model"
-import { updateProject, updateStepType, updateTask } from "../Model/Model"
+import { exec } from "../Model/Model"
 import { StepModel, StepTypeModel } from "../Model/FragmentsModel"
 
 function makeTests(el) {
   let type: StepTypeModel
   $(`<button type="button">Add type</button>`).appendTo(el).click(async () => {
-    createStepType({
+    exec("create", "StepType", {
       name: "TODO"
     }).then(t => {
       console.log("Created type:", t)
@@ -191,12 +190,12 @@ function makeTests(el) {
     })
   })
   $(`<button type="button">Get types</button>`).appendTo(el).click(async () => {
-    queryStepTypes().then(types => {
+    query("StepType").then(types => {
       console.log("Loaded types:", types)
     })
   })
   $(`<button type="button">Add step</button>`).appendTo(el).click(async () => {
-    createStep({
+    exec("create", "Step", {
       projectId: "1",
       typeId: "2"
     }).then(step => {
@@ -204,7 +203,7 @@ function makeTests(el) {
     })
   })
   $(`<button type="button">Update project</button>`).appendTo(el).click(async () => {
-    updateProject({
+    exec("update", "Project", {
       id: "1",
       description: "Hop la description",
       name: "Beau projet"

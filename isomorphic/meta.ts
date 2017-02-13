@@ -8,24 +8,35 @@ import { stepTypeMeta } from "./fragments/StepType"
 import { taskMeta, newTaskMeta } from "./fragments/Task"
 import { taskLogMeta } from "./fragments/TaskLog"
 import { Type } from "./Cargo"
+import { FragmentMeta, TypeVariant } from "./FragmentMeta"
 
-export let types: Type[] = ["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLog"]
+export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLog"]) as any
 
-export default {
-  FileAttachment: fileAttachmentMeta,
-  ImageAttachment: imageAttachmentMeta,
-  Comment: commentMeta,
-  NewComment: newCommentMeta,
-  Contributor: contributorMeta,
-  NewContributor: newContributorMeta,
-  Flag: flagMeta,
-  NewFlag: newFlagMeta,
-  Project: projectMeta,
-  NewProject: newProjectMeta,
-  Step: stepMeta,
-  StepType: stepTypeMeta,
-  NewStep: newStepMeta,
-  Task: taskMeta,
-  NewTask: newTaskMeta,
-  TaskLog: taskLogMeta
+interface FragMetas {
+  frag: FragmentMeta
+  Upd?: FragmentMeta
+  New?: FragmentMeta
+  Q?: FragmentMeta
+}
+
+let fragmentMetaByTypes: { [type: string]: FragMetas } = {
+  FileAttachment: { frag: fileAttachmentMeta },
+  ImageAttachment: { frag: imageAttachmentMeta },
+  Comment: { frag: commentMeta, New: newCommentMeta },
+  Contributor: { frag: contributorMeta, New: newContributorMeta },
+  Flag: { frag: flagMeta, New: newFlagMeta },
+  Project: { frag: projectMeta, New: newProjectMeta },
+  Step: { frag: stepMeta, New: newStepMeta },
+  StepType: { frag: stepTypeMeta },
+  Task: { frag: taskMeta, New: newTaskMeta },
+  TaskLog: { frag: taskLogMeta },
+}
+
+export function getFragmentMeta(type: Type, variant?: TypeVariant): FragmentMeta {
+  if (!fragmentMetaByTypes[type])
+    throw new Error(`Unknown type "${type}" for fragment meta`)
+  let key = variant === undefined ? "frag" : variant
+  if (!fragmentMetaByTypes[type][key])
+    throw new Error(`Missing variant "${key}" of fragment meta for type: ${type}`)
+  return fragmentMetaByTypes[type][key]
 }

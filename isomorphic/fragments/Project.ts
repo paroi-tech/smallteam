@@ -46,4 +46,4 @@ export type UpdProjectFragment = UpdPick<ProjectFragment, "id", "code" | "name" 
 export const updProjectMeta = updPickFragmentMeta("Upd", projectMeta, ["id"], ["code", "name", "description", "archived"])
 
 export type ProjectQuery = SearchPick<ProjectFragment, "code" | "name" | "description" | "archived">
-export const projectQueryMeta = searchPickFragmentMeta("New", projectMeta, ["code", "name", "description", "archived"])
+export const projectQueryMeta = searchPickFragmentMeta("Q", projectMeta, ["code", "name", "description", "archived"])
