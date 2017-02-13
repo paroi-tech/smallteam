@@ -80,9 +80,9 @@ function toTaskFragment(row): TaskFragment {
     createTs: row["create_ts"],
     updateTs: row["update_ts"]
   }
-  if (row["parent_task_id"])
-    frag.parentTaskId = row["parent_task_id"]
-  if (row["order_num"])
+  if (row["parent_task_id"] !== null)
+    frag.parentTaskId = row["parent_task_id"].toString()
+  if (row["order_num"] !== null)
     frag.orderNum = row["order_num"]
   if (row["description"])
     frag.description = row["description"]
@@ -106,6 +106,15 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
     .values(values)
   let ps = await cn.run(sql.toSql()),
     taskId = ps.lastID
+
+  // Task as child
+  sql = buildInsert()
+    .insertInto("task_child")
+    .values({
+      "task_id": taskId,
+      "parent_task_id": int(newFrag.parentTaskId!) // TODO: remove the "!"
+    })
+  await cn.run(sql.toSql())
 
   // Description
   if (newFrag.description) {

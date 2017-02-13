@@ -31,15 +31,16 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
       })
     },
     get tasks() {
-      return getModels({
-        type: "Task",
-        index: ["projectId", "parentTaskId"],
-        key: {
-          projectId: frag.id,
-          parentTaskId: frag.rootTaskId
-        },
-        orderBy: ["orderNum", "asc"]
-      })
+      // return getModels({
+      //   type: "Task",
+      //   index: ["projectId", "parentTaskId"],
+      //   key: {
+      //     projectId: frag.id,
+      //     parentTaskId: frag.rootTaskId
+      //   },
+      //   orderBy: ["orderNum", "asc"]
+      // })
+      return this.rootTask.children
     }
   }
   appendGettersToModel(model, "Project", frag)
@@ -240,16 +241,19 @@ function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
   //console.log("getModels A", index, storage, indexMap)
   if (!indexMap) {
     storage.indexes.set(index, indexMap = makeJkMap<any, any>())
+console.log("==> FILL")
     fillIndex(storage, index, indexMap)
   }
 
   let identifiers = indexMap.get(key)
 
+console.log("==>", storage.indexes, indexMap, index, identifiers, key)
+
   if (!identifiers)
     return []
 
   let list: any[] = []
-  for (let id of Array.from(identifiers))
+  for (let id of identifiers)
     list.push(getModel(type, id))
 
   let sortFn = Array.isArray(orderBy) ? makeDefaultSortFn(orderBy) : orderBy;
@@ -268,7 +272,7 @@ function cleanIndex(index: Index): Index {
 }
 
 function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
-  //console.log("fillIndex A", index, storage, indexMap)
+  console.log("fillIndex A", index, storage, indexMap, storage.entities.size)
   for (let [id, entity] of storage.entities)
     tryToAddToIndex(index, indexMap, id, entity.fragment)
 }
@@ -287,7 +291,7 @@ function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag:
   if (!identifiers)
     indexMap.set(key, identifiers = makeJkSet<any>())
   identifiers.add(id)
-  // console.log("tryToAddToIndex A", key, identifiers, id, frag)
+  console.log("tryToAddToIndex A", index, key, identifiers, "ID=", id, frag)
 }
 
 function getModel(type: Type, id: Identifier): any {

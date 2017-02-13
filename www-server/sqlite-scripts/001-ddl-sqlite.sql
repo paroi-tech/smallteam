@@ -49,7 +49,7 @@ create table task (
 create table task_child (
     task_id bigint not null primary key references task(task_id) on delete cascade,
     parent_task_id bigint not null references task(task_id),
-    order_num integer not null
+    order_num integer
 );
 
 create table task_description (
