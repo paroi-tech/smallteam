@@ -7,9 +7,9 @@ import { TaskFragment, NewTaskFragment, UpdTaskFragment, taskMeta } from "../../
 import { getFragmentMeta } from "../../isomorphic/meta"
 import { ProjectModel, TaskModel, StepModel, StepTypeModel } from "./FragmentsModel"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Identifier } from "../../isomorphic/Cargo"
-import { newJkMap, newJkSet } from "../libraries/jkMapSet"
+import { makeJkMap, makeJkSet } from "../libraries/JsonKeyCollections"
 
-const store = newJkMap<Type, TypeStorage>()
+const store = makeJkMap<Type, TypeStorage>()
 
 // --
 // -- Project
@@ -52,8 +52,16 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
 
 registerType("Task", function (frag: TaskFragment): TaskModel {
   let model = {
+    get project() {
+      return getModel("Project", frag.projectId)
+    },
     get currentStep() {
       return getModel("Step", frag.curStepId)
+    },
+    get parent() {
+      if (frag.parentTaskId === undefined)
+        return undefined
+      return getModel("Task", frag.parentTaskId)
     },
     get children() {
       return getModels({
@@ -197,8 +205,8 @@ interface TypeStorage {
 
 function registerType(type: Type, modelMaker: (frag) => any) {
   store.set(type, {
-    entities: newJkMap<any, any>(),
-    indexes: newJkMap<any, any>(),
+    entities: makeJkMap<any, any>(),
+    indexes: makeJkMap<any, any>(),
     modelMaker
   })
 }
@@ -231,7 +239,7 @@ function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
   let indexMap = storage.indexes.get(index)
   //console.log("getModels A", index, storage, indexMap)
   if (!indexMap) {
-    storage.indexes.set(index, indexMap = newJkMap<any, any>())
+    storage.indexes.set(index, indexMap = makeJkMap<any, any>())
     fillIndex(storage, index, indexMap)
   }
 
@@ -277,7 +285,7 @@ function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag:
     key[name] = frag[name]
   let identifiers = indexMap.get(key)
   if (!identifiers)
-    indexMap.set(key, identifiers = newJkSet<any>())
+    indexMap.set(key, identifiers = makeJkSet<any>())
   identifiers.add(id)
   // console.log("tryToAddToIndex A", key, identifiers, id, frag)
 }
