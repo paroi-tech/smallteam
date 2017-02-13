@@ -6,11 +6,14 @@ export default class CargoLoader {
   private debugData: any[] = []
   private result: Result | undefined
   private done = true
+  private sent = false
 
   constructor(private resultType: ResultType) {
   }
 
   public addFragment(type: Type, id: Identifier, frag?) {
+    if (this.sent)
+      throw new Error(`Cannot call "addFragment" after "toCargo"`)
     let fragments = this.map.get(type)
     if (!fragments) {
       fragments = new Map()
@@ -21,6 +24,8 @@ export default class CargoLoader {
   }
 
   public getNeeded(type: Type): Identifier[] {
+    if (this.sent)
+      throw new Error(`Cannot call "getNeeded" after "toCargo"`)
     let idList: Identifier[] = [],
       fragments = this.map.get(type)
     if (!fragments)
@@ -48,14 +53,20 @@ export default class CargoLoader {
   }
 
   public addDisplayError(msg: string) {
+    if (this.sent)
+      throw new Error(`Cannot call "addDisplayError" after "toCargo", msg: ${msg}`)
     this.displayError.push(msg)
   }
 
   public addDebugData(debugData: any) {
+    if (this.sent)
+      throw new Error(`Cannot call "addDebugData" after "toCargo"`)
     this.debugData.push(debugData)
   }
 
   public setResultData(data: any) {
+    if (this.sent)
+      throw new Error(`Cannot call "setResultData" after "toCargo"`)
     if (this.resultType !== "data")
       throw new Error(`Result type conflict in cargo, "data" should be ${this.resultType}`)
     if (this.result !== undefined)
@@ -67,6 +78,8 @@ export default class CargoLoader {
   }
 
   public setResultFragment(type: Type, id: Identifier, frag?) {
+    if (this.sent)
+      throw new Error(`Cannot call "setResultFragment" after "toCargo"`)
     if (this.resultType !== "fragment")
       throw new Error(`Result type conflict in cargo, "fragment" should be ${this.resultType}`)
     if (this.result !== undefined)
@@ -81,6 +94,8 @@ export default class CargoLoader {
   }
 
   public addToResultFragments(type: Type, id: Identifier, frag?) {
+    if (this.sent)
+      throw new Error(`Cannot call "addToResultFragments" after "toCargo"`)
     if (this.resultType !== "fragments")
       throw new Error(`Result type conflict in cargo, "fragments" should be ${this.resultType}`)
     // if (!this.contains(type, id))
@@ -105,6 +120,7 @@ export default class CargoLoader {
   }
 
   public toCargo(): Cargo {
+    this.sent = true
     let resultFragments
     if (this.map.size > 0) {
       resultFragments = {}

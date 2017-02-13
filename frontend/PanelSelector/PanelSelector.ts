@@ -42,7 +42,9 @@ export default class PanelSelector {
     this.$dropdownMenu = this.$container.find(".js-menu-right")
     this.$panel = this.$container.find(".js-panel-container")
 
-    this.menu = this.dash.create(Menu, { args: [] })
+    this.menu = this.dash.create(Menu, {
+      args: []
+    })
     this.menu.attachTo(this.$menu[0])
     this.menu.bkb.on("projectSelected", "dataFirst", (data: any) => {
       this.showProjectPanel(data.itemId)
@@ -104,13 +106,13 @@ export default class PanelSelector {
   private loadProjects() {
     query("Project", {
       archived: false
-    }).then(list => {
-      console.log("queryProjects:", list)
-      if (list.length === 0) {
+    }).then(models => {
+      console.log("queryProjects:", models)
+      if (models.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one ?"))
           this.showSettingPanel("projectForm")
       } else {
-        for (let projectModel of list) {
+        for (let projectModel of models) {
           this.projectPanels.set(projectModel.id, {
             projectModel: projectModel,
             type: ProjectBoard

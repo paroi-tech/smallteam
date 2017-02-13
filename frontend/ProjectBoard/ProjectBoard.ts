@@ -22,10 +22,18 @@ export default class ProjectBoard implements Panel {
     this.$editPanelContainer = this.$container.find(".js-editpanel-container")
     this.$container.find(".js-title").text(projectModel.name)
 
-    this.editPanel = this.dash.create(EditPanel, { args: [ "Edit panel" ] })
+    this.editPanel = this.dash.create(EditPanel, {
+      args: [
+        "Edit panel"
+      ]
+    })
     this.editPanel.attachTo(this.$editPanelContainer[0])
 
-    this.stepsPanel = this.dash.create(StepsPanel, { args: [ this.projectModel ] })
+    this.stepsPanel = this.dash.create(StepsPanel, {
+      args: [
+        this.projectModel
+      ]
+    })
     this.stepsPanel.attachTo(this.$stepsPanelContainer[0])
   }
 

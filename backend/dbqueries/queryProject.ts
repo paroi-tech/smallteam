@@ -41,8 +41,10 @@ export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) 
     loader.addFragment("Task", frag.rootTaskId)
     projectIdList.push(row["project_id"])
   }
-  fetchProjectSteps(loader, projectIdList)
-  fetchProjectTasks(loader, projectIdList)
+  await Promise.all([
+    fetchProjectSteps(loader, projectIdList),
+    fetchProjectTasks(loader, projectIdList)
+  ])
 }
 
 export async function fetchProjects(loader: CargoLoader, idList: string[]) {
