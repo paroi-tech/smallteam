@@ -2,14 +2,14 @@ export function makeJkMap<K, V>(): Map<K, V> {
   let map = new Map<string, V>()
   return {
     clear: () => map.clear(),
-    delete: (key: K) => map.delete(JSON.stringify(key)),
+    delete: (key: K) => map.delete(orderedJsonStringify(key)),
     forEach: (callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any) => {
       map.forEach((value: V, key: string) => callbackfn(value, JSON.parse(key), this), thisArg)
     },
-    get: (key: K) => map.get(JSON.stringify(key)),
-    has: (key: K) => map.has(JSON.stringify(key)),
+    get: (key: K) => map.get(orderedJsonStringify(key)),
+    has: (key: K) => map.has(orderedJsonStringify(key)),
     set: (key: K, value?: V) => {
-      map.set(JSON.stringify(key), value)
+      map.set(orderedJsonStringify(key), value)
       return this
     },
     get size() {
@@ -29,13 +29,13 @@ export function makeJkSet<T>(): Set<T> {
   let set = new Set<string>()
   return {
     clear: () => set.clear(),
-    delete: (key: T) => set.delete(JSON.stringify(key)),
+    delete: (key: T) => set.delete(orderedJsonStringify(key)),
     forEach: (callbackfn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any) => {
       set.forEach((key, key2) => callbackfn(JSON.parse(key), JSON.parse(key2), this), thisArg)
     },
-    has: (key: T) => set.has(JSON.stringify(key)),
+    has: (key: T) => set.has(orderedJsonStringify(key)),
     add: (key: T) => {
-      set.add(JSON.stringify(key))
+      set.add(orderedJsonStringify(key))
       return this
     },
     get size() {
@@ -54,7 +54,7 @@ export function makeJkSet<T>(): Set<T> {
 function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" | "key" | "keyKey"): IterableIterator<any> {
   let iter = makeIterator()
   return {
-    [Symbol.iterator]: this,
+    [Symbol.iterator]: () => makeIterableIterator(makeIterator, mode),
     next: (inputVal?) => {
       let {done, value} = iter.next(inputVal)
       if (value === undefined || value === null)
@@ -74,4 +74,11 @@ function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" 
       return { done, value: valueAsV }
     }
   }
+}
+
+/**
+ * Thanks to http://stackoverflow.com/a/35810961/3786294
+ */
+function orderedJsonStringify(o) {
+  return JSON.stringify(Object.keys(o).sort().reduce((r, k) => (r[k] = o[k], r), {}));
 }

@@ -108,6 +108,7 @@ export default class PanelSelector {
       archived: false
     }).then(models => {
       console.log("queryProjects:", models)
+      //console.log("Tasks:", models[0].tasks)
       if (models.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one ?"))
           this.showSettingPanel("projectForm")

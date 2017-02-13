@@ -241,13 +241,19 @@ function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
   //console.log("getModels A", index, storage, indexMap)
   if (!indexMap) {
     storage.indexes.set(index, indexMap = makeJkMap<any, any>())
-console.log("==> FILL")
     fillIndex(storage, index, indexMap)
+// console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
   }
 
   let identifiers = indexMap.get(key)
 
-console.log("==>", storage.indexes, indexMap, index, identifiers, key)
+// console.log("==>", toDebugStr(indexMap), toDebugStr(identifiers), key)
+
+// let yesy = makeJkMap<any, any>()
+// yesy.set({"a": 123, "b": 123}, "boum")
+// yesy.set({"a": undefined, "b": 123}, "boum")
+// let za = yesy.get({"b": 123, "a": 123})
+// console.log("+++==>", toDebugStr(yesy), "resp", za, JSON.stringify({"b": 123, "a": 123}), JSON.stringify({"a": 123, "b": 123}))
 
   if (!identifiers)
     return []
@@ -272,7 +278,7 @@ function cleanIndex(index: Index): Index {
 }
 
 function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
-  console.log("fillIndex A", index, storage, indexMap, storage.entities.size)
+  // console.log("fillIndex A", index, storage, toDebugStr(indexMap), toDebugStr(storage.entities))
   for (let [id, entity] of storage.entities)
     tryToAddToIndex(index, indexMap, id, entity.fragment)
 }
@@ -291,7 +297,34 @@ function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag:
   if (!identifiers)
     indexMap.set(key, identifiers = makeJkSet<any>())
   identifiers.add(id)
-  console.log("tryToAddToIndex A", index, key, identifiers, "ID=", id, frag)
+  // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
+}
+
+function toDebugStr(entry?: Map<any, any> | Set<any>) {
+  return JSON.stringify(toObj(entry), null, 2)
+}
+
+function toObj(entry?: Map<any, any> | Set<any>) {
+  if (!entry)
+    return entry
+  if (entry[Symbol.toStringTag] === "Map") {
+    let list: any[] = ["MAP"]
+    for (let [key, val] of entry) {
+      if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))
+        val = toObj(val)
+      list.push([key, val])
+    }
+    return list
+  } else {
+    //console.log("+++", entry[Symbol.toStringTag], entry.values())
+    let list: any[] = ["SET"]
+    for (let val of entry.values()) {
+      if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))
+        val = toObj(val)
+      list.push(val)
+    }
+    return list
+  }
 }
 
 function getModel(type: Type, id: Identifier): any {
