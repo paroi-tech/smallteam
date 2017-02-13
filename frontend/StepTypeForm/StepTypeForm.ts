@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { createStepType, updateStepType } from "../Model/Model"
+import { exec } from "../Model/Model"
 import { StepTypeModel } from "../Model/FragmentsModel"
 
 const template = require("html-loader!./steptypeform.html")
@@ -61,7 +61,7 @@ export default class StepTypeForm {
     let $indicator = this.$submitButton.find("span").show()
 
     this.model!.name = newName
-    updateStepType(this.model!).then(newModel => {
+    exec("update", "StepType", this.model!).then(newModel => {
       alert("Step type successfully updated...")
       this.model = newModel
       $indicator.hide()

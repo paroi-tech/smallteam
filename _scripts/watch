@@ -34,7 +34,7 @@ node_modules/.bin/webpack --watch --config frontend/webpack.config.js &
 node_modules/.bin/tsc --watch --project backend/ &
 
 # Start the Web server (in developer mode with "nodemon")
-sleep 5
+sleep 6
 echo ">> Start the Web server"
 node_modules/.bin/nodemon --watch www-server -e "js" www-server/backend/ # wait forever
 

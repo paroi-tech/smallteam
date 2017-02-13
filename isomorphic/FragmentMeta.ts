@@ -1,4 +1,4 @@
-export type TypeVariant = "New" | "Upd"
+export type TypeVariant = "New" | "Upd" | "Q"
 
 export interface FragmentMeta {
   type: string
@@ -24,10 +24,20 @@ export type UpdPick<T, REQ extends keyof T, OPT extends keyof T> = {
   [P in OPT]?: T[P]
 }
 
+/**
+ * Each filter can be of type: `value` or [op, value]. Example: [">=", value]
+ */
+export type AsFilter<T> = {
+  readonly [P in keyof T]?: T[P] | [string, T[P]]
+}
+
+/**
+ * Each filter can be of type: `value` or [op, value]. Example: [">=", value]
+ */
 export type SearchPick<T, OPT extends keyof T> = {
-  [P in OPT]?: T[P]
+  [P in OPT]?: T[P] //| [string, T[P]] // TODO: Implement in SQL92Builder
 } & {
-  search?: string
+  search?: string //| [string, string] // TODO: Implement in SQL92Builder
 }
 
 export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, fieldNames: string[]): FragmentMeta {
@@ -40,14 +50,14 @@ export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, field
   return { type: base.type, variant, fields }
 }
 
-export function updPickFragmentMeta(variant: TypeVariant, base: FragmentMeta, reqFieldNames: string[], optFieldNames: string[]): FragmentMeta {
+export function updPickFragmentMeta(variant: "Upd", base: FragmentMeta, reqFieldNames: string[], optFieldNames: string[]): FragmentMeta {
   let fields = {}
   copyFields(fields, base, reqFieldNames)
   copyFields(fields, base, optFieldNames, true)
   return { type: base.type, variant, fields }
 }
 
-export function searchPickFragmentMeta(variant: TypeVariant, base: FragmentMeta, fieldNames: string[]): FragmentMeta {
+export function searchPickFragmentMeta(variant: "Q", base: FragmentMeta, fieldNames: string[]): FragmentMeta {
   let fields = {
     search: {
       dataType: "string",

@@ -74,4 +74,4 @@ export type UpdTaskFragment = UpdPick<TaskFragment, "id", "label" | "description
 export const updTaskMeta = updPickFragmentMeta("Upd", taskMeta, ["id"], ["label", "description" , "createdById", "affectedToId", "curStepId", "parentTaskId", "orderNum"])
 
 export type TaskQuery = SearchPick<TaskFragment, "label" | "description" | "createdById" | "affectedToId" | "curStepId" | "parentTaskId" | "projectId">
-export const taskQueryMeta = searchPickFragmentMeta("New", taskMeta, ["label", "description" , "createdById", "affectedToId", "curStepId", "parentTaskId", "projectId"])
+export const taskQueryMeta = searchPickFragmentMeta("Q", taskMeta, ["label", "description" , "createdById", "affectedToId", "curStepId", "parentTaskId", "projectId"])

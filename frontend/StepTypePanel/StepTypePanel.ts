@@ -5,7 +5,7 @@ import { Panel } from "../PanelSelector/PanelSelector"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import { Box, Boxlist, BoxlistParams } from "../Boxlist/Boxlist"
-import { queryStepTypes, createStepType } from "../Model/Model"
+import { query, exec } from "../Model/Model"
 import { StepTypeModel } from "../Model/FragmentsModel"
 import { UpdateStepTypeOrders } from "../Model/fakeModel"
 import { equal } from "../libraries/utils"
@@ -105,7 +105,7 @@ export default class StepTypePanel {
   }
 
   private loadStepTypes() {
-    queryStepTypes().then(stepTypes => {
+    query("StepType").then(stepTypes => {
       if (stepTypes.length === 0) {
         alert("No step types to load from server.")
         return
@@ -125,7 +125,7 @@ export default class StepTypePanel {
 
   private saveStepType(name: string) {
     let spinner = this.$addBtn.find("span").show()
-    createStepType({
+    exec("create", "StepType", {
       name
     }).then(model => {
       this.stepTypes.push(model)
