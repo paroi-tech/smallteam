@@ -52,8 +52,16 @@ registerType("Project", function (frag: ProjectFragment): ProjectModel {
 
 registerType("Task", function (frag: TaskFragment): TaskModel {
   let model = {
+    get project() {
+      return getModel("Project", frag.projectId)
+    },
     get currentStep() {
       return getModel("Step", frag.curStepId)
+    },
+    get parent() {
+      if (frag.parentTaskId === undefined)
+        return undefined
+      return getModel("Task", frag.parentTaskId)
     },
     get children() {
       return getModels({
