@@ -1,5 +1,4 @@
-
-export function newJkMap<K, V>(): Map<K, V> {
+export function makeJkMap<K, V>(): Map<K, V> {
   let map = new Map<string, V>()
   return {
     clear: () => map.clear(),
@@ -26,7 +25,7 @@ export function newJkMap<K, V>(): Map<K, V> {
   }
 }
 
-export function newJkSet<T>(): Set<T> {
+export function makeJkSet<T>(): Set<T> {
   let set = new Set<string>()
   return {
     clear: () => set.clear(),
