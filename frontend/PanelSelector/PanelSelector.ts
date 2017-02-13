@@ -202,6 +202,16 @@ function makeTests(el) {
       console.log("Created step:", step)
     })
   })
+  $(`<button type="button">Add task</button>`).appendTo(el).click(async () => {
+    exec("create", "Task", {
+      label: "ABC",
+      createdById: "1",
+      curStepId: "1",
+      parentTaskId: "1"
+    }).then(step => {
+      console.log("Created step:", step)
+    })
+  })
   $(`<button type="button">Update project</button>`).appendTo(el).click(async () => {
     exec("update", "Project", {
       id: "1",
