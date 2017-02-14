@@ -29,7 +29,7 @@ export async function fetchStepTypes(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toStepTypeFragment(row)
-    loader.addFragment("StepType", data.id, data)
+    loader.updateModelAddFragment("StepType", data.id, data)
   }
 }
 

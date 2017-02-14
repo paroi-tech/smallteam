@@ -282,11 +282,11 @@ function getFragments(ref: FragmentsRef): any[] {
 
 async function httpPostAndUpdate(url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
   let cargo: Cargo = await httpPostJson(url, data)
-  if (cargo.updModel) {
-    if (cargo.updModel.fragments)
-      updateStore(cargo.updModel.fragments)
-    if (cargo.updModel.deleted)
-      deleteFromStore(cargo.updModel.deleted)
+  if (cargo.modelUpd) {
+    if (cargo.modelUpd.fragments)
+      updateStore(cargo.modelUpd.fragments)
+    if (cargo.modelUpd.deleted)
+      deleteFromStore(cargo.modelUpd.deleted)
   }
   if (!cargo.done) {
     console.log("Error on server", cargo.displayError, cargo.debugData)

@@ -43,7 +43,7 @@ export async function fetchProjectTasks(loader: CargoLoader, projectIdList: numb
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toTaskFragment(row)
-    loader.addFragment("Task", frag.id, frag)
+    loader.updateModelAddFragment("Task", frag.id, frag)
   }
 }
 
@@ -56,7 +56,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toTaskFragment(row)
-    loader.addFragment("Task", data.id, data)
+    loader.updateModelAddFragment("Task", data.id, data)
   }
 }
 

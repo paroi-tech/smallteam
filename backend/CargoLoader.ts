@@ -12,10 +12,7 @@ export default class CargoLoader {
   constructor(private resultType: ResultType) {
   }
 
-  /**
-   * @param frag Can be set to NULL in order to mark it as deleted
-   */
-  public addFragment(type: Type, id: Identifier, frag?: any | null) {
+  public updateModelAddFragment(type: Type, id: Identifier, frag?: any | null) {
     if (this.ended)
       throw new Error(`Invalid call to "addFragment": the Cargo is completed`)
     let fragments = this.map.get(type)
@@ -25,6 +22,10 @@ export default class CargoLoader {
     }
     if (!fragments.has(id) || frag !== undefined)
       fragments.set(id, frag)
+  }
+
+  public updateModelMarkFragmentAsRemoved(type: Type, id: Identifier) {
+    this.updateModelAddFragment(type, id, null)
   }
 
   public getNeeded(type: Type): Identifier[] {
@@ -90,7 +91,7 @@ export default class CargoLoader {
       throw new Error(`Cannot define result twice`)
     // if (!this.contains(type, id))
     //   throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
-    this.addFragment(type, id, frag)
+    this.updateModelAddFragment(type, id, frag)
     this.result = {
       type: "fragment",
       val: { type, id }
@@ -115,7 +116,7 @@ export default class CargoLoader {
         val: { type, list: [] }
       }
     }
-    this.addFragment(type, id, frag)
+    this.updateModelAddFragment(type, id, frag)
     this.result.val!.list.push(id)
   }
 
@@ -153,11 +154,11 @@ export default class CargoLoader {
       done: this.done
     }
     if (resultFragments || deleted) {
-      cargo.updModel = {}
+      cargo.modelUpd = {}
       if (resultFragments)
-        cargo.updModel.fragments = resultFragments
+        cargo.modelUpd.fragments = resultFragments
       if (deleted)
-        cargo.updModel.deleted = deleted
+        cargo.modelUpd.deleted = deleted
     }
     if (this.displayError.length > 0)
       cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]

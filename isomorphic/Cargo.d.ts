@@ -67,5 +67,5 @@ export interface Cargo {
   displayError?: string | string[]
   debugData?: any
   result?: Result
-  updModel?: UpdateModel
+  modelUpd?: UpdateModel
 }
