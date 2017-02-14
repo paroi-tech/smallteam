@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
-import { ProjectModel, TaskModel } from "../Model/FragmentsModel"
+import { ProjectModel, TaskModel } from "../Model/Model"
 import { query } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
@@ -179,8 +179,7 @@ export default class PanelSelector {
 
 }
 
-import { exec } from "../Model/Model"
-import { StepModel, StepTypeModel } from "../Model/FragmentsModel"
+import { exec, StepModel, StepTypeModel } from "../Model/Model"
 
 function makeTests(el) {
   let type: StepTypeModel

@@ -19,7 +19,7 @@ export async function fetchSteps(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toStepFragment(row)
-    loader.addFragment("Step", data.id, data)
+    loader.updateModelAddFragment("Step", data.id, data)
   }
 }
 
@@ -30,7 +30,7 @@ export async function fetchProjectSteps(loader: CargoLoader, projectIdList: numb
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toStepFragment(row)
-    loader.addFragment("Step", frag.id, frag)
+    loader.updateModelAddFragment("Step", frag.id, frag)
   }
 }
 
@@ -81,4 +81,6 @@ export async function deleteStep(loader: CargoLoader, stepId: string) {
     .where("step_id", int(stepId))
 
   await cn.run(sql.toSql())
+
+  loader.updateModelMarkFragmentAsRemoved("Step", stepId)
 }

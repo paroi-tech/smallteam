@@ -1,7 +1,8 @@
 import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType } from "../isomorphic/Cargo"
+import { makeHKMap, HKMap } from "../isomorphic/libraries/HKCollections"
 
 export default class CargoLoader {
-  private map = new Map<Type, Map<Identifier, any | undefined>>()
+  private map = new Map<Type, HKMap<Identifier, any | null | undefined>>()
   private displayError: string[] = []
   private debugData: any[] = []
   private result: Result | undefined
@@ -11,16 +12,20 @@ export default class CargoLoader {
   constructor(private resultType: ResultType) {
   }
 
-  public addFragment(type: Type, id: Identifier, frag?) {
+  public updateModelAddFragment(type: Type, id: Identifier, frag?: any | null) {
     if (this.ended)
       throw new Error(`Invalid call to "addFragment": the Cargo is completed`)
     let fragments = this.map.get(type)
     if (!fragments) {
-      fragments = new Map()
+      fragments = makeHKMap<any, any>()
       this.map.set(type, fragments)
     }
-    if (!fragments.has(id) || frag)
+    if (!fragments.has(id) || frag !== undefined)
       fragments.set(id, frag)
+  }
+
+  public updateModelMarkFragmentAsRemoved(type: Type, id: Identifier) {
+    this.updateModelAddFragment(type, id, null)
   }
 
   public getNeeded(type: Type): Identifier[] {
@@ -30,8 +35,8 @@ export default class CargoLoader {
       fragments = this.map.get(type)
     if (!fragments)
       return idList
-    for (let [id, data] of fragments) {
-      if (data === undefined)
+    for (let [id, frag] of fragments) {
+      if (frag === undefined)
         idList.push(id)
     }
     return idList
@@ -39,8 +44,8 @@ export default class CargoLoader {
 
   public isComplete(): boolean {
     for (let [type, fragments] of this.map.entries()) {
-      for (let [id, data] of fragments.entries()) {
-        if (data === undefined)
+      for (let [id, frag] of fragments.entries()) {
+        if (frag === undefined)
           return false
       }
     }
@@ -86,7 +91,7 @@ export default class CargoLoader {
       throw new Error(`Cannot define result twice`)
     // if (!this.contains(type, id))
     //   throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
-    this.addFragment(type, id, frag)
+    this.updateModelAddFragment(type, id, frag)
     this.result = {
       type: "fragment",
       val: { type, id }
@@ -111,7 +116,7 @@ export default class CargoLoader {
         val: { type, list: [] }
       }
     }
-    this.addFragment(type, id, frag)
+    this.updateModelAddFragment(type, id, frag)
     this.result.val!.list.push(id)
   }
 
@@ -123,23 +128,38 @@ export default class CargoLoader {
 
   public toCargo(): Cargo {
     this.ended = true
-    let resultFragments
+    let resultFragments, deleted
     if (this.map.size > 0) {
-      resultFragments = {}
       for (let [type, fragments] of this.map.entries()) {
-        resultFragments[type] = []
-        for (let data of fragments.values()) {
+        for (let [id, data] of fragments) {
           if (data === undefined)
             throw new Error(`Invalid call to "toCargo()", the loader is not completed`)
-          resultFragments[type].push(data)
+          if (data === null) {
+            if (!deleted)
+              deleted = {}
+            if (!deleted[type])
+              deleted[type] = []
+            deleted[type].push(id)
+          } else {
+            if (!resultFragments)
+              resultFragments = {}
+            if (!resultFragments[type])
+              resultFragments[type] = []
+            resultFragments[type].push(data)
+          }
         }
       }
     }
     let cargo: Cargo = {
       done: this.done
     }
-    if (resultFragments)
-      cargo.fragments = resultFragments
+    if (resultFragments || deleted) {
+      cargo.modelUpd = {}
+      if (resultFragments)
+        cargo.modelUpd.fragments = resultFragments
+      if (deleted)
+        cargo.modelUpd.deleted = deleted
+    }
     if (this.displayError.length > 0)
       cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
     if (this.debugData.length > 0)
