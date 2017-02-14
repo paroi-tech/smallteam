@@ -209,7 +209,7 @@ function makeTests(el) {
       label: "ABC",
       createdById: "1",
       curStepId: "1",
-      parentTaskId: "1"
+      parentTaskId: "5"
     }).then(step => {
       console.log("Created step:", step)
     })
