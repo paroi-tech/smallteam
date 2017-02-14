@@ -1,10 +1,10 @@
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { getFragmentMeta } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Deleted, Identifier } from "../../isomorphic/Cargo"
-import { makeJkMap, makeJkSet } from "../libraries/JsonKeyCollections"
+import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 //import { validateDataArray } from "../../isomorphic/validation"
 
-const store = makeJkMap<Type, TypeStorage>()
+const store = makeHKMap<Type, TypeStorage>()
 
 // --
 // -- Execute an API command
@@ -56,24 +56,24 @@ interface IndexKey {
  *
  * Set keys are `Identifier` as string
  */
-type IndexMap = Map<IndexKey, Set<Identifier>>
+type IndexMap = HKMap<IndexKey, HKSet<Identifier>>
 
 interface TypeStorage {
   /**
    * Keys are `Identifier` as string
    */
-  entities: Map<Identifier, Entity>
+  entities: HKMap<Identifier, Entity>
   /**
    * Keys are `Index` as string
    */
-  indexes: Map<Index, IndexMap>
+  indexes: HKMap<Index, IndexMap>
   modelMaker: (frag) => any
 }
 
 export function registerType(type: Type, modelMaker: (frag) => any) {
   store.set(type, {
-    entities: makeJkMap<any, any>(),
-    indexes: makeJkMap<any, any>(),
+    entities: makeHKMap<any, any>(),
+    indexes: makeHKMap<any, any>(),
     modelMaker
   })
 }
@@ -106,7 +106,7 @@ export function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
   let indexMap = storage.indexes.get(index)
   //console.log("getModels A", index, storage, indexMap)
   if (!indexMap) {
-    storage.indexes.set(index, indexMap = makeJkMap<any, any>())
+    storage.indexes.set(index, indexMap = makeHKMap<any, any>())
 //console.log("[storage.indexes] getModels A", toDebugStr(storage.indexes))
     fillIndex(storage, index, indexMap)
 //console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
@@ -117,7 +117,7 @@ export function getModels({type, index, key, orderBy}: ModelsQuery): any[] {
 
 // console.log("==>", toDebugStr(indexMap), toDebugStr(identifiers), key)
 
-// let yesy = makeJkMap<any, any>()
+// let yesy = makeHkMap<any, any>()
 // yesy.set({"a": 123, "b": 123}, "boum")
 // yesy.set({"a": undefined, "b": 123}, "boum")
 // let za = yesy.get({"b": 123, "a": 123})
@@ -168,7 +168,7 @@ function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag:
     key[name] = frag[name]
   let identifiers = indexMap.get(key)
   if (!identifiers)
-    indexMap.set(key, identifiers = makeJkSet<any>())
+    indexMap.set(key, identifiers = makeHKSet<any>())
   identifiers.add(id)
   // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
 }

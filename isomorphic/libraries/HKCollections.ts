@@ -1,9 +1,19 @@
-export function makeJkMap<K, V>(iterable?: Iterable<[K, V]>): Map<K, V> {
+/*
+ * Hash Key Collections
+ */
+
+export interface HKMap<K, V> extends Map<K, V> {
+}
+
+export interface HKSet<T> extends Set<T> {
+}
+
+export function makeHKMap<K, V>(iterable?: Iterable<[K, V]>): HKMap<K, V> {
   let map = new Map<string, V>()
   let jkMap = {
     clear: () => map.clear(),
     delete: (key: K) => map.delete(stableJsonStringify(key)),
-    forEach: (callbackfn: (value: V, key: K, map: Map<K, V>) => void, thisArg?: any) => {
+    forEach: (callbackfn: (value: V, key: K, map: HKMap<K, V>) => void, thisArg?: any) => {
       map.forEach((value: V, key: string) => callbackfn(value, JSON.parse(key), this), thisArg)
     },
     get: (key: K) => map.get(stableJsonStringify(key)),
@@ -30,12 +40,12 @@ export function makeJkMap<K, V>(iterable?: Iterable<[K, V]>): Map<K, V> {
   return jkMap
 }
 
-export function makeJkSet<T>(iterable?: Iterable<T>): Set<T> {
+export function makeHKSet<T>(iterable?: Iterable<T>): HKSet<T> {
   let set = new Set<string>()
   let jkSet = {
     clear: () => set.clear(),
     delete: (key: T) => set.delete(stableJsonStringify(key)),
-    forEach: (callbackfn: (value: T, value2: T, set: Set<T>) => void, thisArg?: any) => {
+    forEach: (callbackfn: (value: T, value2: T, set: HKSet<T>) => void, thisArg?: any) => {
       set.forEach((key, key2) => callbackfn(JSON.parse(key), JSON.parse(key2), this), thisArg)
     },
     has: (key: T) => set.has(stableJsonStringify(key)),
@@ -78,8 +88,10 @@ function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" 
         // console.log("==>k", key)
         if (mode === "keyVal")
           valueAsV = [JSON.parse(key), val]
-        else
-          valueAsV = [JSON.parse(key), JSON.parse(val)]
+        else {
+          let parsed = JSON.parse(key)
+          valueAsV = [parsed, parsed]
+        }
       }
       return { done, value: valueAsV }
     }
