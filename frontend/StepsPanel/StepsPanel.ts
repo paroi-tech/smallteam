@@ -51,6 +51,7 @@ export default class StepsPanel {
         let box = this.dash.create(TaskBox, {
           group: "items",
           args: [
+            taskModel.id,
             taskModel.label
           ]
         })
@@ -73,11 +74,14 @@ export default class StepsPanel {
           }
         ]
       })
-      for (let task of this.projectModel.tasks!) {
+      for (let task of this.projectModel.rootTask.children!) {
         if (task.curStepId === step.id) {
           let box = this.dash.create(TaskBox, {
             group: "items",
-            args: [ task.id, task.label ]
+            args: [
+              task.id,
+              task.label
+            ]
           })
           bl.addBox(box)
         }
