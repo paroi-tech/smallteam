@@ -5,20 +5,20 @@ declare module "html-loader!*" {
   export default html;
 }
 
-// declare module "*.monk" {
-//   let template: () => void
-//   export = template
-// }
+declare module "*.monk" {
+  let template: () => void
+  export = template
+}
 
-// declare module "monkberry" {
-//   let obj: any;
-//   export = obj;
-// }
+declare module "monkberry" {
+  let obj: any;
+  export = obj;
+}
 
-// declare module "monkberry-directives" {
-//   let obj: any;
-//   export default obj;
-// }
+declare module "monkberry-directives" {
+  let obj: any;
+  export default obj;
+}
 
-// declare module "monkberry-events" {
-// }
+declare module "monkberry-events" {
+}

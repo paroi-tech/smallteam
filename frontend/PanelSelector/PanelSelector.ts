@@ -22,14 +22,19 @@ interface PanelInfo {
   type: typeof ProjectBoard | typeof ProjectForm | typeof StepTypePanel
 }
 
+const settingMenuItems = [
+  { id: "1", label: "New project", eventName: "createProject" },
+  { id: "2", label: "Manage step types", eventName: "manageStepTypes" }
+]
+
 export default class PanelSelector {
-  private model: Model
+  private projectModels: Array<ProjectModel> = []
   private menu: Menu
   private settingMenu: DropdownMenu
   private currentPanel: Panel | null = null
 
-  private projectPanels: Map<string, PanelInfo> = new Map<string, PanelInfo>()
-  private settingPanels: Map<string, PanelInfo> = new Map<string, PanelInfo>()
+  private projectPanelMap: Map<string, PanelInfo> = new Map<string, PanelInfo>()
+  private settingPanelMap: Map<string, PanelInfo> = new Map<string, PanelInfo>()
 
   private $container: JQuery
   private $menu: JQuery
@@ -37,12 +42,24 @@ export default class PanelSelector {
   private $panel: JQuery
 
   constructor(private dash: Dash<App>) {
-    this.model = dash.app.model
     this.$container = $(template)
     this.$menu = this.$container.find(".js-menu-left")
     this.$dropdownMenu = this.$container.find(".js-menu-right")
     this.$panel = this.$container.find(".js-panel-container")
 
+    this.initComponents()
+    this.listenToEvents()
+    this.settingPanelMap.set("projectForm", { type: ProjectForm })
+    this.settingPanelMap.set("stepTypePanel", { type: StepTypePanel })
+    this.loadProjects()
+  }
+
+  public attachTo(el: HTMLElement) {
+    makeTests(el, this.dash.app.model)
+    this.$container.appendTo(el)
+  }
+
+  private initComponents() {
     this.menu = this.dash.create(Menu, {
       args: []
     })
@@ -59,76 +76,45 @@ export default class PanelSelector {
     this.settingMenu.bkb.on("manageStepTypes", "dataFirst", (data: any) => {
       this.showSettingPanel("stepTypePanel")
     })
-
-    // TODO: This is for tests only. Add elements to dropdown menu
-    this.settingMenu.addItems([
-      {
-        id: "1",
-        label: "New project",
-        eventName: "createProject"
-      },
-      {
-        id: "2",
-        label: "Manage step types",
-        eventName: "manageStepTypes"
-      }
-    ])
-
-    this.dash.listenToChildren("projectCreated").call("dataFirst", (data: any) => {
-      let projectModel: ProjectModel = data.projectModel as ProjectModel
-      this.projectPanels.set(projectModel.id, {
-        projectModel: projectModel,
-        type: ProjectBoard
-      })
-      this.menu.addItem({
-        id: projectModel.id,
-        label: projectModel.code,
-        eventName: "projectSelected"
-      })
-      this.showProjectPanel(projectModel.id)
-    })
-
-    this.settingPanels.set("projectForm", {
-      type: ProjectForm
-    })
-
-    this.settingPanels.set("stepTypePanel", {
-      type: StepTypePanel
-    })
-
-    this.loadProjects()
+    this.settingMenu.addItems(settingMenuItems)
   }
 
-  public attachTo(el: HTMLElement) {
-    makeTests(el, this.model)
-    this.$container.appendTo(el)
+  private listenToEvents() {
+    this.dash.listenToChildren("projectCreated").call("dataFirst", (data: any) => {
+      let projectModel: ProjectModel = data.projectModel as ProjectModel
+      this.addProject(projectModel)
+      this.showProjectPanel(projectModel.id)
+    })
   }
 
   private loadProjects() {
-    this.model.query("Project", {
+    this.dash.app.model.query("Project", {
       archived: false
-    }).then(models => {
-      console.log("queryProjects:", models)
-      //console.log("Tasks:", models[0].tasks)
-      if (models.length === 0) {
+    })
+    .then(projectModels => {
+      console.log("queryProjects:", projectModels)
+      if (projectModels.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one ?"))
           this.showSettingPanel("projectForm")
-      } else {
-        for (let projectModel of models) {
-          this.projectPanels.set(projectModel.id, {
-            projectModel: projectModel,
-            type: ProjectBoard
-          })
-          this.menu.addItem({
-            id: projectModel.id,
-            label: projectModel.code,
-            eventName: "projectSelected"
-          })
-        }
-      }
-    }).catch(err => {
+      } else
+        for (let model of projectModels)
+          this.addProject(model)
+    })
+    .catch(err => {
       alert("An error occured while loading projects from server.")
-      console.log("Unable to load projects.", err)
+    })
+  }
+
+  private addProject(model: ProjectModel) {
+    this.projectModels.push(model)
+    this.projectPanelMap.set(model.id, {
+      projectModel: model,
+      type: ProjectBoard
+    })
+    this.menu.addItem({
+      id: model.id,
+      label: model.code,
+      eventName: "projectSelected"
     })
   }
 
@@ -140,7 +126,7 @@ export default class PanelSelector {
   }
 
   private showProjectPanel(panelId: string) {
-    let info = this.projectPanels.get(panelId)
+    let info = this.projectPanelMap.get(panelId)
     if (!info)
       throw new Error(`Unknown project panel id: ${panelId}`)
 
@@ -155,26 +141,19 @@ export default class PanelSelector {
   }
 
   private showSettingPanel(panelId: string) {
-    let info = this.settingPanels.get(panelId)
+    let info = this.settingPanelMap.get(panelId)
     if (!info)
       throw new Error(`Unknown settings panel id: ${panelId}`)
 
-    // Create a new panel if the PanelInfo does not embed one.
     if (!info.panel) {
       if (info.type == ProjectForm)
-        info.panel = this.dash.create<ProjectForm>(info.type, {
-          args: []
-        })
+        info.panel = this.dash.create<ProjectForm>(info.type, { args: [] })
       else if (info.type == StepTypePanel)
-        info.panel = this.dash.create<StepTypePanel>(info.type, {
-          args: []
-        })
+        info.panel = this.dash.create<StepTypePanel>(info.type, { args: [] })
       else
         throw new Error(`Unknown Panel type: ${info.type}`)
-
       info.panel.attachTo(this.$panel[0])
     }
-
     this.setCurrentPanel(info.panel)
   }
 
