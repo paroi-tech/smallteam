@@ -3,17 +3,20 @@ import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
 import { Boxlist, BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
-import { exec, query, TaskModel } from "../Model/Model"
+import Model, { TaskModel } from "../Model/Model"
 
 const template = require("html-loader!./stepspanel.html")
 
 export default class StepsPanel {
+  private model: Model
+
   private $container: JQuery
   private $stepsContainer: JQuery
 
   private boxlistMap: Map<string, Boxlist>
 
   constructor(private dash: Dash<App>, private taskModel: TaskModel) {
+    this.model = dash.app.model
     this.boxlistMap = new Map<string, Boxlist>()
 
     this.$container = $(template)
@@ -34,7 +37,7 @@ export default class StepsPanel {
   }
 
   private createTask(name: string) {
-    exec("create", "Task", {
+    this.model.exec("create", "Task", {
       label: name,
       createdById: "1",
       parentTaskId: this.taskModel.id,

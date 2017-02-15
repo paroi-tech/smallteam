@@ -2,11 +2,12 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
-import { exec } from "../Model/Model"
+import Model from "../Model/Model"
 
 const template = require("html-loader!./projectform.html")
 
 export default class ProjectForm {
+  private model: Model
   private $container: JQuery
   private $form: JQuery
   private $projectCode: JQuery
@@ -15,6 +16,7 @@ export default class ProjectForm {
   private generateCode: boolean = true;
 
   constructor(private dash: Dash<App>) {
+    this.model = dash.app.model
     this.$container = $(template)
     this.$form = this.$container.find(".js-form")
     this.$projectCode = this.$form.find(".js-project-code")
@@ -46,7 +48,7 @@ export default class ProjectForm {
       let code = this.$form.find(".js-project-code").val()
       let name = this.$form.find(".js-project-name").val()
 
-      exec("create", "Project", { code, name }).then(projectModel => {
+      this.model.exec("create", "Project", { code, name }).then(projectModel => {
         $indicator.hide()
         alert("Project successfully created.")
         this.dash.emit("projectCreated", { projectModel })

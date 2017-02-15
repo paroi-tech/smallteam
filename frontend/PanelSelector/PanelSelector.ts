@@ -6,8 +6,7 @@ import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
-import { ProjectModel, TaskModel } from "../Model/Model"
-import { query } from "../Model/Model"
+import Model, { ProjectModel, TaskModel } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -24,7 +23,8 @@ interface PanelInfo {
 }
 
 export default class PanelSelector {
-  private menu: Menu;
+  private model: Model
+  private menu: Menu
   private settingMenu: DropdownMenu
   private currentPanel: Panel | null = null
 
@@ -37,6 +37,7 @@ export default class PanelSelector {
   private $panel: JQuery
 
   constructor(private dash: Dash<App>) {
+    this.model = dash.app.model
     this.$container = $(template)
     this.$menu = this.$container.find(".js-menu-left")
     this.$dropdownMenu = this.$container.find(".js-menu-right")
@@ -99,12 +100,12 @@ export default class PanelSelector {
   }
 
   public attachTo(el: HTMLElement) {
-    makeTests(el)
+    makeTests(el, this.model)
     this.$container.appendTo(el)
   }
 
   private loadProjects() {
-    query("Project", {
+    this.model.query("Project", {
       archived: false
     }).then(models => {
       console.log("queryProjects:", models)
@@ -179,12 +180,12 @@ export default class PanelSelector {
 
 }
 
-import { exec, StepModel, StepTypeModel } from "../Model/Model"
+import { StepModel, StepTypeModel } from "../Model/Model"
 
-function makeTests(el) {
+function makeTests(el, model) {
   let type: StepTypeModel
   $(`<button type="button">Add type</button>`).appendTo(el).click(async () => {
-    exec("create", "StepType", {
+    model.exec("create", "StepType", {
       name: "TODO"
     }).then(t => {
       console.log("Created type:", t)
@@ -192,12 +193,12 @@ function makeTests(el) {
     })
   })
   $(`<button type="button">Get types</button>`).appendTo(el).click(async () => {
-    query("StepType").then(types => {
+    model.query("StepType").then(types => {
       console.log("Loaded types:", types)
     })
   })
   $(`<button type="button">Add step</button>`).appendTo(el).click(async () => {
-    exec("create", "Step", {
+    model.exec("create", "Step", {
       projectId: "1",
       typeId: "2"
     }).then(step => {
@@ -205,7 +206,7 @@ function makeTests(el) {
     })
   })
   $(`<button type="button">Add task</button>`).appendTo(el).click(async () => {
-    exec("create", "Task", {
+    model.exec("create", "Task", {
       label: "ABC",
       createdById: "1",
       curStepId: "1",
@@ -215,7 +216,7 @@ function makeTests(el) {
     })
   })
   $(`<button type="button">Update project</button>`).appendTo(el).click(async () => {
-    exec("update", "Project", {
+    model.exec("update", "Project", {
       id: "1",
       description: "Hop la description",
       name: "Beau projet"
@@ -223,5 +224,4 @@ function makeTests(el) {
       console.log("Created step:", step)
     })
   })
-
 }

@@ -1,12 +1,13 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { exec } from "../Model/Model"
-import { StepTypeModel } from "../Model/Model"
+import Model, { StepTypeModel } from "../Model/Model"
 
 const template = require("html-loader!./steptypeform.html")
 
 export default class StepTypeForm {
+  private model: Model
+
   private $container: JQuery
   private $fieldContainer: JQuery
   private $stepTypeId: JQuery
@@ -14,10 +15,11 @@ export default class StepTypeForm {
   private $stepTypeIndex: JQuery
   private $submitButton: JQuery
 
-  private model: StepTypeModel | null
+  private stepType: StepTypeModel | null
 
   constructor(private dash: Dash<App>) {
-    this.model = null
+    this.model = dash.app.model
+    this.stepType = null
 
     this.$container = $(template)
     this.$fieldContainer = this.$container.find(".js-field-container")
@@ -35,7 +37,7 @@ export default class StepTypeForm {
 
   private listenToForm() {
     this.$submitButton.click(ev => {
-      if (!this.model)
+      if (!this.stepType)
         return
 
       let newName = this.$stepTypeName.val().trim()
@@ -48,33 +50,33 @@ export default class StepTypeForm {
     })
   }
 
-  public fillWith(model: StepTypeModel) {
-    this.model = model
-    this.$stepTypeId.val(model.id)
-    this.$stepTypeName.val(model.name)
-    if (model.orderNum)
-      this.$stepTypeIndex.val(model.orderNum)
+  public fillWith(stepType: StepTypeModel) {
+    this.stepType = stepType
+    this.$stepTypeId.val(stepType.id)
+    this.$stepTypeName.val(stepType.name)
+    if (stepType.orderNum)
+      this.$stepTypeIndex.val(stepType.orderNum)
   }
 
   private updateModel(newName: string) {
-    let oldName = this.model!.name
+    let oldName = this.stepType!.name
     let $indicator = this.$submitButton.find("span").show()
 
-    this.model!.name = newName
-    exec("update", "StepType", this.model!).then(newModel => {
+    this.stepType!.name = newName
+    this.model.exec("update", "StepType", this.stepType!).then(newModel => {
       alert("Step type successfully updated...")
-      this.model = newModel
+      this.stepType = newModel
       $indicator.hide()
     }).catch(err => {
       alert("Impossible to save the new step type...")
-      this.model!.name = oldName
+      this.stepType!.name = oldName
       this.$stepTypeName.val(oldName)
       $indicator.hide()
     })
   }
 
   public reset() {
-    this.model = null
+    this.stepType = null
     this.$stepTypeId.val("")
     this.$stepTypeName.val("")
     this.$stepTypeIndex.val("")

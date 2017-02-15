@@ -5,13 +5,15 @@ import { Panel } from "../PanelSelector/PanelSelector"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import { Box, Boxlist, BoxlistParams } from "../Boxlist/Boxlist"
-import { query, exec, StepTypeModel } from "../Model/Model"
+import Model, { StepTypeModel } from "../Model/Model"
 import { UpdateStepTypeOrders } from "../Model/fakeModel"
 import { equal } from "../libraries/utils"
 
 const template = require("html-loader!./steptypepanel.html")
 
 export default class StepTypePanel {
+  private model: Model
+
   private $container: JQuery
   private $listContainer: JQuery
   private $formContainer: JQuery
@@ -25,6 +27,7 @@ export default class StepTypePanel {
   private timer: any
 
   constructor(private dash: Dash<App>) {
+    this.model = dash.app.model
     this.stepTypes = []
     this.timer = null
 
@@ -104,7 +107,7 @@ export default class StepTypePanel {
   }
 
   private loadStepTypes() {
-    query("StepType").then(stepTypes => {
+    this.model.query("StepType").then(stepTypes => {
       if (stepTypes.length === 0) {
         alert("No step types to load from server.")
         return
@@ -124,7 +127,7 @@ export default class StepTypePanel {
 
   private saveStepType(name: string) {
     let spinner = this.$addBtn.find("span").show()
-    exec("create", "StepType", {
+    this.model.exec("create", "StepType", {
       name
     }).then(model => {
       this.stepTypes.push(model)
