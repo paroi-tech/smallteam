@@ -15,12 +15,12 @@ export default class StepsPanel {
 
   private boxlistMap: Map<string, Boxlist>
 
-  constructor(private dash: Dash<App>, private taskModel: TaskModel) {
+  constructor(private dash: Dash<App>, private task: TaskModel) {
     this.model = dash.app.model
     this.boxlistMap = new Map<string, Boxlist>()
 
     this.$container = $(template)
-    this.$container.find(".js-title").text(this.taskModel.label)
+    this.$container.find(".js-title").text(this.task.label)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
     this.$container.find(".js-add-task-button").click(() => {
       let name = this.$container.find(".js-task-name").val().trim()
@@ -30,6 +30,10 @@ export default class StepsPanel {
 
     this.createBoxlists()
     this.fillBoxlists()
+
+    this.dash.listenToChildren("taskBoxSelected").call("dataFirst", (data: any) => {
+      console.log(`TaskBox ${data.task.id} selected in stepspanel ${this.task.id}`)
+    })
   }
 
   public attachTo(el: HTMLElement) {
@@ -40,18 +44,15 @@ export default class StepsPanel {
     this.model.exec("create", "Task", {
       label: name,
       createdById: "1",
-      parentTaskId: this.taskModel.id,
+      parentTaskId: this.task.id,
       curStepId: "1"
     })
-    .then(taskModel => {
+    .then(task => {
       let box = this.dash.create(TaskBox, {
         group: "items",
-        args: [
-          taskModel.id,
-          taskModel.label
-        ]
+        args: [ task ]
       })
-      let bl = this.boxlistMap.get(taskModel.curStepId)
+      let bl = this.boxlistMap.get(task.curStepId)
       if (bl)
         bl.addBox(box)
     })
@@ -61,14 +62,10 @@ export default class StepsPanel {
   }
 
   private createBoxlists() {
-    for (let step of this.taskModel.project.steps) {
+    for (let step of this.task.project.steps) {
       let bl = this.dash.create(Boxlist, {
         args: [
-          {
-            id: step.id,
-            name: step.name,
-            group: this.taskModel.code
-          }
+          { id: step.id, name: step.name, group: this.task.code }
         ]
       })
       this.boxlistMap.set(step.id, bl)
@@ -77,17 +74,14 @@ export default class StepsPanel {
   }
 
   private fillBoxlists() {
-    if (!this.taskModel.children)
+    if (!this.task.children)
       return
-    for (let task of this.taskModel.children) {
+    for (let task of this.task.children) {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl) {
         let box = this.dash.create(TaskBox, {
             group: "items",
-            args: [
-              task.id,
-              task.label
-            ]
+            args: [ task ]
         })
         bl.addBox(box)
       }

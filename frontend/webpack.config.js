@@ -23,7 +23,8 @@ module.exports = {
             "noEmit": false
           }
         }
-      }
+      },
+      { test: /\.monk$/, loader: 'monkberry-loader' }
     ]
   }
 }

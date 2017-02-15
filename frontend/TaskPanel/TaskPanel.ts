@@ -13,7 +13,7 @@ export default class TaskPanel implements Panel {
   // private $label: JQuery
   // private $description: JQuery
 
-  private view: any
+  private view: MonkberryView
   private task: TaskModel | undefined = undefined
 
   constructor(private dash: Dash<App>, title: string) {
@@ -30,6 +30,7 @@ export default class TaskPanel implements Panel {
 
   public fillWith(task: TaskModel) {
     this.task = task
+    this.view.update(task)
     // this.$label.text(task.label)
     // if (task.description)
     //   this.$description.val(task.description)

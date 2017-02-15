@@ -1,5 +1,9 @@
 <div class="BlockTitle">Task panel</div>
-<input class="js-task-label" type="text" value="{{ label }}">
-<div>
+<label class="FormField">
+  <span class="FormField-span">Name</span>
+  <input class="js-task-label" type="text" value="{{ label }}">
+</label>
+<label class="FormField">
+  <span class="FormField-span">Description</span>
   <textarea class="js-task-description" placeholder="Task description...">{{ description }}</textarea>
-</div>
+</label>
