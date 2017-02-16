@@ -23,9 +23,9 @@ export default class ProjectBoard implements Panel {
     this.$container.find(".js-title").text(project.name)
 
     this.initComponents()
-    this.dash.listenToChildren("taskBoxSelected", {deep: true}).call("dataFirst", (data: any) => {
-      console.log(`TaskBox ${data.task.id} selected in projectboard ${this.project.id}`)
-        this.taskPanel.fillWith(data.task as TaskModel)
+    this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", data => {
+      console.log(`TaskBox ${data.id} selected in projectboard ${this.project.id}`)
+        this.taskPanel.fillWith(data as TaskModel)
     })
 
   }

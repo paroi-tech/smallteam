@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
-import { Boxlist, BoxlistParams } from "../Boxlist/Boxlist"
+import Boxlist, { BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
 import Model, { TaskModel } from "../Model/Model"
 
@@ -13,11 +13,11 @@ export default class StepsPanel {
   private $container: JQuery
   private $stepsContainer: JQuery
 
-  private boxlistMap: Map<string, Boxlist>
+  private boxlistMap: Map<string, Boxlist<TaskBox>>
 
   constructor(private dash: Dash<App>, private task: TaskModel) {
     this.model = dash.app.model
-    this.boxlistMap = new Map<string, Boxlist>()
+    this.boxlistMap = new Map()
 
     this.$container = $(template)
     this.$container.find(".js-title").text(this.task.label)
@@ -31,8 +31,8 @@ export default class StepsPanel {
     this.createBoxlists()
     this.fillBoxlists()
 
-    this.dash.listenToChildren("taskBoxSelected").call("dataFirst", (data: any) => {
-      console.log(`TaskBox ${data.task.id} selected in stepspanel ${this.task.id}`)
+    this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
+      console.log(`TaskBox ${data.id} selected in stepspanel ${this.task.id}`)
     })
   }
 
