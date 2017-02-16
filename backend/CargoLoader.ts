@@ -1,8 +1,11 @@
-import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType } from "../isomorphic/Cargo"
+import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate } from "../isomorphic/Cargo"
 import { makeHKMap, HKMap } from "../isomorphic/libraries/HKCollections"
 
+type ChangedType = "created" | "updated" | "deleted"
+
 export default class CargoLoader {
-  private map = new Map<Type, HKMap<Identifier, any | null | undefined>>()
+  private fragmentsMap = new Map<Type, HKMap<Identifier, any | undefined>>()
+  private changedMap = new Map<Type, HKMap<Identifier, ChangedType>>()
   private displayError: string[] = []
   private debugData: any[] = []
   private result: Result | undefined
@@ -12,27 +15,34 @@ export default class CargoLoader {
   constructor(private resultType: ResultType) {
   }
 
-  public updateModelAddFragment(type: Type, id: Identifier, frag?: any | null) {
+  public updateModelAddFragment(type: Type, id: Identifier, frag?: any) {
     if (this.ended)
-      throw new Error(`Invalid call to "addFragment": the Cargo is completed`)
-    let fragments = this.map.get(type)
+      throw new Error(`Invalid call to "updateModelAddFragment": the Cargo is completed`)
+    let fragments = this.fragmentsMap.get(type)
     if (!fragments) {
       fragments = makeHKMap<any, any>()
-      this.map.set(type, fragments)
+      this.fragmentsMap.set(type, fragments)
     }
     if (!fragments.has(id) || frag !== undefined)
       fragments.set(id, frag)
   }
 
-  public updateModelMarkFragmentAsRemoved(type: Type, id: Identifier) {
-    this.updateModelAddFragment(type, id, null)
+  public updateModelMarkFragmentAs(type: Type, id: Identifier, changedType: ChangedType) {
+    if (this.ended)
+      throw new Error(`Invalid call to "updateModelMarkFragmentAs": the Cargo is completed`)
+    let changed = this.changedMap.get(type)
+    if (!changed) {
+      changed = makeHKMap<any, any>()
+      this.changedMap.set(type, changed)
+    }
+    changed.set(id, changedType)
   }
 
   public getNeeded(type: Type): Identifier[] {
     if (this.ended)
       throw new Error(`Invalid call to "getNeeded": the Cargo is completed`)
     let idList: Identifier[] = [],
-      fragments = this.map.get(type)
+      fragments = this.fragmentsMap.get(type)
     if (!fragments)
       return idList
     for (let [id, frag] of fragments) {
@@ -43,7 +53,7 @@ export default class CargoLoader {
   }
 
   public isComplete(): boolean {
-    for (let [type, fragments] of this.map.entries()) {
+    for (let [type, fragments] of this.fragmentsMap.entries()) {
       for (let [id, frag] of fragments.entries()) {
         if (frag === undefined)
           return false
@@ -53,7 +63,7 @@ export default class CargoLoader {
   }
 
   public contains(type: Type, id: Identifier): boolean {
-    let fragments = this.map.get(type)
+    let fragments = this.fragmentsMap.get(type)
     return fragments !== undefined && fragments.has(id)
   }
 
@@ -128,38 +138,14 @@ export default class CargoLoader {
 
   public toCargo(): Cargo {
     this.ended = true
-    let resultFragments, deleted
-    if (this.map.size > 0) {
-      for (let [type, fragments] of this.map.entries()) {
-        for (let [id, data] of fragments) {
-          if (data === undefined)
-            throw new Error(`Invalid call to "toCargo()", the loader is not completed`)
-          if (data === null) {
-            if (!deleted)
-              deleted = {}
-            if (!deleted[type])
-              deleted[type] = []
-            deleted[type].push(id)
-          } else {
-            if (!resultFragments)
-              resultFragments = {}
-            if (!resultFragments[type])
-              resultFragments[type] = []
-            resultFragments[type].push(data)
-          }
-        }
-      }
-    }
     let cargo: Cargo = {
       done: this.done
     }
-    if (resultFragments || deleted) {
-      cargo.modelUpd = {}
-      if (resultFragments)
-        cargo.modelUpd.fragments = resultFragments
-      if (deleted)
-        cargo.modelUpd.deleted = deleted
-    }
+    let modelUpd: ModelUpdate = {}
+    this.fillModelUpdateWithFragments(modelUpd)
+    this.fillModelUpdateWithChanges(modelUpd)
+    if (!isObjEmpty(modelUpd))
+      cargo.modelUpd = modelUpd
     if (this.displayError.length > 0)
       cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
     if (this.debugData.length > 0)
@@ -170,4 +156,42 @@ export default class CargoLoader {
       cargo.result = { type: this.resultType } as Result
     return cargo
   }
+
+  private fillModelUpdateWithChanges(modelUpd: ModelUpdate | any) {
+    if (this.changedMap.size === 0)
+      return
+    for (let [type, changed] of this.changedMap) {
+      for (let [id, changedType] of changed) {
+        if (!modelUpd[changedType])
+          modelUpd[changedType] = {}
+        if (!modelUpd[changedType][type])
+          modelUpd[changedType][type] = []
+        modelUpd[changedType][type].push(id)
+      }
+    }
+  }
+
+  private fillModelUpdateWithFragments(modelUpd: ModelUpdate | any) {
+    if (this.fragmentsMap.size === 0)
+      return
+    for (let [type, fragments] of this.fragmentsMap) {
+      for (let [id, data] of fragments) {
+        if (data === undefined)
+          throw new Error(`Invalid call to "toCargo()", the loader is not completed`)
+        if (!modelUpd.fragments)
+          modelUpd.fragments = {}
+        if (!modelUpd.fragments[type])
+          modelUpd.fragments[type] = []
+        modelUpd.fragments[type].push(data)
+      }
+    }
+  }
+}
+
+function isObjEmpty(obj: {}): boolean {
+  for (let k in obj) {
+    if (obj.hasOwnProperty(k))
+      return false
+  }
+  return true
 }

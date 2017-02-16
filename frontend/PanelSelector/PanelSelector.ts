@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
-import Model, { ProjectModel, TaskModel } from "../Model/Model"
+import Model, { ProjectModel, TaskModel, ModelEvent } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -161,7 +161,20 @@ export default class PanelSelector {
 
 import { StepModel, StepTypeModel } from "../Model/Model"
 
-function makeTests(el, model) {
+function makeTests(el, model: Model) {
+  model.on<ModelEvent>("change", "dataFirst", data => {
+    console.log(`++ event "change"`, data.type, "; ID:", data.id, "; data:", data)
+  })
+  model.on<ModelEvent>("update", "dataFirst", data => {
+    console.log(`++ event "update"`, data.type, "; ID:", data.id, "; data:", data)
+  })
+  model.on<ModelEvent>("updateProject", "dataFirst", data => {
+    console.log(`++ event "updateProject"`, data.type, "; ID:", data.id, "; data:", data)
+  })
+  model.on<ModelEvent>("createStepType", "dataFirst", data => {
+    console.log(`++ event "createStepType"`, data.type, "; ID:", data.id, "; data:", data)
+  })
+
   let type: StepTypeModel
   $(`<button type="button">Add type</button>`).appendTo(el).click(async () => {
     model.exec("create", "StepType", {

@@ -128,6 +128,7 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
   }
 
   loader.setResultFragment("Task", taskId.toString())
+  loader.updateModelMarkFragmentAs("Task", taskId.toString(), "created")
 }
 
 // --
@@ -157,4 +158,7 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
     //   })
     // await cn.run(sql.toSql())
   }
+
+  loader.setResultFragment("Task", updFrag.id)
+  loader.updateModelMarkFragmentAs("StepType", updFrag.id, "updated")
 }

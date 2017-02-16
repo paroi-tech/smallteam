@@ -1,6 +1,7 @@
+import { Dash } from "bkb"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { getFragmentMeta } from "../../isomorphic/meta"
-import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Deleted, Identifier } from "../../isomorphic/Cargo"
+import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, Identifier } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 //import { validateDataArray } from "../../isomorphic/validation"
 
@@ -15,6 +16,13 @@ export interface ModelsQuery {
   index: Index
   key: IndexKey
   orderBy: [string, "asc" | "desc"] | ((a, b) => number)
+}
+
+export interface ModelEvent {
+  type: Type
+  id: Identifier
+  cmd: CommandType
+  model: any
 }
 
 // --
@@ -58,6 +66,19 @@ interface TypeStorage {
 export default class ModelEngine {
   private store = makeHKMap<Type, TypeStorage>()
 
+  constructor(private dash: Dash<{}>) {
+    this.dash.exposeEvents(`change`, `create`, `update`, `delete`)
+  }
+
+  public registerType(type: Type, modelMaker: (frag) => any) {
+    this.store.set(type, {
+      entities: makeHKMap<any, any>(),
+      indexes: makeHKMap<any, any>(),
+      modelMaker
+    })
+    this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`)
+  }
+
   public async apiExec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> { // FIXME
     let del = cmd === "delete"
     let resultFrag = await this.httpPostAndUpdate("/api/exec", {
@@ -76,14 +97,6 @@ export default class ModelEngine {
     let fragments: any[] = await this.httpPostAndUpdate("/api/query", data, "fragments"),
       fragMeta = getFragmentMeta(type)
     return fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta)))
-  }
-
-  public registerType(type: Type, modelMaker: (frag) => any) {
-    this.store.set(type, {
-      entities: makeHKMap<any, any>(),
-      indexes: makeHKMap<any, any>(),
-      modelMaker
-    })
   }
 
   public getModel(type: Type, id: Identifier): any {
@@ -158,7 +171,7 @@ export default class ModelEngine {
     }
   }
 
-  private deleteFromStore(deleted: Deleted) {
+  private deleteFromStore(deleted: Changed) {
     for (let type in deleted) {
       if (!deleted.hasOwnProperty(type))
         continue
@@ -166,6 +179,25 @@ export default class ModelEngine {
       for (let id of deleted[type])
         storage.entities.delete(id)
       rmFragmentFromIndexes(storage, deleted[type])
+    }
+  }
+
+  private emitEvents(changed: Changed, cmd: CommandType) {
+    const that = this
+    for (let type in changed) {
+      if (!changed.hasOwnProperty(type))
+        continue
+      let storage = this.getTypeStorage(type as Type)
+      for (let id of changed[type]) {
+        this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
+          type,
+          id,
+          cmd,
+          get model() {
+            return that.getModel(type as Type, id)
+          }
+        } as ModelEvent)
+      }
     }
   }
 
@@ -194,8 +226,14 @@ export default class ModelEngine {
     if (cargo.modelUpd) {
       if (cargo.modelUpd.fragments)
         this.updateStore(cargo.modelUpd.fragments)
-      if (cargo.modelUpd.deleted)
+      if (cargo.modelUpd.deleted) {
         this.deleteFromStore(cargo.modelUpd.deleted)
+        this.emitEvents(cargo.modelUpd.deleted, "delete")
+      }
+      if (cargo.modelUpd.updated)
+        this.emitEvents(cargo.modelUpd.updated, "update")
+      if (cargo.modelUpd.created)
+        this.emitEvents(cargo.modelUpd.created, "create")
     }
     if (!cargo.done) {
       console.log("Error on server", cargo.displayError, cargo.debugData)

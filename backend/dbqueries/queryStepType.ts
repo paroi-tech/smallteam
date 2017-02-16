@@ -62,6 +62,7 @@ export async function createStepType(loader: CargoLoader, newFrag: NewStepTypeFr
     stepTypeId = ps.lastID
 
   loader.setResultFragment("StepType", stepTypeId.toString())
+  loader.updateModelMarkFragmentAs("StepType", stepTypeId.toString(), "created")
 }
 
 // --
@@ -70,6 +71,8 @@ export async function createStepType(loader: CargoLoader, newFrag: NewStepTypeFr
 
 export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFragment) {
   let cn = await getDbConnection()
+
+  let stepTypeId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, updStepTypeMeta, "exceptId")
   if (values === null)
@@ -81,4 +84,7 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
     .where(toSqlValues(updFrag, updStepTypeMeta, "onlyId") !)
 
   await cn.run(sql.toSql())
+
+  loader.setResultFragment("StepType", stepTypeId.toString())
+  loader.updateModelMarkFragmentAs("StepType", stepTypeId.toString(), "updated")
 }

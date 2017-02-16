@@ -152,6 +152,8 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
   }
 
   loader.setResultFragment("Project", projectId.toString())
+  loader.updateModelMarkFragmentAs("Project", projectId.toString(), "created")
+
   loader.updateModelAddFragment("Task", taskId.toString())
 }
 
@@ -194,6 +196,7 @@ export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFrag
   }
 
   loader.setResultFragment("Project", projectId.toString())
+  loader.updateModelMarkFragmentAs("Project", projectId.toString(), "updated")
 }
 
 async function updateTaskDescription(taskId: number, description: string | null) {

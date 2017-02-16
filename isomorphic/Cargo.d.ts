@@ -51,15 +51,15 @@ export interface FragmentsResult {
 
 export type Result = DataResult | FragmentResult | FragmentsResult
 
-type t = Readonly<Result>
-
-export type Deleted = {
+export type Changed = {
   [K in Type]: Identifier[]
 }
 
-export interface UpdateModel {
+export interface ModelUpdate {
   fragments?: Fragments
-  deleted?: Deleted
+  created?: Changed
+  updated?: Changed
+  deleted?: Changed
 }
 
 export interface Cargo {
@@ -67,5 +67,5 @@ export interface Cargo {
   displayError?: string | string[]
   debugData?: any
   result?: Result
-  modelUpd?: UpdateModel
+  modelUpd?: ModelUpdate
 }

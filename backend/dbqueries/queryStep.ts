@@ -68,6 +68,7 @@ export async function createStep(loader: CargoLoader, newFrag: NewStepFragment) 
     stepId = ps.lastID
 
   loader.setResultFragment("Step", stepId.toString())
+  loader.updateModelMarkFragmentAs("Step", stepId.toString(), "created")
 }
 
 // --
@@ -82,5 +83,5 @@ export async function deleteStep(loader: CargoLoader, stepId: string) {
 
   await cn.run(sql.toSql())
 
-  loader.updateModelMarkFragmentAsRemoved("Step", stepId)
+  loader.updateModelMarkFragmentAs("Step", stepId, "deleted")
 }

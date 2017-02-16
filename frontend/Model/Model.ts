@@ -1,6 +1,6 @@
-import { Dash } from "bkb"
+import { Dash, ComponentEvent, Transmitter } from "bkb"
 import App from "../App/App"
-import ModelEngine, { appendGettersToModel } from "./ModelEngine"
+import ModelEngine, { appendGettersToModel, ModelEvent } from "./ModelEngine"
 import { Type } from "../../isomorphic/Cargo"
 import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, projectMeta } from "../../isomorphic/fragments/Project"
 import { StepFragment, NewStepFragment, stepMeta } from "../../isomorphic/fragments/Step"
@@ -12,16 +12,33 @@ import { FlagFragment } from "../../isomorphic/fragments/Flag"
 import { CommentFragment } from "../../isomorphic/fragments/Comment"
 import { TaskLogFragment } from "../../isomorphic/fragments/TaskLog"
 
-type CommandType = "create" | "update" | "delete"
+export type CommandType = "create" | "update" | "delete"
+
+export type ModelEvent = ModelEvent
 
 export default class Model {
-  private engine = new ModelEngine()
+  private engine: ModelEngine
 
   constructor(private dash: Dash<App>) {
+    this.engine = new ModelEngine(dash)
     registerProject(this.engine)
     registerTask(this.engine)
     registerStep(this.engine)
     registerStepType(this.engine)
+  }
+
+  on<D>(eventName: string, callback: (ev: ComponentEvent<D>) => void, thisArg?: any): this
+  on<D>(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<D>) => void, thisArg?: any): this
+  on<D>(eventName: string, mode: "dataFirst", callback: (data: D, ev: ComponentEvent<D>) => void, thisArg?: any): this
+  on(eventName: string, mode: "arguments", callback: (...args: any[]) => void, thisArg?: any): this
+
+  public on(eventName: string, modeOrCb, callback?): this {
+    this.dash.on(eventName, modeOrCb, callback)
+    return this
+  }
+
+  listen<D>(eventName: string): Transmitter<D> {
+    return this.dash.listen(eventName)
   }
 
   // --
@@ -64,6 +81,7 @@ export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
   readonly steps: StepModel[]
   readonly tasks?: TaskModel[]
+  getTasks(taskId: string): TaskModel
 }
 
 function registerProject(engine: ModelEngine) {
@@ -84,6 +102,12 @@ function registerProject(engine: ModelEngine) {
       },
       get tasks() {
         return this.rootTask.children
+      },
+      getTasks(taskId: string) {
+        let task: TaskModel = engine.getModel("Task", taskId)
+        if (task.projectId !== frag.id)
+          throw new Error(`The task ${taskId} is in the project ${task.projectId}, current project: ${frag.id}`)
+        return task
       }
     }
     appendGettersToModel(model, "Project", frag)
