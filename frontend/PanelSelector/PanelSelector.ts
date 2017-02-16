@@ -162,16 +162,16 @@ export default class PanelSelector {
 import { StepModel, StepTypeModel } from "../Model/Model"
 
 function makeTests(el, model: Model) {
-  model.on<ModelEvent>("change", "dataFirst", data => {
+  model.on("change", "dataFirst", data => {
     console.log(`++ event "change"`, data.type, "; ID:", data.id, "; data:", data)
   })
-  model.on<ModelEvent>("update", "dataFirst", data => {
+  model.on("update", "dataFirst", data => {
     console.log(`++ event "update"`, data.type, "; ID:", data.id, "; data:", data)
   })
-  model.on<ModelEvent>("updateProject", "dataFirst", data => {
+  model.on("updateProject", "dataFirst", data => {
     console.log(`++ event "updateProject"`, data.type, "; ID:", data.id, "; data:", data)
   })
-  model.on<ModelEvent>("createStepType", "dataFirst", data => {
+  model.on("createStepType", "dataFirst", data => {
     console.log(`++ event "createStepType"`, data.type, "; ID:", data.id, "; data:", data)
   })
 

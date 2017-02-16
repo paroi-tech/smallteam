@@ -27,9 +27,9 @@ export default class Model {
     registerStepType(this.engine)
   }
 
-  on<D>(eventName: string, callback: (ev: ComponentEvent<D>) => void, thisArg?: any): this
-  on<D>(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<D>) => void, thisArg?: any): this
-  on<D>(eventName: string, mode: "dataFirst", callback: (data: D, ev: ComponentEvent<D>) => void, thisArg?: any): this
+  on(eventName: string, callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
+  on(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
+  on(eventName: string, mode: "dataFirst", callback: (data: ModelEvent, ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
   on(eventName: string, mode: "arguments", callback: (...args: any[]) => void, thisArg?: any): this
 
   public on(eventName: string, modeOrCb, callback?): this {
@@ -37,7 +37,7 @@ export default class Model {
     return this
   }
 
-  listen<D>(eventName: string): Transmitter<D> {
+  listen(eventName: string): Transmitter<ModelEvent> {
     return this.dash.listen(eventName)
   }
 
