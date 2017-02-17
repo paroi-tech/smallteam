@@ -18,6 +18,7 @@ export default class StepTypeBox implements Box {
 
   /**
    * Create a new StepTypeBox.
+   *
    * @param dash - the current application dash
    * @param stepType - the StepType for which the box is created for.
    */
@@ -32,6 +33,7 @@ export default class StepTypeBox implements Box {
 
   /**
    * Add the box as a child of an HTML element.
+   *
    * @param el - element that the box will be added to.
    */
   public attachTo(el: HTMLElement) {
@@ -39,7 +41,7 @@ export default class StepTypeBox implements Box {
   }
 
   /**
-   * Add/Retrieve focus from the box.
+   * Add or remove focus from the box.
    */
   public setWithFocus(focus: boolean) {
     if (focus) {

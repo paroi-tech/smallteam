@@ -30,7 +30,10 @@ export default class TaskPanel implements Panel {
 
   public fillWith(task: TaskModel) {
     this.task = task
-    this.view.update(task)
+    this.view.update({
+      description: task.description || "",
+      label: task.label
+    })
     // this.$label.text(task.label)
     // if (task.description)
     //   this.$description.val(task.description)

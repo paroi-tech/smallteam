@@ -81,7 +81,7 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
   let sql = buildUpdate()
     .update("step_type")
     .set(values)
-    .where(toSqlValues(updFrag, updStepTypeMeta, "onlyId") !)
+    .where("step_type_id", stepTypeId) // toSqlValues(updFrag, updStepTypeMeta, "onlyId") ! FIXME:
 
   await cn.run(sql.toSql())
 

@@ -1,26 +1,30 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
+import { MenuItem, MenuEvent } from "../Menu/Menu"
 
 const template = require("html-loader!./dropdownmenu.html")
 const itemTemplate = require("html-loader!./element.html")
 
-export interface DropdownMenuItem {
-  id: string,
-  label: string
-  eventName: string
-}
-
+/**
+ * Dropdown menu component.
+ *
+ * It is made by a button and a list of clicked items shown when the button is clicked.
+ * Each item in the menu has an id and an event is emited when it is clicked.
+ */
 export class DropdownMenu {
   readonly bkb: Bkb
 
   private $container: JQuery
   private $ul: JQuery
 
-  private items: Map<string, JQuery>
+  private itemMap: Map<string, JQuery>
 
-  constructor(private dash: Dash<App>) {
-    this.items = new Map<string, JQuery>()
+  /**
+   * Create a new dropdown menu.
+   */
+  constructor(private dash: Dash<App>, private id: string, private name: string) {
+    this.itemMap = new Map<string, JQuery>()
 
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
@@ -29,8 +33,13 @@ export class DropdownMenu {
     })
   }
 
-  public addItem(item: DropdownMenuItem) {
-    if (this.items.has(item.id))
+  /**
+   * Add an item to the menu.
+   *
+   * @param item - the item to add.
+   */
+  public addItem(item: MenuItem) {
+    if (this.itemMap.has(item.id))
       throw new Error(`ID already exists in dropdown menu: ${item.id}`)
 
     let $li  = $(itemTemplate)
@@ -38,30 +47,50 @@ export class DropdownMenu {
     $btn.text(item.label)
     $btn.click(ev => {
       this.$ul.toggle()
-      console.log(`Click on dropdown menu item ${item.label}`)
-      this.dash.emit(item.eventName, { itemId: item.id })
+      console.log(`Click on item ${item.label} in ${this.name}`)
+      this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id })
     })
-    this.items.set(item.id, $li)
+    this.itemMap.set(item.id, $li)
     this.$ul.append($li)
   }
 
-  public addItems(items: Array<DropdownMenuItem>) {
+  /**
+   * Add several items to the menu.
+   *
+   * @param items - items to add.
+   */
+  public addItems(items: Array<MenuItem>) {
     for (let i of items)
       this.addItem(i)
   }
 
+  /**
+   * Add the dropdown menu to a container.
+   *
+   * @param el - element that the box will be added to.
+   */
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
 
-  public disableItem(itemId: string) {
-    let $i = this.items.get(itemId)
+  /**
+   * Disable an item of the menu.
+   *
+   * @param id - the id of the item to disable.
+   */
+  public disableItem(id: string) {
+    let $i = this.itemMap.get(id)
     if ($i)
       $i.prop('disabled', true);
   }
 
+  /**
+   * Enable an item of the menu.
+   *
+   * @param id - the id of the item to enable.
+   */
   public enableItem(itemId: string) {
-    let $i = this.items.get(itemId)
+    let $i = this.itemMap.get(itemId)
     if ($i)
       $i.prop('disabled', false);
   }

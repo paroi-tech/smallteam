@@ -54,7 +54,7 @@ function declareRoute(app: express.Express, route: string, cb: (resp: Response, 
 
 function writeServerResponseError(resp: Response, err) {
   writeServerResponse(resp, 500, err.message)
-  console.log(err)
+  console.log("ERR", err, err.stack)
 }
 
 function writeServerResponse(resp: Response, httpCode, data) {

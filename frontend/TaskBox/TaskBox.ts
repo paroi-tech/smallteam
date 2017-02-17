@@ -33,6 +33,7 @@ export default class TaskBox implements Box {
 
   /**
    * Add the box as a child of an HTML element.
+   *
    * @param el - element that the box will be added to.
    */
   public attachTo(el: HTMLElement) {
@@ -40,7 +41,7 @@ export default class TaskBox implements Box {
   }
 
   /**
-   * Add/Retrieve focus from the TaskBox.
+   * Add or remove focus from the TaskBox.
    */
   public setWithFocus(focus: boolean) {
     if (focus) {

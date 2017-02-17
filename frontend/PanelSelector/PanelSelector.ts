@@ -2,7 +2,7 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Menu, MenuItem } from "../Menu/Menu"
-import { DropdownMenu, DropdownMenuItem } from "../DropdownMenu/DropdownMenu"
+import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
@@ -31,7 +31,7 @@ export default class PanelSelector {
   private projectModels: Array<ProjectModel> = []
   private menu: Menu
   private settingMenu: DropdownMenu
-  private currentPanel: Panel | null = null
+  private currentPanel: Panel | undefined = undefined
 
   private projectPanelMap: Map<string, PanelInfo> = new Map<string, PanelInfo>()
   private settingPanelMap: Map<string, PanelInfo> = new Map<string, PanelInfo>()
@@ -61,14 +61,16 @@ export default class PanelSelector {
 
   private initComponents() {
     this.menu = this.dash.create(Menu, {
-      args: []
+      args: ["1", "Panel selector projects menu"]
     })
     this.menu.attachTo(this.$menu[0])
     this.menu.bkb.on("projectSelected", "dataFirst", (data: any) => {
       this.showProjectPanel(data.itemId)
     })
 
-    this.settingMenu = this.dash.create(DropdownMenu, { args: [] })
+    this.settingMenu = this.dash.create(DropdownMenu, {
+      args: ["2", "Panel selector dropdown menu"]
+    })
     this.settingMenu.attachTo(this.$dropdownMenu[0])
     this.settingMenu.bkb.on("createProject", "dataFirst", (data: any) => {
       this.showSettingPanel("projectForm")

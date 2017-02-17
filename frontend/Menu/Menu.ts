@@ -4,45 +4,78 @@ import App from "../App/App"
 
 const template = require("html-loader!./menu.html")
 
+/**
+ * Properties required by the Menu component for its items.
+ */
 export interface MenuItem {
-  id: string,
+  id: string
   label: string
   eventName: string
 }
 
+/**
+ * Footprint of object provided when a menu item is selected.
+ */
+export interface MenuEvent {
+  menuId: string
+  itemId: string
+}
+
+/**
+ * Horizontal menu component.
+ *
+ * The menu can contain several items. Each item has an id and an event is emited when it is clicked.
+ * Several items trigger the same event.
+ */
 export class Menu {
   readonly bkb: Bkb
 
   private $container: JQuery
   private $ul: JQuery
 
-  private elements: Map<string, JQuery>
+  private itemMap: Map<string, JQuery>
 
-  constructor(private dash: Dash<App>, id: string, title: string) {
-    this.elements = new Map<string, JQuery>()
-
+  /**
+   * Create a new menu.
+   */
+  constructor(private dash: Dash<App>, private id: string, private name: string) {
+    this.itemMap = new Map<string, JQuery>()
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
   }
 
+  /**
+   * Add an item to the menu.
+   *
+   * @param item - the item to add.
+   */
   public addItem(item: MenuItem) {
-    let $li = $("<li></li>")
-      .appendTo(this.$ul)
+    let $li = $("<li></li>").appendTo(this.$ul)
     let $btn = $(`<button class="MenuBtn" type="button"></button>`)
       .text(item.label)
       .click((ev) => {
-        console.log(`Click on menu item ${item.label}`)
-        this.dash.emit(item.eventName, { itemId: item.id });
+        console.log(`Click on item ${item.label} in ${this.name}`)
+        this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id });
       })
       .appendTo($li)
-    this.elements.set(item.id, $li)
+    this.itemMap.set(item.id, $li)
   }
 
+  /**
+   * Add several items to the menu.
+   *
+   * @param items - items to add.
+   */
   public addItems(items: Array<MenuItem>) {
     for (let i of items)
       this.addItem(i)
   }
 
+  /**
+   * Add the menu to an container.
+   *
+   * @param el - element that the box will be added to.
+   */
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }

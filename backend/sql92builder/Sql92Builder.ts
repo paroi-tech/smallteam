@@ -221,6 +221,7 @@ class BUpdate implements UpdateBuilder {
     ]
     if (this.q.where !== undefined)
       lines.push(`where ${filterToSql(this.q.where)}`)
+    console.log(lines.join("\n"))
     return lines.join("\n")
   }
 }
@@ -316,6 +317,7 @@ class BDelete implements DeleteBuilder {
     ]
     if (this.q.where !== undefined)
       lines.push(`where ${filterToSql(this.q.where)}`)
+    console.log(lines.join("\n"))
     return lines.join("\n")
   }
 }

@@ -49,11 +49,15 @@ export default class StepTypePanel {
     this.loadStepTypes()
 
     this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").call("dataFirst", stepType => {
-      this.form.reset()
       this.form.fillWith(stepType)
     })
   }
 
+  /**
+   * Create JQuery objects from the component template.
+   *
+   * Also add an event handler for click on `Add` button.
+   */
   private initJQueryObjects() {
     this.$container = $(template)
     this.$boxlistContainer = this.$container.find(".js-boxlist-container")
@@ -69,16 +73,9 @@ export default class StepTypePanel {
     })
   }
 
-  private doAdd() {
-    let name = this.$input.val().trim()
-    if (name.length > 0)
-      this.saveStepType(name)
-    else {
-      alert("The name you entered for the step type is invalid.")
-      this.$input.focus()
-    }
-  }
-
+  /**
+   * Initialize the Boxlist and Form components of the panel.
+   */
   private initComponents() {
     this.boxlist = this.dash.create(Boxlist, {
       args: [ { id: "", name: "Step types" } ]
@@ -92,6 +89,27 @@ export default class StepTypePanel {
     this.form.attachTo(this.$formContainer[0])
   }
 
+  /**
+   * Handle click on the `Add` button.
+   *
+   * If the name typed by the user is valid, it then calls the `addStepType` method.
+   */
+  private doAdd() {
+    let name = this.$input.val().trim()
+    if (name.length > 0)
+      this.addStepType(name)
+    else {
+      console.log("The name you entered for the step type is invalid.")
+      this.$input.focus()
+    }
+  }
+
+  /**
+   * Schedule the update of step types order.
+   *
+   * A timeout of 2s is used to schedule the update. The timer is restarted if the user
+   * reorders the step types within the 2s.
+   */
   private handleBoxlistUpdate(ev: BoxlistEvent) {
     if (this.timer)
         clearTimeout(this.timer)
@@ -100,6 +118,13 @@ export default class StepTypePanel {
     }, 2000)
   }
 
+  /**
+   * Save the new order of the step types in the model.
+   *
+   * If the changes are not accepted by the server, then it rollback them in the boxlist.
+   *
+   * @param ids - array of strings that contains the ids of step types
+   */
   private doUpdate(ids: Array<string>) {
     console.log(`Requesting updating of step types orders...`)
     updateStepTypeOrders(ids).then(response => {
@@ -114,6 +139,9 @@ export default class StepTypePanel {
     })
   }
 
+  /**
+   * Load step types from the database and fill the Boxlist with them.
+   */
   private loadStepTypes() {
     this.dash.app.model.query("StepType").then(stepTypes => {
       this.stepTypes = stepTypes
@@ -125,16 +153,20 @@ export default class StepTypePanel {
         this.boxlist.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] } ))
     })
     .catch(err => {
-      alert("Unable to load step types from server...")
+      console.error("Unable to load step types from server...")
     })
   }
 
-  private saveStepType(name: string) {
+  /**
+   * Save a new step type into the model and it to the Boxlist.
+   *
+   * @param name - the name of the new step type
+   */
+  private addStepType(name: string) {
     let spinner = this.$addBtn.find("span").show()
     this.dash.app.model.exec("create", "StepType", {
       name
     }).then(stepType => {
-      // FIXME: stepTypes can be undefined at this point
       if (!this.stepTypes)
         this.loadStepTypes()
       else {
@@ -150,14 +182,25 @@ export default class StepTypePanel {
     })
   }
 
+   /**
+   * Add the panel as a child of an HTML element.
+   *
+   * @param el - element that the box will be added to.
+   */
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }
 
+  /**
+   * Hide the panel.
+   */
   public hide() {
     this.$container.hide();
   }
 
+  /**
+   * Make the panel visible.
+   */
   public show() {
     this.$container.show();
   }

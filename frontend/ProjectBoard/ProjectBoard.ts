@@ -17,17 +17,19 @@ export default class ProjectBoard implements Panel {
   private stepsPanelMap: Map<String, StepsPanel>
 
   constructor(private dash: Dash<App>, private project: ProjectModel) {
-    this.$container = $(template)
-    this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
-    this.$editPanelContainer = this.$container.find(".js-editpanel-container")
-    this.$container.find(".js-title").text(project.name)
-
+    this.initJQueryObjects()
     this.initComponents()
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", data => {
       console.log(`TaskBox ${data.id} selected in projectboard ${this.project.id}`)
         this.taskPanel.fillWith(data as TaskModel)
     })
+  }
 
+  private initJQueryObjects() {
+    this.$container = $(template)
+    this.$container.find(".js-title").text(this.project.name)
+    this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
+    this.$editPanelContainer = this.$container.find(".js-editpanel-container")
   }
 
   public attachTo(el: HTMLElement) {
@@ -48,11 +50,13 @@ export default class ProjectBoard implements Panel {
     this.taskPanel.attachTo(this.$editPanelContainer[0])
 
     this.createStepsPanel(this.project.rootTask)
-    let tasks = this.project.tasks!.filter((m: TaskModel) => {
-      return (m.children && m.children.length > 0)
-    })
-    for (let task of tasks)
-      this.createStepsPanel(task)
+    if (this.project.tasks) {
+      let tasksWithChildren = this.project.tasks.filter((task: TaskModel) => {
+        return (task.children && task.children.length > 0)
+      })
+      for (let task of tasksWithChildren)
+        this.createStepsPanel(task)
+    }
   }
 
   public hide() {

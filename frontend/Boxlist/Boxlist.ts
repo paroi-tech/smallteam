@@ -76,6 +76,7 @@ export default class Boxlist<T extends Box> {
 
   /**
    * Add a new element to the boxlist.
+   *
    * @param box - the element to be added.
    */
   public addBox(box: T) {
@@ -87,6 +88,7 @@ export default class Boxlist<T extends Box> {
 
   /**
    * Add the boxlist as a child of an HTML element.
+   *
    * @param el - element that the boxlist will be added to.
    */
   public attachTo(el: HTMLElement) {
@@ -130,6 +132,7 @@ export default class Boxlist<T extends Box> {
 
   /**
    * Sort the elements in the boxlist.
+   *
    * @param order - array of ids which will be used to sort the boxlist.
    * @see {@link https://github.com/RubaXa/Sortable#sortorderstring}
    */
