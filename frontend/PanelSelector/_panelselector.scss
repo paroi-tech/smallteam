@@ -1,15 +1,26 @@
 .PanelSelector {
-  &-Menu {
+  &-headerWrapper {
+    background-color: #205081;
+    border-bottom: 1px solid #2e3d54;
+    color: white;
+  }
+  &-header {
     position: relative;
+  }
 
-    &Left {
-      padding-right: 50px;
-    }
+  &-menuLeft {
+    padding-right: 50px;
+  }
 
-    &Right {
-      position: absolute;
-      right: 0;
-      top: 0;
-    }
+  &-menuRight {
+    position: absolute;
+    right: 0;
+    top: 6px;
+  }
+
+  &-body {
+    background-color: #eee;
+    min-height: 300px;
+    padding: $vGap2 0;
   }
 }

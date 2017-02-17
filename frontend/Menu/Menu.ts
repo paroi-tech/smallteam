@@ -27,12 +27,14 @@ export class Menu {
 
   public addItem(item: MenuItem) {
     let $li = $("<li></li>")
-    $li.text(item.label)
-    $li.click((ev) => {
-      console.log(`Click on menu item ${item.label}`)
-      this.dash.emit(item.eventName, { itemId: item.id });
-    })
-    this.$ul.append($li)
+      .appendTo(this.$ul)
+    let $btn = $(`<button class="MenuBtn" type="button"></button>`)
+      .text(item.label)
+      .click((ev) => {
+        console.log(`Click on menu item ${item.label}`)
+        this.dash.emit(item.eventName, { itemId: item.id });
+      })
+      .appendTo($li)
     this.elements.set(item.id, $li)
   }
 

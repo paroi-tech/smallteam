@@ -1,9 +1,15 @@
 .DropdownMenu {
   &-btn {
     display: block;
+    padding: 6px 10px;
+
+    &:focus,
+    &:hover {
+      background-color: rgba(255, 255, 255, 0.42)
+    }
   }
 
-  &-ItemBtn {
+  &-itemBtn {
     text-align: left;
     border: 0;
     background-color: transparent;
@@ -12,7 +18,7 @@
     width: 100%;
   }
 
-  &-ItemBtn:hover {
+  &-itemBtn:hover {
       background-color: royalblue;
       color: white;
   }

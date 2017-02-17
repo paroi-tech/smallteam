@@ -1,17 +1,15 @@
-$titleColor: darken(royalblue, 5);
-
 body {
   font-family: Roboto, Cantarell, sans-serif;
 }
 
 .BlockTitle {
-  background-color: $titleColor;
+  background-color: #205081;
   color: white;
   font-weight: bold;
   padding: 10px;
 }
 
-.PageWrapper {
+.Container {
   margin: 0 auto;
-  max-width: $c12;
+  max-width: $c18;
 }

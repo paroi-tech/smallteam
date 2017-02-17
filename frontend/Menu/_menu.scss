@@ -1,12 +1,18 @@
 .Menu {
-  background-color: $titleColor;
-  color: white;
-  font-weight: bold;
-  min-height: 40px;
+  line-height: 40px;
 
   &-ul {
     li {
       display: inline-block;
     }
+  }
+}
+
+.MenuBtn {
+  padding: 0 10px;
+
+  &:focus,
+  &:hover {
+    background-color: rgba(255, 255, 255, 0.42)
   }
 }

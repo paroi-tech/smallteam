@@ -43,9 +43,9 @@ export default class PanelSelector {
 
   constructor(private dash: Dash<App>) {
     this.$container = $(template)
-    this.$menu = this.$container.find(".js-menu-left")
-    this.$dropdownMenu = this.$container.find(".js-menu-right")
-    this.$panel = this.$container.find(".js-panel-container")
+    this.$menu = this.$container.find(".js-menuLeft")
+    this.$dropdownMenu = this.$container.find(".js-menuRight")
+    this.$panel = this.$container.find(".js-panelContainer")
 
     this.initComponents()
     this.listenToEvents()
