@@ -62,7 +62,7 @@ export default class StepsPanel {
   }
 
   private createBoxlists() {
-    if (!this.task.project.steps)
+    if (!this.task)
       return
     for (let step of this.task.project.steps) {
       let bl = this.dash.create(Boxlist, {
@@ -76,7 +76,7 @@ export default class StepsPanel {
   }
 
   private fillBoxlists() {
-    if (!this.task.children)
+    if (!this.task || !this.task.children)
       return
     for (let task of this.task.children) {
       let bl = this.boxlistMap.get(task.curStepId)

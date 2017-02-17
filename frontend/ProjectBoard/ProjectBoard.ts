@@ -59,10 +59,11 @@ export default class ProjectBoard implements Panel {
     this.createStepsPanel(this.project.rootTask)
     if (this.project.tasks) {
       let tasksWithChildren = this.project.tasks.filter((task: TaskModel) => {
-        return (task.children && task.children.length > 0)
+        return (task && task.children && task.children.length > 0)
       })
-      for (let task of tasksWithChildren)
-        this.createStepsPanel(task)
+      if(tasksWithChildren.length > 0)
+        for (let task of tasksWithChildren)
+          this.createStepsPanel(task)
     }
   }
 
