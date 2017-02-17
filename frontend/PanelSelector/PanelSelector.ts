@@ -176,7 +176,7 @@ function makeTests(el, model: Model) {
   })
 
   let type: StepTypeModel
-  $(`<button type="button">Add type</button>`).appendTo(el).click(async () => {
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add type</button>`).appendTo(el).click(async () => {
     model.exec("create", "StepType", {
       name: "TODO"
     }).then(t => {
@@ -184,12 +184,12 @@ function makeTests(el, model: Model) {
       type = t
     })
   })
-  $(`<button type="button">Get types</button>`).appendTo(el).click(async () => {
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get types</button>`).appendTo(el).click(async () => {
     model.query("StepType").then(types => {
       console.log("Loaded types:", types)
     })
   })
-  $(`<button type="button">Add step</button>`).appendTo(el).click(async () => {
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add step</button>`).appendTo(el).click(async () => {
     model.exec("create", "Step", {
       projectId: "1",
       typeId: "2"
@@ -197,7 +197,7 @@ function makeTests(el, model: Model) {
       console.log("Created step:", step)
     })
   })
-  $(`<button type="button">Add task</button>`).appendTo(el).click(async () => {
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add task</button>`).appendTo(el).click(async () => {
     model.exec("create", "Task", {
       label: "ABC",
       createdById: "1",
@@ -207,7 +207,7 @@ function makeTests(el, model: Model) {
       console.log("Created step:", step)
     })
   })
-  $(`<button type="button">Update project</button>`).appendTo(el).click(async () => {
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Update project</button>`).appendTo(el).click(async () => {
     model.exec("update", "Project", {
       id: "1",
       description: "Hop la description",

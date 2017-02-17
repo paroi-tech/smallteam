@@ -10,18 +10,21 @@
   }
 
   &-itemBtn {
-    text-align: left;
     border: 0;
-    background-color: transparent;
-    background-image: none;
+    color: $textColorDark1;
     display: block;
+    line-height: 20px;
+    padding: 3px 10px;
+    text-align: left;
     width: 100%;
-  }
-
-  &-itemBtn:hover {
+    white-space: nowrap;
+    &:focus,
+    &:hover {
       background-color: royalblue;
       color: white;
+    }
   }
+
 
   &-ul {
     background-color: whitesmoke;
@@ -30,7 +33,6 @@
     display: none;
     position: absolute;
     right: 0;
-    width: 150px;
     z-index: 100;
   }
 }
