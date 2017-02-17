@@ -1,0 +1,24 @@
+<div class="js-title BlockTitle"></div>
+<div class="js-form">
+  <label class="FormField">
+    <span class="FormField-span">Project Name</span>
+    <input type="text" class="js-project-name" value="{{ name }}">
+  </label>
+
+  <label class="FormField">
+    <span class="FormField-span">Project Code</span>
+    <input type="text" class="js-project-code" value="{{ code }}">
+  </label>
+
+  <label class="FormField">
+    <span class="FormField-span">Description</span>
+    <textarea>{{ description }}</textarea>
+  </label>
+
+  <div>
+    <button type="button" class="js-submit-btn">
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
+      Submit
+    </button>
+  </div>
+</div>

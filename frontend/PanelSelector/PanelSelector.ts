@@ -82,10 +82,9 @@ export default class PanelSelector {
   }
 
   private listenToEvents() {
-    this.dash.listenToChildren("projectCreated").call("dataFirst", (data: any) => {
-      let projectModel: ProjectModel = data.projectModel as ProjectModel
-      this.addProject(projectModel)
-      this.showProjectPanel(projectModel.id)
+    this.dash.listenToChildren<ProjectModel>("projectCreated").call("dataFirst", project => {
+      this.addProject(project)
+      this.showProjectPanel(project.id)
     })
   }
 
@@ -107,15 +106,15 @@ export default class PanelSelector {
     })
   }
 
-  private addProject(model: ProjectModel) {
-    this.projectModels.push(model)
-    this.projectPanelMap.set(model.id, {
-      projectModel: model,
+  private addProject(project: ProjectModel) {
+    this.projectModels.push(project)
+    this.projectPanelMap.set(project.id, {
+      projectModel: project,
       type: ProjectBoard
     })
     this.menu.addItem({
-      id: model.id,
-      label: model.code,
+      id: project.id,
+      label: project.code,
       eventName: "projectSelected"
     })
   }
@@ -158,7 +157,6 @@ export default class PanelSelector {
     }
     this.setCurrentPanel(info.panel)
   }
-
 }
 
 import { StepModel, StepTypeModel } from "../Model/Model"

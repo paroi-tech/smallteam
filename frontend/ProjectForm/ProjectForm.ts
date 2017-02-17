@@ -3,69 +3,95 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
 import Model from "../Model/Model"
+import * as MonkBerry from "monkberry"
 
-const template = require("html-loader!./projectform.html")
+// const template = require("html-loader!./projectform.html")
+import * as template  from "./projectform.monk"
 
+/**
+ * Component that enables to create and edit project setings.
+ */
 export default class ProjectForm {
-  private $container: JQuery
-  private $form: JQuery
-  private $projectCode: JQuery
-  private $projectName: JQuery
+  private container: HTMLDivElement
+  private fieldsContainer: HTMLDivElement
+  private submitBtn: HTMLButtonElement
+  private codeField: HTMLInputElement
+  private nameField: HTMLInputElement
 
+  private view: MonkberryView
+
+  /**
+   * The project code is automatically generated from the project name.
+   * But the user has the ability to give a custom code. So when the user types in the
+   * project code field, we use this flag to stop the generation of the project code.
+   */
   private generateCode = true
 
+  /**
+   * Create a new project form.
+   */
   constructor(private dash: Dash<App>) {
-    this.initJQueryObjects()
+    this.initComponents()
     this.listenToForm()
   }
 
-  private initJQueryObjects() {
-    this.$container = $(template)
-    this.$container.find(".js-title").text("Project Form")
-    this.$form = this.$container.find(".js-form")
-    this.$projectCode = this.$form.find(".js-project-code")
-    this.$projectName = this.$form.find(".js-project-name")
+  private initComponents() {
+    this.container = document.createElement("div")
+    this.container.classList.add("ProjectForm")
+
+    this.view = MonkBerry.render(template, this.container)
+    this.fieldsContainer = this.view.querySelector(".js-form")
+    this.submitBtn = this.view.querySelector(".js-submit-btn")
+    this.codeField = this.view.querySelector(".js-project-code")
+    this.nameField = this.view.querySelector(".js-project-name")
   }
 
   public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
-  }
-
-  public hide() {
-    this.$container.hide();
+    el.appendChild(this.container)
   }
 
   private listenToForm() {
-    this.$projectCode.keyup(ev => {
+    this.codeField.onkeyup = () => {
       this.generateCode = false
-    })
+    }
 
-    this.$projectName.keyup(ev => {
-      if (this.generateCode && this.$projectName.val().length > 0) {
-        let code = this.$projectName.val().replace(/\s/g, "").slice(0, 5).toUpperCase()
-        this.$projectCode.val(code)
+    this.nameField.onkeyup = () => {
+      if (this.generateCode && this.nameField.value.length > 0) {
+        let code = this.nameField.value.replace(/\s/g, "").slice(0, 5).toUpperCase()
+        this.codeField.value = code
       }
-    })
+    }
 
-    let $btn = this.$form.find(".js-submit-btn").click(ev => {
-      let $indicator = $btn.find("span").show()
-      let code = this.$form.find(".js-project-code").val()
-      let name = this.$form.find(".js-project-name").val()
+    this.submitBtn.onclick = () => {
+      let spinner = this.submitBtn.querySelector("span")
+      spinner!.style.visibility = "visible"
 
-      this.dash.app.model.exec("create", "Project", { code, name }).then(project => {
-        $indicator.hide()
-        alert("Project successfully created.")
+      let code = this.codeField.value
+      let name = this.nameField.value
+
+      this.dash.app.model.exec("create", "Project", { code, name })
+      .then(project => {
+        spinner!.style.visibility = "hidden"
+        console.log(`Project ${project.name} successfully created...`)
         this.dash.emit("projectCreated", { project })
       }).catch(error => {
-        $indicator.hide()
+        spinner!.style.visibility = "hidden"
         console.error(error)
       })
-    })
+    }
   }
 
   public show() {
-    (this.$form[0] as HTMLFormElement).reset()
-    this.$container.show()
+    this.view.update({
+      name: "",
+      code: "",
+      description: ""
+    })
+    this.container.style.visibility = "visible"
     this.generateCode = true
+  }
+
+  public hide() {
+    this.container.style.visibility = "hidden";
   }
 }

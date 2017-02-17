@@ -8,6 +8,12 @@ import { ProjectModel, TaskModel } from "../Model/Model"
 
 const template = require("html-loader!./projectboard.html")
 
+/**
+ * ProjectBoard component.
+ *
+ * It can contain several steps panels (one for each project task with children) and
+ * a side pane to edit information about a task.
+ */
 export default class ProjectBoard implements Panel {
   private $container: JQuery
   private $stepsPanelContainer: JQuery
@@ -16,15 +22,24 @@ export default class ProjectBoard implements Panel {
   private taskPanel: TaskPanel
   private stepsPanelMap: Map<String, StepsPanel>
 
+  /**
+   * Create a new project board.
+   *
+   * @param dash - the current application dash.
+   * @param project - the project for which the project board is created.
+   */
   constructor(private dash: Dash<App>, private project: ProjectModel) {
     this.initJQueryObjects()
     this.initComponents()
-    this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", data => {
-      console.log(`TaskBox ${data.id} selected in projectboard ${this.project.id}`)
-        this.taskPanel.fillWith(data as TaskModel)
+    this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
+      console.log(`TaskBox ${task.id} selected in projectboard ${this.project.id}`)
+        this.taskPanel.fillWith(task)
     })
   }
 
+  /**
+   * Create JQuery objects from the component template.
+   */
   private initJQueryObjects() {
     this.$container = $(template)
     this.$container.find(".js-title").text(this.project.name)
@@ -32,17 +47,9 @@ export default class ProjectBoard implements Panel {
     this.$editPanelContainer = this.$container.find(".js-editpanel-container")
   }
 
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
-  }
-
-  private createStepsPanel(taskModel: TaskModel) {
-    let panel = this.dash.create(StepsPanel, {
-      args: [ taskModel ]
-    })
-    panel.attachTo(this.$stepsPanelContainer[0])
-  }
-
+  /**
+   * Create ProjectBoard inner components, i.e. a TaskPanel and StepsPanels.
+   */
   private initComponents() {
     this.taskPanel = this.dash.create(TaskPanel, {
       args: [ "Task panel" ]
@@ -57,6 +64,27 @@ export default class ProjectBoard implements Panel {
       for (let task of tasksWithChildren)
         this.createStepsPanel(task)
     }
+  }
+
+  /**
+   * Add the project board to a container.
+   *
+   * @param el - element that the project board will be added to.
+   */
+  public attachTo(el: HTMLElement) {
+    $(el).append(this.$container)
+  }
+
+  /**
+   * Create a StepsPanel for a task.
+   *
+   * @param task - the task that the panel will be created for.
+   */
+  private createStepsPanel(task: TaskModel) {
+    let panel = this.dash.create(StepsPanel, {
+      args: [ task ]
+    })
+    panel.attachTo(this.$stepsPanelContainer[0])
   }
 
   public hide() {

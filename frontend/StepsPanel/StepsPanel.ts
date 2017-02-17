@@ -20,7 +20,7 @@ export default class StepsPanel {
     this.boxlistMap = new Map()
 
     this.$container = $(template)
-    this.$container.find(".js-title").text(this.task.label)
+    this.$container.find(".js-title").text("Hello")
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
     this.$container.find(".js-add-task-button").click(() => {
       let name = this.$container.find(".js-task-name").val().trim()
@@ -62,6 +62,8 @@ export default class StepsPanel {
   }
 
   private createBoxlists() {
+    if (!this.task.project.steps)
+      return
     for (let step of this.task.project.steps) {
       let bl = this.dash.create(Boxlist, {
         args: [
