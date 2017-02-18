@@ -73,7 +73,7 @@ export default class ProjectForm {
       .then(project => {
         spinner!.style.visibility = "hidden"
         console.log(`Project ${project.name} successfully created...`)
-        this.dash.emit("projectCreated", { project })
+        this.dash.emit("projectCreated", project)
       }).catch(error => {
         spinner!.style.visibility = "hidden"
         console.error(error)

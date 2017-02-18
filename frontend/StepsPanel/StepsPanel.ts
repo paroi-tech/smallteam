@@ -15,7 +15,7 @@ export default class StepsPanel {
 
   private boxlistMap: Map<string, Boxlist<TaskBox>>
 
-  constructor(private dash: Dash<App>, private task: TaskModel) {
+  constructor(private dash: Dash<App>, private parentTask: TaskModel) {
     this.model = dash.app.model
     this.boxlistMap = new Map()
 
@@ -32,7 +32,7 @@ export default class StepsPanel {
     this.fillBoxlists()
 
     this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
-      console.log(`TaskBox ${data.id} selected in stepspanel ${this.task.id}`)
+      console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
     })
   }
 
@@ -44,7 +44,7 @@ export default class StepsPanel {
     this.model.exec("create", "Task", {
       label: name,
       createdById: "1",
-      parentTaskId: this.task.id,
+      parentTaskId: this.parentTask.id,
       curStepId: "1"
     })
     .then(task => {
@@ -62,12 +62,12 @@ export default class StepsPanel {
   }
 
   private createBoxlists() {
-    if (!this.task)
+    if (!this.parentTask)
       return
-    for (let step of this.task.project.steps) {
+    for (let step of this.parentTask.project.steps) {
       let bl = this.dash.create(Boxlist, {
         args: [
-          { id: step.id, name: step.name, group: this.task.code }
+          { id: step.id, name: step.name, group: this.parentTask.code }
         ]
       })
       this.boxlistMap.set(step.id, bl)
@@ -76,9 +76,9 @@ export default class StepsPanel {
   }
 
   private fillBoxlists() {
-    if (!this.task || !this.task.children)
+    if (!this.parentTask || !this.parentTask.children)
       return
-    for (let task of this.task.children) {
+    for (let task of this.parentTask.children) {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl) {
         let box = this.dash.create(TaskBox, {
