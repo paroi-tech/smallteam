@@ -27,6 +27,10 @@ export default class Model {
     registerStepType(this.engine)
   }
 
+  // --
+  // -- Events
+  // --
+
   on(eventName: string, callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
   on(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
   on(eventName: string, mode: "dataFirst", callback: (data: ModelEvent, ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
@@ -45,34 +49,46 @@ export default class Model {
   // -- Execute an API command
   // --
 
-  public async exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
-  public async exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
+  public exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
+  public exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
 
-  public async exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
-  public async exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
-  //public async exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
+  public exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
+  public exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
+  //public exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
 
-  public async exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
-  public async exec(cmd: "delete", type: "Step", stepId: string): Promise<void>
+  public exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
+  public exec(cmd: "delete", type: "Step", stepId: string): Promise<void>
 
-  public async exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
-  public async exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
+  public exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
+  public exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
 
-  public async exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
-    return this.engine.apiExec(cmd, type, fragOrId)
+  public exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
+    return this.engine.exec(cmd, type, fragOrId)
   }
 
   // --
   // -- Query the API
   // --
 
-  public async query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
-  public async query(type: "StepType"): Promise<StepTypeModel[]>
+  public query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
+  public query(type: "StepType"): Promise<StepTypeModel[]>
 
-  public async query(type: Type, filters?: any): Promise<any[]> {
-    return this.engine.apiQuery(type, filters)
+  public query(type: Type, filters?: any): Promise<any[]> {
+    return this.engine.query(type, filters)
+  }
+
+  // --
+  // -- Update order nums
+  // --
+
+  public reorder(type: "StepType", idList: string[]): Promise<StepTypeModel[]>
+  public reorder(type: "Task", idList: string[], parentTaskId: string): Promise<TaskModel[]>
+
+  public reorder(type: Type, idList: string[], groupId?: string): Promise<any[]> {
+    return this.engine.reorder("StepType", { idList, groupId })
   }
 }
+
 // --
 // -- ProjectModel
 // --

@@ -5,8 +5,8 @@ import CargoLoader from "./CargoLoader"
 import { Cargo } from "../isomorphic/Cargo"
 import { queryProjects, createProject, fetchProjects, updateProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
-import { createTask, updateTask, fetchTasks } from "./dbqueries/queryTask"
-import { createStepType, fetchStepTypes, queryStepTypes, updateStepType } from "./dbqueries/queryStepType"
+import { createTask, updateTask, fetchTasks, reorderTasks } from "./dbqueries/queryTask"
+import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
 
 process.on("uncaughtException", err => {
@@ -97,6 +97,8 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
       await createStepType(loader, data.frag)
     else if (data.cmd === "update")
       await updateStepType(loader, data.frag)
+    else if (data.cmd === "reorder")
+      await reorderStepTypes(loader, data.idList)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else if (data.type === "Task") {
@@ -104,6 +106,8 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
       await createTask(loader, data.frag)
     else if (data.cmd === "update")
       await updateTask(loader, data.frag)
+    else if (data.cmd === "reorder")
+      await reorderTasks(loader, data.idList, data.groupId)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else

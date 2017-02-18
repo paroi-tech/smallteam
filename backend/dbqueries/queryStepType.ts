@@ -88,3 +88,12 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
   loader.setResultFragment("StepType", stepTypeId.toString())
   loader.updateModelMarkFragmentAs("StepType", stepTypeId.toString(), "updated")
 }
+
+// --
+// -- Reorder
+// --
+
+export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
+  let cn = await getDbConnection()
+  // TODO:
+}

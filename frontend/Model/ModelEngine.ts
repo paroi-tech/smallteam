@@ -79,7 +79,7 @@ export default class ModelEngine {
     this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`)
   }
 
-  public async apiExec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> { // FIXME
+  public async exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
     let del = cmd === "delete"
     let resultFrag = await this.httpPostAndUpdate("/api/exec", {
       cmd,
@@ -90,7 +90,13 @@ export default class ModelEngine {
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
 
-  public async apiQuery(type: Type, filters?: any): Promise<any[]> {
+  public async reorder(type: Type, orderedIds: { idList, groupId }): Promise<any[]> {
+    let fragments = await this.httpPostAndUpdate("/api/exec", { cmd: "reorder", type, ...orderedIds }, "fragments"),
+      fragMeta = getFragmentMeta(type)
+    return fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta)))
+  }
+
+  public async query(type: Type, filters?: any): Promise<any[]> {
     let data: any = { type }
     if (filters)
       data.filters = filters

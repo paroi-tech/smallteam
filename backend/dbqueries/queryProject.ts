@@ -5,7 +5,7 @@ import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
-import { fetchProjectTasks } from "./queryTask"
+import { fetchProjectTasks, updateTaskDescription } from "./queryTask"
 import { fetchProjectSteps } from "./queryStep"
 
 // --
@@ -197,33 +197,6 @@ export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFrag
 
   loader.setResultFragment("Project", projectId.toString())
   loader.updateModelMarkFragmentAs("Project", projectId.toString(), "updated")
-}
-
-async function updateTaskDescription(taskId: number, description: string | null) {
-  let cn = await getDbConnection()
-  if (description === null) {
-    let sql = buildDelete()
-      .deleteFrom("task_description")
-      .where("task_id", taskId)
-    await cn.run(sql.toSql())
-  } else {
-    let sql = buildUpdate()
-      .update("task_description")
-      .set({
-        description: description
-      })
-      .where("task_id", taskId)
-    let st = await cn.run(sql.toSql())
-    if (st.changes === 0) {
-      let sql = buildInsert()
-        .insertInto("task_description")
-        .values({
-          description: description,
-          task_id: taskId
-        })
-      await cn.run(sql.toSql())
-    }
-  }
 }
 
 async function hasTasks(projectId: number) {

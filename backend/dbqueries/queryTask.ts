@@ -142,23 +142,56 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   if (values === null)
     return
 
+  let taskId = int(updFrag.id)
+
   let sql = buildUpdate()
     .update("task")
     .set(values)
-    .where(toSqlValues(updFrag, updTaskMeta, "onlyId")!)
+    .where("task_id", taskId)
 
-  // Description
-  if (updFrag.description) {
-    // TODO: insert or update the description
-    // sql = buildInsert()
-    //   .insertInto("task_description")
-    //   .values({
-    //     "task_id": taskId,
-    //     "description": updFrag.description
-    //   })
-    // await cn.run(sql.toSql())
-  }
+  if (updFrag.description !== undefined)
+    updateTaskDescription(taskId, updFrag.description)
 
   loader.setResultFragment("Task", updFrag.id)
   loader.updateModelMarkFragmentAs("StepType", updFrag.id, "updated")
+}
+
+// --
+// -- Reorder
+// --
+
+export async function reorderTasks(loader: CargoLoader, idList: string[], parentTaskId: string) {
+  let cn = await getDbConnection()
+  // TODO:
+}
+
+// --
+// -- Tools
+// --
+
+export async function updateTaskDescription(taskId: number, description: string | null) {
+  let cn = await getDbConnection()
+  if (description === null) {
+    let sql = buildDelete()
+      .deleteFrom("task_description")
+      .where("task_id", taskId)
+    await cn.run(sql.toSql())
+  } else {
+    let sql = buildUpdate()
+      .update("task_description")
+      .set({
+        description: description
+      })
+      .where("task_id", taskId)
+    let st = await cn.run(sql.toSql())
+    if (st.changes === 0) {
+      let sql = buildInsert()
+        .insertInto("task_description")
+        .values({
+          description: description,
+          task_id: taskId
+        })
+      await cn.run(sql.toSql())
+    }
+  }
 }
