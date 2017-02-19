@@ -1,10 +1,12 @@
 import { Cargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate } from "../isomorphic/Cargo"
 import { makeHKMap, HKMap } from "../isomorphic/libraries/HKCollections"
+import { getFragmentMeta, toIdentifier } from "../isomorphic/meta"
 
 type ChangedType = "created" | "updated" | "deleted"
 
 export default class CargoLoader {
-  private fragmentsMap = new Map<Type, HKMap<Identifier, any | undefined>>()
+  private fragmentsMap = new Map<Type, HKMap<Identifier, {} | undefined>>()
+  private partialMap = new Map<Type, HKMap<Identifier, {}>>()
   private changedMap = new Map<Type, HKMap<Identifier, ChangedType>>()
   private displayError: string[] = []
   private debugData: any[] = []
@@ -15,7 +17,7 @@ export default class CargoLoader {
   constructor(private resultType: ResultType) {
   }
 
-  public updateModelAddFragment(type: Type, id: Identifier, frag?: any) {
+  public updateModelAddFragment(type: Type, id: Identifier, frag?: {}) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModelAddFragment": the Cargo is completed`)
     let fragments = this.fragmentsMap.get(type)
@@ -25,6 +27,19 @@ export default class CargoLoader {
     }
     if (!fragments.has(id) || frag !== undefined)
       fragments.set(id, frag)
+  }
+
+  public updateModelUpdateFields(type: Type, partialFrag: {}) {
+    if (this.ended)
+      throw new Error(`Invalid call to "updateModelUpdateFields": the Cargo is completed`)
+    let partial = this.partialMap.get(type)
+    if (!partial) {
+      partial = makeHKMap<any, any>()
+      this.partialMap.set(type, partial)
+    }
+    let id = toIdentifier(partialFrag, type)
+    if (!partial.has(id))
+      partial.set(id, partialFrag)
   }
 
   public updateModelMarkFragmentAs(type: Type, id: Identifier, changedType: ChangedType) {
@@ -142,8 +157,9 @@ export default class CargoLoader {
       done: this.done
     }
     let modelUpd: ModelUpdate = {}
-    this.fillModelUpdateWithFragments(modelUpd)
     this.fillModelUpdateWithChanges(modelUpd)
+    this.fillModelUpdateWithPartial(modelUpd)
+    this.fillModelUpdateWithFragments(modelUpd)
     if (!isObjEmpty(modelUpd))
       cargo.modelUpd = modelUpd
     if (this.displayError.length > 0)
@@ -175,16 +191,50 @@ export default class CargoLoader {
     if (this.fragmentsMap.size === 0)
       return
     for (let [type, fragments] of this.fragmentsMap) {
-      for (let [id, data] of fragments) {
-        if (data === undefined)
+      for (let [id, frag] of fragments) {
+        if (this.isChangedDeleted(type, id))
+          continue
+        if (frag === undefined)
           throw new Error(`Invalid call to "toCargo()", the loader is not completed`)
         if (!modelUpd.fragments)
           modelUpd.fragments = {}
         if (!modelUpd.fragments[type])
           modelUpd.fragments[type] = []
-        modelUpd.fragments[type].push(data)
+        modelUpd.fragments[type].push(frag)
       }
     }
+  }
+
+  private fillModelUpdateWithPartial(modelUpd: ModelUpdate | any) {
+    if (this.partialMap.size === 0)
+      return
+    for (let [type, partial] of this.partialMap) {
+      for (let [id, partialFrag] of partial) {
+        if (this.isChangedDeleted(type, id) || this.hasFragment(type, id))
+          continue
+        if (partialFrag === undefined)
+          throw new Error(`Invalid call to "toCargo()", the loader is not completed`)
+        if (!modelUpd.partial)
+          modelUpd.partial = {}
+        if (!modelUpd.partial[type])
+          modelUpd.partial[type] = []
+        modelUpd.partial[type].push(partialFrag)
+      }
+    }
+  }
+
+  private isChangedDeleted(type: Type, id: Identifier): boolean {
+    let changed = this.changedMap.get(type)
+    if (!changed)
+      return false
+    return changed.get(id) === "deleted"
+  }
+
+  private hasFragment(type: Type, id: Identifier): boolean {
+    let fragments = this.fragmentsMap.get(type)
+    if (!fragments)
+      return false
+    return fragments.has(id)
   }
 }
 

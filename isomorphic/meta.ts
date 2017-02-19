@@ -7,7 +7,7 @@ import { stepMeta, newStepMeta } from "./fragments/Step"
 import { stepTypeMeta } from "./fragments/StepType"
 import { taskMeta, newTaskMeta } from "./fragments/Task"
 import { taskLogMeta } from "./fragments/TaskLog"
-import { Type } from "./Cargo"
+import { Type, Identifier } from "./Cargo"
 import { FragmentMeta, TypeVariant } from "./FragmentMeta"
 
 export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLog"]) as any
@@ -39,4 +39,26 @@ export function getFragmentMeta(type: Type, variant?: TypeVariant): FragmentMeta
   if (!fragmentMetaByTypes[type][key])
     throw new Error(`Missing variant "${key}" of fragment meta for type: ${type}`)
   return fragmentMetaByTypes[type][key]
+}
+
+export function toIdentifier(frag: {}, typeOrFragMeta: Type | FragmentMeta): Identifier {
+  let fragMeta = typeof typeOrFragMeta === "string" ? getFragmentMeta(typeOrFragMeta) : typeOrFragMeta
+  let singleVal: string | undefined,
+    values: { [fieldName: string]: string } | undefined
+  for (let fieldName in fragMeta.fields) {
+    if (fragMeta.fields.hasOwnProperty(fieldName) && fragMeta.fields[fieldName].id) {
+      if (frag[fieldName] === undefined)
+        throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName}`)
+      if (values)
+        singleVal = undefined
+      else {
+        singleVal = frag[fieldName]
+        values = {}
+      }
+      values[fieldName] = frag[fieldName]
+    }
+  }
+  if (!values)
+    throw new Error(`[${fragMeta.type}] No identifier`)
+  return singleVal !== undefined ? singleVal : values
 }

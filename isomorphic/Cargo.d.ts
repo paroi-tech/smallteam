@@ -55,8 +55,19 @@ export type Changed = {
   [K in Type]: Identifier[]
 }
 
+/**
+ * Each partial fragment contains the ID (required) and optional fields
+ */
+export type PartialFragments = {
+  [K in Type]: {}[]
+}
+
 export interface ModelUpdate {
   fragments?: Fragments
+  /**
+   * Used to update fields in fragments that are already loaded
+   */
+  partial?: PartialFragments
   created?: Changed
   updated?: Changed
   deleted?: Changed

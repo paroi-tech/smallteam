@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
-import { getFragmentMeta } from "../../isomorphic/meta"
-import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, Identifier } from "../../isomorphic/Cargo"
+import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
+import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 //import { validateDataArray } from "../../isomorphic/validation"
 
@@ -30,8 +30,9 @@ export interface ModelEvent {
 // --
 
 interface Entity {
-  fragment: any
-  model?: any
+  fragment: {}
+  model?: {}
+  deleted?: boolean
 }
 
 type Index = string | string[]
@@ -56,7 +57,7 @@ interface TypeStorage {
    * Keys are `Index` as string
    */
   indexes: HKMap<Index, IndexMap>
-  modelMaker: (frag) => any
+  modelMaker: (getFrag: () => {}) => {}
 }
 
 // --
@@ -70,7 +71,7 @@ export default class ModelEngine {
     this.dash.exposeEvents(`change`, `create`, `update`, `delete`)
   }
 
-  public registerType(type: Type, modelMaker: (frag) => any) {
+  public registerType(type: Type, modelMaker: (getFrag: () => {}) => {}) {
     this.store.set(type, {
       entities: makeHKMap<any, any>(),
       indexes: makeHKMap<any, any>(),
@@ -90,10 +91,8 @@ export default class ModelEngine {
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
 
-  public async reorder(type: Type, orderedIds: { idList, groupId }): Promise<any[]> {
-    let fragments = await this.httpPostAndUpdate("/api/exec", { cmd: "reorder", type, ...orderedIds }, "fragments"),
-      fragMeta = getFragmentMeta(type)
-    return fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta)))
+  public async reorder(type: Type, orderedIds: { idList, groupId }): Promise<void> {
+    await this.httpPostAndUpdate("/api/exec", { cmd: "reorder", type, ...orderedIds }, "none")
   }
 
   public async query(type: Type, filters?: any): Promise<any[]> {
@@ -110,8 +109,13 @@ export default class ModelEngine {
       entity = storage.entities.get(id)
     if (!entity)
       throw new Error(`Unknown ID "${id}" in type: ${type}`)
-    if (!entity.model)
-      entity.model = storage.modelMaker(entity.fragment)
+    if (!entity.model) {
+      entity.model = storage.modelMaker(() => {
+        if (entity!.deleted)
+          throw new Error(`Cannot access to the deleted model ${type}.${id}`)
+        return entity!.fragment
+      })
+    }
     return entity.model
   }
 
@@ -168,11 +172,33 @@ export default class ModelEngine {
       let storage = this.getTypeStorage(type as Type)
       let fragMeta = getFragmentMeta(type as Type)
       for (let frag of fragments[type]) {
-        let id = toIdentifier(frag, fragMeta)
-        storage.entities.set(id, {
-          fragment: frag
-        })
-        addFragmentToIndexes(storage, id, frag)
+        let id = toIdentifier(frag, fragMeta),
+          prevEntity = storage.entities.get(id)
+        if (prevEntity) {
+          if (prevEntity.deleted)
+            prevEntity.deleted = false
+          prevEntity.fragment = frag
+        } else {
+          storage.entities.set(id, {
+            fragment: frag
+          })
+        }
+        addFragmentToIndexes(storage, id, frag, !!prevEntity)
+      }
+    }
+  }
+
+  private updateStoreFromPartial(partial: PartialFragments) {
+    for (let type in partial) {
+      if (!partial.hasOwnProperty(type))
+        continue
+      let storage = this.getTypeStorage(type as Type)
+      let fragMeta = getFragmentMeta(type as Type)
+      for (let partialFrag of partial[type]) {
+        let id = toIdentifier(partialFrag, fragMeta)
+        let entity = storage.entities.get(id)
+        if (entity && !entity.deleted)
+          updateEntityFromPartial(storage, id, partialFrag, entity, fragMeta)
       }
     }
   }
@@ -182,8 +208,14 @@ export default class ModelEngine {
       if (!deleted.hasOwnProperty(type))
         continue
       let storage = this.getTypeStorage(type as Type)
-      for (let id of deleted[type])
-        storage.entities.delete(id)
+      for (let id of deleted[type]) {
+        let entity = storage.entities.get(id)
+        if (entity) {
+          storage.entities.delete(id)
+          entity.deleted = true
+          entity.model = undefined
+        }
+      }
       rmFragmentFromIndexes(storage, deleted[type])
     }
   }
@@ -232,6 +264,8 @@ export default class ModelEngine {
     if (cargo.modelUpd) {
       if (cargo.modelUpd.fragments)
         this.updateStore(cargo.modelUpd.fragments)
+      if (cargo.modelUpd.partial)
+        this.updateStoreFromPartial(cargo.modelUpd.partial)
       if (cargo.modelUpd.deleted) {
         this.deleteFromStore(cargo.modelUpd.deleted)
         this.emitEvents(cargo.modelUpd.deleted, "delete")
@@ -268,13 +302,13 @@ export default class ModelEngine {
 // -- Public tools
 // --
 
-export function appendGettersToModel(model, type: Type, frag) {
+export function appendGettersToModel(model, type: Type, getFrag: () => {}) {
   let fragMeta = getFragmentMeta(type)
   for (let fieldName in fragMeta.fields) {
     if (!fragMeta.fields.hasOwnProperty(fieldName))
       continue
     Object.defineProperty(model, fieldName, {
-      get: function () { return frag[fieldName] },
+      get: function () { return getFrag()[fieldName] },
       configurable: false
     })
   }
@@ -300,12 +334,14 @@ function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
     tryToAddToIndex(index, indexMap, id, entity.fragment)
 }
 
-function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag) {
+function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: {}, removeOld = false) {
+  if (removeOld)
+    rmFragmentFromIndexes(storage, [id])
   for (let [index, indexMap] of storage.indexes)
     tryToAddToIndex(index, indexMap, id, frag)
 }
 
-function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag: any) {
+function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag: {}) {
   let fieldNames = typeof index === "string" ? [index] : index,
     key = {}
   //console.log("tryToAddToIndex", fieldNames, index)
@@ -318,15 +354,6 @@ function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag:
   // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
 }
 
-
-function makeDefaultSortFn([fieldName, direction]: [string, "asc" | "desc"]) {
-  // TODO: check that the fieldName is in meta
-  return function (a, b) {
-    let diff = a[fieldName] - b[fieldName]
-    return direction === "asc" ? diff : -diff
-  }
-}
-
 function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
   for (let [index, indexMap] of storage.indexes) {
     for (let identifiers of indexMap.values()) {
@@ -336,25 +363,24 @@ function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
   }
 }
 
-function toIdentifier(frag: any, fragMeta: FragmentMeta): Identifier {
-  let singleVal: string | undefined,
-    values: { [fieldName: string]: string } | undefined
-  for (let fieldName in fragMeta.fields) {
-    if (fragMeta.fields.hasOwnProperty(fieldName) && fragMeta.fields[fieldName].id) {
-      if (frag[fieldName] === undefined)
-        throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName}`)
-      if (values)
-        singleVal = undefined
-      else {
-        singleVal = frag[fieldName]
-        values = {}
-      }
-      values[fieldName] = frag[fieldName]
-    }
+function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: {}, entity: Entity, fragMeta: FragmentMeta) {
+  for (let fieldName in partialFrag) {
+    if (!partialFrag.hasOwnProperty(fieldName))
+      continue
+    if (partialFrag[fieldName] === null)
+      delete entity.fragment[fieldName]
+    else
+      entity.fragment[fieldName] = partialFrag[fieldName]
   }
-  if (!values)
-    throw new Error(`[${fragMeta.type}] No identifier`)
-  return singleVal !== undefined ? singleVal : values
+  addFragmentToIndexes(storage, id, partialFrag, true)
+}
+
+function makeDefaultSortFn([fieldName, direction]: [string, "asc" | "desc"]) {
+  // TODO: check that the fieldName is in meta
+  return function (a, b) {
+    let diff = a[fieldName] - b[fieldName]
+    return direction === "asc" ? diff : -diff
+  }
 }
 
 function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {

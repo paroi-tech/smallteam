@@ -3,7 +3,7 @@ import * as sqlite from "sqlite"
 import CargoLoader from "../CargoLoader"
 import { StepTypeFragment, NewStepTypeFragment, newStepTypeMeta, UpdStepTypeFragment, updStepTypeMeta } from "../../isomorphic/fragments/StepType"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList } from "./dbUtils"
+import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 
 // --
@@ -81,7 +81,7 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
   let sql = buildUpdate()
     .update("step_type")
     .set(values)
-    .where("step_type_id", stepTypeId) // toSqlValues(updFrag, updStepTypeMeta, "onlyId") ! FIXME:
+    .where("step_type_id", stepTypeId) // toSqlValues(updFrag, updStepTypeMeta, "onlyId") ! FIXME: Find the bug with toSqlValues
 
   await cn.run(sql.toSql())
 
@@ -95,5 +95,51 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
 
 export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
   let cn = await getDbConnection()
-  // TODO:
+
+  let promises: Promise<void>[] = [],
+    oldNums = await loadOrderNums(),
+    curNum = -1
+  for (let idStr of idList) {
+    let id = int(idStr),
+      oldNum = oldNums.get(id)
+    if (++curNum !== oldNum) {
+      await updateOrderNum(id, curNum)
+      loader.updateModelUpdateFields("StepType", { id: id.toString(), "orderNum": curNum })
+    }
+    oldNums.delete(id)
+  }
+  let remaining = Array.from(oldNums.keys())
+  remaining.sort((a, b) => {
+    return a - b
+  })
+  for (let id of remaining) {
+    let oldNum = oldNums.get(id)
+    if (++curNum !== oldNum) {
+      await updateOrderNum(id, curNum)
+      loader.updateModelUpdateFields("StepType", { id: id.toString(), "orderNum": curNum })
+    }
+  }
+}
+
+async function updateOrderNum(stepTypeId: number, orderNum: number) {
+  let cn = await getDbConnection()
+  let sql = buildUpdate()
+    .update("step_type")
+    .set({
+      "order_num": orderNum
+    })
+    .where("step_type_id", stepTypeId)
+  await cn.run(sql.toSql())
+}
+
+async function loadOrderNums(): Promise<Map<number, number>> {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("step_type_id, order_num")
+    .from("step_type")
+  let rs = await cn.all(sql.toSql()),
+    orderNums = new Map<number, number>()
+  for (let row of rs)
+    orderNums.set(row["step_type_id"], row["order_num"])
+  return orderNums
 }

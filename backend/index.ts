@@ -77,7 +77,7 @@ async function executeQuery(resp: Response, data): Promise<Cargo> {
 }
 
 async function executeExec(resp: Response, data): Promise<Cargo> {
-  let loader = new CargoLoader("fragment")
+  let loader = new CargoLoader(data.cmd === "reorder" ? "none" : "fragment")
   if (data.type === "Project") {
     if (data.cmd === "create")
       await createProject(loader, data.frag)

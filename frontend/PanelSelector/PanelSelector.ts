@@ -97,7 +97,7 @@ export default class PanelSelector {
     })
     .then(projectModels => {
       if (projectModels.length === 0) {
-        if (confirm("No project to load from server. Do you want to create a new one ?"))
+        if (confirm("No project to load from server. Do you want to create a new one?"))
           this.showSettingPanel("projectForm")
       } else
         for (let model of projectModels)
@@ -216,6 +216,14 @@ function makeTests(el, model: Model) {
       name: "Beau projet"
     }).then(step => {
       console.log("Created step:", step)
+    })
+  })
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Reorder types</button>`).appendTo(el).click(async () => {
+    model.reorder("StepType", ["2", "4", "1", "3"]).then(() => {
+      console.log("Reordered StepTypes...")
+      model.query("StepType").then(types => {
+        console.log("Ordered types:", types)
+      })
     })
   })
 }

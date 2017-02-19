@@ -81,11 +81,11 @@ export default class Model {
   // -- Update order nums
   // --
 
-  public reorder(type: "StepType", idList: string[]): Promise<StepTypeModel[]>
-  public reorder(type: "Task", idList: string[], parentTaskId: string): Promise<TaskModel[]>
+  public reorder(type: "StepType", idList: string[]): Promise<void>
+  public reorder(type: "Task", idList: string[], parentTaskId: string): Promise<void>
 
-  public reorder(type: Type, idList: string[], groupId?: string): Promise<any[]> {
-    return this.engine.reorder("StepType", { idList, groupId })
+  public reorder(type: Type, idList: string[], groupId?: string): Promise<void> {
+    return this.engine.reorder(type, { idList, groupId })
   }
 }
 
@@ -101,17 +101,17 @@ export interface ProjectModel extends ProjectFragment {
 }
 
 function registerProject(engine: ModelEngine) {
-  engine.registerType("Project", function (frag: ProjectFragment): ProjectModel {
+  engine.registerType("Project", function (getFrag: () => ProjectFragment): ProjectModel {
     let model = {
       get rootTask() {
-        return engine.getModel("Task", frag.rootTaskId)
+        return engine.getModel("Task", getFrag().rootTaskId)
       },
       get steps() {
         return engine.getModels({
           type: "Step",
           index: "projectId",
           key: {
-            projectId: frag.id
+            projectId: getFrag().id
           },
           orderBy: ["orderNum", "asc"]
         })
@@ -121,12 +121,12 @@ function registerProject(engine: ModelEngine) {
       },
       getTasks(taskId: string) {
         let task: TaskModel = engine.getModel("Task", taskId)
-        if (task.projectId !== frag.id)
-          throw new Error(`The task ${taskId} is in the project ${task.projectId}, current project: ${frag.id}`)
+        if (task.projectId !== getFrag().id)
+          throw new Error(`The task ${taskId} is in the project ${task.projectId}, current project: ${getFrag().id}`)
         return task
       }
     }
-    appendGettersToModel(model, "Project", frag)
+    appendGettersToModel(model, "Project", getFrag)
     return model as any
   })
 }
@@ -151,31 +151,32 @@ export interface TaskModel extends TaskFragment {
 }
 
 function registerTask(engine: ModelEngine) {
-  engine.registerType("Task", function (frag: TaskFragment): TaskModel {
+  engine.registerType("Task", function (getFrag: () => TaskFragment): TaskModel {
     let model = {
       get project() {
-        return engine.getModel("Project", frag.projectId)
+        return engine.getModel("Project", getFrag().projectId)
       },
       get currentStep() {
-        return engine.getModel("Step", frag.curStepId)
+        return engine.getModel("Step", getFrag().curStepId)
       },
       get parent() {
-        if (frag.parentTaskId === undefined)
+        let parentId = getFrag().parentTaskId
+        if (parentId === undefined)
           return undefined
-        return engine.getModel("Task", frag.parentTaskId)
+        return engine.getModel("Task", parentId)
       },
       get children() {
         return engine.getModels({
           type: "Task",
           index: "parentTaskId",
           key: {
-            parentTaskId: frag.id
+            parentTaskId: getFrag().id
           },
           orderBy: ["orderNum", "asc"]
         })
       }
     }
-    appendGettersToModel(model, "Task", frag)
+    appendGettersToModel(model, "Task", getFrag)
     return model as any
   })
 }
@@ -189,10 +190,10 @@ export interface StepModel extends StepFragment {
 }
 
 function registerStep(engine: ModelEngine) {
-  engine.registerType("Step", function (frag: StepFragment): StepModel {
+  engine.registerType("Step", function (getFrag: () => StepFragment): StepModel {
     let model = {
       get project() {
-        return engine.getModel("Project", frag.projectId)
+        return engine.getModel("Project", getFrag().projectId)
       }
       // get tasks() {
       //   return getModels({
@@ -205,7 +206,7 @@ function registerStep(engine: ModelEngine) {
       //   })
       // }
     }
-    appendGettersToModel(model, "Step", frag)
+    appendGettersToModel(model, "Step", getFrag)
     return model as any
   })
 }
@@ -219,20 +220,20 @@ export interface StepTypeModel extends StepTypeFragment {
 }
 
 function registerStepType(engine: ModelEngine) {
-  engine.registerType("StepType", function (frag: StepTypeFragment): StepTypeModel {
+  engine.registerType("StepType", function (getFrag: () => StepTypeFragment): StepTypeModel {
     let model = {
       get hasProjects() {
         return engine.getModels({
           type: "Step",
           index: "stepTypeId",
           key: {
-            stepTypeId: frag.id
+            stepTypeId: getFrag().id
           },
           orderBy: ["projectId", "asc"] // TODO: implement a function here => sort on project name
         }).length > 0
       }
     }
-    appendGettersToModel(model, "StepType", frag)
+    appendGettersToModel(model, "StepType", getFrag)
     return model as any
   })
 }

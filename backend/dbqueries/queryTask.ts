@@ -148,6 +148,7 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
     .update("task")
     .set(values)
     .where("task_id", taskId)
+  await cn.run(sql.toSql())
 
   if (updFrag.description !== undefined)
     updateTaskDescription(taskId, updFrag.description)
@@ -160,9 +161,56 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
 // -- Reorder
 // --
 
-export async function reorderTasks(loader: CargoLoader, idList: string[], parentTaskId: string) {
+export async function reorderTasks(loader: CargoLoader, idList: string[], parentIdStr: string) {
   let cn = await getDbConnection()
-  // TODO:
+  let parentId = int(parentIdStr)
+
+  let oldNums = await loadOrderNums(parentId),
+    curNum = -1
+  for (let idStr of idList) {
+    let id = int(idStr),
+      oldNum = oldNums.get(id)
+    if (++curNum !== oldNum) {
+      await updateOrderNum(id, curNum)
+      loader.updateModelUpdateFields("Task", { id: id.toString(), "orderNum": curNum })
+    }
+    oldNums.delete(id)
+  }
+  let remaining = Array.from(oldNums.keys())
+  remaining.sort((a, b) => {
+    return a - b
+  })
+  for (let id of remaining) {
+    let oldNum = oldNums.get(id)
+    if (++curNum !== oldNum) {
+      await updateOrderNum(id, curNum)
+      loader.updateModelUpdateFields("Task", { id: id.toString(), "orderNum": curNum })
+    }
+  }
+}
+
+async function updateOrderNum(taskId: number, orderNum: number) {
+  let cn = await getDbConnection()
+  let sql = buildUpdate()
+    .update("task_child")
+    .set({
+      "order_num": orderNum
+    })
+    .where("task_id", taskId)
+  await cn.run(sql.toSql())
+}
+
+async function loadOrderNums(parentId: number): Promise<Map<number, number>> {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("c.task_id, c.order_num")
+    .from("task_child c")
+    .where("c.parent_task_id", parentId)
+  let rs = await cn.all(sql.toSql()),
+    orderNums = new Map<number, number>()
+  for (let row of rs)
+    orderNums.set(row["task_id"], row["order_num"])
+  return orderNums
 }
 
 // --
