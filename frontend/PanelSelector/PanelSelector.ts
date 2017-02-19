@@ -28,7 +28,8 @@ const settingMenuItems = [
 ]
 
 export default class PanelSelector {
-  private projectModels: Array<ProjectModel> = []
+  private model: Model
+  private projects: Array<ProjectModel> = []
   private menu: Menu
   private settingMenu: DropdownMenu
   private currentPanel: Panel | undefined = undefined
@@ -42,6 +43,7 @@ export default class PanelSelector {
   private $panel: JQuery
 
   constructor(private dash: Dash<App>) {
+    this.model = dash.app.model
     this.$container = $(template)
     this.$menu = this.$container.find(".js-menuLeft")
     this.$dropdownMenu = this.$container.find(".js-menuRight")
@@ -72,19 +74,20 @@ export default class PanelSelector {
       args: ["2", "Panel selector dropdown menu"]
     })
     this.settingMenu.attachTo(this.$dropdownMenu[0])
-    this.settingMenu.bkb.on("createProject", "dataFirst", (data: any) => {
+
+    this.settingMenu.bkb.on("createProject", "dataFirst", () => {
       this.showSettingPanel("projectForm")
     })
-    this.settingMenu.bkb.on("manageStepTypes", "dataFirst", (data: any) => {
+    this.settingMenu.bkb.on("manageStepTypes", "dataFirst", () => {
       this.showSettingPanel("stepTypePanel")
     })
     this.settingMenu.addItems(settingMenuItems)
   }
 
   private listenToEvents() {
-    this.dash.listenToChildren<ProjectModel>("projectCreated").call("dataFirst", project => {
-      this.addProject(project)
-      this.showProjectPanel(project.id)
+    this.model.on("createProject", "dataFirst", data => {
+      this.addProject(data.model)
+      this.showProjectPanel(data.model.id)
     })
   }
 
@@ -106,7 +109,7 @@ export default class PanelSelector {
   }
 
   private addProject(project: ProjectModel) {
-    this.projectModels.push(project)
+    this.projects.push(project)
     this.projectPanelMap.set(project.id, {
       projectModel: project,
       type: ProjectBoard
