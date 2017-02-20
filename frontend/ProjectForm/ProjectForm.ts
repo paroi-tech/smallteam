@@ -86,11 +86,11 @@ export default class ProjectForm {
       code: "",
       description: ""
     })
-    this.container.style.visibility = "visible"
+    this.container.style.display = "block"
     this.generateCode = true
   }
 
   public hide() {
-    this.container.style.visibility = "hidden";
+    this.container.style.display = "none"
   }
 }

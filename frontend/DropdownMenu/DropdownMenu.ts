@@ -9,7 +9,7 @@ const itemTemplate = require("html-loader!./element.html")
 /**
  * Dropdown menu component.
  *
- * It is made by a button and a list of clicked items shown when the button is clicked.
+ * It is made by a button and a list of clickable items shown when the button is clicked.
  * Each item in the menu has an id and an event is emited when it is clicked.
  */
 export class DropdownMenu {
