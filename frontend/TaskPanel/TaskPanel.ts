@@ -5,27 +5,22 @@ import { Panel } from "../PanelSelector/PanelSelector"
 import { TaskModel } from "../Model/Model"
 import * as MonkBerry from "monkberry"
 
-// const template = require("html-loader!./editpanel.html")
 import * as template  from "./taskpanel.monk"
 
 export default class TaskPanel implements Panel {
-  private $container: JQuery
-  // private $label: JQuery
-  // private $description: JQuery
+  private container: HTMLElement
 
   private view: MonkberryView
   private task: TaskModel | undefined = undefined
 
   constructor(private dash: Dash<App>, title: string) {
-    this.$container = $(`<div class="TaskPanel"></div>`)
-    // this.$container.find(".js-title").text(title)
-    // this.$label = this.$container.find(".js-task-label")
-    // this.$description = this.$container.find(".js-task-description").text(title)
-    this.view = MonkBerry.render(template, this.$container[0])
+    this.container = document.createElement("div")
+    this.container.classList.add("TaskPanel")
+    this.view = MonkBerry.render(template, this.container)
   }
 
   public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
+    el.appendChild(this.container)
   }
 
   public fillWith(task: TaskModel) {
@@ -34,16 +29,13 @@ export default class TaskPanel implements Panel {
       description: task.description || "",
       label: task.label
     })
-    // this.$label.text(task.label)
-    // if (task.description)
-    //   this.$description.val(task.description)
   }
 
   public hide() {
-    this.$container.hide()
+    this.container.style.display = "none"
   }
 
   public show() {
-    this.$container.show()
+    this.container.style.display = "block"
   }
 }
