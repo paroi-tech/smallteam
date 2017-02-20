@@ -176,6 +176,7 @@ class CommandBatch implements CommandRunner {
 export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
   readonly steps: StepModel[]
+  readonly specialSteps: StepModel[]
   readonly tasks?: TaskModel[]
   getTasks(taskId: string): TaskModel
 }
@@ -287,6 +288,7 @@ function registerTask(engine: ModelEngine) {
 
 export interface StepModel extends StepFragment {
   readonly project: ProjectModel
+  readonly isSpecial: boolean
 }
 
 function registerStep(engine: ModelEngine) {
@@ -320,6 +322,7 @@ function registerStep(engine: ModelEngine) {
 
 export interface StepTypeModel extends StepTypeFragment {
   readonly hasProjects: boolean
+  readonly isSpecial: boolean
 }
 
 function registerStepType(engine: ModelEngine) {

@@ -125,18 +125,22 @@ export default class StepTypePanel {
    *
    * @param ids - array of strings that contains the ids of step types
    */
-  private doUpdate(ids: Array<string>) {
+  private async doUpdate(ids: string[]): Promise<void> {
     console.log(`Requesting updating of step types orders...`)
-    updateStepTypeOrders(ids).then(response => {
-      if (equal(response, ids))
+    try {
+      await this.dash.app.model.reorder("StepType", ids)
+      let stepTypes = await this.dash.app.model.query("StepType")
+      let idList = stepTypes.filter(stepType => !stepType.isSpecial)
+                            .map(stepType => stepType.id)
+      if (equal(idList, ids))
         console.log("Step types order sucessfully updated.")
       else {
-        console.error("Sorry. Server rejected new order of step types...")
-        this.boxlist.setBoxesOrder(response)
+        console.error("Sorry. Server rejected new order of step types...", idList, ids)
+        this.boxlist.setBoxesOrder(idList)
       }
-    }).catch(err => {
-      alert("Sorry. Unable to save the new order of steps on server.")
-    })
+    } catch(err) {
+      console.log("Sorry. Unable to save the new order of steps on server.", err)
+    }
   }
 
   /**
@@ -150,7 +154,8 @@ export default class StepTypePanel {
         return
       }
       for (let stepType of stepTypes)
-        this.boxlist.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] } ))
+        if (!stepType.isSpecial)
+          this.boxlist.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] } ))
     })
     .catch(err => {
       console.error("Unable to load step types from server...")
