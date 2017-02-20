@@ -5,7 +5,7 @@ import { Panel } from "../PanelSelector/PanelSelector"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import Boxlist, { Box, BoxlistParams, BoxEvent, BoxlistEvent } from "../Boxlist/Boxlist"
-import Model, { StepTypeModel } from "../Model/Model"
+import { Model, StepTypeModel } from "../Model/Model"
 import { updateStepTypeOrders } from "../Model/fakeModel"
 import { equal } from "../libraries/utils"
 

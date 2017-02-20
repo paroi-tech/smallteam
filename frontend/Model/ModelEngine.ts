@@ -3,6 +3,7 @@ import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
+import Deferred from "../libraries/Deferred"
 //import { validateDataArray } from "../../isomorphic/validation"
 
 // --
@@ -70,12 +71,21 @@ interface TypeStorage {
   modelMaker: (getFrag: () => {}) => {}
 }
 
+export type HttpMethod = "POST" | "GET"
+
 // --
-// -- ModelEngine
+// -- Class ModelEngine
 // --
+
+interface Batch {
+  httpMethod?: HttpMethod
+  list: any[]
+  deferred: Deferred<any[]>
+}
 
 export default class ModelEngine {
   private store = makeHKMap<Type, TypeStorage>()
+  private batch: Batch | null
 
   constructor(private dash: Dash<{}>) {
     this.dash.exposeEvents(`change`, `create`, `update`, `delete`)
@@ -90,9 +100,36 @@ export default class ModelEngine {
     this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`)
   }
 
+  public startBatchRecord(httpMethod?: HttpMethod) {
+    if (this.batch)
+      throw new Error(`Invalid call to startBatchRecord: the engine is already in batch mode`)
+    let batch: Batch = this.batch = {
+      httpMethod,
+      list: [],
+      deferred: new Deferred()
+    }
+  }
+
+  public async sendBatchRecord(): Promise<any[]> {
+    if (!this.batch)
+      throw new Error(`Invalid call to sendBatchRecord: the engine is not in batch mode`)
+    let batch = this.batch
+    this.batch = null
+    if (batch.list.length === 0)
+      return []
+    return await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, "/api/batch", batch.list))
+  }
+
+  public cancelBatchRecord(err?: any) {
+    if (this.batch) {
+      this.batch.deferred.reject(err || new Error(`Batch record is canceled`))
+      this.batch = null
+    }
+  }
+
   public async exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
     let del = cmd === "delete"
-    let resultFrag = await this.httpPostAndUpdate("/api/exec", {
+    let resultFrag = await this.httpSendAndUpdate("POST", "/api/exec", {
       cmd,
       type,
       [del ? "id" : "frag"]: fragOrId
@@ -102,14 +139,14 @@ export default class ModelEngine {
   }
 
   public async reorder(type: Type, orderedIds: { idList, groupId }): Promise<void> {
-    await this.httpPostAndUpdate("/api/exec", { cmd: "reorder", type, ...orderedIds }, "none")
+    await this.httpSendAndUpdate("POST", "/api/exec", { cmd: "reorder", type, ...orderedIds }, "none")
   }
 
   public async query(type: Type, filters?: any): Promise<any[]> {
     let data: any = { type }
     if (filters)
       data.filters = filters
-    let fragments: any[] = await this.httpPostAndUpdate("/api/query", data, "fragments"),
+    let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/query", data, "fragments"),
       fragMeta = getFragmentMeta(type)
     return fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta)))
   }
@@ -259,8 +296,8 @@ export default class ModelEngine {
     return list
   }
 
-  private async httpPostAndUpdate(url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
-    let cargo: Cargo = await httpPostJson(url, data)
+  private async httpSendAndUpdate(method: HttpMethod, url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
+    let cargo = await this.httpSendOrBatch(method, url, data)
     if (cargo.modelUpd) {
       if (cargo.modelUpd.fragments)
         this.updateStore(cargo.modelUpd.fragments)
@@ -295,6 +332,17 @@ export default class ModelEngine {
     }
     if (resultType && resultType !== "none")
       throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
+  }
+
+  private async httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {
+    if (!this.batch)
+      return httpSendJson(method, url, data)
+    if (!this.batch.httpMethod || this.batch.httpMethod === "GET" && method === "POST")
+      this.batch.httpMethod = method
+    let batchId = this.batch.list.length
+    this.batch.list.push(data)
+    let results = await this.batch.deferred.promise
+    return results[batchId] // Can return undefined
   }
 }
 
@@ -400,14 +448,14 @@ function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
   return !ref['list']
 }
 
-async function httpPostJson(url, data): Promise<any> {
-  console.log(">> POST", url, data)
+async function httpSendJson(method: HttpMethod, url: string, data): Promise<any> {
+  console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {
-    method: "POST",
+    method: method,
     headers: {
       "Content-Type": "application/json"
     },
-    body: JSON.stringify(data)
+    body: data ? JSON.stringify(data) : undefined
   })
   try {
     let respData = await response.json()

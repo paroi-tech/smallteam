@@ -2,11 +2,11 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
-import Model from "../Model/Model"
+import { Model } from "../Model/Model"
 import * as MonkBerry from "monkberry"
 
 // const template = require("html-loader!./projectform.html")
-import * as template  from "./projectform.monk"
+import * as template from "./projectform.monk"
 
 /**
  * Component that enables to create and edit project setings.
@@ -70,13 +70,13 @@ export default class ProjectForm {
       let name = this.nameField.value
 
       this.dash.app.model.exec("create", "Project", { code, name })
-      .then(project => {
-        spinner!.style.visibility = "hidden"
-        console.log(`Project ${project.name} successfully created...`)
-      }).catch(error => {
-        spinner!.style.visibility = "hidden"
-        console.error(error)
-      })
+        .then(project => {
+          spinner!.style.visibility = "hidden"
+          console.log(`Project ${project.name} successfully created...`)
+        }).catch(error => {
+          spinner!.style.visibility = "hidden"
+          console.error(error)
+        })
     }
   }
 

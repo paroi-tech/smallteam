@@ -3,7 +3,7 @@ import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
 import Boxlist, { BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
-import Model, { TaskModel } from "../Model/Model"
+import { Model, TaskModel } from "../Model/Model"
 
 const template = require("html-loader!./stepspanel.html")
 

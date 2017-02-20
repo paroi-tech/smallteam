@@ -6,7 +6,7 @@ import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
-import Model, { ProjectModel, TaskModel, ModelEvent } from "../Model/Model"
+import { Model, ProjectModel, TaskModel, ModelEvent } from "../Model/Model"
 
 const template = require("html-loader!./panelselector.html")
 
@@ -105,7 +105,7 @@ console.log("Loaded projects:", projects)
           this.addProject(p)
     })
     .catch(err => {
-      alert("An error occured while loading projects from server.")
+      console.error("An error occured while loading projects from server.", err)
     })
   }
 

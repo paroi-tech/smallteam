@@ -11,12 +11,53 @@ import { ContributorFragment } from "../../isomorphic/fragments/Contributor"
 import { FlagFragment } from "../../isomorphic/fragments/Flag"
 import { CommentFragment } from "../../isomorphic/fragments/Comment"
 import { TaskLogFragment } from "../../isomorphic/fragments/TaskLog"
+import Deferred from "../libraries/Deferred"
+
+// --
+// -- Exported interfaces
+// --
 
 export type CommandType = "create" | "update" | "delete"
 
 export type ModelEvent = ModelEvent
 
-export default class Model {
+export interface CommandRunner {
+  exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
+  exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
+
+  exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
+  exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
+  //exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
+
+  exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
+  exec(cmd: "delete", type: "Step", stepId: string): Promise<void>
+
+  exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
+  exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
+
+  query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
+  query(type: "StepType"): Promise<StepTypeModel[]>
+
+  reorder(type: "StepType", idList: string[]): Promise<void>
+  reorder(type: "Task", idList: string[], parentTaskId: string): Promise<void>
+}
+
+export interface Model extends CommandRunner {
+  on(eventName: string, callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
+  on(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
+  on(eventName: string, mode: "dataFirst", callback: (data: ModelEvent, ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
+  on(eventName: string, mode: "arguments", callback: (...args: any[]) => void, thisArg?: any): this
+
+  listen(eventName: string): Transmitter<ModelEvent>
+
+  createCommandBatch(): CommandBatch
+}
+
+// --
+// -- Component ModelComp
+// --
+
+export default class ModelComp implements Model {
   private engine: ModelEngine
 
   constructor(private dash: Dash<App>) {
@@ -28,61 +69,33 @@ export default class Model {
   }
 
   // --
-  // -- Events
+  // -- Model
   // --
-
-  on(eventName: string, callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
-  on(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
-  on(eventName: string, mode: "dataFirst", callback: (data: ModelEvent, ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
-  on(eventName: string, mode: "arguments", callback: (...args: any[]) => void, thisArg?: any): this
 
   public on(eventName: string, modeOrCb, callback?): this {
     this.dash.on(eventName, modeOrCb, callback)
     return this
   }
 
-  listen(eventName: string): Transmitter<ModelEvent> {
+  public listen(eventName: string): Transmitter<ModelEvent> {
     return this.dash.listen(eventName)
   }
 
+  public createCommandBatch(): CommandBatch {
+    return new CommandBatch(this.engine)
+  }
+
   // --
-  // -- Execute an API command
+  // -- CommandRunner
   // --
-
-  public exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
-  public exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
-
-  public exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
-  public exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
-  //public exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
-
-  public exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
-  public exec(cmd: "delete", type: "Step", stepId: string): Promise<void>
-
-  public exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
-  public exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
 
   public exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
     return this.engine.exec(cmd, type, fragOrId)
   }
 
-  // --
-  // -- Query the API
-  // --
-
-  public query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
-  public query(type: "StepType"): Promise<StepTypeModel[]>
-
   public query(type: Type, filters?: any): Promise<any[]> {
     return this.engine.query(type, filters)
   }
-
-  // --
-  // -- Update order nums
-  // --
-
-  public reorder(type: "StepType", idList: string[]): Promise<void>
-  public reorder(type: "Task", idList: string[], parentTaskId: string): Promise<void>
 
   public reorder(type: Type, idList: string[], groupId?: string): Promise<void> {
     return this.engine.reorder(type, { idList, groupId })
@@ -90,7 +103,74 @@ export default class Model {
 }
 
 // --
-// -- ProjectModel
+// -- Class CommandBatch
+// --
+
+interface EngineCommand {
+  method: string
+  args: any[]
+  deferred: Deferred<any>
+}
+
+class CommandBatch implements CommandRunner {
+  private commands: EngineCommand[] = []
+
+  constructor(private engine: ModelEngine) {
+  }
+
+  public exec(...args): Promise<any> {
+    let deferred = new Deferred<any>()
+    this.commands.push({
+      method: "exec",
+      args,
+      deferred
+    })
+    return deferred.promise
+  }
+
+  public query(...args): Promise<any[]> {
+    let deferred = new Deferred<any[]>()
+    this.commands.push({
+      method: "query",
+      args,
+      deferred
+    })
+    return deferred.promise
+  }
+
+  public reorder(type: Type, idList: string[], groupId?: string): Promise<void> {
+    let deferred = new Deferred<void>()
+    this.commands.push({
+      method: "reorder",
+      args: [type, { idList, groupId }],
+      deferred
+    })
+    return deferred.promise
+  }
+
+  public async sendAll(): Promise<any[]> {
+    let count = this.commands.length
+    try {
+      this.engine.startBatchRecord()
+      for (let c of this.commands)
+        this.engine[c.method](...c.args)
+      let results = await this.engine.sendBatchRecord()
+      if (results.length !== count)
+        throw new Error(`Batch result size (${results.length}) doesn't match with command count (${count})`)
+      for (let i = 0; i < count; ++i)
+        this.commands[i].deferred.resolve(results[i])
+      return results
+    } catch (err) {
+      this.engine.cancelBatchRecord(err)
+      for (let c of this.commands)
+        c.deferred.reject(err)
+      throw err
+    }
+  }
+}
+
+// --
+// -- Configuration - ProjectModel
 // --
 
 export interface ProjectModel extends ProjectFragment {
@@ -152,7 +232,7 @@ function isStepSpecial(step: StepFragment | StepTypeFragment) {
 }
 
 // --
-// -- TaskModel
+// -- Configuration - TaskModel
 // --
 
 export interface TaskModel extends TaskFragment {
@@ -202,7 +282,7 @@ function registerTask(engine: ModelEngine) {
 }
 
 // --
-// -- StepModel
+// -- Configuration - StepModel
 // --
 
 export interface StepModel extends StepFragment {
@@ -235,7 +315,7 @@ function registerStep(engine: ModelEngine) {
 }
 
 // --
-// -- StepTypeModel
+// -- Configuration - StepTypeModel
 // --
 
 export interface StepTypeModel extends StepTypeFragment {
@@ -265,7 +345,7 @@ function registerStepType(engine: ModelEngine) {
 }
 
 // --
-// -- Not implemented
+// -- Configuration - Not implemented
 // --
 
 // interface ImageModel extends ImageFragment {
