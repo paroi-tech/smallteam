@@ -55,6 +55,9 @@ function toStepTypeFragment(row): StepTypeFragment {
 export async function createStepType(loader: CargoLoader, newFrag: NewStepTypeFragment) {
   let cn = await getDbConnection()
 
+  if (newFrag.orderNum === undefined)
+    newFrag.orderNum = await getDefaultOrderNum()
+
   let sql = buildInsert()
     .insertInto("step_type")
     .values(toSqlValues(newFrag, newStepTypeMeta))
@@ -63,6 +66,15 @@ export async function createStepType(loader: CargoLoader, newFrag: NewStepTypeFr
 
   loader.setResultFragment("StepType", stepTypeId.toString())
   loader.updateModelMarkFragmentAs("StepType", stepTypeId.toString(), "created")
+}
+
+async function getDefaultOrderNum() {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("max(order_num) as max")
+    .from("step_type")
+  let rs = await cn.all(sql.toSql())
+  return rs.length === 1 ? (rs[0]["max"] || 0) + 1 : 1
 }
 
 // --
@@ -96,13 +108,12 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
 export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
   let cn = await getDbConnection()
 
-  let promises: Promise<void>[] = [],
-    oldNums = await loadOrderNums(),
-    curNum = -1
+  let oldNums = await loadOrderNums(),
+    curNum = 0
   for (let idStr of idList) {
     let id = int(idStr),
       oldNum = oldNums.get(id)
-    if (++curNum !== oldNum) {
+    if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
       loader.updateModelUpdateFields("StepType", { id: id.toString(), "orderNum": curNum })
     }
@@ -137,6 +148,7 @@ async function loadOrderNums(): Promise<Map<number, number>> {
   let sql = buildSelect()
     .select("step_type_id, order_num")
     .from("step_type")
+    .where("order_num is not null")
   let rs = await cn.all(sql.toSql()),
     orderNums = new Map<number, number>()
   for (let row of rs)

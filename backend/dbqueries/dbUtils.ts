@@ -3,6 +3,7 @@ import * as sqlite from "sqlite"
 
 export async function getDbConnection() {
   let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
+  //;(cn as any).driver.configure("busyTimeout", 2000)
   await cn.run("PRAGMA foreign_keys = ON")
   await cn.migrate({
     migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts")

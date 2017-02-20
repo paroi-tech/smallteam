@@ -11,9 +11,14 @@ import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/H
 
 export type CommandType = "create" | "update" | "delete"
 
+export interface IndexCallbacks {
+  [name: string]: (frag: {}) => boolean
+}
+
 export interface ModelsQuery {
   type: Type
   index: Index
+  indexCb?: IndexCallbacks
   key: IndexKey
   orderBy: [string, "asc" | "desc"] | ((a, b) => number)
 }
@@ -48,6 +53,11 @@ interface IndexKey {
  */
 type IndexMap = HKMap<IndexKey, HKSet<Identifier>>
 
+interface IndexData {
+  map: IndexMap
+  indexCb?: IndexCallbacks
+}
+
 interface TypeStorage {
   /**
    * Keys are `Identifier` as string
@@ -56,7 +66,7 @@ interface TypeStorage {
   /**
    * Keys are `Index` as string
    */
-  indexes: HKMap<Index, IndexMap>
+  indexes: HKMap<Index, IndexData>
   modelMaker: (getFrag: () => {}) => {}
 }
 
@@ -119,33 +129,23 @@ export default class ModelEngine {
     return entity.model
   }
 
-  public getModels({type, index, key, orderBy}: ModelsQuery): any[] {
-    index = cleanIndex(index)
+  public getModels({type, index, indexCb, key, orderBy}: ModelsQuery): any[] {
+    index = cleanIndex(index, indexCb)
     let storage = this.getTypeStorage(type)
-    let indexMap = storage.indexes.get(index)
+    let indexData = storage.indexes.get(index)
     //console.log("getModels A", index, storage, indexMap)
-    if (!indexMap) {
-      storage.indexes.set(index, indexMap = makeHKMap<any, any>())
+    if (!indexData) {
+      storage.indexes.set(index, indexData = {
+        map: makeHKMap<any, any>(),
+        indexCb
+      })
       //console.log("[storage.indexes] getModels A", toDebugStr(storage.indexes))
-      fillIndex(storage, index, indexMap)
+      fillIndex(storage, index, indexData)
       //console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
       // console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
     }
 
-    let identifiers = indexMap.get(key)
-
-    // console.log("==>", toDebugStr(indexMap), toDebugStr(identifiers), key)
-
-    // let yesy = makeHkMap<any, any>()
-    // yesy.set({"a": 123, "b": 123}, "boum")
-    // yesy.set({"a": undefined, "b": 123}, "boum")
-    // let za = yesy.get({"b": 123, "a": 123})
-    // console.log("+++==>", toDebugStr(yesy), "resp", za, JSON.stringify({"b": 123, "a": 123}), JSON.stringify({"a": 123, "b": 123}))
-
-    // for (let [key, val] of yesy) {
-    //   console.log("  ...", key, val)
-    // }
-
+    let identifiers = indexData.map.get(key)
     if (!identifiers)
       return []
 
@@ -318,45 +318,58 @@ export function appendGettersToModel(model, type: Type, getFrag: () => {}) {
 // -- Private tools
 // --
 
-function cleanIndex(index: Index): Index {
-  if (Array.isArray(index)) {
-    if (index.length === 1)
-      index = index[0]
-    else
-      index.sort()
-  }
+function cleanIndex(index: Index, indexCb?: IndexCallbacks): Index {
+  if (typeof index === "string")
+    index = [index]
+  index = indexCb ? [...index, ...Object.keys(indexCb)] : [...index]
+  index.sort()
   return index
 }
 
-function fillIndex(storage: TypeStorage, index: Index, indexMap: IndexMap) {
+function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
   // console.log("fillIndex A", index, storage, toDebugStr(indexMap), toDebugStr(storage.entities))
   for (let [id, entity] of storage.entities)
-    tryToAddToIndex(index, indexMap, id, entity.fragment)
+    tryToAddToIndex(index, indexData, id, entity.fragment)
 }
 
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: {}, removeOld = false) {
   if (removeOld)
     rmFragmentFromIndexes(storage, [id])
-  for (let [index, indexMap] of storage.indexes)
-    tryToAddToIndex(index, indexMap, id, frag)
+  for (let [index, indexData] of storage.indexes)
+    tryToAddToIndex(index, indexData, id, frag)
 }
 
-function tryToAddToIndex(index: Index, indexMap: IndexMap, id: Identifier, frag: {}) {
-  let fieldNames = typeof index === "string" ? [index] : index,
-    key = {}
+function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, frag: {}) {
+  if (indexData.indexCb && !canBeAddedToIndex(frag, indexData.indexCb))
+    return
+  let fieldNames: string[] = []
+  let names = typeof index === "string" ? [index] : index
+  for (let name of names) {
+    if (!indexData[name])
+      fieldNames.push(name)
+  }
+  let key = {}
   //console.log("tryToAddToIndex", fieldNames, index)
   for (let name of fieldNames)
     key[name] = frag[name]
-  let identifiers = indexMap.get(key)
+  let identifiers = indexData.map.get(key)
   if (!identifiers)
-    indexMap.set(key, identifiers = makeHKSet<any>())
+    indexData.map.set(key, identifiers = makeHKSet<any>())
   identifiers.add(id)
   // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
 }
 
+function canBeAddedToIndex(frag: {}, indexCb: IndexCallbacks) {
+  for (let name in indexCb) {
+    if (indexCb.hasOwnProperty(name) && !indexCb[name](frag))
+      return false
+  }
+  return true
+}
+
 function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
   for (let [index, indexMap] of storage.indexes) {
-    for (let identifiers of indexMap.values()) {
+    for (let identifiers of indexMap.map.values()) {
       for (let id of idList)
         identifiers.delete(id)
     }

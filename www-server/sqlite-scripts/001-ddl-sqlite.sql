@@ -93,8 +93,8 @@ create table comment (
     update_ts timestamp not null default current_timestamp
 );
 
-insert into step_type (name, order_num) values ('Not started', 0);
-insert into step_type (name, order_num) values ('Archived', -1);
+insert into step_type (name) values ('On Hold');
+insert into step_type (name) values ('Archived');
 
 -- Fake data
 insert into contributor (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '123');

@@ -110,6 +110,18 @@ function registerProject(engine: ModelEngine) {
         return engine.getModels({
           type: "Step",
           index: "projectId",
+          indexCb: { "normal": isStepNormal },
+          key: {
+            projectId: getFrag().id
+          },
+          orderBy: ["orderNum", "asc"]
+        })
+      },
+      get specialSteps() {
+        return engine.getModels({
+          type: "Step",
+          index: "projectId",
+          indexCb: { "special": isStepSpecial },
           key: {
             projectId: getFrag().id
           },
@@ -129,6 +141,14 @@ function registerProject(engine: ModelEngine) {
     appendGettersToModel(model, "Project", getFrag)
     return model as any
   })
+}
+
+function isStepNormal(step: StepFragment | StepTypeFragment) {
+  return typeof step.orderNum === "number"
+}
+
+function isStepSpecial(step: StepFragment | StepTypeFragment) {
+  return typeof step.orderNum !== "number"
 }
 
 // --
@@ -194,6 +214,9 @@ function registerStep(engine: ModelEngine) {
     let model = {
       get project() {
         return engine.getModel("Project", getFrag().projectId)
+      },
+      get isSpecial() {
+        return isStepSpecial(getFrag())
       }
       // get tasks() {
       //   return getModels({
@@ -222,6 +245,9 @@ export interface StepTypeModel extends StepTypeFragment {
 function registerStepType(engine: ModelEngine) {
   engine.registerType("StepType", function (getFrag: () => StepTypeFragment): StepTypeModel {
     let model = {
+      get isSpecial() {
+        return isStepSpecial(getFrag())
+      },
       get hasProjects() {
         return engine.getModels({
           type: "Step",

@@ -98,6 +98,9 @@ function toTaskFragment(row): TaskFragment {
 export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) {
   let cn = await getDbConnection()
 
+  if (newFrag.parentTaskId === undefined)
+    throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
+
   // Task
   let values = toSqlValues(newFrag, newTaskMeta) || {}
   values.code = await makeTaskCodeFromStep(int(newFrag.curStepId))
@@ -108,11 +111,14 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
     taskId = ps.lastID
 
   // Task as child
+  let parentTaskId = int(newFrag.parentTaskId),
+    orderNum = newFrag.orderNum === undefined ? await getDefaultOrderNum(parentTaskId) : newFrag.orderNum
   sql = buildInsert()
     .insertInto("task_child")
     .values({
       "task_id": taskId,
-      "parent_task_id": int(newFrag.parentTaskId!) // TODO: remove the "!"
+      "parent_task_id": parentTaskId,
+      "order_num": orderNum
     })
   await cn.run(sql.toSql())
 
@@ -129,6 +135,16 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
 
   loader.setResultFragment("Task", taskId.toString())
   loader.updateModelMarkFragmentAs("Task", taskId.toString(), "created")
+}
+
+async function getDefaultOrderNum(parentTaskId: number) {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("max(order_num) as max")
+    .from("task_child")
+    .where("parent_task_id",parentTaskId )
+  let rs = await cn.all(sql.toSql())
+  return rs.length === 1 ? (rs[0]["max"] || 0) + 1 : 1
 }
 
 // --
@@ -166,11 +182,11 @@ export async function reorderTasks(loader: CargoLoader, idList: string[], parent
   let parentId = int(parentIdStr)
 
   let oldNums = await loadOrderNums(parentId),
-    curNum = -1
+    curNum = 0
   for (let idStr of idList) {
     let id = int(idStr),
       oldNum = oldNums.get(id)
-    if (++curNum !== oldNum) {
+    if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
       loader.updateModelUpdateFields("Task", { id: id.toString(), "orderNum": curNum })
     }
