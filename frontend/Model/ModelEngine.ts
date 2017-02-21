@@ -110,14 +110,13 @@ export default class ModelEngine {
     }
   }
 
-  public async sendBatchRecord(): Promise<any[]> {
+  public async sendBatchRecord(): Promise<void> {
     if (!this.batch)
       throw new Error(`Invalid call to sendBatchRecord: the engine is not in batch mode`)
     let batch = this.batch
     this.batch = null
-    if (batch.list.length === 0)
-      return []
-    return await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, "/api/batch", batch.list))
+    if (batch.list.length > 0)
+      await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, "/api/batch", batch.list))
   }
 
   public cancelBatchRecord(err?: any) {
@@ -343,15 +342,14 @@ export default class ModelEngine {
       throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
   }
 
-  private async httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {
+  private httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {
     if (!this.batch)
       return httpSendJson(method, url, data)
     if (!this.batch.httpMethod || this.batch.httpMethod === "GET" && method === "POST")
       this.batch.httpMethod = method
     let batchId = this.batch.list.length
     this.batch.list.push(data)
-    let results = await this.batch.deferred.promise
-    return results[batchId] // Can return undefined
+    return this.batch.deferred.promise.then(results => results[batchId])
   }
 }
 

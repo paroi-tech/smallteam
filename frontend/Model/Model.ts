@@ -152,14 +152,13 @@ class CommandBatch implements CommandRunner {
     let count = this.commands.length
     try {
       this.engine.startBatchRecord()
+      let promises: Promise<any>[] = []
       for (let c of this.commands)
-        this.engine[c.method](...c.args)
-      let results = await this.engine.sendBatchRecord()
-      if (results.length !== count)
-        throw new Error(`Batch result size (${results.length}) doesn't match with command count (${count})`)
+        promises.push(this.engine[c.method](...c.args))
+      await this.engine.sendBatchRecord()
       for (let i = 0; i < count; ++i)
-        this.commands[i].deferred.resolve(results[i])
-      return results
+        this.commands[i].deferred.pipeTo(promises[i])
+      return Promise.all(promises)
     } catch (err) {
       this.engine.cancelBatchRecord(err)
       for (let c of this.commands)
