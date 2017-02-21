@@ -1,7 +1,7 @@
 import { Dash, ComponentEvent, Transmitter } from "bkb"
 import App from "../App/App"
 import ModelEngine, { appendGettersToModel, ModelEvent } from "./ModelEngine"
-import { Type } from "../../isomorphic/Cargo"
+import { Type, Identifier } from "../../isomorphic/Cargo"
 import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, projectMeta } from "../../isomorphic/fragments/Project"
 import { StepFragment, NewStepFragment, stepMeta } from "../../isomorphic/fragments/Step"
 import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
@@ -38,8 +38,8 @@ export interface CommandRunner {
   query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
   query(type: "StepType"): Promise<StepTypeModel[]>
 
-  reorder(type: "StepType", idList: string[]): Promise<void>
-  reorder(type: "Task", idList: string[], parentTaskId: string): Promise<void>
+  reorder(type: "StepType", idList: string[]): Promise<string[]>
+  reorder(type: "Task", idList: string[], parentTaskId: string): Promise<string[]>
 }
 
 export interface Model extends CommandRunner {
@@ -97,7 +97,7 @@ export default class ModelComp implements Model {
     return this.engine.query(type, filters)
   }
 
-  public reorder(type: Type, idList: string[], groupId?: string): Promise<void> {
+  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<Identifier[]> {
     return this.engine.reorder(type, { idList, groupId })
   }
 }
@@ -138,8 +138,8 @@ class CommandBatch implements CommandRunner {
     return deferred.promise
   }
 
-  public reorder(type: Type, idList: string[], groupId?: string): Promise<void> {
-    let deferred = new Deferred<void>()
+  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<Identifier[]> {
+    let deferred = new Deferred<Identifier[]>()
     this.commands.push({
       method: "reorder",
       args: [type, { idList, groupId }],

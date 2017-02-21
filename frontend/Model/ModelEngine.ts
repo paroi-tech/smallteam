@@ -138,8 +138,17 @@ export default class ModelEngine {
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
 
-  public async reorder(type: Type, orderedIds: { idList, groupId }): Promise<void> {
+  public async reorder(type: Type, orderedIds: { idList: Identifier[], groupId?: Identifier }): Promise<Identifier[]> {
+    let orderFieldName = getFragmentMeta(type).orderFieldName
+    if (!orderFieldName)
+      throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
+    if (orderedIds.idList.length === 0)
+      return []
     await this.httpSendAndUpdate("POST", "/api/exec", { cmd: "reorder", type, ...orderedIds }, "none")
+    return orderedIds.idList
+      .map(id => { return { id, frag: this.getFragment({ id, type }) } })
+      .sort((a, b) => a.frag[orderFieldName!] - b.frag[orderFieldName!])
+      .map(obj => obj.id)
   }
 
   public async query(type: Type, filters?: any): Promise<any[]> {

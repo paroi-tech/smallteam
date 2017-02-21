@@ -128,10 +128,10 @@ export default class StepTypePanel {
   private async doUpdate(ids: string[]): Promise<void> {
     console.log(`Requesting updating of step types orders...`)
     try {
-      await this.dash.app.model.reorder("StepType", ids)
-      let stepTypes = await this.dash.app.model.query("StepType")
-      let idList = stepTypes.filter(stepType => !stepType.isSpecial)
-                            .map(stepType => stepType.id)
+      let idList = await this.dash.app.model.reorder("StepType", ids)
+      // let stepTypes = await this.dash.app.model.query("StepType")
+      // let idList = stepTypes.filter(stepType => !stepType.isSpecial)
+      //                       .map(stepType => stepType.id)
       if (equal(idList, ids))
         console.log("Step types order sucessfully updated.")
       else {

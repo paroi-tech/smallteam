@@ -64,7 +64,8 @@ export const taskMeta: FragmentMeta = {
     updateTs: {
       dataType: "number"
     }
-  }
+  },
+  orderFieldName: "orderNum"
 }
 
 export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "orderNum">

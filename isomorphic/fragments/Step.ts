@@ -28,7 +28,8 @@ export const stepMeta: FragmentMeta = {
     projectId: {
       dataType: "string"
     }
-  }
+  },
+  orderFieldName: "orderNum"
 }
 
 export type NewStepFragment = Pick<StepFragment, "typeId" | "projectId">

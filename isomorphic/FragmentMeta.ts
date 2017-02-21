@@ -6,6 +6,7 @@ export interface FragmentMeta {
   fields: {
     [name: string]: FieldMeta
   }
+  orderFieldName?: string
 }
 
 export interface FieldMeta {
@@ -47,14 +48,14 @@ export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, field
       throw new Error(`Unknown field "${name}" in meta ${base.type}`)
     fields[name] = base.fields[name]
   }
-  return { type: base.type, variant, fields }
+  return { type: base.type, variant, fields, orderFieldName: base.orderFieldName }
 }
 
 export function updPickFragmentMeta(variant: "Upd", base: FragmentMeta, reqFieldNames: string[], optFieldNames: string[]): FragmentMeta {
   let fields = {}
   copyFields(fields, base, reqFieldNames)
   copyFields(fields, base, optFieldNames, true)
-  return { type: base.type, variant, fields }
+  return { type: base.type, variant, fields, orderFieldName: base.orderFieldName }
 }
 
 export function searchPickFragmentMeta(variant: "Q", base: FragmentMeta, fieldNames: string[]): FragmentMeta {
@@ -65,7 +66,7 @@ export function searchPickFragmentMeta(variant: "Q", base: FragmentMeta, fieldNa
     } as FieldMeta
   }
   copyFields(fields, base, fieldNames, true)
-  return { type: base.type, variant, fields }
+  return { type: base.type, variant, fields, orderFieldName: base.orderFieldName }
 }
 
 function copyFields(to: {}, base: FragmentMeta, fieldNames: string[], forceOptional = false) {

@@ -22,7 +22,8 @@ export const stepTypeMeta: FragmentMeta = {
       update: true,
       optional: true
     }
-  }
+  },
+  orderFieldName: "orderNum"
 }
 
 export type NewStepTypeFragment = Pick<StepTypeFragment, "name" | "orderNum">
