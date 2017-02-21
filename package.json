@@ -15,27 +15,27 @@
   },
   "homepage": "https://github.com/fabtom/smallteam#readme",
   "dependencies": {
-    "@types/express": "4.0.35",
-    "@types/jquery": "2.0.40",
-    "@types/whatwg-fetch": "0.0.33",
     "bkb": "0.17.4",
     "express": "4.14.1",
-    "html-loader": "0.4.4",
     "jquery": "3.1.1",
-    "jsdoc": "^3.4.3",
     "monkberry": "4.0.8",
     "monkberry-directives": "4.0.8",
     "monkberry-events": "4.0.8",
     "monkberry-loader": "4.0.8",
-    "node-sass": "4.5.0",
     "sortablejs": "1.5.0-rc1",
     "sqlite": "2.3.0",
-    "ts-loader": "2.0.0",
-    "typescript": "2.1.6",
-    "webpack": "2.2.1",
     "whatwg-fetch": "2.0.2"
   },
   "devDependencies": {
-    "nodemon": "1.11.0"
+    "@types/express": "4.0.35",
+    "@types/jquery": "2.0.40",
+    "@types/whatwg-fetch": "0.0.33",
+    "html-loader": "0.4.4",
+    "jsdoc": "^3.4.3",
+    "node-sass": "4.5.0",
+    "nodemon": "1.11.0",
+    "ts-loader": "2.0.0",
+    "typescript": "2.1.6",
+    "webpack": "2.2.1"
   }
 }

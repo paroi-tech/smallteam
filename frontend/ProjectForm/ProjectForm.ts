@@ -1,9 +1,11 @@
-import * as $ from "jquery"
-import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { Panel } from "../PanelSelector/PanelSelector"
+import { Bkb, Dash } from "bkb"
 import { Model } from "../Model/Model"
+import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
+import { Panel } from "../PanelSelector/PanelSelector"
+
 import * as MonkBerry from "monkberry"
+import * as $ from "jquery"
 
 // const template = require("html-loader!./projectform.html")
 import * as template from "./projectform.monk"
@@ -17,8 +19,11 @@ export default class ProjectForm {
   private submitBtn: HTMLButtonElement
   private codeField: HTMLInputElement
   private nameField: HTMLInputElement
+  private descriptionField: HTMLTextAreaElement
 
   private view: MonkberryView
+
+  // private stepsPanel: ProjectStepsPanel
 
   /**
    * The project code is automatically generated from the project name.
@@ -44,6 +49,9 @@ export default class ProjectForm {
     this.submitBtn = this.view.querySelector(".js-submit-btn")
     this.codeField = this.view.querySelector(".js-project-code")
     this.nameField = this.view.querySelector(".js-project-name")
+    this.descriptionField = this.view.querySelector(".js-description")
+
+    // this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ undefined ] })
   }
 
   public attachTo(el: HTMLElement) {
@@ -64,30 +72,37 @@ export default class ProjectForm {
 
     this.submitBtn.onclick = () => {
       let spinner = this.submitBtn.querySelector("span")
-      spinner!.style.visibility = "visible"
+      if (spinner)
+        spinner.style.display = "inline"
 
       let code = this.codeField.value
       let name = this.nameField.value
 
       this.dash.app.model.exec("create", "Project", { code, name })
         .then(project => {
-          spinner!.style.visibility = "hidden"
+          if (spinner)
+            spinner.style.display = "none"
           console.log(`Project ${project.name} successfully created...`)
         }).catch(error => {
-          spinner!.style.visibility = "hidden"
+          if (spinner)
+            spinner.style.visibility = "none"
           console.error(error)
         })
     }
   }
 
   public show() {
-    this.view.update({
-      name: "",
-      code: "",
-      description: ""
-    })
+    this.clearFields()
     this.container.style.display = "block"
     this.generateCode = true
+  }
+
+  public clearFields() {
+    this.view.update({
+      name: "",
+      code: ""
+    })
+    this.descriptionField.value = ""
   }
 
   public hide() {

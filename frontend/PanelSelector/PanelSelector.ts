@@ -7,7 +7,7 @@ import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import { Model, ProjectModel, TaskModel, ModelEvent } from "../Model/Model"
-
+import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 const template = require("html-loader!./panelselector.html")
 
 export interface Panel {
@@ -96,7 +96,7 @@ export default class PanelSelector {
       archived: false
     })
     .then(projects => {
-console.log("Loaded projects:", projects)
+      console.log("Loaded projects:", projects)
       if (projects.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one?"))
           this.showSettingPanel("projectForm")
@@ -139,6 +139,7 @@ console.log("Loaded projects:", projects)
         args: [info.projectModel]
       })
       info.panel.attachTo(this.$panel[0])
+      this.dash.create(ProjectStepsPanel, { args: [ info.projectModel ] }).attachTo(document.body)
     }
 
     this.setCurrentPanel(info.panel)

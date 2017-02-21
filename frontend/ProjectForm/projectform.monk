@@ -1,4 +1,4 @@
-<div class="js-title BlockTitle"></div>
+<div class="js-title BlockTitle">Project form</div>
 <div class="js-form">
   <label class="FormField">
     <span class="FormField-span">Project Name</span>
@@ -12,7 +12,7 @@
 
   <label class="FormField">
     <span class="FormField-span">Description</span>
-    <textarea>{{ description }}</textarea>
+    <textarea class="js-description">{{ description }}</textarea>
   </label>
 
   <div>
