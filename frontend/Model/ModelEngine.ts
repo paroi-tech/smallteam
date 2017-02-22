@@ -151,7 +151,7 @@ export default class ModelEngine {
   }
 
   public async query(type: Type, filters?: any): Promise<any[]> {
-    let data: any = { type }
+    let data: any = { cmd: "query", type }
     if (filters)
       data.filters = filters
     let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/query", data, "fragments"),
@@ -347,9 +347,13 @@ export default class ModelEngine {
       return httpSendJson(method, url, data)
     if (!this.batch.httpMethod || this.batch.httpMethod === "GET" && method === "POST")
       this.batch.httpMethod = method
-    let batchId = this.batch.list.length
+    let batchIndex = this.batch.list.length
     this.batch.list.push(data)
-    return this.batch.deferred.promise.then(results => results[batchId])
+    return this.batch.deferred.promise.then(results => {
+      if (results.length <= batchIndex)
+        throw new Error(`The batch command is canceled due to a previous command error`)
+      return results[batchIndex]
+    })
   }
 }
 

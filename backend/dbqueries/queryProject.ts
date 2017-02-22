@@ -1,6 +1,6 @@
 import * as path from "path"
 //import * as sqlite from "sqlite"
-import CargoLoader from "../CargoLoader"
+import CargoLoader from "../cargoLoader/CargoLoader"
 import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery } from "../../isomorphic/fragments/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList } from "./dbUtils"
@@ -37,8 +37,8 @@ export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) 
     projectIdList: number[] = []
   for (let row of rs) {
     let frag = toProjectFragment(row)
-    loader.addToResultFragments("Project", frag.id, frag)
-    loader.updateModelAddFragment("Task", frag.rootTaskId)
+    loader.response.addToResultFragments("Project", frag.id, frag)
+    loader.modelUpdate.addFragment("Task", frag.rootTaskId)
     projectIdList.push(row["project_id"])
   }
   await fetchProjectSteps(loader, projectIdList)
@@ -54,8 +54,8 @@ export async function fetchProjects(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toProjectFragment(row)
-    loader.updateModelAddFragment("Project", frag.id, frag)
-    loader.updateModelAddFragment("Task", frag.rootTaskId)
+    loader.modelUpdate.addFragment("Project", frag.id, frag)
+    loader.modelUpdate.addFragment("Task", frag.rootTaskId)
   }
 }
 
@@ -149,10 +149,10 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
     await cn.run(sql.toSql())
   }
 
-  loader.setResultFragment("Project", projectId.toString())
-  loader.updateModelMarkFragmentAs("Project", projectId.toString(), "created")
+  loader.response.setResultFragment("Project", projectId.toString())
+  loader.modelUpdate.markFragmentAs("Project", projectId.toString(), "created")
 
-  loader.updateModelAddFragment("Task", taskId.toString())
+  loader.modelUpdate.addFragment("Task", taskId.toString())
 }
 
 // --
@@ -190,11 +190,11 @@ export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFrag
     if (updFrag.name !== undefined)
       sql.set({ label: updFrag.name })
     await cn.run(sql.toSql())
-    loader.updateModelAddFragment("Task", taskId.toString())
+    loader.modelUpdate.addFragment("Task", taskId.toString())
   }
 
-  loader.setResultFragment("Project", projectId.toString())
-  loader.updateModelMarkFragmentAs("Project", projectId.toString(), "updated")
+  loader.response.setResultFragment("Project", projectId.toString())
+  loader.modelUpdate.markFragmentAs("Project", projectId.toString(), "updated")
 }
 
 async function hasTasks(projectId: number) {

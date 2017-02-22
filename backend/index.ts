@@ -1,8 +1,8 @@
 import * as path from "path"
 import * as express from "express"
 import { Response } from "express"
-import CargoLoader from "./CargoLoader"
-import { Cargo } from "../isomorphic/Cargo"
+import CargoLoader from "./cargoLoader/CargoLoader"
+import { Cargo, BatchCargo } from "../isomorphic/Cargo"
 import { queryProjects, createProject, fetchProjects, updateProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks } from "./dbqueries/queryTask"
@@ -15,15 +15,16 @@ process.on("uncaughtException", err => {
 })
 
 let app = express()
-declareRoute(app, "/api/query", executeQuery)
-declareRoute(app, "/api/exec", executeExec)
+declareRoute(app, "/api/query", routeQuery)
+declareRoute(app, "/api/exec", routeExec)
+declareRoute(app, "/api/batch", executeBatch)
 
 app.use(express.static(path.join(__dirname, "..", "www")))
 app.listen(3000, function () {
   console.log("The smallteam server is listening on port 3000...")
 })
 
-function declareRoute(app: express.Express, route: string, cb: (resp: Response, data) => Promise<any>) {
+function declareRoute(app: express.Express, route: string, cb: (data) => Promise<any>) {
   app.post(route, function (req, resp) {
     var body = ""
     req.on("data", function (data) {
@@ -39,7 +40,7 @@ function declareRoute(app: express.Express, route: string, cb: (resp: Response, 
         }
         if (reqData) {
           setTimeout(() => {
-            cb(resp, reqData).then(
+            cb(reqData).then(
               respData => writeServerResponse(resp, 200, respData),
               err => writeServerResponseError(resp, err)
             )
@@ -64,8 +65,34 @@ function writeServerResponse(resp: Response, httpCode, data) {
   resp.end()
 }
 
-async function executeQuery(resp: Response, data): Promise<Cargo> {
-  let loader = new CargoLoader("fragments")
+async function routeQuery(data): Promise<Cargo> {
+  let loader = new CargoLoader()
+  executeQuery(data, loader)
+  return loader.toCargo()
+}
+
+async function routeExec(data): Promise<Cargo> {
+  let loader = new CargoLoader()
+  executeQuery(data, loader)
+  return loader.toCargo()
+}
+
+async function executeBatch(list: any[]): Promise<BatchCargo> {
+  let loader = new CargoLoader(true)
+  for (let data of list) {
+    let cmd = data.cmd
+    if (!cmd)
+      throw new Error(`Missing command`)
+    if (cmd === "query")
+      executeQuery(data, loader)
+    else
+      executeCommand(data, loader)
+  }
+  return loader.toBatchCargo()
+}
+
+async function executeQuery(data, loader: CargoLoader) {
+  loader.startResponse("fragments")
   if (data.type === "Project")
     await queryProjects(loader, data.filters || {})
   else if (data.type === "StepType")
@@ -73,11 +100,10 @@ async function executeQuery(resp: Response, data): Promise<Cargo> {
   else
     throw new Error(`Invalid query type: "${data.type}"`)
   await completeCargo(loader)
-  return loader.toCargo()
 }
 
-async function executeExec(resp: Response, data): Promise<Cargo> {
-  let loader = new CargoLoader(data.cmd === "reorder" ? "none" : "fragment")
+async function executeCommand(data, loader: CargoLoader) {
+  loader.startResponse(data.cmd === "reorder" ? "none" : "fragment")
   if (data.type === "Project") {
     if (data.cmd === "create")
       await createProject(loader, data.frag)
@@ -113,17 +139,16 @@ async function executeExec(resp: Response, data): Promise<Cargo> {
   } else
     throw new Error(`Invalid type: "${data.type}"`)
   await completeCargo(loader)
-  return loader.toCargo()
 }
 
 async function completeCargo(loader: CargoLoader) {
   let count = 0
-  while (!loader.isComplete()) {
+  while (!loader.modelUpdate.isFragmentsComplete()) {
     if (++count > 100)
       throw new Error(`Cannot complete the cargo, infinite loop`)
-    await fetchProjects(loader, loader.getNeeded("Project") as any)
-    await fetchTasks(loader, loader.getNeeded("Task") as any)
-    await fetchSteps(loader, loader.getNeeded("Step") as any)
-    await fetchStepTypes(loader, loader.getNeeded("StepType") as any)
+    await fetchProjects(loader, loader.modelUpdate.getNeededFragments("Project") as any)
+    await fetchTasks(loader, loader.modelUpdate.getNeededFragments("Task") as any)
+    await fetchSteps(loader, loader.modelUpdate.getNeededFragments("Step") as any)
+    await fetchStepTypes(loader, loader.modelUpdate.getNeededFragments("StepType") as any)
   }
 }

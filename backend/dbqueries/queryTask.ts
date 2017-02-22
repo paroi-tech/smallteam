@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
-import CargoLoader from "../CargoLoader"
+import CargoLoader from "../cargoLoader/CargoLoader"
 import { TaskFragment, NewTaskFragment, newTaskMeta, UpdTaskFragment, updTaskMeta, TaskQuery } from "../../isomorphic/fragments/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
@@ -31,7 +31,7 @@ export async function queryTasks(loader: CargoLoader, filters: Partial<TaskQuery
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toTaskFragment(row)
-    loader.addToResultFragments("Task", frag.id, frag)
+    loader.response.addToResultFragments("Task", frag.id, frag)
   }
 }
 
@@ -43,7 +43,7 @@ export async function fetchProjectTasks(loader: CargoLoader, projectIdList: numb
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toTaskFragment(row)
-    loader.updateModelAddFragment("Task", frag.id, frag)
+    loader.modelUpdate.addFragment("Task", frag.id, frag)
   }
 }
 
@@ -56,7 +56,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toTaskFragment(row)
-    loader.updateModelAddFragment("Task", data.id, data)
+    loader.modelUpdate.addFragment("Task", data.id, data)
   }
 }
 
@@ -133,8 +133,8 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
     await cn.run(sql.toSql())
   }
 
-  loader.setResultFragment("Task", taskId.toString())
-  loader.updateModelMarkFragmentAs("Task", taskId.toString(), "created")
+  loader.response.setResultFragment("Task", taskId.toString())
+  loader.modelUpdate.markFragmentAs("Task", taskId.toString(), "created")
 }
 
 async function getDefaultOrderNum(parentTaskId: number) {
@@ -169,8 +169,8 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   if (updFrag.description !== undefined)
     updateTaskDescription(taskId, updFrag.description)
 
-  loader.setResultFragment("Task", updFrag.id)
-  loader.updateModelMarkFragmentAs("StepType", updFrag.id, "updated")
+  loader.response.setResultFragment("Task", updFrag.id)
+  loader.modelUpdate.markFragmentAs("StepType", updFrag.id, "updated")
 }
 
 // --
@@ -188,7 +188,7 @@ export async function reorderTasks(loader: CargoLoader, idList: string[], parent
       oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
-      loader.updateModelUpdateFields("Task", { id: id.toString(), "orderNum": curNum })
+      loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
   }
@@ -200,7 +200,7 @@ export async function reorderTasks(loader: CargoLoader, idList: string[], parent
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
-      loader.updateModelUpdateFields("Task", { id: id.toString(), "orderNum": curNum })
+      loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
   }
 }
