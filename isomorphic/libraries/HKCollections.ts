@@ -18,7 +18,7 @@ export function makeHKMap<K, V>(iterable?: Iterable<[K, V]>): HKMap<K, V> {
     },
     get: (key: K) => map.get(stableJsonStringify(key)),
     has: (key: K) => map.has(stableJsonStringify(key)),
-    set: (key: K, value?: V) => {
+    set: (key: K, value: V) => {
       map.set(stableJsonStringify(key), value)
       return this
     },
