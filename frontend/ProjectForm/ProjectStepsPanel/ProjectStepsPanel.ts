@@ -6,9 +6,9 @@ import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
 export default class ProjectStepsPanel {
   private container: HTMLDivElement
-  private usedStepsBl: Boxlist<StepTypeBox>
   private availableStepsBl: Boxlist<StepTypeBox>
   private specialStepsBl: Boxlist<StepTypeBox>
+  private usedStepsBl: Boxlist<StepTypeBox>
 
   private stepTypes: StepTypeModel[] | undefined
 
@@ -28,23 +28,38 @@ export default class ProjectStepsPanel {
     if (!this.stepTypes)
       return
     for (let stepType of this.stepTypes) {
-      if (!stepType.isSpecial /*&& this.stepTypes.find(step => step.id == stepType.id)*/)
-        this.usedStepsBl.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
-      else
-        this.availableStepsBl.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+      if (stepType.isSpecial)
+        this.specialStepsBl.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+      else {
+        if (this.project.hasStep(stepType.id)) {
+          this.usedStepsBl.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+          console.log("step added to used boxlists.", stepType)
+        } else {
+          this.availableStepsBl.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+          console.log("step added to available boxlists.", stepType)
+        }
+      }
     }
   }
 
   private initComponents() {
     this.container = document.createElement("div")
-    this.usedStepsBl = this.dash.create(Boxlist, {
-      args: [ { id: "Used", name: "Used step types", group: this.project.id } ]
-    })
-    this.usedStepsBl.attachTo(this.container)
+    this.container.classList.add("ProjectStepsPanel")
+
     this.availableStepsBl = this.dash.create(Boxlist, {
       args: [ { id: "Available", name: "Available step types", group: this.project.id } ]
     })
     this.availableStepsBl.attachTo(this.container)
+
+    this.usedStepsBl = this.dash.create(Boxlist, {
+      args: [ { id: "Used", name: "Used step types", group: this.project.id } ]
+    })
+    this.usedStepsBl.attachTo(this.container)
+
+    this.specialStepsBl = this.dash.create(Boxlist, {
+      args: [ { id: "Special", name: "Special step types", group: undefined } ]
+    })
+    this.specialStepsBl.attachTo(this.container)
   }
 
   private async loadStepTypes() {

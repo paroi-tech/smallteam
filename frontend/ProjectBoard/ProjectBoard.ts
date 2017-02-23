@@ -5,6 +5,7 @@ import TaskPanel from "../TaskPanel/TaskPanel"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
 import { ProjectModel, TaskModel } from "../Model/Model"
+import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 
 const template = require("html-loader!./projectboard.html")
 
@@ -17,7 +18,8 @@ const template = require("html-loader!./projectboard.html")
 export default class ProjectBoard implements Panel {
   private $container: JQuery
   private $stepsPanelContainer: JQuery
-  private $editPanelContainer: JQuery
+  private $taskPanelContainer: JQuery
+  private $editBtn: JQuery
 
   private taskPanel: TaskPanel
   private stepsPanelMap: Map<String, StepsPanel>
@@ -42,9 +44,12 @@ export default class ProjectBoard implements Panel {
    */
   private initJQueryObjects() {
     this.$container = $(template)
-    this.$container.find(".js-title").text(this.project.name)
+    this.$editBtn = this.$container.find(".js-edit-btn").text(this.project.name).click(() => {
+      console.log(`Edit project button clicked for project ${this.project.id}`)
+      this.dash.emit("editProject", this.project)
+    })
     this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
-    this.$editPanelContainer = this.$container.find(".js-editpanel-container")
+    this.$taskPanelContainer = this.$container.find(".js-editpanel-container")
   }
 
   /**
@@ -54,7 +59,7 @@ export default class ProjectBoard implements Panel {
     this.taskPanel = this.dash.create(TaskPanel, {
       args: [ "Task panel" ]
     })
-    this.taskPanel.attachTo(this.$editPanelContainer[0])
+    this.taskPanel.attachTo(this.$taskPanelContainer[0])
 
     this.createStepsPanel(this.project.rootTask)
     if (this.project.tasks) {

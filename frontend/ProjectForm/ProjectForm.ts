@@ -1,6 +1,6 @@
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
-import { Model } from "../Model/Model"
+import { Model, ProjectModel } from "../Model/Model"
 import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
 import { Panel } from "../PanelSelector/PanelSelector"
 
@@ -15,6 +15,7 @@ import * as template from "./projectform.monk"
  */
 export default class ProjectForm {
   private container: HTMLDivElement
+  private formContainer: HTMLDivElement
   private fieldsContainer: HTMLDivElement
   private submitBtn: HTMLButtonElement
   private codeField: HTMLInputElement
@@ -22,8 +23,7 @@ export default class ProjectForm {
   private descriptionField: HTMLTextAreaElement
 
   private view: MonkberryView
-
-  // private stepsPanel: ProjectStepsPanel
+  private stepsPanel: ProjectStepsPanel
 
   /**
    * The project code is automatically generated from the project name.
@@ -35,7 +35,7 @@ export default class ProjectForm {
   /**
    * Create a new project form.
    */
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: Dash<App>, private project?: ProjectModel) {
     this.initComponents()
     this.listenToForm()
   }
@@ -44,14 +44,19 @@ export default class ProjectForm {
     this.container = document.createElement("div")
     this.container.classList.add("ProjectForm")
 
-    this.view = MonkBerry.render(template, this.container)
+    this.formContainer = document.createElement("div")
+    this.view = MonkBerry.render(template, this.formContainer)
     this.fieldsContainer = this.view.querySelector(".js-form")
     this.submitBtn = this.view.querySelector(".js-submit-btn")
     this.codeField = this.view.querySelector(".js-project-code")
     this.nameField = this.view.querySelector(".js-project-name")
     this.descriptionField = this.view.querySelector(".js-description")
+    this.container.appendChild(this.formContainer)
 
-    // this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ undefined ] })
+    if (this.project) {
+      this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ this.project ] })
+      this.stepsPanel.attachTo(this.container)
+    }
   }
 
   public attachTo(el: HTMLElement) {
@@ -91,13 +96,27 @@ export default class ProjectForm {
     }
   }
 
-  public show() {
-    this.clearFields()
+  /**
+   *
+   * @param project - the project for which the form is open. If `undefined`, the form is open to create
+   * *                a new project.
+   */
+  public show(project?: ProjectModel) {
+    let panel = this.container.querySelector("ProjectStepsPanel")
+    this.clearFormFields()
+    if (panel)
+        this.container.removeChild(panel)
+    if (!project) {
+      this.generateCode = false
+    } else {
+      this.project = project
+      this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ project ] })
+      this.stepsPanel.attachTo(this.container)
+    }
     this.container.style.display = "block"
-    this.generateCode = true
   }
 
-  public clearFields() {
+  public clearFormFields() {
     this.view.update({
       name: "",
       code: ""
