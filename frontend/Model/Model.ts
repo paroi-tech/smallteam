@@ -314,7 +314,7 @@ function registerStep(engine: ModelEngine) {
       get isSpecial() {
         return isStepSpecial(getFrag())
       },
-      get hasTasks() {
+      get taskCount() {
         return engine.countModels({
           type: "Task",
           index: "curStepId",
