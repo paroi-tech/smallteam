@@ -37,7 +37,11 @@ export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) 
     projectIdList: number[] = []
   for (let row of rs) {
     let frag = toProjectFragment(row)
-    loader.response.addToResultFragments("Project", frag.id, frag)
+    loader.addFragment({
+      type: "Project",
+      frag,
+      asResult: "fragments"
+    })
     loader.modelUpdate.addFragment("Task", frag.rootTaskId)
     projectIdList.push(row["project_id"])
   }
@@ -149,8 +153,12 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
     await cn.run(sql.toSql())
   }
 
-  loader.response.setResultFragment("Project", projectId.toString())
-  loader.modelUpdate.markFragmentAs("Project", projectId.toString(), "created")
+  loader.addFragment({
+    type: "Project",
+    id: projectId.toString(),
+    asResult: "fragment",
+    markAs: "created"
+  })
 
   loader.modelUpdate.addFragment("Task", taskId.toString())
 }
@@ -193,8 +201,12 @@ export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFrag
     loader.modelUpdate.addFragment("Task", taskId.toString())
   }
 
-  loader.response.setResultFragment("Project", projectId.toString())
-  loader.modelUpdate.markFragmentAs("Project", projectId.toString(), "updated")
+  loader.addFragment({
+    type: "Project",
+    id: projectId.toString(),
+    asResult: "fragment",
+    markAs: "updated"
+  })
 }
 
 async function hasTasks(projectId: number) {

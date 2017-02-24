@@ -1,4 +1,4 @@
-import { Cargo, Identifier, Result, Type, ResultType } from "../../isomorphic/Cargo"
+import { Cargo, Identifier, Result, Type, ResultType, CargoResponse } from "../../isomorphic/Cargo"
 
 export default class ResponseLoader {
   private displayError: string[] = []
@@ -35,7 +35,7 @@ export default class ResponseLoader {
     }
   }
 
-  public setResultFragment(type: Type, id: Identifier, frag?) {
+  public setResultFragment(type: Type, id: Identifier) {
     if (this.ended)
       throw new Error(`Invalid call to "setResultFragment": the Cargo is completed`)
     if (this.resultType !== "fragment")
@@ -44,14 +44,13 @@ export default class ResponseLoader {
       throw new Error(`Cannot define result twice`)
     // if (!this.contains(type, id))
     //   throw new Error(`Cannot define a result fragment without data (${type}, ${JSON.stringify(id)})`)
-    this.updateModelAddFragment(type, id, frag)
     this.result = {
       type: "fragment",
       val: { type, id }
     }
   }
 
-  public addToResultFragments(type: Type, id: Identifier, frag?) {
+  public addToResultFragments(type: Type, id: Identifier) {
     if (this.ended)
       throw new Error(`Invalid call to "addToResultFragments": the Cargo is completed`)
     if (this.resultType !== "fragments")
@@ -69,7 +68,6 @@ export default class ResponseLoader {
         val: { type, list: [] }
       }
     }
-    this.updateModelAddFragment(type, id, frag)
     this.result.val!.list.push(id)
   }
 
@@ -79,21 +77,19 @@ export default class ResponseLoader {
     this.done = done
   }
 
-  public toCargo(): Cargo {
+  public toResponse(): CargoResponse {
     this.ended = true
-    let cargo: Cargo = {
+    let response: Cargo = {
       done: this.done === undefined || this.done
     }
-    if (!isObjEmpty(modelUpd))
-      cargo.modelUpd = modelUpd
     if (this.displayError.length > 0)
-      cargo.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
+      response.displayError = this.displayError.length === 1 ? this.displayError[0] : [...this.displayError]
     if (this.debugData.length > 0)
-      cargo.debugData = this.debugData.length === 1 ? this.debugData[0] : [...this.debugData]
+      response.debugData = this.debugData.length === 1 ? this.debugData[0] : [...this.debugData]
     if (this.result !== undefined)
-      cargo.result = this.result // TODO: copy?
+      response.result = this.result // TODO: copy?
     else if (this.resultType !== undefined && this.resultType !== "none")
-      cargo.result = { type: this.resultType } as Result
-    return cargo
+      response.result = { type: this.resultType } as Result
+    return response
   }
 }

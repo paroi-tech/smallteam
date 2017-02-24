@@ -2,7 +2,7 @@ import { Identifier, Type, ModelUpdate } from "../../isomorphic/Cargo"
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
 import { toIdentifier } from "../../isomorphic/meta"
 
-type ChangedType = "created" | "updated" | "deleted"
+export type ChangedType = "created" | "updated" | "deleted"
 
 export default class ModelUpdateLoader {
   private fragmentsMap = new Map<Type, HKMap<Identifier, {} | undefined>>()
@@ -12,7 +12,7 @@ export default class ModelUpdateLoader {
 
   public addFragment(type: Type, id: Identifier, frag?: {}) {
     if (this.ended)
-      throw new Error(`Invalid call to "updateModelAddFragment": the Cargo is completed`)
+      throw new Error(`Invalid call to "updateModel.addFragment": the Cargo is completed`)
     if (this.isMarkedAsDeleted(type, id))
       throw new Error(`Cannot add a fragment already marked as deleted: ${type}.${id}`)
     this.tryToRemoveFromPartial(type, id)
@@ -27,7 +27,7 @@ export default class ModelUpdateLoader {
 
   public addPartial(type: Type, partialFrag: {}) {
     if (this.ended)
-      throw new Error(`Invalid call to "updateModelUpdateFields": the Cargo is completed`)
+      throw new Error(`Invalid call to "updateModel.updateFields": the Cargo is completed`)
     let id = toIdentifier(partialFrag, type)
     if (this.isMarkedAsDeleted(type, id))
       throw new Error(`Cannot update a fragment already marked as deleted: ${type}.${id}`)
@@ -44,7 +44,7 @@ export default class ModelUpdateLoader {
 
   public markFragmentAs(type: Type, id: Identifier, changedType: ChangedType) {
     if (this.ended)
-      throw new Error(`Invalid call to "updateModelMarkFragmentAs": the Cargo is completed`)
+      throw new Error(`Invalid call to "updateModel.markFragmentAs": the Cargo is completed`)
     this.tryToRemoveFromFragments(type, id)
     this.tryToRemoveFromPartial(type, id)
     let changed = this.changedMap.get(type)
@@ -57,7 +57,7 @@ export default class ModelUpdateLoader {
 
   public getNeededFragments(type: Type): Identifier[] {
     if (this.ended)
-      throw new Error(`Invalid call to "getNeeded": the Cargo is completed`)
+      throw new Error(`Invalid call to "getNeededFragments": the Cargo is completed`)
     let idList: Identifier[] = [],
       fragments = this.fragmentsMap.get(type)
     if (!fragments)

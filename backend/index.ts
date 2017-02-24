@@ -10,7 +10,12 @@ import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorder
 import "./backendMeta/initBackendMeta"
 
 process.on("uncaughtException", err => {
-  console.log(err)
+  console.log("uncaughtException", err)
+  process.exit(1)
+})
+
+process.on("unhandledRejection", err => {
+  console.log("unhandledRejection", err)
   process.exit(1)
 })
 
@@ -24,33 +29,34 @@ app.listen(3000, function () {
   console.log("The smallteam server is listening on port 3000...")
 })
 
+function wait(delayMs: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, delayMs))
+}
+
 function declareRoute(app: express.Express, route: string, cb: (data) => Promise<any>) {
   app.post(route, function (req, resp) {
     var body = ""
     req.on("data", function (data) {
       body += data
     })
-    req.on("end", function () {
-      let reqData;
-      try {
-        try {
-          reqData = JSON.parse(body)
-        } catch (err) {
-          throw new Error(`Invalid JSON request`)
-        }
-        if (reqData) {
-          setTimeout(() => {
-            cb(reqData).then(
-              respData => writeServerResponse(resp, 200, respData),
-              err => writeServerResponseError(resp, err)
-            )
-          }, 500)
-        }
-      } catch (err) {
-        writeServerResponseError(resp, err)
-      }
-    })
+    req.on("end", () => processRoute(resp, body, cb))
   })
+}
+
+async function processRoute(resp: Response, body: string, cb: (data) => Promise<any>) {
+  let reqData;
+  try {
+    try {
+      reqData = JSON.parse(body)
+    } catch (err) {
+      throw new Error(`Invalid JSON request: ${body}`)
+    }
+    await wait(500)
+    let respData = await cb(reqData)
+    writeServerResponse(resp, 200, respData)
+  } catch (err) {
+    writeServerResponseError(resp, err)
+  }
 }
 
 function writeServerResponseError(resp: Response, err) {
@@ -67,13 +73,13 @@ function writeServerResponse(resp: Response, httpCode, data) {
 
 async function routeQuery(data): Promise<Cargo> {
   let loader = new CargoLoader()
-  executeQuery(data, loader)
+  await executeQuery(data, loader)
   return loader.toCargo()
 }
 
 async function routeExec(data): Promise<Cargo> {
   let loader = new CargoLoader()
-  executeQuery(data, loader)
+  await executeQuery(data, loader)
   return loader.toCargo()
 }
 
@@ -84,9 +90,9 @@ async function executeBatch(list: any[]): Promise<BatchCargo> {
     if (!cmd)
       throw new Error(`Missing command`)
     if (cmd === "query")
-      executeQuery(data, loader)
+      await executeQuery(data, loader)
     else
-      executeCommand(data, loader)
+      await executeCommand(data, loader)
   }
   return loader.toBatchCargo()
 }

@@ -73,18 +73,18 @@ export interface ModelUpdate {
   deleted?: Changed
 }
 
-export interface Response {
+export interface CargoResponse {
   done: boolean
   displayError?: string | string[]
   debugData?: any
   result?: Result
 }
 
-export interface Cargo extends Response {
+export interface Cargo extends CargoResponse {
   modelUpd?: ModelUpdate
 }
 
 export interface BatchCargo {
-  responses?: Response[]
+  responses?: CargoResponse[]
   modelUpd?: ModelUpdate
 }

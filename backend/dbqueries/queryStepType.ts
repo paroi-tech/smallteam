@@ -16,7 +16,11 @@ export async function queryStepTypes(loader: CargoLoader) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toStepTypeFragment(row)
-    loader.response.addToResultFragments("StepType", frag.id, frag)
+    loader.addFragment({
+      type: "StepType",
+      frag: frag,
+      asResult: "fragments"
+    })
   }
 }
 
@@ -64,8 +68,12 @@ export async function createStepType(loader: CargoLoader, newFrag: NewStepTypeFr
   let ps = await cn.run(sql.toSql()),
     stepTypeId = ps.lastID
 
-  loader.response.setResultFragment("StepType", stepTypeId.toString())
-  loader.modelUpdate.markFragmentAs("StepType", stepTypeId.toString(), "created")
+  loader.addFragment({
+    type: "StepType",
+    id: stepTypeId.toString(),
+    asResult: "fragment",
+    markAs: "created"
+  })
 }
 
 async function getDefaultOrderNum() {
@@ -97,8 +105,12 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
 
   await cn.run(sql.toSql())
 
-  loader.response.setResultFragment("StepType", stepTypeId.toString())
-  loader.modelUpdate.markFragmentAs("StepType", stepTypeId.toString(), "updated")
+  loader.addFragment({
+    type: "StepType",
+    id: stepTypeId.toString(),
+    asResult: "fragment",
+    markAs: "updated"
+  })
 }
 
 // --

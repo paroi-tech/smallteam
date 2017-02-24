@@ -67,8 +67,12 @@ export async function createStep(loader: CargoLoader, newFrag: NewStepFragment) 
   let ps = await cn.run(sql.toSql()),
     stepId = ps.lastID
 
-  loader.response.setResultFragment("Step", stepId.toString())
-  loader.modelUpdate.markFragmentAs("Step", stepId.toString(), "created")
+  loader.addFragment({
+    type: "Step",
+    id: stepId.toString(),
+    asResult: "fragment",
+    markAs: "created"
+  })
 }
 
 // --

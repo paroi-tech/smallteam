@@ -31,7 +31,11 @@ export async function queryTasks(loader: CargoLoader, filters: Partial<TaskQuery
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toTaskFragment(row)
-    loader.response.addToResultFragments("Task", frag.id, frag)
+    loader.addFragment({
+      type: "Task",
+      frag: frag,
+      asResult: "fragments"
+    })
   }
 }
 
@@ -133,8 +137,12 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
     await cn.run(sql.toSql())
   }
 
-  loader.response.setResultFragment("Task", taskId.toString())
-  loader.modelUpdate.markFragmentAs("Task", taskId.toString(), "created")
+  loader.addFragment({
+    type: "Task",
+    id: taskId.toString(),
+    asResult: "fragment",
+    markAs: "created"
+  })
 }
 
 async function getDefaultOrderNum(parentTaskId: number) {
@@ -169,8 +177,12 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   if (updFrag.description !== undefined)
     updateTaskDescription(taskId, updFrag.description)
 
-  loader.response.setResultFragment("Task", updFrag.id)
-  loader.modelUpdate.markFragmentAs("StepType", updFrag.id, "updated")
+  loader.addFragment({
+    type: "Task",
+    id: taskId.toString(),
+    asResult: "fragment",
+    markAs: "updated"
+  })
 }
 
 // --
