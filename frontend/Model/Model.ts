@@ -176,6 +176,8 @@ export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
   readonly steps: StepModel[]
   readonly specialSteps: StepModel[]
+  hasStep(stepTypeId: string): boolean
+  findStep(stepTypeId: string): StepModel | undefined
   readonly tasks?: TaskModel[]
   getTasks(taskId: string): TaskModel
 }
@@ -206,6 +208,19 @@ function registerProject(engine: ModelEngine) {
             projectId: getFrag().id
           },
           orderBy: ["orderNum", "asc"]
+        })
+      },
+      hasStep(stepTypeId: string) {
+        return !!this.findStep(stepTypeId)
+      },
+      findStep(stepTypeId: string) {
+        return engine.findSingleFromIndex({
+          type: "Step",
+          index: ["projectId", "stepTypeId"],
+          key: {
+            projectId: getFrag().id,
+            stepTypeId
+          }
         })
       },
       get tasks() {

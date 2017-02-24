@@ -29,13 +29,12 @@
   "devDependencies": {
     "@types/express": "4.0.35",
     "@types/jquery": "2.0.40",
-    "@types/whatwg-fetch": "0.0.33",
     "html-loader": "0.4.4",
     "jsdoc": "^3.4.3",
     "node-sass": "4.5.0",
     "nodemon": "1.11.0",
     "ts-loader": "2.0.0",
-    "typescript": "2.1.6",
+    "typescript": "2.2.1",
     "webpack": "2.2.1"
   }
 }

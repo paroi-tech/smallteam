@@ -16,11 +16,14 @@ export interface IndexCallbacks {
   [name: string]: (frag: {}) => boolean
 }
 
-export interface ModelsQuery {
+export interface IndexQuery {
   type: Type
   index: Index
   indexCb?: IndexCallbacks
   key: IndexKey
+}
+
+export interface ModelsQuery extends IndexQuery {
   orderBy: [string, "asc" | "desc"] | ((a, b) => number)
 }
 
@@ -174,7 +177,32 @@ export default class ModelEngine {
     return entity.model
   }
 
-  public getModels({type, index, indexCb, key, orderBy}: ModelsQuery): any[] {
+  public getModels(query: ModelsQuery): any[] {
+    let identifiers = this.findIdentifiersFromIndex(query)
+    if (!identifiers)
+      return []
+
+    let list: any[] = []
+    for (let id of identifiers)
+      list.push(this.getModel(query.type, id))
+
+    let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy;
+    list.sort(sortFn)
+    return list
+  }
+
+  public findSingleFromIndex(query: IndexQuery): any | undefined {
+    let identifiers = this.findIdentifiersFromIndex(query)
+    if (!identifiers)
+      return undefined
+    if (identifiers.size > 1)
+      throw new Error(`Invalid call to "findSingleFromIndex", there are ${identifiers.size} results`)
+    for (let id of identifiers)
+      return this.getModel(query.type, id)
+    return undefined
+  }
+
+  private findIdentifiersFromIndex({type, index, key, indexCb}: IndexQuery): HKSet<Identifier> | undefined {
     index = cleanIndex(index, indexCb)
     let storage = this.getTypeStorage(type)
     let indexData = storage.indexes.get(index)
@@ -190,17 +218,7 @@ export default class ModelEngine {
       // console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
     }
 
-    let identifiers = indexData.map.get(key)
-    if (!identifiers)
-      return []
-
-    let list: any[] = []
-    for (let id of identifiers)
-      list.push(this.getModel(type, id))
-
-    let sortFn = Array.isArray(orderBy) ? makeDefaultSortFn(orderBy) : orderBy;
-    list.sort(sortFn)
-    return list
+    return indexData.map.get(key)
   }
 
   private getTypeStorage(type: Type): TypeStorage {
