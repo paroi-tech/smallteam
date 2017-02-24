@@ -191,6 +191,11 @@ export default class ModelEngine {
     return list
   }
 
+  public countModels(query: IndexQuery): number {
+    let identifiers = this.findIdentifiersFromIndex(query)
+    return identifiers ? identifiers.size : 0
+  }
+
   public findSingleFromIndex(query: IndexQuery): any | undefined {
     let identifiers = this.findIdentifiersFromIndex(query)
     if (!identifiers)
