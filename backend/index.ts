@@ -79,7 +79,7 @@ async function routeQuery(data): Promise<Cargo> {
 
 async function routeExec(data): Promise<Cargo> {
   let loader = new CargoLoader()
-  await executeQuery(data, loader)
+  await executeCommand(data, loader)
   return loader.toCargo()
 }
 
