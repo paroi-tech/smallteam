@@ -179,7 +179,7 @@ export interface ProjectModel extends ProjectFragment {
   hasStep(stepTypeId: string): boolean
   findStep(stepTypeId: string): StepModel | undefined
   readonly tasks?: TaskModel[]
-  getTasks(taskId: string): TaskModel
+  getTask(taskId: string): TaskModel
 }
 
 function registerProject(engine: ModelEngine) {
@@ -226,7 +226,7 @@ function registerProject(engine: ModelEngine) {
       get tasks() {
         return this.rootTask.children
       },
-      getTasks(taskId: string) {
+      getTask(taskId: string) {
         let task: TaskModel = engine.getModel("Task", taskId)
         if (task.projectId !== getFrag().id)
           throw new Error(`The task ${taskId} is in the project ${task.projectId}, current project: ${getFrag().id}`)
@@ -303,6 +303,7 @@ function registerTask(engine: ModelEngine) {
 export interface StepModel extends StepFragment {
   readonly project: ProjectModel
   readonly isSpecial: boolean
+  readonly taskCount: number
 }
 
 function registerStep(engine: ModelEngine) {
