@@ -22,9 +22,12 @@ export default class StepTypeBox implements Box {
    * @param dash - the current application dash
    * @param stepType - the StepType for which the box is created for.
    */
-  constructor(private dash: Dash<App>, private stepType: StepTypeModel) {
+  constructor(private dash: Dash<App>, private stepType: StepTypeModel, idProperty?: string) {
     this.$container = $(template)
-    this.id = this.stepType.id
+    if (idProperty)
+      this.id = this.stepType[idProperty]
+    else
+      this.id = this.stepType.id
     this.$container.find(".js-span").text(this.stepType.name)
     this.$container.click(ev => {
       this.dash.emit("stepTypeBoxSelected", this.stepType )
