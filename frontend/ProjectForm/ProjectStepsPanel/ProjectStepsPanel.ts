@@ -29,14 +29,7 @@ export default class ProjectStepsPanel {
   constructor(private dash: Dash<App>, private project: ProjectModel) {
     this.initComponents()
     this.loadStepTypes().then(() => {
-      if (this.stepTypes)
         this.fillBoxlists()
-    })
-  }
-
-  private listenToEvents() {
-    this.dash.listenToChildren<BoxEvent>("boxlistItemAdded").call("dataFirst", ev => {
-      this.handleUpdate()
     })
   }
 
@@ -58,12 +51,16 @@ export default class ProjectStepsPanel {
     let used = this.usedStepsBl.getBoxesOrder()
     let unused = this.availableStepsBl.getBoxesOrder()
     let batch = this.dash.app.model.createCommandBatch()
-    for (let id of used)
-      if (!this.project.hasStep(id))
-        batch.exec("create", "Step", { typeId: id, projectId: this.project.id })
+    for (let id of used) {
+      let step = this.stepTypes.find(step => step.orderNum != null && step.orderNum!.toString() === id)
+      if (step && !this.project.hasStep(step.id))
+        batch.exec("create", "Step", {
+          typeId: step.id, projectId: this.project.id
+        })
+    }
     for (let id of unused) {
-      let step = this.project.findStep(id)
-      if (step)
+      let step = this.stepTypes.find(step => step.orderNum != null  && step.orderNum!.toString() === id)
+      if (step && this.project.findStep(step.id))
         batch.exec("delete", "Step", step.id)
     }
     batch.sendAll().then(val => {
@@ -86,7 +83,7 @@ export default class ProjectStepsPanel {
         let box = this.dash.create(StepTypeBox, { args: [ stepType, "orderNum" ] })
         // FIXME: StepType#orderNum can't be undefined
         this.boxes.set(stepType.orderNum!.toString(), box)
-        if (this.project.hasStep(stepType.id))
+        if (this.project.findStep(stepType.id) != null)
           this.usedStepsBl.addBox(box)
         else
           this.availableStepsBl.addBox(box)
@@ -103,6 +100,7 @@ export default class ProjectStepsPanel {
         id: "Available",
         group: this.project.id,
         name: "Available step types",
+        obj: this,
         onMove: this.validateStepTypeMove,
         sort:false
       }]
@@ -114,6 +112,7 @@ export default class ProjectStepsPanel {
         id: "Used",
         group: this.project.id,
         name: "Used step types",
+        obj: this,
         onMove: this.validateStepTypeMove,
         sort: false
       }]
@@ -132,17 +131,25 @@ export default class ProjectStepsPanel {
   }
 
   private validateStepTypeMove(ev: BoxEvent) {
-    let stepType = this.stepTypes.find(stepType => stepType.orderNum!.toString() === ev.boxId)
+    let stepType = this.stepTypes.find((stepType): boolean => {
+      return (!stepType.isSpecial) && (stepType.orderNum!.toString() === ev.boxId)
+    })
     if (!stepType)
       return false
-    if (ev.boxlistId === "Used")
+    if (ev.boxlistId === "Available") {
+      this.handleUpdate()
       return true
-    else {
+    } else {
       let step = this.project.findStep(stepType.id)
       if (!step)
         return false
-      else
-        return (step.taskCount === 0)
+      else {
+        if (step.taskCount === 0) {
+          this.handleUpdate()
+          return true
+        } else
+          return false
+      }
     }
   }
 

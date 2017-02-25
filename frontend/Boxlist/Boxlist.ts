@@ -24,6 +24,7 @@ export interface BoxlistParams {
   id: string
   group: string | undefined
   name: string
+  obj?: any
   onMove?: (ev: BoxEvent) => boolean
   sort: boolean
 }
@@ -124,8 +125,11 @@ export default class Boxlist<T extends Box> {
         })
       },
       onMove: (ev, originalEv) => {
-        if (this.params.onMove)
-          return this.params.onMove({ boxId: ev.item.dataset.id, boxlistId: this.params.id })
+        if (this.params.obj && this.params.onMove)
+          return this.params.onMove.call(this.params.obj, {
+            boxId: ev.dragged.dataset.id,
+            boxlistId: this.params.id
+          })
         else
           return true
       }
