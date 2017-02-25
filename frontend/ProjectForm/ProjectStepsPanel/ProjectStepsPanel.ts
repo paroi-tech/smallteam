@@ -55,6 +55,22 @@ export default class ProjectStepsPanel {
   }
 
   private doUpdate() {
+    let used = this.usedStepsBl.getBoxesOrder()
+    let unused = this.availableStepsBl.getBoxesOrder()
+    let batch = this.dash.app.model.createCommandBatch()
+    for (let id of used)
+      if (!this.project.hasStep(id))
+        batch.exec("create", "Step", { typeId: id, projectId: this.project.id })
+    for (let id of unused) {
+      let step = this.project.findStep(id)
+      if (step)
+        batch.exec("delete", "Step", step.id)
+    }
+    batch.sendAll().then(val => {
+      console.log("Project steps updated.")
+    }).catch(error => {
+      console.error("Error while updating project steps.", error)
+    })
 
   }
 
