@@ -36,29 +36,27 @@ export default class ProjectStepsPanel {
 
   private listenToEvents() {
     this.dash.listenToChildren<BoxEvent>("boxlistItemAdded").call("dataFirst", ev => {
-      let stepType = this.stepTypes.find((stepType): boolean => {
-        // FIXME: StepType#orderNum can't be undefined
-        return stepType.orderNum!.toString() === ev.boxId
-      })
-      if (!stepType)
-        return
-      // this.handleStepMove(ev.boxlistId, stepType)
+      this.handleUpdate()
     })
   }
 
   /**
-   * Schedule the update of step types order.
+   * Schedule the update of the project step types.
    *
    * A timeout of 2s is used to schedule the update. The timer is restarted if the user
    * reorders the step types within the 2s.
    */
-  // private handleBoxlistUpdate(ev: BoxlistEvent) {
-  //   if (this.timer)
-  //       clearTimeout(this.timer)
-  //   this.timer = setTimeout(() => {
-  //     this.doUpdate(ev.boxIds)
-  //   }, 2000)
-  // }
+  private handleUpdate() {
+    if (this.timer)
+        clearTimeout(this.timer)
+    this.timer = setTimeout(() => {
+      this.doUpdate()
+    }, 2000)
+  }
+
+  private doUpdate() {
+
+  }
 
   public attachTo(el: HTMLElement) {
     el.appendChild(this.container)
@@ -89,7 +87,7 @@ export default class ProjectStepsPanel {
         id: "Available",
         group: this.project.id,
         name: "Available step types",
-        onMove: this.onMove,
+        onMove: this.validateStepTypeMove,
         sort:false
       }]
     })
@@ -100,7 +98,7 @@ export default class ProjectStepsPanel {
         id: "Used",
         group: this.project.id,
         name: "Used step types",
-        onMove: this.onMove,
+        onMove: this.validateStepTypeMove,
         sort: false
       }]
     })
@@ -117,14 +115,18 @@ export default class ProjectStepsPanel {
     this.specialStepsBl.attachTo(this.container)
   }
 
-  private onMove(ev: BoxEvent) {
+  private validateStepTypeMove(ev: BoxEvent) {
     let stepType = this.stepTypes.find(stepType => stepType.orderNum!.toString() === ev.boxId)
     if (!stepType)
       return false
     if (ev.boxlistId === "Used")
       return true
     else {
-      // let step = this.project.steps.find()
+      let step = this.project.findStep(stepType.id)
+      if (!step)
+        return false
+      else
+        return (step.tasksCount === 0)
     }
   }
 
