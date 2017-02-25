@@ -45,8 +45,10 @@ export default class ModelUpdateLoader {
   public markFragmentAs(type: Type, id: Identifier, changedType: ChangedType) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.markFragmentAs": the Cargo is completed`)
-    this.tryToRemoveFromFragments(type, id)
-    this.tryToRemoveFromPartial(type, id)
+    if (changedType === "deleted") {
+      this.tryToRemoveFromFragments(type, id)
+      this.tryToRemoveFromPartial(type, id)
+    }
     let changed = this.changedMap.get(type)
     if (!changed) {
       changed = makeHKMap<any, any>()
