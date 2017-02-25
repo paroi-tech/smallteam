@@ -313,17 +313,16 @@ function registerStep(engine: ModelEngine) {
       },
       get isSpecial() {
         return isStepSpecial(getFrag())
+      },
+      get taskCount() {
+        return engine.countModels({
+          type: "Task",
+          index: "curStepId",
+          key: {
+            curStepId: getFrag().id
+          }
+        })
       }
-      // get tasks() {
-      //   return getModels({
-      //     type: "Task",
-      //     index: "curStepId",
-      //     key: {
-      //       curStepId: frag.id
-      //     },
-      //     orderBy: ["orderNum", "asc"]
-      //   })
-      // }
     }
     appendGettersToModel(model, "Step", getFrag)
     return model as any

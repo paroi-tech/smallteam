@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
-import CargoLoader from "../CargoLoader"
+import CargoLoader from "../cargoLoader/CargoLoader"
 import { StepTypeFragment, NewStepTypeFragment, newStepTypeMeta, UpdStepTypeFragment, updStepTypeMeta } from "../../isomorphic/fragments/StepType"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
@@ -16,7 +16,11 @@ export async function queryStepTypes(loader: CargoLoader) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toStepTypeFragment(row)
-    loader.addToResultFragments("StepType", frag.id, frag)
+    loader.addFragment({
+      type: "StepType",
+      frag: frag,
+      asResult: "fragments"
+    })
   }
 }
 
@@ -29,7 +33,7 @@ export async function fetchStepTypes(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toStepTypeFragment(row)
-    loader.updateModelAddFragment("StepType", data.id, data)
+    loader.modelUpdate.addFragment("StepType", data.id, data)
   }
 }
 
@@ -64,8 +68,12 @@ export async function createStepType(loader: CargoLoader, newFrag: NewStepTypeFr
   let ps = await cn.run(sql.toSql()),
     stepTypeId = ps.lastID
 
-  loader.setResultFragment("StepType", stepTypeId.toString())
-  loader.updateModelMarkFragmentAs("StepType", stepTypeId.toString(), "created")
+  loader.addFragment({
+    type: "StepType",
+    id: stepTypeId.toString(),
+    asResult: "fragment",
+    markAs: "created"
+  })
 }
 
 async function getDefaultOrderNum() {
@@ -97,8 +105,12 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
 
   await cn.run(sql.toSql())
 
-  loader.setResultFragment("StepType", stepTypeId.toString())
-  loader.updateModelMarkFragmentAs("StepType", stepTypeId.toString(), "updated")
+  loader.addFragment({
+    type: "StepType",
+    id: stepTypeId.toString(),
+    asResult: "fragment",
+    markAs: "updated"
+  })
 }
 
 // --
@@ -115,7 +127,7 @@ export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
       oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
-      loader.updateModelUpdateFields("StepType", { id: id.toString(), "orderNum": curNum })
+      loader.modelUpdate.addPartial("StepType", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
   }
@@ -127,7 +139,7 @@ export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
-      loader.updateModelUpdateFields("StepType", { id: id.toString(), "orderNum": curNum })
+      loader.modelUpdate.addPartial("StepType", { id: id.toString(), "orderNum": curNum })
     }
   }
 }

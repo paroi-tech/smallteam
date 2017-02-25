@@ -134,9 +134,6 @@ export default class StepTypePanel {
     console.log(`Requesting updating of step types orders...`)
     try {
       let idList = await this.dash.app.model.reorder("StepType", ids)
-      // let stepTypes = await this.dash.app.model.query("StepType")
-      // let idList = stepTypes.filter(stepType => !stepType.isSpecial)
-      //                       .map(stepType => stepType.id)
       if (equal(idList, ids))
         console.log("Step types order sucessfully updated.")
       else {
