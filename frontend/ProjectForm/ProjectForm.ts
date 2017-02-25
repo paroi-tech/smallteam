@@ -3,11 +3,8 @@ import { Bkb, Dash } from "bkb"
 import { Model, ProjectModel } from "../Model/Model"
 import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
 import { Panel } from "../PanelSelector/PanelSelector"
-
 import * as MonkBerry from "monkberry"
-import * as $ from "jquery"
 
-// const template = require("html-loader!./projectform.html")
 import * as template from "./projectform.monk"
 
 /**
@@ -82,7 +79,8 @@ export default class ProjectForm {
 
       let code = this.codeField.value
       let name = this.nameField.value
-
+      if (code.length < 4 && name.length === 0)
+        return
       this.dash.app.model.exec("create", "Project", { code, name })
         .then(project => {
           if (spinner)
@@ -90,7 +88,7 @@ export default class ProjectForm {
           console.log(`Project ${project.name} successfully created...`)
         }).catch(error => {
           if (spinner)
-            spinner.style.visibility = "none"
+            spinner.style.display = "none"
           console.error(error)
         })
     }
@@ -107,7 +105,7 @@ export default class ProjectForm {
     if (panel)
         this.container.removeChild(panel)
     if (!project) {
-      this.generateCode = false
+      this.generateCode = true
     } else {
       this.project = project
       this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ project ] })

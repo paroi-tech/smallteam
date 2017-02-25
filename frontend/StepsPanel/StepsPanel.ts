@@ -66,9 +66,12 @@ export default class StepsPanel {
   private createBoxlists() {
     for (let step of this.parentTask.project.steps) {
       let bl = this.dash.create(Boxlist, {
-        args: [
-          { id: step.id, name: step.name, group: this.parentTask.code }
-        ]
+        args: [{
+          id: step.id,
+          group: this.parentTask.code,
+          name: step.name,
+          sort: true
+        }]
       })
       this.boxlistMap.set(step.id, bl)
       bl.attachTo(this.$stepsContainer[0])

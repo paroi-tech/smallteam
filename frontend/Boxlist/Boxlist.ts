@@ -22,8 +22,10 @@ export interface Box {
  */
 export interface BoxlistParams {
   id: string
+  group: string | undefined
   name: string
-  group?: string
+  onMove?: (ev: BoxEvent) => boolean
+  sort: boolean
 }
 
 /**
@@ -51,8 +53,6 @@ export interface BoxlistEvent extends BoxEvent {
  *    - boxlistUpdated => BoxlistEvent
  */
 export default class Boxlist<T extends Box> {
-  private id: string
-
   private $container: JQuery
   private $ul: JQuery
 
@@ -64,14 +64,11 @@ export default class Boxlist<T extends Box> {
    * @param dash - the current application dash
    * @param params - wrapper of the Boxlist parameters
    */
-  constructor(private dash: Dash<App>, params: BoxlistParams) {
-    this.id = params.id
-
+  constructor(private dash: Dash<App>, private params: BoxlistParams) {
     this.$container = $(boxlistTemplate)
     this.$ul = this.$container.find("ul")
     this.$container.find(".js-title").text(params.name)
-
-    this.makeSortable(params.group)
+    this.makeSortable()
   }
 
   /**
@@ -98,34 +95,39 @@ export default class Boxlist<T extends Box> {
   /***
    * Make the boxlist sortable by creating a Sortable object.
    */
-  private makeSortable(group: string | undefined) {
+  private makeSortable() {
     this.sortable = Sortable.create(this.$ul[0], {
-      "handle": ".js-handle",
-      "group": group,
+      handle: ".js-handle",
+      group: this.params.group,
+      sort: this.params.sort,
       /* Element is dropped into the list from another list. */
       onAdd: (ev) => {
-          let boxId = ev.item.dataset.id
           this.dash.emit("boxlistItemAdded", {
-            boxlistId: this.id,
-            boxId: boxId
+            boxlistId: this.params.id,
+            boxId: ev.item.dataset.id
           })
       },
       /* Element is removed from the list into another list. */
       onRemove: (ev) => {
-          let boxId = ev.item.dataset.id;
           this.dash.emit("boxlistItemRemoved", {
-            boxlistId: this.id,
-            boxId: boxId
+            boxlistId: this.params.id,
+            boxId: ev.item.dataset.id
           })
       },
       /* Changed sorting within list. */
       onUpdate: (ev) => {
         let boxId = ev.item.dataset.id;
         this.dash.emit("boxlistSortingUpdated", {
-          boxlistId: this.id,
-          boxId: boxId,
+          boxlistId: this.params.id,
+          boxId: ev.item.dataset.id,
           boxIds: this.sortable.toArray()
         })
+      },
+      onMove: (ev, originalEv) => {
+        if (this.params.onMove)
+          return this.params.onMove({ boxId: ev.item.dataset.id, boxlistId: this.params.id })
+        else
+          return true
       }
     })
   }
@@ -136,7 +138,11 @@ export default class Boxlist<T extends Box> {
    * @param order - array of ids which will be used to sort the boxlist.
    * @see {@link https://github.com/RubaXa/Sortable#sortorderstring}
    */
-  public setBoxesOrder(order: Array<String>) {
+  public setBoxesOrder(order: string[]) {
     this.sortable.sort(order)
+  }
+
+  public getBoxesOrder(): string[] {
+    return this.sortable.toArray()
   }
 }

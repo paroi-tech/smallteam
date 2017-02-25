@@ -78,7 +78,12 @@ export default class StepTypePanel {
    */
   private initComponents() {
     this.boxlist = this.dash.create(Boxlist, {
-      args: [ { id: "", name: "Step types" } ]
+      args: [{
+        id: "",
+        name: "Step types",
+        group: undefined,
+        sort: true
+      }]
     })
     this.dash.listenToChildren<BoxlistEvent>("boxlistSortingUpdated").call("dataFirst", data => {
       this.handleBoxlistUpdate(data)
