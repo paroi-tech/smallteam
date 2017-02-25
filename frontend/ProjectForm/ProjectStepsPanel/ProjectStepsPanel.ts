@@ -126,7 +126,7 @@ export default class ProjectStepsPanel {
       if (!step)
         return false
       else
-        return (step.tasksCount === 0)
+        return (step.taskCount === 0)
     }
   }
 
