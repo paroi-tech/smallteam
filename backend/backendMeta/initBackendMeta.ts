@@ -29,10 +29,6 @@ addBackendFragmentMeta(
       column: "created_by",
       columnType: "bigint"
     },
-    affectedToId: {
-      column: "affected_to",
-      columnType: "bigint"
-    },
     curStepId: {
       columnType: "bigint"
     },

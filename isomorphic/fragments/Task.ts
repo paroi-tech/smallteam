@@ -6,7 +6,6 @@ export interface TaskFragment {
   label: string
   description?: string | null
   createdById: string
-  affectedToId?: string | null
   curStepId: string
   parentTaskId?: string // TODO: make required!
   orderNum?: number
@@ -38,11 +37,6 @@ export const taskMeta: FragmentMeta = {
       dataType: "string",
       update: true
     },
-    affectedToId: {
-      dataType: "string",
-      optional: true,
-      update: true
-    },
     curStepId: {
       dataType: "string",
       update: true
@@ -71,8 +65,8 @@ export const taskMeta: FragmentMeta = {
 export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "orderNum">
 export const newTaskMeta = pickFragmentMeta("New", taskMeta, ["label", "description" , "createdById", "curStepId", "parentTaskId", "orderNum"])
 
-export type UpdTaskFragment = UpdPick<TaskFragment, "id", "label" | "description" | "createdById" | "affectedToId" | "curStepId" | "parentTaskId" | "orderNum">
-export const updTaskMeta = updPickFragmentMeta("Upd", taskMeta, ["id"], ["label", "description" , "createdById", "affectedToId", "curStepId", "parentTaskId", "orderNum"])
+export type UpdTaskFragment = UpdPick<TaskFragment, "id", "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "orderNum">
+export const updTaskMeta = updPickFragmentMeta("Upd", taskMeta, ["id"], ["label", "description" , "createdById", "curStepId", "parentTaskId", "orderNum"])
 
-export type TaskQuery = SearchPick<TaskFragment, "label" | "description" | "createdById" | "affectedToId" | "curStepId" | "parentTaskId" | "projectId">
-export const taskQueryMeta = searchPickFragmentMeta("Q", taskMeta, ["label", "description" , "createdById", "affectedToId", "curStepId", "parentTaskId", "projectId"])
+export type TaskQuery = SearchPick<TaskFragment, "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "projectId">
+export const taskQueryMeta = searchPickFragmentMeta("Q", taskMeta, ["label", "description" , "createdById", "curStepId", "parentTaskId", "projectId"])

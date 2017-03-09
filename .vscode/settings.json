@@ -1,7 +1,8 @@
 {
   "editor.tabSize": 2,
   "editor.insertSpaces": true,
-  "editor.wrappingColumn": 120,
+  "editor.wordWrapColumn": 120,
+  "editor.wordWrap": "wordWrapColumn",
   "editor.rulers": [120],
   "files.trimTrailingWhitespace": true,
   "files.associations": {

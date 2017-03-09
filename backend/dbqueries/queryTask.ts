@@ -11,13 +11,15 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function queryTasks(loader: CargoLoader, filters: Partial<TaskQuery>) {
+export async function queryTasks(loader: CargoLoader, filters: TaskQuery) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
   if (filters.createdById !== undefined)
     sql.andWhere("t.created_by", int(filters.createdById))
-  if (filters.affectedToId !== undefined && filters.affectedToId !== null)
-    sql.andWhere("t.affected_to", int(filters.affectedToId))
+  // if (filters.affectedToId !== undefined && filters.affectedToId !== null) {
+  //   sql.innerJoin("task_affected_to ac", "using", "task_id")
+  //     .andWhere("ac.contributor_id", int(filters.affectedToId))
+  // }
   if (filters.curStepId !== undefined)
     sql.andWhere("t.cur_step_id", int(filters.curStepId))
   if (filters.parentTaskId !== undefined)
@@ -66,7 +68,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
 
 function selectFromTask() {
   return buildSelect()
-    .select("t.task_id, t.code, t.label, t.created_by, t.affected_to, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num")
+    .select("t.task_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num")
     .from("task t")
     .innerJoin("step s", "on", "t.cur_step_id = s.step_id")
     .leftJoin("task_description d", "using", "task_id")
@@ -90,8 +92,6 @@ function toTaskFragment(row): TaskFragment {
     frag.orderNum = row["order_num"]
   if (row["description"])
     frag.description = row["description"]
-  if (row["affected_to"] !== null)
-    frag.affectedToId = row["affected_to"].toString()
   return frag
 }
 

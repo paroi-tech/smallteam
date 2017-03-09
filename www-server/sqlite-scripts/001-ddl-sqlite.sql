@@ -1,6 +1,8 @@
 --
 -- Project SmallTeam
 --
+
+--
 -- Up
 --
 
@@ -38,7 +40,6 @@ create table task (
     task_id integer not null primary key autoincrement,
     code varchar(255) not null unique,
     created_by bigint not null references contributor(contributor_id),
-    affected_to bigint references contributor(contributor_id),
     cur_step_id bigint not null references step(step_id),
     label varchar(255) not null,
     create_ts timestamp not null default current_timestamp,
@@ -55,6 +56,13 @@ create table task_child (
 create table task_description (
     task_id bigint not null primary key references task(task_id) on delete cascade,
     description text not null
+);
+
+create table task_affected_to (
+    task_id bigint not null references task(task_id) on delete cascade,
+    contributor_id bigint not null references contributor(contributor_id) on delete cascade,
+    order_num integer,
+    primary key (task_id, contributor_id)
 );
 
 create table task_log (
@@ -108,6 +116,7 @@ drop table if exists task_flag;
 drop table if exists flag;
 drop table if exists root_task;
 drop table if exists task_log;
+drop table if exists task_affected_to;
 drop table if exists task_description;
 drop table if exists task_child;
 drop table if exists task;
