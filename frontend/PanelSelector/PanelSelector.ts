@@ -86,7 +86,7 @@ export default class PanelSelector {
       this.showProjectPanel(data.model.id)
     })
 
-    this.dash.listenToChildren<ProjectModel>( "editProject").call("dataFirst" , project => {
+    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
       console.log("event intercepted...")
       this.showProjectForm(project)
     })
@@ -107,19 +107,19 @@ export default class PanelSelector {
     this.dash.app.model.query("Project", {
       archived: false
     })
-    .then(projects => {
-      console.log("Loaded projects:", projects)
-      this.projects = projects
-      if (projects.length === 0) {
-        if (confirm("No project to load from server. Do you want to create a new one?"))
-          this.showSettingPanel("projectForm")
-      } else
-        for (let p of projects)
-          this.addProject(p)
-    })
-    .catch(err => {
-      console.error("An error occured while loading projects from server.", err)
-    })
+      .then(projects => {
+        console.log("Loaded projects:", projects)
+        this.projects = projects
+        if (projects.length === 0) {
+          if (confirm("No project to load from server. Do you want to create a new one?"))
+            this.showSettingPanel("projectForm")
+        } else
+          for (let p of projects)
+            this.addProject(p)
+      })
+      .catch(err => {
+        console.error("An error occured while loading projects from server.", err)
+      })
   }
 
   private addProject(project: ProjectModel) {
@@ -161,8 +161,8 @@ export default class PanelSelector {
     if (!info)
       throw new Error("Unknown settings panel id: projectForm")
     if (!info.panel) {
-        info.panel = this.dash.create(ProjectForm, { args: [] })
-        info.panel.attachTo(this.$panel[0])
+      info.panel = this.dash.create(ProjectForm, { args: [] })
+      info.panel.attachTo(this.$panel[0])
     }
     if (this.currentPanel) {
       this.currentPanel.hide()
@@ -219,12 +219,22 @@ function makeTests(el, model: Model) {
       console.log("Loaded types:", types)
     })
   })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add step</button>`).appendTo(el).click(async () => {
-    model.exec("create", "Step", {
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Batch</button>`).appendTo(el).click(async () => {
+    //let projects = await model.query("Project", {});
+    let batch = model.createCommandBatch();
+    batch.exec("delete", "Step", {
+      id: "3"
+    }).then(result => {
+      console.log("Delete step:", result)
+    })
+    batch.exec("create", "Step", {
       projectId: "1",
       typeId: "2"
     }).then(step => {
       console.log("Created step:", step)
+    })
+    batch.sendAll().then(results => {
+      console.log("Batch result:", results)
     })
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add task</button>`).appendTo(el).click(async () => {

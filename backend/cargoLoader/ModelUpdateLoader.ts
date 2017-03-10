@@ -5,12 +5,12 @@ import { toIdentifier } from "../../isomorphic/meta"
 export type ChangedType = "created" | "updated" | "deleted"
 
 export default class ModelUpdateLoader {
-  private fragmentsMap = new Map<Type, HKMap<Identifier, {} | undefined>>()
-  private partialMap = new Map<Type, HKMap<Identifier, {}>>()
+  private fragmentsMap = new Map<Type, HKMap<Identifier, object | undefined>>()
+  private partialMap = new Map<Type, HKMap<Identifier, object>>()
   private changedMap = new Map<Type, HKMap<Identifier, ChangedType>>()
   private ended = false
 
-  public addFragment(type: Type, id: Identifier, frag?: {}) {
+  public addFragment(type: Type, id: Identifier, frag?: object) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.addFragment": the Cargo is completed`)
     if (this.isMarkedAsDeleted(type, id))
@@ -25,7 +25,7 @@ export default class ModelUpdateLoader {
       fragments.set(id, frag)
   }
 
-  public addPartial(type: Type, partialFrag: {}) {
+  public addPartial(type: Type, partialFrag: object) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.updateFields": the Cargo is completed`)
     let id = toIdentifier(partialFrag, type)
@@ -160,7 +160,7 @@ export default class ModelUpdateLoader {
     fragments.delete(id)
   }
 
-  private tryToMergeInFragments(type: Type, id: Identifier, partialFrag: {}): boolean {
+  private tryToMergeInFragments(type: Type, id: Identifier, partialFrag: object): boolean {
     let fragments = this.fragmentsMap.get(type)
     if (!fragments)
       return false
@@ -175,8 +175,8 @@ export default class ModelUpdateLoader {
   }
 }
 
-function isObjEmpty(obj: {}): boolean {
-  for (let k in obj) {
+function isObjEmpty(obj: object): boolean {
+  for (let k in <any>obj) { // TODO: because a TS bug
     if (obj.hasOwnProperty(k))
       return false
   }

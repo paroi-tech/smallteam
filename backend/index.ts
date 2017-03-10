@@ -121,7 +121,7 @@ async function executeCommand(data, loader: CargoLoader) {
     if (data.cmd === "create")
       await createStep(loader, data.frag)
     else if (data.cmd === "delete")
-      await deleteStep(loader, data.id)
+      await deleteStep(loader, data.frag)
     else
       throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
   } else if (data.type === "StepType") {

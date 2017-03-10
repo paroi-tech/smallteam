@@ -59,7 +59,7 @@ export type Changed = {
  * Each partial fragment contains the ID (required) and optional fields
  */
 export type PartialFragments = {
-  [K in Type]: {}[]
+  [K in Type]: object[]
 }
 
 export interface ModelUpdate {

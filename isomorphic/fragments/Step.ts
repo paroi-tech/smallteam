@@ -34,3 +34,6 @@ export const stepMeta: FragmentMeta = {
 
 export type NewStepFragment = Pick<StepFragment, "typeId" | "projectId">
 export const newStepMeta = pickFragmentMeta("New", stepMeta, ["typeId", "projectId"])
+
+export type StepIdFragment = Pick<StepFragment, "id">
+export const StepIdMeta = pickFragmentMeta("Id", stepMeta, ["id"])

@@ -1,4 +1,4 @@
-export type TypeVariant = "New" | "Upd" | "Q"
+export type TypeVariant = "New" | "Upd" | "Id" | "Q"
 
 export interface FragmentMeta {
   type: string
@@ -69,7 +69,7 @@ export function searchPickFragmentMeta(variant: "Q", base: FragmentMeta, fieldNa
   return { type: base.type, variant, fields, orderFieldName: base.orderFieldName }
 }
 
-function copyFields(to: {}, base: FragmentMeta, fieldNames: string[], forceOptional = false) {
+function copyFields(to: object, base: FragmentMeta, fieldNames: string[], forceOptional = false) {
   for (let name of fieldNames) {
     if (!base.fields[name])
       throw new Error(`Unknown field "${name}" in meta ${base.type}`)

@@ -5,8 +5,8 @@ import { toIdentifier } from "../../isomorphic/meta"
 
 export type FragmentOptions = {
   type: Type
-  frag?: {}
-  partialFrag?: {}
+  frag?: object
+  partialFrag?: object
   id?: Identifier
   asResult?: "fragment" | "fragments"
   markAs?: ChangedType

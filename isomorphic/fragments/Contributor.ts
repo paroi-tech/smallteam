@@ -30,5 +30,7 @@ export const contributorMeta: FragmentMeta = {
 }
 
 export type NewContributorFragment = Pick<ContributorFragment, "name" | "login" | "email">
-
 export const newContributorMeta = pickFragmentMeta("New", contributorMeta, ["name", "login", "email"])
+
+export type ContributorIdFragment = Pick<ContributorFragment, "id">
+export const ContributorIdMeta = pickFragmentMeta("Id", contributorMeta, ["id"])

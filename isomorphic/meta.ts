@@ -41,7 +41,7 @@ export function getFragmentMeta(type: Type, variant?: TypeVariant): FragmentMeta
   return fragmentMetaByTypes[type][key]
 }
 
-export function toIdentifier(frag: {}, typeOrFragMeta: Type | FragmentMeta): Identifier {
+export function toIdentifier(frag: object, typeOrFragMeta: Type | FragmentMeta): Identifier {
   let fragMeta = typeof typeOrFragMeta === "string" ? getFragmentMeta(typeOrFragMeta) : typeOrFragMeta
   let singleVal: string | undefined,
     values: { [fieldName: string]: string } | undefined

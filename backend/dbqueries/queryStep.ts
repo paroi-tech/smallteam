@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../cargoLoader/CargoLoader"
-import { StepFragment, NewStepFragment, newStepMeta } from "../../isomorphic/fragments/Step"
+import { StepFragment, NewStepFragment, StepIdFragment, newStepMeta } from "../../isomorphic/fragments/Step"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -79,13 +79,14 @@ export async function createStep(loader: CargoLoader, newFrag: NewStepFragment) 
 // -- Delete
 // --
 
-export async function deleteStep(loader: CargoLoader, stepId: string) {
+export async function deleteStep(loader: CargoLoader, frag: StepIdFragment) {
   let cn = await getDbConnection()
 
   let sql = buildDelete()
-    .where("step_id", int(stepId))
+    .deleteFrom("step")
+    .where("step_id", int(frag.id))
 
   await cn.run(sql.toSql())
 
-  loader.modelUpdate.markFragmentAs("Step", stepId, "deleted")
+  loader.modelUpdate.markFragmentAs("Step", frag.id, "deleted")
 }

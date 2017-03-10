@@ -13,7 +13,7 @@ import Deferred from "../libraries/Deferred"
 export type CommandType = "create" | "update" | "delete"
 
 export interface IndexCallbacks {
-  [name: string]: (frag: {}) => boolean
+  [name: string]: (frag: object) => boolean
 }
 
 export interface IndexQuery {
@@ -39,8 +39,8 @@ export interface ModelEvent {
 // --
 
 interface Entity {
-  fragment: {}
-  model?: {}
+  fragment: object
+  model?: object
   deleted?: boolean
 }
 
@@ -71,7 +71,7 @@ interface TypeStorage {
    * Keys are `Index` as string
    */
   indexes: HKMap<Index, IndexData>
-  modelMaker: (getFrag: () => {}) => {}
+  modelMaker: (getFrag: () => object) => object
 }
 
 export type HttpMethod = "POST" | "GET"
@@ -90,11 +90,11 @@ export default class ModelEngine {
   private store = makeHKMap<Type, TypeStorage>()
   private batch: Batch | null
 
-  constructor(private dash: Dash<{}>) {
+  constructor(private dash: Dash<object>) {
     this.dash.exposeEvents(`change`, `create`, `update`, `delete`)
   }
 
-  public registerType(type: Type, modelMaker: (getFrag: () => {}) => {}) {
+  public registerType(type: Type, modelMaker: (getFrag: () => object) => object) {
     this.store.set(type, {
       entities: makeHKMap<any, any>(),
       indexes: makeHKMap<any, any>(),
@@ -129,13 +129,9 @@ export default class ModelEngine {
     }
   }
 
-  public async exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
+  public async exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
     let del = cmd === "delete"
-    let resultFrag = await this.httpSendAndUpdate("POST", "/api/exec", {
-      cmd,
-      type,
-      [del ? "id" : "frag"]: fragOrId
-    }, del ? "none" : "fragment")
+    let resultFrag = await this.httpSendAndUpdate("POST", "/api/exec", {cmd, type, frag}, del ? "none" : "fragment")
     if (!del)
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
@@ -384,7 +380,7 @@ export default class ModelEngine {
 // -- Public tools
 // --
 
-export function appendGettersToModel(model, type: Type, getFrag: () => {}) {
+export function appendGettersToModel(model, type: Type, getFrag: () => object) {
   let fragMeta = getFragmentMeta(type)
   for (let fieldName in fragMeta.fields) {
     if (!fragMeta.fields.hasOwnProperty(fieldName))
@@ -414,14 +410,14 @@ function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
     tryToAddToIndex(index, indexData, id, entity.fragment)
 }
 
-function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: {}, removeOld = false) {
+function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object, removeOld = false) {
   if (removeOld)
     rmFragmentFromIndexes(storage, [id])
   for (let [index, indexData] of storage.indexes)
     tryToAddToIndex(index, indexData, id, frag)
 }
 
-function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, frag: {}) {
+function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, frag: object) {
   if (indexData.indexCb && !canBeAddedToIndex(frag, indexData.indexCb))
     return
   let fieldNames: string[] = []
@@ -441,7 +437,7 @@ function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, fra
   // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
 }
 
-function canBeAddedToIndex(frag: {}, indexCb: IndexCallbacks) {
+function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {
   for (let name in indexCb) {
     if (indexCb.hasOwnProperty(name) && !indexCb[name](frag))
       return false
@@ -458,8 +454,8 @@ function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
   }
 }
 
-function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: {}, entity: Entity, fragMeta: FragmentMeta) {
-  for (let fieldName in partialFrag) {
+function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: object, entity: Entity, fragMeta: FragmentMeta) {
+  for (let fieldName in <any>partialFrag) { // TODO: remove the cast after the TS bug will be fixed
     if (!partialFrag.hasOwnProperty(fieldName))
       continue
     if (partialFrag[fieldName] === null)

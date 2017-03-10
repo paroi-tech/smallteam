@@ -45,5 +45,8 @@ export const newProjectMeta = pickFragmentMeta("New", projectMeta, ["code", "nam
 export type UpdProjectFragment = UpdPick<ProjectFragment, "id", "code" | "name" | "description" | "archived">
 export const updProjectMeta = updPickFragmentMeta("Upd", projectMeta, ["id"], ["code", "name", "description", "archived"])
 
+export type ProjectIdFragment = Pick<ProjectFragment, "id">
+export const ProjectIdMeta = pickFragmentMeta("Id", projectMeta, ["id"])
+
 export type ProjectQuery = SearchPick<ProjectFragment, "code" | "name" | "description" | "archived">
 export const projectQueryMeta = searchPickFragmentMeta("Q", projectMeta, ["code", "name", "description", "archived"])

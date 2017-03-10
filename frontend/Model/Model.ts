@@ -3,7 +3,7 @@ import App from "../App/App"
 import ModelEngine, { appendGettersToModel, ModelEvent } from "./ModelEngine"
 import { Type, Identifier } from "../../isomorphic/Cargo"
 import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, projectMeta } from "../../isomorphic/fragments/Project"
-import { StepFragment, NewStepFragment, stepMeta } from "../../isomorphic/fragments/Step"
+import { StepFragment, NewStepFragment, StepIdFragment, stepMeta } from "../../isomorphic/fragments/Step"
 import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
 import { TaskFragment, NewTaskFragment, UpdTaskFragment } from "../../isomorphic/fragments/Task"
 import { ImageFragment } from "../../isomorphic/fragments/Attachment"
@@ -30,7 +30,7 @@ export interface CommandRunner {
   //exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
 
   exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
-  exec(cmd: "delete", type: "Step", stepId: string): Promise<void>
+  exec(cmd: "delete", type: "Step", frag: StepIdFragment): Promise<void>
 
   exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
   exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>

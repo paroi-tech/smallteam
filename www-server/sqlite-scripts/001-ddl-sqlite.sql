@@ -15,7 +15,6 @@ create table contributor (
     -- avatar as file
 );
 
--- Notice: 0 is 'Not started', 1 is 'Finished'
 create table step_type (
     step_type_id integer not null primary key autoincrement,
     name varchar(255) not null unique,
@@ -44,7 +43,7 @@ create table task (
     label varchar(255) not null,
     create_ts timestamp not null default current_timestamp,
     update_ts timestamp not null default current_timestamp
-    -- attachments as files
+    -- attachments as files on S3 buckets?
 );
 
 create table task_child (
