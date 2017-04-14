@@ -104,6 +104,8 @@ export default class ProjectForm {
     this.clearFormFields()
     if (panel)
         this.container.removeChild(panel)
+    if (this.stepsPanel)
+        this.container.removeChild(this.stepsPanel.getContainer())
     if (!project) {
       this.generateCode = true
     } else {

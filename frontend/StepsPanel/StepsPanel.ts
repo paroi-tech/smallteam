@@ -93,4 +93,8 @@ export default class StepsPanel {
     }
   }
 
+  public getContainer(): HTMLElement {
+    return this.$container.get(0)
+  }
+
 }

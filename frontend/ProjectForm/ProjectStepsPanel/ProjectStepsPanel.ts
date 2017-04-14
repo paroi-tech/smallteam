@@ -160,4 +160,8 @@ export default class ProjectStepsPanel {
       console.log("Unable to load step types from model.", err)
     }
   }
+
+  public getContainer(): HTMLElement {
+    return this.container
+  }
 }
