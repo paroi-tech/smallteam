@@ -3,21 +3,22 @@ import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
 import Boxlist, { BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
-import { Model, TaskModel } from "../Model/Model"
+import { Model, ProjectModel, TaskModel} from "../Model/Model"
 
 const template = require("html-loader!./stepspanel.html")
 
 export default class StepsPanel {
   private model: Model
+  private project: ProjectModel
 
   private $container: JQuery
   private $stepsContainer: JQuery
 
-  private boxlistMap: Map<string, Boxlist<TaskBox>>
+  private boxlistMap: Map<string, Boxlist<TaskBox>> = new Map()
 
   constructor(private dash: Dash<App>, private parentTask: TaskModel) {
     this.model = dash.app.model
-    this.boxlistMap = new Map()
+    this.project = this.parentTask.project
 
     this.$container = $(template)
     this.$container.find(".js-title").text(parentTask.label)
@@ -27,12 +28,11 @@ export default class StepsPanel {
       if (name.length > 1 && this.parentTask.project.steps.length > 0)
         this.createTask(name)
       else
-        console.log("Impossible to create a nex task...")
+        console.log("Impossible to create a new task...")
     })
 
     this.createBoxlists()
     this.fillBoxlists()
-
     this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
       console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
     })
@@ -64,17 +64,18 @@ export default class StepsPanel {
   }
 
   private createBoxlists() {
-    for (let step of this.parentTask.project.steps) {
+    for (let step of this.project.steps) {
+      let params = {
+        id: step.id,
+        group: this.parentTask.code,
+        name: step.name,
+        sort: true
+      }
       let bl = this.dash.create(Boxlist, {
-        args: [{
-          id: step.id,
-          group: this.parentTask.code,
-          name: step.name,
-          sort: true
-        }]
+        args: [ params ]
       })
       this.boxlistMap.set(step.id, bl)
-      bl.attachTo(this.$stepsContainer[0])
+      bl.attachTo(this.$stepsContainer.get(0))
     }
   }
 

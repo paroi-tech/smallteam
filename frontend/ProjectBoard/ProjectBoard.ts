@@ -31,6 +31,7 @@ export default class ProjectBoard implements Panel {
    * @param project - the project for which the project board is created.
    */
   constructor(private dash: Dash<App>, private project: ProjectModel) {
+    console.log("creating project board...", this.project)
     this.initJQueryObjects()
     this.initComponents()
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
@@ -59,7 +60,7 @@ export default class ProjectBoard implements Panel {
     this.taskPanel = this.dash.create(TaskPanel, {
       args: [ "Task panel" ]
     })
-    this.taskPanel.attachTo(this.$taskPanelContainer[0])
+    this.taskPanel.attachTo(this.$taskPanelContainer.get(0))
 
     this.createStepsPanel(this.project.rootTask)
     if (this.project.tasks) {
@@ -89,7 +90,7 @@ export default class ProjectBoard implements Panel {
     let panel = this.dash.create(StepsPanel, {
       args: [ task ]
     })
-    panel.attachTo(this.$stepsPanelContainer[0])
+    panel.attachTo(this.$stepsPanelContainer.get(0))
   }
 
   public hide() {

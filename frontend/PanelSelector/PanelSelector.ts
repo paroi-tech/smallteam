@@ -87,7 +87,6 @@ export default class PanelSelector {
     })
 
     this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
-      console.log("event intercepted...")
       this.showProjectForm(project)
     })
 
