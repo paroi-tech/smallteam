@@ -3,7 +3,8 @@ import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
 import Boxlist, { BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
-import { Model, ProjectModel, TaskModel} from "../Model/Model"
+import { Model, ProjectModel, TaskModel } from "../Model/Model"
+import { toDebugObj } from "../../isomorphic/libraries/helpers"
 
 const template = require("html-loader!./stepspanel.html")
 
@@ -72,7 +73,7 @@ export default class StepsPanel {
         sort: true
       }
       let bl = this.dash.create(Boxlist, {
-        args: [ params ]
+        args: [params]
       })
       this.boxlistMap.set(step.id, bl)
       bl.attachTo(this.$stepsContainer.get(0))
@@ -89,12 +90,12 @@ export default class StepsPanel {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl) {
         let box = this.dash.create(TaskBox, {
-            group: "items",
-            args: [ task ]
+          group: "items",
+          args: [task]
         })
         bl.addBox(box)
       } else {
-        console.log("unknown taskbox id...", task.curStepId)
+        console.log("unknown taskbox id...", task.curStepId, toDebugObj(this.boxlistMap))
       }
     }
   }
