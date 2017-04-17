@@ -455,7 +455,7 @@ function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
 }
 
 function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: object, entity: Entity, fragMeta: FragmentMeta) {
-  for (let fieldName in <any>partialFrag) { // TODO: remove the cast after the TS bug will be fixed
+  for (let fieldName in <any>partialFrag) { // TODO: remove the cast once the TS bug is fixed https://github.com/Microsoft/TypeScript/issues/14187
     if (!partialFrag.hasOwnProperty(fieldName))
       continue
     if (partialFrag[fieldName] === null)

@@ -176,7 +176,7 @@ export default class ModelUpdateLoader {
 }
 
 function isObjEmpty(obj: object): boolean {
-  for (let k in <any>obj) { // TODO: because a TS bug
+  for (let k in <any>obj) { // TODO: remove the cast once the TS bug is fixed https://github.com/Microsoft/TypeScript/issues/14187
     if (obj.hasOwnProperty(k))
       return false
   }
