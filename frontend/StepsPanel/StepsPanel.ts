@@ -25,7 +25,7 @@ export default class StepsPanel {
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
     this.$container.find(".js-add-task-button").click(() => {
       let name = this.$container.find(".js-task-name").val().trim()
-      if (name.length > 1 && this.parentTask.project.steps.length > 0)
+      if (name.length > 1 && this.project.steps.length > 0)
         this.createTask(name)
       else
         console.log("Impossible to create a new task...")
@@ -48,8 +48,7 @@ export default class StepsPanel {
       createdById: "1",
       parentTaskId: this.parentTask.id,
       curStepId: "1"
-    })
-    .then(task => {
+    }).then(task => {
       let box = this.dash.create(TaskBox, {
         group: "items",
         args: [ task ]
@@ -57,8 +56,7 @@ export default class StepsPanel {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl)
         bl.addBox(box)
-    })
-    .catch(error => {
+    }).catch(error => {
       console.error("Unable to create task.", error)
     })
   }
@@ -81,7 +79,7 @@ export default class StepsPanel {
 
   private fillBoxlists() {
     if (!this.parentTask.children) {
-      console.log("paraent task with no childre...", this.parentTask.description)
+      console.log("paraent task with no children...", this.parentTask.description)
       return
     }
     console.log("filling stepspanel...")
@@ -102,5 +100,4 @@ export default class StepsPanel {
   public getContainer(): HTMLElement {
     return this.$container.get(0)
   }
-
 }
