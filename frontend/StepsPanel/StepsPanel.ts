@@ -50,7 +50,7 @@ export default class StepsPanel {
       label: name,
       createdById: "1",
       parentTaskId: this.parentTask.id,
-      curStepId: "1"
+      curStepId: this.project.steps[0].id
     }).then(task => {
       let box = this.dash.create(TaskBox, {
         group: "items",
