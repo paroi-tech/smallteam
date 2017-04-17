@@ -206,20 +206,17 @@ function makeTests(el, model: Model) {
 
   let type: StepTypeModel
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add type</button>`).appendTo(el).click(async () => {
-    model.exec("create", "StepType", {
+    let t = await model.exec("create", "StepType", {
       name: "TODO"
-    }).then(t => {
-      console.log("Created type:", t)
-      type = t
     })
+    console.log("Created type:", t)
+    type = t
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get types</button>`).appendTo(el).click(async () => {
-    model.query("StepType").then(types => {
-      console.log("Loaded types:", types)
-    })
+    let types = await model.query("StepType")
+    console.log("Loaded types:", types)
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Batch</button>`).appendTo(el).click(async () => {
-    //let projects = await model.query("Project", {});
     let batch = model.createCommandBatch();
     batch.exec("delete", "Step", {
       id: "3"
@@ -232,35 +229,30 @@ function makeTests(el, model: Model) {
     }).then(step => {
       console.log("Created step:", step)
     })
-    batch.sendAll().then(results => {
-      console.log("Batch result:", results)
-    })
+    let results = await batch.sendAll()
+    console.log("Batch result:", results)
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add task</button>`).appendTo(el).click(async () => {
-    model.exec("create", "Task", {
+    let step = await model.exec("create", "Task", {
       label: "ABC",
       createdById: "1",
       curStepId: "1",
       parentTaskId: "5"
-    }).then(step => {
-      console.log("Created step:", step)
     })
+    console.log("Created step:", step)
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Update project</button>`).appendTo(el).click(async () => {
-    model.exec("update", "Project", {
+   let project = await model.exec("update", "Project", {
       id: "1",
       description: "Hop la description",
       name: "Beau projet"
-    }).then(step => {
-      console.log("Created step:", step)
     })
+    console.log("Updated project:", project, project.tasks)
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Reorder types</button>`).appendTo(el).click(async () => {
-    model.reorder("StepType", ["4", "3", "5"]).then(() => {
-      console.log("Reordered StepTypes...")
-      model.query("StepType").then(types => {
-        console.log("Ordered types:", types)
-      })
-    })
+    await model.reorder("StepType", ["4", "3", "5"])
+    console.log("Reordered StepTypes...")
+    let types = await model.query("StepType")
+    console.log("Ordered types:", types)
   })
 }
