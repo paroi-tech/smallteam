@@ -80,8 +80,11 @@ export default class StepsPanel {
   }
 
   private fillBoxlists() {
-    if (!this.parentTask.children)
+    if (!this.parentTask.children) {
+      console.log("paraent task with no childre...", this.parentTask.description)
       return
+    }
+    console.log("filling stepspanel...")
     for (let task of this.parentTask.children) {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl) {
@@ -90,6 +93,8 @@ export default class StepsPanel {
             args: [ task ]
         })
         bl.addBox(box)
+      } else {
+        console.log("unknown taskbox id...", task.curStepId)
       }
     }
   }
