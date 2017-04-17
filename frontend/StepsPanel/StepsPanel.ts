@@ -19,22 +19,24 @@ export default class StepsPanel {
   constructor(private dash: Dash<App>, private parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
+    this.initJQueryObjects()
+    this.createBoxlists()
+    this.fillBoxlists()
+    this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
+      console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
+    })
+  }
 
+  private initJQueryObjects() {
     this.$container = $(template)
-    this.$container.find(".js-title").text(parentTask.label)
+    this.$container.find(".js-title").text(this.parentTask.label)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
     this.$container.find(".js-add-task-button").click(() => {
       let name = this.$container.find(".js-task-name").val().trim()
       if (name.length > 1 && this.project.steps.length > 0)
         this.createTask(name)
       else
-        console.log("Impossible to create a new task...")
-    })
-
-    this.createBoxlists()
-    this.fillBoxlists()
-    this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
-      console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
+        console.log("Impossible to create a new task. Invalid name or projet has no step.")
     })
   }
 
@@ -57,7 +59,7 @@ export default class StepsPanel {
       if (bl)
         bl.addBox(box)
     }).catch(error => {
-      console.error("Unable to create task.", error)
+      console.error("Unable to create task...", error)
     })
   }
 
@@ -79,7 +81,7 @@ export default class StepsPanel {
 
   private fillBoxlists() {
     if (!this.parentTask.children) {
-      console.log("paraent task with no children...", this.parentTask.description)
+      console.log("Parent task with no children", this.parentTask.description, "project:", this.project.id)
       return
     }
     console.log("filling stepspanel...")
