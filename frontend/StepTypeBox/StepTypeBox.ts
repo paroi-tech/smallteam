@@ -32,6 +32,12 @@ export default class StepTypeBox implements Box {
     this.$container.click(ev => {
       this.dash.emit("stepTypeBoxSelected", this.stepType )
     })
+    // TODO: Explain this...
+    this.dash.app.model.on("update", "dataFirst", data => {
+      if (data.type === "StepType" && (data.model as StepTypeModel) == this.stepType) {
+        this.$container.find(".js-span").text(this.stepType.name)
+      }
+    })
   }
 
   /**

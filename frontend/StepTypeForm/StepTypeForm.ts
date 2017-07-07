@@ -16,7 +16,7 @@ export default class StepTypeForm {
   private $stepTypeIndex: JQuery
   private $submitButton: JQuery
 
-  private stepType: StepTypeModel | undefined
+  private stepType: StepTypeModel | undefined = undefined
 
   /**
    * Create a new StepTypeForm.
@@ -26,7 +26,6 @@ export default class StepTypeForm {
    * @param dash - the current application dash
    */
   constructor(private dash: Dash<App>) {
-    this.stepType = undefined
     this.initJQueryObjects()
     this.listenToForm()
   }
@@ -57,15 +56,17 @@ export default class StepTypeForm {
    */
   private listenToForm() {
     this.$submitButton.click(ev => {
-      if (!this.stepType)
-        return
-      let newName = this.$stepTypeName.val().trim()
-      if (newName.length == 0)
+      let name = this.$stepTypeName.val().trim()
+      if (name.length == 0)
         console.log("The name of the step type should contain more characters...")
-      else
-        this.updateStepType(newName)
+      else {
+        if (!this.stepType) // The user wants to create a new StepType
+          this.addStepType(name)
+        else
+          this.updateStepType(name)
+      }
     })
-
+    // Validating the content of the $stepTypeName field triggers the $submitButton click event.
     this.$stepTypeName.keyup(ev => {
       if (ev.which == 13)
         this.$submitButton.trigger("click")
@@ -87,6 +88,27 @@ export default class StepTypeForm {
   }
 
   /**
+   * Add a new step type to the model.
+   *
+   * @param name - the name of the step type
+   */
+  private addStepType(name: string) {
+    let $indicator = this.$submitButton.find("span").show()
+    let fragUpd = {
+      name: name
+    }
+    this.dash.app.model.exec("create", "StepType", fragUpd).then(stepType => {
+      console.log(`Step type ${name} successfully created...`)
+      this.fillWith(stepType)
+      $indicator.hide()
+      this.dash.emit("stepTypeCreated", stepType)
+    }).catch(error => {
+      console.error(`Impossible to create the step type ${name}...`, error)
+      $indicator.hide()
+    })
+  }
+
+  /**
    * Update the current step type in the model.
    *
    * If the update fails, the old name of the step type is kept back
@@ -94,9 +116,11 @@ export default class StepTypeForm {
    * @param newName - the new name of the step type
    */
   private updateStepType(newName: string) {
+    // The stepType attribute can't be undefined in this function, but since its type is
+    // StepTypeModel | undefined, we have to mdo this control, or else the TS compiler won't be happy.
+    // And I don't want to use the this.stepType! trick...
     if (!this.stepType)
       return
-
     let $indicator = this.$submitButton.find("span").show()
     let fragUpd = {
       id: this.stepType.id,
@@ -106,6 +130,7 @@ export default class StepTypeForm {
       console.log("Step type successfully updated...")
       this.fillWith(stepType)
       $indicator.hide()
+      this.dash.emit("stepTypeUpdated", stepType)
     }).catch(error => {
       console.error("Impossible to update the step type.", error)
       this.reset()

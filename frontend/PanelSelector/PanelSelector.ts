@@ -71,12 +71,12 @@ export default class PanelSelector {
     this.menu = this.dash.create(Menu, {
       args: ["1", "Panel selector projects menu"]
     })
-    this.menu.attachTo(this.$menu[0])
+    this.menu.attachTo(this.$menu.get(0))
 
     this.settingMenu = this.dash.create(DropdownMenu, {
       args: ["2", "Panel selector dropdown menu"]
     })
-    this.settingMenu.attachTo(this.$dropdownMenu[0])
+    this.settingMenu.attachTo(this.$dropdownMenu.get(0))
     this.settingMenu.addItems(settingMenuItems)
   }
 
@@ -85,15 +85,12 @@ export default class PanelSelector {
       this.addProject(data.model)
       this.showProjectPanel(data.model.id)
     })
-
     this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
       this.showProjectForm(project)
     })
-
     this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", (ev) => {
       this.showProjectPanel(ev.itemId)
     })
-
     this.settingMenu.bkb.on<MenuEvent>("createProject", "dataFirst", () => {
       this.showSettingPanel("projectForm")
     })
@@ -105,20 +102,18 @@ export default class PanelSelector {
   private loadProjects() {
     this.dash.app.model.query("Project", {
       archived: false
+    }).then(projects => {
+      console.log("Loaded projects:", projects)
+      this.projects = projects
+      if (projects.length === 0) {
+        if (confirm("No project to load from server. Do you want to create a new one?"))
+          this.showSettingPanel("projectForm")
+      } else
+        for (let p of projects)
+          this.addProject(p)
+    }).catch(err => {
+      console.error("An error occured while loading projects from server.", err)
     })
-      .then(projects => {
-        console.log("Loaded projects:", projects)
-        this.projects = projects
-        if (projects.length === 0) {
-          if (confirm("No project to load from server. Do you want to create a new one?"))
-            this.showSettingPanel("projectForm")
-        } else
-          for (let p of projects)
-            this.addProject(p)
-      })
-      .catch(err => {
-        console.error("An error occured while loading projects from server.", err)
-      })
   }
 
   private addProject(project: ProjectModel) {
@@ -144,14 +139,12 @@ export default class PanelSelector {
     let info = this.projectPanelMap.get(panelId)
     if (!info)
       throw new Error(`Unknown project panel id: ${panelId}`)
-
     if (!info.panel) {
       info.panel = this.dash.create(ProjectBoard, {
         args: [info.projectModel]
       })
       info.panel.attachTo(this.$panel[0])
     }
-
     this.setCurrentPanel(info.panel)
   }
 
@@ -161,7 +154,7 @@ export default class PanelSelector {
       throw new Error("Unknown settings panel id: projectForm")
     if (!info.panel) {
       info.panel = this.dash.create(ProjectForm, { args: [] })
-      info.panel.attachTo(this.$panel[0])
+      info.panel.attachTo(this.$panel.get(0))
     }
     if (this.currentPanel) {
       this.currentPanel.hide()
@@ -174,7 +167,6 @@ export default class PanelSelector {
     let info = this.settingPanelMap.get(panelId)
     if (!info)
       throw new Error(`Unknown settings panel id: ${panelId}`)
-
     if (!info.panel) {
       if (info.type == ProjectForm)
         info.panel = this.dash.create<ProjectForm>(info.type, { args: [] })

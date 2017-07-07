@@ -23,7 +23,6 @@ export default class TaskBox implements Box {
    */
   constructor(private dash: Dash<App>, private task: TaskModel) {
     this.id = this.task.id
-
     this.$container = $(template)
     this.$container.find(".js-span").text(task.label)
     this.$container.click(() => {

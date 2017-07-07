@@ -43,14 +43,17 @@ export default class StepTypePanel {
    */
   constructor(private dash: Dash<App>) {
     this.timer = undefined
-
     this.initJQueryObjects()
     this.initComponents()
     this.loadStepTypes()
-
+    this.dash.listenToChildren<StepTypeModel>("stepTypeCreated").call("dataFirst", stepType => {
+      this.dash.create(StepTypeBox, { args: [ stepType ] })
+    })
     this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").call("dataFirst", stepType => {
       this.form.fillWith(stepType)
     })
+    // TODO: define which between StepTypePanel and StepTypeForm can create step types...
+    // TODO: Handle stepTypeUpdated event...
   }
 
   /**
@@ -88,10 +91,10 @@ export default class StepTypePanel {
     this.dash.listenToChildren<BoxlistEvent>("boxlistSortingUpdated").call("dataFirst", data => {
       this.handleBoxlistUpdate(data)
     })
-    this.boxlist.attachTo(this.$boxlistContainer[0])
+    this.boxlist.attachTo(this.$boxlistContainer.get(0))
 
     this.form = this.dash.create(StepTypeForm, { args: [] })
-    this.form.attachTo(this.$formContainer[0])
+    this.form.attachTo(this.$formContainer.get(0))
   }
 
   /**

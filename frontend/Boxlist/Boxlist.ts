@@ -79,8 +79,8 @@ export default class Boxlist<T extends Box> {
    */
   public addBox(box: T) {
     let $li = $(boxTemplate)
-    $li[0].setAttribute("data-id", box.id)
-    box.attachTo($li[0])
+    $li.get(0).setAttribute("data-id", box.id)
+    box.attachTo($li.get(0))
     $li.appendTo(this.$ul)
   }
 
