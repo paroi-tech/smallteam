@@ -1,15 +1,16 @@
 import App from "../../App/App"
 import Boxlist, { BoxEvent } from "../../Boxlist/Boxlist"
 import { Dash, Bkb } from "bkb"
-import { ProjectModel, StepModel, StepTypeModel } from "../../Model/Model"
+import { ProjectModel, StepModel, StepTypeModel, Model } from "../../Model/Model"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
 export default class ProjectStepsPanel {
   private container: HTMLDivElement
 
-  private availableStepsBl: Boxlist<StepTypeBox>
-  private specialStepsBl: Boxlist<StepTypeBox>
-  private usedStepsBl: Boxlist<StepTypeBox>
+  private availableStepsList: Boxlist<StepTypeBox>
+  private specialStepsList: Boxlist<StepTypeBox>
+  private usedStepsList: Boxlist<StepTypeBox>
+  private model: Model
 
   /**
    * StepTypeBoxes created in the panel. There is no box created for special step types.
@@ -27,10 +28,74 @@ export default class ProjectStepsPanel {
   private timer: any = undefined
 
   constructor(private dash: Dash<App>, private project: ProjectModel) {
+    this.model = this.dash.app.model
     this.initComponents()
     this.loadStepTypes().then(() => {
         this.fillBoxlists()
     })
+  }
+
+  private initComponents() {
+    this.container = document.createElement("div")
+    this.container.classList.add("ProjectStepsPanel")
+    this.availableStepsList = this.dash.create(Boxlist, {
+      args: [{
+        id: "Available",
+        group: this.project.id,
+        name: "Available step types",
+        obj: this,
+        onMove: this.validateStepTypeMove,
+        sort:false
+      }]
+    })
+    this.availableStepsList.attachTo(this.container)
+    this.usedStepsList = this.dash.create(Boxlist, {
+      args: [{
+        id: "Used",
+        group: this.project.id,
+        name: "Used step types",
+        obj: this,
+        onMove: this.validateStepTypeMove,
+        sort: false
+      }]
+    })
+    this.usedStepsList.attachTo(this.container)
+    this.specialStepsList = this.dash.create(Boxlist, {
+      args: [{
+        id: "Special",
+        group: undefined,
+        name: "Special step types",
+        sort: false
+      }]
+    })
+    this.specialStepsList.attachTo(this.container)
+  }
+
+  /**
+   * Load all step types from the model.
+   */
+  private async loadStepTypes() {
+    try {
+      this.stepTypes = await this.model.query("StepType")
+    } catch(err) {
+      console.log("Unable to load step types from model.", err)
+    }
+  }
+
+  private fillBoxlists() {
+    for (let stepType of this.stepTypes) {
+      if (stepType.isSpecial)
+        this.specialStepsList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+      else {
+        let box = this.dash.create(StepTypeBox, { args: [ stepType, "orderNum" ] })
+        // FIXME: StepType#orderNum can't be undefined
+        this.boxes.set(stepType.orderNum!.toString(), box)
+        if (this.project.findStep(stepType.id) == undefined)
+          this.availableStepsList.addBox(box)
+        else
+          this.usedStepsList.addBox(box)
+      }
+    }
   }
 
   /**
@@ -48,9 +113,9 @@ export default class ProjectStepsPanel {
   }
 
   private doUpdate() {
-    let used = this.usedStepsBl.getBoxesOrder()
-    let unused = this.availableStepsBl.getBoxesOrder()
-    let batch = this.dash.app.model.createCommandBatch()
+    let used = this.usedStepsList.getBoxesOrder()
+    let unused = this.availableStepsList.getBoxesOrder()
+    let batch = this.model.createCommandBatch()
     for (let id of used) {
       let step = this.stepTypes.find(step => step.orderNum != null && step.orderNum!.toString() === id)
       if (step && !this.project.hasStep(step.id))
@@ -75,71 +140,30 @@ export default class ProjectStepsPanel {
     el.appendChild(this.container)
   }
 
-  private fillBoxlists() {
-    for (let stepType of this.stepTypes) {
-      if (stepType.isSpecial)
-        this.specialStepsBl.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
-      else {
-        let box = this.dash.create(StepTypeBox, { args: [ stepType, "orderNum" ] })
-        // FIXME: StepType#orderNum can't be undefined
-        this.boxes.set(stepType.orderNum!.toString(), box)
-        if (this.project.findStep(stepType.id) != null)
-          this.usedStepsBl.addBox(box)
-        else
-          this.availableStepsBl.addBox(box)
-      }
-    }
-  }
-
-  private initComponents() {
-    this.container = document.createElement("div")
-    this.container.classList.add("ProjectStepsPanel")
-
-    this.availableStepsBl = this.dash.create(Boxlist, {
-      args: [{
-        id: "Available",
-        group: this.project.id,
-        name: "Available step types",
-        obj: this,
-        onMove: this.validateStepTypeMove,
-        sort:false
-      }]
-    })
-    this.availableStepsBl.attachTo(this.container)
-
-    this.usedStepsBl = this.dash.create(Boxlist, {
-      args: [{
-        id: "Used",
-        group: this.project.id,
-        name: "Used step types",
-        obj: this,
-        onMove: this.validateStepTypeMove,
-        sort: false
-      }]
-    })
-    this.usedStepsBl.attachTo(this.container)
-
-    this.specialStepsBl = this.dash.create(Boxlist, {
-      args: [{
-        id: "Special",
-        group: undefined,
-        name: "Special step types",
-        sort: false
-      }]
-    })
-    this.specialStepsBl.attachTo(this.container)
-  }
-
+  /**
+   * Function used to validate events from boxlists.
+   *
+   * The rules used to validate are:
+   *  - Special step types can't be moved.
+   *  - If the user want to remove a used step type, we check there is no task currently at this step.
+   *
+   * @param ev
+   */
   private validateStepTypeMove(ev: BoxEvent) {
+    // We have to find the step type that is concerned by the BoxEvent.
+    // FIXME: This search can take time. Use a map to hold step types.
     let stepType = this.stepTypes.find((stepType): boolean => {
       return (!stepType.isSpecial) && (stepType.orderNum!.toString() === ev.boxId)
     })
-    if (!stepType)
+    if (!stepType) // This is here because Array.find() can return undefined...
       return false
     if (ev.boxlistId === "Available") {
+      // A step type is being added to the project...
+      // TODO: should handleUpdate() be an async function?
       this.handleUpdate()
       return true
     } else {
+      // A step type is removed from the project...
       let step = this.project.findStep(stepType.id)
       if (!step)
         return false
@@ -150,14 +174,6 @@ export default class ProjectStepsPanel {
         } else
           return false
       }
-    }
-  }
-
-  private async loadStepTypes() {
-    try {
-      this.stepTypes = await this.dash.app.model.query("StepType")
-    } catch(err) {
-      console.log("Unable to load step types from model.", err)
     }
   }
 

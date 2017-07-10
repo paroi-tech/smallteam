@@ -8,7 +8,7 @@ const boxlistTemplate = require("html-loader!./boxlist.html")
 const boxTemplate  = require("html-loader!./box.html")
 
 /**
- * Interface that should implement a Boxlist parameter.
+ * As Boxlist is a template class, a Boxlist instance parameter should implement this interface.
  *
  * The `id` property is required so that the Sortable library can manage the items in a Boxlist.
  */
@@ -22,25 +22,34 @@ export interface Box {
  */
 export interface BoxlistParams {
   id: string
+  // The Sortable lib enables to create groups, so that we can move items (drag and drop) between lists
+  // that belong to the same group. This attribute represents the group of the Boxlist.
   group: string | undefined
+  // Name of the Boxlist.
   name: string
-  obj?: any
+  // When an item is moved inside a list or between lists, this function is used to validate or cancel
+  // the move.
   onMove?: (ev: BoxEvent) => boolean
+  // Object on which the 'onMove' function is called.
+  obj?: any
+  // Can items be reordered within the Boxlist?
   sort: boolean
 }
 
 /**
- * Data object provided by the `boxlistItemAdded` and `boxlistItemRemoved` events.
+ * Object provided by the `boxlistItemAdded` and `boxlistItemRemoved` events.
  */
 export interface BoxEvent {
   boxlistId: string
-  boxId: string
+  boxId: string // ID of the moved item
 }
 
 /**
- * Data object provided by the `boxlistUpdated` event.
+ * Object provided by the `boxlistUpdated` event.
  */
 export interface BoxlistEvent extends BoxEvent {
+  // Array of string that contains the IDs of the items in the Boxlist. The order of the IDs is the same as
+  // the order of the items in the Boxlist.
   boxIds: Array<string>
 }
 
@@ -49,15 +58,14 @@ export interface BoxlistEvent extends BoxEvent {
  *
  * This component relies on the [Sortable]{@link https://rubaxa.github.io/Sortable/} library to work.
  * A boxlist can emit three events (through the dash):
- *    - boxlistItemAdded => BoxEvent
- *    - boxlistItemRemoved => BoxEvent
- *    - boxlistUpdated => BoxlistEvent
+ *    - boxlistItemAdded, when an item id dropped in the Boxlist => BoxEvent
+ *    - boxlistItemRemoved, when an item is moved (dragged) from the Boxlist => BoxEvent
+ *    - boxlistUpdated, when the order of the itms in the Boxlist is updated => BoxlistEvent
  */
 export default class Boxlist<T extends Box> {
   private $container: JQuery
   private $ul: JQuery
-
-  private sortable: Sortable;
+  private sortable: Sortable
 
   /**
    * Create a new empty Boxlist.
@@ -97,33 +105,34 @@ export default class Boxlist<T extends Box> {
    * Make the boxlist sortable by creating a Sortable object.
    */
   private makeSortable() {
-    this.sortable = Sortable.create(this.$ul[0], {
+    this.sortable = Sortable.create(this.$ul.get(0), {
       handle: ".js-handle",
       group: this.params.group,
       sort: this.params.sort,
-      /* Element is dropped into the list from another list. */
+      // Element is dropped into the list from another list.
       onAdd: (ev) => {
           this.dash.emit("boxlistItemAdded", {
             boxlistId: this.params.id,
             boxId: ev.item.dataset.id
           })
       },
-      /* Element is removed from the list into another list. */
+      // Element is moved from the list into another list.
       onRemove: (ev) => {
           this.dash.emit("boxlistItemRemoved", {
             boxlistId: this.params.id,
             boxId: ev.item.dataset.id
           })
       },
-      /* Changed sorting within list. */
+      // Changed sorting within list.
       onUpdate: (ev) => {
-        let boxId = ev.item.dataset.id;
+        let boxId = ev.item.dataset.id
         this.dash.emit("boxlistSortingUpdated", {
           boxlistId: this.params.id,
           boxId: ev.item.dataset.id,
           boxIds: this.sortable.toArray()
         })
       },
+      // Event when an item is moved inside a list ot between lists.
       onMove: (ev, originalEv) => {
         if (this.params.obj && this.params.onMove)
           return this.params.onMove.call(this.params.obj, {
