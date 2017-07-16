@@ -6,7 +6,6 @@ import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
 export default class ProjectStepsPanel {
   private container: HTMLDivElement
-
   private availableStepsList: Boxlist<StepTypeBox>
   private specialStepsList: Boxlist<StepTypeBox>
   private usedStepsList: Boxlist<StepTypeBox>
@@ -87,13 +86,15 @@ export default class ProjectStepsPanel {
       if (stepType.isSpecial)
         this.specialStepsList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
       else {
-        let box = this.dash.create(StepTypeBox, { args: [ stepType, "orderNum" ] })
+        let box = this.dash.create(StepTypeBox, {
+          args: [ stepType, "orderNum" ]
+        })
         // FIXME: StepType#orderNum can't be undefined
         this.boxes.set(stepType.orderNum!.toString(), box)
-        if (this.project.findStep(stepType.id) == undefined)
-          this.availableStepsList.addBox(box)
-        else
+        if (this.project.hasStep(stepType.id))
           this.usedStepsList.addBox(box)
+        else
+          this.availableStepsList.addBox(box)
       }
     }
   }
@@ -125,15 +126,17 @@ export default class ProjectStepsPanel {
     }
     for (let id of unused) {
       let step = this.stepTypes.find(step => step.orderNum != null  && step.orderNum!.toString() === id)
-      if (step && this.project.findStep(step.id))
+      if (step && this.project.hasStep(step.id))
         batch.exec("delete", "Step", step.id)
     }
     batch.sendAll().then(val => {
+      // TODO: sort the content of the boxlists based on stepTypes orderNum.
+      // TODO: Feature request: stepTypes should be sorted based on orderNum in the model.
       console.log("Project steps updated.")
     }).catch(error => {
+      // TODO: update failed. Put the boxlists in their original state.
       console.error("Error while updating project steps.", error)
     })
-
   }
 
   public attachTo(el: HTMLElement) {
