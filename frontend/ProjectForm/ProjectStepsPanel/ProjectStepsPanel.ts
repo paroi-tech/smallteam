@@ -32,6 +32,12 @@ export default class ProjectStepsPanel {
     this.loadStepTypes().then(() => {
         this.fillBoxlists()
     })
+    this.model.on("createStepType", "dataFirst", data => {
+      let box = this.dash.create(StepTypeBox, {
+        args: [ data.model, "orderNum" ]
+      })
+      this.availableStepsList.addBox(box)
+    })
   }
 
   private initComponents() {

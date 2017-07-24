@@ -11,18 +11,33 @@ import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPane
 
 const template = require("html-loader!./panelselector.html")
 
+/**
+ * Properties required for an Component in order to be displayed in PanelSelector.
+ */
 export interface Panel {
   attachTo(el: HTMLElement)
   hide()
   show()
 }
 
+/**
+ * Several types of components are displayed in the PanelSelector.
+ *
+ * We store data about components currently displayed in the PanelSelector. For now, we plan to display
+ * three types of component in the PanelSelector:
+ *    - ProjectBoard
+ *    - ProjectForm
+ *    - StepsTypePanel
+ */
 interface PanelInfo {
   panel?: Panel
   projectModel?: ProjectModel
   type: typeof ProjectBoard | typeof ProjectForm | typeof StepTypePanel
 }
 
+/**
+ * Options displayed in the dropdown menu of the PanelSelector.
+ */
 const settingMenuItems = [
   { id: "1", label: "New project", eventName: "createProject" },
   { id: "2", label: "Manage step types", eventName: "manageStepTypes" }
@@ -35,13 +50,12 @@ export default class PanelSelector {
   private settingMenu: DropdownMenu
   private currentPanel: Panel | undefined
 
-  private projectPanelMap: Map<string, PanelInfo> = new Map()
-  private settingPanelMap: Map<string, PanelInfo> = new Map()
+  private panelMap: Map<string, PanelInfo> = new Map()
 
   private $container: JQuery
   private $menu: JQuery
   private $dropdownMenu: JQuery
-  private $panel: JQuery
+  private $panelContainer: JQuery
 
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
@@ -50,21 +64,14 @@ export default class PanelSelector {
     this.initComponents()
     this.listenToEvents()
 
-    this.settingPanelMap.set("projectForm", { type: ProjectForm })
-    this.settingPanelMap.set("stepTypePanel", { type: StepTypePanel })
     this.loadProjects()
-  }
-
-  public attachTo(el: HTMLElement) {
-    makeTests(el, this.dash.app.model)
-    this.$container.appendTo(el)
   }
 
   private initJQueryObjects() {
     this.$container = $(template)
     this.$menu = this.$container.find(".js-menuLeft")
     this.$dropdownMenu = this.$container.find(".js-menuRight")
-    this.$panel = this.$container.find(".js-panelContainer")
+    this.$panelContainer = this.$container.find(".js-panelContainer")
   }
 
   private initComponents() {
@@ -78,36 +85,37 @@ export default class PanelSelector {
     })
     this.settingMenu.attachTo(this.$dropdownMenu.get(0))
     this.settingMenu.addItems(settingMenuItems)
+
+    // We have to do this, or else the project board won't be able to display the step type panel later.
+    // See the PanelSelector#showSettingPanel() for details.
+    this.panelMap.set("stepTypePanel", {
+      type: StepTypePanel,
+    })
   }
 
   private listenToEvents() {
-    this.model.on("createProject", "dataFirst", data => {
-      this.addProject(data.model)
-      this.showProjectPanel(data.model.id)
-    })
-    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
-      this.showProjectForm(project)
-    })
-    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", (ev) => {
-      this.showProjectPanel(ev.itemId)
-    })
-    this.settingMenu.bkb.on<MenuEvent>("createProject", "dataFirst", () => {
-      this.showSettingPanel("projectForm")
-    })
-    this.settingMenu.bkb.on<MenuEvent>("manageStepTypes", "dataFirst", () => {
-      this.showSettingPanel("stepTypePanel")
-    })
+    this.model.on("createProject", "dataFirst", data => this.addProject(data.model))
+    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => this.showProjectForm(project))
+    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", (ev) => this.showProjectBoard(ev.itemId))
+    this.settingMenu.bkb.on<MenuEvent>("createProject", "dataFirst", () => this.showProjectForm())
+    this.settingMenu.bkb.on<MenuEvent>("manageStepTypes", "dataFirst", () => this.showSettingPanel("stepTypePanel"))
+  }
+
+  public attachTo(el: HTMLElement) {
+    this.$container.appendTo(el)
+    // FIXME:  Remove this line.
+    makeTests(el, this.dash.app.model)
   }
 
   private loadProjects() {
-    this.dash.app.model.query("Project", {
+    this.model.query("Project", {
       archived: false
     }).then(projects => {
       console.log("Loaded projects:", projects)
       this.projects = projects
       if (projects.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one?"))
-          this.showSettingPanel("projectForm")
+          this.showProjectForm()
       } else
         for (let p of projects)
           this.addProject(p)
@@ -117,7 +125,8 @@ export default class PanelSelector {
   }
 
   private addProject(project: ProjectModel) {
-    this.projectPanelMap.set(project.id, {
+    let boardId = "ProjectBoard" + ":" + project.id
+    this.panelMap.set(boardId, {
       projectModel: project,
       type: ProjectBoard
     })
@@ -135,51 +144,70 @@ export default class PanelSelector {
     p.show()
   }
 
-  private showProjectPanel(panelId: string) {
-    let info = this.projectPanelMap.get(panelId)
+  private showProjectBoard(projectId: string) {
+    let panelId = "ProjectBoard" + ":" + projectId
+    let info = this.panelMap.get(panelId)
     if (!info)
-      throw new Error(`Unknown project panel id: ${panelId}`)
+      throw new Error(`Unknown project panel ID: ${projectId}`)
     if (!info.panel) {
       info.panel = this.dash.create(ProjectBoard, {
-        args: [info.projectModel]
+        args: [ info.projectModel ]
       })
-      info.panel.attachTo(this.$panel[0])
+      info.panel.attachTo(this.$panelContainer.get(0))
     }
     this.setCurrentPanel(info.panel)
   }
 
-  private showProjectForm(project: ProjectModel) {
-    let info = this.settingPanelMap.get("projectForm")
-    if (!info)
-      throw new Error("Unknown settings panel id: projectForm")
-    if (!info.panel) {
-      info.panel = this.dash.create(ProjectForm, { args: [] })
-      info.panel.attachTo(this.$panel.get(0))
+  private showProjectForm(project?: ProjectModel) {
+    if (project) {
+      let formId = "ProjecForm" + ":" + project.id
+      let info = this.panelMap.get(formId)
+      if (!info) {
+        info = { type: ProjectBoard, projectModel: project }
+        this.panelMap.set(formId, info)
+      }
+      if (!info.panel) {
+        let form = this.dash.create(ProjectForm, { args: [ this, project ] })
+        form.attachTo(this.$panelContainer.get(0))
+        info.panel = form
+      }
+      this.setCurrentPanel(info.panel)
+    } else {
+      let form = this.dash.create(ProjectForm, {
+        args: [ this ]
+      })
+      form.attachTo(this.$panelContainer.get(0))
+      this.setCurrentPanel(form)
     }
-    if (this.currentPanel) {
-      this.currentPanel.hide()
+  }
+
+  public linkFormToProject(form: ProjectForm, project: ProjectModel) {
+    let info: PanelInfo = {
+      panel: form,
+      projectModel: project,
+      type: ProjectForm
     }
-    (info.panel as ProjectForm).show(project)
-    this.currentPanel = info.panel
+    let formId = "ProjectForm" + ":" + project.id
+    this.panelMap.set(formId, info)
   }
 
   private showSettingPanel(panelId: string) {
-    let info = this.settingPanelMap.get(panelId)
+    let info = this.panelMap.get(panelId)
     if (!info)
       throw new Error(`Unknown settings panel id: ${panelId}`)
     if (!info.panel) {
-      if (info.type == ProjectForm)
-        info.panel = this.dash.create<ProjectForm>(info.type, { args: [] })
-      else if (info.type == StepTypePanel)
+      if (info.type == StepTypePanel)
         info.panel = this.dash.create<StepTypePanel>(info.type, { args: [] })
       else
         throw new Error(`Unknown Panel type: ${info.type}`)
-      info.panel.attachTo(this.$panel[0])
+      info.panel.attachTo(this.$panelContainer.get(0))
     }
     this.setCurrentPanel(info.panel)
   }
 }
 
+// TODO: remove this...
+// The following code has been added for tests purpose.
 import { StepModel, StepTypeModel } from "../Model/Model"
 
 function makeTests(el, model: Model) {

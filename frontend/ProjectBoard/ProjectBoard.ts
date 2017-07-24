@@ -31,7 +31,7 @@ export default class ProjectBoard implements Panel {
    * @param project - the project for which the project board is created.
    */
   constructor(private dash: Dash<App>, private project: ProjectModel) {
-    console.log("creating project board...", this.project)
+    console.log("creating project board for project =>", this.project)
     this.initJQueryObjects()
     this.initComponents()
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {

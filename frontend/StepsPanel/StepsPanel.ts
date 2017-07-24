@@ -8,6 +8,12 @@ import { toDebugObj } from "../../isomorphic/libraries/helpers"
 
 const template = require("html-loader!./stepspanel.html")
 
+/**
+ * Component used to display a task and its children (subtasks).
+ *
+ * A StepsPanel can contain several BoxLists, one BoxList per project step. Substasks are displayed in
+ * those BoxLists, according to subtasks states (e.g Todo, Running, Done, etc.)
+ */
 export default class StepsPanel {
   private model: Model
   private project: ProjectModel
@@ -15,6 +21,7 @@ export default class StepsPanel {
   private $container: JQuery
   private $stepsContainer: JQuery
 
+  // BoxLists we created are stored in a map. The Keys are the IDs of the project steps.
   private boxlistMap: Map<string, Boxlist<TaskBox>> = new Map()
 
   constructor(private dash: Dash<App>, private parentTask: TaskModel) {
@@ -30,15 +37,20 @@ export default class StepsPanel {
 
   private initJQueryObjects() {
     this.$container = $(template)
-    this.$container.find(".js-title").text(this.parentTask.label)
+    // If the task represented by this StepsPanel is the project main task, the title of the panel
+    // is set to `Main task`.
+    let $title = this.$container.find(".js-title span")
+    $title.text(this.parentTask.id == this.project.rootTaskId? "Main tasks": this.parentTask.label)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
     this.$container.find(".js-add-task-button").click(() => {
       let name = this.$container.find(".js-task-name").val().trim()
-      if (name.length > 1 && this.project.steps.length > 0)
-        this.createTask(name)
+      if (name.length < 1)
+        console.log("Impossible to create a new task. Invalid name...")
+      else if (this.project.steps.length == 0)
+        console.log("Impossible to create a new task. Project has no step.")
       else
-        console.log("Impossible to create a new task. Invalid name or projet has no step.")
-    })
+        this.createTask(name)
+      })
   }
 
   public attachTo(el: HTMLElement) {
