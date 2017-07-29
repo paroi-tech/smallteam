@@ -73,7 +73,7 @@ export default class ProjectForm {
     this.stepsPanel.attachTo(this.container)
   }
 
-  private listenToForm() {
+  private async listenToForm() {
     if (!this.project) {
       this.codeField.onkeyup = () => this.generateCode = false
       this.nameField.onkeyup = () => {
