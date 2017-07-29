@@ -115,7 +115,7 @@ export default class StepTypeForm {
    *
    * @param newName - the new name of the step type
    */
-  private updateStepType(newName: string) {
+  private async updateStepType(newName: string) {
     // The stepType attribute can't be undefined in this function, but since its type is
     // StepTypeModel | undefined, we have to mdo this control, or else the TS compiler won't be happy.
     // And I don't want to use the this.stepType! trick...
@@ -126,18 +126,19 @@ export default class StepTypeForm {
       id: this.stepType.id,
       name: newName
     }
-    this.dash.app.model.exec("update", "StepType", fragUpd).then(stepType => {
+    try {
+      let stepType = await this.dash.app.model.exec("update", "StepType", fragUpd)
       console.log("Step type successfully updated...")
       this.fillWith(stepType)
       $indicator.hide()
-      this.dash.emit("stepTypeUpdated", stepType)
-    }).catch(error => {
-      console.error("Impossible to update the step type.", error)
+      this.dash.emit("stepTypeUpdated", stepType) // TODO: [Paleo] Check this event
+    } catch (err) {
+      console.error("Cannot update the step type.", err)
       this.reset()
       if (this.stepType)
         this.fillWith(this.stepType)
       $indicator.hide()
-    })
+    }
   }
 
   /**

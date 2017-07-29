@@ -57,13 +57,14 @@ export default class StepsPanel {
     $(el).append(this.$container)
   }
 
-  private createTask(name: string) {
-    this.model.exec("create", "Task", {
+  private async createTask(name: string) {
+    let task = await this.model.exec("create", "Task", {
       label: name,
       createdById: "1",
       parentTaskId: this.parentTask.id,
       curStepId: this.project.steps[0].id
-    }).then(task => {
+    })
+    try {
       let box = this.dash.create(TaskBox, {
         group: "items",
         args: [ task ]
@@ -71,9 +72,9 @@ export default class StepsPanel {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl)
         bl.addBox(box)
-    }).catch(error => {
-      console.error("Unable to create task...", error)
-    })
+    } catch(err) {
+      console.error("Unable to create task...", err)
+    }
   }
 
   private createBoxlists() {

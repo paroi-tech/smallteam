@@ -120,7 +120,7 @@ export default class StepTypePanel {
    */
   private handleBoxlistUpdate(ev: BoxlistEvent) {
     if (this.timer)
-        clearTimeout(this.timer)
+      clearTimeout(this.timer)
     this.timer = setTimeout(() => {
       this.doUpdate(ev.boxIds)
     }, 2000)
@@ -143,7 +143,7 @@ export default class StepTypePanel {
         console.error("Sorry. Server rejected new order of step types...", idList, ids)
         this.boxlist.setBoxesOrder(idList)
       }
-    } catch(err) {
+    } catch (err) {
       console.log("Sorry. Unable to save the new order of steps on server.", err)
     }
   }
@@ -151,8 +151,9 @@ export default class StepTypePanel {
   /**
    * Load step types from the database and fill the Boxlist with them.
    */
-  private loadStepTypes() {
-    this.dash.app.model.query("StepType").then(stepTypes => {
+  private async loadStepTypes() {
+    try {
+      let stepTypes = await this.dash.app.model.query("StepType")
       this.stepTypes = stepTypes
       if (stepTypes.length === 0) {
         console.log("No step types to load from server...")
@@ -160,11 +161,10 @@ export default class StepTypePanel {
       }
       for (let stepType of stepTypes)
         if (!stepType.isSpecial)
-          this.boxlist.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] } ))
-    })
-    .catch(err => {
+          this.boxlist.addBox(this.dash.create(StepTypeBox, { args: [stepType] }))
+    } catch (err) {
       console.error("Unable to load step types from server...")
-    })
+    }
   }
 
   /**
@@ -181,7 +181,7 @@ export default class StepTypePanel {
         this.loadStepTypes()
       else {
         let box = this.dash.create(StepTypeBox, {
-          args: [ stepType ]
+          args: [stepType]
         })
         this.boxlist.addBox(box)
         spinner.hide()
@@ -192,11 +192,11 @@ export default class StepTypePanel {
     })
   }
 
-   /**
-   * Add the panel as a child of an HTML element.
-   *
-   * @param el - element that the box will be added to.
-   */
+  /**
+  * Add the panel as a child of an HTML element.
+  *
+  * @param el - element that the box will be added to.
+  */
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
   }

@@ -83,28 +83,42 @@ export default class ProjectForm {
     } else {
       this.generateCode = false
     }
-    this.submitBtn.onclick = () => {
+    this.submitBtn.onclick = async () => {
+      // let spinner = this.submitBtn.querySelector("span")
+      // if (spinner)
+      //   spinner.style.display = "inline"
+
       let code = this.codeField.value.trim()
       let name = this.nameField.value.trim()
       let description = this.descriptionField.value.trim()
-      if (code.length < 4 || name.length === 0)
+      if (code.length < 4 && name.length === 0)
         return
-      if (!this.project) {
-        console.log("Attempting to create new project:", code)
-        this.createProject(code, name, description)
-      } else {
-        console.log("Attempting to update project:", code)
-        this.updateProject(name, description)
+      try {
+        if (!this.project) {
+          console.log("Attempting to create new project:", code)
+          await this.createProject(code, name, description)
+        } else {
+          console.log("Attempting to update project:", code)
+          await this.updateProject(name, description)
+        }
+        // let project = await this.dash.app.model.exec("create", "Project", { code, name })
+        // console.log(`Project ${project.name} successfully created...`)
+      } catch (err) {
+        console.error(err)
+      } finally {
+        // if (spinner)
+        //   spinner.style.display = "none"
       }
     }
   }
 
-  private createProject(code: string, name: string, description: string) {
+  private async createProject(code: string, name: string, description: string) {
     console.log("In createProject()...")
     let spinner = this.submitBtn.querySelector("span")
     if (spinner)
       spinner.style.display = "inline"
-    this.model.exec("create", "Project", { code, name, description }).then(project => {
+    try {
+      let project = await this.model.exec("create", "Project", { code, name, description })
       if (spinner)
         spinner.style.display = "none"
       console.log(`Project ${project.name} successfully createa...`)
@@ -113,14 +127,14 @@ export default class ProjectForm {
       this.codeField.setAttribute("readonly", "true")
       this.fillFormFieldsWithProject()
       this.createStepsPanel()
-    }).catch(error => {
+    } catch (error) {
       if (spinner)
         spinner.style.display = "none"
       console.error(error)
-    })
+    }
   }
 
-  private updateProject(name: string, description: string) {
+  private async updateProject(name: string, description: string) {
     // let spinner = this.submitBtn.querySelector("span")
     // if (spinner)
     //   spinner.style.display = "inline"
