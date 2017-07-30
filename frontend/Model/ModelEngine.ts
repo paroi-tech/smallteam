@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
-import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier } from "../../isomorphic/Cargo"
+import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
 //import { validateDataArray } from "../../isomorphic/validation"
@@ -80,15 +80,17 @@ export type HttpMethod = "POST" | "GET"
 // -- Class ModelEngine
 // --
 
+
+
 interface Batch {
   httpMethod?: HttpMethod
   list: any[]
-  deferred: Deferred<any[]>
+  deferred: Deferred<BatchCargo>
 }
 
 export default class ModelEngine {
   private store = makeHKMap<Type, TypeStorage>()
-  private batch: Batch | null
+  private batch: Batch | null = null
 
   constructor(private dash: Dash<object>) {
     this.dash.exposeEvents(`change`, `create`, `update`, `delete`)
@@ -248,6 +250,7 @@ export default class ModelEngine {
           })
         }
         addFragmentToIndexes(storage, id, frag, !!prevEntity)
+        console.log(`## updateStore`, type, id)
       }
     }
   }
@@ -316,8 +319,10 @@ export default class ModelEngine {
     let list: any[] = []
     for (let id of ref.list) {
       let entity = storage.entities.get(id)
-      if (!entity)
+      if (!entity) {
+        console.log('=======>', Array.from(storage.entities.keys()))
         throw new Error(`[${ref.type}] Missing data for: ${JSON.stringify(id)}`)
+      }
       list.push(entity.fragment)
     }
     return list
@@ -325,20 +330,8 @@ export default class ModelEngine {
 
   private async httpSendAndUpdate(method: HttpMethod, url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
     let cargo = await this.httpSendOrBatch(method, url, data)
-    if (cargo.modelUpd) {
-      if (cargo.modelUpd.fragments)
-        this.updateStore(cargo.modelUpd.fragments)
-      if (cargo.modelUpd.partial)
-        this.updateStoreFromPartial(cargo.modelUpd.partial)
-      if (cargo.modelUpd.deleted) {
-        this.deleteFromStore(cargo.modelUpd.deleted)
-        this.emitEvents(cargo.modelUpd.deleted, "delete")
-      }
-      if (cargo.modelUpd.updated)
-        this.emitEvents(cargo.modelUpd.updated, "update")
-      if (cargo.modelUpd.created)
-        this.emitEvents(cargo.modelUpd.created, "create")
-    }
+    if (cargo.modelUpd)
+      this.processModelUpdate(cargo.modelUpd)
     if (!cargo.done) {
       console.log("Error on server", cargo.displayError, cargo.debugData)
       throw new Error("Error on server")
@@ -361,18 +354,35 @@ export default class ModelEngine {
       throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
   }
 
+  private processModelUpdate(modelUpd: ModelUpdate) {
+    if (modelUpd.fragments)
+      this.updateStore(modelUpd.fragments)
+    if (modelUpd.partial)
+      this.updateStoreFromPartial(modelUpd.partial)
+    if (modelUpd.deleted) {
+      this.deleteFromStore(modelUpd.deleted)
+      this.emitEvents(modelUpd.deleted, "delete")
+    }
+    if (modelUpd.updated)
+      this.emitEvents(modelUpd.updated, "update")
+    if (modelUpd.created)
+      this.emitEvents(modelUpd.created, "create")
+  }
+
   private httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {
     if (!this.batch)
       return httpSendJson(method, url, data)
-    if (!this.batch.httpMethod || this.batch.httpMethod === "GET" && method === "POST")
+    if (!this.batch.httpMethod || (this.batch.httpMethod === "GET" && method === "POST"))
       this.batch.httpMethod = method
     let batchIndex = this.batch.list.length
     this.batch.list.push(data)
-    return this.batch.deferred.promise.then(results => {
-      if (results.length <= batchIndex)
+    return this.batch.deferred.promise.then(result => {
+      if (batchIndex === 0 && result.modelUpd) // process modelUpd once (is there a better place?)
+        this.processModelUpdate(result.modelUpd)
+      if (!result.responses || result.responses.length <= batchIndex)
         throw new Error(`The batch command is canceled due to a previous command error`)
-console.log(`.............`, results)
-      return results[batchIndex]
+console.log(`.............${batchIndex} // `, result)
+      return result.responses[batchIndex]
     })
   }
 }
