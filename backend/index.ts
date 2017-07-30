@@ -59,12 +59,12 @@ async function processRoute(resp: Response, body: string, cb: (data) => Promise<
   }
 }
 
-function writeServerResponseError(resp: Response, err) {
+function writeServerResponseError(resp: Response, err: Error) {
   writeServerResponse(resp, 500, err.message)
   console.log("ERR", err, err.stack)
 }
 
-function writeServerResponse(resp: Response, httpCode, data) {
+function writeServerResponse(resp: Response, httpCode: number, data) {
   resp.setHeader("Content-Type", "application/json")
   resp.status(httpCode)
   resp.send(JSON.stringify(data))
