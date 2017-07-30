@@ -43,7 +43,8 @@ export default class StepsPanel {
     $title.text(this.parentTask.id == this.project.rootTaskId? "Main tasks": this.parentTask.label)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
     this.$container.find(".js-add-task-button").click(() => {
-      let name = this.$container.find(".js-task-name").val().trim()
+      let name = this.$container.find(".js-task-name").val() as string
+      name = name.trim()
       if (name.length < 1)
         console.log("Impossible to create a new task. Invalid name...")
       else if (this.project.steps.length == 0)

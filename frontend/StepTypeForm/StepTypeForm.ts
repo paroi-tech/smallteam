@@ -56,7 +56,8 @@ export default class StepTypeForm {
    */
   private listenToForm() {
     this.$submitButton.click(ev => {
-      let name = this.$stepTypeName.val().trim()
+      let name = this.$stepTypeName.val() as string
+      name = name.trim()
       if (name.length == 0)
         console.log("The name of the step type should contain more characters...")
       else {
@@ -131,7 +132,7 @@ export default class StepTypeForm {
       console.log("Step type successfully updated...")
       this.fillWith(stepType)
       $indicator.hide()
-      this.dash.emit("stepTypeUpdated", stepType) // TODO: [Paleo] Check this event
+      this.dash.emit("stepTypeUpdated", stepType) // TODO: [Paleo] Check if this event is required
     } catch (err) {
       console.error("Cannot update the step type.", err)
       this.reset()

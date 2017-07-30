@@ -371,6 +371,7 @@ export default class ModelEngine {
     return this.batch.deferred.promise.then(results => {
       if (results.length <= batchIndex)
         throw new Error(`The batch command is canceled due to a previous command error`)
+console.log(`.............`, results)
       return results[batchIndex]
     })
   }

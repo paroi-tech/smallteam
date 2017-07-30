@@ -238,17 +238,26 @@ function makeTests(el, model: Model) {
   })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Batch</button>`).appendTo(el).click(async () => {
     let batch = model.createCommandBatch();
-    batch.exec("delete", "Step", {
-      id: "3"
-    }).then(result => {
-      console.log("Delete step:", result)
+
+    batch.query("StepType").then(result => {
+      console.log("Queryied steptype:", result)
     })
-    batch.exec("create", "Step", {
-      projectId: "1",
-      typeId: "2"
-    }).then(step => {
-      console.log("Created step:", step)
+    batch.query("Project").then(result => {
+      console.log("Queryied Project:", result)
     })
+
+    // batch.exec("delete", "Step", {
+    //   id: "3"
+    // }).then(result => {
+    //   console.log("Deleted step:", result)
+    // })
+    // batch.exec("create", "Step", {
+    //   projectId: "1",
+    //   typeId: "2"
+    // }).then(step => {
+    //   console.log("Created step:", step)
+    // })
+
     let results = await batch.sendAll()
     console.log("Batch result:", results)
   })

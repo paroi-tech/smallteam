@@ -97,7 +97,7 @@ export default class ModelComp implements Model {
     return this.engine.query(type, filters)
   }
 
-  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<Identifier[]> {
+  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
     return this.engine.reorder(type, { idList, groupId })
   }
 }
@@ -138,7 +138,7 @@ class CommandBatch implements CommandRunner {
     return deferred.promise
   }
 
-  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<Identifier[]> {
+  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
     let deferred = new Deferred<Identifier[]>()
     this.commands.push({
       method: "reorder",

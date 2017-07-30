@@ -103,7 +103,8 @@ export default class StepTypePanel {
    * If the name typed by the user is valid, it then calls the `addStepType` method.
    */
   private doAdd() {
-    let name = this.$input.val().trim()
+    let name = this.$input.val() as string
+    name = name.trim()
     if (name.length > 0)
       this.addStepType(name)
     else {
