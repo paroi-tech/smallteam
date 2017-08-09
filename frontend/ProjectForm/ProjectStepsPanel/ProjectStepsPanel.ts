@@ -26,6 +26,7 @@ export default class ProjectStepsPanel {
    */
   private timer: any = undefined
 
+
   constructor(private dash: Dash<App>, private project: ProjectModel) {
     this.model = this.dash.app.model
     this.initComponents()
