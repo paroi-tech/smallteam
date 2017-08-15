@@ -7,3 +7,4 @@
   <span class="FormField-span">Description</span>
   <textarea class="js-task-description" placeholder="Task description...">{{ description }}</textarea>
 </label>
+<button type="button" class="js-submit-button">Submit</button>

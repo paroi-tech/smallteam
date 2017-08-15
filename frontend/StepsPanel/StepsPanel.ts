@@ -3,7 +3,7 @@ import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
 import Boxlist, { BoxlistParams } from "../Boxlist/Boxlist"
 import TaskBox from "../TaskBox/TaskBox"
-import { Model, ProjectModel, TaskModel } from "../Model/Model"
+import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../Model/Model"
 import { toDebugObj } from "../../isomorphic/libraries/helpers"
 
 const template = require("html-loader!./stepspanel.html")
@@ -33,6 +33,17 @@ export default class StepsPanel {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
       console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
     })
+    this.model.on("update", "dataFirst", data => {
+      if (data.type === "StepType") {
+        let stepType = data.model as StepTypeModel
+        let step = this.parentTask.project.steps.find(step => step.typeId === stepType.id)
+        if (step) {
+          let list = this.boxlistMap.get(step.id)
+          if (list)
+            list.setTitle(stepType.name)
+        }
+      }
+    })
   }
 
   private initJQueryObjects() {
@@ -50,8 +61,8 @@ export default class StepsPanel {
       else if (this.project.steps.length == 0)
         console.log("Impossible to create a new task. Project has no step.")
       else
-        this.createTask(name)
-      })
+         this.createTask(name)
+    })
   }
 
   public attachTo(el: HTMLElement) {
@@ -59,13 +70,13 @@ export default class StepsPanel {
   }
 
   private async createTask(name: string) {
-    let task = await this.model.exec("create", "Task", {
-      label: name,
-      createdById: "1",
-      parentTaskId: this.parentTask.id,
-      curStepId: this.project.steps[0].id
-    })
     try {
+        let task = await this.model.exec("create", "Task", {
+        label: name,
+        createdById: "1",
+        parentTaskId: this.parentTask.id,
+        curStepId: this.project.steps[0].id
+      })
       let box = this.dash.create(TaskBox, {
         group: "items",
         args: [ task ]
@@ -73,6 +84,7 @@ export default class StepsPanel {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl)
         bl.addBox(box)
+      this.$container.find(".js-task-name").val("")
     } catch(err) {
       console.error("Unable to create task...", err)
     }

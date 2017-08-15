@@ -146,6 +146,15 @@ export default class Boxlist<T extends Box> {
   }
 
   /**
+   * Change the title (name) of the list.
+   *
+   * @param title - the new title.
+   */
+  public setTitle(title: string) {
+    this.$container.find(".js-title").text(title)
+  }
+
+  /**
    * Sort the elements in the boxlist.
    *
    * @param order - array of ids which will be used to sort the boxlist.

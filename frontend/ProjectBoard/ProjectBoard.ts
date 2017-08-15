@@ -4,7 +4,7 @@ import StepsPanel from "../StepsPanel/StepsPanel"
 import TaskPanel from "../TaskPanel/TaskPanel"
 import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
-import { ProjectModel, TaskModel } from "../Model/Model"
+import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 
 const template = require("html-loader!./projectboard.html")
@@ -21,6 +21,8 @@ export default class ProjectBoard implements Panel {
   private $taskPanelContainer: JQuery
   private $editBtn: JQuery
 
+  private model: Model
+
   private taskPanel: TaskPanel
   private stepsPanelMap: Map<String, StepsPanel>
 
@@ -32,6 +34,7 @@ export default class ProjectBoard implements Panel {
    */
   constructor(private dash: Dash<App>, private project: ProjectModel) {
     console.log("creating project board for project =>", this.project)
+    this.model = this.dash.app.model
     this.initJQueryObjects()
     this.initComponents()
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
@@ -51,6 +54,14 @@ export default class ProjectBoard implements Panel {
     })
     this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
     this.$taskPanelContainer = this.$container.find(".js-editpanel-container")
+    // When a new task is created and its parent is the project main task, we have to add a new StepsPanel
+    // to the project board.
+   this.model.on("createTask", "dataFirst", data => {
+     let task = data.model as TaskModel
+     if (task.projectId == this.project.id && task.parentTaskId == this.project.rootTaskId) {
+       this.createStepsPanel(task)
+     }
+   })
   }
 
   /**
