@@ -4,7 +4,7 @@ import { Dash, Bkb } from "bkb"
 import { Panel } from "../PanelSelector/PanelSelector"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
-import Boxlist, { Box, BoxlistParams, BoxEvent, BoxlistEvent } from "../Boxlist/Boxlist"
+import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
 import { Model, StepTypeModel } from "../Model/Model"
 import { updateStepTypeOrders } from "../Model/fakeModel"
 import { equal } from "../libraries/utils"
@@ -24,7 +24,7 @@ export default class StepTypePanel {
   private $addBtn: JQuery
   private $input: JQuery
 
-  private boxlist: Boxlist<StepTypeBox>
+  private boxlist: BoxList<StepTypeBox>
   private form: StepTypeForm
 
   private stepTypes: Array<StepTypeModel>
@@ -80,7 +80,7 @@ export default class StepTypePanel {
    * Initialize the Boxlist and Form components of the panel.
    */
   private initComponents() {
-    this.boxlist = this.dash.create(Boxlist, {
+    this.boxlist = this.dash.create(BoxList, {
       args: [{
         id: "",
         name: "Step types",
@@ -88,7 +88,7 @@ export default class StepTypePanel {
         sort: true
       }]
     })
-    this.dash.listenToChildren<BoxlistEvent>("boxlistSortingUpdated").call("dataFirst", data => {
+    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
       this.handleBoxlistUpdate(data)
     })
     this.boxlist.attachTo(this.$boxlistContainer.get(0))
@@ -119,7 +119,7 @@ export default class StepTypePanel {
    * A timeout of 2s is used to schedule the update. The timer is restarted if the user
    * reorders the step types within the 2s.
    */
-  private handleBoxlistUpdate(ev: BoxlistEvent) {
+  private handleBoxlistUpdate(ev: BoxListEvent) {
     if (this.timer)
       clearTimeout(this.timer)
     this.timer = setTimeout(() => {

@@ -1,14 +1,14 @@
 import App from "../../App/App"
-import Boxlist, { BoxEvent } from "../../Boxlist/Boxlist"
+import BoxList, { BoxEvent } from "../../BoxList/BoxList"
 import { Dash, Bkb } from "bkb"
 import { ProjectModel, StepModel, StepTypeModel, Model } from "../../Model/Model"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
 export default class ProjectStepsPanel {
   private container: HTMLDivElement
-  private availableStepsList: Boxlist<StepTypeBox>
-  private specialStepsList: Boxlist<StepTypeBox>
-  private usedStepsList: Boxlist<StepTypeBox>
+  private availableStepsList: BoxList<StepTypeBox>
+  private specialStepsList: BoxList<StepTypeBox>
+  private usedStepsList: BoxList<StepTypeBox>
   private model: Model
 
   /**
@@ -44,7 +44,7 @@ export default class ProjectStepsPanel {
   private initComponents() {
     this.container = document.createElement("div")
     this.container.classList.add("ProjectStepsPanel")
-    this.availableStepsList = this.dash.create(Boxlist, {
+    this.availableStepsList = this.dash.create(BoxList, {
       args: [{
         id: "Available",
         group: this.project.id,
@@ -55,7 +55,7 @@ export default class ProjectStepsPanel {
       }]
     })
     this.availableStepsList.attachTo(this.container)
-    this.usedStepsList = this.dash.create(Boxlist, {
+    this.usedStepsList = this.dash.create(BoxList, {
       args: [{
         id: "Used",
         group: this.project.id,
@@ -66,7 +66,7 @@ export default class ProjectStepsPanel {
       }]
     })
     this.usedStepsList.attachTo(this.container)
-    this.specialStepsList = this.dash.create(Boxlist, {
+    this.specialStepsList = this.dash.create(BoxList, {
       args: [{
         id: "Special",
         group: undefined,
@@ -159,7 +159,7 @@ export default class ProjectStepsPanel {
     })
     if (!stepType) // This is here because Array.find() can return undefined...
       return false
-    if (ev.boxlistId === "Available") {
+    if (ev.boxListId === "Available") {
       // A step type is being added to the project...
       // TODO: should handleUpdate() be an async function?
       this.handleUpdate()

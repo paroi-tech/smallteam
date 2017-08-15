@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
-import Boxlist, { BoxlistParams } from "../Boxlist/Boxlist"
+import BoxList, { BoxListParams } from "../BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../Model/Model"
 import { toDebugObj } from "../../isomorphic/libraries/helpers"
@@ -22,7 +22,7 @@ export default class StepsPanel {
   private $stepsContainer: JQuery
 
   // BoxLists we created are stored in a map. The Keys are the IDs of the project steps.
-  private boxlistMap: Map<string, Boxlist<TaskBox>> = new Map()
+  private boxlistMap: Map<string, BoxList<TaskBox>> = new Map()
 
   constructor(private dash: Dash<App>, private parentTask: TaskModel) {
     this.model = dash.app.model
@@ -98,7 +98,7 @@ export default class StepsPanel {
         name: step.name,
         sort: true
       }
-      let bl = this.dash.create(Boxlist, {
+      let bl = this.dash.create(BoxList, {
         args: [params]
       })
       this.boxlistMap.set(step.id, bl)

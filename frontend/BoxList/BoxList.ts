@@ -4,13 +4,13 @@ import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import * as Sortable from "sortablejs"
 
-const boxlistTemplate = require("html-loader!./boxlist.html")
+const boxListTemplate = require("html-loader!./boxlist.html")
 const boxTemplate  = require("html-loader!./box.html")
 
 /**
- * As Boxlist is a template class, a Boxlist instance parameter should implement this interface.
+ * As BoxList is a template class, a BoxList instance parameter should implement this interface.
  *
- * The `id` property is required so that the Sortable library can manage the items in a Boxlist.
+ * The `id` property is required so that the Sortable library can manage the items in a BoxList.
  */
 export interface Box {
   id: string
@@ -18,38 +18,38 @@ export interface Box {
 }
 
 /**
- * Boxlist constructor parameters grouped in an interface.
+ * BoxList constructor parameters grouped in an interface.
  */
-export interface BoxlistParams {
+export interface BoxListParams {
   id: string
   // The Sortable lib enables to create groups, so that we can move items (drag and drop) between lists
   // that belong to the same group. This attribute represents the group of the Boxlist.
   group: string | undefined
-  // Name of the Boxlist.
+  // Name of the BoxList.
   name: string
   // When an item is moved inside a list or between lists, this function is used to validate or cancel
   // the move.
   onMove?: (ev: BoxEvent) => boolean
   // Object on which the 'onMove' function is called.
   obj?: any
-  // Can items be reordered within the Boxlist?
+  // Can items be reordered within the BoxList?
   sort: boolean
 }
 
 /**
- * Object provided by the `boxlistItemAdded` and `boxlistItemRemoved` events.
+ * Object provided by the `boxListItemAdded` and `boxListItemRemoved` events.
  */
 export interface BoxEvent {
-  boxlistId: string
+  boxListId: string
   boxId: string // ID of the moved item
 }
 
 /**
  * Object provided by the `boxlistUpdated` event.
  */
-export interface BoxlistEvent extends BoxEvent {
-  // Array of string that contains the IDs of the items in the Boxlist. The order of the IDs is the same as
-  // the order of the items in the Boxlist.
+export interface BoxListEvent extends BoxEvent {
+  // Array of string that contains the IDs of the items in the BoxList. The order of the IDs is the same as
+  // the order of the items in the BoxList.
   boxIds: Array<string>
 }
 
@@ -57,24 +57,24 @@ export interface BoxlistEvent extends BoxEvent {
  * Sortable list of items.
  *
  * This component relies on the [Sortable]{@link https://rubaxa.github.io/Sortable/} library to work.
- * A boxlist can emit three events (through the dash):
- *    - boxlistItemAdded, when an item id dropped in the Boxlist => BoxEvent
- *    - boxlistItemRemoved, when an item is moved (dragged) from the Boxlist => BoxEvent
- *    - boxlistUpdated, when the order of the itms in the Boxlist is updated => BoxlistEvent
+ * A BoxList can emit three events (through the dash):
+ *    - boxListItemAdded, when an item id dropped in the BoxList => BoxEvent
+ *    - boxListItemRemoved, when an item is moved (dragged) from the BoxList => BoxEvent
+ *    - boxListUpdated, when the order of the items in the Boxlist is updated => BoxListEvent
  */
-export default class Boxlist<T extends Box> {
+export default class BoxList<T extends Box> {
   private $container: JQuery
   private $ul: JQuery
   private sortable: Sortable
 
   /**
-   * Create a new empty Boxlist.
+   * Create a new empty BoxList.
    *
    * @param dash - the current application dash
    * @param params - wrapper of the Boxlist parameters
    */
-  constructor(private dash: Dash<App>, private params: BoxlistParams) {
-    this.$container = $(boxlistTemplate)
+  constructor(private dash: Dash<App>, private params: BoxListParams) {
+    this.$container = $(boxListTemplate)
     this.$ul = this.$container.find("ul")
     this.$container.find(".js-title").text(params.name)
     this.makeSortable()
@@ -93,7 +93,7 @@ export default class Boxlist<T extends Box> {
   }
 
   /**
-   * Add the boxlist as a child of an HTML element.
+   * Add the boxList as a child of an HTML element.
    *
    * @param el - element that the boxlist will be added to.
    */
@@ -102,7 +102,7 @@ export default class Boxlist<T extends Box> {
   }
 
   /***
-   * Make the boxlist sortable by creating a Sortable object.
+   * Make the boxList sortable by creating a Sortable object.
    */
   private makeSortable() {
     this.sortable = Sortable.create(this.$ul.get(0), {
@@ -111,23 +111,23 @@ export default class Boxlist<T extends Box> {
       sort: this.params.sort,
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
-          this.dash.emit("boxlistItemAdded", {
-            boxlistId: this.params.id,
+          this.dash.emit("boxListItemAdded", {
+            boxListId: this.params.id,
             boxId: ev.item.dataset.id
           })
       },
       // Element is moved from the list into another list.
       onRemove: (ev) => {
-          this.dash.emit("boxlistItemRemoved", {
-            boxlistId: this.params.id,
+          this.dash.emit("boxListItemRemoved", {
+            boxListId: this.params.id,
             boxId: ev.item.dataset.id
           })
       },
       // Changed sorting within list.
       onUpdate: (ev) => {
         let boxId = ev.item.dataset.id
-        this.dash.emit("boxlistSortingUpdated", {
-          boxlistId: this.params.id,
+        this.dash.emit("boxListSortingUpdated", {
+          boxListId: this.params.id,
           boxId: ev.item.dataset.id,
           boxIds: this.sortable.toArray()
         })
@@ -137,7 +137,7 @@ export default class Boxlist<T extends Box> {
         if (this.params.obj && this.params.onMove)
           return this.params.onMove.call(this.params.obj, {
             boxId: ev.dragged.dataset.id,
-            boxlistId: this.params.id
+            boxListId: this.params.id
           })
         else
           return true

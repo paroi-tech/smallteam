@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { Box } from "../Boxlist/Boxlist"
+import { Box } from "../BoxList/BoxList"
 import { StepTypeModel } from "../Model/Model"
 
 const template = require("html-loader!./steptypebox.html")
