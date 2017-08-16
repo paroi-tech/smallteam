@@ -33,7 +33,6 @@ export default class ProjectBoard implements Panel {
    * @param project - the project for which the project board is created.
    */
   constructor(private dash: Dash<App>, private project: ProjectModel) {
-    console.log("creating project board for project =>", this.project)
     this.model = this.dash.app.model
     this.initJQueryObjects()
     this.initComponents()
@@ -54,14 +53,6 @@ export default class ProjectBoard implements Panel {
     })
     this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
     this.$taskPanelContainer = this.$container.find(".js-editpanel-container")
-    // When a new task is created and its parent is the project main task, we have to add a new StepsPanel
-    // to the project board.
-   this.model.on("createTask", "dataFirst", data => {
-     let task = data.model as TaskModel
-     if (task.projectId == this.project.id && task.parentTaskId == this.project.rootTaskId) {
-       this.createStepsPanel(task)
-     }
-   })
   }
 
   /**
@@ -82,6 +73,17 @@ export default class ProjectBoard implements Panel {
       for (let task of tasksWithChildren)
         this.createStepsPanel(task)
     }
+  }
+
+  private listenToModel() {
+    // When a new task is created and its parent is the project main task, we have to add a new StepsPanel
+    // to the project board.
+    this.model.on("createTask", "dataFirst", data => {
+      let task = data.model as TaskModel
+      if (task.projectId == this.project.id && task.parentTaskId == this.project.rootTaskId) {
+        this.createStepsPanel(task)
+      }
+    })
   }
 
   /**

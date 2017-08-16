@@ -30,20 +30,16 @@ export default class StepsPanel {
     this.initJQueryObjects()
     this.createBoxlists()
     this.fillBoxlists()
+    this.listenToModel()
     this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
       console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
     })
-    this.model.on("update", "dataFirst", data => {
-      if (data.type === "StepType") {
-        let stepType = data.model as StepTypeModel
-        let step = this.parentTask.project.steps.find(step => step.typeId === stepType.id)
-        if (step) {
-          let list = this.boxlistMap.get(step.id)
-          if (list)
-            list.setTitle(stepType.name)
-        }
-      }
-    })
+  }
+
+  public refresh() {
+    this.initJQueryObjects()
+    this.createBoxlists()
+    this.fillBoxlists()
   }
 
   private initJQueryObjects() {
@@ -67,6 +63,20 @@ export default class StepsPanel {
 
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
+  }
+
+  private listenToModel() {
+    this.model.on("update", "dataFirst", data => {
+      if (data.type === "StepType") {
+        let stepType = data.model as StepTypeModel
+        let step = this.parentTask.project.steps.find(step => step.typeId === stepType.id)
+        if (step) {
+          let list = this.boxlistMap.get(step.id)
+          if (list)
+            list.setTitle(stepType.name)
+        }
+      }
+    })
   }
 
   private async createTask(name: string) {

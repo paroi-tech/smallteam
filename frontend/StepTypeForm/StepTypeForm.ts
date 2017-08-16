@@ -132,9 +132,8 @@ export default class StepTypeForm {
       console.log("Step type successfully updated...")
       this.fillWith(stepType)
       $indicator.hide()
-      this.dash.emit("stepTypeUpdated", stepType) // TODO: [Paleo] Check if this event is required
     } catch (err) {
-      console.error("Cannot update the step type.", err)
+      console.error("Cannot update the step type...", err)
       this.reset()
       if (this.stepType)
         this.fillWith(this.stepType)
