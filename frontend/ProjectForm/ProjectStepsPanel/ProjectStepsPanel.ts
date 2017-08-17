@@ -91,7 +91,7 @@ export default class ProjectStepsPanel {
   private fillBoxlists() {
     for (let stepType of this.stepTypes) {
       if (stepType.isSpecial)
-        this.specialStepsList.addBox(this.dash.create(StepTypeBox, { args: [stepType] }))
+        this.specialStepsList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
       else {
         let box = this.dash.create(StepTypeBox, {
           args: [stepType, "orderNum"]

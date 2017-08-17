@@ -67,9 +67,7 @@ export default class ProjectBoard implements Panel {
     this.createStepsPanel(this.project.rootTask)
     if (this.project.tasks) {
       console.log("trying to fill task lists...")
-      let tasksWithChildren = this.project.tasks.filter((task: TaskModel) => {
-        return task.children != undefined
-      })
+      let tasksWithChildren = this.project.tasks.filter(task => task.children != undefined)
       for (let task of tasksWithChildren)
         this.createStepsPanel(task)
     }
