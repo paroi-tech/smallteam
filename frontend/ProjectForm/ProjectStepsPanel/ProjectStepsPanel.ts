@@ -96,12 +96,15 @@ export default class ProjectStepsPanel {
         let box = this.dash.create(StepTypeBox, {
           args: [stepType, "orderNum"]
         })
-        // FIXME: StepType#orderNum can't be undefined
+        // FIXME: StepType#orderNum can't be undefined for a non special StepType.
         this.boxes.set(stepType.orderNum!.toString(), box)
-        if (this.project.hasStep(stepType.id))
+        if (this.project.hasStep(stepType.id)) {
           this.usedStepsList.addBox(box)
-        else
+          console.log("find step type", stepType.id, "for project", this.project.id)
+        } else {
           this.availableStepsList.addBox(box)
+          console.log("unused step type", stepType.id, "by project", this.project.id)
+        }
       }
     }
   }
