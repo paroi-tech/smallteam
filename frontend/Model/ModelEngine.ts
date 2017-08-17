@@ -4,6 +4,7 @@ import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
+import { toDebugStr } from "../../isomorphic/libraries/helpers";
 //import { validateDataArray } from "../../isomorphic/validation"
 
 // --
@@ -196,12 +197,15 @@ export default class ModelEngine {
 
   public findSingleFromIndex(query: IndexQuery): any | undefined {
     let identifiers = this.findIdentifiersFromIndex(query)
+//console.log(`  > findSingleFromIndex A`, query, identifiers)
     if (!identifiers)
       return undefined
     if (identifiers.size > 1)
       throw new Error(`Invalid call to "findSingleFromIndex", there are ${identifiers.size} results`)
+// console.log(`  > findSingleFromIndex B`, query, identifiers)
     for (let id of identifiers)
       return this.getModel(query.type, id)
+// console.log(`  > findSingleFromIndex C`, query, identifiers)
     return undefined
   }
 
@@ -209,13 +213,13 @@ export default class ModelEngine {
     index = cleanIndex(index, indexCb)
     let storage = this.getTypeStorage(type)
     let indexData = storage.indexes.get(index)
-    //console.log("getModels A", index, storage, indexMap)
+// console.log("  > findIdentifiersFromIndex A", index, storage, indexData)
     if (!indexData) {
       storage.indexes.set(index, indexData = {
         map: makeHKMap<any, any>(),
         indexCb
       })
-      //console.log("[storage.indexes] getModels A", toDebugStr(storage.indexes))
+// console.log("  > findIdentifiersFromIndex B", toDebugStr(storage.indexes))
       fillIndex(storage, index, indexData)
       //console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
       // console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
@@ -320,7 +324,7 @@ export default class ModelEngine {
     for (let id of ref.list) {
       let entity = storage.entities.get(id)
       if (!entity) {
-        console.log('=======>', Array.from(storage.entities.keys()))
+        //console.log('=======>', Array.from(storage.entities.keys()))
         throw new Error(`[${ref.type}] Missing data for: ${JSON.stringify(id)}`)
       }
       list.push(entity.fragment)
@@ -381,7 +385,7 @@ export default class ModelEngine {
         this.processModelUpdate(result.modelUpd)
       if (!result.responses || result.responses.length <= batchIndex)
         throw new Error(`The batch command is canceled due to a previous command error`)
-console.log(`.............${batchIndex} // `, result)
+//console.log(`.............${batchIndex} // `, result)
       return result.responses[batchIndex]
     })
   }
@@ -416,9 +420,10 @@ function cleanIndex(index: Index, indexCb?: IndexCallbacks): Index {
 }
 
 function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
-  // console.log("fillIndex A", index, storage, toDebugStr(indexMap), toDebugStr(storage.entities))
+//console.log("  ** fillIndex A", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
   for (let [id, entity] of storage.entities)
     tryToAddToIndex(index, indexData, id, entity.fragment)
+//console.log("  ** fillIndex B", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
 }
 
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object, removeOld = false) {
@@ -431,21 +436,17 @@ function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object
 function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, frag: object) {
   if (indexData.indexCb && !canBeAddedToIndex(frag, indexData.indexCb))
     return
-  let fieldNames: string[] = []
   let names = typeof index === "string" ? [index] : index
-  for (let name of names) {
-    if (!indexData[name])
-      fieldNames.push(name)
-  }
+  let fieldNames = indexData.indexCb ? names.filter(name => !indexData.indexCb![name]) : names // TODO: verify indexCb
   let key = {}
-  //console.log("tryToAddToIndex", fieldNames, index)
+//console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
   for (let name of fieldNames)
     key[name] = frag[name]
   let identifiers = indexData.map.get(key)
   if (!identifiers)
     indexData.map.set(key, identifiers = makeHKSet<any>())
   identifiers.add(id)
-  // console.log("tryToAddToIndex A", index, key, toDebugStr(indexMap), toDebugStr(identifiers), "ID=", id)
+//console.log("  && tryToAddToIndex b", index, key, toDebugStr(indexData.map), toDebugStr(identifiers), "ID=", id)
 }
 
 function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {

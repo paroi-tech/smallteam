@@ -214,14 +214,16 @@ function registerProject(engine: ModelEngine) {
         return !!this.findStep(stepTypeId)
       },
       findStep(stepTypeId: string) {
-        return engine.findSingleFromIndex({
+        let item = engine.findSingleFromIndex({
           type: "Step",
-          index: ["projectId", "stepTypeId"],
+          index: ["projectId", "typeId"],
           key: {
             projectId: getFrag().id,
-            stepTypeId
+            typeId: stepTypeId
           }
         })
+        //console.log(`...... project(${getFrag().id}).findStep(${stepTypeId})`, item)
+        return item
       },
       get tasks() {
         return this.rootTask.children
