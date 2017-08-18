@@ -109,7 +109,7 @@ async function executeQuery(data, loader: CargoLoader) {
 }
 
 async function executeCommand(data, loader: CargoLoader) {
-  loader.startResponse(data.cmd === "reorder" ? "none" : "fragment")
+  loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
   if (data.type === "Project") {
     if (data.cmd === "create")
       await createProject(loader, data.frag)

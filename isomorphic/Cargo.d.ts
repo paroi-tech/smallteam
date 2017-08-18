@@ -52,14 +52,14 @@ export interface FragmentsResult {
 export type Result = DataResult | FragmentResult | FragmentsResult
 
 export type Changed = {
-  [K in Type]: Identifier[]
+  [K in Type]?: Identifier[]
 }
 
 /**
  * Each partial fragment contains the ID (required) and optional fields
  */
 export type PartialFragments = {
-  [K in Type]: object[]
+  [K in Type]?: object[]
 }
 
 export interface ModelUpdate {

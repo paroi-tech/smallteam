@@ -90,21 +90,21 @@ export default class ModelUpdateLoader {
     return isObjEmpty(modelUpd) ? undefined : modelUpd
   }
 
-  private fillModelUpdateWithChanges(modelUpd: ModelUpdate | any) {
+  private fillModelUpdateWithChanges(modelUpd: ModelUpdate) {
     if (this.changedMap.size === 0)
       return
     for (let [type, changed] of this.changedMap) {
       for (let [id, changedType] of changed) {
         if (!modelUpd[changedType])
           modelUpd[changedType] = {}
-        if (!modelUpd[changedType][type])
-          modelUpd[changedType][type] = []
-        modelUpd[changedType][type].push(id)
+        if (!modelUpd[changedType]![type])
+          modelUpd[changedType]![type] = []
+        modelUpd[changedType]![type]!.push(id)
       }
     }
   }
 
-  private fillModelUpdateWithFragments(modelUpd: ModelUpdate | any) {
+  private fillModelUpdateWithFragments(modelUpd: ModelUpdate) {
     if (this.fragmentsMap.size === 0)
       return
     for (let [type, fragments] of this.fragmentsMap) {
@@ -115,12 +115,12 @@ export default class ModelUpdateLoader {
           modelUpd.fragments = {}
         if (!modelUpd.fragments[type])
           modelUpd.fragments[type] = []
-        modelUpd.fragments[type].push(frag)
+        ;(modelUpd.fragments[type] as any[]).push(frag)
       }
     }
   }
 
-  private fillModelUpdateWithPartial(modelUpd: ModelUpdate | any) {
+  private fillModelUpdateWithPartial(modelUpd: ModelUpdate) {
     if (this.partialMap.size === 0)
       return
     for (let [type, partial] of this.partialMap) {
@@ -131,7 +131,7 @@ export default class ModelUpdateLoader {
           modelUpd.partial = {}
         if (!modelUpd.partial[type])
           modelUpd.partial[type] = []
-        modelUpd.partial[type].push(partialFrag)
+        modelUpd.partial[type]!.push(partialFrag)
       }
     }
   }
@@ -176,7 +176,7 @@ export default class ModelUpdateLoader {
 }
 
 function isObjEmpty(obj: object): boolean {
-  for (let k in <any>obj) { // TODO: remove the cast once the TS bug is fixed https://github.com/Microsoft/TypeScript/issues/14187
+  for (let k in obj) {
     if (obj.hasOwnProperty(k))
       return false
   }
