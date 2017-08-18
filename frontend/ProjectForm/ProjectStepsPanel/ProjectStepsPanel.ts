@@ -133,14 +133,8 @@ export default class ProjectStepsPanel {
       let stepType = this.stepTypeOrderNumMap.get(id)
       if (!stepType) // This should not happen.
         continue
-      if (!this.project.hasStep(stepType.id)) {
-        let box = this.boxMap.get(id)
-        if (box)
-          batch.exec("create", "Step", {
-            typeId: stepType.id, projectId:
-            this.project.id
-          })
-      }
+      if (!this.project.hasStep(stepType.id))
+          batch.exec("create", "Step", { typeId: stepType.id, projectId: this.project.id })
     }
 
     // We remove unused StepTypes. No need to check if there are tasks in the Step. There was an control
@@ -149,9 +143,9 @@ export default class ProjectStepsPanel {
       let stepType = this.stepTypeOrderNumMap.get(id)
       if (!stepType) // This should not happen.
         continue
-       this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
-      if (this.project.hasStep(stepType.id))
-        batch.exec("delete", "Step", { id: stepType.id })
+      let step = this.project.findStep(stepType.id)
+      if (step)
+        batch.exec("delete", "Step", { id: step.id })
     }
 
     try {
