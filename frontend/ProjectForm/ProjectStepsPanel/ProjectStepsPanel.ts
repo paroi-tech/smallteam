@@ -127,12 +127,6 @@ export default class ProjectStepsPanel {
     }
     // We remove unused StepTypes.
     for (let id of unused) {
-      // let stepType = this.stepTypes.find(stepType => stepType.orderNum !== null && stepType.orderNum!.toString() === id)
-      // if (!stepType)
-      //   continue
-      // let step = this.project.findStep(stepType.id)
-      // if (step)
-      //   batch.exec("delete", "Step", {id: step.id})
       let step = this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
       if (step)
         batch.exec("delete", "Step", { id: step.id })
