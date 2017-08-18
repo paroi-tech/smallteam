@@ -17,25 +17,25 @@ export default class ProjectStepsPanel {
   private boxes: Map<string, StepTypeBox> = new Map()
 
   /**
-   * StepTypes loaded from model.
-   */
-  private stepTypes: StepTypeModel[]
-
-  /**
-   * Timer used to schedule the commit of the changes in the Boxlists to the model.
+   * Timer used to schedule the commit of the changes in the BoxLists to the model.
    */
   private timer: any = undefined
-
 
   constructor(private dash: Dash<App>, private project: ProjectModel) {
     this.model = this.dash.app.model
     this.initComponents()
-    this.loadStepTypes().then(() => {
-      this.fillBoxlists()
+    this.model.query("StepType").then(stepTypes => {
+      this.fillBoxLists(stepTypes)
+    }).catch(err => {
+      console.log(`Error while loading StepTypes in ProjectStepsPanel ${this.project.id}`)
     })
+    this.listenToModel()
+  }
+
+  private listenToModel() {
     this.model.on("createStepType", "dataFirst", data => {
       let box = this.dash.create(StepTypeBox, {
-        args: [data.model, "orderNum"]
+        args: [ data.model, "orderNum" ]
       })
       this.availableStepsList.addBox(box)
     })
@@ -77,34 +77,20 @@ export default class ProjectStepsPanel {
     this.specialStepsList.attachTo(this.container)
   }
 
-  /**
-   * Load all step types from the model.
-   */
-  private async loadStepTypes() {
-    try {
-      this.stepTypes = await this.model.query("StepType")
-    } catch (err) {
-      console.log("Unable to load step types from model.", err)
-    }
-  }
-
-  private fillBoxlists() {
-    for (let stepType of this.stepTypes) {
+  private fillBoxLists(stepTypes: StepTypeModel[]) {
+    for (let stepType of stepTypes) {
       if (stepType.isSpecial)
         this.specialStepsList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
       else {
         let box = this.dash.create(StepTypeBox, {
-          args: [stepType, "orderNum"]
+          args: [ stepType, "orderNum" ]
         })
         // FIXME: StepType#orderNum can't be undefined for a non special StepType.
         this.boxes.set(stepType.orderNum!.toString(), box)
-        if (this.project.hasStep(stepType.id)) {
+        if (this.project.hasStep(stepType.id))
           this.usedStepsList.addBox(box)
-          console.log("find step type", stepType.id, "for project", this.project.id)
-        } else {
+       else
           this.availableStepsList.addBox(box)
-          console.log("unused step type", stepType.id, "by project", this.project.id)
-        }
       }
     }
   }
@@ -128,19 +114,28 @@ export default class ProjectStepsPanel {
     let unused = this.availableStepsList.getBoxesOrder()
     let batch = this.model.createCommandBatch()
     for (let id of used) {
-      let step = this.stepTypes.find(step => step.orderNum != null && step.orderNum!.toString() === id)
-      if (step && !this.project.hasStep(step.id))
-        batch.exec("create", "Step", {
-          typeId: step.id, projectId: this.project.id
-        })
+      // We only create steps for newly added StepTypes.
+      // Note: the StepTypeBox used in ProjectStepsPanel have Step#orderNum as IDs...
+      let step = this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
+      if (!step) {
+        let box = this.boxes.get(id)
+        if (box)
+          batch.exec("create", "Step", {
+            typeId: box.getStepType().id, projectId: this.project.id
+          })
+      }
     }
+    // We remove unused StepTypes.
     for (let id of unused) {
-      let stepType = this.stepTypes.find(stepType => stepType.orderNum !== null && stepType.orderNum!.toString() === id)
-      if (!stepType)
-        continue
-      let step = this.project.findStep(stepType.id)
+      // let stepType = this.stepTypes.find(stepType => stepType.orderNum !== null && stepType.orderNum!.toString() === id)
+      // if (!stepType)
+      //   continue
+      // let step = this.project.findStep(stepType.id)
+      // if (step)
+      //   batch.exec("delete", "Step", {id: step.id})
+      let step = this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
       if (step)
-        batch.exec("delete", "Step", {id: step.id})
+        batch.exec("delete", "Step", { id: step.id })
     }
     try {
       let val = await batch.sendAll()
@@ -158,29 +153,21 @@ export default class ProjectStepsPanel {
   }
 
   private validateStepTypeMove(ev: BoxEvent) {
-    // We have to find the step type that is concerned by the BoxEvent.
-    // FIXME: This search can take time. Use a map to hold step types.
-    let stepType = this.stepTypes.find((stepType): boolean => {
-      return (!stepType.isSpecial) && (stepType.orderNum!.toString() === ev.boxId)
-    })
-    if (!stepType) // This is here because Array.find() can return undefined...
-      return false
     if (ev.boxListId === "Available") {
       // A step type is being added to the project...
       // TODO: should handleUpdate() be an async function?
       this.handleUpdate()
       return true
     } else {
-      // A step type is removed from the project...
-      let step = this.project.findStep(stepType.id)
-      if (!step)
+      // A step type is removed from the project. We check if the step contains tasks.
+      let step = this.project.steps.find((step): boolean => {
+        return step.orderNum != null && step.orderNum.toString() === ev.boxId
+      })
+      if (!step || step.taskCount === 0) {
+        this.handleUpdate()
+        return true
+      } else {
         return false
-      else {
-        if (step.taskCount === 0) {
-          this.handleUpdate()
-          return true
-        } else
-          return false
       }
     }
   }

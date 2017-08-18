@@ -56,4 +56,8 @@ export default class StepTypeBox implements Box {
       this.$container.removeClass("focus")
     }
   }
+
+  public getStepType(): StepTypeModel {
+    return this.stepType
+  }
 }
