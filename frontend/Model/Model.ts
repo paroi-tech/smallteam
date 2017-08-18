@@ -53,6 +53,10 @@ export interface Model extends CommandRunner {
   createCommandBatch(): CommandBatch
 }
 
+export interface CommandBatch extends CommandRunner {
+  sendAll(): Promise<any[]>
+}
+
 // --
 // -- Component ModelComp
 // --
@@ -82,7 +86,7 @@ export default class ModelComp implements Model {
   }
 
   public createCommandBatch(): CommandBatch {
-    return new CommandBatch(this.engine)
+    return new GenericCommandBatch(this.engine)
   }
 
   // --
@@ -103,7 +107,7 @@ export default class ModelComp implements Model {
 }
 
 // --
-// -- Class CommandBatch
+// -- Class GenericCommandBatch
 // --
 
 interface EngineCommand {
@@ -112,7 +116,7 @@ interface EngineCommand {
   deferred: Deferred<any>
 }
 
-class CommandBatch implements CommandRunner {
+class GenericCommandBatch implements CommandRunner {
   private commands: EngineCommand[] = []
 
   constructor(private engine: ModelEngine) {

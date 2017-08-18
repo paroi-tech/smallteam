@@ -242,7 +242,7 @@ function makeTests(el, model: Model) {
     batch.query("StepType").then(result => {
       console.log("Queryied steptype:", result)
     })
-    batch.query("Project").then(result => {
+    batch.query("Project", {archived: false}).then(result => {
       console.log("Queryied Project:", result)
     })
 

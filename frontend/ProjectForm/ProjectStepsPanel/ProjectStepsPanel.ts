@@ -135,9 +135,12 @@ export default class ProjectStepsPanel {
         })
     }
     for (let id of unused) {
-      let step = this.stepTypes.find(step => step.orderNum !== null && step.orderNum!.toString() === id)
-      if (step && this.project.hasStep(step.id))
-        batch.exec("delete", "Step", step.id)
+      let stepType = this.stepTypes.find(stepType => stepType.orderNum !== null && stepType.orderNum!.toString() === id)
+      if (!stepType)
+        continue
+      let step = this.project.findStep(stepType.id)
+      if (step)
+        batch.exec("delete", "Step", {id: step.id})
     }
     try {
       let val = await batch.sendAll()
