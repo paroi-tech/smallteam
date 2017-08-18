@@ -12,9 +12,20 @@ export default class ProjectStepsPanel {
   private model: Model
 
   /**
-   * StepTypeBoxes created in the panel. There is no box created for special step types.
+   * Map used to store StepTypeBoxes created in the panel.
    */
-  private boxes: Map<string, StepTypeBox> = new Map()
+  private boxMap: Map<string, StepTypeBox> = new Map()
+
+  /**
+   * Maps used to store StepTypes.
+   * We use two maps, one which keys are StepTypes IDs and another which keys are StepType orderNum.
+   * We do that because special StepTypes have no orderNum but still have an ID.
+   * The `stepTypeOrderNumMap` is needed because StepTypeBoxes in the `availableStepTypeList` and
+   * `usedStepTypeList` use StepType#orderNum as ID.
+   * So when a StepTypeBox is moved and we have to * handle the event, we retrieve the StepType based on the orderNum.
+   */
+  private stepTypeIdMap: Map<string, StepTypeModel> = new Map()
+  private stepTypeOrderNumMap: Map<string, StepTypeModel> = new Map()
 
   /**
    * Timer used to schedule the commit of the changes in the BoxLists to the model.
@@ -78,20 +89,22 @@ export default class ProjectStepsPanel {
   }
 
   private fillBoxLists(stepTypes: StepTypeModel[]) {
+    let boxList: BoxList<StepTypeBox>
+    let box: StepTypeBox
     for (let stepType of stepTypes) {
-      if (stepType.isSpecial)
-        this.specialStepsList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
-      else {
-        let box = this.dash.create(StepTypeBox, {
-          args: [ stepType, "orderNum" ]
-        })
-        // FIXME: StepType#orderNum can't be undefined for a non special StepType.
-        this.boxes.set(stepType.orderNum!.toString(), box)
-        if (this.project.hasStep(stepType.id))
-          this.usedStepsList.addBox(box)
-       else
-          this.availableStepsList.addBox(box)
+      this.stepTypeIdMap.set(stepType.id, stepType)
+
+      if (stepType.isSpecial) {
+        box = this.dash.create(StepTypeBox, { args: [ stepType ] })
+        boxList = this.specialStepsList
+      } else {
+        // FIXME: StepType#orderNum can't be undefined for a StepType which is not special.
+        this.stepTypeOrderNumMap.set(stepType.orderNum!.toString(), stepType)
+        box = this.dash.create(StepTypeBox, { args: [ stepType, "orderNum" ] })
+        boxList = this.project.hasStep(stepType.id) ? this.usedStepsList : this.availableStepsList
       }
+      this.boxMap.set(stepType.id, box)
+      boxList.addBox(box)
     }
   }
 
@@ -113,24 +126,34 @@ export default class ProjectStepsPanel {
     let used = this.usedStepsList.getBoxesOrder()
     let unused = this.availableStepsList.getBoxesOrder()
     let batch = this.model.createCommandBatch()
+
+    // We create steps for newly added StepTypes.
     for (let id of used) {
-      // We only create steps for newly added StepTypes.
       // Note: the StepTypeBox used in ProjectStepsPanel have Step#orderNum as IDs...
-      let step = this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
-      if (!step) {
-        let box = this.boxes.get(id)
+      let stepType = this.stepTypeOrderNumMap.get(id)
+      if (!stepType) // This should not happen.
+        continue
+      if (!this.project.hasStep(stepType.id)) {
+        let box = this.boxMap.get(id)
         if (box)
           batch.exec("create", "Step", {
-            typeId: box.getStepType().id, projectId: this.project.id
+            typeId: stepType.id, projectId:
+            this.project.id
           })
       }
     }
-    // We remove unused StepTypes.
+
+    // We remove unused StepTypes. No need to check if there are tasks in the Step. There was an control
+    // when the StepTypeBox was moved.
     for (let id of unused) {
-      let step = this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
-      if (step)
-        batch.exec("delete", "Step", { id: step.id })
+      let stepType = this.stepTypeOrderNumMap.get(id)
+      if (!stepType) // This should not happen.
+        continue
+       this.project.steps.find(step => step.orderNum != null && step.orderNum.toString() === id)
+      if (this.project.hasStep(stepType.id))
+        batch.exec("delete", "Step", { id: stepType.id })
     }
+
     try {
       let val = await batch.sendAll()
       // TODO: sort the content of the boxlists based on stepTypes orderNum.
@@ -154,9 +177,10 @@ export default class ProjectStepsPanel {
       return true
     } else {
       // A step type is removed from the project. We check if the step contains tasks.
-      let step = this.project.steps.find((step): boolean => {
-        return step.orderNum != null && step.orderNum.toString() === ev.boxId
-      })
+      let stepType = this.stepTypeOrderNumMap.get(ev.boxId)
+      if (!stepType) // This should not happen. It means there is an error in the model or in Map#get().
+        return false
+      let step = this.project.findStep(stepType.id)
       if (!step || step.taskCount === 0) {
         this.handleUpdate()
         return true
