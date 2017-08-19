@@ -9,3 +9,5 @@ www-server/www/*
 !www-server/www/font-awesome
 
 *.sqlite
+
+.ropeproject

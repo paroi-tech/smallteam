@@ -135,18 +135,20 @@ export default class ProjectForm {
   }
 
   private async updateProject(name: string, description: string) {
-    // let spinner = this.submitBtn.querySelector("span")
-    // if (spinner)
-    //   spinner.style.display = "inline"
-    // this.model.exec("update", "Project", { name, description }).then(project => {
-    //   if (spinner)
-    //     spinner.style.display = "none"
-    //   console.log(`Project ${project.name} successfully updated...`)
-    // }).catch(error => {
-    //   if (spinner)
-    //     spinner.style.display = "none"
-    //   console.error(error)
-    // }).then(() => this.fillFormFieldsWithProject())
+    let spinner = this.submitBtn.querySelector("span")
+    if (spinner)
+      spinner.style.display = "inline"
+    try {
+      let project = await this.model.exec("update", "Project", { id: this.project!.id, name, description })
+      if (spinner)
+        spinner.style.display = "none"
+      console.log(`Project ${project.name} successfully updated...`)
+    } catch (error) {
+      if (spinner)
+        spinner.style.display = "none"
+      console.error(error)
+    }
+    this.fillFormFieldsWithProject()
   }
 
   // TODO: Remove this function. It's no longer useful.
