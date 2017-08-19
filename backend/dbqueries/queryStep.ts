@@ -23,7 +23,7 @@ export async function fetchSteps(loader: CargoLoader, idList: string[]) {
   }
 }
 
-export async function fetchProjectSteps(loader: CargoLoader, projectIdList: number[]) {
+export async function fetchStepsByProjects(loader: CargoLoader, projectIdList: number[]) {
   let cn = await getDbConnection()
   let sql = selectFromStep()
   sql.where("s.project_id", "in", projectIdList)
@@ -31,6 +31,22 @@ export async function fetchProjectSteps(loader: CargoLoader, projectIdList: numb
   for (let row of rs) {
     let frag = toStepFragment(row)
     loader.modelUpdate.addFragment("Step", frag.id, frag)
+  }
+}
+
+export async function markAsUpdatedStepsByType(loader: CargoLoader, stepTypeId: number) {
+  let cn = await getDbConnection()
+  let sql = selectFromStep()
+  sql.where("s.step_type_id", stepTypeId)
+  let rs = await cn.all(sql.toSql())
+  for (let row of rs) {
+    let frag = toStepFragment(row)
+    loader.addFragment({
+      type: "Step",
+      id: frag.id,
+      markAs: "updated",
+      frag
+    })
   }
 }
 

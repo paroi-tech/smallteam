@@ -6,7 +6,7 @@ import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92buil
 import { getDbConnection, toIntList } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription } from "./queryTask"
-import { fetchProjectSteps } from "./queryStep"
+import { fetchStepsByProjects } from "./queryStep"
 
 // --
 // -- Read
@@ -45,7 +45,7 @@ export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) 
     loader.modelUpdate.addFragment("Task", frag.rootTaskId)
     projectIdList.push(row["project_id"])
   }
-  await fetchProjectSteps(loader, projectIdList)
+  await fetchStepsByProjects(loader, projectIdList)
   await fetchProjectTasks(loader, projectIdList)
 }
 

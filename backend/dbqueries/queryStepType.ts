@@ -5,6 +5,7 @@ import { StepTypeFragment, NewStepTypeFragment, newStepTypeMeta, UpdStepTypeFrag
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { markAsUpdatedStepsByType } from "./queryStep"
 
 // --
 // -- Read
@@ -103,14 +104,14 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
     .set(values)
     .where("step_type_id", stepTypeId) // toSqlValues(updFrag, updStepTypeMeta, "onlyId") ! FIXME: Find the bug with toSqlValues
 
-  await cn.run(sql.toSql())
-
   loader.addFragment({
     type: "StepType",
     id: stepTypeId.toString(),
     asResult: "fragment",
     markAs: "updated"
   })
+
+  await Promise.all([cn.run(sql.toSql()), markAsUpdatedStepsByType(loader, stepTypeId)])
 }
 
 // --

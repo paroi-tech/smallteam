@@ -215,6 +215,7 @@ export default class ModelEngine {
     let indexData = storage.indexes.get(index)
 // console.log("  > findIdentifiersFromIndex A", index, storage, indexData)
     if (!indexData) {
+      checkColumnsAreInMeta(type, indexToFieldNames(index, indexCb))
       storage.indexes.set(index, indexData = {
         map: makeHKMap<any, any>(),
         indexCb
@@ -293,11 +294,9 @@ export default class ModelEngine {
 
   private emitEvents(changed: Changed, cmd: CommandType) {
     const that = this
-    for (let type in changed) {
-      if (!changed.hasOwnProperty(type))
-        continue
+    for (let [type, idList] of Object.entries<any>(changed)) {
       let storage = this.getTypeStorage(type as Type)
-      for (let id of changed[type]) {
+      for (let id of idList) {
         this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
           type,
           id,
@@ -411,6 +410,19 @@ export function appendGettersToModel(model, type: Type, getFrag: () => object) {
 // -- Private tools
 // --
 
+function indexToFieldNames(index: Index, indexCallbacks?: IndexCallbacks) {
+  let names = typeof index === "string" ? [index] : index
+  return indexCallbacks ? names.filter(name => !indexCallbacks[name]) : names
+}
+
+function checkColumnsAreInMeta(type: Type, fieldNames: string[]) {
+  let fragMeta = getFragmentMeta(type)
+  for (let name of fieldNames) {
+    if (!fragMeta.fields[name])
+      throw new Error(`Unknown field ${name} in ${type}`)
+  }
+}
+
 function cleanIndex(index: Index, indexCb?: IndexCallbacks): Index {
   if (typeof index === "string")
     index = [index]
@@ -436,8 +448,7 @@ function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object
 function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, frag: object) {
   if (indexData.indexCb && !canBeAddedToIndex(frag, indexData.indexCb))
     return
-  let names = typeof index === "string" ? [index] : index
-  let fieldNames = indexData.indexCb ? names.filter(name => !indexData.indexCb![name]) : names // TODO: verify indexCb
+  let fieldNames = indexToFieldNames(index, indexData.indexCb)
   let key = {}
 //console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
   for (let name of fieldNames)

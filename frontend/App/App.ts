@@ -2,6 +2,7 @@ import * as $ from "jquery"
 import { ApplicationDash, ApplicationBkb, Log, LogItem, Component } from "bkb"
 import PanelSelector from "../PanelSelector/PanelSelector"
 import ModelComp, { Model } from "../Model/Model"
+import { ModelEvent } from "../Model/ModelEngine";
 
 export default class App {
   readonly log: Log
@@ -16,6 +17,8 @@ export default class App {
     this.dash.on("log", "dataFirst", (data: LogItem) => {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
+
+    this.model.on("change", "dataFirst", data => console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model))
   }
 
   public start() {

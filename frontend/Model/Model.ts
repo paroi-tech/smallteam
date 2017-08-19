@@ -354,9 +354,9 @@ function registerStepType(engine: ModelEngine) {
       get hasProjects() {
         return engine.getModels({
           type: "Step",
-          index: "stepTypeId",
+          index: "typeId",
           key: {
-            stepTypeId: getFrag().id
+            typeId: getFrag().id
           },
           orderBy: ["projectId", "asc"] // TODO: implement a function here => sort on project name
         }).length > 0
