@@ -302,7 +302,7 @@ export default class ModelEngine {
           id,
           cmd,
           get model() {
-            return that.getModel(type as Type, id)
+            return cmd === "delete" ? undefined : that.getModel(type as Type, id)
           }
         } as ModelEvent)
       }
