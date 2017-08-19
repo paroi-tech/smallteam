@@ -30,9 +30,10 @@ export interface ModelsQuery extends IndexQuery {
 
 export interface ModelEvent {
   type: Type
-  id: Identifier
-  cmd: CommandType
-  model: any
+  id?: Identifier
+  orderedIds?: Identifier
+  cmd: CommandType | 'reorder'
+  model?: any
 }
 
 // --
@@ -94,7 +95,7 @@ export default class ModelEngine {
   private batch: Batch | null = null
 
   constructor(private dash: Dash<object>) {
-    this.dash.exposeEvents(`change`, `create`, `update`, `delete`)
+    this.dash.exposeEvents(`change`, `create`, `update`, `delete`, `reorder`)
   }
 
   public registerType(type: Type, modelMaker: (getFrag: () => object) => object) {
@@ -103,7 +104,7 @@ export default class ModelEngine {
       indexes: makeHKMap<any, any>(),
       modelMaker
     })
-    this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`)
+    this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`)
   }
 
   public startBatchRecord(httpMethod?: HttpMethod) {
@@ -134,7 +135,7 @@ export default class ModelEngine {
 
   public async exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
     let del = cmd === "delete"
-    let resultFrag = await this.httpSendAndUpdate("POST", "/api/exec", {cmd, type, frag}, del ? "none" : "fragment")
+    let resultFrag = await this.httpSendAndUpdate("POST", "/api/exec", { cmd, type, frag }, del ? "none" : "fragment")
     if (!del)
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
@@ -147,7 +148,7 @@ export default class ModelEngine {
       return []
     await this.httpSendAndUpdate("POST", "/api/exec", { cmd: "reorder", type, ...orderedIds }, "none")
     return orderedIds.idList
-      .map(id => { return { id, frag: this.getFragment({ id, type }) } })
+      .map(id => ({ id, frag: this.getFragment({ id, type }) }))
       .sort((a, b) => a.frag[orderFieldName!] - b.frag[orderFieldName!])
       .map(obj => obj.id)
   }
@@ -197,30 +198,30 @@ export default class ModelEngine {
 
   public findSingleFromIndex(query: IndexQuery): any | undefined {
     let identifiers = this.findIdentifiersFromIndex(query)
-//console.log(`  > findSingleFromIndex A`, query, identifiers)
+    //console.log(`  > findSingleFromIndex A`, query, identifiers)
     if (!identifiers)
       return undefined
     if (identifiers.size > 1)
       throw new Error(`Invalid call to "findSingleFromIndex", there are ${identifiers.size} results`)
-// console.log(`  > findSingleFromIndex B`, query, identifiers)
+    // console.log(`  > findSingleFromIndex B`, query, identifiers)
     for (let id of identifiers)
       return this.getModel(query.type, id)
-// console.log(`  > findSingleFromIndex C`, query, identifiers)
+    // console.log(`  > findSingleFromIndex C`, query, identifiers)
     return undefined
   }
 
-  private findIdentifiersFromIndex({type, index, key, indexCb}: IndexQuery): HKSet<Identifier> | undefined {
+  private findIdentifiersFromIndex({ type, index, key, indexCb }: IndexQuery): HKSet<Identifier> | undefined {
     index = cleanIndex(index, indexCb)
     let storage = this.getTypeStorage(type)
     let indexData = storage.indexes.get(index)
-// console.log("  > findIdentifiersFromIndex A", index, storage, indexData)
+    // console.log("  > findIdentifiersFromIndex A", index, storage, indexData)
     if (!indexData) {
       checkColumnsAreInMeta(type, indexToFieldNames(index, indexCb))
       storage.indexes.set(index, indexData = {
         map: makeHKMap<any, any>(),
         indexCb
       })
-// console.log("  > findIdentifiersFromIndex B", toDebugStr(storage.indexes))
+      // console.log("  > findIdentifiersFromIndex B", toDebugStr(storage.indexes))
       fillIndex(storage, index, indexData)
       //console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
       // console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
@@ -309,6 +310,19 @@ export default class ModelEngine {
     }
   }
 
+  private emitEventReordered(reordered: Changed) {
+    const that = this,
+      cmd = 'reorder'
+    for (let [type, orderedIds] of Object.entries<any>(reordered)) {
+      let storage = this.getTypeStorage(type as Type)
+      this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
+        type,
+        orderedIds,
+        cmd
+      } as ModelEvent)
+    }
+  }
+
   private getFragment(ref: FragmentRef) {
     let storage = this.getTypeStorage(ref.type)
     let entity = storage.entities.get(ref.id)
@@ -370,6 +384,8 @@ export default class ModelEngine {
       this.emitEvents(modelUpd.updated, "update")
     if (modelUpd.created)
       this.emitEvents(modelUpd.created, "create")
+    if (modelUpd.reordered)
+      this.emitEventReordered(modelUpd.reordered)
   }
 
   private httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {
@@ -384,7 +400,7 @@ export default class ModelEngine {
         this.processModelUpdate(result.modelUpd)
       if (!result.responses || result.responses.length <= batchIndex)
         throw new Error(`The batch command is canceled due to a previous command error`)
-//console.log(`.............${batchIndex} // `, result)
+      //console.log(`.............${batchIndex} // `, result)
       return result.responses[batchIndex]
     })
   }
@@ -432,10 +448,10 @@ function cleanIndex(index: Index, indexCb?: IndexCallbacks): Index {
 }
 
 function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
-//console.log("  ** fillIndex A", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
+  //console.log("  ** fillIndex A", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
   for (let [id, entity] of storage.entities)
     tryToAddToIndex(index, indexData, id, entity.fragment)
-//console.log("  ** fillIndex B", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
+  //console.log("  ** fillIndex B", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
 }
 
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object, removeOld = false) {
@@ -450,14 +466,14 @@ function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, fra
     return
   let fieldNames = indexToFieldNames(index, indexData.indexCb)
   let key = {}
-//console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
+  //console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
   for (let name of fieldNames)
     key[name] = frag[name]
   let identifiers = indexData.map.get(key)
   if (!identifiers)
     indexData.map.set(key, identifiers = makeHKSet<any>())
   identifiers.add(id)
-//console.log("  && tryToAddToIndex b", index, key, toDebugStr(indexData.map), toDebugStr(identifiers), "ID=", id)
+  //console.log("  && tryToAddToIndex b", index, key, toDebugStr(indexData.map), toDebugStr(identifiers), "ID=", id)
 }
 
 function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {
@@ -478,9 +494,7 @@ function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
 }
 
 function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: object, entity: Entity, fragMeta: FragmentMeta) {
-  for (let fieldName in <any>partialFrag) { // TODO: remove the cast once the TS bug is fixed https://github.com/Microsoft/TypeScript/issues/14187
-    if (!partialFrag.hasOwnProperty(fieldName))
-      continue
+  for (let fieldName of Object.keys(partialFrag)) {
     if (partialFrag[fieldName] === null)
       delete entity.fragment[fieldName]
     else

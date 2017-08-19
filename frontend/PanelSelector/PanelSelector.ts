@@ -6,7 +6,7 @@ import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import ProjectBoard from "../ProjectBoard/ProjectBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
-import { Model, ProjectModel, TaskModel, ModelEvent } from "../Model/Model"
+import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 
 const template = require("html-loader!./panelselector.html")

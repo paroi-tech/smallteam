@@ -133,9 +133,7 @@ export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
     oldNums.delete(id)
   }
   let remaining = Array.from(oldNums.keys())
-  remaining.sort((a, b) => {
-    return a - b
-  })
+  remaining.sort((a, b) => a - b)
   for (let id of remaining) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
@@ -143,6 +141,7 @@ export async function reorderStepTypes(loader: CargoLoader, idList: string[]) {
       loader.modelUpdate.addPartial("StepType", { id: id.toString(), "orderNum": curNum })
     }
   }
+  loader.modelUpdate.markIdsAsReordered("StepType", idList)
 }
 
 async function updateOrderNum(stepTypeId: number, orderNum: number) {

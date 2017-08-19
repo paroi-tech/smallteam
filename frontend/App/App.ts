@@ -18,7 +18,12 @@ export default class App {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
 
-    this.model.on("change", "dataFirst", data => console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model))
+    this.model.on("change", "dataFirst", data => {
+      if (data.orderedIds)
+        console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
+      else
+        console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
   }
 
   public start() {

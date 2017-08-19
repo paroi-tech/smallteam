@@ -71,6 +71,7 @@ export interface ModelUpdate {
   created?: Changed
   updated?: Changed
   deleted?: Changed
+  reordered?: Changed
 }
 
 export interface CargoResponse {

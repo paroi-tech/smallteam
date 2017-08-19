@@ -1,6 +1,6 @@
 import { Dash, ComponentEvent, Transmitter } from "bkb"
 import App from "../App/App"
-import ModelEngine, { appendGettersToModel, ModelEvent } from "./ModelEngine"
+import ModelEngine, { appendGettersToModel, ModelEvent, CommandType } from "./ModelEngine"
 import { Type, Identifier } from "../../isomorphic/Cargo"
 import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, projectMeta } from "../../isomorphic/fragments/Project"
 import { StepFragment, NewStepFragment, StepIdFragment, stepMeta } from "../../isomorphic/fragments/Step"
@@ -17,9 +17,7 @@ import Deferred from "../libraries/Deferred"
 // -- Exported interfaces
 // --
 
-export type CommandType = "create" | "update" | "delete"
-
-export type ModelEvent = ModelEvent
+export { CommandType, ModelEvent } from "./ModelEngine"
 
 export interface CommandRunner {
   exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>

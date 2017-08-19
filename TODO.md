@@ -3,10 +3,9 @@ I used this file to record ideas and things that I think useful. I don't have In
 the time, so I can't use JIRA.
 
 # Thomas
-- When the name of a steptype is updated, the change is not reflected in steps linked to it.
 - Model have to emit event when steptype orders are changed.
-- Model should emit event "createStep" when a step is created, not a change event...
-- Implements update for projects in model.
+- CSS: use flexbox & grid
+- Load data on init: stepTypes, etc.
 
 # Lionel
 - Make StepsPanels listens to StepsType update (from model) in order to update their BoxLists title.

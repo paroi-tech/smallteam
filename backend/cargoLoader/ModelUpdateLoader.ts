@@ -7,7 +7,7 @@ export type ChangedType = "created" | "updated" | "deleted"
 export default class ModelUpdateLoader {
   private fragmentsMap = new Map<Type, HKMap<Identifier, object | undefined>>()
   private partialMap = new Map<Type, HKMap<Identifier, object>>()
-  private changedMap = new Map<Type, HKMap<Identifier, ChangedType>>()
+  private changedMap = new Map<Type, HKMap<Identifier, ChangedType | "reordered">>()
   private ended = false
 
   public addFragment(type: Type, id: Identifier, frag?: object) {
@@ -55,6 +55,18 @@ export default class ModelUpdateLoader {
       this.changedMap.set(type, changed)
     }
     changed.set(id, changedType)
+  }
+
+  public markIdsAsReordered(type: Type, idList: Identifier[]) {
+    if (this.ended)
+      throw new Error(`Invalid call to "updateModel.markIdsAsReordered": the Cargo is completed`)
+    let changed = this.changedMap.get(type)
+    if (!changed) {
+      changed = makeHKMap<any, any>()
+      this.changedMap.set(type, changed)
+    }
+    for (let id of idList)
+      changed.set(id, "reordered")
   }
 
   public getNeededFragments(type: Type): Identifier[] {
