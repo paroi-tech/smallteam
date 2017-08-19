@@ -255,7 +255,7 @@ export default class ModelEngine {
           })
         }
         addFragmentToIndexes(storage, id, frag, !!prevEntity)
-        console.log(`## updateStore`, type, id)
+        // console.log(`## updateStore`, type, id)
       }
     }
   }
