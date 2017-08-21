@@ -28,8 +28,8 @@ export default class StepsPanel {
     this.model = dash.app.model
     this.project = this.parentTask.project
     this.initJQueryObjects()
-    this.createBoxlists()
-    this.fillBoxlists()
+    this.createBoxLists()
+    this.fillBoxLists()
     this.listenToModel()
     this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
       console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
@@ -37,28 +37,29 @@ export default class StepsPanel {
   }
 
   public refresh() {
-    this.initJQueryObjects()
-    this.createBoxlists()
-    this.fillBoxlists()
+    this.boxlistMap.clear()
+    this.$stepsContainer.empty()
+    this.createBoxLists()
+    this.fillBoxLists()
   }
 
   private initJQueryObjects() {
     this.$container = $(template)
-    // If the task represented by this StepsPanel is the project main task, the title of the panel
-    // is set to `Main task`.
+    // If the task of this StepsPanel is the project main task, the panel title is set to `Main task`.
     let $title = this.$container.find(".js-title span")
     $title.text(this.parentTask.id == this.project.rootTaskId? "Main tasks": this.parentTask.label)
     this.$stepsContainer = this.$container.find(".js-boxlist-container")
-    this.$container.find(".js-add-task-button").click(() => {
-      let name = this.$container.find(".js-task-name").val() as string
-      name = name.trim()
-      if (name.length < 1)
-        console.log("Impossible to create a new task. Invalid name...")
-      else if (this.project.steps.length == 0)
-        console.log("Impossible to create a new task. Project has no step.")
-      else
-         this.createTask(name)
-    })
+    this.$container.find(".js-add-task-button").click(() => { this.onAddtaskClick() })
+  }
+
+  private onAddtaskClick() {
+    let name = (this.$container.find(".js-task-name").val() as string).trim()
+    if (name.length < 1)
+      console.log("Impossible to create a new task. Invalid name...")
+    else if (this.project.steps.length == 0)
+      console.log("Impossible to create a new task. Project has no step.")
+    else
+       this.createTask(name)
   }
 
   public attachTo(el: HTMLElement) {
@@ -66,6 +67,7 @@ export default class StepsPanel {
   }
 
   private listenToModel() {
+    // We listen to StepType update events in order to update the BoxList titles.
     this.model.on("update", "dataFirst", data => {
       if (data.type === "StepType") {
         let stepType = data.model as StepTypeModel
@@ -76,6 +78,23 @@ export default class StepsPanel {
             list.setTitle(stepType.name)
         }
       }
+    })
+    // We listen to Step creation events to remove or add BoxLists.
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd === "create" && data.type === "Step") {
+        if ((data.model as StepModel).projectId === this.project.id)
+          this.refresh()
+      }
+    })
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd === "delete" && data.type === "Step") {
+        let stepId = data.id as string
+        if (this.boxlistMap.has(stepId))
+          this.refresh()
+      }
+    })
+    this.model.on("reorder", "dataFirst", data => {
+      this.refresh()
     })
   }
 
@@ -100,7 +119,7 @@ export default class StepsPanel {
     }
   }
 
-  private createBoxlists() {
+  private createBoxLists() {
     for (let step of this.project.steps) {
       let params = {
         id: step.id,
@@ -116,12 +135,9 @@ export default class StepsPanel {
     }
   }
 
-  private fillBoxlists() {
-    if (!this.parentTask.children) {
-      console.log("Parent task with no children", this.parentTask.description, "project:", this.project.id)
+  private fillBoxLists() {
+    if (!this.parentTask.children)
       return
-    }
-    console.log("filling stepspanel...")
     for (let task of this.parentTask.children) {
       let bl = this.boxlistMap.get(task.curStepId)
       if (bl) {
