@@ -7,3 +7,14 @@ export function equal<T>(a: Array<T>, b: Array<T>): boolean {
     return v === b[i]
   }))
 }
+
+/**
+ * Remove all children of a HTMLElement.
+ *
+ * @see{@link https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript}
+ * @param el
+ */
+export function removeAllChildren(el: HTMLElement) {
+  while (el.firstChild)
+      el.removeChild(el.firstChild)
+}

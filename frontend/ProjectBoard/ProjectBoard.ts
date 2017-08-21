@@ -32,7 +32,7 @@ export default class ProjectBoard implements Panel {
    * @param dash - the current application dash.
    * @param project - the project for which the project board is created.
    */
-  constructor(private dash: Dash<App>, private project: ProjectModel) {
+  constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
     this.initJQueryObjects()
     this.initComponents()
@@ -72,6 +72,11 @@ export default class ProjectBoard implements Panel {
     }
   }
 
+  /**
+   * Listen to model events.
+   * We handle the following events:
+   *  - Task creation
+   */
   private listenToModel() {
     // When a new task is created and its parent is the project main task, we have to add a new StepsPanel
     // to the project board.

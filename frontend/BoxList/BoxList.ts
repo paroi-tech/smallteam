@@ -21,6 +21,7 @@ export interface Box {
  * BoxList constructor parameters grouped in an interface.
  */
 export interface BoxListParams {
+  // BoxList ID.
   id: string
   // The Sortable lib enables to create groups, so that we can move items (drag and drop) between lists
   // that belong to the same group. This attribute represents the group of the Boxlist.
@@ -67,6 +68,9 @@ export default class BoxList<T extends Box> {
   private $ul: JQuery
   private sortable: Sortable
 
+  // Map storing boxes of the list.
+  private boxMap: Map<string, HTMLElement> = new Map()
+
   /**
    * Create a new empty BoxList.
    *
@@ -90,6 +94,25 @@ export default class BoxList<T extends Box> {
     $li.get(0).setAttribute("data-id", box.id)
     box.attachTo($li.get(0))
     $li.appendTo(this.$ul)
+    this.boxMap.set(box.id, $li.get(0))
+  }
+
+  /**
+   * Return the HTML element that represents the BoxList.
+   */
+  public getRootElement(): HTMLElement {
+    return this.$container.get(0)
+  }
+
+  /**
+   * Remove a box from the list.
+   *
+   * @param boxId - ID of the box to remove
+   */
+  public removeBox(boxId: string) {
+    let li = this.boxMap.get(boxId)
+    if (li)
+      this.$ul.get(0).removeChild(li)
   }
 
   /**

@@ -19,10 +19,11 @@ export default class TaskBox implements Box {
   /**
    * Create a new TaskBox.
    * @param dash - the current application dash
-   * @param task - the task for which the box is created for.
+   * @param task - the task for which the box is created for
+   * @param idProp - the property of TaskModel that the box sould use as ID (defaults to TaskModel.id)
    */
-  constructor(private dash: Dash<App>, private task: TaskModel) {
-    this.id = this.task.id
+  constructor(private dash: Dash<App>, readonly task: TaskModel, idProp = "id") {
+    this.id = this.task[idProp].toString()
     this.$container = $(template)
     this.$container.find(".js-span").text(task.label)
     this.$container.click(() => {

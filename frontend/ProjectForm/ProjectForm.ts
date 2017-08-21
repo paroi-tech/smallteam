@@ -151,24 +151,6 @@ export default class ProjectForm {
     this.fillFormFieldsWithProject()
   }
 
-  // TODO: Remove this function. It's no longer useful.
-  // public show(project?: ProjectModel) {
-  //   let panel = this.container.querySelector("ProjectStepsPanel")
-  //   this.clearFormFields()
-  //   if (panel)
-  //       this.container.removeChild(panel)
-  //   if (this.stepsPanel)
-  //       this.container.removeChild(this.stepsPanel.getContainer())
-  //   if (!project) {
-  //     this.generateCode = true
-  //   } else {
-  //     this.project = project
-  //     this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ project ] })
-  //     this.stepsPanel.attachTo(this.container)
-  //   }
-  //   this.container.style.display = "block"
-  // }
-
   public clearFormFields() {
     this.view.update({
       name: "",
