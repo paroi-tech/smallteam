@@ -134,17 +134,19 @@ export default class BoxList<T extends Box> {
       sort: this.params.sort,
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
-          this.dash.emit("boxListItemAdded", {
-            boxListId: this.params.id,
-            boxId: ev.item.dataset.id
-          })
+        this.boxMap.set(ev.item.dataset.id, ev.item)
+        this.dash.emit("boxListItemAdded", {
+          boxListId: this.params.id,
+          boxId: ev.item.dataset.id
+        })
       },
       // Element is moved from the list into another list.
       onRemove: (ev) => {
-          this.dash.emit("boxListItemRemoved", {
-            boxListId: this.params.id,
-            boxId: ev.item.dataset.id
-          })
+        this.boxMap.delete(ev.item.dataset.id)
+        this.dash.emit("boxListItemRemoved", {
+          boxListId: this.params.id,
+          boxId: ev.item.dataset.id
+        })
       },
       // Changed sorting within list.
       onUpdate: (ev) => {

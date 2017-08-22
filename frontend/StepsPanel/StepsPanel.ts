@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
-import BoxList, { BoxListParams } from "../BoxList/BoxList"
+import BoxList, { BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../Model/Model"
 import { removeAllChildren } from "../libraries/utils"
@@ -22,12 +22,17 @@ export default class StepsPanel {
   private $container: JQuery
   private $boxListContainer: JQuery
 
-  // BoxLists we created are stored in a map. The Keys are the IDs of the project steps.
+  // BoxLists we created are stored in a map. The keys are the IDs of the project step types.
   private boxListMap: Map<string, BoxList<TaskBox>> = new Map()
 
   // Map used to store TaskBoxes. The keys are the tasks orderNums.
-  private taskBoxMap: Map<string, TaskBox> = new Map()
+  private taskBoxMap: Map<number, TaskBox> = new Map()
 
+  /**
+   * Create a new StepsPanel.
+   * @param dash
+   * @param parentTask
+   */
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
@@ -64,16 +69,41 @@ export default class StepsPanel {
   /**
    * Create a BoxList for a given step.
    *
-   * @param step - the step for which the BoxList is created
+   * @param step - the step for which the BoxList will be created
    */
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
     let params = {
-      id: step.id,
+      id: step.typeId,
       group: this.parentTask.code,
       name: step.name,
       sort: true
     }
     return this.dash.create(BoxList, { args: [ params ] })
+  }
+
+  /**
+   * Handle the move of a TaskBox inside a BoxList.
+   *
+   * @param ev
+   */
+  private async onTaskBoxMove(ev: BoxEvent) {
+    let box = this.taskBoxMap.get(parseInt(ev.boxId))
+    let step = this.project.findStep(ev.boxListId)
+    if (!box)
+      throw new Error(`Unable to find task with orderNum ${ev.boxId} in StepsPanel ${this}`)
+    else if (!step)
+      throw new Error(`Unable to find StepType ${ev.boxListId} in StepsPanel ${this}`)
+    else {
+      try {
+        let task = await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
+        console.log(`Successfully updated task ${task.id} in StepsPanel ${this.parentTask.id}`)
+      } catch(err) {
+        console.log(`Unable to update task ${box.task.id} in StepsPanel ${this.parentTask.id}`)
+        // FIXME: Add control for possibly undefined property to avoid the use of object!...
+        this.boxListMap.get(step.typeId)!.removeBox(box.task.orderNum!.toString())
+        this.boxListMap.get(box.task.currentStep.id)!.addBox(box)
+      }
+    }
   }
 
   /**
@@ -87,12 +117,12 @@ export default class StepsPanel {
       if (l) {
         let box = this.dash.create(TaskBox, {
           group: "items",
-          args: [ task ]
+          args: [ task, "orderNum" ]
         })
+        this.taskBoxMap.set(task.orderNum!, box)
         l.addBox(box)
-      } else {
+      } else
         console.log(`Unknown curStepId ${task.curStepId} in StepsPanel ${this}`)
-      }
     }
   }
 
@@ -117,11 +147,35 @@ export default class StepsPanel {
    * Listen to event from children components.
    * We listen to the following events:
    *  - taskBoxSelected
+   *  - boxListItemAdded
+   *  - boxListSortingUpdated
    */
   private listenToChildrenComponents() {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
       console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
     })
+    this.dash.listenToChildren<BoxEvent>("boxListItemAdded").call("dataFirst", data => {
+      this.onTaskBoxMove(data)
+    })
+    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
+      this.onTaskReorder(data)
+    })
+  }
+
+  /**
+   * Update the order of the tasks in the model.
+   *
+   * @param ev
+   */
+  private async onTaskReorder(ev: BoxListEvent) {
+    try {
+      // FIXME: Add control for possibly undefined property to avoid the use of object!...
+      let ids = ev.boxIds.map(id => this.taskBoxMap.get(parseInt(id))!.task.id)
+      let result = await this.model.reorder("Task", ids, this.parentTask.id)
+      console.log("Tasks successfully reordered...")
+    } catch (err) {
+      console.log("Impossible to reorder tasks in StepsPanel...", err)
+    }
   }
 
   /**
@@ -192,7 +246,8 @@ export default class StepsPanel {
           return
         let l = this.boxListMap.get(task.curStepId)
         if (l) {
-          let box = this.dash.create(TaskBox, { group: "items", args: [ task ] })
+          let box = this.dash.create(TaskBox, { group: "items", args: [ task, "orderNum" ] })
+          this.taskBoxMap.set(task.orderNum!, box)
           l.addBox(box)
         }
       }

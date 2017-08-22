@@ -8,7 +8,8 @@ the time, so I can't use JIRA.
 - Load data on init: stepTypes, etc.
 
 # Lionel
-- Use orderNum as TaskBox IDs in StepsPanel
+- Add control for possibly `undefined` objects in StepsPanel#onTaskReorder() and StepsPanel#onTaskBoxMove()
+- Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - Implement move of taskbox between boxlists in StepsPanel.
 - Add `refresh` method to ProjectBoard and StepsPanel. This method should be called when steps are added to a project or when tasks are reordered.
 - Synchronize form and selected step type in StepTypePanel when the user reorders the step types
