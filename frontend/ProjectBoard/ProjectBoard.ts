@@ -109,10 +109,16 @@ export default class ProjectBoard implements Panel {
     panel.attachTo(this.$stepsPanelContainer.get(0))
   }
 
+  /**
+   * Hide the ProjectBoard.
+   */
   public hide() {
     this.$container.hide();
   }
 
+  /**
+   * Make the ProjectBoard visible.
+   */
   public show() {
     this.$container.show();
   }

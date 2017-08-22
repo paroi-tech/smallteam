@@ -10,7 +10,7 @@ const itemTemplate = require("html-loader!./element.html")
  * Dropdown menu component.
  *
  * It is made by a button and a list of clickable items shown when the button is clicked.
- * Each item in the menu has an id and an event is emited when it is clicked.
+ * Each item in the menu has an ID and an event emited when clicked.
  */
 export class DropdownMenu {
   readonly bkb: Bkb
@@ -23,7 +23,7 @@ export class DropdownMenu {
   /**
    * Create a new dropdown menu.
    */
-  constructor(private dash: Dash<App>, private id: string, private name: string) {
+  constructor(private dash: Dash<App>, readonly id: string, readonly name: string) {
     this.itemMap = new Map<string, JQuery>()
 
     this.$container = $(template)
@@ -47,7 +47,6 @@ export class DropdownMenu {
     $btn.text(item.label)
     $btn.click(ev => {
       this.$ul.toggle()
-      console.log(`Click on item ${item.label} in ${this.name}`)
       this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id })
     })
     this.itemMap.set(item.id, $li)

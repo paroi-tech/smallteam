@@ -24,7 +24,7 @@ export interface MenuEvent {
 /**
  * Horizontal menu component.
  *
- * The menu can contain several items. Each item has an id and an event is emited when it is clicked.
+ * The menu can contain several items. Each item has an ID and an event to emit when clicked.
  * Several items trigger the same event.
  */
 export class Menu {
@@ -38,7 +38,7 @@ export class Menu {
   /**
    * Create a new menu.
    */
-  constructor(private dash: Dash<App>, private id: string, private name: string) {
+  constructor(private dash: Dash<App>, readonly id: string, readonly name: string) {
     this.itemMap = new Map<string, JQuery>()
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
@@ -54,7 +54,6 @@ export class Menu {
     let $btn = $(`<button class="MenuBtn" type="button"></button>`)
       .text(item.label)
       .click((ev) => {
-        console.log(`Click on item ${item.label} in ${this.name}`)
         this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id });
       })
       .appendTo($li)

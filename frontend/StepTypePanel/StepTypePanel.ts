@@ -53,6 +53,11 @@ export default class StepTypePanel {
     })
   }
 
+  /**
+   * Listen to events from model.
+   * Handled events are:
+   *  - StepType creation
+   */
   private listenToModel() {
     this.model.on("createStepType", "dataFirst", data => {
       let stepType = data.model as StepTypeModel
@@ -83,7 +88,7 @@ export default class StepTypePanel {
   }
 
   /**
-   * Initialize the Boxlist and Form components of the panel.
+   * Initialize the BoxList and Form components of the panel.
    */
   private initComponents() {
     this.boxList = this.dash.create(BoxList, {

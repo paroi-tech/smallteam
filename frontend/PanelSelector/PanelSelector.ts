@@ -45,7 +45,6 @@ const settingMenuItems = [
 
 export default class PanelSelector {
   private model: Model
-  private projects: ProjectModel[]
   private menu: Menu
   private settingMenu: DropdownMenu
   private currentPanel: Panel | undefined
@@ -57,6 +56,13 @@ export default class PanelSelector {
   private $dropdownMenu: JQuery
   private $panelContainer: JQuery
 
+  private projectMap: Map<string, ProjectModel> = new Map()
+
+  /**
+   * Create a nex PanelSelector.
+   *
+   * @param dash
+   */
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
 
@@ -67,6 +73,9 @@ export default class PanelSelector {
     this.loadProjects()
   }
 
+  /**
+   * Create PanelSelector elements from template.
+   */
   private initJQueryObjects() {
     this.$container = $(template)
     this.$menu = this.$container.find(".js-menuLeft")
@@ -74,57 +83,87 @@ export default class PanelSelector {
     this.$panelContainer = this.$container.find(".js-panelContainer")
   }
 
+  /**
+   * Create PanelSelector subcomponents.
+   */
   private initComponents() {
     this.menu = this.dash.create(Menu, {
-      args: ["1", "Panel selector projects menu"]
+      args: ["1", "Project menu"]
     })
     this.menu.attachTo(this.$menu.get(0))
 
     this.settingMenu = this.dash.create(DropdownMenu, {
-      args: ["2", "Panel selector dropdown menu"]
+      args: ["2", "Dropdown menu"]
     })
     this.settingMenu.attachTo(this.$dropdownMenu.get(0))
     this.settingMenu.addItems(settingMenuItems)
 
     // We have to do this, or else the project board won't be able to display the step type panel later.
     // See the PanelSelector#showSettingPanel() for details.
-    this.panelMap.set("stepTypePanel", {
-      type: StepTypePanel,
+    this.panelMap.set("stepTypePanel", { type: StepTypePanel })
+  }
+
+  /**
+   * Listen to event from child components.
+   */
+  private listenToEvents() {
+    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
+      this.showProjectForm(project)
+    })
+    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", (ev) => this.showProjectBoard(ev.itemId))
+    this.settingMenu.bkb.on<MenuEvent>("createProject", "dataFirst", () => this.showProjectForm())
+    this.settingMenu.bkb.on<MenuEvent>("manageStepTypes", "dataFirst", () => {
+      this.showSettingPanel("stepTypePanel")
     })
   }
 
-  private listenToEvents() {
+  /**
+   * Listen to events from model.
+   * The following events are handled:
+   *  - Project creation
+   */
+  private listenToModel() {
     this.model.on("createProject", "dataFirst", data => this.addProject(data.model))
-    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => this.showProjectForm(project))
-    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", (ev) => this.showProjectBoard(ev.itemId))
-    this.settingMenu.bkb.on<MenuEvent>("createProject", "dataFirst", () => this.showProjectForm())
-    this.settingMenu.bkb.on<MenuEvent>("manageStepTypes", "dataFirst", () => this.showSettingPanel("stepTypePanel"))
   }
 
+  /**
+   * Add the PanelSelector as a child of an HTML element.
+   *
+   * @param el - element that the PanelSelector will be added to.
+   */
   public attachTo(el: HTMLElement) {
     this.$container.appendTo(el)
     // FIXME:  Remove this line.
     makeTests(el, this.dash.app.model)
   }
 
+  /**
+   * Load projects from model and request the creation of ProjectBoard for each of the projects.
+   */
   private loadProjects() {
     this.model.query("Project", {
       archived: false
     }).then(projects => {
-      console.log("Loaded projects:", projects)
-      this.projects = projects
       if (projects.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one?"))
           this.showProjectForm()
-      } else
+      } else {
         for (let p of projects)
           this.addProject(p)
+      }
     }).catch(err => {
       console.error("An error occured while loading projects from server.", err)
     })
   }
 
+  /**
+   * Add a project the panel.
+   * An entry is added to the menu for the project.
+   *
+   * @param project the project to add
+   */
   private addProject(project: ProjectModel) {
+    this.projectMap.set(project.id, project)
     let boardId = "ProjectBoard" + ":" + project.id
     this.panelMap.set(boardId, {
       projectModel: project,
@@ -137,6 +176,11 @@ export default class PanelSelector {
     })
   }
 
+  /**
+   * Change the panel shown by the PanelSelector.
+   *
+   * @param p the panel to show
+   */
   private setCurrentPanel(p: Panel) {
     if (this.currentPanel)
       this.currentPanel.hide()
@@ -144,11 +188,16 @@ export default class PanelSelector {
     p.show()
   }
 
+  /**
+   * Show the board of a given project.
+   *
+   * @param projectId the ID of the project which board has to be shown
+   */
   private showProjectBoard(projectId: string) {
     let panelId = "ProjectBoard" + ":" + projectId
     let info = this.panelMap.get(panelId)
     if (!info)
-      throw new Error(`Unknown project panel ID: ${projectId}`)
+      throw new Error(`Unknown project panel ID: ${projectId} in PanelSelector.`)
     if (!info.panel) {
       info.panel = this.dash.create(ProjectBoard, {
         args: [ info.projectModel ]
@@ -158,6 +207,11 @@ export default class PanelSelector {
     this.setCurrentPanel(info.panel)
   }
 
+  /**
+   * Show a project form in the PanelSelector.
+   *
+   * @param project the project which form should be displayed. If `undefined` a blak for is displayed.
+   */
   private showProjectForm(project?: ProjectModel) {
     if (project) {
       let formId = "ProjecForm" + ":" + project.id
@@ -181,6 +235,15 @@ export default class PanelSelector {
     }
   }
 
+  /**
+   * Inform the PanelSelector to use a ProjectForm for a given project.
+   * This function is necessary since ProjectForms are not created for a specific project. So after a
+   * ProjectForm was used to create a project, it has to prevent its PanelSelector that it is now linked to
+   * a project.
+   *
+   * @param form
+   * @param project
+   */
   public linkFormToProject(form: ProjectForm, project: ProjectModel) {
     let info: PanelInfo = {
       panel: form,
@@ -191,6 +254,12 @@ export default class PanelSelector {
     this.panelMap.set(formId, info)
   }
 
+  /**
+   * Display a setting panel.
+   * Setting panels are:
+   *  - StepTypePanel
+   * @param panelId
+   */
   private showSettingPanel(panelId: string) {
     let info = this.panelMap.get(panelId)
     if (!info)

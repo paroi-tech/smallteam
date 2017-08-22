@@ -8,7 +8,7 @@ import * as MonkBerry from "monkberry"
 import * as template  from "./taskpanel.monk"
 
 /**
- * Component used to display and edit detailled information about a task.
+ * Component used to display and edit information about a task.
  */
 export default class TaskPanel implements Panel {
   private container: HTMLElement
@@ -17,6 +17,12 @@ export default class TaskPanel implements Panel {
   private task: TaskModel | undefined = undefined
   private model: Model
 
+  /**
+   * Create a new TaskPanel.
+   *
+   * @param dash
+   * @param title
+   */
   constructor(private dash: Dash<App>, title: string) {
     this.model = this.dash.app.model
 
@@ -24,17 +30,25 @@ export default class TaskPanel implements Panel {
     this.container.classList.add("TaskPanel")
     this.view = MonkBerry.render(template, this.container)
 
-    let btn = this.container.querySelector(".js-submit-button")
-    if (btn && this.task)
-      (btn as HTMLButtonElement).onclick = (ev) => {
-        this.updateTask()
-      }
+    let btn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
+    if (btn)
+      btn.onclick = (ev) => this.updateTask()
   }
 
+  /**
+   * Add the TaskPanel as a child of an HTML element.
+   *
+   * @param el - element that the TaskPanel will be added to.
+   */
   public attachTo(el: HTMLElement) {
     el.appendChild(this.container)
   }
 
+  /**
+   * Set the task that the TaskPanel will display.
+   *
+   * @param task
+   */
   public fillWith(task: TaskModel) {
     this.task = task
     this.view.update({
@@ -43,25 +57,40 @@ export default class TaskPanel implements Panel {
     })
   }
 
-  public updateTask() {
-    let label = this.container.querySelector("") as HTMLInputElement
-    let description = this.container.querySelector("") as HTMLTextAreaElement
-    // if (label && label.value.length > 0 && description) {
-    //   this.model.exec("update", "Task", {
-    //     label: label.value,
-    //     description: description.value || ""
-    //   }).then(val => {
-
-    //   }).catch(err => {
-
-    //   })
-    // }
+  /**
+   * Update the current task in the model.
+   */
+  private async updateTask() {
+    if (!this.task)
+      return
+    let label = this.container.querySelector(".js-task-label") as HTMLInputElement
+    let description = this.container.querySelector(".js-task-description") as HTMLTextAreaElement
+    if (label && label.value.length > 0 && description) {
+      try {
+        let task = await this.model.exec("update", "Task", {
+          id: this.task.id,
+          label: label.value,
+          description: description.value || ""
+        })
+        console.log("Task successfully updated...")
+      } catch(err) {
+        label.value = this.task.label
+        description.value = this.task.description || ""
+        console.log(`Error while updating task ${this.task!}: ${err}`)
+      }
+    }
   }
 
+  /**
+   * Hide the TaskPanel.
+   */
   public hide() {
     this.container.style.display = "none"
   }
 
+  /**
+   * Make the TaskPanel visible.
+   */
   public show() {
     this.container.style.display = "block"
   }

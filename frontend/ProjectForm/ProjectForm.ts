@@ -43,6 +43,9 @@ export default class ProjectForm {
     this.listenToForm()
   }
 
+  /**
+   * Create ProjectForm elements from template.
+   */
   private initComponents() {
     this.container = document.createElement("div")
     this.container.classList.add("ProjectForm")
@@ -64,15 +67,28 @@ export default class ProjectForm {
     this.listenToForm()
   }
 
+  /**
+   * Add the ProjectForm to an element.
+   *
+   * @param el - the element which the form is added to
+   */
   public attachTo(el: HTMLElement) {
     el.appendChild(this.container)
   }
 
+  /**
+   * Create the StepsPanel subcomponent.
+   * Called if the ProjectForm was created for a project or when the ProjectForm is used to
+   * create a new project.
+   */
   private createStepsPanel() {
     this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [ this.project ] })
     this.stepsPanel.attachTo(this.container)
   }
 
+  /**
+   * Listen to events from the form.
+   */
   private async listenToForm() {
     if (!this.project) {
       this.codeField.onkeyup = () => this.generateCode = false
@@ -83,74 +99,70 @@ export default class ProjectForm {
     } else {
       this.generateCode = false
     }
-    this.submitBtn.onclick = async () => {
-      // let spinner = this.submitBtn.querySelector("span")
-      // if (spinner)
-      //   spinner.style.display = "inline"
 
+    this.submitBtn.onclick = async () => {
+      let spinner = this.submitBtn.querySelector("span")
+      if (spinner)
+         spinner.style.display = "inline"
       let code = this.codeField.value.trim()
       let name = this.nameField.value.trim()
       let description = this.descriptionField.value.trim()
       if (code.length < 4 && name.length === 0)
         return
-      try {
-        if (!this.project) {
-          console.log("Attempting to create new project:", code)
-          await this.createProject(code, name, description)
-        } else {
-          console.log("Attempting to update project:", code)
-          await this.updateProject(name, description)
-        }
-        // let project = await this.dash.app.model.exec("create", "Project", { code, name })
-        // console.log(`Project ${project.name} successfully created...`)
-      } catch (err) {
-        console.error(err)
-      } finally {
-        // if (spinner)
-        //   spinner.style.display = "none"
+      if (!this.project) {
+        console.log(`Attempting to create new project with code ${code}`)
+        await this.createProject(code, name, description)
+      } else {
+        console.log(`Attempting to update project ${code}`)
+        await this.updateProject(name, description)
       }
+      if (spinner)
+        spinner.style.display = "none"
     }
   }
 
+  /**
+   * Request the creation of a new project by the model.
+   *
+   * @param code
+   * @param name
+   * @param description
+   */
   private async createProject(code: string, name: string, description: string) {
-    console.log("In createProject()...")
-    let spinner = this.submitBtn.querySelector("span")
-    if (spinner)
-      spinner.style.display = "inline"
     try {
       let project = await this.model.exec("create", "Project", { code, name, description })
-      if (spinner)
-        spinner.style.display = "none"
-      console.log(`Project ${project.name} successfully createa...`)
       this.project = project
       this.panel.linkFormToProject(this, project)
       this.codeField.setAttribute("readonly", "true")
       this.fillFormFieldsWithProject()
       this.createStepsPanel()
     } catch (error) {
-      if (spinner)
-        spinner.style.display = "none"
       console.error(error)
     }
   }
 
+  /**
+   * Request for the update of the project in the model.
+   *
+   * @param name
+   * @param description
+   */
   private async updateProject(name: string, description: string) {
-    let spinner = this.submitBtn.querySelector("span")
-    if (spinner)
-      spinner.style.display = "inline"
     try {
-      let project = await this.model.exec("update", "Project", { id: this.project!.id, name, description })
-      if (spinner)
-        spinner.style.display = "none"
-      console.log(`Project ${project.name} successfully updated...`)
+      let project = await this.model.exec("update", "Project", {
+        id: this.project!.id,
+        name,
+        description
+      })
     } catch (error) {
-      if (spinner)
-        spinner.style.display = "none"
       console.error(error)
     }
     this.fillFormFieldsWithProject()
   }
 
+  /**
+   * Clear the content of the fields in the form.
+   */
   public clearFormFields() {
     this.view.update({
       name: "",
@@ -159,6 +171,9 @@ export default class ProjectForm {
     this.descriptionField.value = ""
   }
 
+  /**
+   * Display the information about the project in the form fields.
+   */
   public fillFormFieldsWithProject() {
     if (!this.project)
       return
@@ -169,16 +184,26 @@ export default class ProjectForm {
     this.descriptionField.value = this.project.description? this.project.description: ""
   }
 
+  /**
+   * Tell if the ProjectForm is linked to a project.
+   */
   public hasProject(): boolean {
     return this.project != undefined
   }
 
+  /**
+   * Hide the ProjectForm.
+   * If the project is not linled to a project, also remove the ProjectForm from the DOM.
+   */
   public hide() {
     this.container.style.display = "none"
     if (!this.hasProject() && this.container.parentElement)
       this.container.parentElement.removeChild(this.container)
   }
 
+  /**
+   * Make the ProjectForm visible.
+   */
   public show() {
     this.container.style.display = "block"
     if (!this.hasProject())

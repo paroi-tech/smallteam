@@ -32,7 +32,13 @@ export default class ProjectStepsPanel {
    */
   private timer: any = undefined
 
-  constructor(private dash: Dash<App>, private project: ProjectModel) {
+  /**
+   * Create a new ProjectStepsPanel.
+   *
+   * @param dash
+   * @param project
+   */
+  constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
     this.initComponents()
     this.model.query("StepType").then(stepTypes => {
@@ -43,6 +49,11 @@ export default class ProjectStepsPanel {
     this.listenToModel()
   }
 
+  /**
+   * Listen to events from the model.
+   * Events handled are:
+   *  - StepType creation
+   */
   private listenToModel() {
     this.model.on("createStepType", "dataFirst", data => {
       let box = this.dash.create(StepTypeBox, {
@@ -52,42 +63,49 @@ export default class ProjectStepsPanel {
     })
   }
 
+  /**
+   * Create ProjectStepsPanel subcomponents.
+   */
   private initComponents() {
     this.container = document.createElement("div")
     this.container.classList.add("ProjectStepsPanel")
     this.availableStepsList = this.dash.create(BoxList, {
-      args: [{
+      args: [ {
         id: "Available",
         group: this.project.id,
         name: "Available step types",
         obj: this,
         onMove: ev => this.validateStepTypeMove(ev),
         sort: false
-      }]
+      } ]
     })
     this.availableStepsList.attachTo(this.container)
     this.usedStepsList = this.dash.create(BoxList, {
-      args: [{
+      args: [ {
         id: "Used",
         group: this.project.id,
         name: "Used step types",
         obj: this,
         onMove: ev => this.validateStepTypeMove(ev),
         sort: false
-      }]
+      } ]
     })
     this.usedStepsList.attachTo(this.container)
     this.specialStepsList = this.dash.create(BoxList, {
-      args: [{
+      args: [ {
         id: "Special",
         group: undefined,
         name: "Special step types",
         sort: false
-      }]
+      } ]
     })
     this.specialStepsList.attachTo(this.container)
   }
 
+  /**
+   * Fill the BoxList with the StepTypes loaded from  model.
+   * @param stepTypes
+   */
   private fillBoxLists(stepTypes: StepTypeModel[]) {
     let boxList: BoxList<StepTypeBox>
     let box: StepTypeBox
@@ -122,6 +140,9 @@ export default class ProjectStepsPanel {
     }, 2000)
   }
 
+  /**
+   * Request the update of the project StepTypes in the model.
+   */
   private async doUpdate() {
     let used = this.usedStepsList.getBoxesOrder()
     let unused = this.availableStepsList.getBoxesOrder()
@@ -151,7 +172,6 @@ export default class ProjectStepsPanel {
     try {
       let val = await batch.sendAll()
       // TODO: sort the content of the boxlists based on stepTypes orderNum.
-      // TODO: Feature request: stepTypes should be sorted based on orderNum in the model.
       console.log("Project steps updated.")
     } catch (err) {
       // TODO: update failed. Put the boxlists in their original state.
@@ -159,14 +179,23 @@ export default class ProjectStepsPanel {
     }
   }
 
+  /**
+   * Add the panel as a child of an element.
+   *
+   * @param el - the new parent element of the panel
+   */
   public attachTo(el: HTMLElement) {
     el.appendChild(this.container)
   }
 
+  /**
+   * Check if a StepTypeBox can be moved between BoxLists.
+   *
+   * @param ev
+   */
   private validateStepTypeMove(ev: BoxEvent) {
     if (ev.boxListId === "Available") {
-      // A step type is being added to the project...
-      // TODO: should handleUpdate() be an async function?
+      // A step type is being added to the project.
       this.handleUpdate()
       return true
     } else {
@@ -184,6 +213,9 @@ export default class ProjectStepsPanel {
     }
   }
 
+  /**
+   * Return the panel root element.
+   */
   public getContainer(): HTMLElement {
     return this.container
   }

@@ -116,9 +116,9 @@ export default class BoxList<T extends Box> {
   }
 
   /**
-   * Add the boxList as a child of an HTML element.
+   * Add the BoxList as a child of an HTML element.
    *
-   * @param el - element that the boxlist will be added to.
+   * @param el - element that the BoxList will be added to.
    */
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
@@ -187,6 +187,9 @@ export default class BoxList<T extends Box> {
     this.sortable.sort(order)
   }
 
+  /**
+   * Return the IDs of the BoxList elements, based on their current order.
+   */
   public getBoxesOrder(): string[] {
     return this.sortable.toArray()
   }
