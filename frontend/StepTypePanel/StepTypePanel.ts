@@ -47,7 +47,16 @@ export default class StepTypePanel {
     this.initJQueryObjects()
     this.initComponents()
     this.loadStepTypes()
+    this.listenToChildComponents()
     this.listenToModel()
+  }
+
+  /**
+   * Listen to events from subcomponents.
+   * The following events are handled:
+   *  - StepTypeBox selection
+   */
+  private listenToChildComponents() {
     this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").call("dataFirst", stepType => {
       this.form.fillWith(stepType)
     })
@@ -168,7 +177,7 @@ export default class StepTypePanel {
       }
       for (let stepType of stepTypes)
         if (!stepType.isSpecial)
-          this.boxList.addBox(this.dash.create(StepTypeBox, { args: [stepType] }))
+          this.boxList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
     } catch (err) {
       console.error("Unable to load step types from server...")
     }

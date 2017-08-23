@@ -105,6 +105,14 @@ export default class BoxList<T extends Box> {
   }
 
   /**
+   * Indicate if the BoxList contains an element with a given ID.
+   * @param id
+   */
+  public hasBox(id: string) {
+    return this.boxMap.has(id)
+  }
+
+  /**
    * Remove a box from the list.
    *
    * @param boxId - ID of the box to remove
