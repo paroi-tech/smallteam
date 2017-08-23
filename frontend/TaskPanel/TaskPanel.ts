@@ -76,7 +76,7 @@ export default class TaskPanel implements Panel {
       } catch(err) {
         label.value = this.task.label
         description.value = this.task.description || ""
-        console.log(`Error while updating task ${this.task!}: ${err}`)
+        console.error(`Error while updating task ${this.task!}: ${err}`)
       }
     }
   }

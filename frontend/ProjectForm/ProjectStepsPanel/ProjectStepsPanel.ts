@@ -216,7 +216,7 @@ export default class ProjectStepsPanel {
   /**
    * Return the panel root element.
    */
-  public getContainer(): HTMLElement {
+  public getRootElement(): HTMLElement {
     return this.container
   }
 }

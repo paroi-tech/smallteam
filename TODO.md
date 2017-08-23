@@ -3,6 +3,7 @@ I used this file to record ideas and things that I think useful. I don't have In
 the time, so I can't use JIRA.
 
 # Thomas
+- When a step is deleted, provide its id and typeId
 - Model have to emit event when steptype orders are changed.
 - CSS: use flexbox & grid
 - Load data on init: stepTypes, etc.
