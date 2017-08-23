@@ -4,9 +4,12 @@ the time, so I can't use JIRA.
 
 # Thomas
 - When a step is deleted, provide its id and typeId
-- Model have to emit event when steptype orders are changed.
+- Model have to emit event when task orders are changed.
 - CSS: use flexbox & grid
-- Load data on init: stepTypes, etc.
+- Load data on init: `stepTypes`, etc.
+- ModelEngine: add a method `get(id)` and a method `where(filter)` on the list returned by `getModels`
+- `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
+  - optional data (archived projects…) when loaded by queries
 
 # Lionel
 - Handle StepType and Step deletion events in StepTypePanel and ProjectStepsPanel

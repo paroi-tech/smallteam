@@ -102,7 +102,7 @@ export default class StepsPanel {
    */
   private async onTaskBoxMove(ev: BoxEvent) {
     let box = this.taskBoxMap.get(ev.boxId)
-    let step = this.project.findStep(ev.boxListId)
+    let step = this.project.findStepByType(ev.boxListId)
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepsPanel "${this.parentTask.label}"`)
     else if (!step)
@@ -221,7 +221,7 @@ export default class StepsPanel {
     this.model.on("update", "dataFirst", data => {
       if (data.type === "StepType") {
         let stepType = data.model as StepTypeModel
-        let step = this.parentTask.project.findStep(stepType.id)
+        let step = this.parentTask.project.findStepByType(stepType.id)
         if (step) {
           let list = this.boxListMap.get(step.id)
           if (list)

@@ -109,7 +109,7 @@ export default class ProjectStepsPanel {
       this.boxMap.set(stepType.id, box)
       if (stepType.isSpecial)
         this.specialStepTypeList.addBox(box)
-      else if (this.project.hasStep(stepType.id))
+      else if (this.project.hasStepType(stepType.id))
         this.usedStepTypeList.addBox(box)
       else
         this.availableStepTypeList.addBox(box)
@@ -143,7 +143,7 @@ export default class ProjectStepsPanel {
       let stepType = this.stepTypeMap.get(id)
       if (!stepType) // This should not happen.
         throw new Error("Unknown StepType ID in ProjectStepsPanel " + this.project.code)
-      if (!this.project.hasStep(stepType.id))
+      if (!this.project.hasStepType(stepType.id))
           batch.exec("create", "Step", { typeId: stepType.id, projectId: this.project.id })
     }
 
@@ -153,7 +153,7 @@ export default class ProjectStepsPanel {
       let stepType = this.stepTypeMap.get(id)
       if (!stepType) // This should not happen.
         throw new Error("Unknown StepType ID in ProjectStepsPanel " + this.project.code)
-      let step = this.project.findStep(stepType.id)
+      let step = this.project.findStepByType(stepType.id)
       if (step)
         batch.exec("delete", "Step", { id: step.id })
     }
@@ -164,11 +164,11 @@ export default class ProjectStepsPanel {
       console.error("Error while updating project steps.", err)
       // We need to restore the content of the BoxLists.
       this.boxMap.forEach((box, id) => {
-        if (this.project.hasStep(id) && this.availableStepTypeList.hasBox(id)) {
+        if (this.project.hasStepType(id) && this.availableStepTypeList.hasBox(id)) {
           this.availableStepTypeList.removeBox(id)
           this.usedStepTypeList.addBox(box)
         } else
-        if (!this.project.hasStep(id) && this.usedStepTypeList.hasBox(id)) {
+        if (!this.project.hasStepType(id) && this.usedStepTypeList.hasBox(id)) {
           this.usedStepTypeList.removeBox(id)
           this.availableStepTypeList.addBox(box)
         }
@@ -177,7 +177,7 @@ export default class ProjectStepsPanel {
     // Now we sort the content of the BoxLists.
     this.usedStepTypeList.setBoxesOrder(this.project.steps.map(step => step.typeId))
     this.availableStepTypeList.setBoxesOrder(
-      Array.from(this.stepTypeMap.values()).filter(stepType => this.project.hasStep(stepType.id)).map(
+      Array.from(this.stepTypeMap.values()).filter(stepType => this.project.hasStepType(stepType.id)).map(
         stepType => stepType.id
       )
     )
@@ -207,7 +207,7 @@ export default class ProjectStepsPanel {
       let stepType = this.stepTypeMap.get(ev.boxId)
       if (!stepType) // This should not happen. It means there is an error in the model or in Map#get().
         throw new Error("Unknown StepType ID in ProjectStepsPanel " + this.project.code)
-      let step = this.project.findStep(stepType.id)
+      let step = this.project.findStepByType(stepType.id)
       if (!step || step.taskCount === 0) {
         this.handleUpdate()
         return true
