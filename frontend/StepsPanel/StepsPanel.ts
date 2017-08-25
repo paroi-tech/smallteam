@@ -235,12 +235,12 @@ export default class StepsPanel {
           return
         // We find the index of the Step in projectModel#steps and insert a BoxList
         // in $boxListContainer.
-        let i = this.project.steps.indexOf(step)
+        let i = this.project.steps.findIndex(s => s.id === step.id)
         if (i != -1) {
           let list = this.createBoxListFor(step)
           this.boxListMap.set(step.id, list)
-          let p = this.$boxListContainer.get(0)
-          p.insertBefore(list.getRootElement(), i < p.childNodes.length? p.childNodes[0]: null)
+          let parent = this.$boxListContainer.get(0)
+          parent.insertBefore(list.getRootElement(), i < parent.childNodes.length? parent.childNodes[i]: null)
         }
       }
     })
@@ -265,17 +265,14 @@ export default class StepsPanel {
     this.model.on("reorder", "dataFirst", data => {
       if (data.type !== "StepType" || !data.orderedIds)
         return
-      data.orderedIds.forEach((id, i) => {
+      for (let id of data.orderedIds) {
         let step = this.project.findStepByType(id as string)
-        if (step)
-          this.boxListMap.get(step.id)!.getRootElement().setAttribute("data-sort", i.toString())
-      })
-      let arr = this.$boxListContainer.children().toArray().sort((a, b) => {
-        let i = parseInt($(a).data('sort'))
-        let j = parseInt($(b).data('sort'))
-        return (i < j) ? -1 : (i > j) ? 1 : 0;
-      })
-      this.$boxListContainer.append(arr)
+        if (step) {
+          let list = this.boxListMap.get(step.id)
+          if (list)
+            this.$boxListContainer.append(list.getRootElement())
+        }
+      }
     })
 
     // Task creation event.
