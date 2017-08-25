@@ -32,7 +32,7 @@ export interface ModelEvent {
   type: Type
   id?: Identifier
   orderedIds?: Identifier
-  cmd: CommandType | 'reorder'
+  cmd: CommandType | "reorder"
   model?: any
 }
 
@@ -312,7 +312,7 @@ export default class ModelEngine {
 
   private emitEventReordered(reordered: Changed) {
     const that = this,
-      cmd = 'reorder'
+      cmd = "reorder"
     for (let [type, orderedIds] of Object.entries<any>(reordered)) {
       let storage = this.getTypeStorage(type as Type)
       this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
@@ -512,7 +512,7 @@ function makeDefaultSortFn([fieldName, direction]: [string, "asc" | "desc"]) {
 }
 
 function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
-  return !ref['list']
+  return !ref["list"]
 }
 
 async function httpSendJson(method: HttpMethod, url: string, data): Promise<any> {
