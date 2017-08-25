@@ -142,6 +142,13 @@ export default class StepTypeForm {
   }
 
   /**
+   * Return the StepTypeModel the form is currently working on.
+   */
+  get currentStepType(): StepTypeModel | undefined {
+    return this.stepType
+  }
+
+  /**
    * Reset the component state.
    *
    * Its fields are reinitialized and the embedded step type is set to `undefined`.

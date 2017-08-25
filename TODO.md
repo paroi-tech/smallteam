@@ -10,9 +10,7 @@ the time, so I can't use JIRA.
 - Load data on init: `stepTypes`, etc.
 - ModelEngine: add a method `get(id)` and a method `where(filter)` on the list returned by `getModels`
 - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
-  - optional data (archived projects…) when loaded by queries
+  - optional data (archived projects...) when loaded by queries
 
 # Lionel
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
-- When a Task, Step or StepType is deleted, check if the task is selected in RaskPanel or StepTypePanel
-- Add `refresh` method to ProjectBoard and StepsPanel. This method should be called when steps are added to a project or when tasks are reordered.

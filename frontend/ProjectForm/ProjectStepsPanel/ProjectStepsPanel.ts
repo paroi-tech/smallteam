@@ -47,6 +47,7 @@ export default class ProjectStepsPanel {
    * Listen to events from the model.
    * Events handled are:
    *  - StepType creation
+   *  - StepType deletion
    *  - StepType reorder
    */
   private listenToModel() {
@@ -59,7 +60,18 @@ export default class ProjectStepsPanel {
       this.boxMap.set(data.model.id, box)
       this.availableStepTypeList.addBox(box)
     })
-
+    // StepType deletion.
+    this.model.on("change", "dataFirst", data => {
+      if (data.type != "StepType" || data.cmd != "delete")
+        return
+      let stepTypeId = data.id as string
+      let a = [this.availableStepTypeList, this.specialStepTypeList, this.usedStepTypeList]
+      let boxList = a.find(bl => bl.hasBox(stepTypeId))
+      if (boxList)
+        boxList.removeBox(stepTypeId)
+      this.boxMap.delete(stepTypeId)
+      this.stepTypeMap.delete(stepTypeId)
+    })
     // StepType reorder event.
     // We run through the orderedIds and for each of the ID, we check if the project use the corresponding
     // StepType. If yes, we add it to an array which will be use to sort the usedStepTypeList. Else,

@@ -66,13 +66,23 @@ export default class StepTypePanel {
    * Listen to events from model.
    * Handled events are:
    *  - StepType creation
+   *  - StepType deletion
    */
   private listenToModel() {
+    // StepType creation.
     this.model.on("createStepType", "dataFirst", data => {
       let stepType = data.model as StepTypeModel
       let box = this.dash.create(StepTypeBox, { args: [ stepType ] })
       this.boxList.addBox(box)
       this.form.fillWith(stepType)
+    })
+    // StepType deletion.
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd != "delete" || data.type != "StepType")
+        return
+      this.boxList.removeBox(data.id as string)
+      if (this.form.currentStepType != undefined && this.form.currentStepType.id == data.id)
+        this.form.reset()
     })
   }
 

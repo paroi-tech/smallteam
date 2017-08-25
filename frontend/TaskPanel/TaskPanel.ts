@@ -31,8 +31,23 @@ export default class TaskPanel implements Panel {
     this.view = MonkBerry.render(template, this.container)
 
     let btn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
-    if (btn)
+    if (btn) {
       btn.onclick = (ev) => this.updateTask()
+    }
+  }
+
+  /**
+   * Listen to events from model.
+   * Handled events are:
+   *  - Task deletion
+   */
+  private listenToModel() {
+    this.model.on("change", "dataFirst", data => {
+      if (data.type != "Task" || data.cmd != "delete")
+        return
+      if (this.task != undefined && this.task.id == data.id)
+        this.reset()
+    })
   }
 
   /**
@@ -65,20 +80,26 @@ export default class TaskPanel implements Panel {
       return
     let label = this.container.querySelector(".js-task-label") as HTMLInputElement
     let description = this.container.querySelector(".js-task-description") as HTMLTextAreaElement
-    if (label && label.value.length > 0 && description) {
-      try {
-        let task = await this.model.exec("update", "Task", {
-          id: this.task.id,
-          label: label.value,
-          description: description.value || ""
-        })
-        console.log("Task successfully updated...")
-      } catch(err) {
-        label.value = this.task.label
-        description.value = this.task.description || ""
-        console.error(`Error while updating task ${this.task!}: ${err}`)
-      }
+    if (!label || label.value.trim().length < 4 || !description)
+      return
+    try {
+      let task = await this.model.exec("update", "Task", {
+        id: this.task.id,
+        label: label.value.trim(),
+        description: description.value.trim() || ""
+      })
+    } catch(err) {
+      label.value = this.task.label
+      description.value = this.task.description || ""
+      console.error(`Error while updating task ${this.task!}: ${err}`)
     }
+  }
+
+  /**
+   * Return the TaskModel the panel is currently working on.
+   */
+  get currentTask(): TaskModel | undefined {
+    return this.task
   }
 
   /**
@@ -93,5 +114,16 @@ export default class TaskPanel implements Panel {
    */
   public show() {
     this.container.style.display = "block"
+  }
+
+  /**
+   * Reset the fields in the panel and set `currentTask` to `undefined`.
+   */
+  public reset() {
+    this.task = undefined
+    this.view.update({
+      description: "",
+      label: ""
+    })
   }
 }
