@@ -176,22 +176,19 @@ export default class ProjectStepsPanel {
     }
     // Now we sort the content of the BoxLists. Easy to sort the used StepType BoxList...
     this.usedStepTypeList.setBoxesOrder(this.project.steps.map(step => step.typeId))
-<<<<<<< HEAD
     // Tricky to sort the available StepType BoxList. We get the unused StepTypes from `stepTypeMap`,
     // then we sort them and finally we keep only the IDs in order to call BoxList#setBoxesOrder().
     let ids = Array.from(this.stepTypeMap.values()).filter((stepType) => {
-      return !stepType.isSpecial && !this.project.hasStep(stepType.id)
+      return !stepType.isSpecial && !this.project.hasStepType(stepType.id)
     }).sort((a: StepTypeModel, b: StepTypeModel) => {
       return a.orderNum! - b.orderNum!
     }).map(stepType => stepType.id)
     this.availableStepTypeList.setBoxesOrder(ids)
-=======
     this.availableStepTypeList.setBoxesOrder(
       Array.from(this.stepTypeMap.values()).filter(stepType => this.project.hasStepType(stepType.id)).map(
         stepType => stepType.id
       )
     )
->>>>>>> 16545e866d8e9bf026d9391120fb5d4861913fa4
   }
 
   /**
