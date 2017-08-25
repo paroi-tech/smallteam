@@ -47,8 +47,10 @@ export default class ProjectStepsPanel {
    * Listen to events from the model.
    * Events handled are:
    *  - StepType creation
+   *  - StepType reorder
    */
   private listenToModel() {
+    // StepType creation event.
     this.model.on("createStepType", "dataFirst", data => {
       let box = this.dash.create(StepTypeBox, {
         args: [ data.model, "id" ]
@@ -56,6 +58,26 @@ export default class ProjectStepsPanel {
       this.stepTypeMap.set(data.model.id, data.model)
       this.boxMap.set(data.model.id, box)
       this.availableStepTypeList.addBox(box)
+    })
+
+    // StepType reorder event.
+    // We run through the orderedIds and for each of the ID, we check if the project use the corresponding
+    // StepType. If yes, we add it to an array which will be use to sort the usedStepTypeList. Else,
+    // we add the id to the array used to sort availableStepTypeList.
+    this.model.on("reorder", "dataFirst", data => {
+      if (data.type !== "StepType" || !data.orderedIds)
+        return
+      let ids = data.orderedIds as string[],
+          usedStepTypeIds =  new Array<string>(),
+          availableStepTypeIds = new Array<string>()
+      ids.forEach(id => {
+        if (this.project.findStepByType(id))
+          usedStepTypeIds.push(id)
+        else
+          availableStepTypeIds.push(id)
+      })
+      this.availableStepTypeList.setBoxesOrder(availableStepTypeIds)
+      this.usedStepTypeList.setBoxesOrder(usedStepTypeIds)
     })
   }
 
@@ -142,7 +164,7 @@ export default class ProjectStepsPanel {
     for (let id of used) {
       let stepType = this.stepTypeMap.get(id)
       if (!stepType) // This should not happen.
-        throw new Error("Unknown StepType ID in ProjectStepsPanel " + this.project.code)
+        throw new Error(`Unknown StepType ID ${id} in ProjectStepsPanel ${this.project.code}`)
       if (!this.project.hasStepType(stepType.id))
           batch.exec("create", "Step", { typeId: stepType.id, projectId: this.project.id })
     }
@@ -152,7 +174,7 @@ export default class ProjectStepsPanel {
     for (let id of unused) {
       let stepType = this.stepTypeMap.get(id)
       if (!stepType) // This should not happen.
-        throw new Error("Unknown StepType ID in ProjectStepsPanel " + this.project.code)
+        throw new Error(`Unknown StepType ID ${id} in ProjectStepsPanel ${this.project.code}`)
       let step = this.project.findStepByType(stepType.id)
       if (step)
         batch.exec("delete", "Step", { id: step.id })
@@ -167,7 +189,7 @@ export default class ProjectStepsPanel {
         if (this.project.hasStepType(id) && this.availableStepTypeList.hasBox(id)) {
           this.availableStepTypeList.removeBox(id)
           this.usedStepTypeList.addBox(box)
-        } else
+        }
         if (!this.project.hasStepType(id) && this.usedStepTypeList.hasBox(id)) {
           this.usedStepTypeList.removeBox(id)
           this.availableStepTypeList.addBox(box)
@@ -184,11 +206,6 @@ export default class ProjectStepsPanel {
       return a.orderNum! - b.orderNum!
     }).map(stepType => stepType.id)
     this.availableStepTypeList.setBoxesOrder(ids)
-    this.availableStepTypeList.setBoxesOrder(
-      Array.from(this.stepTypeMap.values()).filter(stepType => this.project.hasStepType(stepType.id)).map(
-        stepType => stepType.id
-      )
-    )
   }
 
   /**
@@ -214,7 +231,7 @@ export default class ProjectStepsPanel {
       // A step type is removed from the project. We check if the step contains tasks.
       let stepType = this.stepTypeMap.get(ev.boxId)
       if (!stepType) // This should not happen. It means there is an error in the model or in Map#get().
-        throw new Error("Unknown StepType ID in ProjectStepsPanel " + this.project.code)
+        throw new Error(`Unknown StepType ID ${ev.boxId} in ProjectStepsPanel ${this.project.code}`)
       let step = this.project.findStepByType(stepType.id)
       if (!step || step.taskCount === 0) {
         this.handleUpdate()

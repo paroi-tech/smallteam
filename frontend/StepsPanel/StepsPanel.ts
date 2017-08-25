@@ -22,9 +22,7 @@ export default class StepsPanel {
   private $container: JQuery
   private $boxListContainer: JQuery
 
-  // BoxLists we created are stored in a map. The keys are the IDs of the project step types.
-  // We use StepType IDs because ProjectModel does not have a function to retrieve a Step based on its ID.
-  // The only way to retrieve a Step given its ID is to search in `ProjectModel#steps`, which can time.
+  // BoxLists we created are stored in a map. The keys are the IDs of the project steps.
   private boxListMap: Map<string, BoxList<TaskBox>> = new Map()
 
   // Map used to store TaskBoxes. The keys are the tasks IDs.
@@ -62,9 +60,9 @@ export default class StepsPanel {
    */
   private createBoxLists() {
     for (let step of this.project.steps) {
-      let l = this.createBoxListFor(step)
-      this.boxListMap.set(step.typeId, l)
-      l.attachTo(this.$boxListContainer.get(0))
+      let list = this.createBoxListFor(step)
+      this.boxListMap.set(step.id, list)
+      list.attachTo(this.$boxListContainer.get(0))
     }
   }
 
@@ -75,7 +73,7 @@ export default class StepsPanel {
    */
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
     let params = {
-      id: step.typeId,
+      id: step.id,
       group: this.parentTask.code,
       name: step.name,
       sort: true
@@ -102,11 +100,11 @@ export default class StepsPanel {
    */
   private async onTaskBoxMove(ev: BoxEvent) {
     let box = this.taskBoxMap.get(ev.boxId)
-    let step = this.project.findStepByType(ev.boxListId)
+    let step = this.project.findStep(ev.boxListId)
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepsPanel "${this.parentTask.label}"`)
     else if (!step)
-      throw new Error(`Unable to find StepType "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
+      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
     else {
       let task = box.task
       try {
@@ -114,12 +112,12 @@ export default class StepsPanel {
       } catch(err) {
         console.error(`Unable to update task "${box.task.id}" in StepsPanel "${this.parentTask.label}"`)
         // We bring back the TaskBox in its old BoxList.
-        let newList = this.boxListMap.get(step.typeId)
+        let newList = this.boxListMap.get(step.id)
         let oldList = this.boxListMap.get(box.task.currentStep.typeId)
         if (!newList)
-          throw new Error(`Cannot find BoxList with ID "${step.typeId}" in StepsPanel "${this.parentTask.label}"`)
+          throw new Error(`Cannot find BoxList with ID "${step.id}" in StepsPanel "${this.parentTask.label}"`)
         if (!oldList)
-          throw new Error(`Cannot find BoxList with ID "${task.currentStep.typeId}" in StepsPanel "${this.parentTask.label}"`)
+          throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in StepsPanel "${this.parentTask.label}"`)
         newList.removeBox(box.task.id)
         oldList.addBox(box)
       }
@@ -133,11 +131,11 @@ export default class StepsPanel {
     if (!this.parentTask.children)
       return
     for (let task of this.parentTask.children) {
-      let l = this.boxListMap.get(task.currentStep.typeId)
-      if (l) {
+      let list = this.boxListMap.get(task.currentStep.id)
+      if (list) {
         let box = this.createTaskBoxFor(task, "id")
         this.taskBoxMap.set(task.id, box)
-        l.addBox(box)
+        list.addBox(box)
       } else
         console.log(`Unknown StepType ID "${task.curStepId}" in StepsPanel "${this}"`)
     }
@@ -186,22 +184,21 @@ export default class StepsPanel {
    */
   private async onTaskReorder(ev: BoxListEvent) {
     try {
-      let result = await this.model.reorder("Task", ["-1"], this.parentTask.id)
+      let result = await this.model.reorder("Task", ev.boxIds, this.parentTask.id)
       console.log(`Tasks successfully reordered in StepsPanel "${this.parentTask.label}"`)
     } catch (err) {
       console.log(`Impossible to reorder tasks in StepsPanel "${this.parentTask.label}"`)
       // We restore the previous order of the elements in the BoxList.
       // The following retrieve the child tasks which are in the concerned step.
-      let taskIds = this.parentTask.children!.reduce(
-        function (result: string[], task: TaskModel) {
-          if (task.currentStep.typeId == ev.boxListId)
+      let taskIds = this.parentTask.children!.reduce((result: string[], task: TaskModel) => {
+          if (task.currentStep.id == ev.boxListId)
             result.push(task.id)
           return result
         }, []
       )
-      let l = this.boxListMap.get(ev.boxListId)
-      if (l)
-        l.setBoxesOrder(taskIds)
+      let list = this.boxListMap.get(ev.boxListId)
+      if (list)
+        list.setBoxesOrder(taskIds)
       else
         console.error(`Cannot restore order in list "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
     }
@@ -211,12 +208,12 @@ export default class StepsPanel {
    * Listen to changes in the model.
    * The following events are handled:
    *  - StepType update, in order to update the BoxList titles.
+   *  - StepType reorder, to reorder the BoxLists.
    *  - Step creation, to add a new BoxList.
    *  - Step deletion, to remove the corresponding BoxList.
    *  - Task creation, to create a taskBox for the new task.
    */
   private listenToModel() {
-    // FIXME: update code for step deletion event in model
     // StepType update event.
     this.model.on("update", "dataFirst", data => {
       if (data.type === "StepType") {
@@ -229,6 +226,7 @@ export default class StepsPanel {
         }
       }
     })
+
     // Step creation event.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd === "create" && data.type === "Step") {
@@ -239,49 +237,62 @@ export default class StepsPanel {
         // in $boxListContainer.
         let i = this.project.steps.indexOf(step)
         if (i != -1) {
-          let l = this.createBoxListFor(step)
-          this.boxListMap.set(step.typeId, l)
+          let list = this.createBoxListFor(step)
+          this.boxListMap.set(step.id, list)
           let p = this.$boxListContainer.get(0)
-          p.insertBefore(l.getRootElement(), i < p.childNodes.length? p.childNodes[0]: null)
+          p.insertBefore(list.getRootElement(), i < p.childNodes.length? p.childNodes[0]: null)
         }
       }
     })
+
     // Step deletion event. We remove the BoxList from the StepsPanel.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd === "delete" && data.type === "Step") {
         let stepId = data.id as string
-        let bl = this.boxListMap.get(stepId)
-        if (bl) {
-          this.$boxListContainer.get(0).removeChild(bl.getRootElement())
+        let list = this.boxListMap.get(stepId)
+        if (list) {
+          this.$boxListContainer.get(0).removeChild(list.getRootElement())
           this.boxListMap.delete(stepId)
         }
       }
     })
-    // StepTypes reorder event. The new order of the StepTypes are reflected in the ProjectModel.
-    // We reorder the BoxLists in two steps. We remove the BoxLists from $boxListContainer, then we run
-    // through projectModel#steps and add BoxLists in the order of the Steps. all children
+
+    // StepTypes reorder event.
+    // The code used to sort the BoxLists in $boxListContainer was found at:
+    // https://stackoverflow.com/questions/7831712/jquery-sort-divs-by-innerhtml-of-children
+    // For each of the project step, we get the StepType orderNum and set this orderNum as the
+    // `data-sort` attribute of the corresponding BoxList.
     this.model.on("reorder", "dataFirst", data => {
-      removeAllChildren(this.$boxListContainer.get(0))
-      for (let step of this.project.steps) {
-        let bl = this.boxListMap.get(step.id)
-        if (bl)
-          this.$boxListContainer.get(0).appendChild(bl.getRootElement())
-      }
+      if (data.type !== "StepType" || !data.orderedIds)
+        return
+      data.orderedIds.forEach((id, i) => {
+        let step = this.project.findStepByType(id as string)
+        if (step)
+          this.boxListMap.get(step.id)!.getRootElement().setAttribute("data-sort", i.toString())
+      })
+      let arr = this.$boxListContainer.children().toArray().sort((a, b) => {
+        let i = parseInt($(a).data('sort'))
+        let j = parseInt($(b).data('sort'))
+        return (i < j) ? -1 : (i > j) ? 1 : 0;
+      })
+      this.$boxListContainer.append(arr)
     })
+
     // Task creation event.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd == "create" && data.type == "Task") {
         let task = data.model as TaskModel
         if (task.projectId != this.project.id || task.parentTaskId != this.parentTask.id)
           return
-        let l = this.boxListMap.get(task.curStepId)
-        if (l) {
+        let list = this.boxListMap.get(task.curStepId)
+        if (list) {
           let box = this.createTaskBoxFor(task, "id")
           this.taskBoxMap.set(task.id, box)
-          l.addBox(box)
+          list.addBox(box)
         }
       }
     })
+    // StepType reorder event.
   }
 
   /**

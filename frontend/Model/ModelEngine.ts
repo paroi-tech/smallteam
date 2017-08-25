@@ -31,7 +31,7 @@ export interface ModelsQuery extends IndexQuery {
 export interface ModelEvent {
   type: Type
   id?: Identifier
-  orderedIds?: Identifier
+  orderedIds?: Identifier[]
   cmd: CommandType | "reorder"
   model?: any
 }

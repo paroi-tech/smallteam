@@ -214,7 +214,7 @@ function registerProject(engine: ModelEngine) {
         })
       },
       hasStepType(stepTypeId: string) {
-        return !!this.findStep(stepTypeId)
+        return !!this.findStepByType(stepTypeId)
       },
       findStepByType(stepTypeId: string) {
         let item = engine.findSingleFromIndex({
