@@ -230,15 +230,15 @@ export default class StepsPanel {
     // Step creation event.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd === "create" && data.type === "Step") {
-        let step = data.model as StepModel
-        if (step.projectId !== this.project.id)
+        let newStep = data.model as StepModel
+        if (newStep.projectId !== this.project.id)
           return
         // We find the index of the Step in projectModel#steps and insert a BoxList
         // in $boxListContainer.
-        let i = this.project.steps.findIndex(s => s.id === step.id)
+        let i = this.project.steps.findIndex(step => step.id === newStep.id)
         if (i != -1) {
-          let list = this.createBoxListFor(step)
-          this.boxListMap.set(step.id, list)
+          let list = this.createBoxListFor(newStep)
+          this.boxListMap.set(newStep.id, list)
           let parent = this.$boxListContainer.get(0)
           parent.insertBefore(list.getRootElement(), i < parent.childNodes.length? parent.childNodes[i]: null)
         }
@@ -258,10 +258,9 @@ export default class StepsPanel {
     })
 
     // StepTypes reorder event.
-    // The code used to sort the BoxLists in $boxListContainer was found at:
+    // An alternative solution to sort the content of an HTML element using `data-sort` attribute
+    // can be found at:
     // https://stackoverflow.com/questions/7831712/jquery-sort-divs-by-innerhtml-of-children
-    // For each of the project step, we get the StepType orderNum and set this orderNum as the
-    // `data-sort` attribute of the corresponding BoxList.
     this.model.on("reorder", "dataFirst", data => {
       if (data.type !== "StepType" || !data.orderedIds)
         return

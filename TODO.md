@@ -14,4 +14,5 @@ the time, so I can't use JIRA.
 
 # Lionel
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
+- When a Task, Step or StepType is deleted, check if the task is selected in RaskPanel or StepTypePanel
 - Add `refresh` method to ProjectBoard and StepsPanel. This method should be called when steps are added to a project or when tasks are reordered.
