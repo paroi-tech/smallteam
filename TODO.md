@@ -11,6 +11,25 @@ the time, so I can't use JIRA.
 - ModelEngine: add a method `get(id)` and a method `where(filter)` on the list returned by `getModels`
 - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
   - optional data (archived projects...) when loaded by queries
+- Add a boolean "processing" on each model
+  - Lionel: disable forms for the models in processing
+- Add a list of processing tasks
+  - Lionel: Implement a new component `RemoteTaskManager`
 
 # Lionel
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
+- On modifying a task name, update the task in BoxLists
+
+- **Task panel**:
+  - For tasks without child: add a button "Show/Hide as parent" => Review of the code that shows the tasks as parents
+  - Allow to delete a task (after user confirmation)
+- **ProjectForm**:
+  - Do not use the title to open the form, add a toggle (show/hide) button near the title
+  - Allow to delete a project when it contains no tasks (except the root task) (after user confirmation)
+- **Step type form**: Allow to delete a stepType when it has no step (after user confirmation)
+- **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
+- **StepsPanel**: Add a button near the title for slide up and slide down the content
+- For each form:
+  - Add a flag "loading" on each button "Submit"
+  - Disable the submit button until there are any changes
+  - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
