@@ -22,7 +22,7 @@ the time, so I can't use JIRA.
 
 - **Task panel**:
   - For tasks without child: add a button "Show/Hide as parent"
-  - Allow to delete a task (after user confirmation)
+  - Allow to delete a task that doesn't have child (after user confirmation)
 - **ProjectForm**:
   - Do not use the title to open the form, add a DropdownMenu button (`…`) near the title with following items:
     - An button "Edit Form" for opening the form

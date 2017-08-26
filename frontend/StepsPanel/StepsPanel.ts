@@ -144,7 +144,7 @@ export default class StepsPanel {
   /**
    * Handle the creation of a new task.
    */
-  private onAddtaskClick() {
+  private async onAddtaskClick() {
     let nameField = this.$container.find(".js-task-name")
     let name = nameField.val() as string
     if (name.length < 1)
@@ -152,8 +152,12 @@ export default class StepsPanel {
     else if (this.project.steps.length == 0)
       console.log("Impossible to create a new task. Project has no step.")
     else {
-      if (this.createTask(name))
+      let $spinner = this.$container.find(".js-add-task-button .fa-spinner")
+      if ($spinner)
+        $spinner.css("display", "inline")
+      if (await this.createTask(name))
         nameField.val("")
+      $spinner.css("display", "none")
       nameField.focus()
     }
   }
