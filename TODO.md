@@ -21,10 +21,13 @@ the time, so I can't use JIRA.
 - On modifying a task name, update the task in BoxLists
 
 - **Task panel**:
-  - For tasks without child: add a button "Show/Hide as parent" => Review of the code that shows the tasks as parents
+  - For tasks without child: add a button "Show/Hide as parent"
   - Allow to delete a task (after user confirmation)
 - **ProjectForm**:
-  - Do not use the title to open the form, add a toggle (show/hide) button near the title
+  - Do not use the title to open the form, add a DropdownMenu button (`…`) near the title with following items:
+    - An button "Edit Form" for opening the form
+    - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
+    - A button "Archived Tasks" => Implement a new component "Archived Tasks"
   - Allow to delete a project when it contains no tasks (except the root task) (after user confirmation)
 - **Step type form**: Allow to delete a stepType when it has no step (after user confirmation)
 - **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
