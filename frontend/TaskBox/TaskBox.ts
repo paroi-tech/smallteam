@@ -2,7 +2,7 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
-import { TaskModel } from "../Model/Model"
+import { Model, TaskModel } from "../Model/Model"
 
 const template = require("html-loader!./taskbox.html")
 
@@ -16,6 +16,8 @@ export default class TaskBox implements Box {
   private $container: JQuery
   public readonly id: string
 
+  private model: Model
+
   /**
    * Create a new TaskBox.
    * @param dash - the current application dash
@@ -24,10 +26,28 @@ export default class TaskBox implements Box {
    */
   constructor(private dash: Dash<App>, readonly task: TaskModel, idProp = "id") {
     this.id = this.task[idProp].toString()
+    this.model = this.dash.app.model
     this.$container = $(template)
     this.$container.find(".js-span").text(task.label)
+    this.listenToModel()
     this.$container.click(() => {
       this.dash.emit("taskBoxSelected", this.task)
+    })
+  }
+
+  /**
+   * Listen to events from model.
+   * The following events are handled:
+   *  - Task update
+   */
+  private listenToModel() {
+    // Task update.
+    this.model.on("change", "dataFirst", data => {
+      if (data.type != "Task" || data.cmd != "update")
+        return
+      let task = data.model as TaskModel
+      if (task.id === this.task.id)
+        this.$container.find(".js-span").text(task.label)
     })
   }
 
