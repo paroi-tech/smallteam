@@ -33,7 +33,7 @@ export default class ProjectBoard implements Panel {
 
   private taskPanel: TaskPanel
   private dropdownMenu: DropdownMenu
-  private stepsPanelMap: Map<String, StepsPanel>
+  private stepsPanelMap: Map<String, StepsPanel> = new Map()
 
   /**
    * Create a new project board.
@@ -69,6 +69,13 @@ export default class ProjectBoard implements Panel {
     this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
       this.dash.emit("editProject", this.project)
     })
+    this.dash.listenToChildren<TaskModel>("showStepsPanel", { deep: true }).call("dataFirst", task => {
+      let panel = this.stepsPanelMap.get(task.id)
+      if (!panel)
+        this.createStepsPanel(task)
+      else
+        panel.show()
+    })
   }
 
   /**
@@ -87,27 +94,27 @@ export default class ProjectBoard implements Panel {
     this.taskPanel.attachTo(this.$taskPanelContainer.get(0))
 
     this.createStepsPanel(this.project.rootTask)
-    if (this.project.tasks) {
-      let tasksWithChildren = this.project.tasks.filter(task => task.children != undefined)
-      for (let task of tasksWithChildren)
-        this.createStepsPanel(task)
-    }
+    // FIXME: remove this block. It is useless.
+    // if (this.project.tasks) {
+    //   let tasksWithChildren = this.project.tasks.filter(task => task.children && task.children.length !== 0)
+    //   for (let task of tasksWithChildren)
+    //     this.createStepsPanel(task)
+    // }
   }
 
   /**
    * Listen to model events.
-   * We handle the following events:
-   *  - Task creation
    */
   private listenToModel() {
-    // When a new task is created and its parent is the project main task, we have to add a new StepsPanel
-    // to the project board.
-    this.model.on("createTask", "dataFirst", data => {
-      let task = data.model as TaskModel
-      if (task.projectId == this.project.id && task.parentTaskId == this.project.rootTaskId) {
-        this.createStepsPanel(task)
-      }
-    })
+    // When a new task is created and its parent is the project main task, we have to add a new
+    // StepsPanel to the project board.
+    // FIXME: this is no longer useful.
+    // this.model.on("createTask", "dataFirst", data => {
+    //   let task = data.model as TaskModel
+    //   if (task.projectId == this.project.id && task.parentTaskId == this.project.rootTaskId) {
+    //     this.createStepsPanel(task)
+    //   }
+    // })
   }
 
   /**
@@ -120,15 +127,20 @@ export default class ProjectBoard implements Panel {
   }
 
   /**
-   * Create a StepsPanel for a task.
+   * Create a StepsPanel for a task and recursively for its children.
    *
    * @param task - the task that the panel will be created for.
    */
-  private createStepsPanel(task: TaskModel) {
+  private createStepsPanel(task: TaskModel): StepsPanel {
     let panel = this.dash.create(StepsPanel, {
       args: [ task ]
     })
+    this.stepsPanelMap.set(task.id, panel)
     panel.attachTo(this.$stepsPanelContainer.get(0))
+    if (task.children)
+      for (let childTask of task.children.filter(t => t.children && t.children.length !== 0))
+        this.createStepsPanel(childTask)
+    return panel
   }
 
   /**

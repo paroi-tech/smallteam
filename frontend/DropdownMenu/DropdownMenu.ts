@@ -34,7 +34,7 @@ export class DropdownMenu {
   private initJQueryObjects() {
     this.$container = $(template)
     this.$ul = this.$container.find(".js-ul")
-    this.$ul.css(this.align === "left" ? "left" : "right", "inherit")
+    this.$ul.css(this.align === "left" ? "left" : "right", "0")
     this.$container.find(".js-btn").click(ev => this.$ul.toggle())
   }
 

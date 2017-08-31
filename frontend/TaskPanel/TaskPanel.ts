@@ -32,10 +32,16 @@ export default class TaskPanel implements Panel {
     this.view = MonkBerry.render(template, this.container)
     this.spinner = this.view.querySelector(".js-spinner")
 
-    let btn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
-    if (btn) {
-      btn.onclick = (ev) => this.updateTask()
-    }
+    let submitBtn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
+    if (submitBtn)
+      submitBtn.addEventListener("click", ev => this.updateTask())
+
+    let showPanelBtn = this.container.querySelector(".js-show-stepspanel-button") as HTMLButtonElement
+    if (showPanelBtn)
+      showPanelBtn.addEventListener("click", ev => {
+        if (this.task)
+          this.dash.emit("showStepsPanel", this.task)
+      })
   }
 
   /**

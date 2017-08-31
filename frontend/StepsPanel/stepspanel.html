@@ -1,13 +1,17 @@
 <section class="StepsPanel">
-  <div class="js-title">
-    <span class="StepsPanelTitle"></span>
+  <div class="StepsPanelTitle">
+    <span class="js-title"></span>&nbsp;
+    <button class="js-toggle-btn StepsPanelToggleButton" title="Fold/Unfold">&#9650;</button>&nbsp;
+    <button class="js-close-btn StepsPanelCloseButton" title="Hide">&#x274C;</button>
   </div>
-  <div class="js-boxlist-container"></div>
-  <div class="js-add-task-panel AddTaskPanel">
-    <label>Task name <input class="js-task-name" type="text" minlength="20"></label>
-    <button class="js-add-task-button">
-      Add task
-      <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
-    </button>
+  <div class="js-wrapper">
+    <div class="js-boxlist-container"></div>
+    <div class="js-add-task-panel AddTaskPanel">
+      <label>Task name <input class="js-task-name" type="text" minlength="20"></label>
+      <button class="js-add-task-button">
+        Add task
+        <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
+      </button>
+    </div>
   </div>
 </section>

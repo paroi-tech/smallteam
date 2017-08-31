@@ -11,3 +11,4 @@
   Submit
   <span class="js-spinner fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
 </button>
+<div><button class="js-show-stepspanel-button">Show/Hide as parent</button></div>

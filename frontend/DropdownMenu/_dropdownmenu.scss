@@ -1,7 +1,9 @@
 .DropdownMenu {
+  position: relative;
+
   &-btn {
     display: block;
-    padding: 6px 10px;
+    padding: 6px 8px;
 
     &:focus,
     &:hover {
@@ -29,7 +31,6 @@
   &-ul {
     background-color: whitesmoke;
     border: 1px solid gray;
-    border-radius: 3px;
     display: none;
     position: absolute;
     z-index: 100;
