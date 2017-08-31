@@ -13,6 +13,7 @@
     border: 0;
     color: $textColorDark1;
     display: block;
+    font-weight: bold;
     line-height: 20px;
     padding: 3px 10px;
     text-align: left;
@@ -25,14 +26,12 @@
     }
   }
 
-
   &-ul {
     background-color: whitesmoke;
     border: 1px solid gray;
     border-radius: 3px;
     display: none;
     position: absolute;
-    right: 0;
     z-index: 100;
   }
 }

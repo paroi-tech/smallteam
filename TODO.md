@@ -18,7 +18,6 @@ the time, so I can't use JIRA.
 
 # Lionel
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
-- On modifying a task name, update the task in BoxLists
 
 - **Task panel**:
   - For tasks without child: add a button "Show/Hide as parent"

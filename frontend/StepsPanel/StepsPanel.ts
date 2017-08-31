@@ -170,9 +170,9 @@ export default class StepsPanel {
    *  - boxListSortingUpdated
    */
   private listenToChildrenComponents() {
-    this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
-      console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
-    })
+    // this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
+    //   console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
+    // })
     this.dash.listenToChildren<BoxEvent>("boxListItemAdded").call("dataFirst", data => {
       this.onTaskBoxMove(data)
     })

@@ -6,8 +6,16 @@ import App from "../App/App"
 import { Panel } from "../PanelSelector/PanelSelector"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
+import { MenuItem, MenuEvent } from "../Menu/Menu"
+import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 
 const template = require("html-loader!./projectboard.html")
+
+const menuItems = [
+  { id: "editProject", label: "Edit project", eventName: "editProject" },
+  { id: "showOnHoldTasks", label: "Show on hold tasks", eventName: "showOnHoldTasks" },
+  { id: "showArchivedTasks", label: "Show archived tasks", eventName: "showArchivedTasks" }
+]
 
 /**
  * ProjectBoard component.
@@ -17,13 +25,14 @@ const template = require("html-loader!./projectboard.html")
  */
 export default class ProjectBoard implements Panel {
   private $container: JQuery
+  private $dropdownMenuContainer: JQuery
   private $stepsPanelContainer: JQuery
   private $taskPanelContainer: JQuery
-  private $editBtn: JQuery
 
   private model: Model
 
   private taskPanel: TaskPanel
+  private dropdownMenu: DropdownMenu
   private stepsPanelMap: Map<String, StepsPanel>
 
   /**
@@ -36,10 +45,7 @@ export default class ProjectBoard implements Panel {
     this.model = this.dash.app.model
     this.initJQueryObjects()
     this.initComponents()
-    this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
-      console.log(`TaskBox ${task.id} selected in projectboard ${this.project.id}`)
-        this.taskPanel.fillWith(task)
-    })
+    this.listenToChildren()
   }
 
   /**
@@ -47,18 +53,34 @@ export default class ProjectBoard implements Panel {
    */
   private initJQueryObjects() {
     this.$container = $(template)
-    this.$editBtn = this.$container.find(".js-edit-btn").text(this.project.name).click(() => {
-      console.log(`Edit project button clicked for project ${this.project.id}`)
-      this.dash.emit("editProject", this.project)
-    })
+    this.$container.find("span.js-title").text(this.project.name)
+    this.$dropdownMenuContainer = this.$container.find(".js-dropdown-menu-container")
     this.$stepsPanelContainer = this.$container.find(".js-stepspanel-container")
     this.$taskPanelContainer = this.$container.find(".js-editpanel-container")
+  }
+
+  /**
+   * Listen to event from child componants.
+   */
+  private listenToChildren() {
+    this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
+      this.taskPanel.fillWith(task)
+    })
+    this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
+      this.dash.emit("editProject", this.project)
+    })
   }
 
   /**
    * Create ProjectBoard inner components, i.e. a TaskPanel and StepsPanels.
    */
   private initComponents() {
+    this.dropdownMenu = this.dash.create(DropdownMenu, {
+      args: ["ProjectBoardDropdownMenu", "ProjectBoard dropdown menu", "left"]
+    })
+    this.dropdownMenu.addItems(menuItems)
+    this.dropdownMenu.attachTo(this.$dropdownMenuContainer.get(0))
+
     this.taskPanel = this.dash.create(TaskPanel, {
       args: [ "Task panel" ]
     })
