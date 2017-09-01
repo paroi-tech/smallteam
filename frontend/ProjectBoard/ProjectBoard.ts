@@ -70,7 +70,7 @@ export default class ProjectBoard implements Panel {
       this.dash.emit("editProject", this.project)
     })
     this.dash.listenToChildren<TaskModel>("showStepsPanel", { deep: true }).call("dataFirst", task => {
-      if (task.id === this.project.rootTaskId)
+      if (task.id === this.project.rootTaskId) // The rootTask panel is always displayed.
         return
       this.showStepsPanel(task)
     })
@@ -129,6 +129,8 @@ export default class ProjectBoard implements Panel {
       return
     parentTask.children.filter(t => t.children && t.children.length !== 0).forEach(task => {
       let panel = this.createStepsPanel(task)
+      // The panel created for child tasks are hidden by default.
+      panel.setVisible(false)
       panel.attachTo(this.$stepsPanelContainer.get(0))
       this.createStepsPanelsForChildren(task)
     })
@@ -155,7 +157,7 @@ export default class ProjectBoard implements Panel {
   private showStepsPanel(task: TaskModel) {
     let panel = this.stepsPanelMap.get(task.id)
     if (panel) {
-      panel.show()
+      panel.setVisible(true)
       return
     }
     // The task does not have a panel. We have to create a new one. But before that, we have to eliminate

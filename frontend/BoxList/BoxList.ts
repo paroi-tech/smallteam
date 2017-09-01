@@ -66,6 +66,7 @@ export interface BoxListEvent extends BoxEvent {
 export default class BoxList<T extends Box> {
   private $container: JQuery
   private $ul: JQuery
+  private $busyIcon: JQuery
   private sortable: Sortable
 
   // Map storing boxes of the list.
@@ -80,6 +81,7 @@ export default class BoxList<T extends Box> {
   constructor(private dash: Dash<App>, private params: BoxListParams) {
     this.$container = $(boxListTemplate)
     this.$ul = this.$container.find("ul")
+    this.$busyIcon = this.$container.find(".js-busy-icon")
     this.$container.find(".js-title").text(params.name)
     this.makeSortable()
   }
@@ -137,6 +139,7 @@ export default class BoxList<T extends Box> {
    */
   private makeSortable() {
     this.sortable = Sortable.create(this.$ul.get(0), {
+      disabled: this.params.sort ? false : true,
       handle: ".js-handle",
       group: this.params.group,
       sort: this.params.sort,
@@ -202,5 +205,49 @@ export default class BoxList<T extends Box> {
    */
   public getBoxesOrder(): string[] {
     return this.sortable.toArray()
+  }
+
+  /**
+   * Enable the sorting capabilities of the BoxList.
+   *
+   * Note: calling this method will have effect only if the `sort` member of the BoxList constructor
+   *       was set to true.
+   * @param hideIcon - Indicate if the busy icon should be hidden
+   */
+  public enableSort(hideIcon: boolean = false) {
+    if (this.params.sort && this.sortable.option("disabled")) {
+      this.sortable.option("disabled", false)
+      if (hideIcon)
+        this.hideBusyIcon()
+    }
+  }
+
+  /**
+   * Disable the sorting capabilities of the BoxList.
+   *
+   * Note: calling this method will have effect only if the `sort` member of the BoxList constructor
+   *       param was set to true.
+   * @param showIcon - Indicate if the busy icon should be displayed
+   */
+  public disableSort(showIcon: boolean = false) {
+    if (this.params.sort && !this.sortable.option("disabled")) {
+      this.sortable.option("disabled", true)
+      if (showIcon)
+        this.showBusyIcon()
+    }
+  }
+
+  /**
+   * Show the Busy indicator.
+   */
+  public showBusyIcon() {
+    this.$busyIcon.show()
+  }
+
+  /**
+   * Hide the busy indicator.
+   */
+  public hideBusyIcon() {
+    this.$busyIcon.hide()
   }
 }

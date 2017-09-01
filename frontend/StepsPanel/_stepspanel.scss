@@ -1,13 +1,11 @@
 .StepsPanel {
   &Title {
+    @extend .BlockTitle;
     align-items: baseline;
-    background-color: #205081;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
-    color: white;
     display: inline-flex;
     flex-direction: row;
-    font-weight: bold;
     justify-content: space-between;
     padding: 3px 5px;
   }
