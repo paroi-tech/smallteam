@@ -60,7 +60,7 @@ export default class ProjectBoard implements Panel {
   }
 
   /**
-   * Listen to event from child componants.
+   * Listen to event from child components.
    */
   private listenToChildren() {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
@@ -70,11 +70,9 @@ export default class ProjectBoard implements Panel {
       this.dash.emit("editProject", this.project)
     })
     this.dash.listenToChildren<TaskModel>("showStepsPanel", { deep: true }).call("dataFirst", task => {
-      let panel = this.stepsPanelMap.get(task.id)
-      if (!panel)
-        this.createStepsPanel(task)
-      else
-        panel.show()
+      if (task.id === this.project.rootTaskId)
+        return
+      this.showStepsPanel(task)
     })
   }
 
@@ -93,13 +91,9 @@ export default class ProjectBoard implements Panel {
     })
     this.taskPanel.attachTo(this.$taskPanelContainer.get(0))
 
-    this.createStepsPanel(this.project.rootTask)
-    // FIXME: remove this block. It is useless.
-    // if (this.project.tasks) {
-    //   let tasksWithChildren = this.project.tasks.filter(task => task.children && task.children.length !== 0)
-    //   for (let task of tasksWithChildren)
-    //     this.createStepsPanel(task)
-    // }
+    let rootTaskPanel = this.createStepsPanel(this.project.rootTask)
+    rootTaskPanel.attachTo(this.$stepsPanelContainer.get(0))
+    this.createStepsPanelsForChildren(this.project.rootTask)
   }
 
   /**
@@ -127,8 +121,22 @@ export default class ProjectBoard implements Panel {
   }
 
   /**
-   * Create a StepsPanel for a task and recursively for its children.
-   *
+   * Recursively create panels for the children and descendants of a given task.
+   * @param parentTask
+   */
+  private createStepsPanelsForChildren(parentTask: TaskModel) {
+    if (!parentTask.children || parentTask.children.length === 0)
+      return
+    parentTask.children.filter(t => t.children && t.children.length !== 0).forEach(task => {
+      let panel = this.createStepsPanel(task)
+      panel.attachTo(this.$stepsPanelContainer.get(0))
+      this.createStepsPanelsForChildren(task)
+    })
+  }
+
+  /**
+   * Utility function to create a StepsPanel for a task.
+   * The panel is appended to the ProjectBoard, but a reference is kept in the stepsPanelMap.
    * @param task - the task that the panel will be created for.
    */
   private createStepsPanel(task: TaskModel): StepsPanel {
@@ -136,11 +144,55 @@ export default class ProjectBoard implements Panel {
       args: [ task ]
     })
     this.stepsPanelMap.set(task.id, panel)
-    panel.attachTo(this.$stepsPanelContainer.get(0))
-    if (task.children)
-      for (let childTask of task.children.filter(t => t.children && t.children.length !== 0))
-        this.createStepsPanel(childTask)
     return panel
+  }
+
+  /**
+   * Display the StepsPanel of a given task.
+   * If there were no StepsPanel for the task, a new StepsPanel is created.
+   * @param task
+   */
+  private showStepsPanel(task: TaskModel) {
+    let panel = this.stepsPanelMap.get(task.id)
+    if (panel) {
+      panel.show()
+      return
+    }
+    // The task does not have a panel. We have to create a new one. But before that, we have to eliminate
+    // all errors that can prevent the insertion of the panel in the DOM.
+    let parentTask = task.parent
+    if (!parentTask || !parentTask.children)
+      throw new Error(`Task without a parent or invalid parent: task ${task} parent: ${parentTask}`)
+    let parentPanel = this.stepsPanelMap.get(parentTask.id)
+    if (!parentPanel)
+      throw new Error(`Unable to find StepsPanel with ID ${parentTask.id} in ProjectBoard ${this.project.id}`)
+    // We find the task that just come before the current task and which StepsPanel is dislayed.
+    // First we retrieve the index of the current task in its parent children array.
+    let currentTaskIndex = parentTask.children.findIndex(t => t.id === task.id)
+    if (currentTaskIndex < 0)
+      throw new Error(`Unable to find task in its parent children: task: ${task} parent: ${parentTask}`)
+    let precedingPanel: StepsPanel | undefined = undefined
+    for (let t of parentTask.children.slice(0, currentTaskIndex)) {
+      precedingPanel = this.stepsPanelMap.get(t.id)
+      if (precedingPanel !== undefined)
+        break
+    }
+    // IMPORTANT: it is better to create the new StepsPanel here, after that errors than can prevent
+    // the insertion of the panel in the DOM are eliminated. That prevents two bugs:
+    //  1.  When we would want to display the panel again, we would find it in stepsPanelMaps, but
+    //      there is no corresponding HTML node in the DOM. So even if we try to display, th panel
+    //      nothing won't be displayed.
+    //      will appea
+    //  2.  What will happen if we want to display a child of the current task as StesPanel?
+    //      In that case, the parent StepsPanel would exist in the 'stepsPanelMap', but not in the DOM,
+    //      which means that parent.nextSibling will be 'null' and the new node will be added at the end
+    //      of the Project, which is not its correct place.
+    panel = this.createStepsPanel(task)
+    // We insert the new StepsPanel in the DOM. See the discussion for details about the method used:
+    // https://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
+    let parentNode = this.$stepsPanelContainer.get(0)
+    let referenceNode = precedingPanel ? precedingPanel.getRootElement() : parentPanel.getRootElement()
+    parentNode.insertBefore(panel.getRootElement(), referenceNode.nextSibling)
   }
 
   /**

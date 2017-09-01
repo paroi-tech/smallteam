@@ -1,29 +1,21 @@
 .StepsPanel {
   &Title {
+    align-items: baseline;
     background-color: #205081;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
     color: white;
-    display: inline-block;
+    display: inline-flex;
+    flex-direction: row;
     font-weight: bold;
+    justify-content: space-between;
     padding: 3px 5px;
-    vertical-align: middle;
   }
 
   &ToggleButton, &CloseButton {
-    border-radius: 50%;
     padding: 5px;
-  }
-
-  &ToggleButton {
     &:focus, &:hover {
       background-color: rgba(255, 255, 255, 0.42)
-    }
-  }
-
-  &CloseButton {
-    &:focus, &:hover {
-      background-color: rgba(255, 50, 50, 005)
     }
   }
 }
