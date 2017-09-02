@@ -305,6 +305,10 @@ function makeTests(el, model: Model) {
     let types = await model.query("StepType")
     console.log("Loaded types:", types)
   })
+  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get contributors</button>`).appendTo(el).click(async () => {
+    let contributors = await model.query("Contributor")
+    console.log("Loaded contributors:", contributors)
+  })
   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Batch</button>`).appendTo(el).click(async () => {
     let batch = model.createCommandBatch();
 

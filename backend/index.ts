@@ -8,6 +8,7 @@ import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
+import { queryContributors } from "./dbqueries/queryContributor";
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)
@@ -99,7 +100,8 @@ async function executeBatch(list: any[]): Promise<BatchCargo> {
 
 const queries = {
   Project: queryProjects,
-  StepType: queryStepTypes
+  StepType: queryStepTypes,
+  Contributor: queryContributors
 }
 
 async function executeQuery(data, loader: CargoLoader) {

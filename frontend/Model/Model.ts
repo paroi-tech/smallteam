@@ -71,6 +71,10 @@ export default class ModelComp implements Model {
 
   constructor(private dash: Dash<App>) {
     this.engine = new ModelEngine(dash)
+    registerContributor(this.engine)
+    registerComment(this.engine)
+    registerFlag(this.engine)
+    registerTaskLogEntry(this.engine)
     registerProject(this.engine)
     registerTask(this.engine)
     registerStep(this.engine)

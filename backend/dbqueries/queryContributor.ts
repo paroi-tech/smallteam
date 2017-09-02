@@ -5,11 +5,10 @@ import { ContributorFragment, NewContributorFragment, newContributorMeta, UpdCon
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
-import { markAsUpdatedStepsByType } from "./queryStep"
 
 function toContributorFragment(row): ContributorFragment {
   return {
-    id: row["contibutor_id"],
+    id: row["contributor_id"],
     name: row["name"],
     login: row["login"],
     email: row["email"]
@@ -26,8 +25,8 @@ export async function queryContributors(loader: CargoLoader) {
   for (let row of rs) {
     let frag = toContributorFragment(row)
     loader.addFragment({
-      type: "StepType",
-      frag: frag,
+      type: "Contributor",
+      frag,
       asResult: "fragments"
     })
   }
