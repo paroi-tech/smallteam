@@ -5,7 +5,7 @@ import { ProjectFragment } from "./fragments/Project"
 import { StepFragment } from "./fragments/Step"
 import { StepTypeFragment } from "./fragments/StepType"
 import { TaskFragment } from "./fragments/Task"
-import { TaskLogFragment } from "./fragments/TaskLog"
+import { TaskLogEntryFragment } from "./fragments/TaskLogEntry"
 
 export interface Fragments {
   Comment?: CommentFragment[]
@@ -15,7 +15,7 @@ export interface Fragments {
   Step?: StepFragment[]
   StepType?: StepTypeFragment[]
   Task?: TaskFragment[]
-  TaskLog?: TaskLogFragment[]
+  TaskLogEntry?: TaskLogEntryFragment[]
 }
 
 export type Type = keyof Fragments

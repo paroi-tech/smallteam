@@ -78,10 +78,8 @@ create table task_log (
     task_log_id bigserial not null primary key,
     task_id bigint not null references task(task_id),
     step_id bigint not null references step(step_id),
-    start_ts timestamp not null default current_timestamp,
-    started_by bigint not null references contributor(contributor_id),
-    end_ts timestamp,
-    ended_by bigint references contributor(contributor_id)
+    entry_ts timestamp not null default current_timestamp,
+    by bigint not null references contributor(contributor_id)
 );
 
 create table root_task (

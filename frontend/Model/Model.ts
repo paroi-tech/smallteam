@@ -10,7 +10,7 @@ import { ImageFragment } from "../../isomorphic/fragments/Attachment"
 import { ContributorFragment } from "../../isomorphic/fragments/Contributor"
 import { FlagFragment } from "../../isomorphic/fragments/Flag"
 import { CommentFragment } from "../../isomorphic/fragments/Comment"
-import { TaskLogFragment } from "../../isomorphic/fragments/TaskLog"
+import { TaskLogEntryFragment } from "../../isomorphic/fragments/TaskLogEntry"
 import Deferred from "../libraries/Deferred"
 
 // --
@@ -271,7 +271,7 @@ export interface TaskModel extends TaskFragment {
   // readonly comments: CommentModel[]
   // readonly flags: FlagModel[]
   // readonly attachments: Attachment[]
-  // readonly logs: TaskLogModel[]
+  // readonly logEntries: TaskLogEntryModel[]
   // setCurrentStep(stepId: string): Promise<StepModel>
   // createChildTask(label: string): Promise<TaskModel>
 }
@@ -391,7 +391,7 @@ function registerStepType(engine: ModelEngine) {
 //   readonly writtenBy: ContributorModel
 // }
 
-// interface TaskLogModel extends TaskLogFragment {
+// interface TaskLogEntryModel extends TaskLogEntryFragment {
 //   readonly task: TaskModel
 //   readonly step: StepModel
 //   readonly startedBy: ContributorModel

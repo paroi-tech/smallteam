@@ -1,17 +1,15 @@
 import { FragmentMeta } from "../FragmentMeta"
 
-export interface TaskLogFragment {
+export interface TaskLogEntryFragment {
   readonly id: string
   readonly taskId: string
   readonly stepId: string
-  readonly startTs: number
-  readonly startedById: string
-  readonly endTs?: number
-  readonly endedById: string
+  readonly entryTs: number
+  readonly byContributorId: string
 }
 
-export const taskLogMeta: FragmentMeta = {
-  type: "TaskLog",
+export const taskLogEntryMeta: FragmentMeta = {
+  type: "TaskLogEntry",
   fields: {
     id: {
       dataType: "string",
@@ -23,17 +21,11 @@ export const taskLogMeta: FragmentMeta = {
     stepId: {
       dataType: "string"
     },
-    startTs: {
+    entryTs: {
       dataType: "number"
     },
-    startedById: {
+    byContributorId: {
       dataType: "string"
-    },
-    endTs: {
-      dataType: "number"
-    },
-    endedById: {
-      dataType: "string"
-    },
+    }
   }
 }

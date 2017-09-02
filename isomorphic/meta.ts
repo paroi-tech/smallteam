@@ -6,11 +6,11 @@ import { projectMeta, newProjectMeta } from "./fragments/Project"
 import { stepMeta, newStepMeta } from "./fragments/Step"
 import { stepTypeMeta } from "./fragments/StepType"
 import { taskMeta, newTaskMeta } from "./fragments/Task"
-import { taskLogMeta } from "./fragments/TaskLog"
+import { taskLogEntryMeta } from "./fragments/TaskLogEntry"
 import { Type, Identifier } from "./Cargo"
 import { FragmentMeta, TypeVariant } from "./FragmentMeta"
 
-export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLog"]) as any
+export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLogEntry"]) as any
 
 interface FragMetas {
   frag: FragmentMeta
@@ -29,7 +29,7 @@ let fragmentMetaByTypes: { [type: string]: FragMetas } = {
   Step: { frag: stepMeta, New: newStepMeta },
   StepType: { frag: stepTypeMeta },
   Task: { frag: taskMeta, New: newTaskMeta },
-  TaskLog: { frag: taskLogMeta },
+  TaskLogEntry: { frag: taskLogEntryMeta },
 }
 
 export function getFragmentMeta(type: Type, variant?: TypeVariant): FragmentMeta {
