@@ -5,7 +5,7 @@ export interface TaskLogEntryFragment {
   readonly taskId: string
   readonly stepId: string
   readonly entryTs: number
-  readonly byContributorId: string
+  readonly contributorId: string
 }
 
 export const taskLogEntryMeta: FragmentMeta = {
@@ -24,7 +24,7 @@ export const taskLogEntryMeta: FragmentMeta = {
     entryTs: {
       dataType: "number"
     },
-    byContributorId: {
+    contributorId: {
       dataType: "string"
     }
   }

@@ -1,4 +1,4 @@
-import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
 
 export interface FlagFragment {
   readonly id: string
@@ -26,6 +26,9 @@ export const flagMeta: FragmentMeta = {
 
 export type NewFlagFragment = Pick<FlagFragment, "label" | "color">
 export const newFlagMeta = pickFragmentMeta("New", flagMeta, ["label", "color"])
+
+export type UpdFlagFragment = UpdPick<FlagFragment, "id", "label" | "color">
+export const updFlagMeta = updPickFragmentMeta("Upd", flagMeta, ["id"], ["label", "color"])
 
 export type FlagIdFragment = Pick<FlagFragment, "id">
 export const FlagIdMeta = pickFragmentMeta("Id", flagMeta, ["id"])

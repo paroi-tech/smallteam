@@ -97,54 +97,74 @@ async function executeBatch(list: any[]): Promise<BatchCargo> {
   return loader.toBatchCargo()
 }
 
+const queries = {
+  Project: queryProjects,
+  StepType: queryStepTypes
+}
+
 async function executeQuery(data, loader: CargoLoader) {
   loader.startResponse("fragments")
-  if (data.type === "Project")
-    await queryProjects(loader, data.filters || {})
-  else if (data.type === "StepType")
-    await queryStepTypes(loader)
-  else
+  let cb = queries[data.type]
+  if (!cb)
     throw new Error(`Invalid query type: "${data.type}"`)
+  await cb(loader, data.filters || {})
   await completeCargo(loader)
+}
+
+const commands = {
+  Project: executeCommandProject,
+  Step: executeCommandStep,
+  StepType: executeCommandStepType,
+  Task: executeCommandTask
 }
 
 async function executeCommand(data, loader: CargoLoader) {
   loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
-  if (data.type === "Project") {
-    if (data.cmd === "create")
-      await createProject(loader, data.frag)
-    else if (data.cmd === "update")
-      await updateProject(loader, data.frag)
-    else
-      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
-  } else if (data.type === "Step") {
-    if (data.cmd === "create")
-      await createStep(loader, data.frag)
-    else if (data.cmd === "delete")
-      await deleteStep(loader, data.frag)
-    else
-      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
-  } else if (data.type === "StepType") {
-    if (data.cmd === "create")
-      await createStepType(loader, data.frag)
-    else if (data.cmd === "update")
-      await updateStepType(loader, data.frag)
-    else if (data.cmd === "reorder")
-      await reorderStepTypes(loader, data.idList)
-    else
-      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
-  } else if (data.type === "Task") {
-    if (data.cmd === "create")
-      await createTask(loader, data.frag)
-    else if (data.cmd === "update")
-      await updateTask(loader, data.frag)
-    else if (data.cmd === "reorder")
-      await reorderTasks(loader, data.idList, data.groupId)
-    else
-      throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
-  } else
+  let cb = commands[data.type]
+  if (!cb)
     throw new Error(`Invalid type: "${data.type}"`)
+  await cb(data, loader)
   await completeCargo(loader)
+}
+
+async function executeCommandProject(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createProject(loader, data.frag)
+  else if (data.cmd === "update")
+    await updateProject(loader, data.frag)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+}
+
+async function executeCommandStep(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createStep(loader, data.frag)
+  else if (data.cmd === "delete")
+    await deleteStep(loader, data.frag)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+}
+
+async function executeCommandStepType(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createStepType(loader, data.frag)
+  else if (data.cmd === "update")
+    await updateStepType(loader, data.frag)
+  else if (data.cmd === "reorder")
+    await reorderStepTypes(loader, data.idList)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+}
+
+async function executeCommandTask(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createTask(loader, data.frag)
+  else if (data.cmd === "update")
+    await updateTask(loader, data.frag)
+  else if (data.cmd === "reorder")
+    await reorderTasks(loader, data.idList, data.groupId)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
 async function completeCargo(loader: CargoLoader) {

@@ -69,7 +69,7 @@ create table task_log (
     task_id bigint not null references task(task_id),
     step_id bigint not null references step(step_id),
     entry_ts timestamp not null default current_timestamp,
-    by bigint not null references contributor(contributor_id)
+    contributor_id bigint not null references contributor(contributor_id)
 );
 
 create table root_task (

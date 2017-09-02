@@ -12,6 +12,8 @@ export interface TaskFragment {
   readonly projectId: string
   readonly createTs: number
   readonly updateTs: number
+  affectedTo?: string[]
+  flags?: string[]
 }
 
 export const taskMeta: FragmentMeta = {
@@ -57,6 +59,16 @@ export const taskMeta: FragmentMeta = {
     },
     updateTs: {
       dataType: "number"
+    },
+    affectedTo: {
+      dataType: "string[]",
+      optional: true,
+      update: true
+    },
+    flags: {
+      dataType: "string[]",
+      optional: true,
+      update: true
     }
   },
   orderFieldName: "orderNum"
@@ -65,11 +77,11 @@ export const taskMeta: FragmentMeta = {
 export type NewTaskFragment = Pick<TaskFragment, "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "orderNum">
 export const newTaskMeta = pickFragmentMeta("New", taskMeta, ["label", "description" , "createdById", "curStepId", "parentTaskId", "orderNum"])
 
-export type UpdTaskFragment = UpdPick<TaskFragment, "id", "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "orderNum">
-export const updTaskMeta = updPickFragmentMeta("Upd", taskMeta, ["id"], ["label", "description" , "createdById", "curStepId", "parentTaskId", "orderNum"])
+export type UpdTaskFragment = UpdPick<TaskFragment, "id", "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "orderNum" | "affectedTo" | "flags">
+export const updTaskMeta = updPickFragmentMeta("Upd", taskMeta, ["id"], ["label", "description" , "createdById", "curStepId", "parentTaskId", "orderNum", "affectedTo", "flags"])
 
 export type TaskIdFragment = Pick<TaskFragment, "id">
 export const TaskIdMeta = pickFragmentMeta("Id", taskMeta, ["id"])
 
-export type TaskQuery = SearchPick<TaskFragment, "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "projectId">
-export const taskQueryMeta = searchPickFragmentMeta("Q", taskMeta, ["label", "description" , "createdById", "curStepId", "parentTaskId", "projectId"])
+export type TaskQuery = SearchPick<TaskFragment, "label" | "description" | "createdById" | "curStepId" | "parentTaskId" | "projectId" | "affectedTo" | "flags">
+export const taskQueryMeta = searchPickFragmentMeta("Q", taskMeta, ["label", "description" , "createdById", "curStepId", "parentTaskId", "projectId", "affectedTo", "flags"])

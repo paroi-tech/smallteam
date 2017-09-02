@@ -7,6 +7,7 @@ drop table if exists task_flag;
 drop table if exists flag;
 drop table if exists root_task;
 drop table if exists task_log;
+drop table if exists task_affected_to;
 drop table if exists task_description;
 drop table if exists task_child;
 drop table if exists task;

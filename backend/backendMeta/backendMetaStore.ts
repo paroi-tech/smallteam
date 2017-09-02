@@ -65,6 +65,8 @@ function toColumnType(fieldMeta: FieldMeta, colProps: Partial<DbColumnMeta>): Co
       return "bit"
     case "number":
       return "bigint"
+    case "string[]":
+      throw new Error("string[] cannot be converted to a column type") // FIXME:
   }
 }
 

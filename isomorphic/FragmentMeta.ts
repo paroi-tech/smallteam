@@ -10,7 +10,7 @@ export interface FragmentMeta {
 }
 
 export interface FieldMeta {
-  dataType: "string" | "boolean" | "number"
+  dataType: "string" | "boolean" | "number" | "string[]"
   id?: boolean
   update?: boolean
   optional?: boolean

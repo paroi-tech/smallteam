@@ -3,6 +3,9 @@ import { projectMeta } from "../../isomorphic/fragments/Project"
 import { taskMeta } from "../../isomorphic/fragments/Task"
 import { stepMeta } from "../../isomorphic/fragments/Step"
 import { stepTypeMeta } from "../../isomorphic/fragments/StepType"
+import { taskLogEntryMeta } from "../../isomorphic/fragments/TaskLogEntry";
+import { flagMeta } from "../../isomorphic/fragments/Flag";
+import { commentMeta } from "../../isomorphic/fragments/Comment";
 
 addBackendFragmentMeta(
   projectMeta,
@@ -67,5 +70,62 @@ addBackendFragmentMeta(
     },
     name: {},
     orderNum: {}
+  }
+)
+
+addBackendFragmentMeta(
+  taskLogEntryMeta,
+  {
+    id: {
+      column: "task_log_id",
+      columnType: "bigint"
+    },
+    taskId: {
+      columnType: "bigint"
+    },
+    stepId: {
+      columnType: "bigint"
+    },
+    contributorId: {
+      columnType: "bigint"
+    },
+    entryTs: {
+      columnType: "timestamp"
+    }
+  }
+)
+
+addBackendFragmentMeta(
+  flagMeta,
+  {
+    id: {
+      column: "flag_id",
+      columnType: "bigint"
+    },
+    label: {},
+    color: {}
+  }
+)
+
+addBackendFragmentMeta(
+  commentMeta,
+  {
+    id: {
+      column: "flag_id",
+      columnType: "bigint"
+    },
+    taskId: {
+      columnType: "bigint"
+    },
+    writtenById: {
+      columnType: "bigint"
+    },
+    body: {},
+    createTs: {
+      columnType: "timestamp"
+    },
+    updateTs: {
+      columnType: "timestamp"
+    }
   }
 )
