@@ -4,7 +4,6 @@ the time, so I can't use JIRA.
 
 # Thomas
 - When StepTypes are reordered, the new order of the StepTypes should be reflected in ProjectModel.
-- When a step is deleted, provide its id and typeId
 - Model have to emit event when task orders are changed.
 - CSS: use flexbox & grid
 - Load data on init: `stepTypes`, etc.
@@ -15,13 +14,14 @@ the time, so I can't use JIRA.
   - Lionel: disable forms for the models in processing
 - Add a list of processing tasks
   - Lionel: Implement a new component `RemoteTaskManager`
+- Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 
 # Lionel
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - On modifying a task name, update the task in BoxLists
 
 - **Task panel**:
-  - For tasks without child: add a button "Show/Hide as parent"
+  - For tasks without child: add a button "Show/Hide as parent" → review the creation of StepsPanel
   - Allow to delete a task (after user confirmation)
 - **ProjectForm**:
   - Do not use the title to open the form, add a DropdownMenu button (`…`) near the title with following items:
