@@ -4,18 +4,27 @@ the time, so I can't use JIRA.
 
 # Thomas
 
-- When StepTypes are reordered, the new order of the StepTypes should be reflected in ProjectModel.
-- Model have to emit event when task orders are changed.
 - CSS: use flexbox & grid
-- Load data on init: `stepTypes`, etc.
-- ModelEngine: add a method `get(id)` and a method `where(filter)` on the list returned by `getModels`
-- `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
-  - optional data (archived projects...) when loaded by queries
-- Add a boolean "processing" on each model
-  - Lionel: disable forms for the models in processing
-- Add a list of processing tasks
-  - Lionel: Implement a new component `RemoteTaskManager`
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
+- In the Model:
+  - Load data on init: `stepTypes`, `flags`, `contributors`
+    - In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
+  - When StepTypes are reordered, the new order of the StepTypes should be reflected in ProjectModel.
+  - Model have to emit event when task orders are changed.
+  - ModelEngine: add a method `get(id)` on the list returned by `getModels`
+  - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
+    - optional data (archived projects...) when loaded by queries
+  - Add a boolean "processing" on each model
+    - Lionel: disable forms for the models in processing
+  - Add a list of processing tasks
+    - Lionel: Implement a new component `RemoteTaskManager`
+  - Implement methods whoUse
+  - Implement TaskModel.affectedTo (list)
+  - Implement TaskModel.flags (list)
+  - Implement async TaskModel.getComments()
+  - Implement async TaskModel.logEntries()
+  - Remove StepFragment.name => call step.stepType.name
+
 
 # Lionel
 

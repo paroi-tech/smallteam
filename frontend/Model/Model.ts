@@ -279,10 +279,10 @@ export interface TaskModel extends TaskFragment {
   readonly children?: TaskModel[]
   readonly createdBy: ContributorModel
   affectedTo?: ContributorModel[]
-  // readonly comments: CommentModel[] // => TODO: Async load
+  // getComments: CommentModel[] // => TODO: Async load
   flags?: FlagModel[]
-  readonly logEntries: TaskLogEntryModel[]
-  // readonly attachments: Attachment[] // => TODO: Async load
+  // getLogEntries: TaskLogEntryModel[] // => TODO: Async load
+  // getAttachments(): Promise<Attachment[]>
 }
 
 function registerTask(engine: ModelEngine) {
