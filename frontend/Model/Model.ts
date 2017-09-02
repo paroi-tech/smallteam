@@ -7,7 +7,7 @@ import { StepFragment, NewStepFragment, StepIdFragment, stepMeta } from "../../i
 import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
 import { TaskFragment, NewTaskFragment, UpdTaskFragment } from "../../isomorphic/fragments/Task"
 import { ImageFragment } from "../../isomorphic/fragments/Attachment"
-import { ContributorFragment } from "../../isomorphic/fragments/Contributor"
+import { ContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
 import { FlagFragment } from "../../isomorphic/fragments/Flag"
 import { CommentFragment } from "../../isomorphic/fragments/Comment"
 import { TaskLogEntryFragment } from "../../isomorphic/fragments/TaskLogEntry"
@@ -18,6 +18,11 @@ import Deferred from "../libraries/Deferred"
 // --
 
 export { CommandType, ModelEvent } from "./ModelEngine"
+
+export interface WhoUseItem {
+  type: Type,
+  count: number
+}
 
 export interface CommandRunner {
   exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
@@ -35,6 +40,8 @@ export interface CommandRunner {
 
   query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
   query(type: "StepType"): Promise<StepTypeModel[]>
+  query(type: "Flag"): Promise<FlagModel[]>
+  query(type: "Contributor", filters?: ContributorQuery): Promise<ContributorModel[]>
 
   reorder(type: "StepType", idList: string[]): Promise<string[]>
   reorder(type: "Task", idList: string[], parentTaskId: string): Promise<string[]>
@@ -266,14 +273,12 @@ export interface TaskModel extends TaskFragment {
   readonly currentStep: StepModel
   readonly parent?: TaskModel
   readonly children?: TaskModel[]
-  // readonly createdBy: ContributorModel
-  // readonly affectedTo?: ContributorModel
-  // readonly comments: CommentModel[]
-  // readonly flags: FlagModel[]
-  // readonly attachments: Attachment[]
-  // readonly logEntries: TaskLogEntryModel[]
-  // setCurrentStep(stepId: string): Promise<StepModel>
-  // createChildTask(label: string): Promise<TaskModel>
+  readonly createdBy: ContributorModel
+  affectedTo?: ContributorModel[]
+  // readonly comments: CommentModel[] // => TODO: Async load
+  flags?: FlagModel[]
+  readonly logEntries: TaskLogEntryModel[]
+  // readonly attachments: Attachment[] // => TODO: Async load
 }
 
 function registerTask(engine: ModelEngine) {
@@ -299,7 +304,7 @@ function registerTask(engine: ModelEngine) {
             parentTaskId: getFrag().id
           },
           orderBy: ["orderNum", "asc"]
-        })
+        }, undefined)
       }
     }
     appendGettersToModel(model, "Task", getFrag)
@@ -346,7 +351,7 @@ function registerStep(engine: ModelEngine) {
 // --
 
 export interface StepTypeModel extends StepTypeFragment {
-  readonly hasProjects: boolean
+  whoUse(): Promise<WhoUseItem[]> // TODO: to implement
   readonly isSpecial: boolean
 }
 
@@ -355,19 +360,103 @@ function registerStepType(engine: ModelEngine) {
     let model = {
       get isSpecial() {
         return isStepSpecial(getFrag())
-      },
-      get hasProjects() {
-        return engine.getModels({
-          type: "Step",
-          index: "typeId",
-          key: {
-            typeId: getFrag().id
-          },
-          orderBy: ["projectId", "asc"] // TODO: implement a function here => sort on project name
-        }).length > 0
       }
+      // get hasProjects() {
+      //   return engine.getModels({
+      //     type: "Step",
+      //     index: "typeId",
+      //     key: {
+      //       typeId: getFrag().id
+      //     },
+      //     orderBy: ["projectId", "asc"] // TODO: implement a function here => sort on project name
+      //   }).length > 0
+      // }
     }
     appendGettersToModel(model, "StepType", getFrag)
+    return model as any
+  })
+}
+
+// --
+// -- Configuration - ContributorModel
+// --
+
+interface ContributorModel extends ContributorFragment {
+  whoUse(): Promise<WhoUseItem[]> // TODO: to implement
+}
+
+function registerContributor(engine: ModelEngine) {
+  engine.registerType("Contributor", function (getFrag: () => ContributorFragment): ContributorModel {
+    let model = {}
+    appendGettersToModel(model, "Contributor", getFrag)
+    return model as any
+  })
+}
+
+// --
+// -- Configuration - FlagModel
+// --
+
+export interface FlagModel extends FlagFragment {
+  whoUse(): Promise<WhoUseItem[]> // TODO: to implement
+}
+
+function registerFlag(engine: ModelEngine) {
+  engine.registerType("Flag", function (getFrag: () => FlagFragment): FlagModel {
+    let model = {}
+    appendGettersToModel(model, "Flag", getFrag)
+    return model as any
+  })
+}
+
+// --
+// -- Configuration - CommentModel
+// --
+
+interface CommentModel extends CommentFragment {
+  readonly task: TaskModel
+  readonly writtenBy: ContributorModel
+}
+
+function registerComment(engine: ModelEngine) {
+  engine.registerType("Comment", function (getFrag: () => CommentFragment): CommentModel {
+    let model = {
+      get task() {
+        return engine.getModel("Task", getFrag().taskId)
+      },
+      get writtenBy() {
+        return engine.getModel("Contributor", getFrag().writtenById)
+      }
+    }
+    appendGettersToModel(model, "Comment", getFrag)
+    return model as any
+  })
+}
+
+// --
+// -- Configuration - TaskLogEntryModel
+// --
+
+interface TaskLogEntryModel extends TaskLogEntryFragment {
+  readonly task: TaskModel
+  readonly step: StepModel
+  readonly contributor: ContributorModel
+}
+
+function registerTaskLogEntry(engine: ModelEngine) {
+  engine.registerType("TaskLogEntry", function (getFrag: () => TaskLogEntryFragment): TaskLogEntryModel {
+    let model = {
+      get task() {
+        return engine.getModel("Task", getFrag().taskId)
+      },
+      get step() {
+        return engine.getModel("Step", getFrag().stepId)
+      },
+      get contributor() {
+        return engine.getModel("Contributor", getFrag().contributorId)
+      }
+    }
+    appendGettersToModel(model, "TaskLogEntry", getFrag)
     return model as any
   })
 }
@@ -377,23 +466,4 @@ function registerStepType(engine: ModelEngine) {
 // --
 
 // interface ImageModel extends ImageFragment {
-// }
-
-// interface ContributorModel extends ContributorFragment {
-//   readonly avatar: ImageModel
-// }
-
-// interface FlagModel extends FlagFragment {
-// }
-
-// interface CommentModel extends CommentFragment {
-//   readonly task: TaskModel
-//   readonly writtenBy: ContributorModel
-// }
-
-// interface TaskLogEntryModel extends TaskLogEntryFragment {
-//   readonly task: TaskModel
-//   readonly step: StepModel
-//   readonly startedBy: ContributorModel
-//   readonly endedBy?: ContributorModel
 // }

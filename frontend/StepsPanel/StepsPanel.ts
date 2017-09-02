@@ -146,13 +146,15 @@ export default class StepsPanel {
     if (!this.parentTask.children)
       return
     for (let task of this.parentTask.children) {
+      if (task.currentStep.isSpecial)
+        continue
       let list = this.boxListMap.get(task.currentStep.id)
       if (list) {
         let box = this.createTaskBoxFor(task, "id")
         this.taskBoxMap.set(task.id, box)
         list.addBox(box)
       } else
-        console.log(`Unknown StepType ID "${task.curStepId}" in StepsPanel "${this}"`)
+        console.log(`Unknown Step "${task.currentStep.id}" in StepsPanel`, this)
     }
   }
 

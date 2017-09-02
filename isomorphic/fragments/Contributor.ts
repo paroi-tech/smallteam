@@ -1,10 +1,11 @@
-import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta, SearchPick, searchPickFragmentMeta } from "../FragmentMeta"
 
 export interface ContributorFragment {
   readonly id: string
   name: string
   login: string
   email: string
+  // readonly avatar: ImageModel
 }
 
 export const contributorMeta: FragmentMeta = {
@@ -37,3 +38,6 @@ export const updContributorMeta = updPickFragmentMeta("Upd", contributorMeta, ["
 
 export type ContributorIdFragment = Pick<ContributorFragment, "id">
 export const ContributorIdMeta = pickFragmentMeta("Id", contributorMeta, ["id"])
+
+export type ContributorQuery = SearchPick<ContributorFragment, "name" | "login" | "email">
+export const contributorQueryMeta = searchPickFragmentMeta("Q", contributorMeta, ["name", "login", "email"])

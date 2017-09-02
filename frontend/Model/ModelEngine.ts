@@ -177,10 +177,10 @@ export default class ModelEngine {
     return entity.model
   }
 
-  public getModels(query: ModelsQuery): any[] {
+  public getModels(query: ModelsQuery, onEmptyVal = []): any[] {
     let identifiers = this.findIdentifiersFromIndex(query)
     if (!identifiers)
-      return []
+      return onEmptyVal
 
     let list: any[] = []
     for (let id of identifiers)
@@ -188,7 +188,7 @@ export default class ModelEngine {
 
     let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy;
     list.sort(sortFn)
-    return list
+    return list.length === 0 ? onEmptyVal : list
   }
 
   public countModels(query: IndexQuery): number {
@@ -410,11 +410,9 @@ export default class ModelEngine {
 // -- Public tools
 // --
 
-export function appendGettersToModel(model, type: Type, getFrag: () => object) {
+export function appendGettersToModel(model: object, type: Type, getFrag: () => object) {
   let fragMeta = getFragmentMeta(type)
-  for (let fieldName in fragMeta.fields) {
-    if (!fragMeta.fields.hasOwnProperty(fieldName))
-      continue
+  for (let fieldName of Object.keys(fragMeta.fields)) {
     Object.defineProperty(model, fieldName, {
       get: function () { return getFrag()[fieldName] },
       configurable: false
@@ -477,7 +475,7 @@ function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, fra
 }
 
 function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {
-  for (let name in indexCb) {
+  for (let name of Object.keys(indexCb)) {
     if (indexCb.hasOwnProperty(name) && !indexCb[name](frag))
       return false
   }
