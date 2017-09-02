@@ -14,9 +14,19 @@
   }
 }
 
+.BoxListTitle {
+  @extend .BlockTitle;
+  align-items: baseline;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 10px;
+}
+
 .BoxListHandle {
   background-color: #eee;
   bottom: 5px;
+  color: dimgray;
   display: block;
   left: 5px;
   position: absolute;

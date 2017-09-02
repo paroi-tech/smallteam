@@ -1,14 +1,21 @@
 .StepsPanel {
+  &Title {
+    @extend .BlockTitle;
+    align-items: baseline;
+    border-top-left-radius: 3px;
+    border-top-right-radius: 3px;
+    display: inline-flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 3px 5px;
+  }
 
-}
-
-.StepsPanelTitle {
-  background-color: #205081;
-  border-top-left-radius: 3px;
-  border-top-right-radius: 3px;
-  color: white;
-  font-weight: bold;
-  padding: 5px;
+  &ToggleButton, &CloseButton {
+    padding: 5px;
+    &:focus, &:hover {
+      background-color: rgba(255, 255, 255, 0.42)
+    }
+  }
 }
 
 .AddTaskPanel {

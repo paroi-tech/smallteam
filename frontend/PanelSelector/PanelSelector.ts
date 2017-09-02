@@ -88,12 +88,12 @@ export default class PanelSelector {
    */
   private initComponents() {
     this.menu = this.dash.create(Menu, {
-      args: ["1", "Project menu"]
+      args: ["PanelSelectorMenu", "Project selection menu"]
     })
     this.menu.attachTo(this.$menu.get(0))
 
     this.settingMenu = this.dash.create(DropdownMenu, {
-      args: ["2", "Dropdown menu"]
+      args: ["PanelSelectorDropdownMenu", "Global settings menu", "right"]
     })
     this.settingMenu.attachTo(this.$dropdownMenu.get(0))
     this.settingMenu.addItems(settingMenuItems)
@@ -110,9 +110,9 @@ export default class PanelSelector {
     this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
       this.showProjectForm(project)
     })
-    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", (ev) => this.showProjectBoard(ev.itemId))
-    this.settingMenu.bkb.on<MenuEvent>("createProject", "dataFirst", () => this.showProjectForm())
-    this.settingMenu.bkb.on<MenuEvent>("manageStepTypes", "dataFirst", () => {
+    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", data => this.showProjectBoard(data.itemId))
+    this.settingMenu.bkb.on("createProject", "dataFirst", () => this.showProjectForm())
+    this.settingMenu.bkb.on("manageStepTypes", "dataFirst", () => {
       this.showSettingPanel("stepTypePanel")
     })
   }

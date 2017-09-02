@@ -50,6 +50,8 @@ export class Menu {
    * @param item - the item to add.
    */
   public addItem(item: MenuItem) {
+    if (this.itemMap.has(item.id))
+      throw new Error(`ID already exists in menu: ${item.id}`)
     let $li = $("<li></li>").appendTo(this.$ul)
     let $btn = $(`<button class="MenuBtn" type="button"></button>`)
       .text(item.label)

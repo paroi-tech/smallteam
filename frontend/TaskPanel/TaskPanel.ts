@@ -12,6 +12,7 @@ import * as template  from "./taskpanel.monk"
  */
 export default class TaskPanel implements Panel {
   private container: HTMLElement
+  private spinner: HTMLElement
 
   private view: MonkberryView
   private task: TaskModel | undefined = undefined
@@ -29,11 +30,18 @@ export default class TaskPanel implements Panel {
     this.container = document.createElement("div")
     this.container.classList.add("TaskPanel")
     this.view = MonkBerry.render(template, this.container)
+    this.spinner = this.view.querySelector(".js-spinner")
 
-    let btn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
-    if (btn) {
-      btn.onclick = (ev) => this.updateTask()
-    }
+    let submitBtn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
+    if (submitBtn)
+      submitBtn.addEventListener("click", ev => this.updateTask())
+
+    let showPanelBtn = this.container.querySelector(".js-show-stepspanel-button") as HTMLButtonElement
+    if (showPanelBtn)
+      showPanelBtn.addEventListener("click", ev => {
+        if (this.task)
+          this.dash.emit("showStepsPanel", this.task)
+      })
   }
 
   /**
@@ -82,6 +90,7 @@ export default class TaskPanel implements Panel {
     let description = this.container.querySelector(".js-task-description") as HTMLTextAreaElement
     if (!label || label.value.trim().length < 4 || !description)
       return
+    this.spinner.style.display = "inline"
     try {
       let task = await this.model.exec("update", "Task", {
         id: this.task.id,
@@ -93,6 +102,7 @@ export default class TaskPanel implements Panel {
       description.value = this.task.description || ""
       console.error(`Error while updating task ${this.task!}: ${err}`)
     }
+    this.spinner.style.display = "none"
   }
 
   /**

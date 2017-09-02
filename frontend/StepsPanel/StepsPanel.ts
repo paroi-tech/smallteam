@@ -20,7 +20,10 @@ export default class StepsPanel {
   private project: ProjectModel
 
   private $container: JQuery
+  private $contentWrapper: JQuery
   private $boxListContainer: JQuery
+  private contentWrapperVisible = true
+  private visible = true
 
   // BoxLists we created are stored in a map. The keys are the IDs of the project steps.
   private boxListMap: Map<string, BoxList<TaskBox>> = new Map()
@@ -48,10 +51,22 @@ export default class StepsPanel {
    */
   private initJQueryObjects() {
     this.$container = $(template)
-    // If the task of this StepsPanel is the project main task, the panel title is set to `Main task`.
-    let $title = this.$container.find(".js-title span")
-    $title.text(this.parentTask.id == this.project.rootTaskId? "Main tasks": this.parentTask.label)
+    this.$contentWrapper = this.$container.find(".js-stepspanel-content-wrapper")
     this.$boxListContainer = this.$container.find(".js-boxlist-container")
+    // If the task of this StepsPanel is the project main task, the panel title is set to 'Main tasks'.
+    let $title = this.$container.find(".js-title")
+    $title.text(this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label)
+    let $toggleBtn = this.$container.find(".js-toggle-btn")
+    $toggleBtn.click(ev => {
+      $toggleBtn.html(this.contentWrapperVisible ? "&#9660;" : "&#9650;")
+      this.$contentWrapper.slideToggle()
+      this.contentWrapperVisible = !this.contentWrapperVisible
+    })
+    let $closeBtn = this.$container.find(".js-close-btn")
+    $closeBtn.click(ev => {
+      if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask panel.
+        this.setVisible(false)
+    })
     this.$container.find(".js-add-task-button").click(() => this.onAddtaskClick())
   }
 
@@ -144,7 +159,7 @@ export default class StepsPanel {
   /**
    * Handle the creation of a new task.
    */
-  private onAddtaskClick() {
+  private async onAddtaskClick() {
     let nameField = this.$container.find(".js-task-name")
     let name = nameField.val() as string
     if (name.length < 1)
@@ -152,8 +167,12 @@ export default class StepsPanel {
     else if (this.project.steps.length == 0)
       console.log("Impossible to create a new task. Project has no step.")
     else {
-      if (this.createTask(name))
+      let $spinner = this.$container.find(".js-add-task-button .fa-spinner")
+      if ($spinner)
+        $spinner.css("display", "inline")
+      if (await this.createTask(name))
         nameField.val("")
+      $spinner.css("display", "none")
       nameField.focus()
     }
   }
@@ -166,9 +185,9 @@ export default class StepsPanel {
    *  - boxListSortingUpdated
    */
   private listenToChildrenComponents() {
-    this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
-      console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
-    })
+    // this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
+    //   console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
+    // })
     this.dash.listenToChildren<BoxEvent>("boxListItemAdded").call("dataFirst", data => {
       this.onTaskBoxMove(data)
     })
@@ -325,5 +344,23 @@ export default class StepsPanel {
    */
   public attachTo(el: HTMLElement) {
     $(el).append(this.$container)
+  }
+
+  /**
+   * Show or hide the panel.
+   * @param b
+   */
+  public setVisible(b: boolean) {
+    if (b !== this.visible) {
+      this.$container.get(0).style.display = b ? "block" : "none"
+      this.visible = b
+    }
+  }
+
+  /**
+   * Tell if the panel is currently visible or hidden.
+   */
+  public get isVisible() {
+    return this.visible
   }
 }
