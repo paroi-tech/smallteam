@@ -1,4 +1,4 @@
-import { FragmentMeta, pickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
 
 export interface ContributorFragment {
   readonly id: string
@@ -31,6 +31,9 @@ export const contributorMeta: FragmentMeta = {
 
 export type NewContributorFragment = Pick<ContributorFragment, "name" | "login" | "email">
 export const newContributorMeta = pickFragmentMeta("New", contributorMeta, ["name", "login", "email"])
+
+export type UpdContributorFragment = UpdPick<ContributorFragment, "id", "name" | "login" | "email">
+export const updContributorMeta = updPickFragmentMeta("Upd", contributorMeta, ["id"], ["name", "login", "email"])
 
 export type ContributorIdFragment = Pick<ContributorFragment, "id">
 export const ContributorIdMeta = pickFragmentMeta("Id", contributorMeta, ["id"])

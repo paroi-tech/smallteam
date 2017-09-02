@@ -80,6 +80,10 @@ export default class BoxList<T extends Box> {
    */
   constructor(private dash: Dash<App>, private params: BoxListParams) {
     this.$container = $(boxListTemplate)
+    // TODO: move the two following lines in a `disable` method.
+    // https://stackoverflow.com/questions/639815/how-to-disable-all-div-content (solution by Kokodoko)
+    // this.$container.css("pointer-events", "none")
+    // this.$container.css("opacity", "0.4")
     this.$ul = this.$container.find("ul")
     this.$busyIcon = this.$container.find(".js-busy-icon")
     this.$container.find(".js-title").text(params.name)

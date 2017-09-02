@@ -19,6 +19,7 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Add `disable` method to BoxList.
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - **Task panel**:
   - Allow to delete a task that doesn't have child (after user confirmation)
