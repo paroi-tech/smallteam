@@ -187,7 +187,7 @@ export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFrag
     let taskId = await getRootTaskId(projectId)
 
     if (updFrag.description !== undefined)
-      updateTaskDescription(taskId, updFrag.description)
+      await updateTaskDescription(taskId, updFrag.description)
 
     let sql = buildUpdate()
       .update("task")

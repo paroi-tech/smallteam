@@ -28,11 +28,9 @@ export interface MenuEvent {
  * Several items trigger the same event.
  */
 export class Menu {
-  readonly bkb: Bkb
+  readonly el: HTMLElement
 
-  private $container: JQuery
   private $ul: JQuery
-
   private itemMap: Map<string, JQuery>
 
   /**
@@ -40,8 +38,9 @@ export class Menu {
    */
   constructor(private dash: Dash<App>, readonly id: string, readonly name: string) {
     this.itemMap = new Map<string, JQuery>()
-    this.$container = $(template)
-    this.$ul = this.$container.find(".js-ul")
+    let $container = $(template)
+    this.$ul = $container.find(".js-ul")
+    this.el = $container.get(0)
   }
 
   /**
@@ -70,14 +69,5 @@ export class Menu {
   public addItems(items: Array<MenuItem>) {
     for (let i of items)
       this.addItem(i)
-  }
-
-  /**
-   * Add the menu to an container.
-   *
-   * @param el - element that the box will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
   }
 }

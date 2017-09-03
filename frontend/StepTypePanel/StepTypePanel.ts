@@ -18,7 +18,8 @@ const template = require("html-loader!./steptypepanel.html")
  * When the user reorders the content of the Boxlist, changes are commited after a timeout of 2s.
  */
 export default class StepTypePanel {
-  private $container: JQuery
+  readonly el: HTMLElement
+
   private $boxlistContainer: JQuery
   private $formContainer: JQuery
   private $addBtn: JQuery
@@ -44,7 +45,7 @@ export default class StepTypePanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.timer = undefined
-    this.initJQueryObjects()
+    this.el = this.initJQueryObjects().get(0)
     this.initComponents()
     this.loadStepTypes()
     this.listenToChildComponents()
@@ -92,11 +93,11 @@ export default class StepTypePanel {
    * Also add an event handler for click on `Add` button.
    */
   private initJQueryObjects() {
-    this.$container = $(template)
-    this.$boxlistContainer = this.$container.find(".js-boxlist-container")
-    this.$formContainer = this.$container.find(".js-edit-form-container")
-    this.$addBtn = this.$container.find(".js-add-form-btn")
-    this.$input = this.$container.find(".js-input")
+    let $container = $(template)
+    this.$boxlistContainer = $container.find(".js-boxlist-container")
+    this.$formContainer = $container.find(".js-edit-form-container")
+    this.$addBtn = $container.find(".js-add-form-btn")
+    this.$input = $container.find(".js-input")
     this.$input.keyup(ev => {
       if (ev.which === 13)
         this.$addBtn.trigger("click")
@@ -104,6 +105,7 @@ export default class StepTypePanel {
     this.$addBtn.click(() => {
       this.onAdd()
     })
+    return $container
   }
 
   /**
@@ -116,10 +118,10 @@ export default class StepTypePanel {
     this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
       this.handleBoxlistUpdate(data)
     })
-    this.boxList.attachTo(this.$boxlistContainer.get(0))
+    this.$boxlistContainer.append(this.boxList.el)
 
     this.form = this.dash.create(StepTypeForm, { args: [] })
-    this.form.attachTo(this.$formContainer.get(0))
+    this.$formContainer.append(this.form.el)
   }
 
   /**
@@ -216,25 +218,16 @@ export default class StepTypePanel {
   }
 
   /**
-  * Add the panel as a child of an HTML element.
-  *
-  * @param el - element that the box will be added to.
-  */
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
-  }
-
-  /**
    * Hide the panel.
    */
   public hide() {
-    this.$container.hide()
+    this.el.style.display = "none"
   }
 
   /**
    * Make the panel visible.
    */
   public show() {
-    this.$container.show()
+    this.el.style.display = "block"
   }
 }

@@ -9,6 +9,8 @@ const template = require("html-loader!./steptypeform.html")
  * Component used to create and update step types.
  */
 export default class StepTypeForm {
+  readonly el: HTMLElement
+
   private $container: JQuery
   private $fieldContainer: JQuery
   private $stepTypeId: JQuery
@@ -26,7 +28,7 @@ export default class StepTypeForm {
    * @param dash - the current application dash
    */
   constructor(private dash: Dash<App>) {
-    this.initJQueryObjects()
+    this.el = this.initJQueryObjects().get(0)
     this.listenToForm()
   }
 
@@ -34,21 +36,13 @@ export default class StepTypeForm {
    * Create JQuery objects from template.
    */
   private initJQueryObjects() {
-    this.$container = $(template)
-    this.$fieldContainer = this.$container.find(".js-field-container")
+    let $container = $(template)
+    this.$fieldContainer = $container.find(".js-field-container")
     this.$stepTypeId = this.$fieldContainer.find(".js-steptype-id")
     this.$stepTypeName = this.$fieldContainer.find(".js-steptype-name")
     this.$stepTypeIndex = this.$fieldContainer.find(".js-steptype-index")
     this.$submitButton = this.$fieldContainer.find(".js-submit-btn")
-  }
-
-  /**
-   * Add the panel as a child of an HTML element.
-   *
-   * @param el - element that the box will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
+    return $container
   }
 
   /**

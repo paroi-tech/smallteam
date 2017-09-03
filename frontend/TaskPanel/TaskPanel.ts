@@ -11,7 +11,8 @@ import * as template  from "./taskpanel.monk"
  * Component used to display and edit information about a task.
  */
 export default class TaskPanel implements Panel {
-  private container: HTMLElement
+  readonly el: HTMLElement
+
   private spinner: HTMLElement
 
   private view: MonkberryView
@@ -20,28 +21,30 @@ export default class TaskPanel implements Panel {
 
   /**
    * Create a new TaskPanel.
-   *
-   * @param dash
-   * @param title
    */
-  constructor(private dash: Dash<App>, title: string) {
+  constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.el = this.createDom()
+  }
 
-    this.container = document.createElement("div")
-    this.container.classList.add("TaskPanel")
-    this.view = MonkBerry.render(template, this.container)
+  private createDom() {
+    let container = document.createElement("div")
+    container.classList.add("TaskPanel")
+    this.view = MonkBerry.render(template, container)
     this.spinner = this.view.querySelector(".js-spinner")
 
-    let submitBtn = this.container.querySelector(".js-submit-button") as HTMLButtonElement
+    let submitBtn = container.querySelector(".js-submit-button") as HTMLButtonElement
     if (submitBtn)
       submitBtn.addEventListener("click", ev => this.updateTask())
 
-    let showPanelBtn = this.container.querySelector(".js-show-stepspanel-button") as HTMLButtonElement
-    if (showPanelBtn)
+    let showPanelBtn = container.querySelector(".js-show-stepspanel-button") as HTMLButtonElement
+    if (showPanelBtn) {
       showPanelBtn.addEventListener("click", ev => {
         if (this.task)
           this.dash.emit("showStepsPanel", this.task)
       })
+    }
+    return container
   }
 
   /**
@@ -56,15 +59,6 @@ export default class TaskPanel implements Panel {
       if (this.task != undefined && this.task.id == data.id)
         this.reset()
     })
-  }
-
-  /**
-   * Add the TaskPanel as a child of an HTML element.
-   *
-   * @param el - element that the TaskPanel will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    el.appendChild(this.container)
   }
 
   /**
@@ -86,8 +80,8 @@ export default class TaskPanel implements Panel {
   private async updateTask() {
     if (!this.task)
       return
-    let label = this.container.querySelector(".js-task-label") as HTMLInputElement
-    let description = this.container.querySelector(".js-task-description") as HTMLTextAreaElement
+    let label = this.el.querySelector(".js-task-label") as HTMLInputElement // FIXME: Use instance variable
+    let description = this.el.querySelector(".js-task-description") as HTMLTextAreaElement // FIXME: Use instance variable
     if (!label || label.value.trim().length < 4 || !description)
       return
     this.spinner.style.display = "inline"
@@ -116,14 +110,14 @@ export default class TaskPanel implements Panel {
    * Hide the TaskPanel.
    */
   public hide() {
-    this.container.style.display = "none"
+    this.el.style.display = "none"
   }
 
   /**
    * Make the TaskPanel visible.
    */
   public show() {
-    this.container.style.display = "block"
+    this.el.style.display = "block"
   }
 
   /**

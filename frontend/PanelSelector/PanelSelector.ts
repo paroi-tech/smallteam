@@ -1,5 +1,4 @@
-import * as $ from "jquery"
-import { Dash, Bkb } from "bkb"
+import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
 import { Menu, MenuItem, MenuEvent } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
@@ -8,16 +7,18 @@ import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
+import { render } from "monkberry"
+import * as template from "./panelselector.monk"
 
-const template = require("html-loader!./panelselector.html")
+// const template = require("html-loader!./panelselector.html")
 
 /**
  * Properties required for an Component in order to be displayed in PanelSelector.
  */
 export interface Panel {
-  attachTo(el: HTMLElement)
   hide()
   show()
+  el: HTMLElement
 }
 
 /**
@@ -44,17 +45,20 @@ const settingMenuItems = [
 ]
 
 export default class PanelSelector {
+  readonly el: HTMLElement
+
   private model: Model
-  private menu: Menu
-  private settingMenu: DropdownMenu
+  private menu: Component<Menu>
+  private settingMenu: Component<DropdownMenu>
   private currentPanel: Panel | undefined
 
   private panelMap: Map<string, PanelInfo> = new Map()
 
-  private $container: JQuery
-  private $menu: JQuery
-  private $dropdownMenu: JQuery
-  private $panelContainer: JQuery
+  private view: MonkberryView
+
+  private menuEl: HTMLElement
+  private dropdownMenuEl: HTMLElement
+  private panelContainerEl: HTMLElement
 
   private projectMap: Map<string, ProjectModel> = new Map()
 
@@ -66,22 +70,39 @@ export default class PanelSelector {
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
 
-    this.initJQueryObjects()
+    // this.el = this.initJQueryObjects()
+
+    this.el = this.initView()
+
     this.initComponents()
     this.listenToEvents()
 
     this.loadProjects()
+
+    makeTests(this.el, this.dash.app.model) // TODO:  Remove this line
   }
 
-  /**
-   * Create PanelSelector elements from template.
-   */
-  private initJQueryObjects() {
-    this.$container = $(template)
-    this.$menu = this.$container.find(".js-menuLeft")
-    this.$dropdownMenu = this.$container.find(".js-menuRight")
-    this.$panelContainer = this.$container.find(".js-panelContainer")
+  private initView() {
+    let wrapperEl = document.createElement("div")
+    this.view = render(template, wrapperEl)
+
+    this.menuEl = this.view.querySelector(".js-menuLeft")
+    this.dropdownMenuEl = this.view.querySelector(".js-menuRight")
+    this.panelContainerEl = this.view.querySelector(".js-panelContainer")
+
+    return wrapperEl
   }
+
+  // /**
+  //  * Create PanelSelector elements from template.
+  //  */
+  // private initJQueryObjects() {
+  //   let $container = $(template)
+  //   this.menuEl = $container.find(".js-menuLeft")[0]
+  //   this.dropdownMenuEl = $container.find(".js-menuRight")[0]
+  //   this.panelContainerEl = $container.find(".js-panelContainer")[0]
+  //   return $container[0]
+  // }
 
   /**
    * Create PanelSelector subcomponents.
@@ -90,12 +111,12 @@ export default class PanelSelector {
     this.menu = this.dash.create(Menu, {
       args: ["PanelSelectorMenu", "Project selection menu"]
     })
-    this.menu.attachTo(this.$menu.get(0))
+    this.menuEl.appendChild(this.menu.el)
 
     this.settingMenu = this.dash.create(DropdownMenu, {
       args: ["PanelSelectorDropdownMenu", "Global settings menu", "right"]
     })
-    this.settingMenu.attachTo(this.$dropdownMenu.get(0))
+    this.dropdownMenuEl.appendChild(this.settingMenu.el)
     this.settingMenu.addItems(settingMenuItems)
 
     // We have to do this, or else the project board won't be able to display the step type panel later.
@@ -127,23 +148,13 @@ export default class PanelSelector {
   }
 
   /**
-   * Add the PanelSelector as a child of an HTML element.
-   *
-   * @param el - element that the PanelSelector will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    this.$container.appendTo(el)
-    // FIXME:  Remove this line.
-    makeTests(el, this.dash.app.model)
-  }
-
-  /**
    * Load projects from model and request the creation of ProjectBoard for each of the projects.
    */
-  private loadProjects() {
-    this.model.query("Project", {
-      archived: false
-    }).then(projects => {
+  private async loadProjects() {
+    try {
+      let projects = await this.model.query("Project", {
+        archived: false
+      })
       if (projects.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one?"))
           this.showProjectForm()
@@ -151,9 +162,9 @@ export default class PanelSelector {
         for (let p of projects)
           this.addProject(p)
       }
-    }).catch(err => {
+    } catch (err) {
       console.error("An error occured while loading projects from server.", err)
-    })
+    }
   }
 
   /**
@@ -202,7 +213,7 @@ export default class PanelSelector {
       info.panel = this.dash.create(ProjectBoard, {
         args: [ info.projectModel ]
       })
-      info.panel.attachTo(this.$panelContainer.get(0))
+      this.panelContainerEl.appendChild(info.panel.el)
     }
     this.setCurrentPanel(info.panel)
   }
@@ -222,7 +233,7 @@ export default class PanelSelector {
       }
       if (!info.panel) {
         let form = this.dash.create(ProjectForm, { args: [ this, project ] })
-        form.attachTo(this.$panelContainer.get(0))
+        this.panelContainerEl.appendChild(form.el)
         info.panel = form
       }
       this.setCurrentPanel(info.panel)
@@ -230,7 +241,7 @@ export default class PanelSelector {
       let form = this.dash.create(ProjectForm, {
         args: [ this ]
       })
-      form.attachTo(this.$panelContainer.get(0))
+      this.panelContainerEl.appendChild(form.el)
       this.setCurrentPanel(form)
     }
   }
@@ -265,11 +276,11 @@ export default class PanelSelector {
     if (!info)
       throw new Error(`Unknown settings panel id: ${panelId}`)
     if (!info.panel) {
-      if (info.type == StepTypePanel)
-        info.panel = this.dash.create<StepTypePanel>(info.type, { args: [] })
-      else
+      if (info.type === StepTypePanel) {
+        info.panel = this.dash.create<StepTypePanel>(info.type)
+        this.panelContainerEl.appendChild(info.panel.el)
+      } else
         throw new Error(`Unknown Panel type: ${info.type}`)
-      info.panel.attachTo(this.$panelContainer.get(0))
     }
     this.setCurrentPanel(info.panel)
   }
@@ -277,6 +288,7 @@ export default class PanelSelector {
 
 // TODO: remove this...
 // The following code has been added for tests purpose.
+import * as $ from "jquery"
 import { StepModel, StepTypeModel } from "../Model/Model"
 
 function makeTests(el, model: Model) {

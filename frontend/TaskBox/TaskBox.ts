@@ -13,7 +13,9 @@ const template = require("html-loader!./taskbox.html")
  * The event provides the `TaskModel` that the box represents.
  */
 export default class TaskBox implements Box {
-  private $container: JQuery
+  readonly el: HTMLElement
+
+  private $span: JQuery
   public readonly id: string
 
   private model: Model
@@ -27,12 +29,13 @@ export default class TaskBox implements Box {
   constructor(private dash: Dash<App>, readonly task: TaskModel, idProp = "id") {
     this.id = this.task[idProp].toString()
     this.model = this.dash.app.model
-    this.$container = $(template)
-    this.$container.find(".js-span").text(task.label)
+    let $container = $(template)
+    this.$span = $container.find(".js-span").text(task.label)
     this.listenToModel()
-    this.$container.click(() => {
+    $container.click(() => {
       this.dash.emit("taskBoxSelected", this.task)
     })
+    this.el = $container.get(0)
   }
 
   /**
@@ -47,27 +50,17 @@ export default class TaskBox implements Box {
         return
       let task = data.model as TaskModel
       if (task.id === this.task.id)
-        this.$container.find(".js-span").text(task.label)
+        this.$span.text(task.label)
     })
-  }
-
-  /**
-   * Add the box as a child of an HTML element.
-   *
-   * @param el - element that the box will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
   }
 
   /**
    * Add or remove focus from the TaskBox.
    */
   public setWithFocus(focus: boolean) {
-    if (focus) {
-      this.$container.addClass("focus")
-    } else {
-      this.$container.removeClass("focus")
-    }
+    if (focus)
+      this.el.classList.add("focus")
+    else
+      this.el.classList.remove("focus")
   }
 }

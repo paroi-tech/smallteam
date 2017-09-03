@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import { ApplicationDash, ApplicationBkb, Log, LogItem, Component } from "bkb"
 import PanelSelector from "../PanelSelector/PanelSelector"
 import ModelComp, { Model } from "../Model/Model"
@@ -27,8 +26,10 @@ export default class App {
   }
 
   public start() {
-    let $app = $(".js-app")
-    let panel = this.dash.create(PanelSelector, { args: [] })
-    panel.attachTo($app[0])
+    let appEl = document.querySelector(".js-app")
+    if (appEl) {
+      let panel = this.dash.create(PanelSelector)
+      appEl.appendChild(panel.el)
+    }
   }
 }

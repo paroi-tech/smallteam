@@ -5,11 +5,13 @@ import { ProjectModel, StepModel, StepTypeModel, Model } from "../../Model/Model
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
 export default class ProjectStepsPanel {
-  private container: HTMLDivElement
+  readonly el: HTMLElement
+
   private availableStepTypeList: BoxList<StepTypeBox>
   private specialStepTypeList: BoxList<StepTypeBox>
   private usedStepTypeList: BoxList<StepTypeBox>
   private model: Model
+  private project: ProjectModel | null = null
 
   /**
    * Map used to store StepTypeBoxes created in the panel.
@@ -32,15 +34,26 @@ export default class ProjectStepsPanel {
    * @param dash
    * @param project
    */
-  constructor(private dash: Dash<App>, readonly project: ProjectModel) {
+  constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.initComponents()
-    this.model.query("StepType").then(stepTypes => {
-      this.fillBoxLists(stepTypes)
-    }).catch(err => {
-      console.log(`Error while loading StepTypes in ProjectStepsPanel ${this.project.id}`)
-    })
+    this.el = this.initComponents()
     this.listenToModel()
+  }
+
+  public setProject(project: ProjectModel | null) {
+    this.project = project
+    if (project) {
+      this.clear()
+      this.show()
+      this.model.query("StepType").then(stepTypes => {
+        this.fillBoxLists(stepTypes)
+      }).catch(err => {
+        console.log(`Error while loading StepTypes in ProjectStepsPanel ${this.project? this.project.id : "no-ID"}`)
+      })
+    } else {
+      this.hide()
+      this.clear()
+    }
   }
 
   /**
@@ -77,17 +90,17 @@ export default class ProjectStepsPanel {
     // StepType. If yes, we add it to an array which will be use to sort the usedStepTypeList. Else,
     // we add the id to the array used to sort availableStepTypeList.
     this.model.on("reorder", "dataFirst", data => {
-      if (data.type !== "StepType" || !data.orderedIds)
+      if (!this.project || data.type !== "StepType" || !data.orderedIds)
         return
       let ids = data.orderedIds as string[],
           usedStepTypeIds =  new Array<string>(),
           availableStepTypeIds = new Array<string>()
-      ids.forEach(id => {
+      for (let id of ids) {
         if (this.project.findStepByType(id))
           usedStepTypeIds.push(id)
         else
           availableStepTypeIds.push(id)
-      })
+      }
       this.availableStepTypeList.setBoxesOrder(availableStepTypeIds)
       this.usedStepTypeList.setBoxesOrder(usedStepTypeIds)
     })
@@ -97,30 +110,30 @@ export default class ProjectStepsPanel {
    * Create ProjectStepsPanel subcomponents.
    */
   private initComponents() {
-    this.container = document.createElement("div")
-    this.container.classList.add("ProjectStepsPanel")
+    let container = document.createElement("div")
+    container.classList.add("ProjectStepsPanel")
 
     let p1 = {
       id: "Available",
-      group: this.project.id,
+      group: "ProjectStepsPanel", // this.project.id
       name: "Available step types",
       obj: this,
       onMove: ev => this.validateStepTypeMove(ev),
       sort: false
     }
     this.availableStepTypeList = this.dash.create(BoxList, { args: [ p1 ] })
-    this.availableStepTypeList.attachTo(this.container)
+    container.appendChild(this.availableStepTypeList.el)
 
     let p2 = {
       id: "Used",
-      group: this.project.id,
+      group: "ProjectStepsPanel", // this.project.id
       name: "Used step types",
       obj: this,
       onMove: ev => this.validateStepTypeMove(ev),
       sort: false
     }
     this.usedStepTypeList = this.dash.create(BoxList, { args: [ p2 ] })
-    this.usedStepTypeList.attachTo(this.container)
+    container.appendChild(this.usedStepTypeList.el)
 
     let p3 = {
       id: "Special",
@@ -129,7 +142,12 @@ export default class ProjectStepsPanel {
       sort: false
     }
     this.specialStepTypeList = this.dash.create(BoxList, { args: [ p3 ] })
-    this.specialStepTypeList.attachTo(this.container)
+    container.appendChild(this.specialStepTypeList.el)
+    return container
+  }
+
+  private clear() {
+    // TODO: Implement: remove all data in this.boxMap (call StepTypeBox.bkb.destroy()) and clear the content of boxLists
   }
 
   /**
@@ -137,6 +155,8 @@ export default class ProjectStepsPanel {
    * @param stepTypes
    */
   private fillBoxLists(stepTypes: StepTypeModel[]) {
+    if (!this.project)
+      return
     for (let stepType of stepTypes) {
       this.stepTypeMap.set(stepType.id, stepType)
       let box = this.dash.create(StepTypeBox, { args: [ stepType, "id" ] })
@@ -160,7 +180,7 @@ export default class ProjectStepsPanel {
     if (this.timer)
       clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      this.doUpdate()
+      this.doUpdate().catch(console.log)
     }, 2000)
   }
 
@@ -168,6 +188,8 @@ export default class ProjectStepsPanel {
    * Request the update of the project StepTypes in the model.
    */
   private async doUpdate() {
+    if (!this.project)
+      return
     let used = this.usedStepTypeList.getBoxesOrder()
     let unused = this.availableStepTypeList.getBoxesOrder()
     let batch = this.model.createCommandBatch()
@@ -197,7 +219,7 @@ export default class ProjectStepsPanel {
     } catch (err) {
       console.error("Error while updating project steps.", err)
       // We need to restore the content of the BoxLists.
-      this.boxMap.forEach((box, id) => {
+      for (let [id, box] of this.boxMap.entries()) {
         if (this.project.hasStepType(id) && this.availableStepTypeList.hasBox(id)) {
           this.availableStepTypeList.removeBox(id)
           this.usedStepTypeList.addBox(box)
@@ -206,27 +228,18 @@ export default class ProjectStepsPanel {
           this.usedStepTypeList.removeBox(id)
           this.availableStepTypeList.addBox(box)
         }
-      })
+      }
     }
     // Now we sort the content of the BoxLists. Easy to sort the used StepType BoxList...
     this.usedStepTypeList.setBoxesOrder(this.project.steps.map(step => step.typeId))
     // Tricky to sort the available StepType BoxList. We get the unused StepTypes from `stepTypeMap`,
     // then we sort them and finally we keep only the IDs in order to call BoxList#setBoxesOrder().
     let ids = Array.from(this.stepTypeMap.values()).filter((stepType) => {
-      return !stepType.isSpecial && !this.project.hasStepType(stepType.id)
+      return !stepType.isSpecial && !this.project!.hasStepType(stepType.id)
     }).sort((a: StepTypeModel, b: StepTypeModel) => {
       return a.orderNum! - b.orderNum!
     }).map(stepType => stepType.id)
     this.availableStepTypeList.setBoxesOrder(ids)
-  }
-
-  /**
-   * Add the panel as a child of an element.
-   *
-   * @param el - the new parent element of the panel
-   */
-  public attachTo(el: HTMLElement) {
-    el.appendChild(this.container)
   }
 
   /**
@@ -235,6 +248,8 @@ export default class ProjectStepsPanel {
    * @param ev
    */
   private validateStepTypeMove(ev: BoxEvent) {
+    if (!this.project)
+      return
     if (ev.boxListId === "Available") {
       // A step type is being added to the project.
       this.handleUpdate()
@@ -254,9 +269,16 @@ export default class ProjectStepsPanel {
   }
 
   /**
-   * Return the panel root element.
+   * Hide the ProjectBoard.
    */
-  public getRootElement(): HTMLElement {
-    return this.container
+  public hide() {
+    this.el.style.display = "none";
+  }
+
+  /**
+   * Make the ProjectBoard visible.
+   */
+  public show() {
+    this.el.style.display = "block";
   }
 }

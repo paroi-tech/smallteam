@@ -13,9 +13,8 @@ const itemTemplate = require("html-loader!./element.html")
  * Each item in the menu has an ID and an event emited when clicked.
  */
 export class DropdownMenu {
-  readonly bkb: Bkb
+  readonly el: HTMLElement
 
-  private $container: JQuery
   private $ul: JQuery
 
   private itemMap: Map<string, JQuery>
@@ -25,17 +24,18 @@ export class DropdownMenu {
    */
   constructor(private dash: Dash<App>, readonly id: string, readonly name: string, readonly align: "left" | "right") {
     this.itemMap = new Map<string, JQuery>()
-    this.initJQueryObjects()
+    this.el = this.initJQueryObjects().get(0)
   }
 
   /**
    * Create JQuery objects from the component template.
    */
   private initJQueryObjects() {
-    this.$container = $(template)
-    this.$ul = this.$container.find(".js-ul")
+    let $container = $(template)
+    this.$ul = $container.find(".js-ul")
     this.$ul.css(this.align === "left" ? "left" : "right", "0")
-    this.$container.find(".js-btn").click(ev => this.$ul.toggle())
+    $container.find(".js-btn").click(ev => this.$ul.toggle())
+    return $container
   }
 
   /**
@@ -65,15 +65,6 @@ export class DropdownMenu {
   public addItems(items: Array<MenuItem>) {
     for (let i of items)
       this.addItem(i)
-  }
-
-  /**
-   * Add the dropdown menu to a container.
-   *
-   * @param el - element that the box will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
   }
 
   /**

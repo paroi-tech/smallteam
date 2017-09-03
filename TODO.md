@@ -28,6 +28,9 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Make reusable the instance of `ProjectForm`:
+  - In `ProjectForm/ProjectStepsPanel/ProjectStepsPanel.ts`, implement the method `clear` and make the instance reusable
+  - See with Thomas for the bug on button `Submit` in the "create" mode
 - Add `disable` method to BoxList.
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - **Task panel**:

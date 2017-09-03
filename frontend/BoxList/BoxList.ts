@@ -14,7 +14,7 @@ const boxTemplate  = require("html-loader!./box.html")
  */
 export interface Box {
   id: string
-  attachTo(HTMLElement)
+  el: HTMLElement
 }
 
 /**
@@ -64,7 +64,9 @@ export interface BoxListEvent extends BoxEvent {
  *    - boxListUpdated, when the order of the items in the Boxlist is updated => BoxListEvent
  */
 export default class BoxList<T extends Box> {
-  private $container: JQuery
+  readonly el: HTMLElement
+
+  private $title: JQuery
   private $ul: JQuery
   private $busyIcon: JQuery
   private sortable: Sortable
@@ -79,15 +81,16 @@ export default class BoxList<T extends Box> {
    * @param params - wrapper of the Boxlist parameters
    */
   constructor(private dash: Dash<App>, private params: BoxListParams) {
-    this.$container = $(boxListTemplate)
+    let $container = $(boxListTemplate)
     // TODO: move the two following lines in a `disable` method.
     // https://stackoverflow.com/questions/639815/how-to-disable-all-div-content (solution by Kokodoko)
     // this.$container.css("pointer-events", "none")
     // this.$container.css("opacity", "0.4")
-    this.$ul = this.$container.find("ul")
-    this.$busyIcon = this.$container.find(".js-busy-icon")
-    this.$container.find(".js-title").text(params.name)
+    this.$ul = $container.find("ul")
+    this.$busyIcon = $container.find(".js-busy-icon")
+    this.$title = $container.find(".js-title").text(params.name)
     this.makeSortable()
+    this.el = $container.get(0)
   }
 
   /**
@@ -98,16 +101,9 @@ export default class BoxList<T extends Box> {
   public addBox(box: T) {
     let $li = $(boxTemplate)
     $li.get(0).setAttribute("data-id", box.id)
-    box.attachTo($li.get(0))
+    $li.append(box.el)
     $li.appendTo(this.$ul)
     this.boxMap.set(box.id, $li.get(0))
-  }
-
-  /**
-   * Return the HTML element that represents the BoxList.
-   */
-  public getRootElement(): HTMLElement {
-    return this.$container.get(0)
   }
 
   /**
@@ -127,15 +123,6 @@ export default class BoxList<T extends Box> {
     let li = this.boxMap.get(boxId)
     if (li)
       this.$ul.get(0).removeChild(li)
-  }
-
-  /**
-   * Add the BoxList as a child of an HTML element.
-   *
-   * @param el - element that the BoxList will be added to.
-   */
-  public attachTo(el: HTMLElement) {
-    $(el).append(this.$container)
   }
 
   /***
@@ -191,7 +178,7 @@ export default class BoxList<T extends Box> {
    * @param title - the new title.
    */
   public setTitle(title: string) {
-    this.$container.find(".js-title").text(title)
+    this.$title.find(".js-title").text(title)
   }
 
   /**
