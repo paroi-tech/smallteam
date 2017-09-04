@@ -69,6 +69,8 @@ export default class ProjectForm {
     this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [this.project] })
     wrapperEl.appendChild(this.stepsPanel.el)
 
+    this.view.update(this.state)
+
     return wrapperEl
   }
 
