@@ -50,6 +50,7 @@ export default class ProjectForm {
     if (this.project) {
       this.codeEl.setAttribute("readonly", "true")
       this.fillFormFieldsWithProject()
+      this.stepsPanel.setProject(this.project)
     }
     this.listenToForm()
   }
@@ -68,6 +69,8 @@ export default class ProjectForm {
 
     this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [this.project] })
     wrapperEl.appendChild(this.stepsPanel.el)
+
+    this.view.update(this.state)
 
     return wrapperEl
   }
