@@ -23,7 +23,7 @@ export default class StepsPanel {
 
   private $taskName: JQuery
   private $addTaskSpinner: JQuery
-  private $contentWrapper: JQuery
+  private $collapsible: JQuery
   private $boxListContainer: JQuery
   private contentWrapperVisible = true
   private visible = true
@@ -56,7 +56,7 @@ export default class StepsPanel {
     let $container = $(template)
     this.$taskName = $container.find(".js-task-name")
     this.$addTaskSpinner = $container.find(".js-add-task-button .fa-spinner")
-    this.$contentWrapper = $container.find(".js-stepspanel-content-wrapper")
+    this.$collapsible = $container.find(".js-collapsible")
     this.$boxListContainer = $container.find(".js-boxlist-container")
     // If the task of this StepsPanel is the project main task, the panel title is set to 'Main tasks'.
     let $title = $container.find(".js-title")
@@ -64,7 +64,7 @@ export default class StepsPanel {
     let $toggleBtn = $container.find(".js-toggle-btn")
     $toggleBtn.click(ev => {
       $toggleBtn.html(this.contentWrapperVisible ? "&#9660;" : "&#9650;")
-      this.$contentWrapper.slideToggle()
+      this.$collapsible.slideToggle()
       this.contentWrapperVisible = !this.contentWrapperVisible
     })
     let $closeBtn = $container.find(".js-close-btn")

@@ -9,7 +9,7 @@ the time, so I can't use JIRA.
 - In the Model:
   - Load data on init: `stepTypes`, `flags`, `contributors`
     - In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
-  - When StepTypes are reordered, the new order of the StepTypes should be reflected in ProjectModel.
+  - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
   - Model have to emit event when task orders are changed.
   - ModelEngine: add a method `get(id)` on the list returned by `getModels`
   - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init

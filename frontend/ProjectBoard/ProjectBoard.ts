@@ -58,7 +58,7 @@ export default class ProjectBoard implements Panel {
     this.$dropdownMenuContainer = $container.find(".js-dropdown-menu-container")
     this.$stepsPanelContainer = $container.find(".js-stepspanel-container")
     this.$taskPanelContainer = $container.find(".js-editpanel-container")
-    return $container
+    return $("<div></div>").append($container)
   }
 
   /**

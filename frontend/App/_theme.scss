@@ -13,3 +13,18 @@ body {
   margin: 0 auto;
   max-width: $c18;
 }
+
+.LeftMargin {
+  margin-left: 10px;
+}
+
+.AutoColumns {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+
+  & > * {
+    flex: 1 1 0;
+  }
+}

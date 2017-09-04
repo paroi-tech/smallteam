@@ -1,5 +1,11 @@
 .ProjectBoard {
-  &-title {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-column-gap: 24px;
+  grid-template-rows: 40px auto;
+
+  &-header {
+    grid-area: 1 / 1 / span 1 / span 15;
     align-items: center;
     background-color: #205081;
     color: white;
@@ -11,25 +17,45 @@
     vertical-align: baseline;
   }
 
-  &-body {
-    height: 500px;
-    position: relative;
-  }
-
   &-bodyLeft {
-    height: 100%;
-    overflow: auto;
-    padding: 5px;
-    position: absolute;
-    width: 65%;
+    grid-area: 2 / 1 / span 1 / span 9;
   }
 
   &-bodyRight {
-    height: 100%;
-    overflow: auto;
-    padding: 5px;
-    position: absolute;
-    right: 0;
-    width: 35%;
+    grid-area: 2 / 10 / span 1 / span 6;
   }
+
+  // &-header {
+  //   align-items: center;
+  //   background-color: #205081;
+  //   color: white;
+  //   display: flex;
+  //   flex-direction: row;
+  //   font-weight: bold;
+  //   justify-content: flex-start;
+  //   padding: 5px 10px;
+  //   vertical-align: baseline;
+  // }
+
+  // &-body {
+  //   height: 500px;
+  //   position: relative;
+  // }
+
+  // &-bodyLeft {
+  //   height: 100%;
+  //   overflow: auto;
+  //   padding: 5px;
+  //   position: absolute;
+  //   width: 65%;
+  // }
+
+  // &-bodyRight {
+  //   height: 100%;
+  //   overflow: auto;
+  //   padding: 5px;
+  //   position: absolute;
+  //   right: 0;
+  //   width: 35%;
+  // }
 }
