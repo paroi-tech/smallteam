@@ -27,14 +27,14 @@ export default class StepTypeForm {
    * @param dash - the current application dash
    */
   constructor(private dash: Dash<App>) {
-    this.el = this.initElements()
+    this.el = this.initComponents()
     this.listenToForm()
   }
 
   /**
    * Create JQuery objects from template.
    */
-  private initElements() {
+  private initComponents() {
     let $container = $(template)
     let $fieldContainer = $container.find(".js-field-container")
     this.stepTypeIdEl = $fieldContainer.find(".js-steptype-id").get(0) as HTMLInputElement

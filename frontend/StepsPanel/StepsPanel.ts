@@ -42,7 +42,7 @@ export default class StepsPanel {
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
-    this.el = this.initElements()
+    this.el = this.initComponents()
     this.createBoxLists()
     this.fillBoxLists()
     this.listenToModel()
@@ -52,7 +52,7 @@ export default class StepsPanel {
   /**
    * Create StepsPanel components from the template.
    */
-  private initElements() {
+  private initComponents() {
     let $container = $(template)
     this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
     this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)

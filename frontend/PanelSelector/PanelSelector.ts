@@ -69,16 +69,10 @@ export default class PanelSelector {
    */
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
-
-    // this.el = this.initJQueryObjects()
-
     this.el = this.initView()
-
-    this.initComponents()
+    this.initSubComponents()
     this.listenToEvents()
-
     this.loadProjects()
-
     makeTests(this.el, this.dash.app.model) // TODO:  Remove this line
   }
 
@@ -101,13 +95,13 @@ export default class PanelSelector {
   //   this.menuEl = $container.find(".js-menuLeft")[0]
   //   this.dropdownMenuEl = $container.find(".js-menuRight")[0]
   //   this.panelContainerEl = $container.find(".js-panelContainer")[0]
-  //   return $container[0]
+  //   return $container.get(0)
   // }
 
   /**
    * Create PanelSelector subcomponents.
    */
-  private initComponents() {
+  private initSubComponents() {
     this.menu = this.dash.create(Menu, {
       args: ["PanelSelectorMenu", "Project selection menu"]
     })

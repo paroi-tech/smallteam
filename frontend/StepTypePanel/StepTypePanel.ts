@@ -45,8 +45,8 @@ export default class StepTypePanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.timer = undefined
-    this.el = this.initJQueryObjects().get(0)
-    this.initComponents()
+    this.el = this.initComponents().get(0)
+    this.initSubComponents()
     this.loadStepTypes()
     this.listenToChildComponents()
     this.listenToModel()
@@ -92,7 +92,7 @@ export default class StepTypePanel {
    *
    * Also add an event handler for click on `Add` button.
    */
-  private initJQueryObjects() {
+  private initComponents() {
     let $container = $(template)
     this.$boxlistContainer = $container.find(".js-boxlist-container")
     this.$formContainer = $container.find(".js-edit-form-container")
@@ -111,7 +111,7 @@ export default class StepTypePanel {
   /**
    * Initialize the BoxList and Form components of the panel.
    */
-  private initComponents() {
+  private initSubComponents() {
     this.boxList = this.dash.create(BoxList, {
       args: [ { id: "", name: "Step types", group: undefined, sort: true } ]
     })
