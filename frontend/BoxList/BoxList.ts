@@ -199,16 +199,52 @@ export default class BoxList<T extends Box> {
   }
 
   /**
+   * Enable ou disable the BoxList.
+   *
+   * If the component is disabled, it does not react to user actions.
+   *
+   * @param b If `true`, the BoxList is enabled else the BoxList is disabled
+   */
+  public setEnabled(b: boolean) {
+    this.el.style.pointerEvents = b ? "auto" : "none"
+    this.el.style.opacity = b ? "0" : "0.4"
+  }
+
+  /**
+   * Enable the component.
+   *
+   * @param showBusyIcon Indicate if the busy icon should be hidden
+   */
+  public enable(showBusyIcon: boolean = false) {
+    this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
+    this.el.style.opacity = "0"
+    if (showBusyIcon)
+      this.hideBusyIcon()
+  }
+
+  /**
+   * Disable the component.
+   *
+   * @param showBusyIcon Indicate if the busy should be shown
+   */
+  public disable(showBusyIcon: boolean = false) {
+    this.el.style.pointerEvents = this.el.style.pointerEvents = "nonr"
+    this.el.style.opacity = "0.4"
+    if (showBusyIcon)
+      this.showBusyIcon()
+  }
+
+  /**
    * Enable the sorting capabilities of the BoxList.
    *
    * Note: calling this method will have effect only if the `sort` member of the BoxList constructor
    *       was set to true.
    * @param hideIcon - Indicate if the busy icon should be hidden
    */
-  public enableSort(hideIcon: boolean = false) {
+  public enableSort(hideBusyIcon: boolean = false) {
     if (this.params.sort && this.sortable.option("disabled")) {
       this.sortable.option("disabled", false)
-      if (hideIcon)
+      if (hideBusyIcon)
         this.hideBusyIcon()
     }
   }
@@ -220,10 +256,10 @@ export default class BoxList<T extends Box> {
    *       param was set to true.
    * @param showIcon - Indicate if the busy icon should be displayed
    */
-  public disableSort(showIcon: boolean = false) {
+  public disableSort(showBusyIcon: boolean = false) {
     if (this.params.sort && !this.sortable.option("disabled")) {
       this.sortable.option("disabled", true)
-      if (showIcon)
+      if (showBusyIcon)
         this.showBusyIcon()
     }
   }

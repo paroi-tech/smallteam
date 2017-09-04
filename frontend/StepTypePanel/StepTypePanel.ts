@@ -163,7 +163,7 @@ export default class StepTypePanel {
    */
   private async doUpdate(ids: string[]): Promise<void> {
     console.log(`Requesting updating of step types orders...`)
-    this.boxList.disableSort(true)
+    this.boxList.disable(true)
     try {
       let idList = await this.dash.app.model.reorder("StepType", ids)
       if (equal(idList, ids))
@@ -175,7 +175,7 @@ export default class StepTypePanel {
     } catch (err) {
       console.log("Sorry. Unable to save the new order of steps on server.", err)
     }
-    this.boxList.enableSort(true)
+    this.boxList.enable(true)
     this.form.reset()
   }
 
