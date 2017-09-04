@@ -50,6 +50,7 @@ export default class ProjectForm {
     if (this.project) {
       this.codeEl.setAttribute("readonly", "true")
       this.fillFormFieldsWithProject()
+      this.stepsPanel.setProject(this.project)
     }
     this.listenToForm()
   }
