@@ -6,6 +6,9 @@ import { MenuItem, MenuEvent } from "../Menu/Menu"
 const template = require("html-loader!./dropdownmenu.html")
 const itemTemplate = require("html-loader!./element.html")
 
+export type Alignment = "left" | "right"
+
+
 /**
  * Dropdown menu component.
  *
@@ -14,28 +17,29 @@ const itemTemplate = require("html-loader!./element.html")
  */
 export class DropdownMenu {
   readonly el: HTMLElement
+  private ul: HTMLElement
 
-  private $ul: JQuery
+  private itemMap: Map<string, HTMLElement>
 
-  private itemMap: Map<string, JQuery>
+  private menuVisible = false
 
   /**
    * Create a new dropdown menu.
    */
-  constructor(private dash: Dash<App>, readonly id: string, readonly name: string, readonly align: "left" | "right") {
-    this.itemMap = new Map<string, JQuery>()
-    this.el = this.initJQueryObjects().get(0)
+  constructor(private dash: Dash<App>, readonly id: string, readonly name: string, readonly align: Alignment) {
+    this.itemMap = new Map<string, HTMLElement>()
+    this.el = this.initComponents()
   }
 
   /**
    * Create JQuery objects from the component template.
    */
-  private initJQueryObjects() {
+  private initComponents(): HTMLElement {
     let $container = $(template)
-    this.$ul = $container.find(".js-ul")
-    this.$ul.css(this.align === "left" ? "left" : "right", "0")
-    $container.find(".js-btn").click(ev => this.$ul.toggle())
-    return $container
+    this.ul = $container.find(".js-ul").get(0)
+    this.ul.style[this.align] = "0"
+    $container.find(".js-btn").get(0).addEventListener("click", ev => this.toggle())
+    return $container.get(0)
   }
 
   /**
@@ -46,15 +50,23 @@ export class DropdownMenu {
   public addItem(item: MenuItem) {
     if (this.itemMap.has(item.id))
       throw new Error(`ID already exists in dropdown menu: ${item.id}`)
-    let $li  = $(itemTemplate)
-    let $btn = $li.find(".js-btn")
-    $btn.text(item.label)
-    $btn.click(ev => {
-      this.$ul.toggle()
+    let li = $(itemTemplate).get(0)
+    let btn = li.querySelector(".js-btn")
+    btn!.textContent = item.label
+    btn!.addEventListener("click", ev => {
+      this.toggle()
       this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id })
     })
-    this.itemMap.set(item.id, $li)
-    this.$ul.append($li)
+    this.itemMap.set(item.id, li)
+    this.ul.appendChild(li)
+  }
+
+  /**
+   * Toggle the dropdown menu.
+   */
+  public toggle() {
+    this.ul.style.display = this.menuVisible ? "none" : "block"
+    this.menuVisible = !this.menuVisible
   }
 
   /**
@@ -70,22 +82,22 @@ export class DropdownMenu {
   /**
    * Disable an item of the menu.
    *
-   * @param id - the id of the item to disable.
+   * @param itemId - the id of the item to disable.
    */
-  public disableItem(id: string) {
-    let $i = this.itemMap.get(id)
-    if ($i)
-      $i.prop("disabled", true);
+  public disableItem(itemId: string) {
+    let item = this.itemMap.get(itemId)
+    if (item)
+      item.style.pointerEvents = "none"
   }
 
   /**
    * Enable an item of the menu.
    *
-   * @param id - the id of the item to enable.
+   * @param itemId - the id of the item to enable.
    */
   public enableItem(itemId: string) {
-    let $i = this.itemMap.get(itemId)
-    if ($i)
-      $i.prop("disabled", false);
+    let item = this.itemMap.get(itemId)
+    if (item)
+      item.style.pointerEvents = "auto"
   }
 }

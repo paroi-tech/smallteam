@@ -11,12 +11,11 @@ const template = require("html-loader!./steptypeform.html")
 export default class StepTypeForm {
   readonly el: HTMLElement
 
-  private $container: JQuery
-  private $fieldContainer: JQuery
-  private $stepTypeId: JQuery
-  private $stepTypeName: JQuery
-  private $stepTypeIndex: JQuery
-  private $submitButton: JQuery
+  private fieldContainerEl: HTMLElement
+  private stepTypeIdEl: HTMLInputElement
+  private stepTypeNameEl: HTMLInputElement
+  private stepTypeIndexEl: HTMLInputElement
+  private submitButton: HTMLButtonElement
 
   private stepType: StepTypeModel | undefined = undefined
 
@@ -28,43 +27,43 @@ export default class StepTypeForm {
    * @param dash - the current application dash
    */
   constructor(private dash: Dash<App>) {
-    this.el = this.initJQueryObjects().get(0)
+    this.el = this.initComponents()
     this.listenToForm()
   }
 
   /**
    * Create JQuery objects from template.
    */
-  private initJQueryObjects() {
+  private initComponents() {
     let $container = $(template)
-    this.$fieldContainer = $container.find(".js-field-container")
-    this.$stepTypeId = this.$fieldContainer.find(".js-steptype-id")
-    this.$stepTypeName = this.$fieldContainer.find(".js-steptype-name")
-    this.$stepTypeIndex = this.$fieldContainer.find(".js-steptype-index")
-    this.$submitButton = this.$fieldContainer.find(".js-submit-btn")
-    return $container
+    let $fieldContainer = $container.find(".js-field-container")
+    this.stepTypeIdEl = $fieldContainer.find(".js-steptype-id").get(0) as HTMLInputElement
+    this.stepTypeNameEl = $fieldContainer.find(".js-steptype-name").get(0) as HTMLInputElement
+    this.stepTypeIndexEl = $fieldContainer.find(".js-steptype-index").get(0) as HTMLInputElement
+    this.submitButton = $fieldContainer.find(".js-submit-btn").get(0) as HTMLButtonElement
+    this.fieldContainerEl = $fieldContainer.get(0)
+    return $container.get(0)
   }
 
   /**
    * Add event handlers to events from the form fields.
    */
   private listenToForm() {
-    this.$submitButton.click(ev => {
-      let name = this.$stepTypeName.val() as string
-      name = name.trim()
-      if (name.length == 0)
+    this.submitButton.addEventListener("click", ev => {
+      let name = this.stepTypeNameEl.value.trim()
+      if (name.length === 0)
         console.log("The name of the step type should contain more characters...")
       else {
-        if (!this.stepType) // The user wants to create a new StepType
+        if (!this.stepType) // The user wants to create a new StepType...
           this.addStepType(name)
         else
           this.updateStepType(name)
       }
     })
     // Validating the content of the $stepTypeName field triggers the $submitButton click event.
-    this.$stepTypeName.keyup(ev => {
+    this.stepTypeNameEl.addEventListener("keyup", ev => {
       if (ev.which == 13)
-        this.$submitButton.trigger("click")
+        this.submitButton.click()
     })
   }
 
@@ -76,10 +75,10 @@ export default class StepTypeForm {
   public fillWith(stepType: StepTypeModel) {
     this.reset()
     this.stepType = stepType
-    this.$stepTypeId.val(stepType.id)
-    this.$stepTypeName.val(stepType.name)
+    this.stepTypeIdEl.value = stepType.id
+    this.stepTypeNameEl.value = stepType.name
     if (stepType.orderNum)
-      this.$stepTypeIndex.val(stepType.orderNum)
+      this.stepTypeIndexEl.value = stepType.orderNum.toString()
   }
 
   /**
@@ -87,20 +86,18 @@ export default class StepTypeForm {
    *
    * @param name - the name of the step type
    */
-  private addStepType(name: string) {
-    let $indicator = this.$submitButton.find("span").show()
-    let fragUpd = {
-      name: name
-    }
-    this.dash.app.model.exec("create", "StepType", fragUpd).then(stepType => {
-      console.log(`Step type ${name} successfully created...`)
+  private async addStepType(name: string) {
+    let indicatorEl = this.submitButton.querySelector("span")!
+    indicatorEl.style.display = "inline"
+    let fragUpd = { name }
+    try {
+      let stepType = await this.dash.app.model.exec("create", "StepType", fragUpd)
       this.fillWith(stepType)
-      $indicator.hide()
       this.dash.emit("stepTypeCreated", stepType)
-    }).catch(error => {
+    } catch (error) {
       console.error(`Impossible to create the step type ${name}...`, error)
-      $indicator.hide()
-    })
+    }
+    indicatorEl.style.display = "none"
   }
 
   /**
@@ -116,23 +113,21 @@ export default class StepTypeForm {
     // And I don't want to use the this.stepType! trick...
     if (!this.stepType)
       return
-    let $indicator = this.$submitButton.find("span").show()
+    let indicatorEl = this.submitButton.querySelector("span")!
+    indicatorEl.style.display = "inline"
     let fragUpd = {
       id: this.stepType.id,
       name: newName
     }
     try {
       let stepType = await this.dash.app.model.exec("update", "StepType", fragUpd)
-      console.log("Step type successfully updated...")
       this.fillWith(stepType)
-      $indicator.hide()
     } catch (err) {
-      console.error("Cannot update the step type...", err)
       this.reset()
       if (this.stepType)
         this.fillWith(this.stepType)
-      $indicator.hide()
     }
+    indicatorEl.style.display = "none"
   }
 
   /**
@@ -156,8 +151,8 @@ export default class StepTypeForm {
    * Reset the fileds in the form.
    */
   private resetFields() {
-    this.$stepTypeId.val("")
-    this.$stepTypeName.val("")
-    this.$stepTypeIndex.val("")
+    this.stepTypeIdEl.value = ""
+    this.stepTypeNameEl.value = ""
+    this.stepTypeIndexEl.value = ""
   }
 }

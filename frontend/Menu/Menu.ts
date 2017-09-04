@@ -30,17 +30,18 @@ export interface MenuEvent {
 export class Menu {
   readonly el: HTMLElement
 
-  private $ul: JQuery
-  private itemMap: Map<string, JQuery>
+  private ul: HTMLElement
+  private itemMap: Map<string, HTMLElement> = new Map()
 
   /**
    * Create a new menu.
    */
   constructor(private dash: Dash<App>, readonly id: string, readonly name: string) {
-    this.itemMap = new Map<string, JQuery>()
-    let $container = $(template)
-    this.$ul = $container.find(".js-ul")
-    this.el = $container.get(0)
+    this.el = document.createElement("nav")
+    this.el.classList.add("Menu")
+    this.ul = document.createElement("ul")
+    this.ul.classList.add("Menu-ul")
+    this.el.appendChild(this.ul)
   }
 
   /**
@@ -51,14 +52,19 @@ export class Menu {
   public addItem(item: MenuItem) {
     if (this.itemMap.has(item.id))
       throw new Error(`ID already exists in menu: ${item.id}`)
-    let $li = $("<li></li>").appendTo(this.$ul)
-    let $btn = $(`<button class="MenuBtn" type="button"></button>`)
-      .text(item.label)
-      .click((ev) => {
-        this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id });
+    let li = document.createElement("li")
+    let btn = document.createElement("button")
+    btn.type = "button"
+    btn.textContent = item.label
+    btn.classList.add("MenuBtn")
+    btn.addEventListener("click", (ev) => this.dash.emit(item.eventName, {
+        menuId: this.id,
+        itemId: item.id
       })
-      .appendTo($li)
-    this.itemMap.set(item.id, $li)
+    )
+    li.appendChild(btn)
+    this.ul.appendChild(li)
+    this.itemMap.set(item.id, li)
   }
 
   /**

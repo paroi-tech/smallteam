@@ -61,7 +61,7 @@ export default class ProjectForm {
   private initComponents() {
     let wrapperEl = document.createElement("div")
     wrapperEl.classList.add("ProjectForm")
-    this.view = render(template, wrapperEl, {directives})
+    this.view = render(template, wrapperEl, { directives })
     this.codeEl = this.view.querySelector(".js-code")
     this.nameEl = this.view.querySelector(".js-name")
     this.descriptionEl = this.view.querySelector(".js-description")
@@ -116,12 +116,11 @@ export default class ProjectForm {
    */
   private async createProject(code: string, name: string, description: string) {
     try {
-      let project = await this.model.exec("create", "Project", { code, name, description })
-      this.project = project
-      this.panel.linkFormToProject(this, project)
+      this.project = await this.model.exec("create", "Project", { code, name, description })
+      this.panel.linkFormToProject(this, this.project)
       this.codeEl.setAttribute("readonly", "true")
       this.fillFormFieldsWithProject()
-      this.stepsPanel.setProject(project)
+      this.stepsPanel.setProject(this.project)
     } catch (error) {
       console.error(error)
     }
@@ -172,7 +171,7 @@ export default class ProjectForm {
    * Tell if the ProjectForm is linked to a project.
    */
   public hasProject(): boolean {
-    return this.project != undefined
+    return this.project !== undefined
   }
 
   /**

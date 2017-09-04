@@ -45,8 +45,8 @@ export default class StepTypePanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.timer = undefined
-    this.el = this.initJQueryObjects().get(0)
-    this.initComponents()
+    this.el = this.initComponents().get(0)
+    this.initSubComponents()
     this.loadStepTypes()
     this.listenToChildComponents()
     this.listenToModel()
@@ -92,7 +92,7 @@ export default class StepTypePanel {
    *
    * Also add an event handler for click on `Add` button.
    */
-  private initJQueryObjects() {
+  private initComponents() {
     let $container = $(template)
     this.$boxlistContainer = $container.find(".js-boxlist-container")
     this.$formContainer = $container.find(".js-edit-form-container")
@@ -111,7 +111,7 @@ export default class StepTypePanel {
   /**
    * Initialize the BoxList and Form components of the panel.
    */
-  private initComponents() {
+  private initSubComponents() {
     this.boxList = this.dash.create(BoxList, {
       args: [ { id: "", name: "Step types", group: undefined, sort: true } ]
     })
@@ -163,7 +163,7 @@ export default class StepTypePanel {
    */
   private async doUpdate(ids: string[]): Promise<void> {
     console.log(`Requesting updating of step types orders...`)
-    this.boxList.disableSort(true)
+    this.boxList.disable(true)
     try {
       let idList = await this.dash.app.model.reorder("StepType", ids)
       if (equal(idList, ids))
@@ -175,7 +175,7 @@ export default class StepTypePanel {
     } catch (err) {
       console.log("Sorry. Unable to save the new order of steps on server.", err)
     }
-    this.boxList.enableSort(true)
+    this.boxList.enable(true)
     this.form.reset()
   }
 
@@ -193,7 +193,7 @@ export default class StepTypePanel {
         if (!stepType.isSpecial)
           this.boxList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
     } catch (err) {
-      console.error("Unable to load step types from server...")
+      console.error("Unable to load step types from server...", err)
     }
   }
 
