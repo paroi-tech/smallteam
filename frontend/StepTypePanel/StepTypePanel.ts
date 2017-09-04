@@ -193,7 +193,7 @@ export default class StepTypePanel {
         if (!stepType.isSpecial)
           this.boxList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
     } catch (err) {
-      console.error("Unable to load step types from server...")
+      console.error("Unable to load step types from server...", err)
     }
   }
 

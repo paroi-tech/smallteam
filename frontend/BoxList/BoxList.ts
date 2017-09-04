@@ -66,9 +66,9 @@ export interface BoxListEvent extends BoxEvent {
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
 
-  private $title: JQuery
-  private $ul: JQuery
-  private $busyIcon: JQuery
+  private ul: HTMLElement
+  private busyIndicatorEl: HTMLElement
+  private titleEl: HTMLElement
   private sortable: Sortable
 
   // Map storing boxes of the list.
@@ -82,13 +82,10 @@ export default class BoxList<T extends Box> {
    */
   constructor(private dash: Dash<App>, private params: BoxListParams) {
     let $container = $(boxListTemplate)
-    // TODO: move the two following lines in a `disable` method.
-    // https://stackoverflow.com/questions/639815/how-to-disable-all-div-content (solution by Kokodoko)
-    // this.$container.css("pointer-events", "none")
-    // this.$container.css("opacity", "0.4")
-    this.$ul = $container.find("ul")
-    this.$busyIcon = $container.find(".js-busy-icon")
-    this.$title = $container.find(".js-title").text(params.name)
+    this.ul = $container.find("ul").get(0)
+    this.busyIndicatorEl = $container.find(".js-busy-icon").get(0)
+    this.titleEl = $container.find(".js-title").get(0)
+    this.setTitle(this.params.name)
     this.makeSortable()
     this.el = $container.get(0)
   }
@@ -99,11 +96,11 @@ export default class BoxList<T extends Box> {
    * @param box - the element to be added.
    */
   public addBox(box: T) {
-    let $li = $(boxTemplate)
-    $li.get(0).setAttribute("data-id", box.id)
-    $li.append(box.el)
-    $li.appendTo(this.$ul)
-    this.boxMap.set(box.id, $li.get(0))
+    let li = $(boxTemplate).get(0)
+    li.setAttribute("data-id", box.id)
+    li.appendChild(box.el)
+    this.ul.appendChild(li)
+    this.boxMap.set(box.id, li)
   }
 
   /**
@@ -122,14 +119,14 @@ export default class BoxList<T extends Box> {
   public removeBox(boxId: string) {
     let li = this.boxMap.get(boxId)
     if (li)
-      this.$ul.get(0).removeChild(li)
+      this.ul.removeChild(li)
   }
 
   /***
    * Make the boxList sortable by creating a Sortable object.
    */
   private makeSortable() {
-    this.sortable = Sortable.create(this.$ul.get(0), {
+    this.sortable = Sortable.create(this.ul, {
       disabled: this.params.sort ? false : true,
       handle: ".js-handle",
       group: this.params.group,
@@ -178,7 +175,7 @@ export default class BoxList<T extends Box> {
    * @param title - the new title.
    */
   public setTitle(title: string) {
-    this.$title.find(".js-title").text(title)
+    this.titleEl.textContent = title
   }
 
   /**
@@ -202,12 +199,14 @@ export default class BoxList<T extends Box> {
    * Enable ou disable the BoxList.
    *
    * If the component is disabled, it does not react to user actions.
+   * Code based on the answer by Kokodoko at:
+   * @url{https://stackoverflow.com/questions/639815/how-to-disable-all-div-content}
    *
    * @param b If `true`, the BoxList is enabled else the BoxList is disabled
    */
   public setEnabled(b: boolean) {
     this.el.style.pointerEvents = b ? "auto" : "none"
-    this.el.style.opacity = b ? "0" : "0.4"
+    this.el.style.opacity = b ? "1.0" : "0.4"
   }
 
   /**
@@ -217,7 +216,7 @@ export default class BoxList<T extends Box> {
    */
   public enable(showBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
-    this.el.style.opacity = "0"
+    this.el.style.opacity = "1.0"
     if (showBusyIcon)
       this.hideBusyIcon()
   }
@@ -228,7 +227,7 @@ export default class BoxList<T extends Box> {
    * @param showBusyIcon Indicate if the busy should be shown
    */
   public disable(showBusyIcon: boolean = false) {
-    this.el.style.pointerEvents = this.el.style.pointerEvents = "nonr"
+    this.el.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.el.style.opacity = "0.4"
     if (showBusyIcon)
       this.showBusyIcon()
@@ -268,13 +267,13 @@ export default class BoxList<T extends Box> {
    * Show the Busy indicator.
    */
   public showBusyIcon() {
-    this.$busyIcon.show()
+    this.busyIndicatorEl.style.display = "inline"
   }
 
   /**
    * Hide the busy indicator.
    */
   public hideBusyIcon() {
-    this.$busyIcon.hide()
+    this.busyIndicatorEl.style.display = "none"
   }
 }

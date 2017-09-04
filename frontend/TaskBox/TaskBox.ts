@@ -14,8 +14,8 @@ const template = require("html-loader!./taskbox.html")
  */
 export default class TaskBox implements Box {
   readonly el: HTMLElement
+  private spanEl: HTMLElement
 
-  private $span: JQuery
   public readonly id: string
 
   private model: Model
@@ -30,7 +30,7 @@ export default class TaskBox implements Box {
     this.id = this.task[idProp].toString()
     this.model = this.dash.app.model
     let $container = $(template)
-    this.$span = $container.find(".js-span").text(task.label)
+    this.spanEl = $container.find(".js-span").text(task.label).get(0)
     this.listenToModel()
     $container.click(() => {
       this.dash.emit("taskBoxSelected", this.task)
@@ -50,7 +50,7 @@ export default class TaskBox implements Box {
         return
       let task = data.model as TaskModel
       if (task.id === this.task.id)
-        this.$span.text(task.label)
+        this.spanEl.textContent = task.label
     })
   }
 

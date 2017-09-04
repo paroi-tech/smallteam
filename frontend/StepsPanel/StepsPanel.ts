@@ -21,10 +21,10 @@ export default class StepsPanel {
   private model: Model
   private project: ProjectModel
 
-  private $taskName: JQuery
-  private $addTaskSpinner: JQuery
-  private $contentWrapper: JQuery
-  private $boxListContainer: JQuery
+  private taskNameEl: HTMLInputElement
+  private addTaskSpinnerEl: HTMLElement
+  private contentWrapperEl: HTMLElement
+  private boxListContainerEl: HTMLElement
   private contentWrapperVisible = true
   private visible = true
 
@@ -42,7 +42,7 @@ export default class StepsPanel {
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
-    this.el = this.initJQueryObjects().get(0)
+    this.el = this.initElements()
     this.createBoxLists()
     this.fillBoxLists()
     this.listenToModel()
@@ -52,28 +52,33 @@ export default class StepsPanel {
   /**
    * Create StepsPanel components from the template.
    */
-  private initJQueryObjects() {
+  private initElements() {
     let $container = $(template)
-    this.$taskName = $container.find(".js-task-name")
-    this.$addTaskSpinner = $container.find(".js-add-task-button .fa-spinner")
-    this.$contentWrapper = $container.find(".js-stepspanel-content-wrapper")
-    this.$boxListContainer = $container.find(".js-boxlist-container")
+    this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
+    this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)
+    this.contentWrapperEl = $container.find(".js-stepspanel-content-wrapper").get(0)
+    this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
+
     // If the task of this StepsPanel is the project main task, the panel title is set to 'Main tasks'.
-    let $title = $container.find(".js-title")
-    $title.text(this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label)
-    let $toggleBtn = $container.find(".js-toggle-btn")
-    $toggleBtn.click(ev => {
-      $toggleBtn.html(this.contentWrapperVisible ? "&#9660;" : "&#9650;")
-      this.$contentWrapper.slideToggle()
+    let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
+    $container.find(".js-title").text(title)
+
+    let toggleBtn = $container.find(".js-toggle-btn").get(0) as HTMLButtonElement
+    toggleBtn.addEventListener("click", ev => {
+      toggleBtn.innerHTML = this.contentWrapperVisible ? "&#9660;" : "&#9650;"
+      $(this.contentWrapperEl).slideToggle()
       this.contentWrapperVisible = !this.contentWrapperVisible
     })
-    let $closeBtn = $container.find(".js-close-btn")
-    $closeBtn.click(ev => {
+
+    let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
+    closeBtn.addEventListener("click", ev => {
       if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask panel.
         this.setVisible(false)
     })
+
     $container.find(".js-add-task-button").click(() => this.onAddtaskClick())
-    return $container
+
+    return $container.get(0)
   }
 
   /**
@@ -82,8 +87,7 @@ export default class StepsPanel {
   private createBoxLists() {
     for (let step of this.project.steps) {
       let list = this.createBoxListFor(step)
-      this.boxListMap.set(step.id, list)
-      this.$boxListContainer.append(list.el)
+      this.boxListContainerEl.appendChild(list.el)
     }
   }
 
@@ -99,7 +103,9 @@ export default class StepsPanel {
       name: step.name,
       sort: true
     }
-    return this.dash.create(BoxList, { args: [ params ] })
+    let list = this.dash.create(BoxList, { args: [ params ] })
+    this.boxListMap.set(step.id, list)
+    return list
   }
 
   /**
@@ -168,17 +174,17 @@ export default class StepsPanel {
    * Handle the creation of a new task.
    */
   private async onAddtaskClick() {
-    let name = this.$taskName.val() as string
+    let name = this.taskNameEl.value
     if (name.length < 1)
       console.log("Impossible to create a new task. Invalid name...")
-    else if (this.project.steps.length == 0)
+    else if (this.project.steps.length === 0)
       console.log("Impossible to create a new task. Project has no step.")
     else {
-      this.$addTaskSpinner.css("display", "inline")
+      this.addTaskSpinnerEl.style.display = "inline"
       if (await this.createTask(name))
-        this.$taskName.val("")
-      this.$addTaskSpinner.css("display", "none")
-      this.$taskName.focus()
+        this.taskNameEl.value = ""
+      this.addTaskSpinnerEl.style.display = "none"
+      this.taskNameEl.focus()
     }
   }
 
@@ -262,8 +268,7 @@ export default class StepsPanel {
         let i = this.project.steps.findIndex(step => step.id === newStep.id)
         if (i != -1) {
           let list = this.createBoxListFor(newStep)
-          this.boxListMap.set(newStep.id, list)
-          let parent = this.$boxListContainer.get(0)
+          let parent = this.boxListContainerEl
           parent.insertBefore(list.el, i < parent.childNodes.length? parent.childNodes[i]: null)
         }
       }
@@ -275,7 +280,7 @@ export default class StepsPanel {
         let stepId = data.id as string
         let list = this.boxListMap.get(stepId)
         if (list) {
-          this.$boxListContainer.get(0).removeChild(list.el)
+          this.boxListContainerEl.removeChild(list.el)
           this.boxListMap.delete(stepId)
         }
       }
@@ -293,7 +298,7 @@ export default class StepsPanel {
         if (step) {
           let list = this.boxListMap.get(step.id)
           if (list)
-            this.$boxListContainer.append(list.el)
+            this.boxListContainerEl.appendChild(list.el)
         }
       }
     })

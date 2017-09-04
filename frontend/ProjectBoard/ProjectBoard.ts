@@ -26,9 +26,9 @@ const menuItems = [
 export default class ProjectBoard implements Panel {
   readonly el: HTMLElement
 
-  private $dropdownMenuContainer: JQuery
-  private $stepsPanelContainer: JQuery
-  private $taskPanelContainer: JQuery
+  private dropdownMenuContainerEl: HTMLElement
+  private stepsPanelContainerEl: HTMLElement
+  private taskPanelContainerEl: HTMLElement
 
   private model: Model
 
@@ -44,7 +44,7 @@ export default class ProjectBoard implements Panel {
    */
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
-    this.el = this.initJQueryObjects().get(0)
+    this.el = this.initElements()
     this.initComponents()
     this.listenToChildren()
   }
@@ -52,13 +52,13 @@ export default class ProjectBoard implements Panel {
   /**
    * Create JQuery objects from the component template.
    */
-  private initJQueryObjects() {
+  private initElements() {
     let $container = $(template)
     $container.find("span.js-title").text(this.project.name)
-    this.$dropdownMenuContainer = $container.find(".js-dropdown-menu-container")
-    this.$stepsPanelContainer = $container.find(".js-stepspanel-container")
-    this.$taskPanelContainer = $container.find(".js-editpanel-container")
-    return $container
+    this.dropdownMenuContainerEl = $container.find(".js-dropdown-menu-container").get(0)
+    this.stepsPanelContainerEl = $container.find(".js-stepspanel-container").get(0)
+    this.taskPanelContainerEl = $container.find(".js-editpanel-container").get(0)
+    return $container.get(0)
   }
 
   /**
@@ -85,14 +85,14 @@ export default class ProjectBoard implements Panel {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       args: ["ProjectBoardDropdownMenu", "ProjectBoard dropdown menu", "left"]
     })
-    this.$dropdownMenuContainer.append(this.dropdownMenu.el)
+    this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
     this.dropdownMenu.addItems(menuItems)
 
     this.taskPanel = this.dash.create(TaskPanel)
-    this.$taskPanelContainer.append(this.taskPanel.el)
+    this.taskPanelContainerEl.appendChild(this.taskPanel.el)
 
     let rootTaskPanel = this.createStepsPanel(this.project.rootTask)
-    this.$stepsPanelContainer.append(rootTaskPanel.el)
+    this.stepsPanelContainerEl.appendChild(rootTaskPanel.el)
     this.createStepsPanelsForChildren(this.project.rootTask)
   }
 
@@ -122,7 +122,7 @@ export default class ProjectBoard implements Panel {
       let panel = this.createStepsPanel(task)
       // The panel created for child tasks are hidden by default.
       panel.setVisible(false)
-      this.$stepsPanelContainer.append(panel.el)
+      this.stepsPanelContainerEl.appendChild(panel.el)
       this.createStepsPanelsForChildren(task)
     })
   }
@@ -183,7 +183,7 @@ export default class ProjectBoard implements Panel {
     panel = this.createStepsPanel(task)
     // We insert the new StepsPanel in the DOM. See the discussion for details about the method used:
     // https://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
-    let parentNode = this.$stepsPanelContainer.get(0)
+    let parentNode = this.stepsPanelContainerEl
     let referenceNode = precedingPanel ? precedingPanel.el : parentPanel.el
     parentNode.insertBefore(panel.el, referenceNode.nextSibling)
   }
