@@ -76,4 +76,17 @@ export class Menu {
     for (let i of items)
       this.addItem(i)
   }
+
+  /**
+   * Remove an item from the menu.
+   *
+   * @param itemId
+   */
+  public removeItem(itemId: string) {
+    let itemEl = this.itemMap.get(itemId)
+    if (itemEl) {
+      this.ul.removeChild(itemEl)
+      this.itemMap.delete(itemId)
+    }
+  }
 }

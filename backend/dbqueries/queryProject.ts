@@ -1,9 +1,9 @@
 import * as path from "path"
 //import * as sqlite from "sqlite"
 import CargoLoader from "../cargoLoader/CargoLoader"
-import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery } from "../../isomorphic/fragments/Project"
+import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery, ProjectIdFragment } from "../../isomorphic/fragments/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList } from "./dbUtils"
+import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription } from "./queryTask"
 import { fetchStepsByProjects } from "./queryStep"
@@ -232,7 +232,57 @@ async function getRootTaskId(projectId: number) {
   return rs[0]["task_id"]
 }
 
+// --
+// -- Delete
+// --
+/**
+ * Delete a project in the database.
+ *
+ * There are 4 steps involved in project deletion:
+ *  1. Retrieve the root task ID from the <code>root_task</code> table.
+ *  2. Delete a row in the <code>root_task</code> table.
+ *  3. Delete the row referenced by the <code>root task</code> in the <code>task</code> table.
+ *  4. Delete the project in the <code>project</code> table.
+ *
+ * @param loader
+ * @param frag
+ */
+export async function deleteProject(loader: CargoLoader, frag: ProjectIdFragment) {
+  // FIXME: This function should use transaction...
+  let cn = await getDbConnection()
 
+  let selectTaskIdSql = buildSelect()
+      .select("task_id")
+      .from("root_task")
+      .where("project_id", "=", int(frag.id))
+      .toSql()
+
+  let rs = await cn.all(selectTaskIdSql)
+  if (rs.length === 0)
+    throw new Error(`Cannot delete project with ID ${frag.id}. Unable to retrieve root task.`)
+
+  let taskId = rs[0]["task_id"]
+
+  let deleteRootTaskSql = buildDelete()
+      .deleteFrom("root_task")
+      .where("project_id", "=", int(frag.id))
+      .toSql()
+  await cn.run(deleteRootTaskSql)
+
+  let deleteTaskSql = buildDelete()
+      .deleteFrom("task")
+      .where("task_id", "=", int(taskId))
+      .toSql()
+  await cn.run(deleteTaskSql)
+
+  let deleteProjectSql = buildDelete()
+      .deleteFrom("project")
+      .where("project_id", "=", int(frag.id))
+      .toSql()
+
+  await cn.run(deleteProjectSql)
+  loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
+}
 
 // --
 // -- Utils

@@ -31,7 +31,7 @@ create table project (
 create table step (
     step_id integer not null primary key autoincrement,
     step_type_id bigint not null references step_type(step_type_id),
-    project_id bigint not null references project(project_id),
+    project_id bigint not null references project(project_id) on delete cascade,
     unique (step_type_id, project_id)
 );
 

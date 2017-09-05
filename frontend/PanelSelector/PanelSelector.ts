@@ -71,6 +71,7 @@ export default class PanelSelector {
     this.model = dash.app.model
     this.el = this.initView()
     this.initSubComponents()
+    this.listenToModel()
     this.listenToEvents()
     this.loadProjects()
     makeTests(this.el, this.dash.app.model) // TODO:  Remove this line
@@ -136,9 +137,22 @@ export default class PanelSelector {
    * Listen to events from model.
    * The following events are handled:
    *  - Project creation
+   *  - Project deletion
    */
   private listenToModel() {
+    // Project creation.
     this.model.on("createProject", "dataFirst", data => this.addProject(data.model))
+    // Project deletion.
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd !== "delete" || data.type !==  "Project")
+        return
+      let projectId = data.id as string
+      this.projectMap.delete(projectId)
+      let panelInfo = this.panelMap.get("ProjectBoard" + ":" + projectId)
+      if (panelInfo && panelInfo.type === ProjectBoard && panelInfo.panel)
+        this.panelContainerEl.removeChild(panelInfo.panel.el)
+      this.menu.removeItem(projectId)
+    })
   }
 
   /**

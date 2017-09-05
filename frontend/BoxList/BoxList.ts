@@ -33,6 +33,8 @@ export interface BoxListParams {
   onMove?: (ev: BoxEvent) => boolean
   // Object on which the 'onMove' function is called.
   obj?: any
+  // Is the BoxList disabled?
+  disabled?: boolean
   // Can items be reordered within the BoxList?
   sort: boolean
 }
@@ -122,15 +124,22 @@ export default class BoxList<T extends Box> {
       this.ul.removeChild(li)
   }
 
+  /**
+   * Remove all elements from the BoxList.
+   */
+  public clear() {
+    this.boxMap.forEach((val, key) => this.removeBox(key))
+  }
+
   /***
    * Make the boxList sortable by creating a Sortable object.
    */
   private makeSortable() {
     this.sortable = Sortable.create(this.ul, {
-      disabled: this.params.sort ? false : true,
       handle: ".js-handle",
       group: this.params.group,
       sort: this.params.sort,
+      disabled: this.params.disabled === undefined ? false : this.params.disabled,
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
         this.boxMap.set(ev.item.dataset.id, ev.item)

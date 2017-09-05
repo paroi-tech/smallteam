@@ -41,7 +41,6 @@ the time, so I can't use JIRA.
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
     - A button "Archived Tasks" => Implement a new component "Archived Tasks"
-  - Allow to delete a project when it contains no tasks (except the root task) (after user confirmation)
 - **Step type form**: Allow to delete a stepType when it has no step (after user confirmation)
 - **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
 - For each form:
@@ -51,10 +50,11 @@ the time, so I can't use JIRA.
 # Lionel - DONE
 
 - **Task panel**:
-  - For tasks without child: add a button "Show/Hide as parent" (*)
+  - For tasks without child: add a button "Show/Hide as parent"
 - **ProjectForm**:
   - Do not use the title to open the form, add a DropdownMenu button (`…`) near the title with following items:
-    - An button "Edit Form" for opening the form (*)
+    - An button "Edit Form" for opening the form
+  - Allow to delete a project when it contains no tasks (except the root task) (after user confirmation)
 - **StepsPanel**: Add a button near the title for slide up and slide down the content (*)
 - For each form:
   - Add a flag "loading" on each button "Submit" (*)

@@ -3,7 +3,7 @@ import * as express from "express"
 import { Response } from "express"
 import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { queryProjects, createProject, fetchProjects, updateProject } from "./dbqueries/queryProject"
+import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
@@ -134,6 +134,8 @@ async function executeCommandProject(data, loader: CargoLoader) {
     await createProject(loader, data.frag)
   else if (data.cmd === "update")
     await updateProject(loader, data.frag)
+  else if (data.cmd === "delete")
+    await deleteProject(loader, data.frag)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }

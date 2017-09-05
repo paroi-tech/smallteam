@@ -2,7 +2,7 @@ import { Dash, ComponentEvent, Transmitter } from "bkb"
 import App from "../App/App"
 import ModelEngine, { appendGettersToModel, ModelEvent, CommandType } from "./ModelEngine"
 import { Type, Identifier } from "../../isomorphic/Cargo"
-import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, projectMeta } from "../../isomorphic/fragments/Project"
+import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, ProjectIdFragment, projectMeta } from "../../isomorphic/fragments/Project"
 import { StepFragment, NewStepFragment, StepIdFragment, stepMeta } from "../../isomorphic/fragments/Step"
 import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
 import { TaskFragment, NewTaskFragment, UpdTaskFragment } from "../../isomorphic/fragments/Task"
@@ -27,10 +27,11 @@ export interface WhoUseItem {
 export interface CommandRunner {
   exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
   exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
+  exec(cmd: "delete", type: "Project", frag: ProjectIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
   exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
-  //exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
+  // exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
 
   exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
   exec(cmd: "delete", type: "Step", frag: StepIdFragment): Promise<void>

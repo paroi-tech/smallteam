@@ -7,9 +7,10 @@ import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 export default class ProjectStepsPanel {
   readonly el: HTMLElement
 
-  private availableStepTypeList: BoxList<StepTypeBox>
-  private specialStepTypeList: BoxList<StepTypeBox>
-  private usedStepTypeList: BoxList<StepTypeBox>
+  private spareStepBoxList: BoxList<StepTypeBox>
+  private specialStepBoxList: BoxList<StepTypeBox>
+  private usedStepBoxList: BoxList<StepTypeBox>
+
   private model: Model
   private project: ProjectModel | null = null
 
@@ -37,22 +38,26 @@ export default class ProjectStepsPanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.initComponents()
+    // We load step types from model here and store them. We only display the step types
+    // in the BoxLists when a project is set.
+    this.model.query("StepType").then(stepTypes => {
+      stepTypes.forEach(stepType => this.registerStepType(stepType))
+    }).catch(err => {
+      console.log(`Error while loading StepTypes in ProjectStepsPanel`)
+    })
     this.listenToModel()
   }
 
+  /**
+   *
+   * @param project
+   */
   public setProject(project: ProjectModel | null) {
+    this.clear()
     this.project = project
     if (project) {
-      this.clear()
+      this.fillBoxLists()
       this.show()
-      this.model.query("StepType").then(stepTypes => {
-        this.fillBoxLists(stepTypes)
-      }).catch(err => {
-        console.log(`Error while loading StepTypes in ProjectStepsPanel ${this.project? this.project.id : "no-ID"}`)
-      })
-    } else {
-      this.hide()
-      this.clear()
     }
   }
 
@@ -65,26 +70,30 @@ export default class ProjectStepsPanel {
    */
   private listenToModel() {
     // StepType creation event.
-    this.model.on("createStepType", "dataFirst", data => {
-      let box = this.dash.create(StepTypeBox, {
-        args: [ data.model, "id" ]
-      })
-      this.stepTypeMap.set(data.model.id, data.model)
-      this.boxMap.set(data.model.id, box)
-      this.availableStepTypeList.addBox(box)
+    this.model.on("change", "dataFirst", data => {
+      if (data.type !== "StepType" || data.cmd !== "create")
+        return
+      let box = this.registerStepType(data.model)
+      if (this.project)
+        this.spareStepBoxList.addBox(box)
     })
+
     // StepType deletion.
     this.model.on("change", "dataFirst", data => {
       if (data.type != "StepType" || data.cmd != "delete")
         return
       let stepTypeId = data.id as string
-      let a = [this.availableStepTypeList, this.specialStepTypeList, this.usedStepTypeList]
-      let boxList = a.find(bl => bl.hasBox(stepTypeId))
-      if (boxList)
-        boxList.removeBox(stepTypeId)
       this.boxMap.delete(stepTypeId)
       this.stepTypeMap.delete(stepTypeId)
+      // If we have a project, we have to remove the StepTypeBox created for the StepType.
+      if (this.project) {
+        let boxLists = [ this.spareStepBoxList, this.specialStepBoxList, this.usedStepBoxList ]
+        let boxList = boxLists.find(bl => bl.hasBox(stepTypeId))
+        if (boxList)
+          boxList.removeBox(stepTypeId)
+      }
     })
+
     // StepType reorder event.
     // We run through the orderedIds and for each of the ID, we check if the project use the corresponding
     // StepType. If yes, we add it to an array which will be use to sort the usedStepTypeList. Else,
@@ -94,15 +103,15 @@ export default class ProjectStepsPanel {
         return
       let ids = data.orderedIds as string[],
           usedStepTypeIds =  new Array<string>(),
-          availableStepTypeIds = new Array<string>()
+          spareStepTypeIds = new Array<string>()
       for (let id of ids) {
         if (this.project.findStepByType(id))
           usedStepTypeIds.push(id)
         else
-          availableStepTypeIds.push(id)
+          spareStepTypeIds.push(id)
       }
-      this.availableStepTypeList.setBoxesOrder(availableStepTypeIds)
-      this.usedStepTypeList.setBoxesOrder(usedStepTypeIds)
+      this.spareStepBoxList.setBoxesOrder(spareStepTypeIds)
+      this.usedStepBoxList.setBoxesOrder(usedStepTypeIds)
     })
   }
 
@@ -113,61 +122,88 @@ export default class ProjectStepsPanel {
     let container = document.createElement("div")
     container.classList.add("ProjectStepsPanel")
 
-    let p1 = {
+    let boxListGroup = "PrjStepsPanelBoxLists"
+    let spareBoxListParams = {
       id: "Available",
-      group: "ProjectStepsPanel", // this.project.id
+      group: boxListGroup,
       name: "Available step types",
       obj: this,
       onMove: ev => this.validateStepTypeMove(ev),
       sort: false
     }
-    this.availableStepTypeList = this.dash.create(BoxList, { args: [ p1 ] })
-    container.appendChild(this.availableStepTypeList.el)
+    this.spareStepBoxList = this.dash.create(BoxList, { args: [ spareBoxListParams ] })
+    container.appendChild(this.spareStepBoxList.el)
 
-    let p2 = {
+    let usedBoxListParams = {
       id: "Used",
-      group: "ProjectStepsPanel", // this.project.id
+      group: boxListGroup,
       name: "Used step types",
       obj: this,
       onMove: ev => this.validateStepTypeMove(ev),
       sort: false
     }
-    this.usedStepTypeList = this.dash.create(BoxList, { args: [ p2 ] })
-    container.appendChild(this.usedStepTypeList.el)
+    this.usedStepBoxList = this.dash.create(BoxList, { args: [ usedBoxListParams ] })
+    container.appendChild(this.usedStepBoxList.el)
 
-    let p3 = {
+    let specialBoxListParams = {
       id: "Special",
       group: undefined,
       name: "Special step types",
       sort: false
     }
-    this.specialStepTypeList = this.dash.create(BoxList, { args: [ p3 ] })
-    container.appendChild(this.specialStepTypeList.el)
+    this.specialStepBoxList = this.dash.create(BoxList, { args: [ specialBoxListParams ] })
+    container.appendChild(this.specialStepBoxList.el)
+
     return container
   }
 
+  /**
+   * Clear the content of the BoxLists.
+   */
   private clear() {
-    // TODO: Implement: remove all data in this.boxMap (call StepTypeBox.bkb.destroy()) and clear the content of boxLists
+    let boxLists = [ this.spareStepBoxList, this.specialStepBoxList, this.usedStepBoxList ]
+    boxLists.forEach(bl => bl.clear())
   }
 
   /**
-   * Fill the BoxList with the StepTypes loaded from  model.
-   * @param stepTypes
+   * Create a StepTypeBox for a given StepType.
+   *
+   * @param stepType
    */
-  private fillBoxLists(stepTypes: StepTypeModel[]) {
+  private createBoxForStepType(stepType: StepTypeModel): StepTypeBox {
+    let box = this.dash.create(StepTypeBox, { args: [ stepType, "id" ] })
+    this.boxMap.set(stepType.id, box)
+    return box
+  }
+
+  /**
+   * Store the StepType in the stepTypeMap and create a box for the StepType.
+   *
+   * @param stepType
+   * @return the created StepTypeBox
+   */
+  private registerStepType(stepType: StepTypeModel) {
+    this.stepTypeMap.set(stepType.id, stepType)
+    return this.createBoxForStepType(stepType)
+  }
+
+  /**
+   * Fill the BoxList with the StepTypes stored in the component.
+   */
+  private fillBoxLists() {
     if (!this.project)
       return
-    for (let stepType of stepTypes) {
-      this.stepTypeMap.set(stepType.id, stepType)
-      let box = this.dash.create(StepTypeBox, { args: [ stepType, "id" ] })
-      this.boxMap.set(stepType.id, box)
+    this.stepTypeMap.forEach(stepType => {
+      let box = this.boxMap.get(stepType.id)
+      if (!box)
+        throw new Error(`Unable to retrieve StepTypeBox of StepType ${stepType.id} in ProjectStepsPanel`)
       if (stepType.isSpecial)
-        this.specialStepTypeList.addBox(box)
-      else if (this.project.hasStepType(stepType.id))
-        this.usedStepTypeList.addBox(box)
+        this.specialStepBoxList.addBox(box)
+      else if (this.project!.hasStepType(stepType.id))
+        this.usedStepBoxList.addBox(box)
       else
-        this.availableStepTypeList.addBox(box)
-    }
+        this.spareStepBoxList.addBox(box)
+    })
   }
 
   /**
@@ -190,8 +226,8 @@ export default class ProjectStepsPanel {
   private async doUpdate() {
     if (!this.project)
       return
-    let used = this.usedStepTypeList.getBoxesOrder()
-    let unused = this.availableStepTypeList.getBoxesOrder()
+    let used = this.usedStepBoxList.getBoxesOrder()
+    let unused = this.spareStepBoxList.getBoxesOrder()
     let batch = this.model.createCommandBatch()
 
     // We create steps for newly added StepTypes.
@@ -220,18 +256,18 @@ export default class ProjectStepsPanel {
       console.error("Error while updating project steps.", err)
       // We need to restore the content of the BoxLists.
       for (let [id, box] of this.boxMap.entries()) {
-        if (this.project.hasStepType(id) && this.availableStepTypeList.hasBox(id)) {
-          this.availableStepTypeList.removeBox(id)
-          this.usedStepTypeList.addBox(box)
+        if (this.project.hasStepType(id) && this.spareStepBoxList.hasBox(id)) {
+          this.spareStepBoxList.removeBox(id)
+          this.usedStepBoxList.addBox(box)
         }
-        if (!this.project.hasStepType(id) && this.usedStepTypeList.hasBox(id)) {
-          this.usedStepTypeList.removeBox(id)
-          this.availableStepTypeList.addBox(box)
+        if (!this.project.hasStepType(id) && this.usedStepBoxList.hasBox(id)) {
+          this.usedStepBoxList.removeBox(id)
+          this.spareStepBoxList.addBox(box)
         }
       }
     }
     // Now we sort the content of the BoxLists. Easy to sort the used StepType BoxList...
-    this.usedStepTypeList.setBoxesOrder(this.project.steps.map(step => step.typeId))
+    this.usedStepBoxList.setBoxesOrder(this.project.steps.map(step => step.typeId))
     // Tricky to sort the available StepType BoxList. We get the unused StepTypes from `stepTypeMap`,
     // then we sort them and finally we keep only the IDs in order to call BoxList#setBoxesOrder().
     let ids = Array.from(this.stepTypeMap.values()).filter((stepType) => {
@@ -239,7 +275,7 @@ export default class ProjectStepsPanel {
     }).sort((a: StepTypeModel, b: StepTypeModel) => {
       return a.orderNum! - b.orderNum!
     }).map(stepType => stepType.id)
-    this.availableStepTypeList.setBoxesOrder(ids)
+    this.spareStepBoxList.setBoxesOrder(ids)
   }
 
   /**

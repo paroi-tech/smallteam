@@ -14,7 +14,8 @@ const template = require("html-loader!./projectboard.html")
 const menuItems = [
   { id: "editProject", label: "Edit project", eventName: "editProject" },
   { id: "showOnHoldTasks", label: "Show on hold tasks", eventName: "showOnHoldTasks" },
-  { id: "showArchivedTasks", label: "Show archived tasks", eventName: "showArchivedTasks" }
+  { id: "showArchivedTasks", label: "Show archived tasks", eventName: "showArchivedTasks" },
+  { id: "deleteProject", label: "Delete project", eventName: "deleteProject" }
 ]
 
 /**
@@ -63,6 +64,12 @@ export default class ProjectBoard implements Panel {
 
   /**
    * Listen to event from child components.
+   *
+   * Handled events are:
+   *  - TaskBox selection
+   *  - Menu edition request
+   *  - StepsPanel display request
+   *  - Project deletion request
    */
   private listenToChildren() {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
@@ -75,6 +82,19 @@ export default class ProjectBoard implements Panel {
       if (task.id === this.project.rootTaskId) // The rootTask panel is always displayed.
         return
       this.showStepsPanel(task)
+    })
+    this.dropdownMenu.bkb.on("deleteProject", "eventOnly", async (ev) => {
+      if (this.project.tasks && this.project.tasks.length !== 0) {
+        alert("Sorry. The project can not be deleted. It contains some tasks.")
+        return
+      }
+      if (!confirm("Are you sure you want to delete this project"))
+        return
+      try {
+        await this.model.exec("delete", "Project", { id: this.project.id })
+      } catch (error) {
+        alert("Unable to delete project. Try again later.")
+      }
     })
   }
 
