@@ -120,8 +120,10 @@ export default class BoxList<T extends Box> {
    */
   public removeBox(boxId: string) {
     let li = this.boxMap.get(boxId)
-    if (li)
+    if (li) {
       this.ul.removeChild(li)
+      this.boxMap.delete(boxId)
+    }
   }
 
   /**

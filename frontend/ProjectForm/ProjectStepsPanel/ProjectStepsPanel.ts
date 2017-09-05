@@ -12,7 +12,7 @@ export default class ProjectStepsPanel {
   private usedStepBoxList: BoxList<StepTypeBox>
 
   private model: Model
-  private project: ProjectModel | null = null
+  private project: ProjectModel | undefined = undefined
 
   /**
    * Map used to store StepTypeBoxes created in the panel.
@@ -52,7 +52,7 @@ export default class ProjectStepsPanel {
    *
    * @param project
    */
-  public setProject(project: ProjectModel | null) {
+  public setProject(project: ProjectModel | undefined) {
     this.clear()
     this.project = project
     if (project) {

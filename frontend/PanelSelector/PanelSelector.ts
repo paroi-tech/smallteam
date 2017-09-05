@@ -52,6 +52,8 @@ export default class PanelSelector {
   private settingMenu: Component<DropdownMenu>
   private currentPanel: Panel | undefined
 
+  private projectForm: ProjectForm
+
   private panelMap: Map<string, PanelInfo> = new Map()
 
   private view: MonkberryView
@@ -114,8 +116,12 @@ export default class PanelSelector {
     this.dropdownMenuEl.appendChild(this.settingMenu.el)
     this.settingMenu.addItems(settingMenuItems)
 
-    // We have to do this, or else the project board won't be able to display the step type panel later.
-    // See the PanelSelector#showSettingPanel() for details.
+    this.projectForm = this.dash.create(ProjectForm, { args: [] })
+    this.projectForm.hide()
+    this.panelContainerEl.appendChild(this.projectForm.el)
+
+    // We have to do this, or else the project board won't be able to display the StepTypePanel
+    // and the ProjectForm later. See the PanelSelector#showSettingPanel() for details.
     this.panelMap.set("stepTypePanel", { type: StepTypePanel })
   }
 
@@ -126,7 +132,9 @@ export default class PanelSelector {
     this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
       this.showProjectForm(project)
     })
-    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", data => this.showProjectBoard(data.itemId))
+    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", data => {
+      this.showProjectBoard(data.itemId)
+    })
     this.settingMenu.bkb.on("createProject", "dataFirst", () => this.showProjectForm())
     this.settingMenu.bkb.on("manageStepTypes", "dataFirst", () => {
       this.showSettingPanel("stepTypePanel")
@@ -227,51 +235,33 @@ export default class PanelSelector {
   }
 
   /**
-   * Show a project form in the PanelSelector.
+   * Show the project form in the PanelSelector.
    *
-   * @param project the project which form should be displayed. If `undefined` a blak for is displayed.
-   */
-  private showProjectForm(project?: ProjectModel) {
-    if (project) {
-      let formId = "ProjecForm" + ":" + project.id
-      let info = this.panelMap.get(formId)
-      if (!info) {
-        info = { type: ProjectBoard, projectModel: project }
-        this.panelMap.set(formId, info)
-      }
-      if (!info.panel) {
-        let form = this.dash.create(ProjectForm, { args: [ this, project ] })
-        this.panelContainerEl.appendChild(form.el)
-        info.panel = form
-      }
-      this.setCurrentPanel(info.panel)
-    } else {
-      let form = this.dash.create(ProjectForm, {
-        args: [ this ]
-      })
-      this.panelContainerEl.appendChild(form.el)
-      this.setCurrentPanel(form)
-    }
-  }
-
-  /**
-   * Inform the PanelSelector to use a ProjectForm for a given project.
-   * This function is necessary since ProjectForms are not created for a specific project. So after a
-   * ProjectForm was used to create a project, it has to prevent its PanelSelector that it is now linked to
-   * a project.
-   *
-   * @param form
    * @param project
    */
-  public linkFormToProject(form: ProjectForm, project: ProjectModel) {
-    let info: PanelInfo = {
-      panel: form,
-      projectModel: project,
-      type: ProjectForm
-    }
-    let formId = "ProjectForm" + ":" + project.id
-    this.panelMap.set(formId, info)
+  private showProjectForm(project?: ProjectModel) {
+    this.projectForm.setProject(project)
+    this.setCurrentPanel(this.projectForm)
   }
+
+  // /**
+  //  * Inform the PanelSelector to use a ProjectForm for a given project.
+  //  * This function is necessary since ProjectForms are not created for a specific project. So after a
+  //  * ProjectForm was used to create a project, it has to prevent its PanelSelector that it is now linked to
+  //  * a project.
+  //  *
+  //  * @param form
+  //  * @param project
+  //  */
+  // public linkFormToProject(form: ProjectForm, project: ProjectModel) {
+  //   let info: PanelInfo = {
+  //     panel: form,
+  //     projectModel: project,
+  //     type: ProjectForm
+  //   }
+  //   let formId = "ProjectForm" + ":" + project.id
+  //   this.panelMap.set(formId, info)
+  // }
 
   /**
    * Display a setting panel.
