@@ -45,15 +45,16 @@ export default class ProjectBoard implements Panel {
    */
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
-    this.el = this.initComponents()
-    this.initSubComponents()
+    this.el = this.createComponents()
+    this.createSubComponents()
     this.listenToChildren()
+    this.listenToModel()
   }
 
   /**
    * Create JQuery objects from the component template.
    */
-  private initComponents() {
+  private createComponents() {
     let $container = $(template)
     $container.find("span.js-title").text(this.project.name)
     this.dropdownMenuContainerEl = $container.find(".js-dropdown-menu-container").get(0)
@@ -73,7 +74,7 @@ export default class ProjectBoard implements Panel {
    */
   private listenToChildren() {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
-      this.taskPanel.fillWith(task)
+      this.taskPanel.setTask(task)
     })
     this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
       this.dash.emit("editProject", this.project)
@@ -85,7 +86,7 @@ export default class ProjectBoard implements Panel {
     })
     this.dropdownMenu.bkb.on("deleteProject", "eventOnly", async (ev) => {
       if (this.project.tasks && this.project.tasks.length !== 0) {
-        alert("Sorry. The project can not be deleted. It contains some tasks.")
+        alert("Sorry. The project can not be deleted. It contains tasks.")
         return
       }
       if (!confirm("Are you sure you want to delete this project"))
@@ -101,7 +102,7 @@ export default class ProjectBoard implements Panel {
   /**
    * Create ProjectBoard inner components, i.e. a TaskPanel and StepsPanels.
    */
-  private initSubComponents() {
+  private createSubComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       args: ["ProjectBoardDropdownMenu", "ProjectBoard dropdown menu", "left"]
     })
@@ -118,17 +119,22 @@ export default class ProjectBoard implements Panel {
 
   /**
    * Listen to model events.
+   *
+   * Handled event are:
+   *  - Task deletion
    */
   private listenToModel() {
-    // When a new task is created and its parent is the project main task, we have to add a new
-    // StepsPanel to the project board.
-    // FIXME: this is no longer useful.
-    // this.model.on("createTask", "dataFirst", data => {
-    //   let task = data.model as TaskModel
-    //   if (task.projectId == this.project.id && task.parentTaskId == this.project.rootTaskId) {
-    //     this.createStepsPanel(task)
-    //   }
-    // })
+    // Task deletion. We check if there is a StepsPanel created for the task and remove it.
+    this.model.on("change", "dataFirst", data => {
+      if (data.type !== "Task" || data.cmd !== "delete")
+        return
+      let taskId = data.id as string
+      let panel = this.stepsPanelMap.get(taskId)
+      if (!panel)
+        return
+      this.stepsPanelContainerEl.removeChild(panel.el)
+      this.stepsPanelMap.delete(taskId)
+    })
   }
 
   /**

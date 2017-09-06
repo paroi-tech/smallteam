@@ -9,6 +9,12 @@
 </label>
 <button type="button" class="js-submit-button">
   Submit
-  <span class="js-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
+  <span class="js-submit-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
 </button>
-<div><button class="js-show-stepspanel-button">Show/Hide as parent</button></div>
+<div><button class="js-btn-panel">Show/Hide as parent</button></div>
+<div>
+  <button class="js-btn-delete">
+    Delete task
+    <span class="js-delete-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
+  </button>
+</div>

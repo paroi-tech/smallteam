@@ -5,7 +5,7 @@ import { Type, Identifier } from "../../isomorphic/Cargo"
 import { ProjectFragment, NewProjectFragment, UpdProjectFragment, ProjectQuery, ProjectIdFragment, projectMeta } from "../../isomorphic/fragments/Project"
 import { StepFragment, NewStepFragment, StepIdFragment, stepMeta } from "../../isomorphic/fragments/Step"
 import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
-import { TaskFragment, NewTaskFragment, UpdTaskFragment } from "../../isomorphic/fragments/Task"
+import { TaskFragment, NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorphic/fragments/Task"
 import { ImageFragment } from "../../isomorphic/fragments/Attachment"
 import { ContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
 import { FlagFragment } from "../../isomorphic/fragments/Flag"
@@ -31,7 +31,7 @@ export interface CommandRunner {
 
   exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
   exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
-  // exec(cmd: "delete", type: "Task", taskId: string): Promise<void>
+  exec(cmd: "delete", type: "Task", frag: TaskIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
   exec(cmd: "delete", type: "Step", frag: StepIdFragment): Promise<void>

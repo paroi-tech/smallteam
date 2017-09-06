@@ -42,7 +42,7 @@ export default class StepsPanel {
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
-    this.el = this.initComponents()
+    this.el = this.createComponents()
     this.createBoxLists()
     this.fillBoxLists()
     this.listenToModel()
@@ -52,7 +52,7 @@ export default class StepsPanel {
   /**
    * Create StepsPanel components from the template.
    */
-  private initComponents() {
+  private createComponents() {
     let $container = $(template)
     this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
     this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)
@@ -242,6 +242,7 @@ export default class StepsPanel {
    *  - Step creation, to add a new BoxList.
    *  - Step deletion, to remove the corresponding BoxList.
    *  - Task creation, to create a taskBox for the new task.
+   *  - Task deletion, to remove TaskBox (if any).
    */
   private listenToModel() {
     // StepType update event.
@@ -317,7 +318,22 @@ export default class StepsPanel {
         }
       }
     })
-    // StepType reorder event.
+
+    // Task deletion event.
+    // We check if the StepsPanel contains a TaskBox related to the deleted task.
+    // If yes, we remove the TaskBox from the BoxList and from the StepsPanel taskBoxMap.
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd !== "delete" || data.type !== "Task")
+        return
+      let taskId = data.id as string
+      let taskBox = this.taskBoxMap.get(taskId)
+      if (!taskBox)
+        return
+      let boxList = [...this.boxListMap.values()].find(b => b.hasBox(taskId))
+      if (boxList)
+        boxList.removeBox(taskId)
+      this.taskBoxMap.delete(taskId)
+    })
   }
 
   /**

@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../cargoLoader/CargoLoader"
-import { TaskFragment, NewTaskFragment, newTaskMeta, UpdTaskFragment, updTaskMeta, TaskQuery } from "../../isomorphic/fragments/Task"
+import { TaskFragment, NewTaskFragment, newTaskMeta, TaskIdFragment, UpdTaskFragment, updTaskMeta, TaskQuery } from "../../isomorphic/fragments/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { makeTaskCodeFromStep } from "./queryProject"
@@ -183,6 +183,22 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
     asResult: "fragment",
     markAs: "updated"
   })
+}
+
+// --
+// -- Delete
+// --
+
+export async function deleteTask(loader: CargoLoader, frag: TaskIdFragment) {
+  let cn = await getDbConnection()
+
+  let sql = buildDelete()
+    .deleteFrom("task")
+    .where("task_id", int(frag.id))
+
+  await cn.run(sql.toSql())
+
+  loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
 }
 
 // --

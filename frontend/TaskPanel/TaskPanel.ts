@@ -13,7 +13,10 @@ import * as template  from "./taskpanel.monk"
 export default class TaskPanel implements Panel {
   readonly el: HTMLElement
 
-  private spinner: HTMLElement
+  private labelEl: HTMLInputElement
+  private descriptionEl: HTMLTextAreaElement
+  private submitSpinnerEl: HTMLElement
+  private deleteSpinnerEl: HTMLElement
 
   private view: MonkberryView
   private task: TaskModel | undefined = undefined
@@ -31,19 +34,26 @@ export default class TaskPanel implements Panel {
     let container = document.createElement("div")
     container.classList.add("TaskPanel")
     this.view = MonkBerry.render(template, container)
-    this.spinner = this.view.querySelector(".js-spinner")
+    this.labelEl = this.view.querySelector(".js-task-label") as HTMLInputElement
+    this.descriptionEl = this.view.querySelector(".js-task-description") as HTMLTextAreaElement
+    this.submitSpinnerEl = this.view.querySelector(".js-submit-spinner")
+    this.deleteSpinnerEl = this.view.querySelector(".js-delete-spinner")
 
-    let submitBtn = container.querySelector(".js-submit-button") as HTMLButtonElement
-    if (submitBtn)
-      submitBtn.addEventListener("click", ev => this.updateTask())
+    let submitBtn = this.view.querySelector(".js-submit-button") as HTMLButtonElement
+    submitBtn.addEventListener("click", ev => this.updateTask())
 
-    let showPanelBtn = container.querySelector(".js-show-stepspanel-button") as HTMLButtonElement
-    if (showPanelBtn) {
-      showPanelBtn.addEventListener("click", ev => {
-        if (this.task)
-          this.dash.emit("showStepsPanel", this.task)
-      })
-    }
+    let showPanelBtn = this.view.querySelector(".js-btn-panel") as HTMLButtonElement
+    showPanelBtn.addEventListener("click", ev => {
+      if (this.task)
+        this.dash.emit("showStepsPanel", this.task)
+    })
+
+    let deleteBtn = this.view.querySelector(".js-btn-delete") as HTMLButtonElement
+    deleteBtn.addEventListener("click", ev => {
+      if (this.task)
+        this.deleteTask()
+    })
+
     return container
   }
 
@@ -54,10 +64,17 @@ export default class TaskPanel implements Panel {
    */
   private listenToModel() {
     this.model.on("change", "dataFirst", data => {
-      if (data.type != "Task" || data.cmd != "delete")
+      if (data.type !== "Task" || data.cmd !== "delete")
         return
-      if (this.task != undefined && this.task.id == data.id)
-        this.reset()
+      if (this.task !== undefined && this.task.id === data.id)
+        this.clear()
+    })
+    this.model.on("change", "dataFirst", data => {
+      if (!this.task || data.type !== "Task" || data.cmd !== "update")
+        return
+      let task = data.model as TaskModel
+      if (this.task.id === task.id)
+        this.setTask(task) // Refresh the panel, lazy way :)
     })
   }
 
@@ -66,12 +83,27 @@ export default class TaskPanel implements Panel {
    *
    * @param task
    */
-  public fillWith(task: TaskModel) {
+  public setTask(task: TaskModel) {
     this.task = task
     this.view.update({
       description: task.description || "",
       label: task.label
     })
+  }
+
+  private async deleteTask() {
+    if (!this.task)
+      return
+    if ((this.task.children || []).length > 0)
+      return
+    if (!confirm("Do you really want to remove this task?"))
+      return
+
+    try {
+      await this.model.exec("delete", "Task", { id: this.task.id})
+    } catch (error) {
+      console.log("Unable to delete task", error)
+    }
   }
 
   /**
@@ -80,23 +112,24 @@ export default class TaskPanel implements Panel {
   private async updateTask() {
     if (!this.task)
       return
-    let label = this.el.querySelector(".js-task-label") as HTMLInputElement // FIXME: Use instance variable
-    let description = this.el.querySelector(".js-task-description") as HTMLTextAreaElement // FIXME: Use instance variable
-    if (!label || label.value.trim().length < 4 || !description)
+
+    let label = this.labelEl.value.trim()
+    if (label.length < 4)
       return
-    this.spinner.style.display = "inline"
+
+    this.submitSpinnerEl.style.display = "inline"
     try {
-      let task = await this.model.exec("update", "Task", {
+      await this.model.exec("update", "Task", {
         id: this.task.id,
-        label: label.value.trim(),
-        description: description.value.trim() || ""
+        label: label.trim(),
+        description: this.descriptionEl.value.trim() || ""
       })
     } catch(err) {
-      label.value = this.task.label
-      description.value = this.task.description || ""
-      console.error(`Error while updating task ${this.task!}: ${err}`)
+      this.labelEl.value = this.task.label
+      this.descriptionEl.value = this.task.description || ""
+      console.error(`Error while updating task ${this.task}: ${err}`)
     }
-    this.spinner.style.display = "none"
+    this.submitSpinnerEl.style.display = "none"
   }
 
   /**
@@ -123,7 +156,7 @@ export default class TaskPanel implements Panel {
   /**
    * Reset the fields in the panel and set `currentTask` to `undefined`.
    */
-  public reset() {
+  public clear() {
     this.task = undefined
     this.view.update({
       description: "",

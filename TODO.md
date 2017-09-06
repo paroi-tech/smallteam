@@ -28,12 +28,6 @@ the time, so I can't use JIRA.
 
 # Lionel
 
-- Reusable forms:
-  - `ProjectForm.setProject(project: ProjectModel | null)`
-    - In `ProjectForm/ProjectStepsPanel/ProjectStepsPanel.ts`, implement the method `clear` and make the instance reusable
-  - `StepTypeForm.setProject(stepType: StepTypeModel | null)`
-  - `TaskForm.setTask(task: TaskModel)`
-- Add `disable` method to BoxList.
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - **Task panel**:
   - Allow to delete a task that doesn't have child (after user confirmation)
@@ -49,6 +43,7 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- Add `disable` method to BoxList.
 - **Task panel**:
   - For tasks without child: add a button "Show/Hide as parent"
 - **ProjectForm**:
@@ -58,3 +53,8 @@ the time, so I can't use JIRA.
 - **StepsPanel**: Add a button near the title for slide up and slide down the content (*)
 - For each form:
   - Add a flag "loading" on each button "Submit" (*)
+- Reusable forms:
+  - `ProjectForm.setProject(project: ProjectModel | null)`
+    - In `ProjectForm/ProjectStepsPanel/ProjectStepsPanel.ts`, implement the method `clear` and make the instance reusable
+  - `StepTypeForm.setProject(stepType: StepTypeModel | null)`
+  - `TaskForm.setTask(task: TaskModel)`
