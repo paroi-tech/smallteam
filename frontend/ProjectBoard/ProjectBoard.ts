@@ -45,8 +45,8 @@ export default class ProjectBoard implements Panel {
    */
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
-    this.el = this.createComponents()
-    this.createSubComponents()
+    this.el = this.createHtmlElements()
+    this.createChildComponents()
     this.listenToChildren()
     this.listenToModel()
   }
@@ -54,7 +54,7 @@ export default class ProjectBoard implements Panel {
   /**
    * Create JQuery objects from the component template.
    */
-  private createComponents() {
+  private createHtmlElements() {
     let $container = $(template)
     $container.find("span.js-title").text(this.project.name)
     this.dropdownMenuContainerEl = $container.find(".js-dropdown-menu-container").get(0)
@@ -102,7 +102,7 @@ export default class ProjectBoard implements Panel {
   /**
    * Create ProjectBoard inner components, i.e. a TaskPanel and StepsPanels.
    */
-  private createSubComponents() {
+  private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       args: ["ProjectBoardDropdownMenu", "ProjectBoard dropdown menu", "left"]
     })

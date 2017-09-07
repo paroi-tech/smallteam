@@ -44,14 +44,14 @@ export default class ProjectForm implements Panel {
    */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.el = this.initComponents()
+    this.el = this.createHtmlElements()
     this.listenToForm()
   }
 
   /**
    * Create ProjectForm elements from template.
    */
-  private initComponents() {
+  private createHtmlElements() {
     let wrapperEl = document.createElement("div")
 
     wrapperEl.classList.add("ProjectForm")

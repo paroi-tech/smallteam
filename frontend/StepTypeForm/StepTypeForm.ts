@@ -1,8 +1,8 @@
 import * as $ from "jquery"
-import { Dash, Bkb } from "bkb"
+import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
 import { Model, StepTypeModel } from "../Model/Model"
-
+import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 const template = require("html-loader!./steptypeform.html")
 
 /**
@@ -11,13 +11,18 @@ const template = require("html-loader!./steptypeform.html")
 export default class StepTypeForm {
   readonly el: HTMLElement
 
+  private dropdownMenuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
   private stepTypeIdEl: HTMLInputElement
   private stepTypeNameEl: HTMLInputElement
   private stepTypeIndexEl: HTMLInputElement
   private submitButton: HTMLButtonElement
 
+  private dropdownMenu: Component<DropdownMenu>
+
   private stepType: StepTypeModel | undefined = undefined
+
+  private model: Model
 
   /**
    * Create a new StepTypeForm.
@@ -27,15 +32,28 @@ export default class StepTypeForm {
    * @param dash - the current application dash
    */
   constructor(private dash: Dash<App>) {
-    this.el = this.initComponents()
+    this.model = this.dash.app.model
+    this.el = this.createHtmlElements()
+    this.createChildComponents()
     this.listenToForm()
+    this.dropdownMenu.bkb.on("deleteCurrentStepType", "eventOnly", ev => {
+      this.deleteCurrentStepType()
+    })
+    this.model.on("change", "dataFirst", data => {
+      if (!this.stepType || data.type !== "StepType" || data.cmd != "delete")
+        return
+      let id = data.id as string
+      if (this.stepType.id === id)
+        this.clear()
+    })
   }
 
   /**
-   * Create JQuery objects from template.
+   * Create StepTypeForm HTML elements.
    */
-  private initComponents() {
+  private createHtmlElements() {
     let $container = $(template)
+    this.dropdownMenuContainerEl = $container.find(".js-menu-container").get(0)
     let $fieldContainer = $container.find(".js-field-container")
     this.stepTypeIdEl = $fieldContainer.find(".js-steptype-id").get(0) as HTMLInputElement
     this.stepTypeNameEl = $fieldContainer.find(".js-steptype-name").get(0) as HTMLInputElement
@@ -43,6 +61,18 @@ export default class StepTypeForm {
     this.submitButton = $fieldContainer.find(".js-submit-btn").get(0) as HTMLButtonElement
     this.fieldContainerEl = $fieldContainer.get(0)
     return $container.get(0)
+  }
+
+  private createChildComponents() {
+    this.dropdownMenu = this.dash.create(DropdownMenu, {
+      args: ["ProjectFormDropdownMenu", "ProjectForm dropdown menu", "right"]
+    })
+    this.dropdownMenu.addItem({
+      id: "deleteCurrentStepType",
+      label: "Delete step type",
+      eventName : "deleteCurrentStepType"
+    })
+    this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
   }
 
   /**
@@ -72,8 +102,8 @@ export default class StepTypeForm {
    *
    * @param stepType - the step type to show in the form
    */
-  public fillWith(stepType: StepTypeModel) {
-    this.reset()
+  public setStepType(stepType: StepTypeModel) {
+    this.clear()
     this.stepType = stepType
     this.stepTypeIdEl.value = stepType.id
     this.stepTypeNameEl.value = stepType.name
@@ -91,8 +121,8 @@ export default class StepTypeForm {
     indicatorEl.style.display = "inline"
     let fragUpd = { name }
     try {
-      let stepType = await this.dash.app.model.exec("create", "StepType", fragUpd)
-      this.fillWith(stepType)
+      let stepType = await this.model.exec("create", "StepType", fragUpd)
+      this.setStepType(stepType)
       this.dash.emit("stepTypeCreated", stepType)
     } catch (error) {
       console.error(`Impossible to create the step type ${name}...`, error)
@@ -120,14 +150,30 @@ export default class StepTypeForm {
       name: newName
     }
     try {
-      let stepType = await this.dash.app.model.exec("update", "StepType", fragUpd)
-      this.fillWith(stepType)
+      let stepType = await this.model.exec("update", "StepType", fragUpd)
+      this.setStepType(stepType)
     } catch (err) {
-      this.reset()
+      this.clear()
       if (this.stepType)
-        this.fillWith(this.stepType)
+        this.setStepType(this.stepType)
     }
     indicatorEl.style.display = "none"
+  }
+
+  /**
+   * Delete the form current StepType.
+   */
+  private async deleteCurrentStepType() {
+    // if (!this.stepType)
+    //   return
+    // try {
+    //   let w = await this.stepType.whoUse()
+    //   if (w.length !== 0)
+    //     return
+    //   await this.model.exec("delete", "StepType", { id: this.stepType.id })
+    // } catch (error) {
+    //   console.log(`Error while deleting StepType with ID: ${this.stepType.id} in StepTypeForm`)
+    // }
   }
 
   /**
@@ -142,15 +188,15 @@ export default class StepTypeForm {
    *
    * Its fields are reinitialized and the embedded step type is set to `undefined`.
    */
-  public reset() {
+  public clear() {
     this.stepType = undefined
-    this.resetFields()
+    this.clearFields()
   }
 
   /**
    * Reset the fileds in the form.
    */
-  private resetFields() {
+  private clearFields() {
     this.stepTypeIdEl.value = ""
     this.stepTypeNameEl.value = ""
     this.stepTypeIndexEl.value = ""

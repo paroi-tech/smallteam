@@ -45,8 +45,8 @@ export default class StepTypePanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.timer = undefined
-    this.el = this.initComponents().get(0)
-    this.initSubComponents()
+    this.el = this.createHtmlElements().get(0)
+    this.createChildComponents()
     this.loadStepTypes()
     this.listenToChildComponents()
     this.listenToModel()
@@ -59,7 +59,7 @@ export default class StepTypePanel {
    */
   private listenToChildComponents() {
     this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").call("dataFirst", stepType => {
-      this.form.fillWith(stepType)
+      this.form.setStepType(stepType)
     })
   }
 
@@ -75,7 +75,7 @@ export default class StepTypePanel {
       let stepType = data.model as StepTypeModel
       let box = this.dash.create(StepTypeBox, { args: [ stepType ] })
       this.boxList.addBox(box)
-      this.form.fillWith(stepType)
+      this.form.setStepType(stepType)
     })
     // StepType deletion.
     this.model.on("change", "dataFirst", data => {
@@ -83,16 +83,14 @@ export default class StepTypePanel {
         return
       this.boxList.removeBox(data.id as string)
       if (this.form.currentStepType != undefined && this.form.currentStepType.id == data.id)
-        this.form.reset()
+        this.form.clear()
     })
   }
 
   /**
-   * Create JQuery objects from the component template.
-   *
-   * Also add an event handler for click on `Add` button.
+   * Create StepTypePanel HTML elements from the template.
    */
-  private initComponents() {
+  private createHtmlElements() {
     let $container = $(template)
     this.$boxlistContainer = $container.find(".js-boxlist-container")
     this.$formContainer = $container.find(".js-edit-form-container")
@@ -111,7 +109,7 @@ export default class StepTypePanel {
   /**
    * Initialize the BoxList and Form components of the panel.
    */
-  private initSubComponents() {
+  private createChildComponents() {
     this.boxList = this.dash.create(BoxList, {
       args: [ { id: "", name: "Step types", group: undefined, sort: true } ]
     })
@@ -176,7 +174,7 @@ export default class StepTypePanel {
       console.log("Sorry. Unable to save the new order of steps on server.", err)
     }
     this.boxList.enable(true)
-    this.form.reset()
+    this.form.clear()
   }
 
   /**

@@ -27,10 +27,10 @@ export default class TaskPanel implements Panel {
    */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.el = this.createDom()
+    this.el = this.createHtmlElements()
   }
 
-  private createDom() {
+  private createHtmlElements() {
     let container = document.createElement("div")
     container.classList.add("TaskPanel")
     this.view = MonkBerry.render(template, container)

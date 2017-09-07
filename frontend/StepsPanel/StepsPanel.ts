@@ -42,17 +42,17 @@ export default class StepsPanel {
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
-    this.el = this.createComponents()
+    this.el = this.createHtmlElements()
     this.createBoxLists()
     this.fillBoxLists()
     this.listenToModel()
-    this.listenToChildrenComponents()
+    this.listenToChildren()
   }
 
   /**
    * Create StepsPanel components from the template.
    */
-  private createComponents() {
+  private createHtmlElements() {
     let $container = $(template)
     this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
     this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)
@@ -195,7 +195,7 @@ export default class StepsPanel {
    *  - boxListItemAdded
    *  - boxListSortingUpdated
    */
-  private listenToChildrenComponents() {
+  private listenToChildren() {
     // this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
     //   console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
     // })

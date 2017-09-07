@@ -29,8 +29,6 @@ the time, so I can't use JIRA.
 # Lionel
 
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
-- **Task panel**:
-  - Allow to delete a task that doesn't have child (after user confirmation)
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
@@ -45,6 +43,7 @@ the time, so I can't use JIRA.
 
 - Add `disable` method to BoxList.
 - **Task panel**:
+  - Allow to delete a task that doesn't have child (after user confirmation)
   - For tasks without child: add a button "Show/Hide as parent"
 - **ProjectForm**:
   - Do not use the title to open the form, add a DropdownMenu button (`…`) near the title with following items:

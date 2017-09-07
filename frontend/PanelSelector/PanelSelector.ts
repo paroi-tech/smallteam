@@ -71,15 +71,15 @@ export default class PanelSelector {
    */
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
-    this.el = this.initView()
-    this.initSubComponents()
+    this.el = this.createView()
+    this.createChildComponents()
     this.listenToModel()
     this.listenToEvents()
     this.loadProjects()
     makeTests(this.el, this.dash.app.model) // TODO:  Remove this line
   }
 
-  private initView() {
+  private createView() {
     let wrapperEl = document.createElement("div")
     this.view = render(template, wrapperEl)
 
@@ -104,7 +104,7 @@ export default class PanelSelector {
   /**
    * Create PanelSelector subcomponents.
    */
-  private initSubComponents() {
+  private createChildComponents() {
     this.menu = this.dash.create(Menu, {
       args: ["PanelSelectorMenu", "Project selection menu"]
     })

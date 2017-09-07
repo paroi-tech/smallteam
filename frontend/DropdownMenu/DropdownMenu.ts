@@ -28,13 +28,13 @@ export class DropdownMenu {
    */
   constructor(private dash: Dash<App>, readonly id: string, readonly name: string, readonly align: Alignment) {
     this.itemMap = new Map<string, HTMLElement>()
-    this.el = this.initComponents()
+    this.el = this.createHtmlElements()
   }
 
   /**
    * Create JQuery objects from the component template.
    */
-  private initComponents(): HTMLElement {
+  private createHtmlElements(): HTMLElement {
     let $container = $(template)
     this.ul = $container.find(".js-ul").get(0)
     this.ul.style[this.align] = "0"
