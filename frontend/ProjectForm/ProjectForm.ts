@@ -4,7 +4,7 @@ import { Model, ProjectModel } from "../Model/Model"
 import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
 import PanelSelector, { Panel } from "../PanelSelector/PanelSelector"
 import { render } from "monkberry"
-import directives from 'monkberry-directives'
+import directives from "monkberry-directives"
 import * as template from "./projectform.monk"
 
 /**

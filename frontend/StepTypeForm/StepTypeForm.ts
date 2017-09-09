@@ -3,7 +3,8 @@ import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
 import { Model, StepTypeModel } from "../Model/Model"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
-const template = require("html-loader!./steptypeform.html")
+import { render } from "monkberry"
+import * as template from "./steptypeform.monk"
 
 /**
  * Component used to create and update step types.
@@ -13,12 +14,12 @@ export default class StepTypeForm {
 
   private dropdownMenuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
-  private stepTypeIdEl: HTMLInputElement
   private stepTypeNameEl: HTMLInputElement
   private stepTypeIndexEl: HTMLInputElement
   private submitButton: HTMLButtonElement
 
   private dropdownMenu: Component<DropdownMenu>
+  private view: MonkberryView
 
   private stepType: StepTypeModel | undefined = undefined
 
@@ -35,34 +36,31 @@ export default class StepTypeForm {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
     this.createChildComponents()
+    this.listenToChildren()
     this.listenToForm()
-    this.dropdownMenu.bkb.on("deleteCurrentStepType", "eventOnly", ev => {
-      this.deleteCurrentStepType()
-    })
-    this.model.on("change", "dataFirst", data => {
-      if (!this.stepType || data.type !== "StepType" || data.cmd != "delete")
-        return
-      let id = data.id as string
-      if (this.stepType.id === id)
-        this.clear()
-    })
+    this.listenToModel()
   }
 
   /**
    * Create StepTypeForm HTML elements.
    */
   private createHtmlElements() {
-    let $container = $(template)
-    this.dropdownMenuContainerEl = $container.find(".js-menu-container").get(0)
-    let $fieldContainer = $container.find(".js-field-container")
-    this.stepTypeIdEl = $fieldContainer.find(".js-steptype-id").get(0) as HTMLInputElement
-    this.stepTypeNameEl = $fieldContainer.find(".js-steptype-name").get(0) as HTMLInputElement
-    this.stepTypeIndexEl = $fieldContainer.find(".js-steptype-index").get(0) as HTMLInputElement
-    this.submitButton = $fieldContainer.find(".js-submit-btn").get(0) as HTMLButtonElement
-    this.fieldContainerEl = $fieldContainer.get(0)
-    return $container.get(0)
+    let wrapperEl = document.createElement("div")
+    wrapperEl.classList.add("StepTypeForm")
+
+    this.view = render(template, wrapperEl)
+    this.dropdownMenuContainerEl = this.view.querySelector(".js-menu-container")
+    this.fieldContainerEl = this.view.querySelector(".js-field-container")
+    this.stepTypeNameEl = this.fieldContainerEl.querySelector(".js-steptype-name") as HTMLInputElement
+    this.stepTypeIndexEl = this.fieldContainerEl.querySelector(".js-steptype-index") as HTMLInputElement
+    this.submitButton = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
+
+    return wrapperEl
   }
 
+  /**
+   * Create DropDownMenu subcomponent.
+   */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       args: ["ProjectFormDropdownMenu", "ProjectForm dropdown menu", "right"]
@@ -73,6 +71,28 @@ export default class StepTypeForm {
       eventName : "deleteCurrentStepType"
     })
     this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
+  }
+
+  /**
+   * Listen to events from child components.
+   */
+  private listenToChildren() {
+    this.dropdownMenu.bkb.on("deleteCurrentStepType", "eventOnly", ev => {
+      this.deleteCurrentStepType()
+    })
+  }
+
+  /**
+   * Listen to events from model.
+   */
+  private listenToModel() {
+    this.model.on("change", "dataFirst", data => {
+      if (!this.stepType || data.type !== "StepType" || data.cmd != "delete")
+        return
+      let id = data.id as string
+      if (this.stepType.id === id)
+        this.clear()
+    })
   }
 
   /**
@@ -105,7 +125,6 @@ export default class StepTypeForm {
   public setStepType(stepType: StepTypeModel) {
     this.clear()
     this.stepType = stepType
-    this.stepTypeIdEl.value = stepType.id
     this.stepTypeNameEl.value = stepType.name
     if (stepType.orderNum)
       this.stepTypeIndexEl.value = stepType.orderNum.toString()
@@ -164,8 +183,9 @@ export default class StepTypeForm {
    * Delete the form current StepType.
    */
   private async deleteCurrentStepType() {
-    // if (!this.stepType)
-    //   return
+    if (!this.stepType)
+      return
+    console.warn("Try to remove StepType...")
     // try {
     //   let w = await this.stepType.whoUse()
     //   if (w.length !== 0)
@@ -197,7 +217,6 @@ export default class StepTypeForm {
    * Reset the fileds in the form.
    */
   private clearFields() {
-    this.stepTypeIdEl.value = ""
     this.stepTypeNameEl.value = ""
     this.stepTypeIndexEl.value = ""
   }
