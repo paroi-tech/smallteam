@@ -1,0 +1,23 @@
+<div class="StepTypeForm-header">
+  <span>Step type form</span>
+  <div class="js-menu-container"></div>
+</div>
+
+<div class="js-field-container">
+  <label class="FormField">
+    <span class="FormField-span">Name</span>
+    <input type="text" class="js-steptype-name" required value="{{ name }}">
+  </label>
+
+  <label class="FormField">
+    <span class="FormField-span">Index</span>
+    <input type="number" class="js-steptype-index" disabled value="{{ orderNum }}">
+  </label>
+
+  <div>
+    <button type="button" class="js-submit-btn">
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
+      Submit
+    </button>
+  </div>
+</div>
