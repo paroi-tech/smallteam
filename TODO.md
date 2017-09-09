@@ -28,6 +28,7 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Refactor Menu and DropDownMenu components
 - Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):

@@ -275,7 +275,7 @@ export default class BoxList<T extends Box> {
   }
 
   /**
-   * Show the Busy indicator.
+   * Show the busy indicator.
    */
   public showBusyIcon() {
     this.busyIndicatorEl.style.display = "inline"

@@ -23,9 +23,10 @@ export default class StepsPanel {
 
   private taskNameEl: HTMLInputElement
   private addTaskSpinnerEl: HTMLElement
+  private busyIndicatorEl: HTMLElement
   private collapsibleEl: HTMLElement
   private boxListContainerEl: HTMLElement
-  private contentWrapperVisible = true
+  private collapsibleElVisible = true
   private visible = true
 
   // BoxLists we created are stored in a map. The keys are the IDs of the project steps.
@@ -56,6 +57,7 @@ export default class StepsPanel {
     let $container = $(template)
     this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
     this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)
+    this.busyIndicatorEl = $container.find(".js-indicator").get(0)
     this.collapsibleEl = $container.find(".js-collapsible").get(0)
     this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
 
@@ -65,9 +67,9 @@ export default class StepsPanel {
 
     let toggleBtn = $container.find(".js-toggle-btn").get(0) as HTMLButtonElement
     toggleBtn.addEventListener("click", ev => {
-      toggleBtn.innerHTML = this.contentWrapperVisible ? "&#9660;" : "&#9650;"
+      toggleBtn.innerHTML = this.collapsibleElVisible ? "&#9660;" : "&#9650;"
       $(this.collapsibleEl).slideToggle()
-      this.contentWrapperVisible = !this.contentWrapperVisible
+      this.collapsibleElVisible = !this.collapsibleElVisible
     })
 
     let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
@@ -133,6 +135,7 @@ export default class StepsPanel {
     else if (!step)
       throw new Error(`Unable to find Step with ID "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
     else {
+      this.disable(true)
       let task = box.task
       try {
         await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
@@ -148,6 +151,7 @@ export default class StepsPanel {
         newList.removeBox(box.task.id)
         oldList.addBox(box)
       }
+      this.enable(true)
     }
   }
 
@@ -213,6 +217,10 @@ export default class StepsPanel {
    * @param ev
    */
   private async onTaskReorder(ev: BoxListEvent) {
+    let boxList = this.boxListMap.get(ev.boxListId)
+    if (!boxList)
+      throw new Error(`Unknown BoxList with ID ${ev.boxListId} in StepPanel ${this.parentTask.label}`)
+    boxList.disable(true)
     try {
       let result = await this.model.reorder("Task", ev.boxIds, this.parentTask.id)
       console.log(`Tasks successfully reordered in StepsPanel "${this.parentTask.label}"`)
@@ -232,6 +240,7 @@ export default class StepsPanel {
       else
         console.error(`Cannot restore order in list "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
     }
+    boxList.enable(true)
   }
 
   /**
@@ -357,6 +366,20 @@ export default class StepsPanel {
   }
 
   /**
+   * Show the busy indicator.
+   */
+  public showBusyIcon() {
+    this.busyIndicatorEl.style.display = "inline"
+  }
+
+  /**
+   * Hide the busy indicator.
+   */
+  public hideBusyIcon() {
+    this.busyIndicatorEl.style.display = "none"
+  }
+
+  /**
    * Show or hide the panel.
    * @param b
    */
@@ -372,5 +395,29 @@ export default class StepsPanel {
    */
   public get isVisible() {
     return this.visible
+  }
+
+  /**
+   * Enable the component, i.e. the collapsible content.
+   *
+   * @param showBusyIcon Indicate if the busy icon should be hidden
+   */
+  public enable(showBusyIcon: boolean = false) {
+    this.collapsibleEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
+    this.collapsibleEl.style.opacity = "1.0"
+    if (showBusyIcon)
+      this.hideBusyIcon()
+  }
+
+  /**
+   * Disable the component, i.e. the collapsible content.
+   *
+   * @param showBusyIcon Indicate if the busy should be shown
+   */
+  public disable(showBusyIcon: boolean = false) {
+    this.collapsibleEl.style.pointerEvents = this.el.style.pointerEvents = "none"
+    this.collapsibleEl.style.opacity = "0.4"
+    if (showBusyIcon)
+      this.showBusyIcon()
   }
 }
