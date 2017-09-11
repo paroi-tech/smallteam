@@ -11,14 +11,7 @@ export interface MenuItem {
   id: string
   label: string
   eventName: string
-}
-
-/**
- * Footprint of object provided when a menu item is selected.
- */
-export interface MenuEvent {
-  menuId: string
-  itemId: string
+  data: any
 }
 
 /**
@@ -36,7 +29,7 @@ export class Menu {
   /**
    * Create a new menu.
    */
-  constructor(private dash: Dash<App>, readonly id: string, readonly name: string) {
+  constructor(private dash: Dash<App>, readonly name: string) {
     this.el = document.createElement("nav")
     this.el.classList.add("Menu")
     this.ul = document.createElement("ul")
@@ -51,17 +44,13 @@ export class Menu {
    */
   public addItem(item: MenuItem) {
     if (this.itemMap.has(item.id))
-      throw new Error(`ID already exists in menu: ${item.id}`)
+      throw new Error(`Item with ID ${item.id} already exists in ${this.name}`)
     let li = document.createElement("li")
     let btn = document.createElement("button")
     btn.type = "button"
     btn.textContent = item.label
     btn.classList.add("MenuBtn")
-    btn.addEventListener("click", (ev) => this.dash.emit(item.eventName, {
-        menuId: this.id,
-        itemId: item.id
-      })
-    )
+    btn.addEventListener("click", (ev) => this.dash.emit(item.eventName, item.data))
     li.appendChild(btn)
     this.ul.appendChild(li)
     this.itemMap.set(item.id, li)
@@ -88,5 +77,27 @@ export class Menu {
       this.ul.removeChild(itemEl)
       this.itemMap.delete(itemId)
     }
+  }
+
+  /**
+   * Disable an item of the menu.
+   *
+   * @param itemId - the id of the item to disable.
+   */
+  public disableItem(itemId: string) {
+    let item = this.itemMap.get(itemId)
+    if (item)
+      item.style.pointerEvents = "none"
+  }
+
+  /**
+   * Enable an item of the menu.
+   *
+   * @param itemId - the id of the item to enable.
+   */
+  public enableItem(itemId: string) {
+    let item = this.itemMap.get(itemId)
+    if (item)
+      item.style.pointerEvents = "auto"
   }
 }

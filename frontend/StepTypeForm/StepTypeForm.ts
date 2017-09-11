@@ -68,7 +68,8 @@ export default class StepTypeForm {
     this.dropdownMenu.addItem({
       id: "deleteCurrentStepType",
       label: "Delete step type",
-      eventName : "deleteCurrentStepType"
+      eventName : "deleteCurrentStepType",
+      data: undefined
     })
     this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
   }

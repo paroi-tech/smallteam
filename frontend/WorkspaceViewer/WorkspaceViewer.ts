@@ -1,6 +1,6 @@
 import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
-import { Menu, MenuItem, MenuEvent } from "../Menu/Menu"
+import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
@@ -40,8 +40,18 @@ interface PanelInfo {
  * Options displayed in the dropdown menu of the PanelSelector.
  */
 const settingMenuItems = [
-  { id: "1", label: "New project", eventName: "createProject" },
-  { id: "2", label: "Manage step types", eventName: "manageStepTypes" }
+  {
+    id: "createProject",
+    label: "New project",
+    eventName: "createProject",
+    data: undefined
+  },
+  {
+    id: "manageStepTypes",
+    label: "Manage step types",
+    eventName: "manageStepTypes",
+    data: undefined
+  }
 ]
 
 export default class PanelSelector {
@@ -90,28 +100,17 @@ export default class PanelSelector {
     return wrapperEl
   }
 
-  // /**
-  //  * Create PanelSelector elements from template.
-  //  */
-  // private initJQueryObjects() {
-  //   let $container = $(template)
-  //   this.menuEl = $container.find(".js-menuLeft")[0]
-  //   this.dropdownMenuEl = $container.find(".js-menuRight")[0]
-  //   this.panelContainerEl = $container.find(".js-panelContainer")[0]
-  //   return $container.get(0)
-  // }
-
   /**
    * Create PanelSelector subcomponents.
    */
   private createChildComponents() {
     this.menu = this.dash.create(Menu, {
-      args: ["PanelSelectorMenu", "Project selection menu"]
+      args: ["Project selection menu"]
     })
     this.menuEl.appendChild(this.menu.el)
 
     this.settingMenu = this.dash.create(DropdownMenu, {
-      args: ["PanelSelectorDropdownMenu", "Global settings menu", "right"]
+      args: ["Global settings menu", "right"]
     })
     this.dropdownMenuEl.appendChild(this.settingMenu.el)
     this.settingMenu.addItems(settingMenuItems)
@@ -132,13 +131,9 @@ export default class PanelSelector {
     this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
       this.showProjectForm(project)
     })
-    this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", data => {
-      this.showProjectWorkspace(data.itemId)
-    })
-    this.settingMenu.bkb.on("createProject", "dataFirst", () => this.showProjectForm())
-    this.settingMenu.bkb.on("manageStepTypes", "dataFirst", () => {
-      this.showSettingPanel("stepTypePanel")
-    })
+    this.menu.bkb.on<string>("projectSelected", "dataFirst", id => this.showProjectWorkspace(id))
+    this.settingMenu.bkb.on("createProject", "eventOnly", () => this.showProjectForm())
+    this.settingMenu.bkb.on("manageStepTypes", "eventOnly", ev => this.showSettingPanel("stepTypePanel"))
   }
 
   /**
@@ -199,7 +194,8 @@ export default class PanelSelector {
     this.menu.addItem({
       id: project.id,
       label: project.code,
-      eventName: "projectSelected"
+      eventName: "projectSelected",
+      data: project.id
     })
   }
 

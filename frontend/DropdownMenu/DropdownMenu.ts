@@ -1,13 +1,12 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { MenuItem, MenuEvent } from "../Menu/Menu"
+import { MenuItem } from "../Menu/Menu"
 
 const template = require("html-loader!./dropdownmenu.html")
 const itemTemplate = require("html-loader!./element.html")
 
 export type Alignment = "left" | "right"
-
 
 /**
  * Dropdown menu component.
@@ -26,7 +25,7 @@ export class DropdownMenu {
   /**
    * Create a new dropdown menu.
    */
-  constructor(private dash: Dash<App>, readonly id: string, readonly name: string, readonly align: Alignment) {
+  constructor(private dash: Dash<App>, readonly name: string, readonly align: Alignment) {
     this.itemMap = new Map<string, HTMLElement>()
     this.el = this.createHtmlElements()
   }
@@ -49,13 +48,13 @@ export class DropdownMenu {
    */
   public addItem(item: MenuItem) {
     if (this.itemMap.has(item.id))
-      throw new Error(`ID already exists in dropdown menu: ${item.id}`)
+      throw new Error(`Item with ID ${item.id} already exists in ${this.name}`)
     let li = $(itemTemplate).get(0)
-    let btn = li.querySelector(".js-btn")
-    btn!.textContent = item.label
-    btn!.addEventListener("click", ev => {
+    let btn = li.querySelector(".js-btn")!
+    btn.textContent = item.label
+    btn.addEventListener("click", ev => {
       this.toggle()
-      this.dash.emit(item.eventName, { menuId: this.id, itemId: item.id })
+      this.dash.emit(item.eventName, item.data)
     })
     this.itemMap.set(item.id, li)
     this.ul.appendChild(li)

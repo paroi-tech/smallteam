@@ -6,7 +6,7 @@ import App from "../App/App"
 import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
-import { MenuItem, MenuEvent } from "../Menu/Menu"
+import { MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 
 const template = require("html-loader!./projectworkspace.html")
@@ -15,22 +15,26 @@ const menuItems = [
   {
     id: "editProject",
     label: "Edit project",
-    eventName: "editProject"
+    eventName: "editProject",
+    data: undefined
   },
   {
     id: "showOnHoldTasks",
     label: "Show on hold tasks",
-    eventName: "showOnHoldTasks"
+    eventName: "showOnHoldTasks",
+    data: undefined
   },
   {
     id: "showArchivedTasks",
     label: "Show archived tasks",
-    eventName: "showArchivedTasks"
+    eventName: "showArchivedTasks",
+    data: undefined
   },
   {
     id: "deleteProject",
     label: "Delete project",
-    eventName: "deleteProject"
+    eventName: "deleteProject",
+    data: undefined
   }
 ]
 
