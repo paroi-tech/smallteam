@@ -7,15 +7,15 @@ import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../Mod
 import { removeAllChildren } from "../libraries/utils"
 import { toDebugObj } from "../../isomorphic/libraries/helpers"
 
-const template = require("html-loader!./stepspanel.html")
+const template = require("html-loader!./taskprogression.html")
 
 /**
  * Component used to display a task and its children (subtasks).
  *
- * A StepsPanel can contain several BoxLists, one BoxList per project step. Substasks are displayed in
- * those BoxLists, according to subtasks states (e.g Todo, Running, Done, etc.)
+ * A TaskProgression can contain several BoxLists, one BoxList per project step. Substasks are displayed
+ * in those BoxLists, according to subtasks states (e.g Todo, Running, Done, etc.)
  */
-export default class StepsPanel {
+export default class TaskProgression {
   readonly el: HTMLElement
 
   private model: Model
@@ -32,11 +32,12 @@ export default class StepsPanel {
   // BoxLists we created are stored in a map. The keys are the IDs of the project steps.
   private boxListMap: Map<string, BoxList<TaskBox>> = new Map()
 
-  // Map used to store TaskBoxes. The keys are the tasks IDs.
+  // Map used to store TaskBoxes. The keys are the task IDs.
   private taskBoxMap: Map<string, TaskBox> = new Map()
 
   /**
-   * Create a new StepsPanel.
+   * Create a new TaskProgression.
+   *
    * @param dash
    * @param parentTask
    */
@@ -51,7 +52,7 @@ export default class StepsPanel {
   }
 
   /**
-   * Create StepsPanel components from the template.
+   * Create TaskProgression components from the template.
    */
   private createHtmlElements() {
     let $container = $(template)
@@ -61,7 +62,7 @@ export default class StepsPanel {
     this.collapsibleEl = $container.find(".js-collapsible").get(0)
     this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
 
-    // If the task of this StepsPanel is the project main task, the panel title is set to 'Main tasks'.
+    // If the task of this TaskProgression is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
     $container.find(".js-title").text(title)
 
@@ -74,7 +75,7 @@ export default class StepsPanel {
 
     let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
     closeBtn.addEventListener("click", ev => {
-      if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask panel.
+      if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask pane.
         this.setVisible(false)
     })
 
@@ -111,7 +112,7 @@ export default class StepsPanel {
   }
 
   /**
-   * Create a TaskBox for a given task.
+   * Create a TaskProgression for a given task.
    * @param task the task for which the box will be created for.
    */
   private createTaskBoxFor(task: TaskModel, idProp = "id") {
@@ -123,6 +124,7 @@ export default class StepsPanel {
 
   /**
    * Handle the move of a TaskBox inside a BoxList.
+   *
    * NOTE: this method is called when a TaskBox is added to a BoxList.
    *
    * @param ev
@@ -131,23 +133,23 @@ export default class StepsPanel {
     let box = this.taskBoxMap.get(ev.boxId)
     let step = this.project.findStep(ev.boxListId)
     if (!box)
-      throw new Error(`Unable to find task with ID "${ev.boxId}" in StepsPanel "${this.parentTask.label}"`)
+      throw new Error(`Unable to find task with ID "${ev.boxId}" in TaskProgression "${this.parentTask.label}"`)
     else if (!step)
-      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
+      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in TaskProgression "${this.parentTask.label}"`)
     else {
       this.disable(true)
       let task = box.task
       try {
         await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
       } catch(err) {
-        console.error(`Unable to update task "${box.task.id}" in StepsPanel "${this.parentTask.label}"`)
+        console.error(`Unable to update task "${box.task.id}" in TaskProgression "${this.parentTask.label}"`)
         // We bring back the TaskBox in its old BoxList.
         let newList = this.boxListMap.get(step.id)
         let oldList = this.boxListMap.get(box.task.currentStep.typeId)
         if (!newList)
-          throw new Error(`Cannot find BoxList with ID "${step.id}" in StepsPanel "${this.parentTask.label}"`)
+          throw new Error(`Cannot find BoxList with ID "${step.id}" in TaskProgression "${this.parentTask.label}"`)
         if (!oldList)
-          throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in StepsPanel "${this.parentTask.label}"`)
+          throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in TaskProgression "${this.parentTask.label}"`)
         newList.removeBox(box.task.id)
         oldList.addBox(box)
       }
@@ -170,7 +172,7 @@ export default class StepsPanel {
         this.taskBoxMap.set(task.id, box)
         list.addBox(box)
       } else
-        console.log(`Unknown Step "${task.currentStep.id}" in StepsPanel`, this)
+        console.log(`Unknown Step "${task.currentStep.id}" in TaskProgression`, this)
     }
   }
 
@@ -201,7 +203,7 @@ export default class StepsPanel {
    */
   private listenToChildren() {
     // this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
-    //   console.log(`TaskBox ${data.id} selected in stepspanel ${this.parentTask.id}`)
+    //   console.log(`TaskBox ${data.id} selected in TaskProgression ${this.parentTask.id}`)
     // })
     this.dash.listenToChildren<BoxEvent>("boxListItemAdded").call("dataFirst", data => {
       this.onTaskBoxMove(data)
@@ -219,13 +221,13 @@ export default class StepsPanel {
   private async onTaskReorder(ev: BoxListEvent) {
     let boxList = this.boxListMap.get(ev.boxListId)
     if (!boxList)
-      throw new Error(`Unknown BoxList with ID ${ev.boxListId} in StepPanel ${this.parentTask.label}`)
+      throw new Error(`Unknown BoxList with ID ${ev.boxListId} in TaskProgression ${this.parentTask.label}`)
     boxList.disable(true)
     try {
       let result = await this.model.reorder("Task", ev.boxIds, this.parentTask.id)
-      console.log(`Tasks successfully reordered in StepsPanel "${this.parentTask.label}"`)
+      console.log(`Tasks successfully reordered in TaskProgression "${this.parentTask.label}"`)
     } catch (err) {
-      console.log(`Impossible to reorder tasks in StepsPanel "${this.parentTask.label}"`)
+      console.log(`Impossible to reorder tasks in TaskProgression "${this.parentTask.label}"`)
       // We restore the previous order of the elements in the BoxList.
       // The following retrieve the child tasks which are in the concerned step.
       let taskIds = this.parentTask.children!.reduce((result: string[], task: TaskModel) => {
@@ -238,7 +240,7 @@ export default class StepsPanel {
       if (list)
         list.setBoxesOrder(taskIds)
       else
-        console.error(`Cannot restore order in list "${ev.boxListId}" in StepsPanel "${this.parentTask.label}"`)
+        console.error(`Cannot restore order in list "${ev.boxListId}" in TaskProgression "${this.parentTask.label}"`)
     }
     boxList.enable(true)
   }
@@ -284,7 +286,7 @@ export default class StepsPanel {
       }
     })
 
-    // Step deletion event. We remove the BoxList from the StepsPanel.
+    // Step deletion event. We remove the BoxList from the TaskProgression.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd === "delete" && data.type === "Step") {
         let stepId = data.id as string
@@ -329,8 +331,8 @@ export default class StepsPanel {
     })
 
     // Task deletion event.
-    // We check if the StepsPanel contains a TaskBox related to the deleted task.
-    // If yes, we remove the TaskBox from the BoxList and from the StepsPanel taskBoxMap.
+    // We check if the TaskProgression contains a TaskBox related to the deleted task.
+    // If yes, we remove the TaskBox from the BoxList and from the TaskProgression taskBoxMap.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd !== "delete" || data.type !== "Task")
         return
@@ -380,7 +382,7 @@ export default class StepsPanel {
   }
 
   /**
-   * Show or hide the panel.
+   * Show or hide the pane.
    * @param b
    */
   public setVisible(b: boolean) {
@@ -391,7 +393,7 @@ export default class StepsPanel {
   }
 
   /**
-   * Tell if the panel is currently visible or hidden.
+   * Tell if the pane is currently visible or hidden.
    */
   public get isVisible() {
     return this.visible

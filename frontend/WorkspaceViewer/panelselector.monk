@@ -1,0 +1,11 @@
+<div class="WorkspaceViewer">
+  <header class="WorkspaceViewer-headerWrapper">
+    <div class="Container WorkspaceViewer-header">
+      <div class="js-menuLeft WorkspaceViewer-menuLeft"></div>
+      <div class="js-menuRight WorkspaceViewer-menuRight"></div>
+    </div>
+  </header>
+  <div class="WorkspaceViewer-body">
+    <div class="Container js-panelContainer"></div>
+  </div>
+</div>

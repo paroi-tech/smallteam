@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
-import { Panel } from "../PanelSelector/PanelSelector"
+import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"

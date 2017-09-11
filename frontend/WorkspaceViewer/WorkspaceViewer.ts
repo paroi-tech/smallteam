@@ -2,7 +2,7 @@ import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
 import { Menu, MenuItem, MenuEvent } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
-import ProjectBoard from "../ProjectBoard/ProjectBoard"
+import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
@@ -26,14 +26,14 @@ export interface Panel {
  *
  * We store data about components currently displayed in the PanelSelector. For now, we plan to display
  * three types of component in the PanelSelector:
- *    - ProjectBoard
+ *    - ProjectWorkspace
  *    - ProjectForm
  *    - StepsTypePanel
  */
 interface PanelInfo {
   panel?: Panel
   projectModel?: ProjectModel
-  type: typeof ProjectBoard | typeof ProjectForm | typeof StepTypePanel
+  type: typeof ProjectWorkspace | typeof ProjectForm | typeof StepTypePanel
 }
 
 /**
@@ -133,7 +133,7 @@ export default class PanelSelector {
       this.showProjectForm(project)
     })
     this.menu.bkb.on<MenuEvent>("projectSelected", "dataFirst", data => {
-      this.showProjectBoard(data.itemId)
+      this.showProjectWorkspace(data.itemId)
     })
     this.settingMenu.bkb.on("createProject", "dataFirst", () => this.showProjectForm())
     this.settingMenu.bkb.on("manageStepTypes", "dataFirst", () => {
@@ -156,15 +156,15 @@ export default class PanelSelector {
         return
       let projectId = data.id as string
       this.projectMap.delete(projectId)
-      let panelInfo = this.panelMap.get("ProjectBoard" + ":" + projectId)
-      if (panelInfo && panelInfo.type === ProjectBoard && panelInfo.panel)
+      let panelInfo = this.panelMap.get("ProjectWorkspace" + ":" + projectId)
+      if (panelInfo && panelInfo.type === ProjectWorkspace && panelInfo.panel)
         this.panelContainerEl.removeChild(panelInfo.panel.el)
       this.menu.removeItem(projectId)
     })
   }
 
   /**
-   * Load projects from model and request the creation of ProjectBoard for each of the projects.
+   * Load projects from model and request the creation of ProjectWorkspace for each of the projects.
    */
   private async loadProjects() {
     try {
@@ -191,10 +191,10 @@ export default class PanelSelector {
    */
   private addProject(project: ProjectModel) {
     this.projectMap.set(project.id, project)
-    let boardId = "ProjectBoard" + ":" + project.id
+    let boardId = "ProjectWorkspace" + ":" + project.id
     this.panelMap.set(boardId, {
       projectModel: project,
-      type: ProjectBoard
+      type: ProjectWorkspace
     })
     this.menu.addItem({
       id: project.id,
@@ -220,13 +220,13 @@ export default class PanelSelector {
    *
    * @param projectId the ID of the project which board has to be shown
    */
-  private showProjectBoard(projectId: string) {
-    let panelId = "ProjectBoard" + ":" + projectId
+  private showProjectWorkspace(projectId: string) {
+    let panelId = "ProjectWorkspace" + ":" + projectId
     let info = this.panelMap.get(panelId)
     if (!info)
       throw new Error(`Unknown project panel ID: ${projectId} in PanelSelector.`)
     if (!info.panel) {
-      info.panel = this.dash.create(ProjectBoard, {
+      info.panel = this.dash.create(ProjectWorkspace, {
         args: [ info.projectModel ]
       })
       this.panelContainerEl.appendChild(info.panel.el)

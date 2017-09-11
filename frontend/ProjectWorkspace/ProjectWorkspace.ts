@@ -1,41 +1,57 @@
 import * as $ from "jquery"
 import { Dash, Bkb, Component } from "bkb"
-import StepsPanel from "../StepsPanel/StepsPanel"
-import TaskPanel from "../TaskPanel/TaskPanel"
+import TaskProgression from "../TaskProgression/TaskProgression"
+import TaskForm from "../TaskForm/TaskForm"
 import App from "../App/App"
-import { Panel } from "../PanelSelector/PanelSelector"
+import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 import { MenuItem, MenuEvent } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 
-const template = require("html-loader!./projectboard.html")
+const template = require("html-loader!./projectworkspace.html")
 
 const menuItems = [
-  { id: "editProject", label: "Edit project", eventName: "editProject" },
-  { id: "showOnHoldTasks", label: "Show on hold tasks", eventName: "showOnHoldTasks" },
-  { id: "showArchivedTasks", label: "Show archived tasks", eventName: "showArchivedTasks" },
-  { id: "deleteProject", label: "Delete project", eventName: "deleteProject" }
+  {
+    id: "editProject",
+    label: "Edit project",
+    eventName: "editProject"
+  },
+  {
+    id: "showOnHoldTasks",
+    label: "Show on hold tasks",
+    eventName: "showOnHoldTasks"
+  },
+  {
+    id: "showArchivedTasks",
+    label: "Show archived tasks",
+    eventName: "showArchivedTasks"
+  },
+  {
+    id: "deleteProject",
+    label: "Delete project",
+    eventName: "deleteProject"
+  }
 ]
 
 /**
- * ProjectBoard component.
+ * ProjectWorkspace component.
  *
  * It can contain several steps panels (one for each project task with children) and
  * a side pane to edit information about a task.
  */
-export default class ProjectBoard implements Panel {
+export default class ProjectWorkspace implements Panel {
   readonly el: HTMLElement
 
   private dropdownMenuContainerEl: HTMLElement
-  private stepsPanelContainerEl: HTMLElement
-  private taskPanelContainerEl: HTMLElement
+  private taskProgressionContainerEl: HTMLElement
+  private taskFormContainerEl: HTMLElement
 
   private model: Model
 
-  private taskPanel: TaskPanel
+  private taskForm: TaskForm
   private dropdownMenu: Component<DropdownMenu>
-  private stepsPanelMap: Map<String, StepsPanel> = new Map()
+  private taskProgressionMap: Map<String, TaskProgression> = new Map()
 
   /**
    * Create a new project board.
@@ -52,14 +68,14 @@ export default class ProjectBoard implements Panel {
   }
 
   /**
-   * Create JQuery objects from the component template.
+   * Create component content from template.
    */
   private createHtmlElements() {
     let $container = $(template)
     $container.find("span.js-title").text(this.project.name)
     this.dropdownMenuContainerEl = $container.find(".js-dropdown-menu-container").get(0)
-    this.stepsPanelContainerEl = $container.find(".js-stepspanel-container").get(0)
-    this.taskPanelContainerEl = $container.find(".js-editpanel-container").get(0)
+    this.taskProgressionContainerEl = $container.find(".js-stepspanel-container").get(0)
+    this.taskFormContainerEl = $container.find(".js-editpanel-container").get(0)
     return $("<div></div>").append($container).get(0)
   }
 
@@ -74,7 +90,7 @@ export default class ProjectBoard implements Panel {
    */
   private listenToChildren() {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).call("dataFirst", task => {
-      this.taskPanel.setTask(task)
+      this.taskForm.setTask(task)
     })
     this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
       this.dash.emit("editProject", this.project)
@@ -82,7 +98,7 @@ export default class ProjectBoard implements Panel {
     this.dash.listenToChildren<TaskModel>("showStepsPanel", { deep: true }).call("dataFirst", task => {
       if (task.id === this.project.rootTaskId) // The rootTask panel is always displayed.
         return
-      this.showStepsPanel(task)
+      this.showTaskProgression(task)
     })
     this.dropdownMenu.bkb.on("deleteProject", "eventOnly", async (ev) => {
       if (this.project.tasks && this.project.tasks.length !== 0) {
@@ -100,20 +116,20 @@ export default class ProjectBoard implements Panel {
   }
 
   /**
-   * Create ProjectBoard inner components, i.e. a TaskPanel and StepsPanels.
+   * Create ProjectWorkspace inner components, i.e. a TaskPanel and StepsPanels.
    */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["ProjectBoardDropdownMenu", "ProjectBoard dropdown menu", "left"]
+      args: ["ProjectWorkspaceDropdownMenu", "ProjectWorkspace dropdown menu", "left"]
     })
     this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
     this.dropdownMenu.addItems(menuItems)
 
-    this.taskPanel = this.dash.create(TaskPanel)
-    this.taskPanelContainerEl.appendChild(this.taskPanel.el)
+    this.taskForm = this.dash.create(TaskForm)
+    this.taskFormContainerEl.appendChild(this.taskForm.el)
 
     let rootTaskPanel = this.createStepsPanel(this.project.rootTask)
-    this.stepsPanelContainerEl.appendChild(rootTaskPanel.el)
+    this.taskProgressionContainerEl.appendChild(rootTaskPanel.el)
     this.createStepsPanelsForChildren(this.project.rootTask)
   }
 
@@ -129,11 +145,11 @@ export default class ProjectBoard implements Panel {
       if (data.type !== "Task" || data.cmd !== "delete")
         return
       let taskId = data.id as string
-      let panel = this.stepsPanelMap.get(taskId)
+      let panel = this.taskProgressionMap.get(taskId)
       if (!panel)
         return
-      this.stepsPanelContainerEl.removeChild(panel.el)
-      this.stepsPanelMap.delete(taskId)
+      this.taskProgressionContainerEl.removeChild(panel.el)
+      this.taskProgressionMap.delete(taskId)
     })
   }
 
@@ -148,31 +164,33 @@ export default class ProjectBoard implements Panel {
       let panel = this.createStepsPanel(task)
       // The panel created for child tasks are hidden by default.
       panel.setVisible(false)
-      this.stepsPanelContainerEl.appendChild(panel.el)
+      this.taskProgressionContainerEl.appendChild(panel.el)
       this.createStepsPanelsForChildren(task)
     })
   }
 
   /**
    * Utility function to create a StepsPanel for a task.
-   * The panel is appended to the ProjectBoard, but a reference is kept in the stepsPanelMap.
+   * The panel is appended to the ProjectWorkspace, but a reference is kept in the stepsPanelMap.
    * @param task - the task that the panel will be created for.
    */
-  private createStepsPanel(task: TaskModel): StepsPanel {
-    let panel = this.dash.create(StepsPanel, {
+  private createStepsPanel(task: TaskModel): TaskProgression {
+    let pane = this.dash.create(TaskProgression, {
       args: [ task ]
     })
-    this.stepsPanelMap.set(task.id, panel)
-    return panel
+    this.taskProgressionMap.set(task.id, pane)
+    return pane
   }
 
   /**
-   * Display the StepsPanel of a given task.
-   * If there were no StepsPanel for the task, a new StepsPanel is created.
+   * Display the TaskProgression of a given task.
+   *
+   * If there were no TaskProgression for the task, a new one is created.
+   *
    * @param task
    */
-  private showStepsPanel(task: TaskModel) {
-    let panel = this.stepsPanelMap.get(task.id)
+  private showTaskProgression(task: TaskModel) {
+    let panel = this.taskProgressionMap.get(task.id)
     if (panel) {
       panel.setVisible(true)
       return
@@ -182,17 +200,17 @@ export default class ProjectBoard implements Panel {
     let parentTask = task.parent
     if (!parentTask || !parentTask.children)
       throw new Error(`Task without a parent or invalid parent: task ${task} parent: ${parentTask}`)
-    let parentPanel = this.stepsPanelMap.get(parentTask.id)
+    let parentPanel = this.taskProgressionMap.get(parentTask.id)
     if (!parentPanel)
-      throw new Error(`Unable to find StepsPanel with ID ${parentTask.id} in ProjectBoard ${this.project.id}`)
+      throw new Error(`Unable to find StepsPanel with ID ${parentTask.id} in ProjectWorkspace ${this.project.id}`)
     // We find the task that just come before the current task and which StepsPanel is dislayed.
     // First we retrieve the index of the current task in its parent children array.
     let currentTaskIndex = parentTask.children.findIndex(t => t.id === task.id)
     if (currentTaskIndex < 0)
       throw new Error(`Unable to find task in its parent children: task: ${task} parent: ${parentTask}`)
-    let precedingPanel: StepsPanel | undefined = undefined
+    let precedingPanel: TaskProgression | undefined = undefined
     for (let t of parentTask.children.slice(0, currentTaskIndex)) {
-      precedingPanel = this.stepsPanelMap.get(t.id)
+      precedingPanel = this.taskProgressionMap.get(t.id)
       if (precedingPanel !== undefined)
         break
     }
@@ -209,20 +227,20 @@ export default class ProjectBoard implements Panel {
     panel = this.createStepsPanel(task)
     // We insert the new StepsPanel in the DOM. See the discussion for details about the method used:
     // https://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
-    let parentNode = this.stepsPanelContainerEl
+    let parentNode = this.taskProgressionContainerEl
     let referenceNode = precedingPanel ? precedingPanel.el : parentPanel.el
     parentNode.insertBefore(panel.el, referenceNode.nextSibling)
   }
 
   /**
-   * Hide the ProjectBoard.
+   * Hide the ProjectWorkspace.
    */
   public hide() {
     this.el.style.display = "none";
   }
 
   /**
-   * Make the ProjectBoard visible.
+   * Make the ProjectWorkspace visible.
    */
   public show() {
     this.el.style.display = "block";

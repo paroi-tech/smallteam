@@ -1,5 +1,5 @@
 import { ApplicationDash, ApplicationBkb, Log, LogItem, Component } from "bkb"
-import PanelSelector from "../PanelSelector/PanelSelector"
+import WorkspaceViewer from "../WorkspaceViewer/WorkspaceViewer"
 import ModelComp, { Model } from "../Model/Model"
 import { ModelEvent } from "../Model/ModelEngine";
 
@@ -28,7 +28,7 @@ export default class App {
   public start() {
     let appEl = document.querySelector(".js-app")
     if (appEl) {
-      let panel = this.dash.create(PanelSelector)
+      let panel = this.dash.create(WorkspaceViewer)
       appEl.appendChild(panel.el)
     }
   }

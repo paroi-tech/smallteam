@@ -1,16 +1,16 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { Panel } from "../PanelSelector/PanelSelector"
+import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import { Model, TaskModel } from "../Model/Model"
 import * as MonkBerry from "monkberry"
 
-import * as template  from "./taskpanel.monk"
+import * as template  from "./taskform.monk"
 
 /**
  * Component used to display and edit information about a task.
  */
-export default class TaskPanel implements Panel {
+export default class TaskForm implements Panel {
   readonly el: HTMLElement
 
   private labelEl: HTMLInputElement
@@ -23,16 +23,20 @@ export default class TaskPanel implements Panel {
   private model: Model
 
   /**
-   * Create a new TaskPanel.
+   * Create a new TaskForm.
    */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
   }
 
+  /**
+   * Create element content from template.
+   */
   private createHtmlElements() {
     let container = document.createElement("div")
-    container.classList.add("TaskPanel")
+    container.classList.add("TaskForm")
+
     this.view = MonkBerry.render(template, container)
     this.labelEl = this.view.querySelector(".js-task-label") as HTMLInputElement
     this.descriptionEl = this.view.querySelector(".js-task-description") as HTMLTextAreaElement
@@ -79,7 +83,7 @@ export default class TaskPanel implements Panel {
   }
 
   /**
-   * Set the task that the TaskPanel will display.
+   * Set the task that the form will display.
    *
    * @param task
    */
@@ -92,13 +96,10 @@ export default class TaskPanel implements Panel {
   }
 
   private async deleteTask() {
-    if (!this.task)
-      return
-    if ((this.task.children || []).length > 0)
+    if (!this.task || (this.task.children || []).length > 0)
       return
     if (!confirm("Do you really want to remove this task?"))
       return
-
     try {
       await this.model.exec("delete", "Task", { id: this.task.id})
     } catch (error) {
@@ -140,14 +141,14 @@ export default class TaskPanel implements Panel {
   }
 
   /**
-   * Hide the TaskPanel.
+   * Hide the TaskForm.
    */
   public hide() {
     this.el.style.display = "none"
   }
 
   /**
-   * Make the TaskPanel visible.
+   * Make the TaskForm visible.
    */
   public show() {
     this.el.style.display = "block"

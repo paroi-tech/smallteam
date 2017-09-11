@@ -1,4 +1,4 @@
-<div class="BlockTitle">Task panel</div>
+<div class="BlockTitle">Task Form</div>
 <label class="FormField">
   <span class="FormField-span">Name</span>
   <input class="js-task-label" type="text" value="{{ label }}">
