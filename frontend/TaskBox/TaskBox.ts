@@ -46,7 +46,7 @@ export default class TaskBox implements Box {
   private listenToModel() {
     // Task update.
     this.model.on("change", "dataFirst", data => {
-      if (data.type != "Task" || data.cmd != "update")
+      if (data.type !== "Task" || data.cmd !== "update")
         return
       let task = data.model as TaskModel
       if (task.id === this.task.id)

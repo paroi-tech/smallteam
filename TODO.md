@@ -27,13 +27,11 @@ the time, so I can't use JIRA.
 
 
 # Lionel
-- Use a timeout to schedule the call to StepsPanel#onTaskReorder()
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
     - A button "Archived Tasks" => Implement a new component "Archived Tasks"
 - **Step type form**: Allow to delete a stepType when it has no step (after user confirmation)
-- **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
 - For each form:
   - Disable the submit button until there are any changes
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
@@ -42,6 +40,7 @@ the time, so I can't use JIRA.
 
 - Refactor Menu and DropDownMenu components
 - Add `disable` method to BoxList.
+- **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
 - **Task panel**:
   - Allow to delete a task that doesn't have child (after user confirmation)
   - For tasks without child: add a button "Show/Hide as parent"

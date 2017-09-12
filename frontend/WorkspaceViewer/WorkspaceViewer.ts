@@ -128,9 +128,7 @@ export default class PanelSelector {
    * Listen to event from child components.
    */
   private listenToEvents() {
-    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", project => {
-      this.showProjectForm(project)
-    })
+    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", p => this.showProjectForm(p))
     this.menu.bkb.on<string>("projectSelected", "dataFirst", id => this.showProjectWorkspace(id))
     this.settingMenu.bkb.on("createProject", "eventOnly", () => this.showProjectForm())
     this.settingMenu.bkb.on("manageStepTypes", "eventOnly", ev => this.showSettingPanel("stepTypePanel"))
@@ -145,6 +143,7 @@ export default class PanelSelector {
   private listenToModel() {
     // Project creation.
     this.model.on("createProject", "dataFirst", data => this.addProject(data.model))
+
     // Project deletion.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd !== "delete" || data.type !==  "Project")

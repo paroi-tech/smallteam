@@ -202,9 +202,9 @@ export default class ProjectWorkspace implements Panel {
    * @param task
    */
   private showStepSwitcher(task: TaskModel) {
-    let panel = this.stepSwitcherMap.get(task.id)
-    if (panel) {
-      panel.setVisible(true)
+    let stepSwitcher = this.stepSwitcherMap.get(task.id)
+    if (stepSwitcher) {
+      stepSwitcher.setVisible(true)
       return
     }
     // The task does not have a StepSwitcher. We have to create a new one. But before that,
@@ -236,12 +236,12 @@ export default class ProjectWorkspace implements Panel {
     //      In that case, the parent StepSwitcher would exist in the 'stepSwitcherMap', but not in the DOM,
     //      which means that parent.nextSibling will be 'null' and the new node will be added at the end
     //      of the Project, which is not its correct place.
-    panel = this.createStepSwitcher(task)
+    stepSwitcher = this.createStepSwitcher(task)
     // We insert the new StepSwitcher in the DOM. See the discussion for details about the method used:
     // https://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
     let parentNode = this.stepSwitcherContainerEl
     let referenceNode = precedingStepSwitcher ? precedingStepSwitcher.el : parentStepSwitcher.el
-    parentNode.insertBefore(panel.el, referenceNode.nextSibling)
+    parentNode.insertBefore(stepSwitcher.el, referenceNode.nextSibling)
   }
 
   /**
