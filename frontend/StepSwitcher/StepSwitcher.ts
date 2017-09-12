@@ -7,15 +7,15 @@ import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../Mod
 import { removeAllChildren } from "../libraries/utils"
 import { toDebugObj } from "../../isomorphic/libraries/helpers"
 
-const template = require("html-loader!./taskprogression.html")
+const template = require("html-loader!./stepswitcher.html")
 
 /**
  * Component used to display a task and its children (subtasks).
  *
- * A TaskProgression can contain several BoxLists, one BoxList per project step. Substasks are displayed
+ * A StepSwitcher can contain several BoxLists, one BoxList per project step. Substasks are displayed
  * in those BoxLists, according to subtasks states (e.g Todo, Running, Done, etc.)
  */
-export default class TaskProgression {
+export default class StepSwitcher {
   readonly el: HTMLElement
 
   private model: Model
@@ -36,7 +36,7 @@ export default class TaskProgression {
   private taskBoxMap: Map<string, TaskBox> = new Map()
 
   /**
-   * Create a new TaskProgression.
+   * Create a new StepSwitcher.
    *
    * @param dash
    * @param parentTask
@@ -52,7 +52,7 @@ export default class TaskProgression {
   }
 
   /**
-   * Create TaskProgression components from the template.
+   * Create StepSwitcher components from the template.
    */
   private createHtmlElements() {
     let $container = $(template)
@@ -62,7 +62,7 @@ export default class TaskProgression {
     this.collapsibleEl = $container.find(".js-collapsible").get(0)
     this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
 
-    // If the task of this TaskProgression is the project main task, the panel title is set to 'Main tasks'.
+    // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
     $container.find(".js-title").text(title)
 
@@ -75,7 +75,7 @@ export default class TaskProgression {
 
     let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
     closeBtn.addEventListener("click", ev => {
-      if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask pane.
+      if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask StepSwitcher.
         this.setVisible(false)
     })
 
@@ -112,7 +112,7 @@ export default class TaskProgression {
   }
 
   /**
-   * Create a TaskProgression for a given task.
+   * Create a StepSwitcher for a given task.
    * @param task the task for which the box will be created for.
    */
   private createTaskBoxFor(task: TaskModel, idProp = "id") {
@@ -133,23 +133,23 @@ export default class TaskProgression {
     let box = this.taskBoxMap.get(ev.boxId)
     let step = this.project.findStep(ev.boxListId)
     if (!box)
-      throw new Error(`Unable to find task with ID "${ev.boxId}" in TaskProgression "${this.parentTask.label}"`)
+      throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher "${this.parentTask.label}"`)
     else if (!step)
-      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in TaskProgression "${this.parentTask.label}"`)
+      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in StepSwitcher "${this.parentTask.label}"`)
     else {
       this.disable(true)
       let task = box.task
       try {
         await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
       } catch(err) {
-        console.error(`Unable to update task "${box.task.id}" in TaskProgression "${this.parentTask.label}"`)
+        console.error(`Unable to update task "${box.task.id}" in StepSwitcher "${this.parentTask.label}"`)
         // We bring back the TaskBox in its old BoxList.
         let newList = this.boxListMap.get(step.id)
         let oldList = this.boxListMap.get(box.task.currentStep.typeId)
         if (!newList)
-          throw new Error(`Cannot find BoxList with ID "${step.id}" in TaskProgression "${this.parentTask.label}"`)
+          throw new Error(`Cannot find BoxList with ID "${step.id}" in StepSwitcher "${this.parentTask.label}"`)
         if (!oldList)
-          throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in TaskProgression "${this.parentTask.label}"`)
+          throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in StepSwitcher "${this.parentTask.label}"`)
         newList.removeBox(box.task.id)
         oldList.addBox(box)
       }
@@ -172,7 +172,7 @@ export default class TaskProgression {
         this.taskBoxMap.set(task.id, box)
         list.addBox(box)
       } else
-        console.log(`Unknown Step "${task.currentStep.id}" in TaskProgression`, this)
+        console.log(`Unknown Step "${task.currentStep.id}" in StepSwitcher`, this)
     }
   }
 
@@ -203,7 +203,7 @@ export default class TaskProgression {
    */
   private listenToChildren() {
     // this.dash.listenToChildren<TaskModel>("taskBoxSelected").call("dataFirst", data => {
-    //   console.log(`TaskBox ${data.id} selected in TaskProgression ${this.parentTask.id}`)
+    //   console.log(`TaskBox ${data.id} selected in StepSwitcher ${this.parentTask.id}`)
     // })
     this.dash.listenToChildren<BoxEvent>("boxListItemAdded").call("dataFirst", data => {
       this.onTaskBoxMove(data)
@@ -221,13 +221,13 @@ export default class TaskProgression {
   private async onTaskReorder(ev: BoxListEvent) {
     let boxList = this.boxListMap.get(ev.boxListId)
     if (!boxList)
-      throw new Error(`Unknown BoxList with ID ${ev.boxListId} in TaskProgression ${this.parentTask.label}`)
+      throw new Error(`Unknown BoxList with ID ${ev.boxListId} in StepSwitcher ${this.parentTask.label}`)
     boxList.disable(true)
     try {
       let result = await this.model.reorder("Task", ev.boxIds, this.parentTask.id)
-      console.log(`Tasks successfully reordered in TaskProgression "${this.parentTask.label}"`)
+      console.log(`Tasks successfully reordered in StepSwitcher "${this.parentTask.label}"`)
     } catch (err) {
-      console.log(`Impossible to reorder tasks in TaskProgression "${this.parentTask.label}"`)
+      console.log(`Impossible to reorder tasks in StepSwitcher "${this.parentTask.label}"`)
       // We restore the previous order of the elements in the BoxList.
       // The following retrieve the child tasks which are in the concerned step.
       let taskIds = this.parentTask.children!.reduce((result: string[], task: TaskModel) => {
@@ -240,7 +240,7 @@ export default class TaskProgression {
       if (list)
         list.setBoxesOrder(taskIds)
       else
-        console.error(`Cannot restore order in list "${ev.boxListId}" in TaskProgression "${this.parentTask.label}"`)
+        console.error(`Cannot restore order in list "${ev.boxListId}" in StepSwitcher "${this.parentTask.label}"`)
     }
     boxList.enable(true)
   }
@@ -286,7 +286,7 @@ export default class TaskProgression {
       }
     })
 
-    // Step deletion event. We remove the BoxList from the TaskProgression.
+    // Step deletion event. We remove the BoxList from the StepSwitcher.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd === "delete" && data.type === "Step") {
         let stepId = data.id as string
@@ -331,8 +331,8 @@ export default class TaskProgression {
     })
 
     // Task deletion event.
-    // We check if the TaskProgression contains a TaskBox related to the deleted task.
-    // If yes, we remove the TaskBox from the BoxList and from the TaskProgression taskBoxMap.
+    // We check if the StepSwitcher contains a TaskBox related to the deleted task.
+    // If yes, we remove the TaskBox from the BoxList and from the StepSwitcher taskBoxMap.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd !== "delete" || data.type !== "Task")
         return

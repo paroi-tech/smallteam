@@ -250,6 +250,7 @@ export default class ProjectStepsPanel {
         batch.exec("delete", "Step", { id: step.id })
     }
 
+    // Send request to the server...
     try {
       let val = await batch.sendAll()
     } catch (err) {

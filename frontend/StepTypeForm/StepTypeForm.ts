@@ -63,7 +63,7 @@ export default class StepTypeForm {
    */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["ProjectFormDropdownMenu", "ProjectForm dropdown menu", "right"]
+      args: ["StepTypeForm menu", "right"]
     })
     this.dropdownMenu.addItem({
       id: "deleteCurrentStepType",
@@ -186,7 +186,7 @@ export default class StepTypeForm {
   private async deleteCurrentStepType() {
     if (!this.stepType)
       return
-    console.warn("Try to remove StepType...")
+    console.warn("StepType deletion is not implemented...")
     // try {
     //   let w = await this.stepType.whoUse()
     //   if (w.length !== 0)

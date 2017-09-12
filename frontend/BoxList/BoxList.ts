@@ -130,7 +130,7 @@ export default class BoxList<T extends Box> {
    * Remove all elements from the BoxList.
    */
   public clear() {
-    this.boxMap.forEach((val, key) => this.removeBox(key))
+    Array.from(this.boxMap.keys()).forEach(key => this.removeBox(key))
   }
 
   /***
@@ -181,7 +181,7 @@ export default class BoxList<T extends Box> {
   }
 
   /**
-   * Change the title (name) of the list.
+   * Change the title of the list.
    *
    * @param title - the new title.
    */

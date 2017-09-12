@@ -2,7 +2,7 @@ import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ProjectModel } from "../Model/Model"
 import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
-import WorkspaceViewer, { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import * as template from "./projectform.monk"
@@ -80,6 +80,9 @@ export default class ProjectForm implements Panel {
     }
   }
 
+  /**
+   * Submit  button click handler.
+   */
   private async onSubmit() {
     this.submitSpinnerEl.style.display = "inline"
     let code = this.codeEl.value.trim()

@@ -31,7 +31,7 @@ export class DropdownMenu {
   }
 
   /**
-   * Create JQuery objects from the component template.
+   * Create menu content from the template.
    */
   private createHtmlElements(): HTMLElement {
     let $container = $(template)

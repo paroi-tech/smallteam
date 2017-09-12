@@ -49,7 +49,7 @@ export default class TaskForm implements Panel {
     let showPanelBtn = this.view.querySelector(".js-btn-panel") as HTMLButtonElement
     showPanelBtn.addEventListener("click", ev => {
       if (this.task)
-        this.dash.emit("showStepsPanel", this.task)
+        this.dash.emit("showStepSwitcher", this.task)
     })
 
     let deleteBtn = this.view.querySelector(".js-btn-delete") as HTMLButtonElement
