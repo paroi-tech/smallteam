@@ -8,7 +8,7 @@ import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 import { render } from "monkberry"
-import * as template from "./panelselector.monk"
+import * as template from "./workspaceviewer.monk"
 
 // const template = require("html-loader!./panelselector.html")
 

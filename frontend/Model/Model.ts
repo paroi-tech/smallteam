@@ -356,6 +356,7 @@ function registerStep(engine: ModelEngine) {
 // --
 
 export interface StepTypeModel extends StepTypeFragment {
+  isModified(frag: UpdStepTypeFragment): boolean
   whoUse(): Promise<WhoUseItem[]> // TODO: to implement
   readonly isSpecial: boolean
 }
@@ -363,6 +364,11 @@ export interface StepTypeModel extends StepTypeFragment {
 function registerStepType(engine: ModelEngine) {
   engine.registerType("StepType", function (getFrag: () => StepTypeFragment): StepTypeModel {
     let model = {
+      isModified(frag: UpdStepTypeFragment): boolean {
+        if (frag.id !== this.id)
+          throw new Error('ID should match')
+        return frag.name !== this.name
+      },
       get isSpecial() {
         return isStepSpecial(getFrag())
       }

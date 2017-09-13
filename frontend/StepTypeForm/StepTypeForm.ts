@@ -14,9 +14,11 @@ export default class StepTypeForm {
 
   private dropdownMenuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
-  private stepTypeNameEl: HTMLInputElement
-  private stepTypeIndexEl: HTMLInputElement
-  private submitButton: HTMLButtonElement
+  private nameEl: HTMLInputElement
+  private orderNumEl: HTMLInputElement
+  private submitButtonEl: HTMLButtonElement
+  private cancelButtonEl: HTMLButtonElement
+  private submitButtonSpinnerEl: HTMLElement
 
   private dropdownMenu: Component<DropdownMenu>
   private view: MonkberryView
@@ -51,9 +53,11 @@ export default class StepTypeForm {
     this.view = render(template, wrapperEl)
     this.dropdownMenuContainerEl = this.view.querySelector(".js-menu-container")
     this.fieldContainerEl = this.view.querySelector(".js-field-container")
-    this.stepTypeNameEl = this.fieldContainerEl.querySelector(".js-steptype-name") as HTMLInputElement
-    this.stepTypeIndexEl = this.fieldContainerEl.querySelector(".js-steptype-index") as HTMLInputElement
-    this.submitButton = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
+    this.orderNumEl = this.fieldContainerEl.querySelector(".js-ordernum-index") as HTMLInputElement
+    this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
+    this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
 
     return wrapperEl
   }
@@ -100,21 +104,35 @@ export default class StepTypeForm {
    * Add event handlers to events from the form fields.
    */
   private listenToForm() {
-    this.submitButton.addEventListener("click", ev => {
-      let name = this.stepTypeNameEl.value.trim()
-      if (name.length === 0)
+    // Submit button click.
+    this.submitButtonEl.addEventListener("click", ev => {
+      let name = this.nameEl.value.trim()
+      if (name.length === 0) {
         console.log("The name of the step type should contain more characters...")
-      else {
-        if (!this.stepType) // The user wants to create a new StepType...
-          this.addStepType(name)
-        else
-          this.updateStepType(name)
+        return
       }
+      // We determine if the user wants to create a new StepType or update an existing one...
+      let fn = this.stepType ? this.updateStepType : this.addStepType
+      fn.call(this, name)
     })
+
+    // Cancel button click.
+    this.cancelButtonEl.addEventListener("click", ev => {
+      this.clearFields()
+      this.submitButtonEl.setAttribute("disabled", "true")
+      if (this.stepType)
+        this.fillFieldsWithCurrentStepType()
+    })
+
     // Validating the content of the $stepTypeName field triggers the $submitButton click event.
-    this.stepTypeNameEl.addEventListener("keyup", ev => {
-      if (ev.which == 13)
-        this.submitButton.click()
+    this.nameEl.addEventListener("keyup", ev => {
+      if (!this.submitButtonEl.getAttribute("disabled") && ev.which === 13)
+        this.submitButtonEl.click()
+    })
+
+    // Editing the value of the StepType name field enables the submit button.
+    this.nameEl.addEventListener("input", ev => {
+      this.submitButtonEl.removeAttribute("disabled")
     })
   }
 
@@ -126,9 +144,7 @@ export default class StepTypeForm {
   public setStepType(stepType: StepTypeModel) {
     this.clear()
     this.stepType = stepType
-    this.stepTypeNameEl.value = stepType.name
-    if (stepType.orderNum)
-      this.stepTypeIndexEl.value = stepType.orderNum.toString()
+    this.fillFieldsWithCurrentStepType()
   }
 
   /**
@@ -137,17 +153,16 @@ export default class StepTypeForm {
    * @param name - the name of the step type
    */
   private async addStepType(name: string) {
-    let indicatorEl = this.submitButton.querySelector("span")!
-    indicatorEl.style.display = "inline"
+    this.submitButtonSpinnerEl.style.display = "inline"
     let fragUpd = { name }
     try {
       let stepType = await this.model.exec("create", "StepType", fragUpd)
       this.setStepType(stepType)
-      this.dash.emit("stepTypeCreated", stepType)
+      this.submitButtonEl.setAttribute("disabled", "true")
     } catch (error) {
       console.error(`Impossible to create the step type ${name}...`, error)
     }
-    indicatorEl.style.display = "none"
+    this.submitButtonSpinnerEl.style.display = "none"
   }
 
   /**
@@ -159,12 +174,10 @@ export default class StepTypeForm {
    */
   private async updateStepType(newName: string) {
     // The stepType attribute can't be undefined in this function, but since its type is
-    // StepTypeModel | undefined, we have to mdo this control, or else the TS compiler won't be happy.
-    // And I don't want to use the this.stepType! trick...
+    // StepTypeModel | undefined, we have to do this control, or else the TS compiler won't be happy.
     if (!this.stepType)
       return
-    let indicatorEl = this.submitButton.querySelector("span")!
-    indicatorEl.style.display = "inline"
+    this.submitButtonSpinnerEl.style.display = "inline"
     let fragUpd = {
       id: this.stepType.id,
       name: newName
@@ -172,12 +185,13 @@ export default class StepTypeForm {
     try {
       let stepType = await this.model.exec("update", "StepType", fragUpd)
       this.setStepType(stepType)
+      this.submitButtonEl.setAttribute("disabled", "true")
     } catch (err) {
       this.clear()
       if (this.stepType)
         this.setStepType(this.stepType)
     }
-    indicatorEl.style.display = "none"
+    this.submitButtonSpinnerEl.style.display = "none"
   }
 
   /**
@@ -214,11 +228,22 @@ export default class StepTypeForm {
     this.clearFields()
   }
 
+  private fillFieldsWithCurrentStepType() {
+    if (!this.stepType)
+      return
+      this.view.update({
+        name: this.stepType.name,
+        orderNum: (this.stepType.orderNum || "").toString()
+      })
+  }
+
   /**
-   * Reset the fileds in the form.
+   * Reset the fields in the form.
    */
   private clearFields() {
-    this.stepTypeNameEl.value = ""
-    this.stepTypeIndexEl.value = ""
+    this.view.update({
+      name: "",
+      orderNum: ""
+    })
   }
 }

@@ -1,0 +1,18 @@
+.TaskBoard {
+  &-left {
+    height: 100%;
+    overflow: auto;
+    padding: 5px;
+    position: absolute;
+    width: 65%;
+  }
+
+  &-right {
+    height: 100%;
+    overflow: auto;
+    padding: 5px;
+    position: absolute;
+    right: 0;
+    width: 35%;
+  }
+}

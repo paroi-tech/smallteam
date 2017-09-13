@@ -6,18 +6,20 @@
 <div class="js-field-container">
   <label class="FormField">
     <span class="FormField-span">Name</span>
-    <input type="text" class="js-steptype-name" required value="{{ name }}">
+    <input type="text" class="js-name" required value="{{ name }}">
   </label>
 
   <label class="FormField">
     <span class="FormField-span">Index</span>
-    <input type="number" class="js-steptype-index" disabled value="{{ orderNum }}">
+    <input type="number" class="js-ordernum" disabled value="{{ orderNum }}">
   </label>
 
   <div>
-    <button type="button" class="js-submit-btn">
+    <button type="button" class="js-submit-btn" disabled>
       <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
       Submit
     </button>
+    &nbsp;
+    <button type="button" class="js-cancel-btn">Cancel</button>
   </div>
 </div>
