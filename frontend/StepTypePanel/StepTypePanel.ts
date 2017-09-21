@@ -20,7 +20,7 @@ const template = require("html-loader!./steptypepanel.html")
 export default class StepTypePanel {
   readonly el: HTMLElement
 
-  private $boxlistContainer: JQuery
+  private $boxListContainer: JQuery
   private $formContainer: JQuery
   private $addBtn: JQuery
   private $input: JQuery
@@ -92,7 +92,7 @@ export default class StepTypePanel {
    */
   private createHtmlElements() {
     let $container = $(template)
-    this.$boxlistContainer = $container.find(".js-boxlist-container")
+    this.$boxListContainer = $container.find(".js-boxlist-container")
     this.$formContainer = $container.find(".js-edit-form-container")
     this.$addBtn = $container.find(".js-add-form-btn")
     this.$input = $container.find(".js-input")
@@ -116,7 +116,7 @@ export default class StepTypePanel {
     this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
       this.handleBoxlistUpdate(data)
     })
-    this.$boxlistContainer.append(this.boxList.el)
+    this.$boxListContainer.append(this.boxList.el)
 
     this.form = this.dash.create(StepTypeForm, { args: [] })
     this.$formContainer.append(this.form.el)

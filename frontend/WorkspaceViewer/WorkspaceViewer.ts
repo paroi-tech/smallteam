@@ -5,6 +5,7 @@ import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
+import ContributorPanel from "../ContributorPanel/ContributorPanel"
 import { Model, ProjectModel, TaskModel } from "../Model/Model"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 import { render } from "monkberry"
@@ -22,18 +23,19 @@ export interface Panel {
 }
 
 /**
- * Several types of components are displayed in the PanelSelector.
+ * Several types of components are displayed in the WorkspaceViewer.
  *
- * We store data about components currently displayed in the PanelSelector. For now, we plan to display
- * three types of component in the PanelSelector:
+ * We store data about components currently displayed in the WorkspaceViewer. For now, we display
+ * four types of components in the PanelSelector:
  *    - ProjectWorkspace
  *    - ProjectForm
  *    - StepsTypePanel
+ *    - ContributorPanel
  */
 interface PanelInfo {
   panel?: Panel
   projectModel?: ProjectModel
-  type: typeof ProjectWorkspace | typeof ProjectForm | typeof StepTypePanel
+  type: typeof ProjectWorkspace | typeof ProjectForm | typeof StepTypePanel | typeof ContributorPanel
 }
 
 /**
@@ -50,6 +52,12 @@ const settingMenuItems = [
     id: "manageStepTypes",
     label: "Manage step types",
     eventName: "manageStepTypes",
+    data: undefined
+  },
+  {
+    id: "manageContributors",
+    label: "Contributors",
+    eventName: "manageContributors",
     data: undefined
   }
 ]
@@ -75,7 +83,7 @@ export default class PanelSelector {
   private projectMap: Map<string, ProjectModel> = new Map()
 
   /**
-   * Create a nex PanelSelector.
+   * Create a new WorkspaceViewer.
    *
    * @param dash
    */
@@ -119,9 +127,10 @@ export default class PanelSelector {
     this.projectForm.hide()
     this.panelContainerEl.appendChild(this.projectForm.el)
 
-    // We have to do this, or else the project board won't be able to display the StepTypePanel
-    // and the ProjectForm later. See the PanelSelector#showSettingPanel() for details.
+    // We have to do this, or else the project board won't be able to display StepTypePanel
+    // and ContributorPanel later. See the showSettingPanel() method for details.
     this.panelMap.set("stepTypePanel", { type: StepTypePanel })
+    this.panelMap.set("contributorPanel", { type: ContributorPanel })
   }
 
   /**
@@ -132,6 +141,7 @@ export default class PanelSelector {
     this.menu.bkb.on<string>("projectSelected", "dataFirst", id => this.showProjectWorkspace(id))
     this.settingMenu.bkb.on("createProject", "eventOnly", () => this.showProjectForm())
     this.settingMenu.bkb.on("manageStepTypes", "eventOnly", ev => this.showSettingPanel("stepTypePanel"))
+    this.settingMenu.bkb.on("manageContributors", "eventOnly", ev => this.showSettingPanel("contributorPanel"))
   }
 
   /**
@@ -271,6 +281,9 @@ export default class PanelSelector {
     if (!info.panel) {
       if (info.type === StepTypePanel) {
         info.panel = this.dash.create<StepTypePanel>(info.type)
+        this.panelContainerEl.appendChild(info.panel.el)
+      } else if (info.type === ContributorPanel) {
+        info.panel = this.dash.create<ContributorPanel>(info.type)
         this.panelContainerEl.appendChild(info.panel.el)
       } else
         throw new Error(`Unknown Panel type: ${info.type}`)

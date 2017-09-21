@@ -1,4 +1,4 @@
-<div class="js-title BlockTitle">Contributor form</div>
+<div class="js-title BlockTitle">Contributor details</div>
 <div class="js-form">
   <label class="FormField">
     <span class="FormField-span">Name</span>
@@ -6,7 +6,7 @@
   </label>
 
   <label class="FormField">
-    <span class="FormField-span"></span>
+    <span class="FormField-span">Login</span>
     <input type="text" class="js-login" value="{{ login }}">
   </label>
 

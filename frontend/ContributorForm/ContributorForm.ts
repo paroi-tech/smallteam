@@ -3,9 +3,9 @@ import { Bkb, Dash } from "bkb"
 import { Model, ContributorModel } from "../Model/Model"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import * as template from "./projectform.monk"
+import * as template from "./contributorform.monk"
 
-export default class ProjectForm {
+export default class ContributorForm {
   readonly el: HTMLElement
 
   private loginEl: HTMLInputElement
@@ -67,19 +67,7 @@ export default class ProjectForm {
       return
     }
     if (this.contributor)
-      this.createContributor(name, login, "")
-    else
       this.updateContributor(name, login, "")
-  }
-
-  private async createContributor(name: string, login: string, email: string) {
-    let frag = { name, login, email }
-    try {
-      this.contributor = await this.model.exec("create", "Contributor", frag)
-      this.updateView()
-    } catch (err) {
-      console.error(`Unable to create new contributor...`)
-    }
   }
 
   private async updateContributor(name: string, login: string, email: string) {
@@ -108,6 +96,7 @@ export default class ProjectForm {
     this.view.update(this.state)
   }
 
+  // FIXME: Improve this method.
   private validateEmail(email: string): boolean {
     // The total length of an email address is limited to 254 characters.
     // https://en.wikipedia.org/wiki/Email_address
