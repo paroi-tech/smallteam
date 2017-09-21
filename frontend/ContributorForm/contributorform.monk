@@ -1,0 +1,24 @@
+<div class="js-title BlockTitle">Contributor form</div>
+<div class="js-form">
+  <label class="FormField">
+    <span class="FormField-span">Name</span>
+    <input type="text" class="js-name" value="{{ name }}">
+  </label>
+
+  <label class="FormField">
+    <span class="FormField-span"></span>
+    <input type="text" class="js-login" value="{{ login }}">
+  </label>
+
+  <label class="FormField">
+    <span class="FormField-span">Email</span>
+    <input type="email" class="js-email" value="{{ email }}" placeholder="john.doe@example.com">
+  </label>
+
+  <div>
+    <button type="button" :onclick={{ ctrl.submit }}>
+      Submit
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
+    </button>
+  </div>
+</div>

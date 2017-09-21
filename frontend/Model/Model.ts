@@ -7,7 +7,7 @@ import { StepFragment, NewStepFragment, StepIdFragment, stepMeta } from "../../i
 import { StepTypeFragment, NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
 import { TaskFragment, NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorphic/fragments/Task"
 import { ImageFragment } from "../../isomorphic/fragments/Attachment"
-import { ContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
+import { ContributorFragment, NewContributorFragment, UpdContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
 import { FlagFragment } from "../../isomorphic/fragments/Flag"
 import { CommentFragment } from "../../isomorphic/fragments/Comment"
 import { TaskLogEntryFragment } from "../../isomorphic/fragments/TaskLogEntry"
@@ -25,6 +25,9 @@ export interface WhoUseItem {
 }
 
 export interface CommandRunner {
+  exec(cmd: "create", type: "Contributor", frag: NewContributorFragment): Promise<ContributorModel>
+  exec(cmd: "update", type: "Contributor", frag: UpdContributorFragment): Promise<ContributorModel>
+
   exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
   exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
   exec(cmd: "delete", type: "Project", frag: ProjectIdFragment): Promise<void>
@@ -392,7 +395,7 @@ function registerStepType(engine: ModelEngine) {
 // -- Configuration - ContributorModel
 // --
 
-interface ContributorModel extends ContributorFragment {
+export interface ContributorModel extends ContributorFragment {
   whoUse(): Promise<WhoUseItem[]> // TODO: to implement
 }
 

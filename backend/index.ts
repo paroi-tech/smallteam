@@ -3,12 +3,12 @@ import * as express from "express"
 import { Response } from "express"
 import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
+import { queryContributors, createContributor, updateContributor } from "./dbqueries/queryContributor"
 import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks, deleteTask } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
-import { queryContributors } from "./dbqueries/queryContributor";
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)
@@ -114,6 +114,7 @@ async function executeQuery(data, loader: CargoLoader) {
 }
 
 const commands = {
+  Contributor: executeCommandContributor,
   Project: executeCommandProject,
   Step: executeCommandStep,
   StepType: executeCommandStepType,
@@ -127,6 +128,15 @@ async function executeCommand(data, loader: CargoLoader) {
     throw new Error(`Invalid type: "${data.type}"`)
   await cb(data, loader)
   await completeCargo(loader)
+}
+
+async function executeCommandContributor(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createContributor(loader, data.frag)
+  else if (data.cmd === "update")
+    await updateContributor(loader, data.frag)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
 async function executeCommandProject(data, loader: CargoLoader) {

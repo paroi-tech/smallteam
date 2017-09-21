@@ -1,4 +1,3 @@
-# About this file
 I used this file to record ideas and things that I think useful. I don't have Internet connection all
 the time, so I can't use JIRA.
 
@@ -27,6 +26,7 @@ the time, so I can't use JIRA.
 
 
 # Lionel
+- Contributor (form, management, backend queries)
 - TaskBoardEntry?
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
@@ -38,7 +38,6 @@ the time, so I can't use JIRA.
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Lionel - DONE
-
 - Refactor Menu and DropDownMenu components
 - Add `disable` method to BoxList.
 - **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
