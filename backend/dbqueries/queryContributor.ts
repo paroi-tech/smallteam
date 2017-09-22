@@ -8,7 +8,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 
 function toContributorFragment(row): ContributorFragment {
   return {
-    id: row["contributor_id"],
+    id: row["contributor_id"].toString(),
     name: row["name"],
     login: row["login"],
     email: row["email"]
