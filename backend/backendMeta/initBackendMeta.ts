@@ -30,7 +30,8 @@ addBackendFragmentMeta(
     },
     name: {},
     login: {},
-    email: {}
+    email: {},
+    password: {}
   }
 )
 
