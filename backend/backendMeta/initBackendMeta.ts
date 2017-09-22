@@ -3,9 +3,11 @@ import { projectMeta } from "../../isomorphic/fragments/Project"
 import { taskMeta } from "../../isomorphic/fragments/Task"
 import { stepMeta } from "../../isomorphic/fragments/Step"
 import { stepTypeMeta } from "../../isomorphic/fragments/StepType"
-import { taskLogEntryMeta } from "../../isomorphic/fragments/TaskLogEntry";
-import { flagMeta } from "../../isomorphic/fragments/Flag";
-import { commentMeta } from "../../isomorphic/fragments/Comment";
+import { taskLogEntryMeta } from "../../isomorphic/fragments/TaskLogEntry"
+import { flagMeta } from "../../isomorphic/fragments/Flag"
+import { commentMeta } from "../../isomorphic/fragments/Comment"
+import { contributorMeta } from "../../isomorphic/fragments/Contributor"
+
 
 addBackendFragmentMeta(
   projectMeta,
@@ -16,6 +18,19 @@ addBackendFragmentMeta(
     },
     code: {},
     archived: {}
+  }
+)
+
+addBackendFragmentMeta(
+  contributorMeta,
+  {
+    id: {
+      column: "contributor_id",
+      columnType: "bigint"
+    },
+    name: {},
+    login: {},
+    email: {}
   }
 )
 

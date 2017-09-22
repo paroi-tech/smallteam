@@ -15,9 +15,14 @@
     <input type="email" class="js-email" value="{{ email }}" placeholder="john.doe@example.com">
   </label>
 
+  <label class="FormField">
+      <span class="FormField-span">Password</span>
+      <input type="password" class="js-password" value="{{ password }}">
+    </label>
+
   <div>
     <button type="button" :onclick={{ ctrl.submit }}>
-      Submit
+      Save changes
       <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
     </button>
   </div>

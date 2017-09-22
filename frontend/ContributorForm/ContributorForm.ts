@@ -11,6 +11,7 @@ export default class ContributorForm {
   private loginEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private emailEl: HTMLTextAreaElement
+  private passwordEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
@@ -19,8 +20,9 @@ export default class ContributorForm {
     name:  "",
     login: "",
     email: "",
+    password: "",
     ctrl: {
-      submit: () => this.onSubmit().catch(console.log)
+      submit: () => this.onSubmit()
     }
   }
 
@@ -39,6 +41,7 @@ export default class ContributorForm {
     this.view = render(template, wrapperEl, { directives })
     this.nameEl = this.view.querySelector(".js-name")
     this.loginEl = this.view.querySelector(".js-login")
+    this.passwordEl = this.view.querySelector(".js-password")
     this.emailEl = this.view.querySelector(".js-email")
     this.submitSpinnerEl = this.view.querySelector(".js-spinner")
     this.view.update(this.state)
@@ -56,29 +59,82 @@ export default class ContributorForm {
     this.state.name = ""
     this.state.login = ""
     this.state.email = ""
+    this.state.password = ""
     this.view.update(this.state)
+  }
+
+  public switchToCreationMode() {
+    this.reset()
+    this.nameEl.focus()
   }
 
   private async onSubmit() {
     let name = this.nameEl.value.trim()
     let login = this.loginEl.value.trim()
-    if (name.length < 4 || login.length < 4) {
-      console.warn("Name and login should have at least 4 characters...")
+    let email = this.emailEl.value.trim()
+    let passwd = this.passwordEl.value
+
+    if (name.length < 1) {
+      console.warn("Name should have at least one character...")
+      this.nameEl.focus()
       return
     }
-    if (this.contributor)
-      this.updateContributor(name, login, "")
+
+    if (login.length < 1) {
+      console.warn("Login should have at least 4 characters...")
+      this.loginEl.focus()
+      return
+    }
+
+    if (!this.validateEmail) {
+      console.warn("Invalid email...")
+      this.emailEl.focus()
+      return
+    }
+
+    if (!this.contributor && passwd.length < 8) {
+      console.warn("Password should have at least 8 characters...")
+      this.passwordEl.focus()
+      return
+    }
+
+    if (this.contributor && passwd.length != 0 && passwd.length < 8) {
+      console.warn("Password should have at least 8 characters...")
+      this.passwordEl.focus()
+      return
+    }
+
+    this.submitSpinnerEl.style.display = "inline"
+    if (!this.contributor)
+      await this.createContributor(name, login, email, passwd)
+    else
+      await this.updateContributor(name, login, email, passwd.length != 0 ? passwd: undefined)
+    this.submitSpinnerEl.style.display = "none"
   }
 
-  private async updateContributor(name: string, login: string, email: string) {
+  private async createContributor(name: string, login: string, email: string, passwd: string) {
+    let frag = { name, login, email, passwd }
+    try {
+      await this.model.exec("create", "Contributor", frag)
+      this.reset()
+    } catch (err) {
+      console.error("Unable to create new contributor...", err)
+      this.nameEl.focus()
+    }
+  }
+
+  private async updateContributor(name: string, login: string, email: string, passwd: string | undefined) {
     if (!this.contributor)
       return
-    let frag = {
+
+      let frag = {
       id: this.contributor.id,
       name,
       login,
-      email
+      email,
+      password: passwd
     }
+
     try {
       this.contributor = await this.model.exec("update", "Contributor", frag)
       this.updateView()
@@ -93,6 +149,7 @@ export default class ContributorForm {
     this.state.name = this.contributor.name
     this.state.email = this.contributor.email
     this.state.login = this.contributor.login
+    this.state.password = ""
     this.view.update(this.state)
   }
 

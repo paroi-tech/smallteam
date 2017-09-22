@@ -1,26 +1,26 @@
 import * as $ from "jquery"
-import { Dash, Bkb } from "bkb"
+import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
 import BoxList, { Box, BoxListParams } from "../BoxList/BoxList"
+import { MenuItem } from "../Menu/Menu"
+import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import { Model, ContributorModel } from "../Model/Model"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
-import { NewContributorFragment } from "../../isomorphic/fragments/Contributor";
 
 const template = require("html-loader!./contributorpanel.html")
 
 export default class ContributorPanel implements Panel {
   readonly el: HTMLElement
 
-  private nameEl: HTMLInputElement
-  private loginEl: HTMLInputElement
-  private spinnerEl: HTMLElement
   private boxListContainerEl: HTMLElement
   private formContainerEl: HTMLElement
+  private menuContainerEl: HTMLElement
 
   private boxList: BoxList<ContributorBox>
   private form: ContributorForm
+  private menu: Component<DropdownMenu>
 
   private model: Model
 
@@ -40,24 +40,9 @@ export default class ContributorPanel implements Panel {
 
   private createHtmlElements(): HTMLElement {
     let $container = $(template)
-
     this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
     this.formContainerEl = $container.find(".js-form-container").get(0)
-    this.nameEl = $container.find(".js-name").get(0) as HTMLInputElement
-    this.loginEl = $container.find(".js-login").get(0) as HTMLInputElement
-    this.spinnerEl = $container.find(".fa-spinner").get(0) as HTMLInputElement
-
-    let btn = $container.find(".js-add-btn").get(0) as HTMLButtonElement
-    btn.addEventListener("click", ev => {
-      let name = this.nameEl.value.trim()
-      let login = this.loginEl.value.trim()
-      if (name.length < 4 || login.length < 4) {
-        console.warn("Name and login should have at least 4 characters...")
-        return
-      }
-      this.createContributor(name, login)
-    })
-
+    this.menuContainerEl = $container.find(".js-menu-container").get(0)
     return $container.get(0)
   }
 
@@ -72,6 +57,17 @@ export default class ContributorPanel implements Panel {
     }
     this.boxList = this.dash.create(BoxList, { args: [ params ] })
     this.boxListContainerEl.appendChild(this.boxList.el)
+
+    this.menu = this.dash.create(DropdownMenu, {
+      args: [ "ContributorPanelMenu", "left" ]
+    })
+    this.menu.addItem({
+      id: "createContributor",
+      label: "Add contributor",
+      eventName: "createContributor",
+      data: undefined
+    })
+    this.menuContainerEl.appendChild(this.menu.el)
   }
 
   private listenToModel() {
@@ -89,6 +85,10 @@ export default class ContributorPanel implements Panel {
     this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").call("dataFirst", data => {
       this.form.setContributor(data)
     })
+    this.menu.bkb.on("createContributor", "eventOnly", ev => {
+      // FIXME: unselect current item in Contributor BoxList.
+      this.form.switchToCreationMode()
+    })
   }
 
   private fillBoxList(contributors: ContributorModel[]) {
@@ -103,18 +103,6 @@ export default class ContributorPanel implements Panel {
     let box = this.dash.create(ContributorBox, { args: [ contributor ] })
     this.boxMap.set(contributor.id, box)
     return box
-  }
-
-  private async createContributor(name: string, login: string) {
-    let frag = { name, login }
-    try {
-      await this.model.exec("create", "Contributor", frag as NewContributorFragment)
-      this.nameEl.value = ""
-      this.loginEl.value = ""
-    } catch (err) {
-      console.error("Unable to create new contributor...", err)
-    }
-    this.nameEl.focus()
   }
 
   /**

@@ -3,7 +3,7 @@ import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { Model, ContributorModel } from "../Model/Model"
 
-export default class ContributorBox {
+export default class ContributorBox implements Box {
   readonly el: HTMLElement
   private spanEl: HTMLElement
 

@@ -1,0 +1,13 @@
+.ContributorPanel {
+  &-header {
+    @extend .BlockTitle;
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    vertical-align: baseline;
+  }
+  &-content {
+    display: flex;
+    flex-direction: row;
+  }
+}
