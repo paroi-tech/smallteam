@@ -187,7 +187,7 @@ async function completeCargo(loader: CargoLoader) {
   let count = 0
   while (!loader.modelUpdate.isFragmentsComplete()) {
     if (++count > 100)
-      throw new Error(`Cannot complete the cargo, infinite loop`)
+      throw new Error(`Cannot complete the cargo, missing: ${loader.modelUpdate.getMissingFragmentTypes().join(", ")}`)
     await fetchProjects(loader, loader.modelUpdate.getNeededFragments("Project") as any)
     await fetchTasks(loader, loader.modelUpdate.getNeededFragments("Task") as any)
     await fetchSteps(loader, loader.modelUpdate.getNeededFragments("Step") as any)

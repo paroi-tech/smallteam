@@ -93,6 +93,19 @@ export default class ModelUpdateLoader {
     return true
   }
 
+  public getMissingFragmentTypes(): string[] {
+    let types: string[] = []
+    for (let [type, fragments] of this.fragmentsMap.entries()) {
+      for (let [id, frag] of fragments.entries()) {
+        if (frag === undefined) {
+          types.push(type)
+          break
+        }
+      }
+    }
+    return types
+  }
+
   public toModelUpdate(): ModelUpdate | undefined {
     this.ended = true
     let modelUpd: ModelUpdate = {}
