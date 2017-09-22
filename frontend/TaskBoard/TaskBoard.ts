@@ -3,7 +3,7 @@ import { Dash } from "bkb"
 import App from "../App/App"
 import StepSwitcher from "../StepSwitcher/StepSwitcher"
 import TaskForm from "../TaskForm/TaskForm"
-import { Model, TaskModel, ProjectModel } from "../Model/Model"
+import { Model, TaskModel, ProjectModel } from "../AppModel/AppModel"
 
 const template  = require("html-loader!./taskboard.html")
 

@@ -3,7 +3,7 @@ import App from "../App/App"
 import { Dash, Bkb, Component } from "bkb"
 import TaskBoard from "../TaskBoard/TaskBoard"
 import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
-import { Model, ProjectModel, TaskModel } from "../Model/Model"
+import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import { MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 

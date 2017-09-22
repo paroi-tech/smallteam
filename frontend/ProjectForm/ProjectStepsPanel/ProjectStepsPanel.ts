@@ -1,7 +1,7 @@
 import App from "../../App/App"
 import BoxList, { BoxEvent } from "../../BoxList/BoxList"
 import { Dash, Bkb } from "bkb"
-import { ProjectModel, StepModel, StepTypeModel, Model } from "../../Model/Model"
+import { ProjectModel, StepModel, StepTypeModel, Model } from "../../AppModel/AppModel"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
 export default class ProjectStepsPanel {

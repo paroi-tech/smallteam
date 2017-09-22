@@ -1,6 +1,6 @@
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
-import { Model, ContributorModel } from "../Model/Model"
+import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import * as template from "./contributorform.monk"

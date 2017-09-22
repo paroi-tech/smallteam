@@ -2,7 +2,7 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
-import { Model, TaskModel } from "../Model/Model"
+import { Model, TaskModel } from "../AppModel/AppModel"
 
 const template = require("html-loader!./taskbox.html")
 

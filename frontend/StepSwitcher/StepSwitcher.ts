@@ -3,7 +3,7 @@ import App from "../App/App"
 import { Component, Dash, Bkb } from "bkb"
 import BoxList, { BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
-import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../Model/Model"
+import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../AppModel/AppModel"
 import { removeAllChildren } from "../libraries/utils"
 import { toDebugObj } from "../../isomorphic/libraries/helpers"
 

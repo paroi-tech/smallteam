@@ -1,7 +1,6 @@
 import { ApplicationDash, ApplicationBkb, Log, LogItem, Component } from "bkb"
 import WorkspaceViewer from "../WorkspaceViewer/WorkspaceViewer"
-import ModelComp, { Model } from "../Model/Model"
-import { ModelEvent } from "../Model/ModelEngine";
+import ModelComp, { Model, ModelEvent } from "../AppModel/AppModel"
 
 export default class App {
   readonly log: Log

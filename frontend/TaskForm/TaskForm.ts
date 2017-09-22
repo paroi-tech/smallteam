@@ -2,7 +2,7 @@ import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
-import { Model, TaskModel } from "../Model/Model"
+import { Model, TaskModel } from "../AppModel/AppModel"
 import * as MonkBerry from "monkberry"
 
 import * as template  from "./taskform.monk"

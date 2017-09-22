@@ -1,6 +1,6 @@
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
-import { Model, ProjectModel } from "../Model/Model"
+import { Model, ProjectModel } from "../AppModel/AppModel"
 import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
 import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"

@@ -1,7 +1,7 @@
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
-import { Model, ContributorModel } from "../Model/Model"
+import { Model, ContributorModel } from "../AppModel/AppModel"
 
 export default class ContributorBox implements Box {
   readonly el: HTMLElement

@@ -5,8 +5,7 @@ import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
-import { Model, StepTypeModel } from "../Model/Model"
-import { updateStepTypeOrders } from "../Model/fakeModel"
+import { Model, StepTypeModel } from "../AppModel/AppModel"
 import { equal } from "../libraries/utils"
 
 const template = require("html-loader!./steptypepanel.html")

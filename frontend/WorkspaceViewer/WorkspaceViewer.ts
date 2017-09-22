@@ -6,7 +6,7 @@ import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypePanel from "../StepTypePanel/StepTypePanel"
 import ContributorPanel from "../ContributorPanel/ContributorPanel"
-import { Model, ProjectModel, TaskModel } from "../Model/Model"
+import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 import { render } from "monkberry"
 import * as template from "./workspaceviewer.monk"
@@ -295,7 +295,7 @@ export default class PanelSelector {
 // TODO: remove this...
 // The following code has been added for tests purpose.
 import * as $ from "jquery"
-import { StepModel, StepTypeModel } from "../Model/Model"
+import { StepModel, StepTypeModel } from "../AppModel/AppModel"
 
 function makeTests(el, model: Model) {
   model.on("change", "dataFirst", data => {

@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import { Dash, Bkb, Component } from "bkb"
 import App from "../App/App"
-import { Model, StepTypeModel } from "../Model/Model"
+import { Model, StepTypeModel } from "../AppModel/AppModel"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import { render } from "monkberry"
 import * as template from "./steptypeform.monk"
