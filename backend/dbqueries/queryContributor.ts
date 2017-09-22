@@ -15,6 +15,21 @@ function toContributorFragment(row): ContributorFragment {
   }
 }
 
+export async function fetchContributors(loader: CargoLoader, idList: string[]) {
+  if (idList.length === 0)
+    return
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+              .select("contributor_id, login, name, email")
+              .from("contributor")
+              .where("contributor_id", "in", toIntList(idList))
+  let rs = await cn.all(sql.toSql())
+  for (let row of rs) {
+    let data = toContributorFragment(row)
+    loader.modelUpdate.addFragment("Contributor", data.id, data)
+  }
+}
+
 export async function queryContributors(loader: CargoLoader) {
   let cn = await getDbConnection()
   let sql = buildSelect()

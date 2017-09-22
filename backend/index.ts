@@ -3,7 +3,7 @@ import * as express from "express"
 import { Response } from "express"
 import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { queryContributors, createContributor, updateContributor } from "./dbqueries/queryContributor"
+import { fetchContributors, queryContributors, createContributor, updateContributor } from "./dbqueries/queryContributor"
 import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks, deleteTask } from "./dbqueries/queryTask"
@@ -192,5 +192,6 @@ async function completeCargo(loader: CargoLoader) {
     await fetchTasks(loader, loader.modelUpdate.getNeededFragments("Task") as any)
     await fetchSteps(loader, loader.modelUpdate.getNeededFragments("Step") as any)
     await fetchStepTypes(loader, loader.modelUpdate.getNeededFragments("StepType") as any)
+    await fetchContributors(loader, loader.modelUpdate.getNeededFragments("Contributor") as any)
   }
 }
