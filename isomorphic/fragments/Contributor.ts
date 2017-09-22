@@ -26,10 +26,6 @@ export const contributorMeta: FragmentMeta = {
     email: {
       dataType: "string",
       update: true
-    },
-    password: {
-      dataType: "string",
-      update: true
     }
   }
 }
