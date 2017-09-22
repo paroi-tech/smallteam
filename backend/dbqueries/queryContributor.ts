@@ -37,6 +37,7 @@ export async function createContributor(loader: CargoLoader, newFrag: NewContrib
   let sql = buildInsert()
     .insertInto("contributor")
     .values(toSqlValues(newFrag, newContributorMeta))
+    .values({"password": "init"})
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
   loader.addFragment({
