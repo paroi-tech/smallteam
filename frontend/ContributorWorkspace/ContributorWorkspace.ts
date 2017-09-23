@@ -7,11 +7,11 @@ import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
-import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 
-const template = require("html-loader!./contributorpanel.html")
+const template = require("html-loader!./contributorworkspace.html")
 
-export default class ContributorPanel implements Panel {
+export default class ContributorWorkspace implements Workspace {
   readonly el: HTMLElement
 
   private boxListContainerEl: HTMLElement

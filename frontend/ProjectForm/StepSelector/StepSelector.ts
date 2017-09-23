@@ -4,7 +4,7 @@ import { Dash, Bkb } from "bkb"
 import { ProjectModel, StepModel, StepTypeModel, Model } from "../../AppModel/AppModel"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
-export default class ProjectStepsPanel {
+export default class StepSelector {
   readonly el: HTMLElement
 
   private spareStepBoxList: BoxList<StepTypeBox>
@@ -38,10 +38,10 @@ export default class ProjectStepsPanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createChildComponents()
-    // We load step types from model here and store them. We only display the step types
-    // in the BoxLists when a project is set.
-    let stepTypes = this.model.global.stepTypes
-    stepTypes.forEach(stepType => this.registerStepType(stepType))
+    // // We load step types from model here and store them. We only display the step types
+    // // in the BoxLists when a project is set.
+    // let stepTypes = this.model.global.stepTypes
+    // stepTypes.forEach(stepType => this.registerStepType(stepType))
     this.listenToModel()
   }
 
@@ -52,10 +52,14 @@ export default class ProjectStepsPanel {
   public setProject(project: ProjectModel | undefined) {
     this.clear()
     this.project = project
-    if (project) {
+    if (!project)
+      return
+    this.model.query("StepType").then(stepTypes => {
+      stepTypes.forEach(stepType => this.registerStepType(stepType))
       this.fillBoxLists()
-      this.show()
-    }
+    }).catch(err => {
+      console.log(`Error while loading StepTypes in ProjectStepsPanel`)
+    })
   }
 
   /**

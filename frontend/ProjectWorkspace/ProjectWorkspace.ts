@@ -2,7 +2,8 @@ import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb, Component } from "bkb"
 import TaskBoard from "../TaskBoard/TaskBoard"
-import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
+import ProjectForm from "../ProjectForm/ProjectForm"
 import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import { MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
@@ -14,6 +15,12 @@ const menuItems = [
     id: "editProject",
     label: "Edit project",
     eventName: "editProject",
+    data: undefined
+  },
+  {
+    id: "showTaskBoard",
+    label: "Show taskboard",
+    eventName: "showTaskBoard",
     data: undefined
   },
   {
@@ -42,13 +49,15 @@ const menuItems = [
  * It can contain several step switchers (one for each project task with children) and
  * a side pane that contain a TaskForm.
  */
-export default class ProjectWorkspace implements Panel {
+export default class ProjectWorkspace implements Workspace {
   readonly el: HTMLElement
   private dropdownMenuContainerEl: HTMLElement
   private contentContainerEl: HTMLElement
+  private currentContentEl: HTMLElement
 
   private dropdownMenu: Component<DropdownMenu>
   private taskBoard: TaskBoard
+  private form: ProjectForm
 
   private model: Model
 
@@ -90,7 +99,11 @@ export default class ProjectWorkspace implements Panel {
    */
   private listenToChildren() {
     this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
-      this.dash.emit("editProject", this.project)
+      this.setContent(this.form.el)
+    })
+
+    this.dropdownMenu.bkb.on("showTaskBoard", "eventOnly", ev => {
+      this.setContent(this.taskBoard.el)
     })
 
     this.dropdownMenu.bkb.on("deleteProject", "eventOnly", async (ev) => {
@@ -122,6 +135,18 @@ export default class ProjectWorkspace implements Panel {
       args: [ this.project.rootTask ]
     })
     this.contentContainerEl.appendChild(this.taskBoard.el)
+    this.currentContentEl = this.taskBoard.el
+
+    this.form = this.dash.create(ProjectForm)
+    this.form.hide()
+    this.form.setProject(this.project)
+    this.contentContainerEl.appendChild(this.form.el)
+  }
+
+  private setContent(el: HTMLElement) {
+    this.currentContentEl.style.display = "none"
+    this.currentContentEl = el
+    el.style.display = "block"
   }
 
   /**

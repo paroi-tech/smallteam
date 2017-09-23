@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
-import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import { Model, TaskModel } from "../AppModel/AppModel"
 import * as MonkBerry from "monkberry"
 
@@ -10,7 +10,7 @@ import * as template  from "./taskform.monk"
 /**
  * Component used to display and edit information about a task.
  */
-export default class TaskForm implements Panel {
+export default class TaskForm implements Workspace {
   readonly el: HTMLElement
 
   private labelEl: HTMLInputElement

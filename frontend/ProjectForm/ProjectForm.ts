@@ -1,8 +1,8 @@
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ProjectModel } from "../AppModel/AppModel"
-import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
-import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import StepSelector from "./StepSelector/StepSelector"
+import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import * as template from "./projectform.monk"
@@ -10,7 +10,7 @@ import * as template from "./projectform.monk"
 /**
  * Component that enables to create and edit project setings.
  */
-export default class ProjectForm implements Panel {
+export default class ProjectForm implements Workspace {
   readonly el: HTMLElement
 
   private codeEl: HTMLInputElement
@@ -19,7 +19,7 @@ export default class ProjectForm implements Panel {
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
-  private stepsPanel: ProjectStepsPanel
+  private stepSelector: StepSelector
 
   private state = {
     name: "",
@@ -61,8 +61,8 @@ export default class ProjectForm implements Panel {
     this.descriptionEl = this.view.querySelector(".js-description")
     this.submitSpinnerEl = this.view.querySelector(".js-submitSpinner")
 
-    this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [] })
-    wrapperEl.appendChild(this.stepsPanel.el)
+    this.stepSelector = this.dash.create(StepSelector, { args: [] })
+    wrapperEl.appendChild(this.stepSelector.el)
 
     this.view.update(this.state)
 
@@ -113,7 +113,7 @@ export default class ProjectForm implements Panel {
       this.clearFormFields()
       this.codeEl.setAttribute("readonly", "true")
     }
-    this.stepsPanel.setProject(this.project)
+    this.stepSelector.setProject(this.project)
   }
 
   /**
@@ -128,7 +128,7 @@ export default class ProjectForm implements Panel {
       this.project = await this.model.exec("create", "Project", { code, name, description })
       this.codeEl.setAttribute("readonly", "true")
       this.fillFieldsWithCurrentProject()
-      this.stepsPanel.setProject(this.project)
+      this.stepSelector.setProject(this.project)
     } catch (error) {
       console.error("Error while creating new project...")
     }
