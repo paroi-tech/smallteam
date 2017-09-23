@@ -22,16 +22,6 @@ export function registerStepType(engine: ModelEngine) {
       get isSpecial() {
         return isStepSpecial(getFrag())
       }
-      // get hasProjects() {
-      //   return engine.getModels({
-      //     type: "Step",
-      //     index: "typeId",
-      //     key: {
-      //       typeId: getFrag().id
-      //     },
-      //     orderBy: ["projectId", "asc"] // TODO: implement a function here => sort on project name
-      //   }).length > 0
-      // }
     }
     appendGettersToModel(model, "StepType", getFrag)
     return model as any

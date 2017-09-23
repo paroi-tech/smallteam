@@ -5,6 +5,7 @@ import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFrag
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
 import { toDebugStr } from "../../isomorphic/libraries/helpers"
+import { Collection } from "./modelDefinitions";
 //import { validateDataArray } from "../../isomorphic/validation"
 
 // --
@@ -81,8 +82,6 @@ export type HttpMethod = "POST" | "GET"
 // --
 // -- Class ModelEngine
 // --
-
-
 
 interface Batch {
   httpMethod?: HttpMethod
@@ -188,7 +187,7 @@ export default class ModelEngine {
 
     let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy
     list.sort(sortFn)
-    return list.length === 0 ? onEmptyVal : list
+    return toCollection(list.length === 0 ? onEmptyVal : list, query.type)
   }
 
   public countModels(query: IndexQuery): number {
@@ -530,4 +529,17 @@ async function httpSendJson(method: HttpMethod, url: string, data): Promise<any>
     console.log("Parsing failed", err)
     throw err
   }
+}
+
+export function toCollection<M extends object, ID extends Identifier>(models: M[], type: Type): Collection<M, ID> {
+  let map: HKMap<ID, M>
+  ;(models as any).get = id => {
+    if (!map) {
+      map = makeHKMap<ID, M>()
+      for (let model of models)
+        map.set(toIdentifier(model, type) as ID, model)
+    }
+    map.get(id)
+  }
+  return models as any
 }
