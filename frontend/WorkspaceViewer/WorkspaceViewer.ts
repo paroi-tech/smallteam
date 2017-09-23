@@ -4,8 +4,8 @@ import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
-import StepTypePanel from "../StepTypePanel/StepTypePanel"
-import ContributorPanel from "../ContributorPanel/ContributorPanel"
+import StepTypeWorkspace from "../StepTypeWorkspace/StepTypeWorkspace"
+import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
 import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 import { render } from "monkberry"
@@ -16,7 +16,7 @@ import * as template from "./workspaceviewer.monk"
 /**
  * Properties required for an Component in order to be displayed in PanelSelector.
  */
-export interface Panel {
+export interface Workspace {
   hide()
   show()
   el: HTMLElement
@@ -32,10 +32,10 @@ export interface Panel {
  *    - StepsTypePanel
  *    - ContributorPanel
  */
-interface PanelInfo {
-  panel?: Panel
+interface WorkspaceInfo {
+  workspace?: Workspace
   projectModel?: ProjectModel
-  type: typeof ProjectWorkspace | typeof ProjectForm | typeof StepTypePanel | typeof ContributorPanel
+  type: typeof ProjectWorkspace | typeof ProjectForm | typeof StepTypeWorkspace | typeof ContributorWorkspace
 }
 
 /**
@@ -68,17 +68,17 @@ export default class PanelSelector {
   private model: Model
   private menu: Component<Menu>
   private settingMenu: Component<DropdownMenu>
-  private currentPanel: Panel | undefined
+  private currentWorkspace: Workspace | undefined
 
   private projectForm: ProjectForm
 
-  private panelMap: Map<string, PanelInfo> = new Map()
+  private workspaceMap: Map<string, WorkspaceInfo> = new Map()
 
   private view: MonkberryView
 
   private menuEl: HTMLElement
   private dropdownMenuEl: HTMLElement
-  private panelContainerEl: HTMLElement
+  private workspaceContainerEl: HTMLElement
 
   private projectMap: Map<string, ProjectModel> = new Map()
 
@@ -103,13 +103,13 @@ export default class PanelSelector {
 
     this.menuEl = this.view.querySelector(".js-menuLeft")
     this.dropdownMenuEl = this.view.querySelector(".js-menuRight")
-    this.panelContainerEl = this.view.querySelector(".js-panelContainer")
+    this.workspaceContainerEl = this.view.querySelector(".js-workspaceContainer")
 
     return wrapperEl
   }
 
   /**
-   * Create PanelSelector subcomponents.
+   * Create WorkspaceViewer subcomponents.
    */
   private createChildComponents() {
     this.menu = this.dash.create(Menu, {
@@ -125,23 +125,22 @@ export default class PanelSelector {
 
     this.projectForm = this.dash.create(ProjectForm, { args: [] })
     this.projectForm.hide()
-    this.panelContainerEl.appendChild(this.projectForm.el)
+    this.workspaceContainerEl.appendChild(this.projectForm.el)
 
     // We have to do this, or else the project board won't be able to display StepTypePanel
     // and ContributorPanel later. See the showSettingPanel() method for details.
-    this.panelMap.set("stepTypePanel", { type: StepTypePanel })
-    this.panelMap.set("contributorPanel", { type: ContributorPanel })
+    this.workspaceMap.set("stepTypeWorkspace", { type: StepTypeWorkspace })
+    this.workspaceMap.set("contributorWorkspace", { type: ContributorWorkspace })
   }
 
   /**
    * Listen to event from child components.
    */
   private listenToEvents() {
-    this.dash.listenToChildren<ProjectModel>("editProject").call("dataFirst", p => this.showProjectForm(p))
     this.menu.bkb.on<string>("projectSelected", "dataFirst", id => this.showProjectWorkspace(id))
     this.settingMenu.bkb.on("createProject", "eventOnly", () => this.showProjectForm())
-    this.settingMenu.bkb.on("manageStepTypes", "eventOnly", ev => this.showSettingPanel("stepTypePanel"))
-    this.settingMenu.bkb.on("manageContributors", "eventOnly", ev => this.showSettingPanel("contributorPanel"))
+    this.settingMenu.bkb.on("manageStepTypes", "eventOnly", ev => this.showSettingWorksapce("stepTypeWorkspace"))
+    this.settingMenu.bkb.on("manageContributors", "eventOnly", ev => this.showSettingWorksapce("contributorWorkspace"))
   }
 
   /**
@@ -160,9 +159,9 @@ export default class PanelSelector {
         return
       let projectId = data.id as string
       this.projectMap.delete(projectId)
-      let panelInfo = this.panelMap.get("ProjectWorkspace" + ":" + projectId)
-      if (panelInfo && panelInfo.type === ProjectWorkspace && panelInfo.panel)
-        this.panelContainerEl.removeChild(panelInfo.panel.el)
+      let panelInfo = this.workspaceMap.get("ProjectWorkspace" + ":" + projectId)
+      if (panelInfo && panelInfo.type === ProjectWorkspace && panelInfo.workspace)
+        this.workspaceContainerEl.removeChild(panelInfo.workspace.el)
       this.menu.removeItem(projectId)
     })
   }
@@ -196,7 +195,7 @@ export default class PanelSelector {
   private addProject(project: ProjectModel) {
     this.projectMap.set(project.id, project)
     let boardId = "ProjectWorkspace" + ":" + project.id
-    this.panelMap.set(boardId, {
+    this.workspaceMap.set(boardId, {
       projectModel: project,
       type: ProjectWorkspace
     })
@@ -211,13 +210,13 @@ export default class PanelSelector {
   /**
    * Change the panel shown by the PanelSelector.
    *
-   * @param p the panel to show
+   * @param w the panel to show
    */
-  private setCurrentPanel(p: Panel) {
-    if (this.currentPanel)
-      this.currentPanel.hide()
-    this.currentPanel = p
-    p.show()
+  private setCurrentWorkspace(w: Workspace) {
+    if (this.currentWorkspace)
+      this.currentWorkspace.hide()
+    this.currentWorkspace = w
+    w.show()
   }
 
   /**
@@ -226,17 +225,17 @@ export default class PanelSelector {
    * @param projectId the ID of the project which board has to be shown
    */
   private showProjectWorkspace(projectId: string) {
-    let panelId = "ProjectWorkspace" + ":" + projectId
-    let info = this.panelMap.get(panelId)
+    let workspaceId = "ProjectWorkspace" + ":" + projectId
+    let info = this.workspaceMap.get(workspaceId)
     if (!info)
       throw new Error(`Unknown project panel ID: ${projectId} in PanelSelector.`)
-    if (!info.panel) {
-      info.panel = this.dash.create(ProjectWorkspace, {
+    if (!info.workspace) {
+      info.workspace = this.dash.create(ProjectWorkspace, {
         args: [ info.projectModel ]
       })
-      this.panelContainerEl.appendChild(info.panel.el)
+      this.workspaceContainerEl.appendChild(info.workspace.el)
     }
-    this.setCurrentPanel(info.panel)
+    this.setCurrentWorkspace(info.workspace)
   }
 
   /**
@@ -246,7 +245,7 @@ export default class PanelSelector {
    */
   private showProjectForm(project?: ProjectModel) {
     this.projectForm.setProject(project)
-    this.setCurrentPanel(this.projectForm)
+    this.setCurrentWorkspace(this.projectForm)
   }
 
   // /**
@@ -269,26 +268,27 @@ export default class PanelSelector {
   // }
 
   /**
-   * Display a setting panel.
-   * Setting panels are:
-   *  - StepTypePanel
+   * Display a setting workspace.
+   * Setting workspaces are:
+   *  - StepTypeWorkspace
+   *  - ContributorWorkspace
    * @param panelId
    */
-  private showSettingPanel(panelId: string) {
-    let info = this.panelMap.get(panelId)
+  private showSettingWorksapce(panelId: string) {
+    let info = this.workspaceMap.get(panelId)
     if (!info)
-      throw new Error(`Unknown settings panel id: ${panelId}`)
-    if (!info.panel) {
-      if (info.type === StepTypePanel) {
-        info.panel = this.dash.create<StepTypePanel>(info.type)
-        this.panelContainerEl.appendChild(info.panel.el)
-      } else if (info.type === ContributorPanel) {
-        info.panel = this.dash.create<ContributorPanel>(info.type)
-        this.panelContainerEl.appendChild(info.panel.el)
+      throw new Error(`Unknown setting workspace id: ${panelId}`)
+    if (!info.workspace) {
+      if (info.type === StepTypeWorkspace) {
+        info.workspace = this.dash.create<StepTypeWorkspace>(info.type)
+        this.workspaceContainerEl.appendChild(info.workspace.el)
+      } else if (info.type === ContributorWorkspace) {
+        info.workspace = this.dash.create<ContributorWorkspace>(info.type)
+        this.workspaceContainerEl.appendChild(info.workspace.el)
       } else
-        throw new Error(`Unknown Panel type: ${info.type}`)
+        throw new Error(`Unknown Workspace type: ${info.type}`)
     }
-    this.setCurrentPanel(info.panel)
+    this.setCurrentWorkspace(info.workspace)
   }
 }
 

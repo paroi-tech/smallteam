@@ -1,14 +1,14 @@
 import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
-import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
 import { Model, StepTypeModel } from "../AppModel/AppModel"
 import { equal } from "../libraries/utils"
 
-const template = require("html-loader!./steptypepanel.html")
+const template = require("html-loader!./steptypeworkspace.html")
 
 /**
  * StepType management panel.
@@ -16,7 +16,7 @@ const template = require("html-loader!./steptypepanel.html")
  * It contains a form to create new StepTypes and a Boxlist that enables to select and reorder the StepTypes.
  * When the user reorders the content of the Boxlist, changes are commited after a timeout of 2s.
  */
-export default class StepTypePanel {
+export default class StepTypeWorkspace implements Workspace {
   readonly el: HTMLElement
 
   private $boxListContainer: JQuery

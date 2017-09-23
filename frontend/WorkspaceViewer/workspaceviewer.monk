@@ -6,6 +6,6 @@
     </div>
   </header>
   <div class="WorkspaceViewer-body">
-    <div class="Container js-panelContainer"></div>
+    <div class="Container js-workspaceContainer"></div>
   </div>
 </div>

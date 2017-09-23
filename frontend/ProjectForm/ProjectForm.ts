@@ -2,7 +2,7 @@ import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ProjectModel } from "../AppModel/AppModel"
 import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
-import { Panel } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import * as template from "./projectform.monk"
@@ -10,7 +10,7 @@ import * as template from "./projectform.monk"
 /**
  * Component that enables to create and edit project setings.
  */
-export default class ProjectForm implements Panel {
+export default class ProjectForm implements Workspace {
   readonly el: HTMLElement
 
   private codeEl: HTMLInputElement

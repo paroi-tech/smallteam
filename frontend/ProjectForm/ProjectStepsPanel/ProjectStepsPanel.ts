@@ -38,13 +38,6 @@ export default class ProjectStepsPanel {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createChildComponents()
-    // We load step types from model here and store them. We only display the step types
-    // in the BoxLists when a project is set.
-    this.model.query("StepType").then(stepTypes => {
-      stepTypes.forEach(stepType => this.registerStepType(stepType))
-    }).catch(err => {
-      console.log(`Error while loading StepTypes in ProjectStepsPanel`)
-    })
     this.listenToModel()
   }
 
@@ -55,10 +48,14 @@ export default class ProjectStepsPanel {
   public setProject(project: ProjectModel | undefined) {
     this.clear()
     this.project = project
-    if (project) {
+    if (!project)
+      return
+    this.model.query("StepType").then(stepTypes => {
+      stepTypes.forEach(stepType => this.registerStepType(stepType))
       this.fillBoxLists()
-      this.show()
-    }
+    }).catch(err => {
+      console.log(`Error while loading StepTypes in ProjectStepsPanel`)
+    })
   }
 
   /**
