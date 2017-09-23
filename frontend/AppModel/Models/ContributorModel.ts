@@ -1,6 +1,6 @@
-import { ContributorFragment } from "../../../isomorphic/fragments/Contributor";
-import ModelEngine, { appendGettersToModel } from "../ModelEngine";
-import { WhoUseItem } from "../modelDefinitions";
+import { ContributorFragment } from "../../../isomorphic/fragments/Contributor"
+import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { WhoUseItem } from "../modelDefinitions"
 
 
 

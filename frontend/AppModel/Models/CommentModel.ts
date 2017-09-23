@@ -1,7 +1,7 @@
-import { CommentFragment } from "../../../isomorphic/fragments/Comment";
-import ModelEngine, { appendGettersToModel } from "../ModelEngine";
-import { TaskModel } from "./TaskModel";
-import { ContributorModel } from "./ContributorModel";
+import { CommentFragment } from "../../../isomorphic/fragments/Comment"
+import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { TaskModel } from "./TaskModel"
+import { ContributorModel } from "./ContributorModel"
 
 
 export interface CommentModel extends CommentFragment {

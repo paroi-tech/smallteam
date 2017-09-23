@@ -111,7 +111,10 @@ export async function updateStepType(loader: CargoLoader, updFrag: UpdStepTypeFr
     markAs: "updated"
   })
 
-  await Promise.all([cn.run(sql.toSql()), markAsUpdatedStepsByType(loader, stepTypeId)])
+  await Promise.all([
+    cn.run(sql.toSql()),
+    markAsUpdatedStepsByType(loader, stepTypeId)
+  ])
 }
 
 // --

@@ -1,7 +1,7 @@
-import { StepFragment } from "../../../isomorphic/fragments/Step";
-import ModelEngine, { appendGettersToModel } from "../ModelEngine";
-import { ProjectModel } from "./ProjectModel";
-import { StepTypeFragment } from "../../../isomorphic/fragments/StepType";
+import { StepFragment } from "../../../isomorphic/fragments/Step"
+import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { ProjectModel } from "./ProjectModel"
+import { StepTypeFragment } from "../../../isomorphic/fragments/StepType"
 
 
 export interface StepModel extends StepFragment {

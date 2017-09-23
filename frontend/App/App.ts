@@ -24,11 +24,12 @@ export default class App {
     })
   }
 
-  public start() {
+  public async start() {
+    await this.model.global.load
     let appEl = document.querySelector(".js-app")
     if (appEl) {
-      let panel = this.dash.create(WorkspaceViewer)
-      appEl.appendChild(panel.el)
+      let viewer = this.dash.create(WorkspaceViewer)
+      appEl.appendChild(viewer.el)
     }
   }
 }

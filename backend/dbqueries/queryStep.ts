@@ -36,8 +36,7 @@ export async function fetchStepsByProjects(loader: CargoLoader, projectIdList: n
 
 export async function markAsUpdatedStepsByType(loader: CargoLoader, stepTypeId: number) {
   let cn = await getDbConnection()
-  let sql = selectFromStep()
-  sql.where("s.step_type_id", stepTypeId)
+  let sql = selectFromStep().where("s.step_type_id", stepTypeId)
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toStepFragment(row)

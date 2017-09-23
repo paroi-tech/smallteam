@@ -33,9 +33,7 @@ export default class ContributorPanel implements Panel {
     this.createChildComponents()
     this.listenToModel()
     this.listenToChildren()
-    this.model.query("Contributor")
-      .then(arr => this.fillBoxList(arr))
-      .catch(err => console.error("Error while loading contributors in ContributorPanel"))
+    this.fillBoxList()
   }
 
   private createHtmlElements(): HTMLElement {
@@ -91,8 +89,8 @@ export default class ContributorPanel implements Panel {
     })
   }
 
-  private fillBoxList(contributors: ContributorModel[]) {
-    contributors.forEach(c => {
+  private fillBoxList() {
+    this.model.global.contributors.forEach(c => {
       let box = this.createBoxFor(c)
       this.contributorMap.set(c.id, c)
       this.boxList.addBox(box)

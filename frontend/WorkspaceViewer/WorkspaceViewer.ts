@@ -172,9 +172,7 @@ export default class PanelSelector {
    */
   private async loadProjects() {
     try {
-      let projects = await this.model.query("Project", {
-        archived: false
-      })
+      let projects = this.model.global.projects
       if (projects.length === 0) {
         if (confirm("No project to load from server. Do you want to create a new one?"))
           this.showProjectForm()

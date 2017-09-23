@@ -1,8 +1,8 @@
-import { ProjectFragment } from "../../../isomorphic/fragments/Project";
-import ModelEngine, { appendGettersToModel } from "../ModelEngine";
-import { StepFragment } from "../../../isomorphic/fragments/Step";
-import { TaskModel } from "./TaskModel";
-import { StepModel, isStepNormal, isStepSpecial } from "./StepModel";
+import { ProjectFragment } from "../../../isomorphic/fragments/Project"
+import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { StepFragment } from "../../../isomorphic/fragments/Step"
+import { TaskModel } from "./TaskModel"
+import { StepModel, isStepNormal, isStepSpecial } from "./StepModel"
 
 export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel

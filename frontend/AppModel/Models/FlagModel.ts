@@ -1,6 +1,6 @@
-import { FlagFragment } from "../../../isomorphic/fragments/Flag";
-import ModelEngine, { appendGettersToModel } from "../ModelEngine";
-import { WhoUseItem } from "../modelDefinitions";
+import { FlagFragment } from "../../../isomorphic/fragments/Flag"
+import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { WhoUseItem } from "../modelDefinitions"
 
 
 export interface FlagModel extends FlagFragment {

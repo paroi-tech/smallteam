@@ -40,11 +40,8 @@ export default class ProjectStepsPanel {
     this.el = this.createChildComponents()
     // We load step types from model here and store them. We only display the step types
     // in the BoxLists when a project is set.
-    this.model.query("StepType").then(stepTypes => {
-      stepTypes.forEach(stepType => this.registerStepType(stepType))
-    }).catch(err => {
-      console.log(`Error while loading StepTypes in ProjectStepsPanel`)
-    })
+    let stepTypes = this.model.global.stepTypes
+    stepTypes.forEach(stepType => this.registerStepType(stepType))
     this.listenToModel()
   }
 

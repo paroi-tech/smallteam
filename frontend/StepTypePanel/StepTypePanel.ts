@@ -181,7 +181,7 @@ export default class StepTypePanel {
    */
   private async loadStepTypes() {
     try {
-      let stepTypes = await this.dash.app.model.query("StepType")
+      let stepTypes = this.dash.app.model.global.stepTypes
       if (stepTypes.length === 0) {
         console.log("No step types to load from server...")
         return

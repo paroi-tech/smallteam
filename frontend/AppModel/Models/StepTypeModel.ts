@@ -1,7 +1,7 @@
-import { StepTypeFragment, UpdStepTypeFragment } from "../../../isomorphic/fragments/StepType";
-import ModelEngine, { appendGettersToModel } from "../ModelEngine";
-import { WhoUseItem } from "../modelDefinitions";
-import { isStepSpecial } from "./StepModel";
+import { StepTypeFragment, UpdStepTypeFragment } from "../../../isomorphic/fragments/StepType"
+import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { WhoUseItem } from "../modelDefinitions"
+import { isStepSpecial } from "./StepModel"
 
 
 

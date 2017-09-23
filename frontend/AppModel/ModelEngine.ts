@@ -4,7 +4,7 @@ import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
-import { toDebugStr } from "../../isomorphic/libraries/helpers";
+import { toDebugStr } from "../../isomorphic/libraries/helpers"
 //import { validateDataArray } from "../../isomorphic/validation"
 
 // --
@@ -186,7 +186,7 @@ export default class ModelEngine {
     for (let id of identifiers)
       list.push(this.getModel(query.type, id))
 
-    let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy;
+    let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy
     list.sort(sortFn)
     return list.length === 0 ? onEmptyVal : list
   }

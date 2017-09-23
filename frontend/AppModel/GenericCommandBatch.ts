@@ -1,7 +1,7 @@
-import Deferred from "../libraries/Deferred";
-import ModelEngine from "./ModelEngine";
-import { Type, Identifier } from "../../isomorphic/Cargo";
-import { ModelCommandMethods } from "./modelDefinitions";
+import Deferred from "../libraries/Deferred"
+import ModelEngine from "./ModelEngine"
+import { Type, Identifier } from "../../isomorphic/Cargo"
+import { ModelCommandMethods } from "./modelDefinitions"
 
 interface EngineCommand {
   method: string

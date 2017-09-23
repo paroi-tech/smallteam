@@ -9,6 +9,7 @@ import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks, deleteTask } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
+import { fetchFlags, queryFlags, createFlag, updateFlag } from "./dbqueries/queryFlag"
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)
@@ -101,6 +102,7 @@ async function executeBatch(list: any[]): Promise<BatchCargo> {
 const queries = {
   Project: queryProjects,
   StepType: queryStepTypes,
+  Flag: queryFlags,
   Contributor: queryContributors
 }
 
@@ -118,6 +120,7 @@ const commands = {
   Project: executeCommandProject,
   Step: executeCommandStep,
   StepType: executeCommandStepType,
+  Flag: executeCommandFlag,
   Task: executeCommandTask
 }
 
@@ -170,6 +173,17 @@ async function executeCommandStepType(data, loader: CargoLoader) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
+async function executeCommandFlag(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createFlag(loader, data.frag)
+  else if (data.cmd === "update")
+    await updateFlag(loader, data.frag)
+  else if (data.cmd === "delete")
+    await deleteFlag(loader, data.frag)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+}
+
 async function executeCommandTask(data, loader: CargoLoader) {
   if (data.cmd === "create")
     await createTask(loader, data.frag)
@@ -192,6 +206,7 @@ async function completeCargo(loader: CargoLoader) {
     await fetchTasks(loader, loader.modelUpdate.getNeededFragments("Task") as any)
     await fetchSteps(loader, loader.modelUpdate.getNeededFragments("Step") as any)
     await fetchStepTypes(loader, loader.modelUpdate.getNeededFragments("StepType") as any)
+    await fetchFlags(loader, loader.modelUpdate.getNeededFragments("Flag") as any)
     await fetchContributors(loader, loader.modelUpdate.getNeededFragments("Contributor") as any)
   }
 }

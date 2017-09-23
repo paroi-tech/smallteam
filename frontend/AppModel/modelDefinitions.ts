@@ -1,17 +1,17 @@
-import { Type, Identifier } from "../../isomorphic/Cargo";
-import { NewContributorFragment, UpdContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor";
-import { ContributorModel, registerContributor } from "./Models/ContributorModel";
-import { NewProjectFragment, UpdProjectFragment, ProjectIdFragment, ProjectQuery } from "../../isomorphic/fragments/Project";
-import { ProjectModel, registerProject } from "./Models/ProjectModel";
-import { NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorphic/fragments/Task";
-import { TaskModel, registerTask } from "./Models/TaskModel";
-import { NewStepFragment, StepIdFragment } from "../../isomorphic/fragments/Step";
-import { StepModel, registerStep } from "./Models/StepModel";
-import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType";
-import { StepTypeModel, registerStepType } from "./Models/StepTypeModel";
-import { FlagModel, registerFlag } from "./Models/FlagModel";
-import ModelEngine, { CommandType, ModelEvent } from "./ModelEngine";
-import { ComponentEvent, Transmitter } from "bkb";
+import { Type, Identifier } from "../../isomorphic/Cargo"
+import { NewContributorFragment, UpdContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
+import { ContributorModel, registerContributor } from "./Models/ContributorModel"
+import { NewProjectFragment, UpdProjectFragment, ProjectIdFragment, ProjectQuery } from "../../isomorphic/fragments/Project"
+import { ProjectModel, registerProject } from "./Models/ProjectModel"
+import { NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorphic/fragments/Task"
+import { TaskModel, registerTask } from "./Models/TaskModel"
+import { NewStepFragment, StepIdFragment } from "../../isomorphic/fragments/Step"
+import { StepModel, registerStep } from "./Models/StepModel"
+import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
+import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
+import { FlagModel, registerFlag } from "./Models/FlagModel"
+import ModelEngine, { CommandType, ModelEvent } from "./ModelEngine"
+import { ComponentEvent, Transmitter } from "bkb"
 
 export interface WhoUseItem {
   type: Type,
@@ -54,10 +54,28 @@ interface ModelEventMethods {
   listen(eventName: string): Transmitter<ModelEvent>
 }
 
+export interface Collection<M, ID> extends Array<M> {
+  get(id: ID): M | undefined
+}
+
+export interface ReadonlyCollection<M, ID> extends ReadonlyArray<M> {
+  get(id: ID): M | undefined
+}
+
 export interface CommandBatch extends ModelCommandMethods {
   sendAll(): Promise<any[]>
 }
 
+export interface GlobalModels {
+  readonly isReady: boolean
+  readonly load: Promise<void>
+  readonly stepTypes: ReadonlyCollection<StepTypeModel, string>
+  readonly flags: ReadonlyCollection<FlagModel, string>
+  readonly contributors: ReadonlyCollection<ContributorModel, string>
+  readonly projects: ReadonlyCollection<ProjectModel, string>
+}
+
 export interface Model extends ModelCommandMethods, ModelEventMethods {
   createCommandBatch(): CommandBatch
+  readonly global: GlobalModels
 }
