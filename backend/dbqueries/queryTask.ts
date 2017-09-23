@@ -202,20 +202,20 @@ export async function deleteTask(loader: CargoLoader, frag: TaskIdFragment) {
 }
 
 // --
-// -- Reorder
+// -- Reorder child tasks
 // --
 
-export async function reorderTasks(loader: CargoLoader, idList: string[], parentIdStr: string) {
+export async function reorderChildTasks(loader: CargoLoader, idList: string[], parentIdStr: string) {
   let cn = await getDbConnection()
   let parentId = int(parentIdStr)
 
-  let oldNums = await loadOrderNums(parentId),
+  let oldNums = await loadChildOrderNums(parentId),
     curNum = 0
   for (let idStr of idList) {
     let id = int(idStr),
       oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
-      await updateOrderNum(id, curNum)
+      await updateChildOrderNum(id, parentId, curNum)
       loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
@@ -227,24 +227,27 @@ export async function reorderTasks(loader: CargoLoader, idList: string[], parent
   for (let id of remaining) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
-      await updateOrderNum(id, curNum)
+      await updateChildOrderNum(id, parentId, curNum)
       loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
   }
 }
 
-async function updateOrderNum(taskId: number, orderNum: number) {
+async function updateChildOrderNum(taskId: number, parentId: number, orderNum: number) {
   let cn = await getDbConnection()
   let sql = buildUpdate()
     .update("task_child")
     .set({
       "order_num": orderNum
     })
-    .where("task_id", taskId)
+    .where({
+      "task_id": taskId,
+      "parent_task_id": parentId
+    })
   await cn.run(sql.toSql())
 }
 
-async function loadOrderNums(parentId: number): Promise<Map<number, number>> {
+async function loadChildOrderNums(parentId: number): Promise<Map<number, number>> {
   let cn = await getDbConnection()
   let sql = buildSelect()
     .select("c.task_id, c.order_num")

@@ -11,7 +11,7 @@ import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragm
 import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
-import ModelEngine, { CommandType, ModelEvent } from "./ModelEngine"
+import ModelEngine, { CommandType, ModelEvent, toCollection } from "./ModelEngine"
 import App from "../App/App"
 import { registerComment } from "./Models/CommentModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
@@ -19,7 +19,7 @@ import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection } from "./modelDefinitions"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta";
 import { toIdentifier } from "../../isomorphic/meta";
-import { makeHKMap } from "../../isomorphic/libraries/HKCollections";
+import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections";
 
 export { CommandType, ModelEvent } from "./ModelEngine"
 export { Model, WhoUseItem, CommandBatch } from "./modelDefinitions"
@@ -66,8 +66,8 @@ export default class ModelComp implements Model {
     return this.engine.query(type, filters)
   }
 
-  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
-    return this.engine.reorder(type, { idList, groupId })
+  public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
+    return this.engine.reorder(type, { idList, groupName, groupId })
   }
 
   // --
@@ -105,7 +105,7 @@ function createGlobal(model: ModelComp): GlobalModels {
     collections = {}
   let batchPromise = batch.sendAll().then(results => {
     for (let i = 0; i < propNames.length; ++i)
-      collections[propNames[i]] = toCollection<any, any>(results[i], typeNames[i])
+      collections[propNames[i]] = toCollection(results[i], typeNames[i])
     isReady = true
   })
 
@@ -129,13 +129,4 @@ function createGlobal(model: ModelComp): GlobalModels {
   Object.defineProperties(obj, properties)
 
   return obj as GlobalModels
-}
-
-function toCollection<M extends object, ID extends Identifier>(models: M[], type: Type): Collection<M, ID> {
-  let map = makeHKMap<ID, M>()
-  for (let model of models)
-    map.set(toIdentifier(model, type) as ID, model)
-  let coll: any = models
-  coll.get = id => map.get(id)
-  return coll
 }

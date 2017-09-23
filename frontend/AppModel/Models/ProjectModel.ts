@@ -3,15 +3,19 @@ import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 import { StepFragment } from "../../../isomorphic/fragments/Step"
 import { TaskModel } from "./TaskModel"
 import { StepModel, isStepNormal, isStepSpecial } from "./StepModel"
+import { Collection } from "../modelDefinitions";
 
 export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
-  readonly steps: StepModel[]
-  readonly specialSteps: StepModel[]
+  readonly steps: Collection<StepModel, string>
+  readonly specialSteps: Collection<StepModel, string>
   hasStepType(stepTypeId: string): boolean
   findStepByType(stepTypeId: string): StepModel | undefined
   findStep(stepId: string): StepModel | undefined
   readonly tasks?: TaskModel[]
+  /**
+   * Search the task on all the hierarchy
+   */
   getTask(taskId: string): TaskModel
 }
 

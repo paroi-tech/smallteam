@@ -84,3 +84,62 @@ export async function updateContributor(loader: CargoLoader, updFrag: UpdContrib
 
   await cn.run(sql.toSql())
 }
+
+// --
+// -- Reorder affectedTo tasks
+// --
+
+export async function reorderAffectedContributors(loader: CargoLoader, idList: string[], taskIdStr: string) {
+  let cn = await getDbConnection()
+  let taskId = int(taskIdStr)
+
+  let oldNums = await loadAffectedOrderNums(taskId),
+    curNum = 0
+  for (let idStr of idList) {
+    let id = int(idStr),
+      oldNum = oldNums.get(id)
+    if (oldNum !== undefined && ++curNum !== oldNum) {
+      await updateAffectedOrderNum(id, taskId, curNum)
+      loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
+    }
+    oldNums.delete(id)
+  }
+  let remaining = Array.from(oldNums.keys())
+  remaining.sort((a, b) => {
+    return a - b
+  })
+  for (let id of remaining) {
+    let oldNum = oldNums.get(id)
+    if (++curNum !== oldNum) {
+      await updateAffectedOrderNum(id, taskId, curNum)
+      loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
+    }
+  }
+}
+
+async function updateAffectedOrderNum(contributorId: number, taskId: number, orderNum: number) {
+  let cn = await getDbConnection()
+  let sql = buildUpdate()
+    .update("task_affected_to")
+    .set({
+      "order_num": orderNum
+    })
+    .where({
+      "contributor_id": contributorId,
+      "task_id": taskId
+    })
+  await cn.run(sql.toSql())
+}
+
+async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number>> {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("c.contributor_id, c.order_num")
+    .from("task_affected_to c")
+    .where("c.task_id", taskId)
+  let rs = await cn.all(sql.toSql()),
+    orderNums = new Map<number, number>()
+  for (let row of rs)
+    orderNums.set(row["contributor_id"], row["order_num"])
+  return orderNums
+}

@@ -4,12 +4,13 @@ import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
+import { Collection } from "../modelDefinitions";
 
 export interface TaskModel extends TaskFragment {
   readonly project: ProjectModel
   readonly currentStep: StepModel
   readonly parent?: TaskModel
-  readonly children?: TaskModel[]
+  readonly children?: Collection<TaskModel, string>
   readonly createdBy: ContributorModel
   affectedTo?: ContributorModel[]
   // getComments: CommentModel[] // => TODO: Async load

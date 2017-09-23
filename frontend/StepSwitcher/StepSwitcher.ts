@@ -224,7 +224,7 @@ export default class StepSwitcher {
       throw new Error(`Unknown BoxList with ID ${ev.boxListId} in StepSwitcher ${this.parentTask.label}`)
     boxList.disable(true)
     try {
-      let result = await this.model.reorder("Task", ev.boxIds, this.parentTask.id)
+      let result = await this.model.reorder("Task", ev.boxIds, "childOf", this.parentTask.id)
       console.log(`Tasks successfully reordered in StepSwitcher "${this.parentTask.label}"`)
     } catch (err) {
       console.log(`Impossible to reorder tasks in StepSwitcher "${this.parentTask.label}"`)

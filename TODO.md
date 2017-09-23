@@ -4,15 +4,9 @@ the time, so I can't use JIRA.
 # Thomas
 
 - CSS: use flexbox & grid
-- Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - In the Model:
-  - Load data on init: `stepTypes`, `flags`, `contributors`
-    - In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
   - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
   - Model have to emit event when task orders are changed.
-  - ModelEngine: add a method `get(id)` on the list returned by `getModels`
-  - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
-    - optional data (archived projects...) when loaded by queries
   - Add a boolean "processing" on each model
     - Lionel: disable forms for the models in processing
   - Add a list of processing tasks
@@ -23,6 +17,8 @@ the time, so I can't use JIRA.
   - Implement async TaskModel.getComments()
   - Implement async TaskModel.logEntries()
   - Remove StepFragment.name => call step.stepType.name
+  - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
+- Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 
 
 # Lionel
@@ -56,3 +52,10 @@ the time, so I can't use JIRA.
     - In `ProjectForm/ProjectStepsPanel/ProjectStepsPanel.ts`, implement the method `clear` and make the instance reusable
   - `StepTypeForm.setProject(stepType: StepTypeModel | null)`
   - `TaskForm.setTask(task: TaskModel)`
+
+# Thomas - DONE
+
+- In the Model:
+  - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
+  - Load data on init: `stepTypes`, `flags`, `contributors`
+  - ModelEngine: add a method `get(id)` on the list returned by `getModels`
