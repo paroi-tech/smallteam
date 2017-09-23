@@ -53,7 +53,7 @@ export default class ProjectWorkspace implements Workspace {
   readonly el: HTMLElement
   private dropdownMenuContainerEl: HTMLElement
   private contentContainerEl: HTMLElement
-  private currentContentEl: HTMLElement
+  private currentContentEl: HTMLElement | undefined = undefined
 
   private dropdownMenu: Component<DropdownMenu>
   private taskBoard: TaskBoard
@@ -100,6 +100,7 @@ export default class ProjectWorkspace implements Workspace {
   private listenToChildren() {
     this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
       this.setContent(this.form.el)
+      this.form.show()
     })
 
     this.dropdownMenu.bkb.on("showTaskBoard", "eventOnly", ev => {
@@ -144,7 +145,8 @@ export default class ProjectWorkspace implements Workspace {
   }
 
   private setContent(el: HTMLElement) {
-    this.currentContentEl.style.display = "none"
+    if (this.currentContentEl)
+      this.currentContentEl.style.display = "none"
     this.currentContentEl = el
     el.style.display = "block"
   }

@@ -9,7 +9,7 @@ import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderTasks, deleteTask } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
-import { fetchFlags, queryFlags, createFlag, updateFlag } from "./dbqueries/queryFlag"
+import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag } from "./dbqueries/queryFlag"
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)

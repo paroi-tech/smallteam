@@ -24,6 +24,8 @@ export default class ProjectForm implements Workspace {
   private state = {
     name: "",
     code: "",
+    // Monkberry does not work well with TextAreaElement, so we update manually
+    // the content of the description field.
     ctrl: {
       submit: () => this.onSubmit().catch(console.log)
     }
@@ -46,6 +48,7 @@ export default class ProjectForm implements Workspace {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
     this.listenToForm()
+    this.createChildComponents()
   }
 
   /**
@@ -61,13 +64,17 @@ export default class ProjectForm implements Workspace {
     this.descriptionEl = this.view.querySelector(".js-description")
     this.submitSpinnerEl = this.view.querySelector(".js-submitSpinner")
 
-    this.stepSelector = this.dash.create(StepSelector, { args: [] })
-    wrapperEl.appendChild(this.stepSelector.el)
-
     this.view.update(this.state)
 
     return wrapperEl
   }
+
+  private createChildComponents() {
+    this.stepSelector = this.dash.create(StepSelector, { args: [] })
+    this.stepSelector.hide()
+    this.el.appendChild(this.stepSelector.el)
+  }
+
 
   /**
    * Listen to events from the form.
@@ -106,14 +113,18 @@ export default class ProjectForm implements Workspace {
    */
   public setProject(project: ProjectModel | undefined) {
     this.project = project
-    if (this.project) {
+    this.stepSelector.setProject(project)
+    if (project) {
       this.codeEl.setAttribute("readonly", "true")
+      this.generateCode = false
       this.fillFieldsWithCurrentProject()
+      this.stepSelector.show()
     } else {
+      this.codeEl.removeAttribute("readonly")
       this.clearFormFields()
-      this.codeEl.setAttribute("readonly", "true")
+      this.generateCode = true
+      this.stepSelector.hide()
     }
-    this.stepSelector.setProject(this.project)
   }
 
   /**
@@ -129,6 +140,7 @@ export default class ProjectForm implements Workspace {
       this.codeEl.setAttribute("readonly", "true")
       this.fillFieldsWithCurrentProject()
       this.stepSelector.setProject(this.project)
+      this.stepSelector.show()
     } catch (error) {
       console.error("Error while creating new project...")
     }
@@ -186,7 +198,6 @@ export default class ProjectForm implements Workspace {
 
   /**
    * Hide the ProjectForm.
-   * If the project is not linled to a project, also remove the ProjectForm from the DOM.
    */
   public hide() {
     this.el.style.display = "none"

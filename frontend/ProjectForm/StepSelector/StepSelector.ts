@@ -39,6 +39,7 @@ export default class StepSelector {
     this.model = this.dash.app.model
     this.el = this.createChildComponents()
     this.listenToModel()
+    this.model.global.stepTypes.forEach(stepType => this.registerStepType(stepType))
   }
 
   /**
@@ -50,7 +51,6 @@ export default class StepSelector {
     this.project = project
     if (!project)
       return
-    this.model.global.stepTypes.forEach(stepType => this.registerStepType(stepType))
     this.fillBoxLists()
   }
 
@@ -113,9 +113,9 @@ export default class StepSelector {
    */
   private createChildComponents() {
     let container = document.createElement("div")
-    container.classList.add("ProjectStepsPanel")
+    container.classList.add("StepSelector")
 
-    let boxListGroup = "PrjStepsPanelBoxLists"
+    let boxListGroup = "StepSelectorBoxLists"
     let spareBoxListParams = {
       id: "Available",
       group: boxListGroup,
@@ -299,14 +299,14 @@ export default class StepSelector {
   }
 
   /**
-   * Hide the ProjectBoard.
+   * Hide the StepSelector.
    */
   public hide() {
     this.el.style.display = "none";
   }
 
   /**
-   * Make the ProjectBoard visible.
+   * Make the StepSelector visible.
    */
   public show() {
     this.el.style.display = "block";
