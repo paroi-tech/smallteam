@@ -1,7 +1,7 @@
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ProjectModel } from "../AppModel/AppModel"
-import ProjectStepsPanel from "./ProjectStepsPanel/ProjectStepsPanel"
+import StepSelector from "./StepSelector/StepSelector"
 import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
@@ -19,7 +19,7 @@ export default class ProjectForm implements Workspace {
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
-  private stepsPanel: ProjectStepsPanel
+  private stepSelector: StepSelector
 
   private state = {
     name: "",
@@ -61,8 +61,8 @@ export default class ProjectForm implements Workspace {
     this.descriptionEl = this.view.querySelector(".js-description")
     this.submitSpinnerEl = this.view.querySelector(".js-submitSpinner")
 
-    this.stepsPanel = this.dash.create(ProjectStepsPanel, { args: [] })
-    wrapperEl.appendChild(this.stepsPanel.el)
+    this.stepSelector = this.dash.create(StepSelector, { args: [] })
+    wrapperEl.appendChild(this.stepSelector.el)
 
     this.view.update(this.state)
 
@@ -113,7 +113,7 @@ export default class ProjectForm implements Workspace {
       this.clearFormFields()
       this.codeEl.setAttribute("readonly", "true")
     }
-    this.stepsPanel.setProject(this.project)
+    this.stepSelector.setProject(this.project)
   }
 
   /**
@@ -128,7 +128,7 @@ export default class ProjectForm implements Workspace {
       this.project = await this.model.exec("create", "Project", { code, name, description })
       this.codeEl.setAttribute("readonly", "true")
       this.fillFieldsWithCurrentProject()
-      this.stepsPanel.setProject(this.project)
+      this.stepSelector.setProject(this.project)
     } catch (error) {
       console.error("Error while creating new project...")
     }

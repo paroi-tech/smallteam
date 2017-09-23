@@ -7,7 +7,6 @@ import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypeWorkspace from "../StepTypeWorkspace/StepTypeWorkspace"
 import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
 import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
-import ProjectStepsPanel from "../ProjectForm/ProjectStepsPanel/ProjectStepsPanel"
 import { render } from "monkberry"
 import * as template from "./workspaceviewer.monk"
 

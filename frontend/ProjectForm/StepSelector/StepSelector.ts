@@ -4,7 +4,7 @@ import { Dash, Bkb } from "bkb"
 import { ProjectModel, StepModel, StepTypeModel, Model } from "../../AppModel/AppModel"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 
-export default class ProjectStepsPanel {
+export default class StepSelector {
   readonly el: HTMLElement
 
   private spareStepBoxList: BoxList<StepTypeBox>
