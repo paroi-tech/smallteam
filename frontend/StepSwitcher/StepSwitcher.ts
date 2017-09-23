@@ -131,7 +131,7 @@ export default class StepSwitcher {
    */
   private async onTaskBoxMove(ev: BoxEvent) {
     let box = this.taskBoxMap.get(ev.boxId)
-    let step = this.project.findStep(ev.boxListId)
+    let step = this.project.steps.get(ev.boxListId)
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher "${this.parentTask.label}"`)
     else if (!step)

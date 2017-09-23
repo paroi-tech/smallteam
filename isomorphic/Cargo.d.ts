@@ -21,6 +21,7 @@ export interface Fragments {
 export type Type = keyof Fragments
 
 export type Identifier = string | { [fieldName: string]: string }
+export type Identifiers = string[] | { [fieldName: string]: string }[]
 
 export type ResultType = "data" | "fragment" | "fragments" | "none"
 
@@ -88,4 +89,13 @@ export interface Cargo extends CargoResponse {
 export interface BatchCargo {
   responses?: CargoResponse[]
   modelUpd?: ModelUpdate
+}
+
+// --
+// -- Backend input
+// --
+
+export interface Dependencies {
+  type: Type
+  idList: Identifier[]
 }

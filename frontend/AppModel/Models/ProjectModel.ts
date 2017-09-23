@@ -61,13 +61,13 @@ export function registerProject(engine: ModelEngine) {
         })
         return item
       },
-      findStep(stepId: string) {
-        for (let step of this.steps) {
-          if (step.id === stepId)
-            return step
-        }
-        return undefined
-      },
+      // findStep(stepId: string) {
+      //   for (let step of this.steps) {
+      //     if (step.id === stepId)
+      //       return step
+      //   }
+      //   return undefined
+      // },
       get tasks() {
         return this.rootTask.children
       },

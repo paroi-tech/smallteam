@@ -1,4 +1,4 @@
-import { Cargo, BatchCargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate, CargoResponse } from "../../isomorphic/Cargo"
+import { Cargo, BatchCargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate, CargoResponse, Dependencies } from "../../isomorphic/Cargo"
 import ModelUpdateLoader, { ChangedType } from "./ModelUpdateLoader"
 import ResponseLoader from "./ResponseLoader"
 import { toIdentifier } from "../../isomorphic/meta"
@@ -34,6 +34,13 @@ export default class CargoLoader {
     if (this.responses.length !== 0 && !this.isBatch)
       throw new Error(`Cannot add a new response, the loader is not in batch mode`)
     this.responses.push(new ResponseLoader(resultType))
+  }
+
+  public addDependencies(dependencies: Dependencies[]) {
+    for (let dep of dependencies) {
+      for (let id of dep.idList)
+        this.modelUpdate.addFragment(dep.type, id)
+    }
   }
 
   public addFragment(opt: FragmentOptions) {

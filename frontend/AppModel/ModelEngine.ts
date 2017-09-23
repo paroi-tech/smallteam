@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
-import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate } from "../../isomorphic/Cargo"
+import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate, Identifiers, Dependencies } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
 import { toDebugStr } from "../../isomorphic/libraries/helpers"
@@ -13,6 +13,10 @@ import { Collection } from "./modelDefinitions";
 // --
 
 export type CommandType = "create" | "update" | "delete"
+
+type GetDependencies = (fragOrOrderProps: object | OrderProperties) => Dependencies | undefined
+
+export type OrderProperties = { idList: Identifier[], groupName?: string, groupId?: Identifier }
 
 export interface IndexCallbacks {
   [name: string]: (frag: object) => boolean
@@ -26,7 +30,7 @@ export interface IndexQuery {
 }
 
 export interface ModelsQuery extends IndexQuery {
-  orderBy: [string, "asc" | "desc"] | ((a, b) => number)
+  orderBy?: [string, "asc" | "desc"] | ((a, b) => number)
 }
 
 export interface ModelEvent {
@@ -91,6 +95,7 @@ interface Batch {
 
 export default class ModelEngine {
   private store = makeHKMap<Type, TypeStorage>()
+  private dependencies = new Map<string, GetDependencies[]>()
   private batch: Batch | null = null
 
   constructor(private dash: Dash<object>) {
@@ -104,6 +109,14 @@ export default class ModelEngine {
       modelMaker
     })
     this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`)
+  }
+
+  public registerDependency(cmd: CommandType | "reorder", dependOf: Type, getDependencies: GetDependencies) {
+    let depKey = JSON.stringify([cmd, dependOf])
+    let list = this.dependencies.get(depKey)
+    if (!list)
+      this.dependencies.set(depKey, list = [])
+    list.push(getDependencies)
   }
 
   public startBatchRecord(httpMethod?: HttpMethod) {
@@ -134,18 +147,25 @@ export default class ModelEngine {
 
   public async exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
     let del = cmd === "delete"
-    let resultFrag = await this.httpSendAndUpdate("POST", "/api/exec", { cmd, type, frag }, del ? "none" : "fragment")
+    let dependencies = this.getExecDependencies(cmd, type, frag)
+    let resultFrag = await this.httpSendAndUpdate(
+      "POST",
+      "/api/exec",
+      { cmd, type, frag, dependencies },
+      del ? "none" : "fragment"
+    )
     if (!del)
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
 
-  public async reorder(type: Type, orderedIds: { idList: Identifier[], groupName?: string, groupId?: Identifier }): Promise<Identifier[]> {
+  public async reorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
     let orderFieldName = getFragmentMeta(type).orderFieldName
     if (!orderFieldName)
       throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
     if (orderedIds.idList.length === 0)
       return []
-    await this.httpSendAndUpdate("POST", "/api/exec", { cmd: "reorder", type, ...orderedIds }, "none")
+    let dependencies = this.getExecDependencies("reorder", type, orderedIds)
+    await this.httpSendAndUpdate("POST", "/api/exec", { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
     return orderedIds.idList
       .map(id => ({ id, frag: this.getFragment({ id, type }) }))
       .sort((a, b) => a.frag[orderFieldName!] - b.frag[orderFieldName!])
@@ -176,18 +196,30 @@ export default class ModelEngine {
     return entity.model
   }
 
-  public getModels(query: ModelsQuery, onEmptyVal = []): any[] {
+  public getModels<M = any>(query: ModelsQuery, onEmptyVal: any = []): Collection<M, Identifier> {
     let identifiers = this.findIdentifiersFromIndex(query)
-    if (!identifiers)
-      return onEmptyVal
+    let list: any[] = []
+    if (identifiers) {
+      for (let id of identifiers)
+        list.push(this.getModel(query.type, id))
 
+      if (query.orderBy) {
+        let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy
+        list.sort(sortFn)
+      }
+    }
+    if (list.length === 0)
+      return Array.isArray(onEmptyVal) ? toCollection(onEmptyVal, query.type) : onEmptyVal
+    return toCollection(list, query.type)
+  }
+
+  public getAllModels<M = any>(type: Type, onEmptyVal = []): M[] {
+    let storage = this.getTypeStorage(type),
+      identifiers = storage.entities.keys()
     let list: any[] = []
     for (let id of identifiers)
-      list.push(this.getModel(query.type, id))
-
-    let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy
-    list.sort(sortFn)
-    return toCollection(list.length === 0 ? onEmptyVal : list, query.type)
+      list.push(this.getModel(type, id))
+    return toCollection(list.length === 0 ? onEmptyVal : list, type)
   }
 
   public countModels(query: IndexQuery): number {
@@ -207,6 +239,20 @@ export default class ModelEngine {
       return this.getModel(query.type, id)
     // console.log(`  > findSingleFromIndex C`, query, identifiers)
     return undefined
+  }
+
+  private getExecDependencies(cmd: CommandType | "reorder", type: Type, data: object | OrderProperties): Dependencies[] | undefined {
+    let depKey = JSON.stringify([cmd, type])
+    let cbList = this.dependencies.get(depKey)
+    if (!cbList)
+      return
+    let result: Dependencies[] = []
+    for (let cb of cbList) {
+      let dep = cb(data)
+      if (dep)
+        result.push(dep)
+    }
+    return result.length > 0 ? result : undefined
   }
 
   private findIdentifiersFromIndex({ type, index, key, indexCb }: IndexQuery): HKSet<Identifier> | undefined {
@@ -533,13 +579,13 @@ async function httpSendJson(method: HttpMethod, url: string, data): Promise<any>
 
 export function toCollection<M extends object, ID extends Identifier>(models: M[], type: Type): Collection<M, ID> {
   let map: HKMap<ID, M>
-  ;(models as any).get = id => {
-    if (!map) {
-      map = makeHKMap<ID, M>()
-      for (let model of models)
-        map.set(toIdentifier(model, type) as ID, model)
+    ; (models as any).get = id => {
+      if (!map) {
+        map = makeHKMap<ID, M>()
+        for (let model of models)
+          map.set(toIdentifier(model, type) as ID, model)
+      }
+      map.get(id)
     }
-    map.get(id)
-  }
   return models as any
 }

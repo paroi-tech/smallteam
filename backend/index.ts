@@ -126,6 +126,8 @@ const commands = {
 
 async function executeCommand(data, loader: CargoLoader) {
   loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
+  if (data.dependencies)
+    loader.addDependencies(data.dependencies)
   let cb = commands[data.type]
   if (!cb)
     throw new Error(`Invalid type: "${data.type}"`)

@@ -49,7 +49,7 @@ export default class ModelComp implements Model {
     registerTaskLogEntry(this.engine)
     registerProject(this.engine)
     registerTask(this.engine)
-    registerStep(this.engine)
+    registerStep(this.engine, this)
     registerStepType(this.engine)
     this.global = createGlobal(this)
   }
