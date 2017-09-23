@@ -66,8 +66,8 @@ export default class ModelComp implements Model {
     return this.engine.query(type, filters)
   }
 
-  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
-    return this.engine.reorder(type, { idList, groupId })
+  public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
+    return this.engine.reorder(type, { idList, groupName, groupId })
   }
 
   // --

@@ -139,7 +139,7 @@ export default class ModelEngine {
       return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
   }
 
-  public async reorder(type: Type, orderedIds: { idList: Identifier[], groupId?: Identifier }): Promise<Identifier[]> {
+  public async reorder(type: Type, orderedIds: { idList: Identifier[], groupName?: string, groupId?: Identifier }): Promise<Identifier[]> {
     let orderFieldName = getFragmentMeta(type).orderFieldName
     if (!orderFieldName)
       throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
