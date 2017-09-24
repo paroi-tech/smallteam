@@ -1,6 +1,7 @@
 import { ApplicationDash, ApplicationBkb, Log, LogItem, Component } from "bkb"
 import WorkspaceViewer from "../WorkspaceViewer/WorkspaceViewer"
 import ModelComp, { Model, ModelEvent } from "../AppModel/AppModel"
+import { BgCommand } from "../AppModel/BgCommandManager"
 
 export default class App {
   readonly log: Log
@@ -16,11 +17,23 @@ export default class App {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
 
-    this.model.on("change", "dataFirst", data => {
+    this.dash.listenTo<ModelEvent>(this.model, "change").call("dataFirst", data => {
       if (data.orderedIds)
         console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
         console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
+
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandAdded").call("dataFirst", data => {
+      console.log(`[BG] Add: ${data.label}`)
+    })
+
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandDone").call("dataFirst", data => {
+      console.log(`[BG] Done: ${data.label}`)
+    })
+
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").call("dataFirst", data => {
+      console.log(`[BG] Error: ${data.label}`, data.error)
     })
   }
 

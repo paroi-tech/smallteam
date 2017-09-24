@@ -12,6 +12,7 @@ import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import ModelEngine, { CommandType, ModelEvent } from "./ModelEngine"
 import { ComponentEvent, Transmitter } from "bkb"
+import { BgCommandManager, BgCommand } from "./BgCommandManager"
 
 export interface WhoUseItem {
   type: Type,
@@ -79,4 +80,5 @@ export interface GlobalModels {
 export interface Model extends ModelCommandMethods, ModelEventMethods {
   createCommandBatch(): CommandBatch
   readonly global: GlobalModels
+  readonly bgCommandMng: BgCommandManager
 }

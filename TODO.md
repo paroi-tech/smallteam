@@ -3,12 +3,11 @@ the time, so I can't use JIRA.
 
 # Thomas
 
+- Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
 - In the Model:
   - Add a boolean "processing" on each model
     - Lionel: disable forms for the models in processing
-  - Add a list of processing tasks
-    - Lionel: Implement a new component `RemoteTaskManager`
   - Implement methods whoUse
   - Implement TaskModel.affectedTo (list)
   - Implement TaskModel.flags (list)
@@ -17,10 +16,11 @@ the time, so I can't use JIRA.
   - Remove StepFragment.name => call step.stepType.name
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
-
+- Deploy the project on the Web server
 
 # Lionel
 - Refactoring in WorkspaceViewer (with Thomas)
+- Implement a new component `BackgroundCommandManager`
 - Do not hide any existing StepSwitcher by default
 - Contributor (form, management, backend queries)
 - TaskBoardEntry?
@@ -61,3 +61,4 @@ the time, so I can't use JIRA.
   - ModelEngine: add a method `get(id)` on the list returned by `getModels`
   - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
   - Model have to emit event when task orders are changed.
+  - Add a list of background commands

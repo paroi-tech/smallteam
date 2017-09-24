@@ -20,6 +20,7 @@ import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection } fro
 import { FragmentMeta } from "../../isomorphic/FragmentMeta";
 import { toIdentifier } from "../../isomorphic/meta";
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections";
+import GenericBgCommandManager from "./BgCommandManager";
 
 export { CommandType, ModelEvent } from "./ModelEngine"
 export { Model, WhoUseItem, CommandBatch } from "./modelDefinitions"
@@ -39,10 +40,12 @@ export { TaskModel } from "./Models/TaskModel"
 
 export default class ModelComp implements Model {
   private engine: ModelEngine
+  readonly bgCommandMng: GenericBgCommandManager
   readonly global: GlobalModels
 
   constructor(private dash: Dash<App>) {
     this.engine = new ModelEngine(dash)
+    this.bgCommandMng = new GenericBgCommandManager(dash)
     registerContributor(this.engine)
     registerComment(this.engine)
     registerFlag(this.engine)
@@ -59,11 +62,11 @@ export default class ModelComp implements Model {
   // --
 
   public exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
-    return this.engine.exec(cmd, type, fragOrId)
+    return this.bgCommandMng.add(this.engine.exec(cmd, type, fragOrId), `${cmd} ${type}`).promise
   }
 
   public query(type: Type, filters?: any): Promise<any[]> {
-    return this.engine.query(type, filters)
+    return this.bgCommandMng.add(this.engine.query(type, filters), `query ${type}`).promise
   }
 
   public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
