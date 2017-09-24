@@ -52,7 +52,7 @@ const menuItems = [
 export default class ProjectWorkspace implements Workspace {
   readonly el: HTMLElement
   private dropdownMenuContainerEl: HTMLElement
-  private contentContainerEl: HTMLElement
+  private contentEl: HTMLElement
   private currentContentEl: HTMLElement | undefined = undefined
 
   private dropdownMenu: Component<DropdownMenu>
@@ -83,7 +83,7 @@ export default class ProjectWorkspace implements Workspace {
 
     $container.find("span.js-title").text(this.project.name)
     this.dropdownMenuContainerEl = $container.find(".js-dropdown-menu-container").get(0)
-    this.contentContainerEl = $container.find(".js-content").get(0)
+    this.contentEl = $container.find(".js-content").get(0)
 
     return $("<div></div>").append($container).get(0)
   }
@@ -135,13 +135,13 @@ export default class ProjectWorkspace implements Workspace {
     this.taskBoard = this.dash.create(TaskBoard, {
       args: [ this.project.rootTask ]
     })
-    this.contentContainerEl.appendChild(this.taskBoard.el)
+    this.contentEl.appendChild(this.taskBoard.el)
     this.currentContentEl = this.taskBoard.el
 
     this.form = this.dash.create(ProjectForm)
     this.form.hide()
     this.form.setProject(this.project)
-    this.contentContainerEl.appendChild(this.form.el)
+    this.contentEl.appendChild(this.form.el)
   }
 
   private setContent(el: HTMLElement) {

@@ -105,9 +105,7 @@ export async function reorderAffectedContributors(loader: CargoLoader, idList: s
     oldNums.delete(id)
   }
   let remaining = Array.from(oldNums.keys())
-  remaining.sort((a, b) => {
-    return a - b
-  })
+  remaining.sort((a, b) => a - b)
   for (let id of remaining) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
@@ -115,6 +113,7 @@ export async function reorderAffectedContributors(loader: CargoLoader, idList: s
       loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
     }
   }
+  loader.modelUpdate.markIdsAsReordered("Contributor", idList)
 }
 
 async function updateAffectedOrderNum(contributorId: number, taskId: number, orderNum: number) {

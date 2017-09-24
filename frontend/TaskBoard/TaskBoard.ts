@@ -9,8 +9,8 @@ const template  = require("html-loader!./taskboard.html")
 
 export default class TaskBoard {
   readonly el: HTMLElement
-  private stepSwitcherContainerEl: HTMLElement
-  private taskFormContainerEl: HTMLElement
+  private leftEl: HTMLElement
+  private rightEl: HTMLElement
 
   private taskForm: TaskForm
   private stepSwitcherMap: Map<String, StepSwitcher> = new Map()
@@ -30,8 +30,8 @@ export default class TaskBoard {
    */
   private createHtmlElements(): HTMLElement {
     let $container = $(template)
-    this.stepSwitcherContainerEl = $container.find(".js-stepswitcher-container").get(0)
-    this.taskFormContainerEl = $container.find(".js-taskform-container").get(0)
+    this.leftEl = $container.find(".js-left").get(0)
+    this.rightEl = $container.find(".js-right").get(0)
     return $container.get(0)
   }
 
@@ -40,10 +40,10 @@ export default class TaskBoard {
    */
   private createChildComponents() {
     this.taskForm = this.dash.create(TaskForm)
-    this.taskFormContainerEl.appendChild(this.taskForm.el)
+    this.rightEl.appendChild(this.taskForm.el)
 
     let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
-    this.stepSwitcherContainerEl.appendChild(rootTaskStepSwitcher.el)
+    this.leftEl.appendChild(rootTaskStepSwitcher.el)
     this.createStepSwitchersForChildren(this.rootTask)
   }
 
@@ -83,7 +83,7 @@ export default class TaskBoard {
       let panel = this.stepSwitcherMap.get(taskId)
       if (!panel)
         return
-      this.stepSwitcherContainerEl.removeChild(panel.el)
+      this.leftEl.removeChild(panel.el)
       this.stepSwitcherMap.delete(taskId)
     })
   }
@@ -113,7 +113,7 @@ export default class TaskBoard {
       let stepSwitcher = this.createStepSwitcher(task)
       // The StepSwitchers created for child tasks are hidden by default.
       stepSwitcher.setVisible(false)
-      this.stepSwitcherContainerEl.appendChild(stepSwitcher.el)
+      this.leftEl.appendChild(stepSwitcher.el)
       this.createStepSwitchersForChildren(task)
     })
   }
@@ -167,7 +167,7 @@ export default class TaskBoard {
     stepSwitcher = this.createStepSwitcher(task)
     // We insert the new StepSwitcher in the DOM. See the discussion for details about the method used:
     // https://stackoverflow.com/questions/4793604/how-to-do-insert-after-in-javascript-without-using-a-library
-    let parentNode = this.stepSwitcherContainerEl
+    let parentNode = this.leftEl
     let referenceNode = precedingStepSwitcher ? precedingStepSwitcher.el : parentStepSwitcher.el
     parentNode.insertBefore(stepSwitcher.el, referenceNode.nextSibling)
   }

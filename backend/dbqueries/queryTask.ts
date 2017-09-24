@@ -221,9 +221,7 @@ export async function reorderChildTasks(loader: CargoLoader, idList: string[], p
     oldNums.delete(id)
   }
   let remaining = Array.from(oldNums.keys())
-  remaining.sort((a, b) => {
-    return a - b
-  })
+  remaining.sort((a, b) => a - b)
   for (let id of remaining) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
@@ -231,6 +229,7 @@ export async function reorderChildTasks(loader: CargoLoader, idList: string[], p
       loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
   }
+  loader.modelUpdate.markIdsAsReordered("Task", idList)
 }
 
 async function updateChildOrderNum(taskId: number, parentId: number, orderNum: number) {

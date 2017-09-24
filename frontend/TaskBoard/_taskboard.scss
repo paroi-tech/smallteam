@@ -1,18 +1,14 @@
 .TaskBoard {
+  display: grid;
+  grid-template-columns: repeat(15, 1fr);
+  grid-column-gap: 24px;
+  grid-template-rows: 40px auto;
+
   &-left {
-    height: 100%;
-    overflow: auto;
-    padding: 5px;
-    position: absolute;
-    width: 65%;
+    grid-area: 2 / 1 / span 1 / span 9;
   }
 
   &-right {
-    height: 100%;
-    overflow: auto;
-    padding: 5px;
-    position: absolute;
-    right: 0;
-    width: 35%;
+    grid-area: 2 / 10 / span 1 / span 6;
   }
 }

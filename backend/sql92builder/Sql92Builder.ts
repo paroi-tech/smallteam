@@ -518,7 +518,7 @@ function toMultipleFilters(type: "or" | "and", filter: { [leftOperand: string]: 
     if (!filter.hasOwnProperty(leftOperande))
       continue
     let escVal = toSqlVal(filter[leftOperande], true)
-    arr.push(escVal === null ? `${filter} is null` : `${filter} = ${escVal}`)
+    arr.push(escVal === null ? `${leftOperande} is null` : `${leftOperande} = ${escVal}`)
   }
   return arr.length === 0 ? undefined : arr.join(` ${type} `)
 }

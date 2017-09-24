@@ -77,7 +77,8 @@ export default class PanelSelector {
 
   private menuEl: HTMLElement
   private dropdownMenuEl: HTMLElement
-  private workspaceContainerEl: HTMLElement
+  private titleEl: HTMLElement
+  private bodyEl: HTMLElement
 
   private projectMap: Map<string, ProjectModel> = new Map()
 
@@ -93,7 +94,7 @@ export default class PanelSelector {
     this.listenToModel()
     this.listenToEvents()
     this.loadProjects()
-    makeTests(this.el, this.dash.app.model) // TODO:  Remove this line
+    // makeTests(this.el, this.dash.app.model) // TODO:  Remove this line
   }
 
   private createView() {
@@ -102,7 +103,8 @@ export default class PanelSelector {
 
     this.menuEl = this.view.querySelector(".js-menuLeft")
     this.dropdownMenuEl = this.view.querySelector(".js-menuRight")
-    this.workspaceContainerEl = this.view.querySelector(".js-workspaceContainer")
+    this.titleEl = this.view.querySelector(".js-title")
+    this.bodyEl = this.view.querySelector(".js-body")
 
     return wrapperEl
   }
@@ -124,7 +126,7 @@ export default class PanelSelector {
 
     this.projectForm = this.dash.create(ProjectForm, { args: [] })
     this.projectForm.hide()
-    this.workspaceContainerEl.appendChild(this.projectForm.el)
+    this.bodyEl.appendChild(this.projectForm.el)
 
     // We have to do this, or else the project board won't be able to display StepTypePanel
     // and ContributorPanel later. See the showSettingPanel() method for details.
@@ -160,7 +162,7 @@ export default class PanelSelector {
       this.projectMap.delete(projectId)
       let panelInfo = this.workspaceMap.get("ProjectWorkspace" + ":" + projectId)
       if (panelInfo && panelInfo.type === ProjectWorkspace && panelInfo.workspace)
-        this.workspaceContainerEl.removeChild(panelInfo.workspace.el)
+        this.bodyEl.removeChild(panelInfo.workspace.el)
       this.menu.removeItem(projectId)
     })
   }
@@ -230,7 +232,7 @@ export default class PanelSelector {
       info.workspace = this.dash.create(ProjectWorkspace, {
         args: [ info.projectModel ]
       })
-      this.workspaceContainerEl.appendChild(info.workspace.el)
+      this.bodyEl.appendChild(info.workspace.el)
     }
     this.setCurrentWorkspace(info.workspace)
   }
@@ -278,10 +280,10 @@ export default class PanelSelector {
     if (!info.workspace) {
       if (info.type === StepTypeWorkspace) {
         info.workspace = this.dash.create<StepTypeWorkspace>(info.type)
-        this.workspaceContainerEl.appendChild(info.workspace.el)
+        this.bodyEl.appendChild(info.workspace.el)
       } else if (info.type === ContributorWorkspace) {
         info.workspace = this.dash.create<ContributorWorkspace>(info.type)
-        this.workspaceContainerEl.appendChild(info.workspace.el)
+        this.bodyEl.appendChild(info.workspace.el)
       } else
         throw new Error(`Unknown Workspace type: ${info.type}`)
     }
@@ -289,87 +291,87 @@ export default class PanelSelector {
   }
 }
 
-// TODO: remove this...
-// The following code has been added for tests purpose.
-import * as $ from "jquery"
-import { StepModel, StepTypeModel } from "../AppModel/AppModel"
+// // TODO: remove this...
+// // The following code has been added for tests purpose.
+// import * as $ from "jquery"
+// import { StepModel, StepTypeModel } from "../AppModel/AppModel"
 
-function makeTests(el, model: Model) {
-  model.on("change", "dataFirst", data => {
-    console.log(`++ event "change"`, data.type, "; ID:", data.id, "; data:", data)
-  })
-  model.on("update", "dataFirst", data => {
-    console.log(`++ event "update"`, data.type, "; ID:", data.id, "; data:", data)
-  })
-  model.on("updateProject", "dataFirst", data => {
-    console.log(`++ event "updateProject"`, data.type, "; ID:", data.id, "; data:", data)
-  })
-  model.on("createStepType", "dataFirst", data => {
-    console.log(`++ event "createStepType"`, data.type, "; ID:", data.id, "; data:", data)
-  })
+// function makeTests(el, model: Model) {
+//   model.on("change", "dataFirst", data => {
+//     console.log(`++ event "change"`, data.type, "; ID:", data.id, "; data:", data)
+//   })
+//   model.on("update", "dataFirst", data => {
+//     console.log(`++ event "update"`, data.type, "; ID:", data.id, "; data:", data)
+//   })
+//   model.on("updateProject", "dataFirst", data => {
+//     console.log(`++ event "updateProject"`, data.type, "; ID:", data.id, "; data:", data)
+//   })
+//   model.on("createStepType", "dataFirst", data => {
+//     console.log(`++ event "createStepType"`, data.type, "; ID:", data.id, "; data:", data)
+//   })
 
-  let type: StepTypeModel
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add type</button>`).appendTo(el).click(async () => {
-    let t = await model.exec("create", "StepType", {
-      name: "TODO"
-    })
-    console.log("Created type:", t)
-    type = t
-  })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get types</button>`).appendTo(el).click(async () => {
-    let types = await model.query("StepType")
-    console.log("Loaded types:", types)
-  })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get contributors</button>`).appendTo(el).click(async () => {
-    let contributors = await model.query("Contributor")
-    console.log("Loaded contributors:", contributors)
-  })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Batch</button>`).appendTo(el).click(async () => {
-    let batch = model.createCommandBatch();
+//   let type: StepTypeModel
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add type</button>`).appendTo(el).click(async () => {
+//     let t = await model.exec("create", "StepType", {
+//       name: "TODO"
+//     })
+//     console.log("Created type:", t)
+//     type = t
+//   })
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get types</button>`).appendTo(el).click(async () => {
+//     let types = await model.query("StepType")
+//     console.log("Loaded types:", types)
+//   })
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Get contributors</button>`).appendTo(el).click(async () => {
+//     let contributors = await model.query("Contributor")
+//     console.log("Loaded contributors:", contributors)
+//   })
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Batch</button>`).appendTo(el).click(async () => {
+//     let batch = model.createCommandBatch();
 
-    batch.query("StepType").then(result => {
-      console.log("Queryied steptype:", result)
-    })
-    batch.query("Project", {archived: false}).then(result => {
-      console.log("Queryied Project:", result)
-    })
+//     batch.query("StepType").then(result => {
+//       console.log("Queryied steptype:", result)
+//     })
+//     batch.query("Project", {archived: false}).then(result => {
+//       console.log("Queryied Project:", result)
+//     })
 
-    // batch.exec("delete", "Step", {
-    //   id: "3"
-    // }).then(result => {
-    //   console.log("Deleted step:", result)
-    // })
-    // batch.exec("create", "Step", {
-    //   projectId: "1",
-    //   typeId: "2"
-    // }).then(step => {
-    //   console.log("Created step:", step)
-    // })
+//     // batch.exec("delete", "Step", {
+//     //   id: "3"
+//     // }).then(result => {
+//     //   console.log("Deleted step:", result)
+//     // })
+//     // batch.exec("create", "Step", {
+//     //   projectId: "1",
+//     //   typeId: "2"
+//     // }).then(step => {
+//     //   console.log("Created step:", step)
+//     // })
 
-    let results = await batch.sendAll()
-    console.log("Batch result:", results)
-  })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add task</button>`).appendTo(el).click(async () => {
-    let step = await model.exec("create", "Task", {
-      label: "ABC",
-      createdById: "1",
-      curStepId: "1",
-      parentTaskId: "5"
-    })
-    console.log("Created step:", step)
-  })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Update project</button>`).appendTo(el).click(async () => {
-   let project = await model.exec("update", "Project", {
-      id: "1",
-      description: "Hop la description",
-      name: "Beau projet"
-    })
-    console.log("Updated project:", project, project.tasks)
-  })
-  $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Reorder types</button>`).appendTo(el).click(async () => {
-    await model.reorder("StepType", ["4", "3", "5"])
-    console.log("Reordered StepTypes...")
-    let types = await model.query("StepType")
-    console.log("Ordered types:", types)
-  })
-}
+//     let results = await batch.sendAll()
+//     console.log("Batch result:", results)
+//   })
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Add task</button>`).appendTo(el).click(async () => {
+//     let step = await model.exec("create", "Task", {
+//       label: "ABC",
+//       createdById: "1",
+//       curStepId: "1",
+//       parentTaskId: "5"
+//     })
+//     console.log("Created step:", step)
+//   })
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Update project</button>`).appendTo(el).click(async () => {
+//    let project = await model.exec("update", "Project", {
+//       id: "1",
+//       description: "Hop la description",
+//       name: "Beau projet"
+//     })
+//     console.log("Updated project:", project, project.tasks)
+//   })
+//   $(`<button type="button" style="background: #F0F0F0; padding: 2px; margin: 2px">Reorder types</button>`).appendTo(el).click(async () => {
+//     await model.reorder("StepType", ["4", "3", "5"])
+//     console.log("Reordered StepTypes...")
+//     let types = await model.query("StepType")
+//     console.log("Ordered types:", types)
+//   })
+// }

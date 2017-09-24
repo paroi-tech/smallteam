@@ -5,8 +5,6 @@ the time, so I can't use JIRA.
 
 - CSS: use flexbox & grid
 - In the Model:
-  - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
-  - Model have to emit event when task orders are changed.
   - Add a boolean "processing" on each model
     - Lionel: disable forms for the models in processing
   - Add a list of processing tasks
@@ -22,6 +20,8 @@ the time, so I can't use JIRA.
 
 
 # Lionel
+- Refactoring in WorkspaceViewer (with Thomas)
+- Do not hide any existing StepSwitcher by default
 - Contributor (form, management, backend queries)
 - TaskBoardEntry?
 - **ProjectForm**:
@@ -59,3 +59,5 @@ the time, so I can't use JIRA.
   - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
   - Load data on init: `stepTypes`, `flags`, `contributors`
   - ModelEngine: add a method `get(id)` on the list returned by `getModels`
+  - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
+  - Model have to emit event when task orders are changed.

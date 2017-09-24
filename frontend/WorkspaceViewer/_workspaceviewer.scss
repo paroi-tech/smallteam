@@ -1,11 +1,28 @@
 .WorkspaceViewer {
-  &-headerWrapper {
+  // display: grid;
+  // grid-template-columns: repeat(15, 1fr);
+  // grid-column-gap: 24px;
+  // grid-template-rows: 40px auto;
+
+  &-header {
     background-color: #205081;
     border-bottom: 1px solid #2e3d54;
     color: white;
-  }
-  &-header {
+    // grid-area: 1 / 1 / span 1 / span 15;
     position: relative;
+  }
+
+  &-title {
+    background-color: #777;
+    color: white;
+    // grid-area: 2 / 1 / span 1 / span 1;
+  }
+
+  &-body {
+    background-color: #eee;
+    // grid-area: 2 / 2 / span 1 / span 14;
+    min-height: 300px;
+    padding: $vGap2 0;
   }
 
   &-menuLeft {
@@ -16,11 +33,5 @@
     position: absolute;
     right: 0;
     top: 6px;
-  }
-
-  &-body {
-    background-color: #eee;
-    min-height: 300px;
-    padding: $vGap2 0;
   }
 }

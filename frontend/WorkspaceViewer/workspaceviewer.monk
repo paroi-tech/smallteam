@@ -1,11 +1,8 @@
-<div class="WorkspaceViewer">
-  <header class="WorkspaceViewer-headerWrapper">
-    <div class="Container WorkspaceViewer-header">
-      <div class="js-menuLeft WorkspaceViewer-menuLeft"></div>
-      <div class="js-menuRight WorkspaceViewer-menuRight"></div>
-    </div>
+<div class="WorkspaceViewer Container">
+  <header class="WorkspaceViewer-header">
+    <div class="js-menuLeft WorkspaceViewer-menuLeft"></div>
+    <div class="js-menuRight WorkspaceViewer-menuRight"></div>
   </header>
-  <div class="WorkspaceViewer-body">
-    <div class="Container js-workspaceContainer"></div>
-  </div>
+  <!-- <div class="WorkspaceViewer-title js-title"></div> -->
+  <div class="WorkspaceViewer-body js-body"></div>
 </div>
