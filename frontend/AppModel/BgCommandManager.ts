@@ -1,11 +1,12 @@
 import { Dash, Transmitter } from "bkb"
+import Deferred from "../libraries/Deferred"
 
 export interface BgCommand<R = any> {
   readonly label: string
   readonly startDt: Date
   readonly inProgress: boolean
   readonly done?: boolean
-  readonly error?: string
+  readonly errorMessage?: string
   readonly promise: Promise<R>
   cancel(): Promise<void>
 }
@@ -51,56 +52,32 @@ function bgCommandFactory<R>(original: Promise<R>, label: string): BgCommand {
   let inProgress = true,
     done: boolean | undefined,
     errorMsg: string | undefined,
-    resultForWrapper: any,
-    wrapperResolve: ((val: R) => void) | null,
-    wrapperReject: ((val: Error) => void) | null
+    dfd = new Deferred<R>()
 
   original.then(onDone, err => {
     let msg = typeof err === "string" ? err : (err instanceof Error ? err.message : "Unexpected error")
     onError(msg, err)
   })
 
-  let promiseWrapper = new Promise<R>((resolve, reject) => {
-    if (!inProgress) {
-      if (done)
-        resolve(resultForWrapper)
-      else
-        reject(resultForWrapper)
-    } else {
-      wrapperResolve = resolve
-      wrapperReject = reject
-    }
-  })
-
   function onDone(val) {
     if (!inProgress) {
-      // TODO: log msg here: it is the original result but hidden by a cancel
+      // TODO: emit event here: it is the original result but hidden by a cancel
       return
     }
     inProgress = false
     done = true
-    if (wrapperResolve) {
-      wrapperResolve(val)
-      wrapperResolve = null
-      wrapperReject = null
-    } else
-      resultForWrapper = val
+    dfd.resolve(val)
   }
 
   function onError(msg: string, err = new Error(msg)) {
     if (!inProgress) {
-      // TODO: log msg here: it is the original error but hidden by a cancel
+      // TODO: emit event here: it is the original error but hidden by a cancel
       return
     }
     inProgress = false
     done = false
     errorMsg = msg
-    if (wrapperReject) {
-      wrapperReject(err)
-      wrapperResolve = null
-      wrapperReject = null
-    } else
-      resultForWrapper = err
+    dfd.reject(err)
   }
 
   return {
@@ -112,10 +89,10 @@ function bgCommandFactory<R>(original: Promise<R>, label: string): BgCommand {
     get done() {
       return done
     },
-    get error() {
+    get errorMessage() {
       return errorMsg
     },
-    promise: promiseWrapper,
+    promise: dfd.promise,
     cancel: () => new Promise((resolve) => {
       if (inProgress)
         onError("Command is canceled")

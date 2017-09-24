@@ -2,6 +2,7 @@ import Deferred from "../libraries/Deferred"
 import ModelEngine from "./ModelEngine"
 import { Type, Identifier } from "../../isomorphic/Cargo"
 import { ModelCommandMethods } from "./modelDefinitions"
+import GenericBgCommandManager from "./BgCommandManager";
 
 interface EngineCommand {
   method: string
@@ -12,7 +13,7 @@ interface EngineCommand {
 export class GenericCommandBatch implements ModelCommandMethods {
   private commands: EngineCommand[] = []
 
-  constructor(private engine: ModelEngine) {
+  constructor(private engine: ModelEngine, private bgCommandMng: GenericBgCommandManager) {
   }
 
   public exec(...args): Promise<any> {
@@ -22,7 +23,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
       args,
       deferred
     })
-    return deferred.promise
+    return this.bgCommandMng.add(deferred.promise, `${args[0]} ${args[1]}`).promise
   }
 
   public query(...args): Promise<any[]> {
@@ -32,7 +33,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
       args,
       deferred
     })
-    return deferred.promise
+    return this.bgCommandMng.add(deferred.promise, `query ${args[0]}`).promise
   }
 
   public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
@@ -42,7 +43,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
       args: [type, { idList, groupId }],
       deferred
     })
-    return deferred.promise
+    return this.bgCommandMng.add(deferred.promise, `reorder ${type}`).promise
   }
 
   public async sendAll(): Promise<any[]> {

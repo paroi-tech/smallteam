@@ -70,7 +70,7 @@ export default class ModelComp implements Model {
   }
 
   public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
-    return this.engine.reorder(type, { idList, groupName, groupId })
+    return this.bgCommandMng.add(this.engine.reorder(type, { idList, groupName, groupId }), `reorder ${type}`).promise
   }
 
   // --
@@ -91,7 +91,7 @@ export default class ModelComp implements Model {
   // --
 
   public createCommandBatch(): CommandBatch {
-    return new GenericCommandBatch(this.engine)
+    return new GenericCommandBatch(this.engine, this.bgCommandMng)
   }
 }
 
