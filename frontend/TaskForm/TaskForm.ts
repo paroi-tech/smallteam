@@ -10,7 +10,7 @@ import * as template  from "./taskform.monk"
 /**
  * Component used to display and edit information about a task.
  */
-export default class TaskForm implements Workspace {
+export default class TaskForm {
   readonly el: HTMLElement
 
   private labelEl: HTMLInputElement

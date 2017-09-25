@@ -10,8 +10,6 @@ const template = require("html-loader!./menu.html")
 export interface MenuItem {
   id: string
   label: string
-  eventName: string
-  data: any
 }
 
 /**
@@ -24,12 +22,12 @@ export class Menu {
   readonly el: HTMLElement
 
   private ul: HTMLElement
-  private itemMap: Map<string, HTMLElement> = new Map()
+  private items = new Map<string, HTMLElement[]>()
 
   /**
    * Create a new menu.
    */
-  constructor(private dash: Dash<App>, readonly name: string) {
+  constructor(private dash: Dash<App>) {
     this.el = document.createElement("nav")
     this.el.classList.add("Menu")
     this.ul = document.createElement("ul")
@@ -43,17 +41,20 @@ export class Menu {
    * @param item - the item to add.
    */
   public addItem(item: MenuItem) {
-    if (this.itemMap.has(item.id))
-      throw new Error(`Item with ID ${item.id} already exists in ${this.name}`)
+    if (this.items.has(item.id))
+      throw new Error(`Item with ID ${item.id} already exist`)
+
     let li = document.createElement("li")
     let btn = document.createElement("button")
+
     btn.type = "button"
     btn.textContent = item.label
     btn.classList.add("MenuBtn")
-    btn.addEventListener("click", (ev) => this.dash.emit(item.eventName, item.data))
+    btn.addEventListener("click", (ev) => this.dash.emit("select", item.id))
+
     li.appendChild(btn)
     this.ul.appendChild(li)
-    this.itemMap.set(item.id, li)
+    this.items.set(item.id, [li, btn])
   }
 
   /**
@@ -72,10 +73,10 @@ export class Menu {
    * @param itemId
    */
   public removeItem(itemId: string) {
-    let itemEl = this.itemMap.get(itemId)
-    if (itemEl) {
-      this.ul.removeChild(itemEl)
-      this.itemMap.delete(itemId)
+    let arr = this.items.get(itemId)
+    if (arr) {
+      this.ul.removeChild(arr[0])
+      this.items.delete(itemId)
     }
   }
 
@@ -85,9 +86,9 @@ export class Menu {
    * @param itemId - the id of the item to disable.
    */
   public disableItem(itemId: string) {
-    let item = this.itemMap.get(itemId)
-    if (item)
-      item.style.pointerEvents = "none"
+    let arr = this.items.get(itemId)
+    if (arr)
+      arr[0].style.pointerEvents = "none"
   }
 
   /**
@@ -96,8 +97,15 @@ export class Menu {
    * @param itemId - the id of the item to enable.
    */
   public enableItem(itemId: string) {
-    let item = this.itemMap.get(itemId)
-    if (item)
-      item.style.pointerEvents = "auto"
+    let arr = this.items.get(itemId)
+    if (arr)
+      arr[0].style.pointerEvents = "auto"
+  }
+
+  public setItemLabel(id: string, label: string) {
+    let arr = this.items.get(id)
+    if (!arr)
+      throw new Error(`Unkown ID ${id}`)
+    arr[1].textContent = label
   }
 }

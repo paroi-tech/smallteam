@@ -1,7 +1,7 @@
 import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
-import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import StepTypeForm from "../StepTypeForm/StepTypeForm"
 import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
@@ -214,17 +214,10 @@ export default class StepTypeWorkspace implements Workspace {
     })
   }
 
-  /**
-   * Hide the panel.
-   */
-  public hide() {
-    this.el.style.display = "none"
+  public activate(ctrl: ViewerController) {
+    ctrl.setContentEl(this.el)
   }
 
-  /**
-   * Make the panel visible.
-   */
-  public show() {
-    this.el.style.display = "block"
+  public deactivate() {
   }
 }

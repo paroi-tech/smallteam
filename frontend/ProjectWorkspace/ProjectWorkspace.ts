@@ -2,44 +2,32 @@ import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb, Component } from "bkb"
 import TaskBoard from "../TaskBoard/TaskBoard"
-import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import { MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 
-const template = require("html-loader!./projectworkspace.html")
-
 const menuItems = [
   {
     id: "editProject",
-    label: "Edit project",
-    eventName: "editProject",
-    data: undefined
+    label: "Edit project"
   },
   {
     id: "showTaskBoard",
-    label: "Show taskboard",
-    eventName: "showTaskBoard",
-    data: undefined
+    label: "Show taskboard"
   },
   {
     id: "showOnHoldTasks",
-    label: "Show on hold tasks",
-    eventName: "showOnHoldTasks",
-    data: undefined
+    label: "Show on hold tasks"
   },
   {
     id: "showArchivedTasks",
-    label: "Show archived tasks",
-    eventName: "showArchivedTasks",
-    data: undefined
+    label: "Show archived tasks"
   },
   {
     id: "deleteProject",
-    label: "Delete project",
-    eventName: "deleteProject",
-    data: undefined
+    label: "Delete project"
   }
 ]
 
@@ -50,16 +38,13 @@ const menuItems = [
  * a side pane that contain a TaskForm.
  */
 export default class ProjectWorkspace implements Workspace {
-  readonly el: HTMLElement
-  private dropdownMenuContainerEl: HTMLElement
-  private contentEl: HTMLElement
-  private currentContentEl: HTMLElement | undefined = undefined
-
   private dropdownMenu: Component<DropdownMenu>
   private taskBoard: TaskBoard
   private form: ProjectForm
 
   private model: Model
+
+  private ctrl: ViewerController | undefined
 
   /**
    * Create a new project board.
@@ -69,23 +54,9 @@ export default class ProjectWorkspace implements Workspace {
    */
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
-    this.el = this.createHtmlElements()
     this.createChildComponents()
     this.listenToChildren()
     this.listenToModel()
-  }
-
-  /**
-   * Create component content from template.
-   */
-  private createHtmlElements() {
-    let $container = $(template)
-
-    $container.find("span.js-title").text(this.project.name)
-    this.dropdownMenuContainerEl = $container.find(".js-dropdown-menu-container").get(0)
-    this.contentEl = $container.find(".js-content").get(0)
-
-    return $("<div></div>").append($container).get(0)
   }
 
   /**
@@ -98,26 +69,38 @@ export default class ProjectWorkspace implements Workspace {
    *  - Project deletion request
    */
   private listenToChildren() {
-    this.dropdownMenu.bkb.on("editProject", "eventOnly", ev => {
-      this.setContent(this.form.el)
-      this.form.show()
-    })
+    this.dropdownMenu.bkb.on("select", "dataFirst", async (itemId) => {
+      switch (itemId) {
+        case "editProject":
+          if (this.ctrl) {
+            this.ctrl.setContentEl(this.form.el)
+            this.ctrl.setTitle(`Edit: ${this.project.name}`)
+          }
+          break;
 
-    this.dropdownMenu.bkb.on("showTaskBoard", "eventOnly", ev => {
-      this.setContent(this.taskBoard.el)
-    })
+        case "showTaskBoard":
+          if (this.ctrl) {
+            this.ctrl.setContentEl(this.taskBoard.el)
+            this.ctrl.setTitle(this.project.name)
+          }
+          break;
 
-    this.dropdownMenu.bkb.on("deleteProject", "eventOnly", async (ev) => {
-      if (this.project.tasks && this.project.tasks.length !== 0) {
-        alert("Sorry. The project can not be deleted. It contains tasks.")
-        return
-      }
-      if (!confirm("Are you sure you want to delete this project"))
-        return
-      try {
-        await this.model.exec("delete", "Project", { id: this.project.id })
-      } catch (error) {
-        alert("Unable to delete project. Try again later.")
+        case "deleteProject":
+          if (this.project.tasks && this.project.tasks.length !== 0) {
+            alert("Sorry. The project can not be deleted. It contains tasks.")
+            return
+          }
+          if (!confirm("Are you sure you want to delete this project"))
+            return
+          try {
+            await this.model.exec("delete", "Project", { id: this.project.id })
+          } catch (error) {
+            alert("Unable to delete project. Try again later.")
+          }
+          break;
+
+        default:
+          throw new Error(`Unknown menu event ${itemId}`)
       }
     })
   }
@@ -127,28 +110,16 @@ export default class ProjectWorkspace implements Workspace {
    */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["ProjectWorkspace dropdown menu", "left"]
+      args: ["left"]
     })
-    this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
     this.dropdownMenu.addItems(menuItems)
 
     this.taskBoard = this.dash.create(TaskBoard, {
       args: [ this.project.rootTask ]
     })
-    this.contentEl.appendChild(this.taskBoard.el)
-    this.currentContentEl = this.taskBoard.el
 
     this.form = this.dash.create(ProjectForm)
-    this.form.hide()
     this.form.setProject(this.project)
-    this.contentEl.appendChild(this.form.el)
-  }
-
-  private setContent(el: HTMLElement) {
-    if (this.currentContentEl)
-      this.currentContentEl.style.display = "none"
-    this.currentContentEl = el
-    el.style.display = "block"
   }
 
   /**
@@ -160,17 +131,13 @@ export default class ProjectWorkspace implements Workspace {
 
   }
 
-  /**
-   * Hide the ProjectWorkspace.
-   */
-  public hide() {
-    this.el.style.display = "none";
+  public activate(ctrl: ViewerController) {
+    this.ctrl = ctrl
+    ctrl.setContentEl(this.taskBoard.el)
+        .setTitle(this.project.name)
+        .setSidebarEl(this.dropdownMenu.el)
   }
 
-  /**
-   * Make the ProjectWorkspace visible.
-   */
-  public show() {
-    this.el.style.display = "block";
+  public deactivate() {
   }
 }

@@ -67,13 +67,11 @@ export default class StepTypeForm {
    */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["StepTypeForm menu", "right"]
+      args: ["right"]
     })
     this.dropdownMenu.addItem({
       id: "deleteCurrentStepType",
-      label: "Delete step type",
-      eventName : "deleteCurrentStepType",
-      data: undefined
+      label: "Delete step type"
     })
     this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
   }

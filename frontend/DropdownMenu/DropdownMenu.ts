@@ -18,15 +18,14 @@ export class DropdownMenu {
   readonly el: HTMLElement
   private ul: HTMLElement
 
-  private itemMap: Map<string, HTMLElement>
+  private items = new Map<string, HTMLElement[]>()
 
   private menuVisible = false
 
   /**
    * Create a new dropdown menu.
    */
-  constructor(private dash: Dash<App>, readonly name: string, readonly align: Alignment) {
-    this.itemMap = new Map<string, HTMLElement>()
+  constructor(private dash: Dash<App>, readonly align: Alignment) {
     this.el = this.createHtmlElements()
   }
 
@@ -47,16 +46,18 @@ export class DropdownMenu {
    * @param item - the item to add.
    */
   public addItem(item: MenuItem) {
-    if (this.itemMap.has(item.id))
-      throw new Error(`Item with ID ${item.id} already exists in ${this.name}`)
+    if (this.items.has(item.id))
+      throw new Error(`Item with ID ${item.id} already exists`)
+
     let li = $(itemTemplate).get(0)
-    let btn = li.querySelector(".js-btn")!
+    let btn = li.querySelector(".js-btn") as HTMLButtonElement
+
     btn.textContent = item.label
     btn.addEventListener("click", ev => {
       this.toggle()
-      this.dash.emit(item.eventName, item.data)
+      this.dash.emit("select", item.id)
     })
-    this.itemMap.set(item.id, li)
+    this.items.set(item.id, [li, btn])
     this.ul.appendChild(li)
   }
 
@@ -84,9 +85,9 @@ export class DropdownMenu {
    * @param itemId - the id of the item to disable.
    */
   public disableItem(itemId: string) {
-    let item = this.itemMap.get(itemId)
-    if (item)
-      item.style.pointerEvents = "none"
+    let arr = this.items.get(itemId)
+    if (arr)
+      arr[0].style.pointerEvents = "none"
   }
 
   /**
@@ -95,8 +96,15 @@ export class DropdownMenu {
    * @param itemId - the id of the item to enable.
    */
   public enableItem(itemId: string) {
-    let item = this.itemMap.get(itemId)
-    if (item)
-      item.style.pointerEvents = "auto"
+    let arr = this.items.get(itemId)
+    if (arr)
+      arr[0].style.pointerEvents = "auto"
+  }
+
+  public setItemLabel(id: string, label: string) {
+    let arr = this.items.get(id)
+    if (!arr)
+      throw new Error(`Unkown ID ${id}`)
+    arr[1].textContent = label
   }
 }

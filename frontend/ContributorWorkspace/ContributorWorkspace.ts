@@ -7,7 +7,7 @@ import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
-import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 
 const template = require("html-loader!./contributorworkspace.html")
 
@@ -57,13 +57,11 @@ export default class ContributorWorkspace implements Workspace {
     this.boxListContainerEl.appendChild(this.boxList.el)
 
     this.menu = this.dash.create(DropdownMenu, {
-      args: [ "ContributorPanelMenu", "left" ]
+      args: ["left"]
     })
     this.menu.addItem({
       id: "createContributor",
-      label: "Add contributor",
-      eventName: "createContributor",
-      data: undefined
+      label: "Add contributor"
     })
     this.menuContainerEl.appendChild(this.menu.el)
   }
@@ -103,17 +101,10 @@ export default class ContributorWorkspace implements Workspace {
     return box
   }
 
-  /**
-   * Hide the panel.
-   */
-  public hide() {
-    this.el.style.display = "none"
+  public activate(ctrl: ViewerController) {
+    ctrl.setContentEl(this.el)
   }
 
-  /**
-   * Make the panel visible.
-   */
-  public show() {
-    this.el.style.display = "block"
+  public deactivate() {
   }
 }

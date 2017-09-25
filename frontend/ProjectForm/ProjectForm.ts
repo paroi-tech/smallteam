@@ -2,7 +2,7 @@ import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ProjectModel } from "../AppModel/AppModel"
 import StepSelector from "./StepSelector/StepSelector"
-import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
+import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import * as template from "./projectform.monk"
@@ -195,6 +195,16 @@ export default class ProjectForm implements Workspace {
   public hasProject(): boolean {
     return this.project !== undefined
   }
+
+  public activate(ctrl: ViewerController) {
+    ctrl.setContentEl(this.el)
+    if (!this.hasProject())
+      this.nameEl.focus()
+  }
+
+  public deactivate() {
+  }
+
 
   /**
    * Hide the ProjectForm.
