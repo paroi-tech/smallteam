@@ -56,6 +56,24 @@ export default class WorkspaceViewer {
     this.dash.listenTo<string>(this.dropdownMenu, "select").call("dataFirst", path =>
       this.activateWorkspace(path)
     )
+
+    // Handler for project deletion event.
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd !== "delete" || data.type !==  "Project")
+        return
+      let projectId = data.id as string
+      let path = `prj-${projectId}`
+      let info = this.workspaces.get(path)
+      if (info) {
+        (info.menu === "main" ? this.menu : this.dropdownMenu).removeItem(info.path)
+        this.workspaces.delete(path)
+        if(info === this.currentWInfo) {
+          removeAllChildren(this.bodyEl)
+          removeAllChildren(this.sidebarEl)
+          this.h1El.textContent = ""
+        }
+      }
+    })
   }
 
   public addWorkspace(path: string, menu: "main" | "dropdown", menuLabel: string, w: Workspace) {

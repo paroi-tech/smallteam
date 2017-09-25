@@ -52,139 +52,25 @@ export default class App {
   }
 
   private createWorkspaces(viewer: WorkspaceViewer) {
-    viewer.addWorkspace(`createProject`, "dropdown", "New project", this.dash.create(ProjectForm))
-    viewer.addWorkspace(`manageStepTypes`, "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
-    viewer.addWorkspace(`manageContributors`, "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
+    viewer.addWorkspace("createProject", "dropdown", "New project", this.dash.create(ProjectForm))
+    viewer.addWorkspace("manageStepTypes", "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
+    viewer.addWorkspace("manageContributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
 
     let projects = this.model.global.projects
     for (let p of projects)
       this.addProject(viewer, p)
 
     this.model.on("createProject", "dataFirst", data => this.addProject(viewer, data.model))
-
-    // if (projects.length === 0) {
-    //   if (confirm("No project to load from server. Do you want to create a new one?"))
-    //     this.showProjectForm()
-    // }
-
   }
 
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
     viewer.addWorkspace(`prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, {
-      args: [p]
-    }))
+        args: [p]
+      })
+    )
   }
 }
-
-
-
-    //     /**
-    //  * Options displayed in the dropdown menu of the PanelSelector.
-    //  */
-    // const settingMenuItems = [
-    //   {
-    //     id: "createProject",
-    //     label: "New project",
-    //     eventName: "createProject"
-    //   },
-    //   {
-    //     id: "manageStepTypes",
-    //     label: "Manage step types",
-    //     eventName: "manageStepTypes"
-    //   },
-    //   {
-    //     id: "manageContributors",
-    //     label: "Contributors",
-    //     eventName: "manageContributors"
-    //   }
-    // ]
-
-// /**
-//  * Listen to events from model.
-//  * The following events are handled:
-//  *  - Project creation
-//  *  - Project deletion
-//  */
-// private listenToModel() {
-//   // Project creation.
-//   this.model.on("createProject", "dataFirst", data => this.addProject(data.model))
-
-//   // Project deletion.
-//   this.model.on("change", "dataFirst", data => {
-//     if (data.cmd !== "delete" || data.type !==  "Project")
-//       return
-//     let projectId = data.id as string
-//     this.projectMap.delete(projectId)
-//     let panelInfo = this.workspaceMap.get("ProjectWorkspace" + ":" + projectId)
-//     if (panelInfo && panelInfo.type === ProjectWorkspace && panelInfo.workspace)
-//       this.bodyEl.removeChild(panelInfo.workspace.el)
-//     this.menu.removeItem(projectId)
-//   })
-// }
-
-  // /**
-  //  * Add a project the panel.
-  //  * An entry is added to the menu for the project.
-  //  *
-  //  * @param project the project to add
-  //  */
-  // private addProject(project: ProjectModel) {
-  //   this.projectMap.set(project.id, project)
-  //   let boardId = "ProjectWorkspace" + ":" + project.id
-  //   this.workspaceMap.set(boardId, {
-  //     projectModel: project,
-  //     type: ProjectWorkspace
-  //   })
-  //   this.menu.addItem({
-  //     id: project.id,
-  //     label: project.code,
-  //     eventName: "projectSelected",
-  //     data: project.id
-  //   })
-  // }
-
-
-
-  // /**
-  //  * Create WorkspaceViewer subcomponents.
-  //  */
-  // private createChildComponents() {
-
-
-  //       this.settingMenu = this.dash.create(DropdownMenu, {
-  //         args: ["Global settings menu", "right"]
-  //       })
-  //       this.dropdownMenuEl.appendChild(this.settingMenu.el)
-  //       this.settingMenu.addItems(settingMenuItems)
-
-  //       this.projectForm = this.dash.create(ProjectForm, { args: [] })
-  //       this.projectForm.hide()
-  //       this.bodyEl.appendChild(this.projectForm.el)
-
-  //       // We have to do this, or else the project board won't be able to display StepTypePanel
-  //       // and ContributorPanel later. See the showSettingPanel() method for details.
-  //       this.workspaces.set("stepTypeWorkspace", { type: StepTypeWorkspace })
-  //       this.workspaces.set("contributorWorkspace", { type: ContributorWorkspace })
-  //     }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 // // TODO: remove this...
 // // The following code has been added for tests purpose.
