@@ -31,12 +31,6 @@ const menuItems = [
   }
 ]
 
-/**
- * ProjectWorkspace component.
- *
- * It can contain several step switchers (one for each project task with children) and
- * a side pane that contain a TaskForm.
- */
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: Component<DropdownMenu>
   private taskBoard: TaskBoard
@@ -69,7 +63,7 @@ export default class ProjectWorkspace implements Workspace {
    *  - Project deletion request
    */
   private listenToChildren() {
-    this.dropdownMenu.bkb.on("select", "dataFirst", async (itemId) => {
+    this.dropdownMenu.bkb.on("select", "dataFirst",  itemId => {
       switch (itemId) {
         case "editProject":
           if (this.ctrl) {
@@ -86,17 +80,7 @@ export default class ProjectWorkspace implements Workspace {
           break;
 
         case "deleteProject":
-          if (this.project.tasks && this.project.tasks.length !== 0) {
-            alert("Sorry. The project can not be deleted. It contains tasks.")
-            return
-          }
-          if (!confirm("Are you sure you want to delete this project"))
-            return
-          try {
-            await this.model.exec("delete", "Project", { id: this.project.id })
-          } catch (error) {
-            alert("Unable to delete project. Try again later.")
-          }
+          this.deleteProject()
           break;
 
         default:
@@ -105,8 +89,24 @@ export default class ProjectWorkspace implements Workspace {
     })
   }
 
+  private async deleteProject() {
+    if (this.project.tasks && this.project.tasks.length !== 0) {
+      alert("Sorry. The project can not be deleted. It contains tasks.")
+      return
+    }
+
+    if (!confirm("Are you sure you want to delete this project"))
+      return
+
+    try {
+      await this.model.exec("delete", "Project", { id: this.project.id })
+    } catch (error) {
+      alert("Unable to delete project. Try again later.")
+    }
+  }
+
   /**
-   * Create ProjectWorkspace inner components, i.e. DropDownMenu and TaskBoard.
+   * Create ProjectWorkspace inner components, i.e. Menu, DropDownMenu, and TaskBoard.
    */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
