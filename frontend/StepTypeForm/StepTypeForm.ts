@@ -12,7 +12,7 @@ import * as template from "./steptypeform.monk"
 export default class StepTypeForm {
   readonly el: HTMLElement
 
-  private dropdownMenuContainerEl: HTMLElement
+  private menuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
   private nameEl: HTMLInputElement
   private orderNumEl: HTMLInputElement
@@ -30,7 +30,7 @@ export default class StepTypeForm {
   /**
    * Create a new StepTypeForm.
    *
-   * Note that this component is only used to update step tyoes, not to create them.
+   * Note that this component is only used to update step types, not to create them.
    *
    * @param dash - the current application dash
    */
@@ -51,7 +51,7 @@ export default class StepTypeForm {
     wrapperEl.classList.add("StepTypeForm")
 
     this.view = render(template, wrapperEl)
-    this.dropdownMenuContainerEl = this.view.querySelector(".js-menu-container")
+    this.menuContainerEl = this.view.querySelector(".js-menu-container")
     this.fieldContainerEl = this.view.querySelector(".js-field-container")
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
     this.orderNumEl = this.fieldContainerEl.querySelector(".js-ordernum-index") as HTMLInputElement
@@ -73,15 +73,16 @@ export default class StepTypeForm {
       id: "deleteCurrentStepType",
       label: "Delete step type"
     })
-    this.dropdownMenuContainerEl.appendChild(this.dropdownMenu.el)
+    this.menuContainerEl.appendChild(this.dropdownMenu.el)
   }
 
   /**
    * Listen to events from child components.
    */
   private listenToChildren() {
-    this.dropdownMenu.bkb.on("deleteCurrentStepType", "eventOnly", ev => {
-      this.deleteCurrentStepType()
+    this.dropdownMenu.bkb.on("select", "dataFirst", itemId => {
+      if (itemId === "deleteCurrentStepType")
+        this.deleteCurrentStepType()
     })
   }
 
@@ -109,9 +110,7 @@ export default class StepTypeForm {
         console.log("The name of the step type should contain more characters...")
         return
       }
-      // We determine if the user wants to create a new StepType or update an existing one...
-      let fn = this.stepType ? this.updateStepType : this.addStepType
-      fn.call(this, name)
+      this.updateStepType(name)
     })
 
     // Cancel button click.
@@ -143,24 +142,6 @@ export default class StepTypeForm {
     this.clear()
     this.stepType = stepType
     this.fillFieldsWithCurrentStepType()
-  }
-
-  /**
-   * Add a new step type to the model.
-   *
-   * @param name - the name of the step type
-   */
-  private async addStepType(name: string) {
-    this.submitButtonSpinnerEl.style.display = "inline"
-    let fragUpd = { name }
-    try {
-      let stepType = await this.model.exec("create", "StepType", fragUpd)
-      this.setStepType(stepType)
-      this.submitButtonEl.setAttribute("disabled", "true")
-    } catch (error) {
-      console.error(`Impossible to create the step type ${name}...`, error)
-    }
-    this.submitButtonSpinnerEl.style.display = "none"
   }
 
   /**
