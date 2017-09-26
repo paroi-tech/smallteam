@@ -6,6 +6,7 @@ import { Model, TaskModel } from "../AppModel/AppModel"
 import * as MonkBerry from "monkberry"
 
 import * as template  from "./taskform.monk"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 /**
  * Component used to display and edit information about a task.
@@ -67,18 +68,13 @@ export default class TaskForm {
    *  - Task deletion
    */
   private listenToModel() {
-    this.model.on("change", "dataFirst", data => {
-      if (data.type !== "Task" || data.cmd !== "delete")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {
       if (this.task !== undefined && this.task.id === data.id)
         this.clear()
     })
-    this.model.on("change", "dataFirst", data => {
-      if (!this.task || data.type !== "Task" || data.cmd !== "update")
-        return
-      let task = data.model as TaskModel
-      if (this.task.id === task.id)
-        this.setTask(task) // Refresh the panel, lazy way :)
+    this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
+      if (this.task && this.task.id === data.id)
+        this.setTask(data.model) // Refresh the panel, lazy way :)
     })
   }
 

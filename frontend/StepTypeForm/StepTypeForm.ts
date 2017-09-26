@@ -1,10 +1,11 @@
 import * as $ from "jquery"
-import { Dash, Bkb, Component } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Model, StepTypeModel } from "../AppModel/AppModel"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import { render } from "monkberry"
 import * as template from "./steptypeform.monk"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 /**
  * Component used to create and update step types.
@@ -20,7 +21,7 @@ export default class StepTypeForm {
   private cancelButtonEl: HTMLButtonElement
   private submitButtonSpinnerEl: HTMLElement
 
-  private dropdownMenu: Component<DropdownMenu>
+  private dropdownMenu: DropdownMenu
   private view: MonkberryView
 
   private stepType: StepTypeModel | undefined = undefined
@@ -66,9 +67,7 @@ export default class StepTypeForm {
    * Create DropDownMenu subcomponent.
    */
   private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["right"]
-    })
+    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
     this.dropdownMenu.addItem({
       id: "deleteCurrentStepType",
       label: "Delete step type"
@@ -80,7 +79,7 @@ export default class StepTypeForm {
    * Listen to events from child components.
    */
   private listenToChildren() {
-    this.dropdownMenu.bkb.on("select", "dataFirst", itemId => {
+    this.dash.listenTo(this.dropdownMenu, "select").onData(itemId => {
       if (itemId === "deleteCurrentStepType")
         this.deleteCurrentStepType()
     })
@@ -90,11 +89,8 @@ export default class StepTypeForm {
    * Listen to events from model.
    */
   private listenToModel() {
-    this.model.on("change", "dataFirst", data => {
-      if (!this.stepType || data.type !== "StepType" || data.cmd != "delete")
-        return
-      let id = data.id as string
-      if (this.stepType.id === id)
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStepType").onData(data => {
+      if (this.stepType && this.stepType.id === data.id)
         this.clear()
     })
   }

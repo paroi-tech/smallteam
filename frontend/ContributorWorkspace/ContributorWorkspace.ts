@@ -1,5 +1,5 @@
 import * as $ from "jquery"
-import { Dash, Bkb, Component } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import BoxList, { Box, BoxListParams } from "../BoxList/BoxList"
 import { MenuItem } from "../Menu/Menu"
@@ -8,6 +8,7 @@ import { Model, ContributorModel } from "../AppModel/AppModel"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 const template = require("html-loader!./contributorworkspace.html")
 
@@ -20,7 +21,7 @@ export default class ContributorWorkspace implements Workspace {
 
   private boxList: BoxList<ContributorBox>
   private form: ContributorForm
-  private menu: Component<DropdownMenu>
+  private menu: DropdownMenu
 
   private model: Model
 
@@ -45,7 +46,7 @@ export default class ContributorWorkspace implements Workspace {
   }
 
   private createChildComponents() {
-    this.form = this.dash.create(ContributorForm, { args: [] })
+    this.form = this.dash.create(ContributorForm)
     this.formContainerEl.appendChild(this.form.el)
 
     let params = {
@@ -53,12 +54,10 @@ export default class ContributorWorkspace implements Workspace {
       name: "Contributors",
       sort: false
     }
-    this.boxList = this.dash.create(BoxList, { args: [ params ] })
+    this.boxList = this.dash.create(BoxList, params)
     this.boxListContainerEl.appendChild(this.boxList.el)
 
-    this.menu = this.dash.create(DropdownMenu, {
-      args: ["left"]
-    })
+    this.menu = this.dash.create(DropdownMenu, "left")
     this.menu.addItem({
       id: "createContributor",
       label: "Add contributor"
@@ -67,9 +66,7 @@ export default class ContributorWorkspace implements Workspace {
   }
 
   private listenToModel() {
-    this.model.on("change", "dataFirst", data => {
-      if (data.cmd !== "create" || data.type !== "Contributor")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createContributor").onData(data => {
       let contributor = data.model as ContributorModel
       let box = this.createBoxFor(contributor)
       this.contributorMap.set(contributor.id, contributor)
@@ -78,10 +75,10 @@ export default class ContributorWorkspace implements Workspace {
   }
 
   private listenToChildren() {
-    this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").call("dataFirst", data => {
+    this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").onData(data => {
       this.form.setContributor(data)
     })
-    this.menu.bkb.on("select", "dataFirst", itemId => {
+    this.dash.listenTo(this.menu, "select").onData(itemId => {
       // FIXME: unselect current item in Contributor BoxList.
       if (itemId === "createContributor")
         this.form.switchToCreationMode()
@@ -97,7 +94,7 @@ export default class ContributorWorkspace implements Workspace {
   }
 
   private createBoxFor(contributor: ContributorModel): ContributorBox {
-    let box = this.dash.create(ContributorBox, { args: [ contributor ] })
+    let box = this.dash.create(ContributorBox, contributor)
     this.boxMap.set(contributor.id, box)
     return box
   }

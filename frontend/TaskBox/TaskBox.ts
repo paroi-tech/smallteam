@@ -3,6 +3,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { Model, TaskModel } from "../AppModel/AppModel"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 const template = require("html-loader!./taskbox.html")
 
@@ -45,9 +46,7 @@ export default class TaskBox implements Box {
    */
   private listenToModel() {
     // Task update.
-    this.model.on("change", "dataFirst", data => {
-      if (data.type !== "Task" || data.cmd !== "update")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
       let task = data.model as TaskModel
       if (task.id === this.task.id)
         this.spanEl.textContent = task.label

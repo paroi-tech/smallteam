@@ -4,6 +4,7 @@ import App from "../App/App"
 import StepSwitcher from "../StepSwitcher/StepSwitcher"
 import TaskForm from "../TaskForm/TaskForm"
 import { Model, TaskModel, ProjectModel } from "../AppModel/AppModel"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 const template  = require("html-loader!./taskboard.html")
 
@@ -56,12 +57,12 @@ export default class TaskBoard {
    */
   private listenToChildren() {
     this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true })
-      .call("dataFirst", task => {
+      .onData(task => {
         this.taskForm.setTask(task)
       })
 
     this.dash.listenToChildren<TaskModel>("showStepSwitcher", { deep: true })
-      .call("dataFirst", task => {
+      .onData(task => {
         if (task.id === this.rootTask.id) // The rootTask panel is always displayed.
           return
         this.showStepSwitcher(task)
@@ -76,9 +77,7 @@ export default class TaskBoard {
    */
   private listenToModel() {
     // Task deletion. We check if there is a StepSwitcher created for the task and remove it.
-    this.model.on("change", "dataFirst", data => {
-      if (data.type !== "Task" || data.cmd !== "delete")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {
       let taskId = data.id as string
       let panel = this.stepSwitcherMap.get(taskId)
       if (!panel)
@@ -94,9 +93,7 @@ export default class TaskBoard {
    * @param task - the task that the panel will be created for.
    */
   private createStepSwitcher(task: TaskModel): StepSwitcher {
-    let stepSwitcher = this.dash.create(StepSwitcher, {
-      args: [ task ]
-    })
+    let stepSwitcher = this.dash.create(StepSwitcher, task)
     this.stepSwitcherMap.set(task.id, stepSwitcher)
     return stepSwitcher
   }
@@ -176,13 +173,13 @@ export default class TaskBoard {
    * Hide the component.
    */
   public hide() {
-    this.el.style.display = "none";
+    this.el.style.display = "none"
   }
 
   /**
    * Make the component visible.
    */
   public show() {
-    this.el.style.display = "block";
+    this.el.style.display = "block"
   }
 }

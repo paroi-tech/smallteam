@@ -1,4 +1,4 @@
-import { Dash, Bkb, Component } from "bkb"
+import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
@@ -10,6 +10,7 @@ import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import * as template from "./workspaceviewer.monk"
 import { removeAllChildren } from "../libraries/utils"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 export interface Workspace {
   activate(ctrl: ViewerController): void
@@ -34,8 +35,8 @@ export default class WorkspaceViewer {
   readonly el: HTMLElement
 
   private model: Model
-  private menu: Component<Menu>
-  private dropdownMenu: Component<DropdownMenu>
+  private menu: Menu
+  private dropdownMenu: DropdownMenu
   private currentWInfo: WorkspaceInfo | undefined
 
   private workspaces = new Map<string, WorkspaceInfo>()
@@ -50,17 +51,15 @@ export default class WorkspaceViewer {
     this.model = dash.app.model
     this.el = this.createView()
 
-    this.dash.listenTo<string>(this.menu, "select").call("dataFirst", path =>
+    this.dash.listenTo<string>(this.menu, "select").onData(path =>
       this.activateWorkspace(path)
     )
-    this.dash.listenTo<string>(this.dropdownMenu, "select").call("dataFirst", path =>
+    this.dash.listenTo<string>(this.dropdownMenu, "select").onData(path =>
       this.activateWorkspace(path)
     )
 
     // Handler for project deletion event.
-    this.model.on("change", "dataFirst", data => {
-      if (data.cmd !== "delete" || data.type !==  "Project")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteProject").onData(data => {
       let projectId = data.id as string
       let path = `prj-${projectId}`
       let info = this.workspaces.get(path)
@@ -143,9 +142,7 @@ export default class WorkspaceViewer {
     this.menu = this.dash.create(Menu)
     this.view.querySelector(".js-menu-left").appendChild(this.menu.el)
 
-    this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["right"]
-    })
+    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
     this.view.querySelector(".js-menu-right").appendChild(this.dropdownMenu.el)
 
     return wrapperEl

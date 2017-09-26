@@ -10,7 +10,7 @@ import { StepModel, registerStep } from "./Models/StepModel"
 import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
 import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
-import ModelEngine, { CommandType, ModelEvent } from "./ModelEngine"
+import ModelEngine, { CommandType } from "./ModelEngine"
 import { ComponentEvent, Transmitter } from "bkb"
 import { BgCommandManager, BgCommand } from "./BgCommandManager"
 
@@ -47,15 +47,6 @@ export interface ModelCommandMethods {
   reorder(type: "Contributor", idList: string[], group: "affectedTo", taskId: string): Promise<string[]>
 }
 
-interface ModelEventMethods {
-  on(eventName: string, callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
-  on(eventName: string, mode: "eventOnly", callback: (ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
-  on(eventName: string, mode: "dataFirst", callback: (data: ModelEvent, ev: ComponentEvent<ModelEvent>) => void, thisArg?: any): this
-  on(eventName: string, mode: "arguments", callback: (...args: any[]) => void, thisArg?: any): this
-
-  listen(eventName: string): Transmitter<ModelEvent>
-}
-
 export interface Collection<M, ID> extends Array<M> {
   get(id: ID): M | undefined
 }
@@ -77,7 +68,7 @@ export interface GlobalModels {
   readonly projects: ReadonlyCollection<ProjectModel, string>
 }
 
-export interface Model extends ModelCommandMethods, ModelEventMethods {
+export interface Model extends ModelCommandMethods {
   createCommandBatch(): CommandBatch
   readonly global: GlobalModels
   readonly bgCommandMng: BgCommandManager

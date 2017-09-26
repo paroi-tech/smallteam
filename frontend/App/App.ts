@@ -1,42 +1,43 @@
-import { ApplicationDash, ApplicationBkb, Log, LogItem, Component } from "bkb"
+import { ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
 import WorkspaceViewer from "../WorkspaceViewer/WorkspaceViewer"
-import ModelComp, { Model, ModelEvent, ProjectModel } from "../AppModel/AppModel"
+import ModelComp, { Model, ProjectModel } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypeWorkspace from "../StepTypeWorkspace/StepTypeWorkspace"
 import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 export default class App {
   readonly log: Log
   readonly nextTick: (cb: () => void) => void
-  readonly model: Component<Model>
+  readonly model: Model
 
   constructor(private dash: ApplicationDash<App>) {
     this.log = dash.log
     this.nextTick = dash.nextTick
     this.model = dash.create(ModelComp)
 
-    this.dash.on("log", "dataFirst", (data: LogItem) => {
+    this.dash.onData("log", (data: LogItem) => {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
 
-    this.dash.listenTo<ModelEvent>(this.model, "change").call("dataFirst", data => {
+    this.dash.listenTo(this.model, "change").onData(data => {
       if (data.orderedIds)
         console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
         console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandAdded").call("dataFirst", data => {
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandAdded").onData(data => {
       console.log(`[BG] Add: ${data.label}`)
     })
 
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandDone").call("dataFirst", data => {
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandDone").onData(data => {
       console.log(`[BG] Done: ${data.label}`)
     })
 
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").call("dataFirst", data => {
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").onData(data => {
       console.log(`[BG] Error: ${data.label}`, data.errorMessage)
     })
   }
@@ -60,15 +61,12 @@ export default class App {
     for (let p of projects)
       this.addProject(viewer, p)
 
-    this.model.on("createProject", "dataFirst", data => this.addProject(viewer, data.model))
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createProject").onData(data => this.addProject(viewer, data.model))
   }
 
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
-    viewer.addWorkspace(`prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, {
-        args: [p]
-      })
-    )
+    viewer.addWorkspace(`prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, p))
   }
 }
 

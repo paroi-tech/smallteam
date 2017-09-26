@@ -4,7 +4,7 @@ import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
-import { Collection } from "../modelDefinitions";
+import { Collection } from "../modelDefinitions"
 
 export interface TaskModel extends TaskFragment {
   readonly project: ProjectModel

@@ -5,8 +5,7 @@ import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFrag
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
 import { toDebugStr } from "../../isomorphic/libraries/helpers"
-import { Collection } from "./modelDefinitions";
-//import { validateDataArray } from "../../isomorphic/validation"
+import { Collection } from "./modelDefinitions"
 
 // --
 // -- Public types
@@ -33,13 +32,22 @@ export interface ModelsQuery extends IndexQuery {
   orderBy?: [string, "asc" | "desc"] | ((a, b) => number)
 }
 
-export interface ModelEvent {
+export interface ReorderModelEvent {
   type: Type
-  id?: Identifier
-  orderedIds?: Identifier[]
-  cmd: CommandType | "reorder"
+  cmd: "reorder"
+  orderedIds: Identifier[]
+}
+
+export interface UpdateModelEvent {
+  type: Type
+  cmd: CommandType
+  id: Identifier
+  /**
+   * Defined if the cmd is not 'delete'
+   */
   model?: any
 }
+//type ModelEvent = ReorderModelEvent | UpdateModelEvent
 
 // --
 // -- Private types
@@ -345,12 +353,12 @@ export default class ModelEngine {
       for (let id of idList) {
         this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
           type,
-          id,
           cmd,
+          id,
           get model() {
             return cmd === "delete" ? undefined : that.getModel(type as Type, id)
           }
-        } as ModelEvent)
+        } as UpdateModelEvent)
       }
     }
   }
@@ -362,9 +370,9 @@ export default class ModelEngine {
       let storage = this.getTypeStorage(type as Type)
       this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
         type,
-        orderedIds,
-        cmd
-      } as ModelEvent)
+        cmd,
+        orderedIds
+      } as ReorderModelEvent)
     }
   }
 

@@ -7,6 +7,7 @@ import StepTypeBox from "../StepTypeBox/StepTypeBox"
 import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
 import { Model, StepTypeModel } from "../AppModel/AppModel"
 import { equal } from "../libraries/utils"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 const template = require("html-loader!./steptypeworkspace.html")
 
@@ -57,10 +58,10 @@ export default class StepTypeWorkspace implements Workspace {
   }
 
   private listenToChildComponents() {
-    this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").call("dataFirst", stepType => {
+    this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").onData(stepType => {
       this.form.setStepType(stepType)
     })
-    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
+    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => {
       this.handleBoxlistUpdate(data)
     })
 
@@ -73,15 +74,13 @@ export default class StepTypeWorkspace implements Workspace {
    */
   private listenToModel() {
     // StepType creation.
-    this.model.on("createStepType", "dataFirst", data => {
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createStepType").onData(data => {
       let stepType = data.model as StepTypeModel
-      let box = this.dash.create(StepTypeBox, { args: [ stepType ] })
+      let box = this.dash.create(StepTypeBox, stepType)
       this.boxList.addBox(box)
     })
     // StepType deletion.
-    this.model.on("change", "dataFirst", data => {
-      if (data.cmd != "delete" || data.type != "StepType")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStepType").onData(data => {
       this.boxList.removeBox(data.id as string)
     })
   }
@@ -91,18 +90,14 @@ export default class StepTypeWorkspace implements Workspace {
    */
   private createChildComponents() {
     this.boxList = this.dash.create(BoxList, {
-      args: [
-        {
-          id: "",
-          name: "Step types",
-          group: undefined,
-          sort: true
-        }
-      ]
+      id: "",
+      name: "Step types",
+      group: undefined,
+      sort: true
     })
     this.boxListContainerEl.appendChild(this.boxList.el)
 
-    this.form = this.dash.create(StepTypeForm, { args: [] })
+    this.form = this.dash.create(StepTypeForm)
     this.formContainerEl.appendChild(this.form.el)
   }
 
@@ -163,7 +158,7 @@ export default class StepTypeWorkspace implements Workspace {
   private async fillBoxList() {
     this.model.global.stepTypes.forEach(stepType => {
       if (!stepType.isSpecial)
-        this.boxList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+        this.boxList.addBox(this.dash.create(StepTypeBox, stepType))
     })
   }
 
@@ -172,7 +167,7 @@ export default class StepTypeWorkspace implements Workspace {
     try {
       await this.model.exec("create", "StepType", { name })
       this.nameEl.value = ""
-    } catch(err) {
+    } catch (err) {
       console.error("Unable to create new step type...")
     }
     this.spinnerEl.style.display = "none"
