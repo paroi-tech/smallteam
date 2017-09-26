@@ -578,14 +578,16 @@ async function httpSendJson(method: HttpMethod, url: string, data): Promise<any>
 }
 
 export function toCollection<M extends object, ID extends Identifier>(models: M[], type: Type): Collection<M, ID> {
-  let map: HKMap<ID, M>
-    ; (models as any).get = id => {
-      if (!map) {
-        map = makeHKMap<ID, M>()
-        for (let model of models)
-          map.set(toIdentifier(model, type) as ID, model)
-      }
-      map.get(id)
+  let map: HKMap<ID, M>,
+    alias: any = models
+  alias.get = id => {
+    if (!map) {
+      map = makeHKMap<ID, M>()
+      for (let model of models)
+        map.set(toIdentifier(model, type) as ID, model)
+      console.log("...map", Array.from(map.entries()))
     }
-  return models as any
+    return map.get(id)
+  }
+  return alias
 }

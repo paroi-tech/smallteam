@@ -22,7 +22,7 @@
     "monkberry-directives": "4.0.8",
     "monkberry-events": "4.0.8",
     "monkberry-loader": "4.0.8",
-    "sortablejs": "^1.6.1",
+    "sortablejs": "1.6.1",
     "sqlite": "2.8.0",
     "whatwg-fetch": "2.0.3"
   },

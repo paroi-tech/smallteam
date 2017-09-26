@@ -13,8 +13,8 @@ export default class App {
   readonly model: Component<Model>
 
   constructor(private dash: ApplicationDash<App>) {
-    this.log = dash.bkb.log
-    this.nextTick = dash.bkb.nextTick
+    this.log = dash.log
+    this.nextTick = dash.nextTick
     this.model = dash.create(ModelComp)
 
     this.dash.on("log", "dataFirst", (data: LogItem) => {
