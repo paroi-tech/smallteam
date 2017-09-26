@@ -81,9 +81,10 @@ export default class ContributorWorkspace implements Workspace {
     this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").call("dataFirst", data => {
       this.form.setContributor(data)
     })
-    this.menu.bkb.on("createContributor", "eventOnly", ev => {
+    this.menu.bkb.on("select", "dataFirst", itemId => {
       // FIXME: unselect current item in Contributor BoxList.
-      this.form.switchToCreationMode()
+      if (itemId === "createContributor")
+        this.form.switchToCreationMode()
     })
   }
 

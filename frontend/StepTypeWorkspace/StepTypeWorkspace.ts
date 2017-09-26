@@ -10,19 +10,14 @@ import { equal } from "../libraries/utils"
 
 const template = require("html-loader!./steptypeworkspace.html")
 
-/**
- * StepType management panel.
- *
- * It contains a form to create new StepTypes and a Boxlist that enables to select and reorder the StepTypes.
- * When the user reorders the content of the Boxlist, changes are commited after a timeout of 2s.
- */
 export default class StepTypeWorkspace implements Workspace {
   readonly el: HTMLElement
 
-  private $boxListContainer: JQuery
-  private $formContainer: JQuery
-  private $addBtn: JQuery
-  private $input: JQuery
+  private boxListContainerEl: HTMLElement
+  private formContainerEl: HTMLElement
+  private addBtnEl: HTMLButtonElement
+  private nameEl: HTMLInputElement
+  private spinnerEl: HTMLElement
 
   private boxList: BoxList<StepTypeBox>
   private form: StepTypeForm
@@ -34,39 +29,47 @@ export default class StepTypeWorkspace implements Workspace {
    */
   private timer: any
 
-  /**
-   * Create a new StepTypePanel.
-   *
-   * It loads StepTypes from the model.
-   *
-   * @param dash - the current application dash
-   */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.timer = undefined
-    this.el = this.createHtmlElements().get(0)
+    this.el = this.createHtmlElements()
     this.createChildComponents()
-    this.loadStepTypes()
+    this.fillBoxList()
     this.listenToChildComponents()
     this.listenToModel()
   }
 
-  /**
-   * Listen to events from subcomponents.
-   * The following events are handled:
-   *  - StepTypeBox selection
-   */
+  private createHtmlElements(): HTMLElement {
+    let $container = $(template)
+
+    this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
+    this.formContainerEl = $container.find(".js-edit-form-container").get(0)
+    this.addBtnEl = $container.find(".js-add-form-btn").get(0) as HTMLButtonElement
+    this.spinnerEl = $container.find(".fa-spinner").get(0)
+    this.nameEl = $container.find(".js-input").get(0) as HTMLInputElement
+    this.nameEl.onkeyup = ev => {
+      if (ev.which === 13)
+        this.addBtnEl.click()
+    }
+    this.addBtnEl.onclick = (ev) => this.onAdd()
+
+    return $container.get(0)
+  }
+
   private listenToChildComponents() {
     this.dash.listenToChildren<StepTypeModel>("stepTypeBoxSelected").call("dataFirst", stepType => {
       this.form.setStepType(stepType)
     })
+    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
+      this.handleBoxlistUpdate(data)
+    })
+
   }
 
   /**
    * Listen to events from model.
    * Handled events are:
    *  - StepType creation
-   *  - StepType deletion
    */
   private listenToModel() {
     // StepType creation.
@@ -74,35 +77,13 @@ export default class StepTypeWorkspace implements Workspace {
       let stepType = data.model as StepTypeModel
       let box = this.dash.create(StepTypeBox, { args: [ stepType ] })
       this.boxList.addBox(box)
-      this.form.setStepType(stepType)
     })
     // StepType deletion.
     this.model.on("change", "dataFirst", data => {
       if (data.cmd != "delete" || data.type != "StepType")
         return
       this.boxList.removeBox(data.id as string)
-      if (this.form.currentStepType != undefined && this.form.currentStepType.id == data.id)
-        this.form.clear()
     })
-  }
-
-  /**
-   * Create StepTypePanel HTML elements from the template.
-   */
-  private createHtmlElements() {
-    let $container = $(template)
-    this.$boxListContainer = $container.find(".js-boxlist-container")
-    this.$formContainer = $container.find(".js-edit-form-container")
-    this.$addBtn = $container.find(".js-add-form-btn")
-    this.$input = $container.find(".js-input")
-    this.$input.keyup(ev => {
-      if (ev.which === 13)
-        this.$addBtn.trigger("click")
-    })
-    this.$addBtn.click(() => {
-      this.onAdd()
-    })
-    return $container
   }
 
   /**
@@ -110,15 +91,19 @@ export default class StepTypeWorkspace implements Workspace {
    */
   private createChildComponents() {
     this.boxList = this.dash.create(BoxList, {
-      args: [ { id: "", name: "Step types", group: undefined, sort: true } ]
+      args: [
+        {
+          id: "",
+          name: "Step types",
+          group: undefined,
+          sort: true
+        }
+      ]
     })
-    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").call("dataFirst", data => {
-      this.handleBoxlistUpdate(data)
-    })
-    this.$boxListContainer.append(this.boxList.el)
+    this.boxListContainerEl.appendChild(this.boxList.el)
 
     this.form = this.dash.create(StepTypeForm, { args: [] })
-    this.$formContainer.append(this.form.el)
+    this.formContainerEl.appendChild(this.form.el)
   }
 
   /**
@@ -127,13 +112,12 @@ export default class StepTypeWorkspace implements Workspace {
    * If the name typed by the user is valid, it then calls the `addStepType` method.
    */
   private onAdd() {
-    let name = this.$input.val() as string
-    name = name.trim()
-    if (name.length > 0) {
+    let name = this.nameEl.value.trim()
+    if (name.length > 0)
       this.addStepType(name)
-    } else {
+    else {
       console.log("The name you entered for the step type is invalid.")
-      this.$input.focus()
+      this.nameEl.focus()
     }
   }
 
@@ -176,42 +160,23 @@ export default class StepTypeWorkspace implements Workspace {
     this.form.clear()
   }
 
-  /**
-   * Load step types from the database and fill the Boxlist with them.
-   */
-  private async loadStepTypes() {
-    try {
-      let stepTypes = this.dash.app.model.global.stepTypes
-      if (stepTypes.length === 0) {
-        console.log("No step types to load from server...")
-        return
-      }
-      for (let stepType of stepTypes)
-        if (!stepType.isSpecial)
-          this.boxList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
-    } catch (err) {
-      console.error("Unable to load step types from server...", err)
-    }
+  private async fillBoxList() {
+    this.model.global.stepTypes.forEach(stepType => {
+      if (!stepType.isSpecial)
+        this.boxList.addBox(this.dash.create(StepTypeBox, { args: [ stepType ] }))
+    })
   }
 
-  /**
-   * Save a new step type into the model and it to the Boxlist.
-   *
-   * @param name - the name of the new step type
-   */
-  private addStepType(name: string) {
-    let spinner = this.$addBtn.find("span").show()
-    this.dash.app.model.exec("create", "StepType", {
-      name
-    }).then(stepType => {
-      // The StepTypeComponent listens to change from the model. So the newly created StepType
-      // will be automatically displayed in the BoxList.
-      spinner.hide()
-      this.$input.val("").focus()
-    }).catch(err => {
+  private async addStepType(name: string) {
+    this.spinnerEl.style.display = "inline"
+    try {
+      await this.model.exec("create", "StepType", { name })
+      this.nameEl.value = ""
+    } catch(err) {
       console.error("Unable to create new step type...")
-      spinner.hide()
-    })
+    }
+    this.spinnerEl.style.display = "none"
+    this.nameEl.focus()
   }
 
   public activate(ctrl: ViewerController) {

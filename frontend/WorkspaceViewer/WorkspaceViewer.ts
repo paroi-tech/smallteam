@@ -9,13 +9,8 @@ import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
 import { Model, ProjectModel, TaskModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import * as template from "./workspaceviewer.monk"
-import { removeAllChildren } from "../libraries/utils";
+import { removeAllChildren } from "../libraries/utils"
 
-// const template = require("html-loader!./panelselector.html")
-
-/**
- * Properties required for an Component in order to be displayed in PanelSelector.
- */
 export interface Workspace {
   activate(ctrl: ViewerController): void
   deactivate(): void
@@ -29,30 +24,13 @@ export interface ViewerController {
 }
 
 interface WorkspaceInfo {
-  w: Workspace
+  workspace: Workspace
   path: string
   menu: "main" | "dropdown"
   defaultTitle: string
 }
 
-// /**
-//  * Several types of components are displayed in the WorkspaceViewer.
-//  *
-//  * We store data about components currently displayed in the WorkspaceViewer. For now, we display
-//  * four types of components in the PanelSelector:
-//  *    - ProjectWorkspace
-//  *    - ProjectForm
-//  *    - StepsTypePanel
-//  *    - ContributorPanel
-//  */
-// interface WorkspaceInfo {
-//   workspace?: Workspace
-//   projectModel?: ProjectModel
-//   type: typeof ProjectWorkspace | typeof ProjectForm | typeof StepTypeWorkspace | typeof ContributorWorkspace
-// }
-
-
-export default class PanelSelector {
+export default class WorkspaceViewer {
   readonly el: HTMLElement
 
   private model: Model
@@ -68,21 +46,38 @@ export default class PanelSelector {
   private sidebarEl: HTMLElement
   private bodyEl: HTMLElement
 
-  /**
-   * Create a new WorkspaceViewer.
-   *
-   * @param dash
-   */
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
     this.el = this.createView()
 
-    this.dash.listenTo<string>(this.menu, "select").call("dataFirst", path => this.activateWorkspace(path))
-    this.dash.listenTo<string>(this.dropdownMenu, "select").call("dataFirst", path => this.activateWorkspace(path))
+    this.dash.listenTo<string>(this.menu, "select").call("dataFirst", path =>
+      this.activateWorkspace(path)
+    )
+    this.dash.listenTo<string>(this.dropdownMenu, "select").call("dataFirst", path =>
+      this.activateWorkspace(path)
+    )
+
+    // Handler for project deletion event.
+    this.model.on("change", "dataFirst", data => {
+      if (data.cmd !== "delete" || data.type !==  "Project")
+        return
+      let projectId = data.id as string
+      let path = `prj-${projectId}`
+      let info = this.workspaces.get(path)
+      if (info) {
+        (info.menu === "main" ? this.menu : this.dropdownMenu).removeItem(info.path)
+        this.workspaces.delete(path)
+        if(info === this.currentWInfo) {
+          removeAllChildren(this.bodyEl)
+          removeAllChildren(this.sidebarEl)
+          this.h1El.textContent = ""
+        }
+      }
+    })
   }
 
   public addWorkspace(path: string, menu: "main" | "dropdown", menuLabel: string, w: Workspace) {
-    this.workspaces.set(path, { w, path, menu, defaultTitle: menuLabel })
+    this.workspaces.set(path, { workspace: w, path, menu, defaultTitle: menuLabel })
     if (menu === "main") {
       this.menu.addItem({
         id: path,
@@ -101,12 +96,12 @@ export default class PanelSelector {
     if (!info)
       throw new Error(`Unknown workspace path: ${path}`)
     if (this.currentWInfo) {
-      this.currentWInfo.w.deactivate()
+      this.currentWInfo.workspace.deactivate()
       this.h1El.textContent = info.defaultTitle
       removeAllChildren(this.bodyEl)
       removeAllChildren(this.sidebarEl)
     }
-    info.w.activate(this.createViewController(info))
+    info.workspace.activate(this.createViewController(info))
     this.currentWInfo = info
   }
 
@@ -155,57 +150,4 @@ export default class PanelSelector {
 
     return wrapperEl
   }
-
-  // /**
-  //  * Show the board of a given project.
-  //  *
-  //  * @param projectId the ID of the project which board has to be shown
-  //  */
-  // private showProjectWorkspace(projectId: string) {
-  //   let workspaceId = "ProjectWorkspace" + ":" + projectId
-  //   let info = this.workspaceMap.get(workspaceId)
-  //   if (!info)
-  //     throw new Error(`Unknown project panel ID: ${projectId} in PanelSelector.`)
-  //   if (!info.workspace) {
-  //     info.workspace = this.dash.create(ProjectWorkspace, {
-  //       args: [ info.projectModel ]
-  //     })
-  //     this.bodyEl.appendChild(info.workspace.el)
-  //   }
-  //   this.setCurrentWorkspace(info.workspace)
-  // }
-
-  // /**
-  //  * Show the project form in the PanelSelector.
-  //  *
-  //  * @param project
-  //  */
-  // private showProjectForm(project?: ProjectModel) {
-  //   this.projectForm.setProject(project)
-  //   this.setCurrentWorkspace(this.projectForm)
-  // }
-
-  // /**
-  //  * Display a setting workspace.
-  //  * Setting workspaces are:
-  //  *  - StepTypeWorkspace
-  //  *  - ContributorWorkspace
-  //  * @param panelId
-  //  */
-  // private showSettingWorksapce(panelId: string) {
-  //   let info = this.workspaceMap.get(panelId)
-  //   if (!info)
-  //     throw new Error(`Unknown setting workspace id: ${panelId}`)
-  //   if (!info.workspace) {
-  //     if (info.type === StepTypeWorkspace) {
-  //       info.workspace = this.dash.create<StepTypeWorkspace>(info.type)
-  //       this.bodyEl.appendChild(info.workspace.el)
-  //     } else if (info.type === ContributorWorkspace) {
-  //       info.workspace = this.dash.create<ContributorWorkspace>(info.type)
-  //       this.bodyEl.appendChild(info.workspace.el)
-  //     } else
-  //       throw new Error(`Unknown Workspace type: ${info.type}`)
-  //   }
-  //   this.setCurrentWorkspace(info.workspace)
-  // }
 }

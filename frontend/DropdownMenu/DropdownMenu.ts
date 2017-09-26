@@ -79,6 +79,14 @@ export class DropdownMenu {
       this.addItem(i)
   }
 
+  public removeItem(itemId: string) {
+    let arr = this.items.get(itemId)
+    if (arr) {
+      this.ul.removeChild(arr[0])
+      this.items.delete(itemId)
+    }
+  }
+
   /**
    * Disable an item of the menu.
    *
