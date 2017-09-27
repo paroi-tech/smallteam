@@ -30,10 +30,10 @@ export default class StepSwitcher {
   private visible = true
 
   // BoxLists we created are stored in a map. The keys are the IDs of the project steps.
-  private boxListMap: Map<string, BoxList<TaskBox>> = new Map()
+  private boxLists = new Map<string, BoxList<TaskBox>>()
 
   // Map used to store TaskBoxes. The keys are the task IDs.
-  private taskBoxMap: Map<string, TaskBox> = new Map()
+  private taskBoxes = new Map<string, TaskBox>()
 
   /**
    * Create a new StepSwitcher.
@@ -106,19 +106,19 @@ export default class StepSwitcher {
       name: step.name,
       sort: true
     }
-    let list = this.dash.create(BoxList, { args: [ params ] })
-    this.boxListMap.set(step.id, list)
-    return list
+    let b = this.dash.create(BoxList, { args: [ params ] })
+    this.boxLists.set(step.id, b)
+    return b
   }
 
   /**
    * Create a StepSwitcher for a given task.
    * @param task the task for which the box will be created for.
    */
-  private createTaskBoxFor(task: TaskModel, idProp = "id") {
+  private createTaskBoxFor(task: TaskModel) {
     return this.dash.create(TaskBox, {
       group: "items",
-      args: [ task, idProp ]
+      args: [task]
     })
   }
 
@@ -130,12 +130,12 @@ export default class StepSwitcher {
    * @param ev
    */
   private async onTaskBoxMove(ev: BoxEvent) {
-    let box = this.taskBoxMap.get(ev.boxId)
-    let step = this.project.steps.get(ev.boxListId)
+    let box = this.taskBoxes.get(ev.boxId)
+    let step = this.project.steps.find(step => step.id === ev.boxListId)
     if (!box)
-      throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher "${this.parentTask.label}"`)
+      throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher`)
     else if (!step)
-      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in StepSwitcher "${this.parentTask.label}"`)
+      throw new Error(`Unable to find Step with ID "${ev.boxListId}" in StepSwitcher`)
     else {
       this.disable(true)
       let task = box.task
@@ -144,8 +144,8 @@ export default class StepSwitcher {
       } catch(err) {
         console.error(`Unable to update task "${box.task.id}" in StepSwitcher "${this.parentTask.label}"`)
         // We bring back the TaskBox in its old BoxList.
-        let newList = this.boxListMap.get(step.id)
-        let oldList = this.boxListMap.get(box.task.currentStep.typeId)
+        let newList = this.boxLists.get(step.id)
+        let oldList = this.boxLists.get(box.task.currentStep.typeId)
         if (!newList)
           throw new Error(`Cannot find BoxList with ID "${step.id}" in StepSwitcher "${this.parentTask.label}"`)
         if (!oldList)
@@ -166,11 +166,11 @@ export default class StepSwitcher {
     for (let task of this.parentTask.children) {
       if (task.currentStep.isSpecial)
         continue
-      let list = this.boxListMap.get(task.currentStep.id)
-      if (list) {
-        let box = this.createTaskBoxFor(task, "id")
-        this.taskBoxMap.set(task.id, box)
-        list.addBox(box)
+      let bl = this.boxLists.get(task.currentStep.id)
+      if (bl) {
+        let box = this.createTaskBoxFor(task)
+        this.taskBoxes.set(task.id, box)
+        bl.addBox(box)
       } else
         console.log(`Unknown Step "${task.currentStep.id}" in StepSwitcher`, this)
     }
@@ -219,7 +219,7 @@ export default class StepSwitcher {
    * @param ev
    */
   private async onTaskReorder(ev: BoxListEvent) {
-    let boxList = this.boxListMap.get(ev.boxListId)
+    let boxList = this.boxLists.get(ev.boxListId)
     if (!boxList)
       throw new Error(`Unknown BoxList with ID ${ev.boxListId} in StepSwitcher ${this.parentTask.label}`)
     boxList.disable(true)
@@ -236,7 +236,7 @@ export default class StepSwitcher {
           return result
         }, []
       )
-      let list = this.boxListMap.get(ev.boxListId)
+      let list = this.boxLists.get(ev.boxListId)
       if (list)
         list.setBoxesOrder(taskIds)
       else
@@ -262,7 +262,7 @@ export default class StepSwitcher {
         let stepType = data.model as StepTypeModel
         let step = this.parentTask.project.findStepByType(stepType.id)
         if (step) {
-          let list = this.boxListMap.get(step.id)
+          let list = this.boxLists.get(step.id)
           if (list)
             list.setTitle(stepType.name)
         }
@@ -290,10 +290,10 @@ export default class StepSwitcher {
     this.model.on("change", "dataFirst", data => {
       if (data.cmd === "delete" && data.type === "Step") {
         let stepId = data.id as string
-        let list = this.boxListMap.get(stepId)
+        let list = this.boxLists.get(stepId)
         if (list) {
           this.boxListContainerEl.removeChild(list.el)
-          this.boxListMap.delete(stepId)
+          this.boxLists.delete(stepId)
         }
       }
     })
@@ -308,7 +308,7 @@ export default class StepSwitcher {
       for (let id of data.orderedIds) {
         let step = this.project.findStepByType(id as string)
         if (step) {
-          let list = this.boxListMap.get(step.id)
+          let list = this.boxLists.get(step.id)
           if (list)
             this.boxListContainerEl.appendChild(list.el)
         }
@@ -321,10 +321,10 @@ export default class StepSwitcher {
         let task = data.model as TaskModel
         if (task.projectId != this.project.id || task.parentTaskId != this.parentTask.id)
           return
-        let list = this.boxListMap.get(task.curStepId)
+        let list = this.boxLists.get(task.curStepId)
         if (list) {
-          let box = this.createTaskBoxFor(task, "id")
-          this.taskBoxMap.set(task.id, box)
+          let box = this.createTaskBoxFor(task)
+          this.taskBoxes.set(task.id, box)
           list.addBox(box)
         }
       }
@@ -337,13 +337,13 @@ export default class StepSwitcher {
       if (data.cmd !== "delete" || data.type !== "Task")
         return
       let taskId = data.id as string
-      let taskBox = this.taskBoxMap.get(taskId)
+      let taskBox = this.taskBoxes.get(taskId)
       if (!taskBox)
         return
-      let boxList = [...this.boxListMap.values()].find(b => b.hasBox(taskId))
+      let boxList = [...this.boxLists.values()].find(b => b.hasBox(taskId))
       if (boxList)
         boxList.removeBox(taskId)
-      this.taskBoxMap.delete(taskId)
+      this.taskBoxes.delete(taskId)
     })
   }
 

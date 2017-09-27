@@ -16,7 +16,7 @@ export default class TaskBox implements Box {
   readonly el: HTMLElement
   private spanEl: HTMLElement
 
-  public readonly id: string
+  readonly id: string
 
   private model: Model
 
@@ -24,10 +24,9 @@ export default class TaskBox implements Box {
    * Create a new TaskBox.
    * @param dash - the current application dash
    * @param task - the task for which the box is created for
-   * @param idProp - the property of TaskModel that the box sould use as ID (defaults to TaskModel.id)
    */
-  constructor(private dash: Dash<App>, readonly task: TaskModel, idProp = "id") {
-    this.id = this.task[idProp].toString()
+  constructor(private dash: Dash<App>, readonly task: TaskModel) {
+    this.id = this.task.id
     this.model = this.dash.app.model
     let $container = $(template)
     this.spanEl = $container.find(".js-span").text(task.label).get(0)

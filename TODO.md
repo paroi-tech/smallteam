@@ -19,11 +19,8 @@ the time, so I can't use JIRA.
 - Deploy the project on the Web server
 
 # Lionel
-- Refactoring in WorkspaceViewer (with Thomas)
 - Implement a new component `BackgroundCommandManager`
 - Do not hide any existing StepSwitcher by default
-- Contributor (form, management, backend queries)
-- TaskBoardEntry?
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
@@ -34,6 +31,8 @@ the time, so I can't use JIRA.
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Lionel - DONE
+- Contributor (form, management, backend queries)
+- Refactoring in WorkspaceViewer (with Thomas)
 - Refactor Menu and DropDownMenu components
 - Add `disable` method to BoxList.
 - **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
