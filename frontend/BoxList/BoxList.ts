@@ -5,7 +5,7 @@ import App from "../App/App"
 import * as Sortable from "sortablejs"
 
 const boxListTemplate = require("html-loader!./boxlist.html")
-const boxTemplate  = require("html-loader!./box.html")
+const boxTemplate = require("html-loader!./box.html")
 
 /**
  * As BoxList is a template class, a BoxList instance parameter should implement this interface.
@@ -169,12 +169,12 @@ export default class BoxList<T extends Box> {
       },
       // Event when an item is moved inside a list ot between lists.
       onMove: (ev, originalEv) => {
-        if (this.params.obj && this.params.onMove)
+        if (this.params.obj && this.params.onMove) {
           return this.params.onMove.call(this.params.obj, {
             boxId: ev.dragged.dataset.id,
             boxListId: this.params.id
           })
-        else
+        } else
           return true
       }
     })

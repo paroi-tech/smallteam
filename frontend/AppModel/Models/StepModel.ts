@@ -2,8 +2,8 @@ import { StepFragment } from "../../../isomorphic/fragments/Step"
 import ModelEngine, { appendGettersToModel, CommandType, OrderProperties } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepTypeFragment, UpdStepTypeFragment } from "../../../isomorphic/fragments/StepType"
-import { Model } from "../modelDefinitions";
-import { Type } from "../../../isomorphic/Cargo";
+import { Model } from "../modelDefinitions"
+import { Type } from "../../../isomorphic/Cargo"
 
 
 export interface StepModel extends StepFragment {

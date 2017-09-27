@@ -1,6 +1,6 @@
 import * as $ from "jquery"
 import App from "../App/App"
-import { Dash, Bkb, Component } from "bkb"
+import { Dash, Bkb } from "bkb"
 import TaskBoard from "../TaskBoard/TaskBoard"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import ProjectForm from "../ProjectForm/ProjectForm"
@@ -32,7 +32,7 @@ const menuItems = [
 ]
 
 export default class ProjectWorkspace implements Workspace {
-  private dropdownMenu: Component<DropdownMenu>
+  private dropdownMenu: DropdownMenu
   private taskBoard: TaskBoard
   private form: ProjectForm
 
@@ -63,7 +63,7 @@ export default class ProjectWorkspace implements Workspace {
    *  - Project deletion request
    */
   private listenToChildren() {
-    this.dropdownMenu.bkb.on("select", "dataFirst",  itemId => {
+    this.dash.listenTo(this.dropdownMenu, "select").onData(itemId => {
       switch (itemId) {
         case "editProject":
           if (this.ctrl) {
@@ -109,14 +109,10 @@ export default class ProjectWorkspace implements Workspace {
    * Create ProjectWorkspace inner components, i.e. Menu, DropDownMenu, and TaskBoard.
    */
   private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, {
-      args: ["left"]
-    })
+    this.dropdownMenu = this.dash.create(DropdownMenu, "left")
     this.dropdownMenu.addItems(menuItems)
 
-    this.taskBoard = this.dash.create(TaskBoard, {
-      args: [ this.project.rootTask ]
-    })
+    this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
 
     this.form = this.dash.create(ProjectForm)
     this.form.setProject(this.project)

@@ -3,6 +3,7 @@ import BoxList, { BoxEvent } from "../../BoxList/BoxList"
 import { Dash, Bkb } from "bkb"
 import { ProjectModel, StepModel, StepTypeModel, Model } from "../../AppModel/AppModel"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
+import { UpdateModelEvent, ReorderModelEvent } from "../../AppModel/ModelEngine"
 
 export default class StepSelector {
   readonly el: HTMLElement
@@ -63,24 +64,20 @@ export default class StepSelector {
    */
   private listenToModel() {
     // StepType creation event.
-    this.model.on("change", "dataFirst", data => {
-      if (data.type !== "StepType" || data.cmd !== "create")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createStepType").onData(data => {
       let box = this.registerStepType(data.model)
       if (this.project)
         this.spareStepBoxList.addBox(box)
     })
 
     // StepType deletion.
-    this.model.on("change", "dataFirst", data => {
-      if (data.type != "StepType" || data.cmd != "delete")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStepType").onData(data => {
       let stepTypeId = data.id as string
       this.boxMap.delete(stepTypeId)
       this.stepTypeMap.delete(stepTypeId)
       // If we have a project, we have to remove the StepTypeBox created for the StepType.
       if (this.project) {
-        let boxLists = [ this.spareStepBoxList, this.specialStepBoxList, this.usedStepBoxList ]
+        let boxLists = [this.spareStepBoxList, this.specialStepBoxList, this.usedStepBoxList]
         let boxList = boxLists.find(bl => bl.hasBox(stepTypeId))
         if (boxList)
           boxList.removeBox(stepTypeId)
@@ -91,12 +88,12 @@ export default class StepSelector {
     // We run through the orderedIds and for each of the ID, we check if the project use the corresponding
     // StepType. If yes, we add it to an array which will be use to sort the usedStepTypeList. Else,
     // we add the id to the array used to sort availableStepTypeList.
-    this.model.on("reorder", "dataFirst", data => {
-      if (!this.project || data.type !== "StepType" || !data.orderedIds)
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStepType").onData(data => {
+      if (!this.project)
         return
       let ids = data.orderedIds as string[],
-          usedStepTypeIds =  new Array<string>(),
-          spareStepTypeIds = new Array<string>()
+        usedStepTypeIds: string[] = [],
+        spareStepTypeIds: string[] = []
       for (let id of ids) {
         if (this.project.findStepByType(id))
           usedStepTypeIds.push(id)
@@ -124,7 +121,7 @@ export default class StepSelector {
       onMove: ev => this.validateStepTypeMove(ev),
       sort: false
     }
-    this.spareStepBoxList = this.dash.create(BoxList, { args: [ spareBoxListParams ] })
+    this.spareStepBoxList = this.dash.create(BoxList, spareBoxListParams)
     container.appendChild(this.spareStepBoxList.el)
 
     let usedBoxListParams = {
@@ -135,7 +132,7 @@ export default class StepSelector {
       onMove: ev => this.validateStepTypeMove(ev),
       sort: false
     }
-    this.usedStepBoxList = this.dash.create(BoxList, { args: [ usedBoxListParams ] })
+    this.usedStepBoxList = this.dash.create(BoxList, usedBoxListParams)
     container.appendChild(this.usedStepBoxList.el)
 
     let specialBoxListParams = {
@@ -144,7 +141,7 @@ export default class StepSelector {
       name: "Special step types",
       sort: false
     }
-    this.specialStepBoxList = this.dash.create(BoxList, { args: [ specialBoxListParams ] })
+    this.specialStepBoxList = this.dash.create(BoxList, specialBoxListParams)
     container.appendChild(this.specialStepBoxList.el)
 
     return container
@@ -154,7 +151,7 @@ export default class StepSelector {
    * Clear the content of the BoxLists.
    */
   private clear() {
-    let boxLists = [ this.spareStepBoxList, this.specialStepBoxList, this.usedStepBoxList ]
+    let boxLists = [this.spareStepBoxList, this.specialStepBoxList, this.usedStepBoxList]
     boxLists.forEach(bl => bl.clear())
   }
 
@@ -164,7 +161,7 @@ export default class StepSelector {
    * @param stepType
    */
   private createBoxForStepType(stepType: StepTypeModel): StepTypeBox {
-    let box = this.dash.create(StepTypeBox, { args: [ stepType, "id" ] })
+    let box = this.dash.create(StepTypeBox, stepType, "id")
     this.boxMap.set(stepType.id, box)
     return box
   }
@@ -229,7 +226,7 @@ export default class StepSelector {
       if (!stepType) // This should not happen.
         throw new Error(`Unknown StepType ID ${id} in ProjectStepsPanel ${this.project.code}`)
       if (!this.project.hasStepType(stepType.id))
-          batch.exec("create", "Step", { typeId: stepType.id, projectId: this.project.id })
+        batch.exec("create", "Step", { typeId: stepType.id, projectId: this.project.id })
     }
 
     // We remove unused StepTypes. No need to check if there are tasks in the Step. There was an control
@@ -302,13 +299,13 @@ export default class StepSelector {
    * Hide the StepSelector.
    */
   public hide() {
-    this.el.style.display = "none";
+    this.el.style.display = "none"
   }
 
   /**
    * Make the StepSelector visible.
    */
   public show() {
-    this.el.style.display = "block";
+    this.el.style.display = "block"
   }
 }

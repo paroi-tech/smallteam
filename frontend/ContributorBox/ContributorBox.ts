@@ -2,6 +2,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { Model, ContributorModel } from "../AppModel/AppModel"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 export default class ContributorBox implements Box {
   readonly el: HTMLElement
@@ -26,9 +27,7 @@ export default class ContributorBox implements Box {
   }
 
   private listenToModel() {
-    this.model.on("change", "dataFirst", data => {
-      if (data.type !== "Contributor" || data.cmd !== "update")
-        return
+    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
       let contributor = data.model as ContributorModel
       if (contributor.id === this.contributor.id)
         this.spanEl.textContent = this.contributor.name

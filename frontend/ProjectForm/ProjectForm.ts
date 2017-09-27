@@ -70,7 +70,7 @@ export default class ProjectForm implements Workspace {
   }
 
   private createChildComponents() {
-    this.stepSelector = this.dash.create(StepSelector, { args: [] })
+    this.stepSelector = this.dash.create(StepSelector)
     this.stepSelector.hide()
     this.el.appendChild(this.stepSelector.el)
   }

@@ -3,6 +3,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { StepTypeModel } from "../AppModel/AppModel"
+import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
 const template = require("html-loader!./steptypebox.html")
 
@@ -33,8 +34,8 @@ export default class StepTypeBox implements Box {
     })
     // We listen to the model and update the label of this StepTypeBox if the name of the StepType
     // is updated.
-    this.dash.app.model.on("update", "dataFirst", data => {
-      if (data.type === "StepType" && (data.model as StepTypeModel) == this.stepType)
+    this.dash.listenTo<UpdateModelEvent>(this.dash.app.model, "updateStepType").onData(data => {
+      if (data.model === this.stepType)
         $container.find(".js-span").text(this.stepType.name)
     })
     this.el = $container.get(0)

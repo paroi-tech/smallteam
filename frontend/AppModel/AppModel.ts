@@ -11,18 +11,18 @@ import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragm
 import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
-import ModelEngine, { CommandType, ModelEvent, toCollection } from "./ModelEngine"
+import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
 import App from "../App/App"
 import { registerComment } from "./Models/CommentModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
 import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection } from "./modelDefinitions"
-import { FragmentMeta } from "../../isomorphic/FragmentMeta";
-import { toIdentifier } from "../../isomorphic/meta";
-import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections";
-import GenericBgCommandManager from "./BgCommandManager";
+import { FragmentMeta } from "../../isomorphic/FragmentMeta"
+import { toIdentifier } from "../../isomorphic/meta"
+import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
+import GenericBgCommandManager from "./BgCommandManager"
 
-export { CommandType, ModelEvent } from "./ModelEngine"
+export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
 export { Model, WhoUseItem, CommandBatch } from "./modelDefinitions"
 
 export { CommentModel } from "./Models/CommentModel"
@@ -71,19 +71,6 @@ export default class ModelComp implements Model {
 
   public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
     return this.bgCommandMng.add(this.engine.reorder(type, { idList, groupName, groupId }), `reorder ${type}`).promise
-  }
-
-  // --
-  // -- ModelEventMethods
-  // --
-
-  public on(eventName: string, modeOrCb, callback?): this {
-    this.dash.on(eventName, modeOrCb, callback)
-    return this
-  }
-
-  public listen(eventName: string): Transmitter<ModelEvent> {
-    return this.dash.listen(eventName)
   }
 
   // --
