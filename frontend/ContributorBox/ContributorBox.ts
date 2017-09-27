@@ -21,9 +21,7 @@ export default class ContributorBox implements Box {
     this.spanEl.textContent = this.contributor.name
     this.el.appendChild(this.spanEl)
     this.listenToModel()
-    this.el.onclick = (ev) => {
-      this.dash.emit("contributorBoxSelected", this.contributor)
-    }
+    this.el.onclick = ev => this.dash.emit("contributorBoxSelected", this.contributor)
   }
 
   private listenToModel() {

@@ -198,27 +198,14 @@ export default class ProjectForm implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-    if (!this.hasProject())
+    if (!this.hasProject()) {
+      ctrl.setTitle("Create new project")
       this.nameEl.focus()
+    } else
+      ctrl.setTitle("Edit ptoject")
   }
 
   public deactivate() {
   }
 
-
-  /**
-   * Hide the ProjectForm.
-   */
-  public hide() {
-    this.el.style.display = "none"
-  }
-
-  /**
-   * Make the ProjectForm visible.
-   */
-  public show() {
-    this.el.style.display = "block"
-    if (!this.hasProject())
-      this.nameEl.focus()
-  }
 }

@@ -117,11 +117,13 @@ export default class StepSwitcher {
    * @param task the task for which the box will be created for.
    */
   private createTaskBoxFor(task: TaskModel) {
-    return this.dash.customCreate({
+    let box = this.dash.customCreate({
       Class: TaskBox,
       group: "items",
       argument: task
     })
+    this.taskBoxes.set(task.id, box)
+    return box
   }
 
   /**
@@ -171,7 +173,6 @@ export default class StepSwitcher {
       let bl = this.boxLists.get(task.currentStep.id)
       if (bl) {
         let box = this.createTaskBoxFor(task)
-        this.taskBoxes.set(task.id, box)
         bl.addBox(box)
       } else
         console.log(`Unknown Step "${task.currentStep.id}" in StepSwitcher`, this)
@@ -317,7 +318,6 @@ export default class StepSwitcher {
       let list = this.boxLists.get(task.curStepId)
       if (list) {
         let box = this.createTaskBoxFor(task)
-        this.taskBoxes.set(task.id, box)
         list.addBox(box)
       }
     })

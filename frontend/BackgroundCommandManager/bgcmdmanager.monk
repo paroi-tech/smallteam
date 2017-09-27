@@ -1,0 +1,30 @@
+<h1>Background Tasks</h1>
+
+<table class="js-progress-table">
+  <caption>In progress</caption>
+
+  <thead>
+    <tr>
+      <td>Label</td>
+      <td>Start date</td>
+      <td>In progress</td>
+      <td>Done</td>
+    </tr>
+  </thead>
+
+  <tbody></tbody>
+</table>
+
+<table class="js-error-table">
+  <caption>Error'd</caption>
+
+  <thead>
+    <tr>
+      <td>Label</td>
+      <td>Start date</td>
+      <td>Message</td>
+    </tr>
+  </thead>
+
+  <tbody></tbody>
+</table>

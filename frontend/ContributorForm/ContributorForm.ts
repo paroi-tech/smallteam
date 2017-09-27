@@ -4,6 +4,7 @@ import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import * as template from "./contributorform.monk"
+import { NewContributorFragment, UpdContributorFragment } from "../../isomorphic/fragments/Contributor";
 
 export default class ContributorForm {
   readonly el: HTMLElement
@@ -105,15 +106,20 @@ export default class ContributorForm {
     }
 
     this.submitSpinnerEl.style.display = "inline"
-    if (!this.contributor)
-      await this.createContributor(name, login, email, passwd)
-    else
-      await this.updateContributor(name, login, email, passwd.length != 0 ? passwd: undefined)
+    if (!this.contributor) {
+      await this.createContributor({ name, login, email })
+    } else {
+      await this.updateContributor({
+        id: this.contributor ? this.contributor.id : "",
+        name,
+        login,
+        email
+      })
+    }
     this.submitSpinnerEl.style.display = "none"
   }
 
-  private async createContributor(name: string, login: string, email: string, passwd: string) {
-    let frag = { name, login, email, passwd }
+  private async createContributor(frag: NewContributorFragment) {
     try {
       await this.model.exec("create", "Contributor", frag)
       this.reset()
@@ -123,18 +129,9 @@ export default class ContributorForm {
     }
   }
 
-  private async updateContributor(name: string, login: string, email: string, passwd: string | undefined) {
+  private async updateContributor(frag: UpdContributorFragment) {
     if (!this.contributor)
       return
-
-      let frag = {
-      id: this.contributor.id,
-      name,
-      login,
-      email,
-      password: passwd
-    }
-
     try {
       this.contributor = await this.model.exec("update", "Contributor", frag)
       this.updateView()

@@ -53,7 +53,7 @@ export interface BoxEvent {
 export interface BoxListEvent extends BoxEvent {
   // Array of string that contains the IDs of the items in the BoxList. The order of the IDs is the same as
   // the order of the items in the BoxList.
-  boxIds: Array<string>
+  boxIds: string[]
 }
 
 /**
@@ -74,7 +74,7 @@ export default class BoxList<T extends Box> {
   private sortable: Sortable
 
   // Map storing boxes of the list.
-  private boxMap: Map<string, HTMLElement> = new Map()
+  private boxes: Map<string, HTMLElement> = new Map()
 
   /**
    * Create a new empty BoxList.
@@ -102,7 +102,7 @@ export default class BoxList<T extends Box> {
     li.setAttribute("data-id", box.id)
     li.appendChild(box.el)
     this.ul.appendChild(li)
-    this.boxMap.set(box.id, li)
+    this.boxes.set(box.id, li)
   }
 
   /**
@@ -110,7 +110,7 @@ export default class BoxList<T extends Box> {
    * @param id
    */
   public hasBox(id: string) {
-    return this.boxMap.has(id)
+    return this.boxes.has(id)
   }
 
   /**
@@ -119,10 +119,10 @@ export default class BoxList<T extends Box> {
    * @param boxId - ID of the box to remove
    */
   public removeBox(boxId: string) {
-    let li = this.boxMap.get(boxId)
+    let li = this.boxes.get(boxId)
     if (li) {
       this.ul.removeChild(li)
-      this.boxMap.delete(boxId)
+      this.boxes.delete(boxId)
     }
   }
 
@@ -130,7 +130,7 @@ export default class BoxList<T extends Box> {
    * Remove all elements from the BoxList.
    */
   public clear() {
-    Array.from(this.boxMap.keys()).forEach(key => this.removeBox(key))
+    Array.from(this.boxes.keys()).forEach(key => this.removeBox(key))
   }
 
   /***
@@ -144,7 +144,7 @@ export default class BoxList<T extends Box> {
       disabled: this.params.disabled === undefined ? false : this.params.disabled,
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
-        this.boxMap.set(ev.item.dataset.id, ev.item)
+        this.boxes.set(ev.item.dataset.id, ev.item)
         this.dash.emit("boxListItemAdded", {
           boxListId: this.params.id,
           boxId: ev.item.dataset.id
@@ -152,7 +152,7 @@ export default class BoxList<T extends Box> {
       },
       // Element is moved from the list into another list.
       onRemove: (ev) => {
-        this.boxMap.delete(ev.item.dataset.id)
+        this.boxes.delete(ev.item.dataset.id)
         this.dash.emit("boxListItemRemoved", {
           boxListId: this.params.id,
           boxId: ev.item.dataset.id
@@ -274,16 +274,10 @@ export default class BoxList<T extends Box> {
     }
   }
 
-  /**
-   * Show the busy indicator.
-   */
   public showBusyIcon() {
     this.busyIndicatorEl.style.display = "inline"
   }
 
-  /**
-   * Hide the busy indicator.
-   */
   public hideBusyIcon() {
     this.busyIndicatorEl.style.display = "none"
   }

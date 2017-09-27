@@ -176,6 +176,7 @@ export default class StepTypeWorkspace implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
+        .setTitle("Step types")
   }
 
   public deactivate() {

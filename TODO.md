@@ -21,7 +21,6 @@ the time, so I can't use JIRA.
 
 # Lionel
 - Implement a new component `BackgroundCommandManager`
-- Do not hide any existing StepSwitcher by default
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
@@ -32,6 +31,7 @@ the time, so I can't use JIRA.
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Lionel - DONE
+- Do not hide any existing StepSwitcher by default
 - Contributor (form, management, backend queries)
 - Refactoring in WorkspaceViewer (with Thomas)
 - Refactor Menu and DropDownMenu components

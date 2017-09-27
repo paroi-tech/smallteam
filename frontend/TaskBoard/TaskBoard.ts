@@ -109,7 +109,6 @@ export default class TaskBoard {
     parentTask.children.filter(t => t.children && t.children.length !== 0).forEach(task => {
       let stepSwitcher = this.createStepSwitcher(task)
       // The StepSwitchers created for child tasks are hidden by default.
-      stepSwitcher.setVisible(false)
       this.leftEl.appendChild(stepSwitcher.el)
       this.createStepSwitchersForChildren(task)
     })
