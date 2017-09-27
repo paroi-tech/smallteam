@@ -8,8 +8,10 @@
     background-color: #205081;
     border-bottom: 1px solid #2e3d54;
     color: white;
+    display: grid;
     // grid-area: 1 / 1 / span 1 / span 15;
-    position: relative;
+    grid-template-columns: 90% 10%;
+    // position: relative;
   }
 
   &-title {
@@ -25,13 +27,21 @@
     padding: $vGap2 0;
   }
 
-  &-menuLeft {
+  &-headerLeft {
+    grid-column-end: 1;
+    grid-column-start: 1;
     padding-right: 50px;
   }
 
-  &-menuRight {
-    position: absolute;
-    right: 0;
-    top: 6px;
+  &-headerRight {
+    align-items: center;
+    display: inline-flex;
+    flex-wrap: nowrap;
+    grid-column-end: 2;
+    grid-column-start: 2;
+    justify-content: flex-end;
+    // position: relative;
+    // right: 0;
+    // top: 6px;
   }
 }

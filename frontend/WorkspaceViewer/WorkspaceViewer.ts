@@ -140,10 +140,16 @@ export default class WorkspaceViewer {
     this.bodyEl = this.view.querySelector(".js-body")
 
     this.menu = this.dash.create(Menu)
-    this.view.querySelector(".js-menu-left").appendChild(this.menu.el)
+    this.view.querySelector(".js-header-left").appendChild(this.menu.el)
 
     this.dropdownMenu = this.dash.create(DropdownMenu, "right")
-    this.view.querySelector(".js-menu-right").appendChild(this.dropdownMenu.el)
+    this.view.querySelector(".js-header-right").appendChild(this.dropdownMenu.el)
+
+    // FIXME: Temporary solution to add the BgCommandManager to the Workspace header
+    let btn = document.createElement("button")
+    btn.textContent = "Bg"
+    btn.style.padding = "5px"
+    this.view.querySelector(".js-header-right").insertBefore(btn, this.dropdownMenu.el)
 
     return wrapperEl
   }

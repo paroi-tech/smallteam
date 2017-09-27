@@ -1,7 +1,7 @@
 <div class="WorkspaceViewer Container">
-  <header class="WorkspaceViewer-header">
-    <div class="WorkspaceViewer-menuLeft js-menu-left"></div>
-    <div class="WorkspaceViewer-menuRight js-menu-right"></div>
+  <header class="WorkspaceViewer-header js-header">
+    <div class="WorkspaceViewer-headerLeft js-header-left"></div>
+    <div class="WorkspaceViewer-headerRight js-header-right"></div>
   </header>
   <div class="TitleBar">
     <h1 class="TitleBar-h1 js-h1"></h1>
