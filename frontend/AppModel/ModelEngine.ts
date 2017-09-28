@@ -1,3 +1,4 @@
+import config from "../../isomorphic/config"
 import { Dash } from "bkb"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
@@ -567,6 +568,7 @@ function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
 }
 
 async function httpSendJson(method: HttpMethod, url: string, data): Promise<any> {
+  url = `${config.urlPrefix}${url}`
   console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {
     method: method,
