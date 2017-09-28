@@ -1,47 +1,78 @@
 .WorkspaceViewer {
-  // display: grid;
-  // grid-template-columns: repeat(15, 1fr);
-  // grid-column-gap: 24px;
-  // grid-template-rows: 40px auto;
+  height: 100%;
+  position: fixed;
+  width: 100%;
 
-  &-header {
-    background-color: #205081;
-    border-bottom: 1px solid #2e3d54;
-    color: white;
+  &-wrapper {
+    background-color: #F5F5F5;
     display: grid;
-    // grid-area: 1 / 1 / span 1 / span 15;
-    grid-template-columns: 90% 10%;
-    // position: relative;
+    grid-template-columns: repeat(15, 1fr);
+    grid-column-gap: 24px;
+    grid-template-rows: 40px auto;
+    height: 100%;
+    margin: 0 auto;
+    max-width: 1420px; // $c18
+  }
+
+  &-nav {
+    grid-area: 1 / 1 / span 1 / span 15;
   }
 
   &-title {
-    background-color: #777;
-    color: white;
-    // grid-area: 2 / 1 / span 1 / span 1;
+    grid-area: 2 / 1 / span 1 / span 1;
   }
 
   &-body {
-    background-color: #eee;
-    // grid-area: 2 / 2 / span 1 / span 14;
+    grid-area: 2 / 2 / span 1 / span 14;
     min-height: 300px;
+    overflow-y: scroll;
     padding: $vGap2 0;
   }
+}
 
-  &-headerLeft {
-    grid-column-end: 1;
-    grid-column-start: 1;
-    padding-right: 50px;
+.NavBar {
+  background-color: #205081;
+  border-bottom: 1px solid #2e3d54;
+  color: white;
+  display: flex;
+
+  &-left {
+    flex: auto;
   }
 
-  &-headerRight {
+  &-right {
     align-items: center;
-    display: inline-flex;
-    flex-wrap: nowrap;
-    grid-column-end: 2;
-    grid-column-start: 2;
-    justify-content: flex-end;
+    display: flex;
+    // grid-column-end: 2;
+    // grid-column-start: 2;
+    // justify-content: flex-end;
     // position: relative;
     // right: 0;
     // top: 6px;
   }
+}
+
+.TitleBar {
+  align-items: center;
+  background-color: #D3D3D3;
+  display: flex;
+  flex-direction: column-reverse;
+  height: 100%;
+  &-h1Wrapper {
+    height: 80%;
+    overflow: hidden;
+    position: relative;
+    width: 100%;
+  }
+  &-h1 {
+    bottom: 0;
+    font-size: $f40;
+    font-weight: bold;
+    margin: -20px 18px;
+    position: absolute;
+    transform: rotate(-90deg);
+    transform-origin: top left;
+    white-space: nowrap;
+  }
+  // color: white;
 }
