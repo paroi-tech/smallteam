@@ -19,7 +19,14 @@
     </tr>
   </thead>
 
-  <tbody></tbody>
+  <tbody>
+    <tr>
+      <td>A</td>
+      <td>B</td>
+      <td>C</td>
+      <td>D</td>
+    </tr>
+  </tbody>
 </table>
 
 <table class="js-error-table">
@@ -33,5 +40,12 @@
     </tr>
   </thead>
 
-  <tbody></tbody>
+  <tbody>
+    <tr>
+      <td>A</td>
+      <td>B</td>
+      <td>C</td>
+      <td>D</td>
+    </tr>
+  </tbody>
 </table>

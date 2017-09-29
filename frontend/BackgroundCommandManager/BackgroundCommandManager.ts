@@ -14,7 +14,6 @@ export default class BackgroundCommandManager {
   private errorTableEl: HTMLTableElement
   private progressTableEl: HTMLTableElement
   private closeButtonEl: HTMLButtonElement
-  private dialog: HTMLElement
 
   private bgCmdManager: BgCommandManager
   private model: Model
@@ -26,9 +25,6 @@ export default class BackgroundCommandManager {
     this.bgCmdManager = this.dash.app.model.bgCommandMng
     this.el = this.createHtmlElements()
 
-    this.dialog = document.createElement("dialog")
-    this.dialog.appendChild(this.el)
-
     this.buttonEl = document.createElement("button")
     this.buttonEl.textContent = "Bg"
     this.buttonEl.style.padding = "5px"
@@ -38,7 +34,7 @@ export default class BackgroundCommandManager {
   }
 
   private createHtmlElements(): HTMLElement {
-    let el = document.createElement("div")
+    let el = document.createElement("dialog")
 
     el.classList.add("BgCommandManager")
     this.view = render(template, el)
@@ -58,12 +54,14 @@ export default class BackgroundCommandManager {
   }
 
   private show() {
-    document.body.appendChild(this.dialog)
-    (this.dialog as any).showModal()
+    document.body.appendChild(this.el)
+    let d = this.el as any
+    d.showModal()
   }
 
   private hide() {
-    document.body.removeChild(this.dialog)
-    (this.dialog as any).close()
+    document.body.removeChild(this.el)
+    let d = this.el as any
+    d.close()
   }
 }
