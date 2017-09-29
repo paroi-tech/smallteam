@@ -9,6 +9,9 @@ import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
+
+import * as template from "./ContributorWorkspace.monk"
 
 export default class ContributorWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -35,13 +38,11 @@ export default class ContributorWorkspace implements Workspace {
   }
 
   private createHtmlElements(): HTMLElement {
-    let el = document.createElement("div")
+    let view = render(template, document.createElement("div"))
+    let el = view.nodes[0] as HTMLElement
 
-    el.classList.add("ContributorWorkspace")
-    this.boxListContainerEl = document.createElement("div")
-    this.formContainerEl = document.createElement("div")
-    el.appendChild(this.boxListContainerEl)
-    el.appendChild(this.formContainerEl)
+    this.boxListContainerEl = el.querySelector(".js-list") as HTMLElement
+    this.formContainerEl = el.querySelector(".js-form") as HTMLElement
 
     return el
   }

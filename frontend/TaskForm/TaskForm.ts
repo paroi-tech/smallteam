@@ -35,31 +35,31 @@ export default class TaskForm {
    * Create element content from template.
    */
   private createHtmlElements() {
-    let container = document.createElement("div")
-    container.classList.add("TaskForm")
+    let el = document.createElement("div")
+    el.classList.add("TaskForm")
 
-    this.view = MonkBerry.render(template, container)
-    this.labelEl = this.view.querySelector(".js-task-label") as HTMLInputElement
-    this.descriptionEl = this.view.querySelector(".js-task-description") as HTMLTextAreaElement
-    this.submitSpinnerEl = this.view.querySelector(".js-submit-spinner")
-    this.deleteSpinnerEl = this.view.querySelector(".js-delete-spinner")
+    this.view = MonkBerry.render(template, el)
+    this.labelEl = el.querySelector(".js-task-label") as HTMLInputElement
+    this.descriptionEl = el.querySelector(".js-task-description") as HTMLTextAreaElement
+    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
+    this.deleteSpinnerEl = el.querySelector(".js-delete-spinner") as HTMLElement
 
-    let submitBtn = this.view.querySelector(".js-submit-button") as HTMLButtonElement
+    let submitBtn = el.querySelector(".js-submit-button") as HTMLButtonElement
     submitBtn.addEventListener("click", ev => this.updateTask())
 
-    let showPanelBtn = this.view.querySelector(".js-btn-panel") as HTMLButtonElement
+    let showPanelBtn = el.querySelector(".js-btn-panel") as HTMLButtonElement
     showPanelBtn.addEventListener("click", ev => {
       if (this.task)
         this.dash.emit("showStepSwitcher", this.task)
     })
 
-    let deleteBtn = this.view.querySelector(".js-btn-delete") as HTMLButtonElement
+    let deleteBtn = el.querySelector(".js-btn-delete") as HTMLButtonElement
     deleteBtn.addEventListener("click", ev => {
       if (this.task)
         this.deleteTask()
     })
 
-    return container
+    return el
   }
 
   /**

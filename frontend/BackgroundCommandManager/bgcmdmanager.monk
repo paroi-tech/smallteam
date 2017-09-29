@@ -1,51 +1,53 @@
-<header class="BgCommandManager-header">
-  <h1>Background Tasks</h1>
-  <div>
-    <button class="BgCommandManager-closeButton js-close-button">
-      <span class="fa fa-1x fa-times"></span>
-    </button>
-  </div>
-</header>
+<dialog class="BgCommandManager">
+  <header class="BgCommandManager-header">
+    <h1>Background Tasks</h1>
+    <div>
+      <button class="BgCommandManager-closeButton js-close-button">
+        <span class="fa fa-1x fa-times"></span>
+      </button>
+    </div>
+  </header>
 
-<table class="js-progress-table">
-  <caption>In progress</caption>
+  <table class="js-progress-table">
+    <caption>In progress</caption>
 
-  <thead>
-    <tr>
-      <td>Label</td>
-      <td>Start date</td>
-      <td>In progress</td>
-      <td>Done</td>
-    </tr>
-  </thead>
+    <thead>
+      <tr>
+        <td>Label</td>
+        <td>Start date</td>
+        <td>In progress</td>
+        <td>Done</td>
+      </tr>
+    </thead>
 
-  <tbody>
-    <tr>
-      <td>A</td>
-      <td>B</td>
-      <td>C</td>
-      <td>D</td>
-    </tr>
-  </tbody>
-</table>
+    <tbody>
+      <tr>
+        <td>A</td>
+        <td>B</td>
+        <td>C</td>
+        <td>D</td>
+      </tr>
+    </tbody>
+  </table>
 
-<table class="js-error-table">
-  <caption>Error'd</caption>
+  <table class="js-error-table">
+    <caption>Error'd</caption>
 
-  <thead>
-    <tr>
-      <td>Label</td>
-      <td>Start date</td>
-      <td>Message</td>
-    </tr>
-  </thead>
+    <thead>
+      <tr>
+        <td>Label</td>
+        <td>Start date</td>
+        <td>Message</td>
+      </tr>
+    </thead>
 
-  <tbody>
-    <tr>
-      <td>A</td>
-      <td>B</td>
-      <td>C</td>
-      <td>D</td>
-    </tr>
-  </tbody>
-</table>
+    <tbody>
+      <tr>
+        <td>A</td>
+        <td>B</td>
+        <td>C</td>
+        <td>D</td>
+      </tr>
+    </tbody>
+  </table>
+</dialog>

@@ -48,19 +48,19 @@ export default class StepTypeForm {
    * Create StepTypeForm HTML elements.
    */
   private createHtmlElements() {
-    let wrapperEl = document.createElement("div")
-    wrapperEl.classList.add("StepTypeForm")
+    let el = document.createElement("div")
+    el.classList.add("StepTypeForm")
 
-    this.view = render(template, wrapperEl)
-    this.menuContainerEl = this.view.querySelector(".js-menu-container")
-    this.fieldContainerEl = this.view.querySelector(".js-field-container")
+    this.view = render(template, el)
+    this.menuContainerEl = el.querySelector(".js-menu-container") as HTMLElement
+    this.fieldContainerEl = el.querySelector(".js-field-container") as HTMLElement
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
     this.orderNumEl = this.fieldContainerEl.querySelector(".js-ordernum-index") as HTMLInputElement
     this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
     this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
     this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
 
-    return wrapperEl
+    return el
   }
 
   /**

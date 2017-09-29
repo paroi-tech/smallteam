@@ -6,6 +6,7 @@ import { render } from "monkberry"
 import { BgCommandManager, BgCommand } from "../AppModel/BgCommandManager"
 
 import * as template from "./bgcmdmanager.monk"
+import * as templateMenuBtn from "./menubutton.monk"
 
 export default class BackgroundCommandManager {
   readonly el: HTMLDialogElement
@@ -24,25 +25,25 @@ export default class BackgroundCommandManager {
     this.model = this.dash.app.model
     this.bgCmdManager = this.dash.app.model.bgCommandMng
     this.el = this.createHtmlElements()
-
-    this.buttonEl = document.createElement("button")
-    this.buttonEl.textContent = "Bg"
-    this.buttonEl.style.padding = "5px"
-    this.buttonEl.addEventListener("click", ev => this.show())
-
+    this.buttonEl = this.createHtmlMenuButtonElement()
     this.listenToModel()
   }
 
+  private createHtmlMenuButtonElement(): HTMLButtonElement {
+    let tmp = document.createElement("div")
+    this.view = render(templateMenuBtn, tmp)
+    let btnEl = tmp.querySelector("button") as HTMLButtonElement
+    btnEl.addEventListener("click", ev => this.show())
+    return btnEl
+  }
+
   private createHtmlElements(): HTMLDialogElement {
-    let el = document.createElement("dialog") as HTMLDialogElement
-
-    el.classList.add("BgCommandManager")
-    this.view = render(template, el)
-    this.closeButtonEl = this.view.querySelector(".js-close-button")
+    this.view = render(template, document.createElement("div"))
+    let el = this.view.nodes[0] as HTMLDialogElement
+    this.closeButtonEl = el.querySelector(".js-close-button") as HTMLButtonElement
     this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.errorTableEl = this.view.querySelector(".js-error-table")
-    this.progressTableEl = this.view.querySelector(".js-progress-table")
-
+    this.errorTableEl = el.querySelector(".js-error-table") as HTMLTableElement
+    this.progressTableEl = el.querySelector(".js-progress-table") as HTMLTableElement
     return el
   }
 

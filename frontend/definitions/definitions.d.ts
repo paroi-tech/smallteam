@@ -12,7 +12,8 @@ declare module "*.monk" {
 
 interface MonkberryView {
   update(state: any): void
-  querySelector(query: string): any
+  querySelector(query: string): HTMLElement | null
+  nodes: Node[]
 }
 
 declare module "monkberry" {

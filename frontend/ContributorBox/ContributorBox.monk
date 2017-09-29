@@ -1,0 +1,3 @@
+<div class="ContributorBox">
+  <span class="ContributorBox-name">{{ name }}</span>
+</div>

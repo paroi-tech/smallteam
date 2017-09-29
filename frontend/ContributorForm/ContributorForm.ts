@@ -3,15 +3,16 @@ import { Bkb, Dash } from "bkb"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import * as template from "./contributorform.monk"
 import { NewContributorFragment, UpdContributorFragment } from "../../isomorphic/fragments/Contributor";
+
+import * as template from "./ContributorForm.monk"
 
 export default class ContributorForm {
   readonly el: HTMLElement
 
   private loginEl: HTMLInputElement
   private nameEl: HTMLInputElement
-  private emailEl: HTMLTextAreaElement
+  private emailEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
 
@@ -36,18 +37,18 @@ export default class ContributorForm {
   }
 
   private createHtmlElements() {
-    let wrapperEl = document.createElement("div")
+    this.view = render(template, document.createElement("div"), { directives })
+    let el = this.view.nodes[0] as HTMLElement
 
-    wrapperEl.classList.add("ContributorForm")
-    this.view = render(template, wrapperEl, { directives })
-    this.nameEl = this.view.querySelector(".js-name")
-    this.loginEl = this.view.querySelector(".js-login")
-    this.passwordEl = this.view.querySelector(".js-password")
-    this.emailEl = this.view.querySelector(".js-email")
-    this.submitSpinnerEl = this.view.querySelector(".js-spinner")
+    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
+    this.loginEl = el.querySelector(".js-login") as HTMLInputElement
+    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
+    this.emailEl = el.querySelector(".js-email") as HTMLInputElement
+    this.submitSpinnerEl = el.querySelector(".js-spinner") as HTMLElement
+
     this.view.update(this.state)
 
-    return wrapperEl
+    return el
   }
 
   public setContributor(contributor: ContributorModel) {

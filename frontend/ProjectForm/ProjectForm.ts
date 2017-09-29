@@ -55,18 +55,18 @@ export default class ProjectForm implements Workspace {
    * Create ProjectForm elements from template.
    */
   private createHtmlElements() {
-    let wrapperEl = document.createElement("div")
+    let el = document.createElement("div")
 
-    wrapperEl.classList.add("ProjectForm")
-    this.view = render(template, wrapperEl, { directives })
-    this.codeEl = this.view.querySelector(".js-code")
-    this.nameEl = this.view.querySelector(".js-name")
-    this.descriptionEl = this.view.querySelector(".js-description")
-    this.submitSpinnerEl = this.view.querySelector(".js-submitSpinner")
+    el.classList.add("ProjectForm")
+    this.view = render(template, el, { directives })
+    this.codeEl = el.querySelector(".js-code") as HTMLInputElement
+    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
+    this.descriptionEl = el.querySelector(".js-description") as HTMLTextAreaElement
+    this.submitSpinnerEl = el.querySelector(".js-submitSpinner") as HTMLElement
 
     this.view.update(this.state)
 
-    return wrapperEl
+    return el
   }
 
   private createChildComponents() {

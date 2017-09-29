@@ -3,23 +3,25 @@ import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
+
+import * as template from "./ContributorBox.monk"
 
 export default class ContributorBox implements Box {
   readonly el: HTMLElement
-  private spanEl: HTMLElement
-
-  public readonly id: string
+  readonly id: string
 
   private model: Model
+  private view: MonkberryView
 
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
-    this.id = this.contributor.id
     this.model = this.dash.app.model
-    this.el = document.createElement("div")
-    this.el.classList.add("ContributorBox")
-    this.spanEl = document.createElement("span")
-    this.spanEl.textContent = this.contributor.name
-    this.el.appendChild(this.spanEl)
+    this.id = contributor.id
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.view.update(this.contributor)
+
     this.listenToModel()
     this.el.onclick = ev => this.dash.emit("contributorBoxSelected", this.contributor)
   }
@@ -28,7 +30,7 @@ export default class ContributorBox implements Box {
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
       let contributor = data.model as ContributorModel
       if (contributor.id === this.contributor.id)
-        this.spanEl.textContent = this.contributor.name
+        this.view.update(this.contributor)
     })
   }
 

@@ -132,24 +132,27 @@ export default class WorkspaceViewer {
   }
 
   private createView() {
-    let wrapperEl = document.createElement("div")
-    this.view = render(template, wrapperEl)
+    let el = document.createElement("div")
+    this.view = render(template, el)
 
-    this.h1El = this.view.querySelector(".js-h1")
-    this.sidebarEl = this.view.querySelector(".js-sidebar")
-    this.bodyEl = this.view.querySelector(".js-body")
+    this.h1El = el.querySelector(".js-h1") as HTMLElement
+    this.sidebarEl = el.querySelector(".js-sidebar") as HTMLElement
+    this.bodyEl = el.querySelector(".js-body") as HTMLElement
 
     this.menu = this.dash.create(Menu)
-    this.view.querySelector(".js-nav-left").appendChild(this.menu.el)
+
+    let navLeftEl = el.querySelector(".js-nav-left") as HTMLElement
+    navLeftEl.appendChild(this.menu.el)
 
     this.dropdownMenu = this.dash.create(DropdownMenu, "right")
-    this.view.querySelector(".js-nav-right").appendChild(this.dropdownMenu.el)
+    let navRightEl = el.querySelector(".js-nav-right") as HTMLElement
+    navRightEl.appendChild(this.dropdownMenu.el)
 
-    return wrapperEl
+    return el
   }
 
   public addElementToHeader(el: HTMLElement) {
-    let headerEl = this.view.querySelector(".js-nav-right") as HTMLElement
+    let headerEl = this.el.querySelector(".js-nav-right") as HTMLElement
     headerEl.insertBefore(el, this.dropdownMenu.el)
   }
 }
