@@ -29,3 +29,8 @@ declare module "monkberry-directives" {
 
 declare module "monkberry-events" {
 }
+
+interface HTMLDialogElement extends HTMLElement { // FIXME: Remove this interface when it'll be implemented in the TS lib
+  showModal(): void
+  close(): void
+}

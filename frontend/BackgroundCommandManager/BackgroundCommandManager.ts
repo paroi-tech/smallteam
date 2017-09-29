@@ -8,7 +8,7 @@ import { BgCommandManager, BgCommand } from "../AppModel/BgCommandManager"
 import * as template from "./bgcmdmanager.monk"
 
 export default class BackgroundCommandManager {
-  readonly el: HTMLElement
+  readonly el: HTMLDialogElement
   readonly buttonEl: HTMLButtonElement
 
   private errorTableEl: HTMLTableElement
@@ -33,8 +33,8 @@ export default class BackgroundCommandManager {
     this.listenToModel()
   }
 
-  private createHtmlElements(): HTMLElement {
-    let el = document.createElement("dialog")
+  private createHtmlElements(): HTMLDialogElement {
+    let el = document.createElement("dialog") as HTMLDialogElement
 
     el.classList.add("BgCommandManager")
     this.view = render(template, el)
@@ -55,13 +55,11 @@ export default class BackgroundCommandManager {
 
   private show() {
     document.body.appendChild(this.el)
-    let d = this.el as any
-    d.showModal()
+    this.el.showModal()
   }
 
   private hide() {
     document.body.removeChild(this.el)
-    let d = this.el as any
-    d.close()
+    this.el.close()
   }
 }
