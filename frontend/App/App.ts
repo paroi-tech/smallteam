@@ -7,6 +7,7 @@ import ProjectForm from "../ProjectForm/ProjectForm"
 import StepTypeWorkspace from "../StepTypeWorkspace/StepTypeWorkspace"
 import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import BackgroundCommandManager from "../BackgroundCommandManager/BackgroundCommandManager"
 
 export default class App {
   readonly log: Log
@@ -49,6 +50,9 @@ export default class App {
       let viewer = this.dash.create(WorkspaceViewer)
       this.createWorkspaces(viewer)
       appEl.appendChild(viewer.el)
+
+      let bgCommandManager = this.dash.create(BackgroundCommandManager)
+      viewer.addElementToHeader(bgCommandManager.buttonEl)
     }
   }
 

@@ -1,4 +1,11 @@
-<h1>Background Tasks</h1>
+<header class="BgCommandManager-header">
+  <h1>Background Tasks</h1>
+  <div>
+    <button class="BgCommandManager-closeButton js-close-button">
+      <span class="fa fa-1x fa-times"></span>
+    </button>
+  </div>
+</header>
 
 <table class="js-progress-table">
   <caption>In progress</caption>

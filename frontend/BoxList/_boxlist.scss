@@ -4,7 +4,7 @@
     min-height: 30px;
   }
   &-li {
-    min-height: 25px;
+    min-height: 30px;
     padding: 5px 5px 5px 40px;
     position: relative;
   }
@@ -23,10 +23,12 @@
   background-color: #eee;
   bottom: 5px;
   color: dimgray;
-  display: block;
+  display: inline-block;
+  font-size: inherit;
   left: 5px;
   position: absolute;
   text-align: center;
+  vertical-align: middle;
   top: 5px;
   width: 30px;
 

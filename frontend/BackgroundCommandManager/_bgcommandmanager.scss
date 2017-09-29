@@ -1,0 +1,15 @@
+.BgCommandManager {
+  &-header {
+    display: flex;
+    flex-direction: row;
+    vertical-align: baseline;
+  }
+  &-closeButton {
+    border-radius: 50%;
+    padding: 5px;
+    &:hover {
+      background-color: black;
+      color: white;
+    }
+  }
+}
