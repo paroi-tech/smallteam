@@ -1,6 +1,10 @@
 import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
+import { render } from "monkberry"
+
+import * as template from "./menu.monk"
+import * as itemTemplate from "./item.monk"
 
 /**
  * Properties required by the Menu component for its items.
@@ -22,15 +26,21 @@ export class Menu {
   private ul: HTMLElement
   private items = new Map<string, HTMLElement[]>()
 
+  private view: MonkberryView
+
   /**
    * Create a new menu.
    */
   constructor(private dash: Dash<App>) {
-    this.el = document.createElement("nav")
-    this.el.classList.add("Menu")
-    this.ul = document.createElement("ul")
-    this.ul.classList.add("Menu-ul")
-    this.el.appendChild(this.ul)
+    this.el = this.createView()
+  }
+
+  private createView() {
+    this.view = render(template, document.createElement("div"))
+    let el = this.view.nodes[0] as HTMLElement
+    this.ul = el.querySelector("ul") as HTMLElement
+
+    return el
   }
 
   /**
@@ -40,17 +50,15 @@ export class Menu {
    */
   public addItem(item: MenuItem) {
     if (this.items.has(item.id))
-      throw new Error(`Item with ID ${item.id} already exist`)
+      throw new Error(`Item with ID ${item.id} already exists`)
 
-    let li = document.createElement("li")
-    let btn = document.createElement("button")
+    let view = render(itemTemplate, document.createElement("div"))
+    let li = view.nodes[0] as HTMLLIElement
+    let btn = li.querySelector("button") as HTMLButtonElement
 
-    btn.type = "button"
     btn.textContent = item.label
-    btn.classList.add("MenuBtn")
     btn.addEventListener("click", (ev) => this.dash.emit("select", item.id))
 
-    li.appendChild(btn)
     this.ul.appendChild(li)
     this.items.set(item.id, [li, btn])
   }

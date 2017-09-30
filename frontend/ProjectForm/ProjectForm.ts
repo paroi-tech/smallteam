@@ -5,6 +5,7 @@ import StepSelector from "./StepSelector/StepSelector"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
+
 import * as template from "./projectform.monk"
 
 /**
@@ -55,10 +56,9 @@ export default class ProjectForm implements Workspace {
    * Create ProjectForm elements from template.
    */
   private createHtmlElements() {
-    let el = document.createElement("div")
+    this.view = render(template, document.createElement("div"), { directives })
+    let el = this.view.nodes[0] as HTMLDivElement
 
-    el.classList.add("ProjectForm")
-    this.view = render(template, el, { directives })
     this.codeEl = el.querySelector(".js-code") as HTMLInputElement
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.descriptionEl = el.querySelector(".js-description") as HTMLTextAreaElement

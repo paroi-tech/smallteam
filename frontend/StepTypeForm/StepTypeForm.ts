@@ -48,10 +48,10 @@ export default class StepTypeForm {
    * Create StepTypeForm HTML elements.
    */
   private createHtmlElements() {
-    let el = document.createElement("div")
-    el.classList.add("StepTypeForm")
+    this.view = render(template, document.createElement("div"))
 
-    this.view = render(template, el)
+    let el = this.view.nodes[0] as HTMLDivElement
+
     this.menuContainerEl = el.querySelector(".js-menu-container") as HTMLElement
     this.fieldContainerEl = el.querySelector(".js-field-container") as HTMLElement
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement

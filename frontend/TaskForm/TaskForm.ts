@@ -35,10 +35,10 @@ export default class TaskForm {
    * Create element content from template.
    */
   private createHtmlElements() {
-    let el = document.createElement("div")
-    el.classList.add("TaskForm")
+    this.view = MonkBerry.render(template, document.createElement("div"))
 
-    this.view = MonkBerry.render(template, el)
+    let el = this.view.nodes[0] as HTMLDivElement
+
     this.labelEl = el.querySelector(".js-task-label") as HTMLInputElement
     this.descriptionEl = el.querySelector(".js-task-description") as HTMLTextAreaElement
     this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement

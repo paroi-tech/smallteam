@@ -1,24 +1,26 @@
-<div class="js-title BlockTitle">Project form</div>
-<div class="js-form">
-  <label class="FormField">
-    <span class="FormField-span">Project Name</span>
-    <input type="text" class="js-name" value="{{ name }}">
-  </label>
+<div class="ProjectForm">
+  <div class="js-title BlockTitle">Project form</div>
+  <div class="js-form">
+    <label class="FormField">
+      <span class="FormField-span">Project Name</span>
+      <input type="text" class="js-name" value="{{ name }}">
+    </label>
 
-  <label class="FormField">
-    <span class="FormField-span">Project Code</span>
-    <input type="text" class="js-code" value="{{ code }}">
-  </label>
+    <label class="FormField">
+      <span class="FormField-span">Project Code</span>
+      <input type="text" class="js-code" value="{{ code }}">
+    </label>
 
-  <label class="FormField">
-    <span class="FormField-span">Description</span>
-    <textarea class="js-description"></textarea>
-  </label>
+    <label class="FormField">
+      <span class="FormField-span">Description</span>
+      <textarea class="js-description"></textarea>
+    </label>
 
-  <div>
-    <button type="button" :onclick={{ ctrl.submit }}>
-      Submit
-      <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submitSpinner" style="display: none"></span>
-    </button>
+    <div>
+      <button type="button" :onclick={{ ctrl.submit }}>
+        Submit
+        <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submitSpinner" style="display: none"></span>
+      </button>
+    </div>
   </div>
 </div>

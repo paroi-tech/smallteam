@@ -4,9 +4,14 @@ import { Dash, Bkb } from "bkb"
 import { ProjectModel, StepModel, StepTypeModel, Model } from "../../AppModel/AppModel"
 import StepTypeBox from "../../StepTypeBox/StepTypeBox"
 import { UpdateModelEvent, ReorderModelEvent } from "../../AppModel/ModelEngine"
+import { render } from "monkberry"
+
+import * as template from "./stepselector.monk"
 
 export default class StepSelector {
   readonly el: HTMLElement
+
+  private view: MonkberryView
 
   private freeStepBoxList: BoxList<StepTypeBox>
   private specialStepBoxList: BoxList<StepTypeBox>
@@ -109,8 +114,9 @@ export default class StepSelector {
    * Create ProjectStepsPanel subcomponents.
    */
   private createChildComponents() {
-    let container = document.createElement("div")
-    container.classList.add("StepSelector")
+    this.view = render(template, document.createElement("div"))
+
+    let container = this.view.nodes[0] as HTMLElement
 
     let boxListGroup = "StepSelectorBoxLists"
     let spareBoxListParams = {

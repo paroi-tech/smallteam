@@ -12,8 +12,7 @@ export default class BackgroundCommandManager {
   readonly el: HTMLDialogElement
   readonly buttonEl: HTMLButtonElement
 
-  private errorTableEl: HTMLTableElement
-  private progressTableEl: HTMLTableElement
+  private tableEl: HTMLTableElement
   private closeButtonEl: HTMLButtonElement
 
   private bgCmdManager: BgCommandManager
@@ -32,7 +31,10 @@ export default class BackgroundCommandManager {
   private createHtmlMenuButtonElement(): HTMLButtonElement {
     this.view = render(templateMenuBtn, document.createElement("div"))
     let btnEl = this.view.nodes[0] as HTMLButtonElement
-    btnEl.addEventListener("click", ev => this.show())
+    btnEl.addEventListener("click", ev => {
+      btnEl.style.backgroundColor = "transparent"
+      this.show()
+    })
     return btnEl
   }
 
@@ -41,25 +43,36 @@ export default class BackgroundCommandManager {
     let el = this.view.nodes[0] as HTMLDialogElement
     this.closeButtonEl = el.querySelector(".js-close-button") as HTMLButtonElement
     this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.errorTableEl = el.querySelector(".js-error-table") as HTMLTableElement
-    this.progressTableEl = el.querySelector(".js-progress-table") as HTMLTableElement
+    this.tableEl = el.querySelector(".js-table") as HTMLTableElement
+    document.body.appendChild(el)
     return el
   }
 
   private listenToModel() {
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandAdded").onData(bgCmd => {
-      this.buttonEl.style.backgroundColor = "skyblue"
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").onData(bgCmd => {
+      this.buttonEl.style.backgroundColor = "orange"
+      let row = this.tableEl.tBodies[0].insertRow(-1)
+
+      row.insertCell(-1).textContent = bgCmd.label
+      row.insertCell(-1).textContent = bgCmd.startDt.toLocaleTimeString()
+      let progressCheckBox = document.createElement("input")
+      progressCheckBox.setAttribute("type", "checkbox")
+      progressCheckBox.disabled = true
+      progressCheckBox.checked = bgCmd.done ? true : false
+      row.insertCell(-1).appendChild(progressCheckBox)
+      let doneCheckBox = document.createElement("input")
+      doneCheckBox.setAttribute("type", "checkbox")
+      doneCheckBox.disabled = true
+      doneCheckBox.checked = bgCmd.done ? true : false
+      row.insertCell(-1).appendChild(doneCheckBox)
     })
-    document.body.appendChild(this.el)
   }
 
   private show() {
-    document.body.appendChild(this.el)
     this.el.showModal()
   }
 
   private hide() {
-    document.body.removeChild(this.el)
     this.el.close()
   }
 }
