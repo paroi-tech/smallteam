@@ -30,9 +30,8 @@ export default class BackgroundCommandManager {
   }
 
   private createHtmlMenuButtonElement(): HTMLButtonElement {
-    let tmp = document.createElement("div")
-    this.view = render(templateMenuBtn, tmp)
-    let btnEl = tmp.querySelector("button") as HTMLButtonElement
+    this.view = render(templateMenuBtn, document.createElement("div"))
+    let btnEl = this.view.nodes[0] as HTMLButtonElement
     btnEl.addEventListener("click", ev => this.show())
     return btnEl
   }
