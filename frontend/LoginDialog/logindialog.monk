@@ -1,0 +1,18 @@
+<dialog class="js-form LoginDialog">
+  <h1 class="LoginDialog-h1">Log in</h1>
+  <label class="FormField">
+    <span class="FormField-span">Username</span>
+    <input type="text" class="js-username">
+  </label>
+  <label class="FormField">
+    <span class="FormField-span">Password</span>
+    <input type="password" class="js-password">
+  </label>
+  <div class="FormButtonContainer">
+    <button type="button" class="js-cancel-btn">Cancel</button>
+    <button type="button" class="js-submit-btn">
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
+      Submit
+    </button>
+  </div>
+</dialog>
