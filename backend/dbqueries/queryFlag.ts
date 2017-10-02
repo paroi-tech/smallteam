@@ -39,16 +39,17 @@ export async function fetchFlags(loader: CargoLoader, idList: string[]) {
 
 function selectFromFlag() {
   return buildSelect()
-    .select("flag_id, label, color")
+    .select("flag_id, label, color, order_num")
     .from("flag")
-    .orderBy("label")
+    .orderBy("order_num")
 }
 
 function toFlagFragment(row): FlagFragment {
   return {
     id: row["flag_id"].toString(),
     label: row["label"],
-    color: row["color"]
+    color: row["color"],
+    orderNum: row["order_num"]
   }
 }
 
@@ -58,6 +59,9 @@ function toFlagFragment(row): FlagFragment {
 
 export async function createFlag(loader: CargoLoader, newFrag: NewFlagFragment) {
   let cn = await getDbConnection()
+
+  if (newFrag.orderNum === undefined)
+    newFrag.orderNum = await getDefaultOrderNum()
 
   let sql = buildInsert()
     .insertInto("flag")
@@ -71,6 +75,15 @@ export async function createFlag(loader: CargoLoader, newFrag: NewFlagFragment) 
     asResult: "fragment",
     markAs: "created"
   })
+}
+
+async function getDefaultOrderNum() {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("max(order_num) as max")
+    .from("flag")
+  let rs = await cn.all(sql.toSql())
+  return rs.length === 1 ? (rs[0]["max"] || 0) + 1 : 1
 }
 
 // --
@@ -115,4 +128,58 @@ export async function deleteFlag(loader: CargoLoader, frag: FlagIdFragment) {
   await cn.run(sql.toSql())
 
   loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
+}
+
+// --
+// -- Reorder
+// --
+
+export async function reorderFlags(loader: CargoLoader, idList: string[]) {
+  let cn = await getDbConnection()
+
+  let oldNums = await loadOrderNums(),
+    curNum = 0
+  for (let idStr of idList) {
+    let id = int(idStr),
+      oldNum = oldNums.get(id)
+    if (oldNum !== undefined && ++curNum !== oldNum) {
+      await updateOrderNum(id, curNum)
+      loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
+    }
+    oldNums.delete(id)
+  }
+  let remaining = Array.from(oldNums.keys())
+  remaining.sort((a, b) => a - b)
+  for (let id of remaining) {
+    let oldNum = oldNums.get(id)
+    if (++curNum !== oldNum) {
+      await updateOrderNum(id, curNum)
+      loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
+    }
+  }
+  loader.modelUpdate.markIdsAsReordered("Flag", idList)
+}
+
+async function updateOrderNum(flagId: number, orderNum: number) {
+  let cn = await getDbConnection()
+  let sql = buildUpdate()
+    .update("flag")
+    .set({
+      "order_num": orderNum
+    })
+    .where("flag_id", flagId)
+  await cn.run(sql.toSql())
+}
+
+async function loadOrderNums(): Promise<Map<number, number>> {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("flag_id, order_num")
+    .from("flag")
+    .where("order_num is not null")
+  let rs = await cn.all(sql.toSql()),
+    orderNums = new Map<number, number>()
+  for (let row of rs)
+    orderNums.set(row["flag_id"], row["order_num"])
+  return orderNums
 }

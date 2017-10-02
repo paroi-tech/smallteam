@@ -14,10 +14,11 @@ the time, so I can't use JIRA.
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - Deploy the project on the Web server
 - Keep HKMap?
+- Refactoring in the backend, for the reordering
 
 # Lionel
 - Implement a new component `BackgroundCommandManager`
-- Create a workspace `FlagWorkspace`, to add, update, remove flags (NB: use a color picker in the form)
+- Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - In `TaskForm`:
   - Add, remove and reorder the contributors affected to the task
   - Add, remove the flags for the task

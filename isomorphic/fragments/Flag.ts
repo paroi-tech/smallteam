@@ -4,6 +4,7 @@ export interface FlagFragment {
   readonly id: string
   label: string
   color: string
+  orderNum?: number | null
 }
 
 export const flagMeta: FragmentMeta = {
@@ -20,15 +21,20 @@ export const flagMeta: FragmentMeta = {
     color: {
       dataType: "string",
       update: true
+    },
+    orderNum: {
+      dataType: "number",
+      update: true,
+      optional: true
     }
   }
 }
 
-export type NewFlagFragment = Pick<FlagFragment, "label" | "color">
-export const newFlagMeta = pickFragmentMeta("New", flagMeta, ["label", "color"])
+export type NewFlagFragment = Pick<FlagFragment, "label" | "color" | "orderNum">
+export const newFlagMeta = pickFragmentMeta("New", flagMeta, ["label", "color", "orderNum"])
 
-export type UpdFlagFragment = UpdPick<FlagFragment, "id", "label" | "color">
-export const updFlagMeta = updPickFragmentMeta("Upd", flagMeta, ["id"], ["label", "color"])
+export type UpdFlagFragment = UpdPick<FlagFragment, "id", "label" | "color" | "orderNum">
+export const updFlagMeta = updPickFragmentMeta("Upd", flagMeta, ["id"], ["label", "color", "orderNum"])
 
 export type FlagIdFragment = Pick<FlagFragment, "id">
 export const FlagIdMeta = pickFragmentMeta("Id", flagMeta, ["id"])

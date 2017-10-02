@@ -6,7 +6,7 @@ import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderChildTasks, deleteTask } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
-import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag } from "./dbqueries/queryFlag"
+import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
 
 export async function routeQuery(data): Promise<Cargo> {
   let loader = new CargoLoader()
@@ -119,6 +119,8 @@ async function executeCommandFlag(data, loader: CargoLoader) {
     await updateFlag(loader, data.frag)
   else if (data.cmd === "delete")
     await deleteFlag(loader, data.frag)
+  else if (data.cmd === "reorder")
+    await reorderFlags(loader, data.idList)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }

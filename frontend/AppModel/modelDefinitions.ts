@@ -42,6 +42,7 @@ export interface ModelCommandMethods {
   query(type: "Flag"): Promise<FlagModel[]>
   query(type: "Contributor", filters?: ContributorQuery): Promise<ContributorModel[]>
 
+  reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "StepType", idList: string[]): Promise<string[]>
   reorder(type: "Task", idList: string[], group: "childOf", parentTaskId: string): Promise<string[]>
   reorder(type: "Contributor", idList: string[], group: "affectedTo", taskId: string): Promise<string[]>
