@@ -59,7 +59,7 @@ create table task_description (
 
 create table task_affected_to (
     task_id bigint not null references task(task_id) on delete cascade,
-    contributor_id bigint not null references contributor(contributor_id) on delete cascade,
+    contributor_id bigint not null references contributor(contributor_id),
     order_num integer,
     primary key (task_id, contributor_id)
 );
@@ -84,14 +84,14 @@ create table flag (
 );
 
 create table task_flag (
-    task_id bigint not null references task(task_id),
+    task_id bigint not null references task(task_id) on delete cascade,
     flag_id bigint not null references flag(flag_id),
     primary key (task_id, flag_id)
 );
 
 create table comment (
     comment_id integer not null primary key autoincrement,
-    task_id bigint not null references task(task_id),
+    task_id bigint not null references task(task_id) on delete cascade,
     written_by bigint not null references contributor(contributor_id),
     body text not null,
     create_ts timestamp not null default current_timestamp,
