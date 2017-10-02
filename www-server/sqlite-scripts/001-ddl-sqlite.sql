@@ -103,7 +103,7 @@ insert into step_type (name) values ('On Hold');
 insert into step_type (name) values ('Archived');
 
 -- Fake data
-insert into contributor (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');
+insert into contributor (name, login, email, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');
 
 --
 -- Down

@@ -4,7 +4,7 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
-  - Implement async TaskModel.getComments()
+  - In `TaskFragment`, add a field `commentCount`
   - Implement async TaskModel.logEntries()
   - Implement methods whoUse
   - Add a boolean "processing" on each model
@@ -20,8 +20,9 @@ the time, so I can't use JIRA.
 - Implement a new component `BackgroundCommandManager`
 - Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - In `TaskForm`:
-  - Add, remove and reorder the contributors affected to the task
-  - Add, remove the flags for the task
+  - Show, Add, remove, reorder the contributors affected to the task
+  - Show, Add, remove the flags for the task
+  - Show, Add, update, remove comments
 - In `TaskBox`:
   - Show the contributors affected to the task
   - Show the flags for the task
@@ -68,5 +69,6 @@ the time, so I can't use JIRA.
   - Add a list of background commands
   - Implement TaskModel.affectedTo (list)
   - Implement TaskModel.flags (list)
+  - Implement async TaskModel.getComments()
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid

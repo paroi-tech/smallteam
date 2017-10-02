@@ -181,13 +181,13 @@ export default class ModelEngine {
       .map(obj => obj.id)
   }
 
-  public async query(type: Type, filters?: any): Promise<any[]> {
+  public async query(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
     let data: any = { cmd: "query", type }
     if (filters)
       data.filters = filters
     let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/query", data, "fragments"),
       fragMeta = getFragmentMeta(type)
-    return fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta)))
+    return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta))), type)
   }
 
   public getModel(type: Type, id: Identifier): any {

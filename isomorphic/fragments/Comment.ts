@@ -1,4 +1,4 @@
-import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta, SearchPick, searchPickFragmentMeta } from "../FragmentMeta"
 
 export interface CommentFragment {
   readonly id: string
@@ -42,4 +42,7 @@ export type UpdCommentFragment = UpdPick<CommentFragment, "id", "body">
 export const updCommentMeta = updPickFragmentMeta("Upd", commentMeta, ["id"], ["body"])
 
 export type CommentIdFragment = Pick<CommentFragment, "id">
-export const CommentIdMeta = pickFragmentMeta("Id", commentMeta, ["id"])
+// export const CommentIdMeta = pickFragmentMeta("Id", commentMeta, ["id"])
+
+export type CommentQuery = Pick<CommentFragment, "taskId">
+// export const commentQueryMeta = searchPickFragmentMeta("Q", commentMeta, ["name", "login", "email"], false)

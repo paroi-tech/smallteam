@@ -1,7 +1,7 @@
 import Deferred from "../libraries/Deferred"
 import ModelEngine from "./ModelEngine"
 import { Type, Identifier } from "../../isomorphic/Cargo"
-import { ModelCommandMethods } from "./modelDefinitions"
+import { ModelCommandMethods, Collection } from "./modelDefinitions"
 import GenericBgCommandManager from "./BgCommandManager"
 
 interface EngineCommand {
@@ -26,8 +26,8 @@ export class GenericCommandBatch implements ModelCommandMethods {
     return this.bgCommandMng.add(deferred.promise, `${args[0]} ${args[1]}`).promise
   }
 
-  public query(...args): Promise<any[]> {
-    let deferred = new Deferred<any[]>()
+  public query(...args): Promise<Collection<any, Identifier>> {
+    let deferred = new Deferred<Collection<any, Identifier>>()
     this.commands.push({
       method: "query",
       args,

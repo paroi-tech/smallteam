@@ -7,6 +7,7 @@ import { createTask, updateTask, fetchTasks, reorderChildTasks, deleteTask } fro
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
+import { queryComments, createComment, updateComment, deleteComment, fetchComments } from "./dbqueries/queryComment"
 
 export async function routeQuery(data): Promise<Cargo> {
   let loader = new CargoLoader()
@@ -38,7 +39,8 @@ const queries = {
   Project: queryProjects,
   StepType: queryStepTypes,
   Flag: queryFlags,
-  Contributor: queryContributors
+  Contributor: queryContributors,
+  Comment: queryComments
 }
 
 async function executeQuery(data, loader: CargoLoader) {
@@ -56,7 +58,8 @@ const commands = {
   Step: executeCommandStep,
   StepType: executeCommandStepType,
   Flag: executeCommandFlag,
-  Task: executeCommandTask
+  Task: executeCommandTask,
+  Comment: executeCommandComment
 }
 
 async function executeCommand(data, loader: CargoLoader) {
@@ -138,6 +141,17 @@ async function executeCommandTask(data, loader: CargoLoader) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
+async function executeCommandComment(data, loader: CargoLoader) {
+  if (data.cmd === "create")
+    await createComment(loader, data.frag)
+  else if (data.cmd === "update")
+    await updateComment(loader, data.frag)
+  else if (data.cmd == "delete")
+    await deleteComment(loader, data.frag)
+  else
+    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
+}
+
 async function completeCargo(loader: CargoLoader) {
   let count = 0
   while (!loader.modelUpdate.isFragmentsComplete()) {
@@ -149,5 +163,6 @@ async function completeCargo(loader: CargoLoader) {
     await fetchStepTypes(loader, loader.modelUpdate.getNeededFragments("StepType") as any)
     await fetchFlags(loader, loader.modelUpdate.getNeededFragments("Flag") as any)
     await fetchContributors(loader, loader.modelUpdate.getNeededFragments("Contributor") as any)
+    await fetchComments(loader, loader.modelUpdate.getNeededFragments("Comment") as any)
   }
 }

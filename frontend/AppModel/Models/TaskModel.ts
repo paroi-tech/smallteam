@@ -5,6 +5,8 @@ import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
 import { Collection } from "../modelDefinitions"
+import { CommentModel } from "./CommentModel"
+import { CommentQuery } from "../../../isomorphic/fragments/Comment";
 
 export interface TaskModel extends TaskFragment {
   readonly project: ProjectModel
@@ -14,7 +16,7 @@ export interface TaskModel extends TaskFragment {
   readonly createdBy: ContributorModel
   affectedTo?: Collection<ContributorModel, string>
   flags?: Collection<FlagModel, string>
-  // getComments: CommentModel[] // => TODO: Async load
+  getComments(): Promise<Collection<CommentModel, string>>
   // getLogEntries: TaskLogEntryModel[] // => TODO: Async load
   // getAttachments(): Promise<Attachment[]>
 }
@@ -60,6 +62,11 @@ export function registerTask(engine: ModelEngine) {
           return undefined
         let list = frag.flagIds.map(flagId => engine.getModel("Flag", flagId))
         return toCollection(list, "Flag")
+      },
+      getComments(): Promise<Collection<CommentModel, string>> {
+        return engine.query("Comment", {
+          taskId: getFrag().id
+        } as CommentQuery)
       }
     }
     appendGettersToModel(model, "Task", getFrag)

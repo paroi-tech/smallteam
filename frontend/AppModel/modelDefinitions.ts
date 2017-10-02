@@ -37,10 +37,10 @@ export interface ModelCommandMethods {
   exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
   exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
 
-  query(type: "Project", filters: ProjectQuery): Promise<ProjectModel[]>
-  query(type: "StepType"): Promise<StepTypeModel[]>
-  query(type: "Flag"): Promise<FlagModel[]>
-  query(type: "Contributor", filters?: ContributorQuery): Promise<ContributorModel[]>
+  query(type: "Project", filters: ProjectQuery): Promise<Collection<ProjectModel, string>>
+  query(type: "StepType"): Promise<Collection<StepTypeModel, string>>
+  query(type: "Flag"): Promise<Collection<FlagModel, string>>
+  query(type: "Contributor", filters?: ContributorQuery): Promise<Collection<ContributorModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "StepType", idList: string[]): Promise<string[]>

@@ -65,7 +65,7 @@ export default class ModelComp implements Model {
     return this.bgCommandMng.add(this.engine.exec(cmd, type, fragOrId), `${cmd} ${type}`).promise
   }
 
-  public query(type: Type, filters?: any): Promise<any[]> {
+  public query(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
     return this.bgCommandMng.add(this.engine.query(type, filters), `query ${type}`).promise
   }
 

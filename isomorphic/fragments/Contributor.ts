@@ -37,7 +37,7 @@ export type UpdContributorFragment = UpdPick<ContributorFragment, "id", "name" |
 export const updContributorMeta = updPickFragmentMeta("Upd", contributorMeta, ["id"], ["name", "login", "email"])
 
 export type ContributorIdFragment = Pick<ContributorFragment, "id">
-export const ContributorIdMeta = pickFragmentMeta("Id", contributorMeta, ["id"])
+// export const ContributorIdMeta = pickFragmentMeta("Id", contributorMeta, ["id"])
 
 export type ContributorQuery = SearchPick<ContributorFragment, "name" | "login" | "email">
-export const contributorQueryMeta = searchPickFragmentMeta("Q", contributorMeta, ["name", "login", "email"])
+// export const contributorQueryMeta = searchPickFragmentMeta("Q", contributorMeta, ["name", "login", "email"])

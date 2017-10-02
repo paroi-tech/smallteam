@@ -22,8 +22,8 @@ export interface FieldMeta {
 export type UpdPick<T, REQ extends keyof T, OPT extends keyof T> = {
   [Q in REQ]: T[Q]
 } & {
-  [P in OPT]?: T[P]
-}
+    [P in OPT]?: T[P]
+  }
 
 /**
  * Each filter can be of type: `value` or [op, value]. Example: [">=", value]
@@ -38,8 +38,8 @@ export type AsFilter<T> = {
 export type SearchPick<T, OPT extends keyof T> = {
   [P in OPT]?: T[P] //| [string, T[P]] // TODO: Implement in SQL92Builder
 } & {
-  search?: string //| [string, string] // TODO: Implement in SQL92Builder
-}
+    search?: string //| [string, string] // TODO: Implement in SQL92Builder
+  }
 
 export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, fieldNames: string[]): FragmentMeta {
   let fields = {}
@@ -58,9 +58,10 @@ export function updPickFragmentMeta(variant: "Upd", base: FragmentMeta, reqField
   return { type: base.type, variant, fields, orderFieldName: base.orderFieldName }
 }
 
-export function searchPickFragmentMeta(variant: "Q", base: FragmentMeta, fieldNames: string[]): FragmentMeta {
-  let fields = {
-    search: {
+export function searchPickFragmentMeta(variant: "Q", base: FragmentMeta, fieldNames: string[], withSearch = true): FragmentMeta {
+  let fields: any = {}
+  if (withSearch) {
+    fields.search = {
       dataType: "string",
       optional: true
     } as FieldMeta
