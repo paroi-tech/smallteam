@@ -1,16 +1,12 @@
 import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { fetchContributors, queryContributors, getContributor, createContributor, updateContributor, reorderAffectedContributors } from "./dbqueries/queryContributor"
+import { fetchContributors, queryContributors, createContributor, updateContributor, reorderAffectedContributors } from "./dbqueries/queryContributor"
 import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderChildTasks, deleteTask } from "./dbqueries/queryTask"
 import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag } from "./dbqueries/queryFlag"
-
-export async function routeConnect(data): Promise<any> {
-  // TODO: async return JSON data
-}
 
 export async function routeQuery(data): Promise<Cargo> {
   let loader = new CargoLoader()

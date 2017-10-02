@@ -7,6 +7,8 @@ import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 
+const saltRounds = 10
+
 function toContributorFragment(row): ContributorFragment {
   return {
     id: row["contributor_id"].toString(),
@@ -50,10 +52,11 @@ export async function queryContributors(loader: CargoLoader) {
 
 export async function createContributor(loader: CargoLoader, newFrag: NewContributorFragment) {
   let cn = await getDbConnection()
+  let passwordHash = await hash("init", saltRounds)
   let sql = buildInsert()
     .insertInto("contributor")
     .values(toSqlValues(newFrag, newContributorMeta))
-    .values({"password": "init"})
+    .values({ "password": passwordHash })
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
   loader.addFragment({
@@ -144,30 +147,3 @@ async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number
   return orderNums
 }
 
-// --
-// -- Authentification functions
-// --
-
-export async function getContributor(loader: CargoLoader, login: string, passwd: string) {
-  let cn = await getDbConnection()
-  let sql = buildSelect()
-              .select("contributor_id, login, name, email, password")
-              .from("contributor")
-              .where("login", "=", login)
-  let rs = await cn.all(sql.toSql())
-
-  if (rs.length == 1) {
-    let row = rs[0]
-    let h = row["password"]
-    let b = await compare(passwd, h)
-
-    if (b) {
-      let frag = toContributorFragment(row)
-      loader.addFragment({
-        type: "Contributor",
-        frag,
-        asResult: "fragments"
-      })
-    }
-  }
-}

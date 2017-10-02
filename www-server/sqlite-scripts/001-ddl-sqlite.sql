@@ -11,7 +11,7 @@ create table contributor (
     name varchar(255) not null,
     login varchar(255) not null unique,
     email varchar(255) not null,
-    password varchar(255) not null
+    password varchar(255) null default null
     -- avatar as file
 );
 

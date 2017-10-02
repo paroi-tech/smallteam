@@ -39,52 +39,74 @@ export default class LoginDialog {
     return el
   }
 
-  private onSubmit() {
+  private async onSubmit() {
     let name = this.nameEl.value.trim()
-    let passwd = this.passwordEl.value
+    let password = this.passwordEl.value
+    let start = false
 
-    if (name.length < 0) {
+    if (name.length < 4) {
       this.nameEl.style.borderColor = "red"
       this.nameEl.focus()
       return
     }
 
-    // Restore default border color of the username field.
+    if (password.length == 0) {
+      this.passwordEl.style.borderColor = "red"
+      this.passwordEl.focus()
+      return
+    }
+
+    // Restore default border color of the fields.
     this.nameEl.style.borderColor = "gray"
+    this.passwordEl.style.borderColor = "gray"
 
     this.spinnerEl.style.display = "inline"
-    let data = {
-      username: name,
-      password: passwd
+
+    let contributorId = await this.doLogin(name, password)
+
+    if (contributorId)
+      this.startApp()
+    else {
+      alert("Wrong username or password.")
+      this.nameEl.focus()
     }
-    fetch("/login", {
-      method: "post",
-      credentials: "include",
-      headers: {
-        "Accept": "application/json, text/plain, */*",
-        "Content-Type": "application/json"
-      },
-      body: JSON.stringify(data)
-    }).then(response => {
-      if (response.ok) {
-        return response.text()
-      }
-      throw new Error("Login request not completed...")
-    }).then(json => {
-      let response = JSON.parse(json)
-      this.spinnerEl.style.display = "none"
-      if (!response.user) {
-        alert("Wrong unsername or password")
-      } else {
-        console.log("Login successful. Redirecting...")
-        setTimeout(() => {
-          location.reload(true)
-        }, 1000)
-      }
-    }).catch(error => {
-      console.log(error)
-      alert("Unable to log on server...")
-    })
+    this.spinnerEl.style.display = "none"
+  }
+
+  private startApp() {
+
+  }
+
+  private async doLogin(name: string, password: string): Promise<string | undefined> {
+    let contributorId: string | undefined = undefined
+
+    try {
+      let response = await fetch("/api/connect", {
+        method: "post",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          login: name,
+          password
+        })
+      })
+
+      if (!response.ok)
+        throw new Error("Server error. Unable to get data.")
+
+      let json = await response.text()
+      let answer = JSON.parse(json)
+
+      if (answer.done)
+        contributorId = answer.contributorId as string
+    } catch (err) {
+
+    }
+
+    return contributorId
   }
 
   private onCancel() {

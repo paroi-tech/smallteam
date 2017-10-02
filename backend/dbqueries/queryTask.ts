@@ -125,7 +125,7 @@ async function addDependenciesTo(taskRows: any[]) {
 async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
   let cn = await getDbConnection()
   let sql = buildSelect()
-    .select("a.task_id, t.contributor_id")
+    .select("a.task_id, a.contributor_id")
     .from("task_affected_to a")
     .where("a.task_id", "in", taskIdList)
     .orderBy("1, a.order_num")
@@ -149,7 +149,7 @@ async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<num
 async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
   let cn = await getDbConnection()
   let sql = buildSelect()
-    .select("a.task_id, tf.flag_id")
+    .select("tf.task_id, tf.flag_id")
     .from("task_flag tf")
     .innerJoin("flag f", "on", "tf.flag_id = f.flag_id")
     .where("tf.task_id", "in", taskIdList)

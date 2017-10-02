@@ -94,17 +94,17 @@ export default class ContributorForm {
       return
     }
 
-    if (!this.contributor && passwd.length < 8) {
-      console.warn("Password should have at least 8 characters...")
-      this.passwordEl.focus()
-      return
-    }
+    // if (!this.contributor && passwd.length < 8) {
+    //   console.warn("Password should have at least 8 characters...")
+    //   this.passwordEl.focus()
+    //   return
+    // }
 
-    if (this.contributor && passwd.length != 0 && passwd.length < 8) {
-      console.warn("Password should have at least 8 characters...")
-      this.passwordEl.focus()
-      return
-    }
+    // if (this.contributor && passwd.length != 0 && passwd.length < 8) {
+    //   console.warn("Password should have at least 8 characters...")
+    //   this.passwordEl.focus()
+    //   return
+    // }
 
     this.submitSpinnerEl.style.display = "inline"
     if (!this.contributor) {

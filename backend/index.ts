@@ -1,7 +1,8 @@
 import * as path from "path"
 import * as express from "express"
 import { Response } from "express"
-import { routeQuery, routeExec, executeBatch, routeConnect } from "./api"
+import { routeQuery, routeExec, executeBatch } from "./api"
+import { routeConnect } from "./connect"
 import config from "../isomorphic/config"
 
 const PORT = 3921
