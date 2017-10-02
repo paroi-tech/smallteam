@@ -1,3 +1,4 @@
+import config from "../../isomorphic/config"
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ContributorModel } from "../AppModel/AppModel"
@@ -81,7 +82,7 @@ export default class LoginDialog {
     let contributorId: string | undefined = undefined
 
     try {
-      let response = await fetch("/api/connect", {
+      let response = await fetch(`${config.urlPrefix}/api/connect`, {
         method: "post",
         credentials: "include",
         headers: {
