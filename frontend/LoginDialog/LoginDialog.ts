@@ -13,6 +13,8 @@ export default class LoginDialog {
   private cancelBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
 
+  private returnValue = ""
+
   private view: MonkberryView
 
   private model: Model
@@ -40,6 +42,10 @@ export default class LoginDialog {
   }
 
   private async onSubmit() {
+    // Restore default border color of the fields.
+    this.nameEl.style.borderColor = "gray"
+    this.passwordEl.style.borderColor = "gray"
+
     let name = this.nameEl.value.trim()
     let password = this.passwordEl.value
     let start = false
@@ -56,25 +62,19 @@ export default class LoginDialog {
       return
     }
 
-    // Restore default border color of the fields.
-    this.nameEl.style.borderColor = "gray"
-    this.passwordEl.style.borderColor = "gray"
-
     this.spinnerEl.style.display = "inline"
 
     let contributorId = await this.doLogin(name, password)
 
-    if (contributorId)
-      this.startApp()
-    else {
+    if (contributorId) {
+      // IMPORTANT: the dialog return value is set here...
+      this.returnValue = contributorId
+      this.close()
+    }  else {
       alert("Wrong username or password.")
       this.nameEl.focus()
     }
     this.spinnerEl.style.display = "none"
-  }
-
-  private startApp() {
-
   }
 
   private async doLogin(name: string, password: string): Promise<string | undefined> {
@@ -110,14 +110,14 @@ export default class LoginDialog {
   }
 
   private onCancel() {
-
+    this.el.close(this.returnValue)
   }
 
   private show() {
     this.el.showModal()
   }
 
-  private hide() {
-    this.el.close()
+  private close() {
+    this.el.close(this.returnValue)
   }
 }

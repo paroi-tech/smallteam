@@ -13,7 +13,6 @@ export default class ContributorForm {
   private loginEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private emailEl: HTMLInputElement
-  private passwordEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
@@ -22,7 +21,6 @@ export default class ContributorForm {
     name:  "",
     login: "",
     email: "",
-    password: "",
     ctrl: {
       submit: () => this.onSubmit()
     }
@@ -42,7 +40,6 @@ export default class ContributorForm {
 
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.loginEl = el.querySelector(".js-login") as HTMLInputElement
-    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
     this.emailEl = el.querySelector(".js-email") as HTMLInputElement
     this.submitSpinnerEl = el.querySelector(".js-spinner") as HTMLElement
 
@@ -61,7 +58,6 @@ export default class ContributorForm {
     this.state.name = ""
     this.state.login = ""
     this.state.email = ""
-    this.state.password = ""
     this.view.update(this.state)
   }
 
@@ -74,7 +70,6 @@ export default class ContributorForm {
     let name = this.nameEl.value.trim()
     let login = this.loginEl.value.trim()
     let email = this.emailEl.value.trim()
-    let passwd = this.passwordEl.value
 
     if (name.length < 1) {
       console.warn("Name should have at least one character...")
@@ -82,7 +77,7 @@ export default class ContributorForm {
       return
     }
 
-    if (login.length < 1) {
+    if (login.length < 4) {
       console.warn("Login should have at least 4 characters...")
       this.loginEl.focus()
       return
@@ -93,18 +88,6 @@ export default class ContributorForm {
       this.emailEl.focus()
       return
     }
-
-    // if (!this.contributor && passwd.length < 8) {
-    //   console.warn("Password should have at least 8 characters...")
-    //   this.passwordEl.focus()
-    //   return
-    // }
-
-    // if (this.contributor && passwd.length != 0 && passwd.length < 8) {
-    //   console.warn("Password should have at least 8 characters...")
-    //   this.passwordEl.focus()
-    //   return
-    // }
 
     this.submitSpinnerEl.style.display = "inline"
     if (!this.contributor) {
@@ -147,7 +130,6 @@ export default class ContributorForm {
     this.state.name = this.contributor.name
     this.state.email = this.contributor.email
     this.state.login = this.contributor.login
-    this.state.password = ""
     this.view.update(this.state)
   }
 

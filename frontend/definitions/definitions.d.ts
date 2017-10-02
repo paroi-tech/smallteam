@@ -50,7 +50,7 @@ interface HTMLDialogElement extends HTMLElement {
    * Closes the dialog. An optional DOMString may be passed as an argument,
    * updating the returnValue of the the dialog.
    */
-  close(): void
+  close(returnValue?: string): void
   /**
    * Displays the dialog modelessly, i.e. still allowing interaction with content outside of the dialog.
    * An optional Element or MouseEvent may be passed as an argument,

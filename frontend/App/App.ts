@@ -8,6 +8,7 @@ import StepTypeWorkspace from "../StepTypeWorkspace/StepTypeWorkspace"
 import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
 import BackgroundCommandManager from "../BackgroundCommandManager/BackgroundCommandManager"
+import LoginDialog from "../LoginDialog/LoginDialog"
 
 export default class App {
   readonly log: Log
@@ -42,16 +43,27 @@ export default class App {
   }
 
   public async start() {
-    await this.model.global.load
-    let appEl = document.querySelector(".js-app")
-    if (appEl) {
-      let viewer = this.dash.create(WorkspaceViewer)
-      this.createWorkspaces(viewer)
-      appEl.appendChild(viewer.el)
+    let dialog = this.dash.create(LoginDialog)
 
-      let bgCommandManager = this.dash.create(BackgroundCommandManager)
-      viewer.addElementToHeader(bgCommandManager.buttonEl)
-    }
+    dialog.el.addEventListener("close", async function() {
+      if (this.returnValue) {
+        await this.model.global.load
+        let appEl = document.querySelector(".js-app")
+        if (appEl) {
+          let viewer = this.dash.create(WorkspaceViewer)
+          this.createWorkspaces(viewer)
+          appEl.appendChild(viewer.el)
+
+          let bgCommandManager = this.dash.create(BackgroundCommandManager)
+          viewer.addElementToHeader(bgCommandManager.buttonEl)
+        }
+      } else {
+        console.log("Unsuccessfull login...")
+      }
+    })
+
+    document.body.appendChild(dialog.el)
+    dialog.el.showModal()
   }
 
   private createWorkspaces(viewer: WorkspaceViewer) {
