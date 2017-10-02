@@ -4,8 +4,6 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
-  - Implement TaskModel.affectedTo (list)
-  - Implement TaskModel.flags (list)
   - Implement async TaskModel.getComments()
   - Implement async TaskModel.logEntries()
   - Implement methods whoUse
@@ -19,6 +17,13 @@ the time, so I can't use JIRA.
 
 # Lionel
 - Implement a new component `BackgroundCommandManager`
+- Create a workspace `FlagWorkspace`, to add, update, remove flags (NB: use a color picker in the form)
+- In `TaskForm`:
+  - Add, remove and reorder the contributors affected to the task
+  - Add, remove the flags for the task
+- In `TaskBox`:
+  - Show the contributors affected to the task
+  - Show the flags for the task
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
@@ -60,5 +65,7 @@ the time, so I can't use JIRA.
   - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
   - Model have to emit event when task orders are changed.
   - Add a list of background commands
+  - Implement TaskModel.affectedTo (list)
+  - Implement TaskModel.flags (list)
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
