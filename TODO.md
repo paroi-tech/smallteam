@@ -17,7 +17,7 @@ the time, so I can't use JIRA.
 
 # Lionel
 - Implement a new component `BackgroundCommandManager`
-- Create a workspace `FlagWorkspace`, to add, update, remove flags (NB: use a color picker in the form)
+- Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - In `TaskForm`:
   - Add, remove and reorder the contributors affected to the task
   - Add, remove the flags for the task

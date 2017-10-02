@@ -153,7 +153,7 @@ async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, n
     .from("task_flag tf")
     .innerJoin("flag f", "on", "tf.flag_id = f.flag_id")
     .where("tf.task_id", "in", taskIdList)
-    .orderBy("1, f.label")
+    .orderBy("1, f.order_num")
   let rs = await cn.all(sql.toSql())
 
   let map = new Map<number, number[]>(),

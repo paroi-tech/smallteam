@@ -80,7 +80,8 @@ create table root_task (
 create table flag (
     flag_id integer not null primary key autoincrement,
     label varchar(255) not null unique,
-    color char(6)
+    color char(6),
+    order_num integer
 );
 
 create table task_flag (
