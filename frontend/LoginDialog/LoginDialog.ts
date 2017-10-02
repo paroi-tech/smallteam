@@ -1,7 +1,7 @@
 import App from "../App/App"
-import { Model } from "../AppModel/AppModel"
+import { Bkb, Dash } from "bkb"
+import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
-
 import * as template from "./logindialog.monk"
 
 export default class LoginDialog {
@@ -15,7 +15,10 @@ export default class LoginDialog {
 
   private view: MonkberryView
 
-  constructor() {
+  private model: Model
+
+  constructor(private dash: Dash<App>) {
+    this.model = this.dash.app.model
     this.el = this.createView()
   }
 

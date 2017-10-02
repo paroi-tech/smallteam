@@ -1,4 +1,5 @@
 <dialog class="js-form LoginDialog">
+  <h1 class="LoginDialog-h1">Log in</h1>
   <label class="FormField">
     <span class="FormField-span">Username</span>
     <input type="text" class="js-username">

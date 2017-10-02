@@ -1,6 +1,6 @@
 import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { fetchContributors, queryContributors, createContributor, updateContributor, reorderAffectedContributors } from "./dbqueries/queryContributor"
+import { fetchContributors, queryContributors, getContributor, createContributor, updateContributor, reorderAffectedContributors } from "./dbqueries/queryContributor"
 import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderChildTasks, deleteTask } from "./dbqueries/queryTask"

@@ -5,6 +5,7 @@ import { ContributorFragment, NewContributorFragment, newContributorMeta, UpdCon
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { hash, compare } from "bcrypt"
 
 function toContributorFragment(row): ContributorFragment {
   return {
@@ -141,4 +142,32 @@ async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number
   for (let row of rs)
     orderNums.set(row["contributor_id"], row["order_num"])
   return orderNums
+}
+
+// --
+// -- Authentification functions
+// --
+
+export async function getContributor(loader: CargoLoader, login: string, passwd: string) {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+              .select("contributor_id, login, name, email, password")
+              .from("contributor")
+              .where("login", "=", login)
+  let rs = await cn.all(sql.toSql())
+
+  if (rs.length == 1) {
+    let row = rs[0]
+    let h = row["password"]
+    let b = await compare(passwd, h)
+
+    if (b) {
+      let frag = toContributorFragment(row)
+      loader.addFragment({
+        type: "Contributor",
+        frag,
+        asResult: "fragments"
+      })
+    }
+  }
 }
