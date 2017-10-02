@@ -3,8 +3,6 @@ the time, so I can't use JIRA.
 
 # Thomas
 
-- Replace all `model.on` by `this.dash.listenTo(model)`
-- CSS: use flexbox & grid
 - In the Model:
   - Add a boolean "processing" on each model
     - Lionel: disable forms for the models in processing
@@ -62,3 +60,5 @@ the time, so I can't use JIRA.
   - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
   - Model have to emit event when task orders are changed.
   - Add a list of background commands
+- Replace all `model.on` by `this.dash.listenTo(model)`
+- CSS: use flexbox & grid
