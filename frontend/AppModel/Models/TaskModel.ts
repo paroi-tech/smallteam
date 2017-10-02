@@ -1,5 +1,5 @@
 import { TaskFragment } from "../../../isomorphic/fragments/Task"
-import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import ModelEngine, { appendGettersToModel, toCollection } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
@@ -12,9 +12,9 @@ export interface TaskModel extends TaskFragment {
   readonly parent?: TaskModel
   readonly children?: Collection<TaskModel, string>
   readonly createdBy: ContributorModel
-  affectedTo?: ContributorModel[]
+  affectedTo?: Collection<ContributorModel, string>
+  flags?: Collection<FlagModel, string>
   // getComments: CommentModel[] // => TODO: Async load
-  flags?: FlagModel[]
   // getLogEntries: TaskLogEntryModel[] // => TODO: Async load
   // getAttachments(): Promise<Attachment[]>
 }
@@ -43,6 +43,23 @@ export function registerTask(engine: ModelEngine) {
           },
           orderBy: ["orderNum", "asc"]
         }, undefined)
+      },
+      get createdBy() {
+        return engine.getModel("Contributor", getFrag().createdById)
+      },
+      get affectedTo() {
+        let frag = getFrag()
+        if (!frag.affectedToIds)
+          return undefined
+        let list = frag.affectedToIds.map(contributorId => engine.getModel("Contributor", contributorId))
+        return toCollection(list, "Contributor")
+      },
+      get flags() {
+        let frag = getFrag()
+        if (!frag.flagIds)
+          return undefined
+        let list = frag.flagIds.map(flagId => engine.getModel("Flag", flagId))
+        return toCollection(list, "Flag")
       }
     }
     appendGettersToModel(model, "Task", getFrag)

@@ -14,6 +14,7 @@ the time, so I can't use JIRA.
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - Deploy the project on the Web server
 - Keep HKMap?
+- Refactoring in the backend, for the reordering
 
 # Lionel
 - Implement a new component `BackgroundCommandManager`
