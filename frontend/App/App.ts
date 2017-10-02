@@ -44,22 +44,30 @@ export default class App {
 
   public async start() {
     let dialog = this.dash.create(LoginDialog)
+    let obj = this // See below for explaination.
 
+    // IMPORTANT: This is the way to get the return value from a dialog.
+    // In the callback, `this` does not represent the `App` object, so we have to keep
+    // a reference with the `obj` variable.
     dialog.el.addEventListener("close", async function() {
       if (this.returnValue) {
-        await this.model.global.load
+        await obj.model.global.load
         let appEl = document.querySelector(".js-app")
         if (appEl) {
-          let viewer = this.dash.create(WorkspaceViewer)
-          this.createWorkspaces(viewer)
+          let viewer = obj.dash.create(WorkspaceViewer)
+
+          obj.createWorkspaces(viewer)
           appEl.appendChild(viewer.el)
 
-          let bgCommandManager = this.dash.create(BackgroundCommandManager)
+          let bgCommandManager = obj.dash.create(BackgroundCommandManager)
+
           viewer.addElementToHeader(bgCommandManager.buttonEl)
         }
       } else {
         console.log("Unsuccessfull login...")
       }
+      // We don't need the LoginDialog any more.
+      document.body.removeChild(dialog.el)
     })
 
     document.body.appendChild(dialog.el)

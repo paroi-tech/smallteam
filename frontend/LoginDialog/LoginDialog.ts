@@ -1,10 +1,9 @@
+import config from "../../isomorphic/config"
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import * as template from "./logindialog.monk"
-
-const connectUrl = "/smallteam-f3s5lbp/api/connect"
 
 export default class LoginDialog {
   readonly el: HTMLDialogElement
@@ -82,7 +81,7 @@ export default class LoginDialog {
     let contributorId: string | undefined = undefined
 
     try {
-      let response = await fetch(connectUrl, {
+      let response = await fetch(`${config.urlPrefix}/api/connect`, {
         method: "post",
         credentials: "include",
         headers: {
@@ -96,7 +95,7 @@ export default class LoginDialog {
       })
 
       if (!response.ok) {
-        alert("Unable to connect to the server...")
+        alert("Error. Unable to get a response from server...")
       } else {
         let json = await response.text()
         let answer = JSON.parse(json)
