@@ -8,6 +8,10 @@ import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorder
 import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag } from "./dbqueries/queryFlag"
 
+export async function routeConnect(data): Promise<any> {
+  // TODO: async return JSON data
+}
+
 export async function routeQuery(data): Promise<Cargo> {
   let loader = new CargoLoader()
   await executeQuery(data, loader)

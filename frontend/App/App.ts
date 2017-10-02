@@ -11,12 +11,10 @@ import BackgroundCommandManager from "../BackgroundCommandManager/BackgroundComm
 
 export default class App {
   readonly log: Log
-  readonly nextTick: (cb: () => void) => void
   readonly model: Model
 
   constructor(private dash: ApplicationDash<App>) {
     this.log = dash.log
-    this.nextTick = dash.nextTick
     this.model = dash.create(ModelComp)
 
     this.dash.onData("log", (data: LogItem) => {

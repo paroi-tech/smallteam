@@ -31,6 +31,7 @@ export async function queryTasks(loader: CargoLoader, filters: TaskQuery) {
   if (filters.description)
     sql.andWhere("d.description", filters.description)
   let rs = await cn.all(sql.toSql())
+  addDependenciesTo(rs)
   for (let row of rs) {
     let frag = toTaskFragment(row)
     loader.addFragment({
@@ -47,6 +48,7 @@ export async function fetchProjectTasks(loader: CargoLoader, projectIdList: numb
   sql.where("s.project_id", "in", projectIdList)
   //sql.andWhere("s.step_type_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
   let rs = await cn.all(sql.toSql())
+  addDependenciesTo(rs)
   for (let row of rs) {
     let frag = toTaskFragment(row)
     loader.modelUpdate.addFragment("Task", frag.id, frag)
@@ -60,6 +62,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   let sql = selectFromTask()
     .where("t.task_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
+  addDependenciesTo(rs)
   for (let row of rs) {
     let data = toTaskFragment(row)
     loader.modelUpdate.addFragment("Task", data.id, data)
@@ -92,7 +95,80 @@ function toTaskFragment(row): TaskFragment {
     frag.orderNum = row["order_num"]
   if (row["description"])
     frag.description = row["description"]
+  if (row["affectedToIds"])
+    frag.affectedToIds = row["affectedToIds"].map(id => id.toString())
+  if (row["flagIds"])
+    frag.flagIds = row["flagIds"].map(id => id.toString())
   return frag
+}
+
+// --
+// -- Add dependencies
+// --
+
+async function addDependenciesTo(taskRows: any[]) {
+  let taskIdList = taskRows.map(row => row["task_id"])
+  let contributorMap = await fetchAffectedToIdentifiers(taskIdList)
+  let flagMap = await fetchFlagIdentifiers(taskIdList)
+
+  for (let row of taskRows) {
+    let contributorIds = contributorMap.get(row["task_id"])
+    if (contributorIds)
+      row["affectedToIds"] = contributorIds
+
+    let flagIds = flagMap.get(row["task_id"])
+    if (flagIds)
+      row["flagIds"] = flagIds
+  }
+}
+
+async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("a.task_id, t.contributor_id")
+    .from("task_affected_to a")
+    .where("a.task_id", "in", taskIdList)
+    .orderBy("1, a.order_num")
+  let rs = await cn.all(sql.toSql())
+
+  let map = new Map<number, number[]>(),
+    curTaskId: number | undefined = undefined,
+    curContributorIds: number[]
+  for (let row of rs) {
+    if (row["task_id"] !== curTaskId) {
+      curTaskId = row["task_id"]
+      curContributorIds = []
+      map.set(curTaskId!, curContributorIds)
+    }
+    curContributorIds!.push(row["contributor_id"])
+  }
+
+  return map
+}
+
+async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
+  let cn = await getDbConnection()
+  let sql = buildSelect()
+    .select("a.task_id, tf.flag_id")
+    .from("task_flag tf")
+    .innerJoin("flag f", "on", "tf.flag_id = f.flag_id")
+    .where("tf.task_id", "in", taskIdList)
+    .orderBy("1, f.label")
+  let rs = await cn.all(sql.toSql())
+
+  let map = new Map<number, number[]>(),
+    curTaskId: number | undefined = undefined,
+    curFlagIds: number[]
+  for (let row of rs) {
+    if (row["task_id"] !== curTaskId) {
+      curTaskId = row["task_id"]
+      curFlagIds = []
+      map.set(curTaskId!, curFlagIds)
+    }
+    curFlagIds!.push(row["flag_id"])
+  }
+
+  return map
 }
 
 // --

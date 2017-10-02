@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as express from "express"
 import { Response } from "express"
-import { routeQuery, routeExec, executeBatch } from "./api"
+import { routeQuery, routeExec, executeBatch, routeConnect } from "./api"
 import config from "../isomorphic/config"
 
 const PORT = 3921
@@ -19,6 +19,7 @@ process.on("unhandledRejection", err => {
 let app = express()
 let router = express.Router()
 
+declareRoute(router, `/api/connect`, routeConnect)
 declareRoute(router, `/api/query`, routeQuery)
 declareRoute(router, `/api/exec`, routeExec)
 declareRoute(router, `/api/batch`, executeBatch)
