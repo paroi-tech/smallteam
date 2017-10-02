@@ -11,15 +11,12 @@ export async function getDbConnection() {
   return cn
 }
 
-export function toIntList(strList: string[]): number[] {
-  let res: number[] = []
-  for (let val of strList)
-    res.push(parseInt(val, 10))
-  return res
+export function toIntList(strList: (string | number)[]): number[] {
+  return strList.map(val => typeof val === "number" ? val : parseInt(val, 10))
 }
 
-export function int(str: string): number {
-  return parseInt(str, 10)
+export function int(str: number | string): number {
+  return typeof str === "number" ? str : parseInt(str, 10)
 }
 
 // export function isObjectEmpty(obj): boolean {

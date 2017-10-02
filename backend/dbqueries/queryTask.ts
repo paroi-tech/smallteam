@@ -213,6 +213,12 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
     await cn.run(sql.toSql())
   }
 
+  if (newFrag.affectedToIds)
+    insertTaskAffectedToContributors(taskId, newFrag.affectedToIds)
+
+  if (newFrag.flagIds)
+    insertTaskFlags(taskId, newFrag.flagIds)
+
   loader.addFragment({
     type: "Task",
     id: taskId.toString(),
@@ -226,7 +232,7 @@ async function getDefaultOrderNum(parentTaskId: number) {
   let sql = buildSelect()
     .select("max(order_num) as max")
     .from("task_child")
-    .where("parent_task_id",parentTaskId )
+    .where("parent_task_id", parentTaskId)
   let rs = await cn.all(sql.toSql())
   return rs.length === 1 ? (rs[0]["max"] || 0) + 1 : 1
 }
@@ -252,6 +258,12 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
 
   if (updFrag.description !== undefined)
     updateTaskDescription(taskId, updFrag.description)
+
+  if (updFrag.affectedToIds)
+    updateTaskAffectedToContributors(taskId, updFrag.affectedToIds)
+
+  if (updFrag.flagIds)
+    updateTaskflags(taskId, updFrag.flagIds)
 
   loader.addFragment({
     type: "Task",
@@ -333,6 +345,56 @@ async function loadChildOrderNums(parentId: number): Promise<Map<number, number>
   for (let row of rs)
     orderNums.set(row["task_id"], row["order_num"])
   return orderNums
+}
+
+// --
+// -- Dependencies
+// --
+
+async function insertTaskAffectedToContributors(taskId: number | string, contributorIds: string[]) {
+  let cn = await getDbConnection()
+  let orderNum = 0
+  for (let contributorId of contributorIds) {
+    let sql = buildInsert()
+      .insertInto("task_affected_to")
+      .values({
+        "task_id": int(taskId),
+        "contributor_id": int(contributorId),
+        "order_num": orderNum
+      })
+    await cn.run(sql.toSql())
+  }
+}
+
+async function updateTaskAffectedToContributors(taskId: number | string, contributorIds: string[]) {
+  let cn = await getDbConnection()
+  let sql = buildDelete()
+    .deleteFrom("task_affected_to")
+    .where("task_id", int(taskId))
+  await cn.run(sql.toSql())
+  await insertTaskAffectedToContributors(taskId, contributorIds)
+}
+
+async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
+  let cn = await getDbConnection()
+  for (let flagId of flagIds) {
+    let sql = buildInsert()
+      .insertInto("task_flag")
+      .values({
+        "task_id": int(taskId),
+        "flag_id": int(flagId)
+      })
+    await cn.run(sql.toSql())
+  }
+}
+
+async function updateTaskflags(taskId: number | string, flagIds: string[]) {
+  let cn = await getDbConnection()
+  let sql = buildDelete()
+    .deleteFrom("task_flag")
+    .where("task_id", int(taskId))
+  await cn.run(sql.toSql())
+  await insertTaskFlags(taskId, flagIds)
 }
 
 // --
