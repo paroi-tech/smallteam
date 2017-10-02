@@ -4,6 +4,8 @@ import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import * as template from "./logindialog.monk"
 
+const connectUrl = "/smallteam-f3s5lbp/api/connect"
+
 export default class LoginDialog {
   readonly el: HTMLDialogElement
 
@@ -71,7 +73,6 @@ export default class LoginDialog {
       this.returnValue = contributorId
       this.close()
     }  else {
-      alert("Wrong username or password.")
       this.nameEl.focus()
     }
     this.spinnerEl.style.display = "none"
@@ -81,7 +82,7 @@ export default class LoginDialog {
     let contributorId: string | undefined = undefined
 
     try {
-      let response = await fetch("/api/connect", {
+      let response = await fetch(connectUrl, {
         method: "post",
         credentials: "include",
         headers: {
@@ -94,14 +95,17 @@ export default class LoginDialog {
         })
       })
 
-      if (!response.ok)
-        throw new Error("Server error. Unable to get data.")
+      if (!response.ok) {
+        alert("Unable to connect to the server...")
+      } else {
+        let json = await response.text()
+        let answer = JSON.parse(json)
 
-      let json = await response.text()
-      let answer = JSON.parse(json)
-
-      if (answer.done)
-        contributorId = answer.contributorId as string
+        if (answer.done)
+          contributorId = answer.contributorId as string
+        else
+        alert("Wrong username or password.")
+      }
     } catch (err) {
 
     }
