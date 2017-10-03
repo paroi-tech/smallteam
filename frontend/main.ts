@@ -1,7 +1,14 @@
-import * as $ from "jquery"
-import {createApplication} from "bkb"
+import { createApplication } from "bkb"
 import App from "./App/App"
 
-$(() => {
-  createApplication(App).start().catch(console.log)
-})
+async function startup() {
+  try {
+    let app = createApplication(App)
+    await app.connect()
+    await app.start()
+  } catch (err) {
+    console.log(err)
+  }
+}
+
+document.addEventListener("DOMContentLoaded", startup)

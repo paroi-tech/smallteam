@@ -3,7 +3,7 @@ import { Bkb, Dash } from "bkb"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import { NewContributorFragment, UpdContributorFragment } from "../../isomorphic/fragments/Contributor";
+import { NewContributorFragment, UpdContributorFragment } from "../../isomorphic/fragments/Contributor"
 
 import * as template from "./ContributorForm.monk"
 

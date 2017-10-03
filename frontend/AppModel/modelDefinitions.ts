@@ -13,6 +13,7 @@ import { FlagModel, registerFlag } from "./Models/FlagModel"
 import ModelEngine, { CommandType } from "./ModelEngine"
 import { ComponentEvent, Transmitter } from "bkb"
 import { BgCommandManager, BgCommand } from "./BgCommandManager"
+import { NewFlagFragment, UpdFlagFragment, FlagIdFragment } from "../../isomorphic/fragments/Flag"
 
 export interface WhoUseItem {
   type: Type,
@@ -36,6 +37,10 @@ export interface ModelCommandMethods {
 
   exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
   exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
+
+  exec(cmd: "create", type: "Flag", frag: NewFlagFragment): Promise<FlagModel>
+  exec(cmd: "update", type: "Flag", frag: UpdFlagFragment): Promise<FlagModel>
+  exec(cmd: "delete", type: "Flag", frag: FlagIdFragment): Promise<void>
 
   query(type: "Project", filters: ProjectQuery): Promise<Collection<ProjectModel, string>>
   query(type: "StepType"): Promise<Collection<StepTypeModel, string>>

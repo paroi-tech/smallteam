@@ -49,7 +49,7 @@ export default class StepTypeWorkspace implements Workspace {
     this.spinnerEl = $container.find(".fa-spinner").get(0)
     this.nameEl = $container.find(".js-input").get(0) as HTMLInputElement
     this.nameEl.onkeyup = ev => {
-      if (ev.which === 13)
+      if (ev.key === "Enter")
         this.addBtnEl.click()
     }
     this.addBtnEl.onclick = (ev) => this.onAdd()

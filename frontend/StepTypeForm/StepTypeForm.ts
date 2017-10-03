@@ -119,7 +119,7 @@ export default class StepTypeForm {
 
     // Validating the content of the $stepTypeName field triggers the $submitButton click event.
     this.nameEl.addEventListener("keyup", ev => {
-      if (!this.submitButtonEl.getAttribute("disabled") && ev.which === 13)
+      if (!this.submitButtonEl.getAttribute("disabled") && ev.key === "Enter")
         this.submitButtonEl.click()
     })
 

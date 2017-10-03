@@ -1,0 +1,3 @@
+<div class="FlagBox">
+  <span class="FlagBox-span">{{ label }}</span>
+</div>

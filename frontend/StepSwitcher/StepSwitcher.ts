@@ -23,10 +23,13 @@ export default class StepSwitcher {
   private project: ProjectModel
 
   private taskNameEl: HTMLInputElement
+  private addTaskBtnEl: HTMLButtonElement
   private addTaskSpinnerEl: HTMLElement
   private busyIndicatorEl: HTMLElement
   private collapsibleEl: HTMLElement
   private boxListContainerEl: HTMLElement
+  private addTaskPane: HTMLElement
+
   private collapsibleElVisible = true
   private visible = true
 
@@ -57,30 +60,36 @@ export default class StepSwitcher {
    */
   private createHtmlElements() {
     let $container = $(template)
+
     this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
+    this.addTaskBtnEl = $container.find(".js-add-task-button").get(0) as HTMLButtonElement
     this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)
     this.busyIndicatorEl = $container.find(".js-indicator").get(0)
     this.collapsibleEl = $container.find(".js-collapsible").get(0)
     this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
+    this.addTaskPane = $container.find(".js-add-task-pane").get(0)
+
+    this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
+    this.taskNameEl.onkeyup = ev => {
+      if (ev.key === "Enter")
+        this.addTaskBtnEl.click()
+    }
 
     // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
-    $container.find(".js-title").text(title)
-
     let toggleBtn = $container.find(".js-toggle-btn").get(0) as HTMLButtonElement
+    let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
+
+    $container.find(".js-title").text(title)
     toggleBtn.addEventListener("click", ev => {
       toggleBtn.innerHTML = this.collapsibleElVisible ? "&#9660;" : "&#9650;"
       $(this.collapsibleEl).slideToggle()
       this.collapsibleElVisible = !this.collapsibleElVisible
     })
-
-    let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
     closeBtn.addEventListener("click", ev => {
       if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask StepSwitcher.
         this.setVisible(false)
     })
-
-    $container.find(".js-add-task-button").click(() => this.onAddtaskClick())
 
     return $container.get(0)
   }
@@ -183,18 +192,27 @@ export default class StepSwitcher {
    * Handle the creation of a new task.
    */
   private async onAddtaskClick() {
-    let name = this.taskNameEl.value
-    if (name.length < 1)
+    let name = this.taskNameEl.value.trim()
+
+    if (name.length < 1) {
       console.log("Impossible to create a new task. Invalid name...")
-    else if (this.project.steps.length === 0)
-      console.log("Impossible to create a new task. Project has no step.")
-    else {
-      this.addTaskSpinnerEl.style.display = "inline"
-      if (await this.createTask(name))
-        this.taskNameEl.value = ""
-      this.addTaskSpinnerEl.style.display = "none"
       this.taskNameEl.focus()
+      return
     }
+
+    if (this.project.steps.length === 0)  {
+      console.log("Impossible to create a new task. Project has no step.")
+      this.taskNameEl.focus()
+      return
+    }
+
+    this.addTaskPane.style.pointerEvents = "none"
+    this.addTaskSpinnerEl.style.display = "inline"
+    if (await this.createTask(name))
+      this.taskNameEl.value = ""
+    this.addTaskSpinnerEl.style.display = "none"
+    this.addTaskPane.style.pointerEvents = "auto"
+    this.taskNameEl.focus()
   }
 
   /**
