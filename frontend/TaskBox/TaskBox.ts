@@ -1,11 +1,11 @@
-import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { Model, TaskModel } from "../AppModel/AppModel"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
 
-const template = require("html-loader!./taskbox.html")
+import * as template from "./taskbox.monk"
 
 /**
  * Component used to show basic information about a task of a project.
@@ -19,6 +19,8 @@ export default class TaskBox implements Box {
 
   readonly id: string
 
+  private view: MonkberryView
+
   private model: Model
 
   /**
@@ -29,13 +31,14 @@ export default class TaskBox implements Box {
   constructor(private dash: Dash<App>, readonly task: TaskModel) {
     this.id = this.task.id
     this.model = this.dash.app.model
-    let $container = $(template)
-    this.spanEl = $container.find(".js-span").text(task.label).get(0)
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.spanEl = this.el.querySelector(".js-span") as HTMLElement
+    this.spanEl.textContent = this.task.label
+
     this.listenToModel()
-    $container.click(() => {
-      this.dash.emit("taskBoxSelected", this.task)
-    })
-    this.el = $container.get(0)
+    this.el.addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))
   }
 
   /**

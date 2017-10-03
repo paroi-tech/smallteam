@@ -20,7 +20,7 @@ export default class FlagForm {
 
   private state = {
     label:  "",
-    color: "",
+    color: "#000000",
     orderNum: "",
     ctrl: {
       submit: () => this.onSubmit().catch(err => console.log(err))
@@ -51,6 +51,8 @@ export default class FlagForm {
     this.orderNumEl = el.querySelector(".js-order-num") as HTMLInputElement
     this.submitSpinnerEl = el.querySelector(".fa-spinner") as HTMLElement
 
+    this.view.update(this.state)
+
     return el
   }
 
@@ -70,7 +72,7 @@ export default class FlagForm {
 
   public reset() {
     this.flag = undefined
-    this.state.color = ""
+    this.state.color = "#000000"
     this.state.label = ""
     this.state.orderNum = ""
     this.view.update(this.state)

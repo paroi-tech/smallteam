@@ -1,11 +1,11 @@
-import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import { StepTypeModel } from "../AppModel/AppModel"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
 
-const template = require("html-loader!./steptypebox.html")
+import * as template from "./steptypebox.monk"
 
 /**
  * Component used to show basic information about a StepType object.
@@ -16,29 +16,27 @@ const template = require("html-loader!./steptypebox.html")
 export default class StepTypeBox implements Box {
   readonly el: HTMLElement
 
+  private spanEl: HTMLElement
+
   public readonly id: string
 
-  /**
-   * Create a new StepTypeBox.
-   *
-   * @param dash - the current application dash
-   * @param stepType - the StepType for which the box is created for.
-   * @param idProp - the property of StepTypeModel that the box sould use as ID (defaults to id)
-   */
-  constructor(private dash: Dash<App>, readonly stepType: StepTypeModel, idProp = "id") {
+  private view: MonkberryView
+
+  constructor(private dash: Dash<App>, readonly stepType: StepTypeModel) {
     let $container = $(template)
-    this.id = this.stepType[idProp]
-    $container.find(".js-span").text(this.stepType.name)
-    $container.click(ev => {
-      this.dash.emit("stepTypeBoxSelected", this.stepType)
-    })
-    // We listen to the model and update the label of this StepTypeBox if the name of the StepType
-    // is updated.
+
+    this.id = this.stepType.id
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.spanEl = this.el.querySelector(".js-span") as HTMLElement
+    this.spanEl.textContent = this.stepType.name
+    this.el.addEventListener("click", ev => this.dash.emit("stepTypeBoxSelected", this.stepType))
+
     this.dash.listenTo<UpdateModelEvent>(this.dash.app.model, "updateStepType").onData(data => {
       if (data.model === this.stepType)
-        $container.find(".js-span").text(this.stepType.name)
+        this.spanEl.textContent = this.stepType.name
     })
-    this.el = $container.get(0)
   }
 
   /**

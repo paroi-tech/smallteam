@@ -1,11 +1,11 @@
-import * as $ from "jquery"
 import { Dash } from "bkb"
 import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import * as Sortable from "sortablejs"
+import { render } from "monkberry"
 
-const boxListTemplate = require("html-loader!./boxlist.html")
-const boxTemplate = require("html-loader!./box.html")
+import * as boxListTemplate from "./boxlist.monk"
+import * as boxTemplate from "./box.monk"
 
 /**
  * As BoxList is a template class, a BoxList instance parameter should implement this interface.
@@ -68,6 +68,8 @@ export interface BoxListEvent extends BoxEvent {
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
 
+  private view: MonkberryView
+
   private ul: HTMLElement
   private busyIndicatorEl: HTMLElement
   private titleEl: HTMLElement
@@ -83,13 +85,15 @@ export default class BoxList<T extends Box> {
    * @param params - wrapper of the Boxlist parameters
    */
   constructor(private dash: Dash<App>, private params: BoxListParams) {
-    let $container = $(boxListTemplate)
-    this.ul = $container.find("ul").get(0)
-    this.busyIndicatorEl = $container.find(".js-busy-icon").get(0)
-    this.titleEl = $container.find(".js-title").get(0)
+    this.view = render(boxListTemplate, document.createElement("div"))
+    this. el = this.view.nodes[0] as HTMLElement
+
+    this.ul = this.el.querySelector("ul") as HTMLElement
+    this.busyIndicatorEl = this.el.querySelector(".js-busy-icon") as HTMLElement
+    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
+
     this.setTitle(this.params.name)
     this.makeSortable()
-    this.el = $container.get(0)
   }
 
   /**
@@ -98,7 +102,9 @@ export default class BoxList<T extends Box> {
    * @param box - the element to be added.
    */
   public addBox(box: T) {
-    let li = $(boxTemplate).get(0)
+    let view = render(boxTemplate, document.createElement("div"))
+    let li = view.nodes[0] as HTMLLIElement
+
     li.setAttribute("data-id", box.id)
     li.appendChild(box.el)
     this.ul.appendChild(li)

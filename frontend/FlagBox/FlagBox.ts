@@ -11,6 +11,8 @@ export default class FlagBox implements Box {
   readonly el: HTMLElement
   readonly id: string
 
+  private colorEl: HTMLElement
+
   private model: Model
   private view: MonkberryView
 
@@ -20,6 +22,8 @@ export default class FlagBox implements Box {
 
     this.view = render(template, document.createElement("div"))
     this.el = this.view.nodes[0] as HTMLElement
+    this.colorEl = this.el.querySelector(".js-box-color") as HTMLElement
+    this.colorEl.style.color = this.flag.color
     this.view.update(this.flag)
 
     this.listenToModel()
@@ -29,8 +33,10 @@ export default class FlagBox implements Box {
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateFlag").onData(data => {
       let flag = data.model as FlagModel
-      if (flag.id === this.flag.id)
+      if (flag.id === this.flag.id) {
         this.view.update(this.flag)
+        this.colorEl.style.color = this.flag.color
+      }
     })
   }
 

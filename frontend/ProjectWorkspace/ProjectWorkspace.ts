@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
 import TaskBoard from "../TaskBoard/TaskBoard"

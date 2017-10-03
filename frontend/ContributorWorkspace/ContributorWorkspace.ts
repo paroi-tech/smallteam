@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import BoxList, { Box, BoxListParams } from "../BoxList/BoxList"

@@ -1,10 +1,10 @@
-import * as $ from "jquery"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { MenuItem } from "../Menu/Menu"
+import { render } from "monkberry"
 
-const template = require("html-loader!./dropdownmenu.html")
-const itemTemplate = require("html-loader!./element.html")
+import * as template from "./dropdownmenu.monk"
+import * as itemTemplate from "./element.monk"
 
 export type Alignment = "left" | "right"
 
@@ -18,6 +18,8 @@ export class DropdownMenu {
   readonly el: HTMLElement
   private ul: HTMLElement
 
+  private view: MonkberryView
+
   private items = new Map<string, HTMLElement[]>()
 
   private menuVisible = false
@@ -26,18 +28,24 @@ export class DropdownMenu {
    * Create a new dropdown menu.
    */
   constructor(private dash: Dash<App>, readonly align: Alignment) {
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
   }
 
   /**
    * Create menu content from the template.
    */
-  private createHtmlElements(): HTMLElement {
-    let $container = $(template)
-    this.ul = $container.find(".js-ul").get(0)
+  private createView(): HTMLElement {
+    this.view = render(template, document.createElement("div"))
+
+    let el = this.view.nodes[0] as HTMLElement
+
+    this.ul = el.querySelector(".js-ul") as HTMLElement
     this.ul.style[this.align] = "0"
-    $container.find(".js-btn").get(0).addEventListener("click", ev => this.toggle())
-    return $container.get(0)
+
+    let btn = el.querySelector(".js-btn") as HTMLButtonElement
+    btn.addEventListener("click", ev => this.toggle())
+
+    return el
   }
 
   /**
@@ -49,7 +57,8 @@ export class DropdownMenu {
     if (this.items.has(item.id))
       throw new Error(`Item with ID ${item.id} already exists`)
 
-    let li = $(itemTemplate).get(0)
+    let view = render(itemTemplate, document.createElement("div"))
+    let li = view.nodes[0] as HTMLLIElement
     let btn = li.querySelector(".js-btn") as HTMLButtonElement
 
     btn.textContent = item.label

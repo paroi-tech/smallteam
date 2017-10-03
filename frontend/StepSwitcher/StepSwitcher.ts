@@ -7,8 +7,9 @@ import { Model, ProjectModel, TaskModel, StepModel, StepTypeModel } from "../App
 import { removeAllChildren } from "../libraries/utils"
 import { toDebugObj } from "../../isomorphic/libraries/helpers"
 import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
 
-const template = require("html-loader!./stepswitcher.html")
+import * as template from "./stepswitcher.monk"
 
 /**
  * Component used to display a task and its children (subtasks).
@@ -18,6 +19,8 @@ const template = require("html-loader!./stepswitcher.html")
  */
 export default class StepSwitcher {
   readonly el: HTMLElement
+
+  private view: MonkberryView
 
   private model: Model
   private project: ProjectModel
@@ -48,7 +51,7 @@ export default class StepSwitcher {
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
     this.createBoxLists()
     this.fillBoxLists()
     this.listenToModel()
@@ -58,16 +61,18 @@ export default class StepSwitcher {
   /**
    * Create StepSwitcher components from the template.
    */
-  private createHtmlElements() {
-    let $container = $(template)
+  private createView() {
+    this.view = render(template, document.createElement("div"))
 
-    this.taskNameEl = $container.find(".js-task-name").get(0) as HTMLInputElement
-    this.addTaskBtnEl = $container.find(".js-add-task-button").get(0) as HTMLButtonElement
-    this.addTaskSpinnerEl = $container.find(".js-add-task-button .fa-spinner").get(0)
-    this.busyIndicatorEl = $container.find(".js-indicator").get(0)
-    this.collapsibleEl = $container.find(".js-collapsible").get(0)
-    this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
-    this.addTaskPane = $container.find(".js-add-task-pane").get(0)
+    let el = this.view.nodes[0] as HTMLElement
+
+    this.taskNameEl = el.querySelector(".js-task-name")  as HTMLInputElement
+    this.addTaskBtnEl = el.querySelector(".js-add-task-button") as HTMLButtonElement
+    this.addTaskSpinnerEl = el.querySelector(".js-add-task-button .fa-spinner") as HTMLElement
+    this.busyIndicatorEl = el.querySelector(".js-indicator") as HTMLElement
+    this.collapsibleEl = el.querySelector(".js-collapsible") as HTMLElement
+    this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
+    this.addTaskPane = el.querySelector(".js-add-task-pane") as HTMLElement
 
     this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
     this.taskNameEl.onkeyup = ev => {
@@ -77,21 +82,27 @@ export default class StepSwitcher {
 
     // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
-    let toggleBtn = $container.find(".js-toggle-btn").get(0) as HTMLButtonElement
-    let closeBtn = $container.find(".js-close-btn").get(0) as HTMLButtonElement
+    let toggleBtn = el.querySelector(".js-toggle-btn") as HTMLButtonElement
+    let closeBtn = el.querySelector(".js-close-btn") as HTMLButtonElement
+    let titleEl = el.querySelector(".js-title") as HTMLElement
 
-    $container.find(".js-title").text(title)
+    titleEl.textContent = title
+    closeBtn.innerHTML = "&#10060;" // FIXME: Find a way to avoid this
+    toggleBtn.innerHTML = "&#9650;" // FIXME: Find a way to avoid this
+
     toggleBtn.addEventListener("click", ev => {
       toggleBtn.innerHTML = this.collapsibleElVisible ? "&#9660;" : "&#9650;"
       $(this.collapsibleEl).slideToggle()
       this.collapsibleElVisible = !this.collapsibleElVisible
     })
+
     closeBtn.addEventListener("click", ev => {
-      if (this.parentTask.id !== this.project.rootTaskId) // We can't hide the rootTask StepSwitcher.
+      // We can't hide the rootTask StepSwitcher
+      if (this.parentTask.id !== this.project.rootTaskId)
         this.setVisible(false)
     })
 
-    return $container.get(0)
+    return el
   }
 
   /**

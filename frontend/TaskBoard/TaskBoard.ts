@@ -1,17 +1,19 @@
-import * as $ from "jquery"
 import { Dash } from "bkb"
 import App from "../App/App"
 import StepSwitcher from "../StepSwitcher/StepSwitcher"
 import TaskForm from "../TaskForm/TaskForm"
 import { Model, TaskModel, ProjectModel } from "../AppModel/AppModel"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
 
-const template  = require("html-loader!./taskboard.html")
+import * as template from "./taskboard.monk"
 
 export default class TaskBoard {
   readonly el: HTMLElement
   private leftEl: HTMLElement
   private rightEl: HTMLElement
+
+  private view: MonkberryView
 
   private taskForm: TaskForm
   private stepSwitcherMap: Map<String, StepSwitcher> = new Map()
@@ -20,7 +22,7 @@ export default class TaskBoard {
 
   constructor(private dash: Dash<App>, readonly rootTask: TaskModel) {
     this.model = this.dash.app.model
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
     this.createChildComponents()
     this.listenToChildren()
     this.listenToModel()
@@ -29,11 +31,15 @@ export default class TaskBoard {
   /**
    * Create component content from template.
    */
-  private createHtmlElements(): HTMLElement {
-    let $container = $(template)
-    this.leftEl = $container.find(".js-left").get(0)
-    this.rightEl = $container.find(".js-right").get(0)
-    return $container.get(0)
+  private createView(): HTMLElement {
+    this.view = render(template, document.createElement("div"))
+
+    let el = this.view.nodes[0] as HTMLElement
+
+    this.leftEl = el.querySelector(".js-left") as HTMLElement
+    this.rightEl = el.querySelector(".js-right") as HTMLElement
+
+    return el
   }
 
   /**

@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
@@ -8,8 +7,9 @@ import BoxList, { Box, BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/
 import { Model, StepTypeModel } from "../AppModel/AppModel"
 import { equal } from "../libraries/utils"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { render } from "monkberry"
 
-const template = require("html-loader!./steptypeworkspace.html")
+import * as template from "./steptypeworkspace.monk"
 
 export default class StepTypeWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -19,6 +19,8 @@ export default class StepTypeWorkspace implements Workspace {
   private addBtnEl: HTMLButtonElement
   private nameEl: HTMLInputElement
   private spinnerEl: HTMLElement
+
+  private view: MonkberryView
 
   private boxList: BoxList<StepTypeBox>
   private form: StepTypeForm
@@ -33,28 +35,31 @@ export default class StepTypeWorkspace implements Workspace {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.timer = undefined
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
     this.createChildComponents()
     this.fillBoxList()
     this.listenToChildComponents()
     this.listenToModel()
   }
 
-  private createHtmlElements(): HTMLElement {
-    let $container = $(template)
+  private createView(): HTMLElement {
+    this.view = render(template, document.createElement("div"))
 
-    this.boxListContainerEl = $container.find(".js-boxlist-container").get(0)
-    this.formContainerEl = $container.find(".js-edit-form-container").get(0)
-    this.addBtnEl = $container.find(".js-add-form-btn").get(0) as HTMLButtonElement
-    this.spinnerEl = $container.find(".fa-spinner").get(0)
-    this.nameEl = $container.find(".js-input").get(0) as HTMLInputElement
+    let el = this.view.nodes[0] as HTMLElement
+
+    this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
+    this.formContainerEl = el.querySelector(".js-edit-form-container") as HTMLElement
+    this.addBtnEl = el.querySelector(".js-add-form-btn") as HTMLButtonElement
+    this.spinnerEl = el.querySelector(".fa-spinner") as HTMLElement
+    this.nameEl = el.querySelector(".js-input") as HTMLInputElement
+
     this.nameEl.onkeyup = ev => {
       if (ev.key === "Enter")
         this.addBtnEl.click()
     }
     this.addBtnEl.onclick = (ev) => this.onAdd()
 
-    return $container.get(0)
+    return el
   }
 
   private listenToChildComponents() {
@@ -138,19 +143,21 @@ export default class StepTypeWorkspace implements Workspace {
    * @param ids - array of strings that contains the ids of step types
    */
   private async doUpdate(ids: string[]): Promise<void> {
-    console.log(`Requesting updating of step types orders...`)
+    let currentOrder = this.boxList.getBoxesOrder()
+
     this.boxList.disable(true)
     try {
       let idList = await this.dash.app.model.reorder("StepType", ids)
-      if (equal(idList, ids))
-        console.log("Step types order sucessfully updated.")
-      else {
+
+      if (!equal(idList, ids)) {
         console.error("Sorry. Server rejected new order of step types...", idList, ids)
         this.boxList.setBoxesOrder(idList)
       }
     } catch (err) {
       console.log("Sorry. Unable to save the new order of steps on server.", err)
+      this.boxList.setBoxesOrder(currentOrder)
     }
+
     this.boxList.enable(true)
     this.form.clear()
   }

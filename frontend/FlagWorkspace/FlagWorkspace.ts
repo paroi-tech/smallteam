@@ -1,5 +1,6 @@
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
+import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import FlagForm from "../FlagForm/FlagForm"
 import FlagBox from "../FlagBox/FlagBox"
@@ -19,6 +20,7 @@ export default class FlagWorkspace implements Workspace {
 
   private boxList: BoxList<FlagBox>
   private form: FlagForm
+  private menu: DropdownMenu
 
   private model: Model
 
@@ -83,6 +85,21 @@ export default class FlagWorkspace implements Workspace {
 
     this.form = this.dash.create(FlagForm)
     this.formContainerEl.appendChild(this.form.el)
+
+    this.menu = this.dash.create(DropdownMenu, "left")
+    this.menu.addItem({
+      id: "createFlag",
+      label: "Add new flag"
+    })
+    this.dash.listenTo(this.menu, "select").onData(itemId => {
+      switch (itemId) {
+        case "createFlag":
+          this.form.switchToCreationMode()
+          break
+        default:
+          break
+      }
+    })
   }
 
   /**
@@ -107,18 +124,22 @@ export default class FlagWorkspace implements Workspace {
    * @param ids - array of strings that contains the ids of step types
    */
   private async doUpdate(ids: string[]): Promise<void> {
+    let currentOrder = this.boxList.getBoxesOrder()
+    console.log(currentOrder)
     this.boxList.disable(true)
     try {
       let idList = await this.dash.app.model.reorder("Flag", ids)
-      if (equal(idList, ids))
-        console.log("Flag order sucessfully updated.")
-      else {
+
+      if (!equal(idList, ids)) {
         console.error("Sorry. Server rejected new order of flags...", idList, ids)
         this.boxList.setBoxesOrder(idList)
       }
     } catch (err) {
       console.log("Sorry. Unable to save the new order of flags on server.", err)
+      this.boxList.setBoxesOrder(currentOrder)
+      console.log(this.boxList.getBoxesOrder())
     }
+
     this.boxList.enable(true)
     this.form.reset()
   }
@@ -131,6 +152,7 @@ export default class FlagWorkspace implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
+        .setSidebarEl(this.menu.el)
         .setTitle("Flags")
   }
 
