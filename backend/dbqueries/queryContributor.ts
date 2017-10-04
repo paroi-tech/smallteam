@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import CargoLoader from "../cargoLoader/CargoLoader"
-import { ContributorFragment, NewContributorFragment, newContributorMeta, UpdContributorFragment, updContributorMeta } from "../../isomorphic/fragments/Contributor"
+import { ContributorFragment, NewContributorFragment, newContributorMeta, UpdContributorFragment, updContributorMeta, ContributorIdFragment } from "../../isomorphic/fragments/Contributor"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -9,23 +9,12 @@ import { hash, compare } from "bcrypt"
 
 const saltRounds = 10
 
-function toContributorFragment(row): ContributorFragment {
-  return {
-    id: row["contributor_id"].toString(),
-    name: row["name"],
-    login: row["login"],
-    email: row["email"]
-  }
-}
-
 export async function fetchContributors(loader: CargoLoader, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
-  let sql = buildSelect()
-              .select("contributor_id, login, name, email")
-              .from("contributor")
-              .where("contributor_id", "in", toIntList(idList))
+  let sql = selectFromContributor()
+    .where("contributor_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toContributorFragment(row)
@@ -35,10 +24,8 @@ export async function fetchContributors(loader: CargoLoader, idList: string[]) {
 
 export async function queryContributors(loader: CargoLoader) {
   let cn = await getDbConnection()
-  let sql = buildSelect()
-             .select("contributor_id, login, name, email")
-             .from("contributor")
-             .orderBy("name")
+  let sql = selectFromContributor()
+    .orderBy("name")
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toContributorFragment(row)
@@ -49,6 +36,25 @@ export async function queryContributors(loader: CargoLoader) {
     })
   }
 }
+
+function toContributorFragment(row): ContributorFragment {
+  return {
+    id: row["contributor_id"].toString(),
+    name: row["name"],
+    login: row["login"],
+    email: row["email"]
+  }
+}
+
+function selectFromContributor() {
+  return buildSelect()
+    .select("contributor_id, login, name, email")
+    .from("contributor")
+}
+
+// --
+// -- Create
+// --
 
 export async function createContributor(loader: CargoLoader, newFrag: NewContributorFragment) {
   let cn = await getDbConnection()
@@ -66,6 +72,10 @@ export async function createContributor(loader: CargoLoader, newFrag: NewContrib
     markAs: "created"
   })
 }
+
+// --
+// -- Update
+// --
 
 export async function updateContributor(loader: CargoLoader, updFrag: UpdContributorFragment) {
   let cn = await getDbConnection()
@@ -87,6 +97,22 @@ export async function updateContributor(loader: CargoLoader, updFrag: UpdContrib
   })
 
   await cn.run(sql.toSql())
+}
+
+// --
+// -- Delete
+// --
+
+export async function deleteContributor(loader: CargoLoader, frag: ContributorIdFragment) {
+  let cn = await getDbConnection()
+
+  let sql = buildDelete()
+    .deleteFrom("contributor")
+    .where("contributor_id", int(frag.id))
+
+  await cn.run(sql.toSql())
+
+  loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
 }
 
 // --

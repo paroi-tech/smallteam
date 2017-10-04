@@ -1,10 +1,10 @@
 import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { fetchContributors, queryContributors, createContributor, updateContributor, reorderAffectedContributors } from "./dbqueries/queryContributor"
+import { fetchContributors, queryContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor } from "./dbqueries/queryContributor"
 import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
 import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasks, reorderChildTasks, deleteTask } from "./dbqueries/queryTask"
-import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes } from "./dbqueries/queryStepType"
+import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes, deleteStepType } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
 import { queryComments, createComment, updateComment, deleteComment, fetchComments } from "./dbqueries/queryComment"
@@ -78,6 +78,8 @@ async function executeCommandContributor(data, loader: CargoLoader) {
     await createContributor(loader, data.frag)
   else if (data.cmd === "update")
     await updateContributor(loader, data.frag)
+  else if (data.cmd === "delete")
+    await deleteContributor(loader, data.frag)
   else if (data.cmd === "reorder" && data.groupName === "affectedTo")
     await reorderAffectedContributors(loader, data.idList, data.groupId)
   else
@@ -109,6 +111,8 @@ async function executeCommandStepType(data, loader: CargoLoader) {
     await createStepType(loader, data.frag)
   else if (data.cmd === "update")
     await updateStepType(loader, data.frag)
+  else if (data.cmd === "delete")
+    await deleteStepType(loader, data.frag)
   else if (data.cmd === "reorder")
     await reorderStepTypes(loader, data.idList)
   else

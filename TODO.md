@@ -4,7 +4,6 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
-  - In `TaskFragment`, add a field `commentCount`
   - Implement async TaskModel.logEntries()
   - Implement methods whoUse
   - Add a boolean "processing" on each model
@@ -27,6 +26,7 @@ the time, so I can't use JIRA.
 - In `TaskBox`:
   - Show the contributors affected to the task
   - Show the flags for the task
+  - Show the field `commentCount`
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
@@ -77,5 +77,6 @@ the time, so I can't use JIRA.
   - Implement TaskModel.affectedTo (list)
   - Implement TaskModel.flags (list)
   - Implement async TaskModel.getComments()
+  - In `TaskFragment`, add a field `commentCount`
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
