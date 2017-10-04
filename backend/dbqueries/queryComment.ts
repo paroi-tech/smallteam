@@ -74,6 +74,8 @@ export async function createComment(loader: CargoLoader, newFrag: NewCommentFrag
     asResult: "fragment",
     markAs: "created"
   })
+
+  markTaskAsUpdated(loader, newFrag.taskId)
 }
 
 // --
@@ -108,6 +110,8 @@ export async function updateComment(loader: CargoLoader, updFrag: UpdCommentFrag
 // --
 
 export async function deleteComment(loader: CargoLoader, frag: CommentIdFragment) {
+  await markTaskAsUpdatedFromComment(loader, frag.id)
+
   let cn = await getDbConnection()
 
   let sql = buildDelete()
@@ -117,4 +121,31 @@ export async function deleteComment(loader: CargoLoader, frag: CommentIdFragment
   await cn.run(sql.toSql())
 
   loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
+}
+
+async function markTaskAsUpdatedFromComment(loader: CargoLoader, commentId: string) {
+  let cn = await getDbConnection()
+
+  let sql = buildSelect()
+    .select("task_id")
+    .from("comment")
+    .where("comment_id", int(commentId))
+
+  let rs = await cn.all(sql.toSql())
+
+  if (rs.length === 1) {
+    let taskId = rs[0]["task_id"].toString()
+    markTaskAsUpdated(loader, taskId)
+  }
+}
+
+/**
+ * Updated field 'commentCount'
+ */
+function markTaskAsUpdated(loader: CargoLoader, taskId: string) {
+  loader.addFragment({
+    type: "Task",
+    id: taskId,
+    markAs: "updated"
+  })
 }

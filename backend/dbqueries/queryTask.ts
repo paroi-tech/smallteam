@@ -71,11 +71,13 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
 
 function selectFromTask() {
   return buildSelect()
-    .select("t.task_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num")
+    .select("t.task_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num, count(m.comment_id) as comment_count")
     .from("task t")
     .innerJoin("step s", "on", "t.cur_step_id = s.step_id")
     .leftJoin("task_description d", "using", "task_id")
     .leftJoin("task_child c", "using", "task_id")
+    .leftJoin("comment m", "using", "task_id")
+    .groupBy("t.task_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num")
 }
 
 function toTaskFragment(row): TaskFragment {
@@ -87,7 +89,8 @@ function toTaskFragment(row): TaskFragment {
     curStepId: row["cur_step_id"].toString(),
     projectId: row["project_id"].toString(),
     createTs: row["create_ts"],
-    updateTs: row["update_ts"]
+    updateTs: row["update_ts"],
+    commentCount: row["comment_count"] || undefined
   }
   if (row["parent_task_id"] !== null)
     frag.parentTaskId = row["parent_task_id"].toString()

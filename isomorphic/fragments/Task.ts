@@ -14,6 +14,7 @@ export interface TaskFragment {
   readonly updateTs: number
   affectedToIds?: string[]
   flagIds?: string[]
+  readonly commentCount?: number
 }
 
 export const taskMeta: FragmentMeta = {
@@ -69,6 +70,10 @@ export const taskMeta: FragmentMeta = {
       dataType: "string[]",
       optional: true,
       update: true
+    },
+    commentCount: {
+      dataType: "number",
+      optional: true
     }
   },
   orderFieldName: "orderNum"

@@ -1,5 +1,5 @@
 import { Type, Identifier } from "../../isomorphic/Cargo"
-import { NewContributorFragment, UpdContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
+import { NewContributorFragment, UpdContributorFragment, ContributorQuery, ContributorIdFragment } from "../../isomorphic/fragments/Contributor"
 import { ContributorModel, registerContributor } from "./Models/ContributorModel"
 import { NewProjectFragment, UpdProjectFragment, ProjectIdFragment, ProjectQuery } from "../../isomorphic/fragments/Project"
 import { ProjectModel, registerProject } from "./Models/ProjectModel"
@@ -7,13 +7,14 @@ import { NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorph
 import { TaskModel, registerTask } from "./Models/TaskModel"
 import { NewStepFragment, StepIdFragment } from "../../isomorphic/fragments/Step"
 import { StepModel, registerStep } from "./Models/StepModel"
-import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
+import { NewStepTypeFragment, UpdStepTypeFragment, StepTypeIdFragment } from "../../isomorphic/fragments/StepType"
 import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import ModelEngine, { CommandType } from "./ModelEngine"
 import { ComponentEvent, Transmitter } from "bkb"
 import { BgCommandManager, BgCommand } from "./BgCommandManager"
 import { NewFlagFragment, UpdFlagFragment, FlagIdFragment } from "../../isomorphic/fragments/Flag"
+import { CommentIdFragment, NewCommentFragment, UpdCommentFragment } from "../../isomorphic/fragments/Comment"
 
 export interface WhoUseItem {
   type: Type,
@@ -23,6 +24,7 @@ export interface WhoUseItem {
 export interface ModelCommandMethods {
   exec(cmd: "create", type: "Contributor", frag: NewContributorFragment): Promise<ContributorModel>
   exec(cmd: "update", type: "Contributor", frag: UpdContributorFragment): Promise<ContributorModel>
+  exec(cmd: "delete", type: "Contributor", frag: ContributorIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
   exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
@@ -37,10 +39,15 @@ export interface ModelCommandMethods {
 
   exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
   exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
+  exec(cmd: "delete", type: "StepType", frag: StepTypeIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Flag", frag: NewFlagFragment): Promise<FlagModel>
   exec(cmd: "update", type: "Flag", frag: UpdFlagFragment): Promise<FlagModel>
   exec(cmd: "delete", type: "Flag", frag: FlagIdFragment): Promise<void>
+
+  exec(cmd: "create", type: "Comment", frag: NewCommentFragment): Promise<FlagModel>
+  exec(cmd: "update", type: "Comment", frag: UpdCommentFragment): Promise<FlagModel>
+  exec(cmd: "delete", type: "Comment", frag: CommentIdFragment): Promise<void>
 
   query(type: "Project", filters: ProjectQuery): Promise<Collection<ProjectModel, string>>
   query(type: "StepType"): Promise<Collection<StepTypeModel, string>>
