@@ -166,6 +166,9 @@ async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, n
       map.set(curTaskId!, curFlagIds)
     }
     curFlagIds!.push(row["flag_id"])
+    // if (!map.has(row["task_id"]))
+    //   map.set(row["task_id"], [])
+    // map.get(row["task_id"])!.push(row["flag_id"])
   }
 
   return map
