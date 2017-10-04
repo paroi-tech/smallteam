@@ -8,7 +8,7 @@
     </div>
   </div>
 
-  <div class="js-collapsible">
+  <div class="StepSwitcherFoldableContent js-foldable">
     <div class="AutoColumns js-boxlist-container"></div>
     <div class="AddTaskPane js-add-task-pane">
       <label>Task name <input class="js-task-name" type="text" minlength="20"></label>

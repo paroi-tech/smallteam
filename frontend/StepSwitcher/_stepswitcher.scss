@@ -17,6 +17,14 @@
       outline: none;
     }
   }
+
+  &FoldableContent {
+    height: 250px;
+    overflow: hidden;
+    transition-duration: 0.5s;
+    transition-property: height;
+    transition-timing-function: linear;
+  }
 }
 
 .AddTaskPane {

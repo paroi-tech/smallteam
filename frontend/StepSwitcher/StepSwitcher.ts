@@ -1,4 +1,3 @@
-import * as $ from "jquery"
 import App from "../App/App"
 import { Dash, Bkb } from "bkb"
 import BoxList, { BoxListParams, BoxEvent, BoxListEvent } from "../BoxList/BoxList"
@@ -10,6 +9,8 @@ import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
 import { render } from "monkberry"
 
 import * as template from "./stepswitcher.monk"
+
+const foldableContentHeight = "250px"
 
 /**
  * Component used to display a task and its children (subtasks).
@@ -29,7 +30,9 @@ export default class StepSwitcher {
   private addTaskBtnEl: HTMLButtonElement
   private addTaskSpinnerEl: HTMLElement
   private busyIndicatorEl: HTMLElement
-  private collapsibleEl: HTMLElement
+  private foldableEl: HTMLElement
+  private toggleBtnEl: HTMLButtonElement
+  private closeBtnEl: HTMLButtonElement
   private boxListContainerEl: HTMLElement
   private addTaskPane: HTMLElement
 
@@ -70,9 +73,11 @@ export default class StepSwitcher {
     this.addTaskBtnEl = el.querySelector(".js-add-task-button") as HTMLButtonElement
     this.addTaskSpinnerEl = el.querySelector(".js-add-task-button .fa-spinner") as HTMLElement
     this.busyIndicatorEl = el.querySelector(".js-indicator") as HTMLElement
-    this.collapsibleEl = el.querySelector(".js-collapsible") as HTMLElement
+    this.foldableEl = el.querySelector(".js-foldable") as HTMLElement
     this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
     this.addTaskPane = el.querySelector(".js-add-task-pane") as HTMLElement
+    this.toggleBtnEl = el.querySelector(".js-toggle-btn") as HTMLButtonElement
+    this.closeBtnEl = el.querySelector(".js-close-btn") as HTMLButtonElement
 
     this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
     this.taskNameEl.onkeyup = ev => {
@@ -82,27 +87,31 @@ export default class StepSwitcher {
 
     // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
-    let toggleBtn = el.querySelector(".js-toggle-btn") as HTMLButtonElement
-    let closeBtn = el.querySelector(".js-close-btn") as HTMLButtonElement
     let titleEl = el.querySelector(".js-title") as HTMLElement
-
     titleEl.textContent = title
-    closeBtn.innerHTML = "&#10060;" // FIXME: Find a way to avoid this
-    toggleBtn.innerHTML = "&#9650;" // FIXME: Find a way to avoid this
 
-    toggleBtn.addEventListener("click", ev => {
-      toggleBtn.innerHTML = this.collapsibleElVisible ? "&#9660;" : "&#9650;"
-      $(this.collapsibleEl).slideToggle()
-      this.collapsibleElVisible = !this.collapsibleElVisible
-    })
-
-    closeBtn.addEventListener("click", ev => {
+    this.closeBtnEl.innerHTML = "&#10060;" // FIXME: Find a way to avoid the use of innerHTML
+    this.toggleBtnEl.innerHTML = "&#9650;" // FIXME: Find a way to avoid the use of innerHTML
+    this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
+    this.closeBtnEl.addEventListener("click", ev => {
       // We can't hide the rootTask StepSwitcher
       if (this.parentTask.id !== this.project.rootTaskId)
         this.setVisible(false)
     })
 
     return el
+  }
+
+  private toggleFoldableContent() {
+    // FIXME: Find a better way than setting the content height to use transition.
+    if (this.collapsibleElVisible) {
+      this.toggleBtnEl.innerHTML = "&#9660;"
+      this.foldableEl.style.height = "0px"
+    } else {
+      this.toggleBtnEl.innerHTML = "&#9650;"
+      this.foldableEl.style.height = foldableContentHeight
+    }
+    this.collapsibleElVisible = !this.collapsibleElVisible
   }
 
   /**
@@ -424,8 +433,8 @@ export default class StepSwitcher {
    * @param showBusyIcon Indicate if the busy icon should be hidden
    */
   public enable(showBusyIcon: boolean = false) {
-    this.collapsibleEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
-    this.collapsibleEl.style.opacity = "1.0"
+    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
+    this.foldableEl.style.opacity = "1.0"
     if (showBusyIcon)
       this.hideBusyIcon()
   }
@@ -436,8 +445,8 @@ export default class StepSwitcher {
    * @param showBusyIcon Indicate if the busy should be shown
    */
   public disable(showBusyIcon: boolean = false) {
-    this.collapsibleEl.style.pointerEvents = this.el.style.pointerEvents = "none"
-    this.collapsibleEl.style.opacity = "0.4"
+    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
+    this.foldableEl.style.opacity = "0.4"
     if (showBusyIcon)
       this.showBusyIcon()
   }
