@@ -27,7 +27,8 @@ export const flagMeta: FragmentMeta = {
       update: true,
       optional: true
     }
-  }
+  },
+  orderFieldName: "orderNum"
 }
 
 export type NewFlagFragment = Pick<FlagFragment, "label" | "color" | "orderNum">

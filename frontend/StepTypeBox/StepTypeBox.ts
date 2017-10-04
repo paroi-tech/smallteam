@@ -23,8 +23,6 @@ export default class StepTypeBox implements Box {
   private view: MonkberryView
 
   constructor(private dash: Dash<App>, readonly stepType: StepTypeModel) {
-    let $container = $(template)
-
     this.id = this.stepType.id
 
     this.view = render(template, document.createElement("div"))

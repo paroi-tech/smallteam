@@ -142,7 +142,7 @@ export async function reorderFlags(loader: CargoLoader, idList: string[]) {
   for (let idStr of idList) {
     let id = int(idStr),
       oldNum = oldNums.get(id)
-    if (oldNum !== undefined && ++curNum !== oldNum) {
+    if (++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
       loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
     }

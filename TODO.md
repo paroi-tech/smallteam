@@ -17,6 +17,7 @@ the time, so I can't use JIRA.
 - Refactoring in the backend, for the reordering
 
 # Lionel
+
 - Implement a new component `BackgroundCommandManager`
 - Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - In `TaskForm`:
@@ -34,6 +35,12 @@ the time, so I can't use JIRA.
 - For each form:
   - Disable the submit button until there are any changes
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
+
+# Thomas or Lionel
+
+- Connection:
+  - Chromium ask for saving password => find a solution
+  - Use a session token
 
 # Lionel - DONE
 - Do not hide any existing StepSwitcher by default
