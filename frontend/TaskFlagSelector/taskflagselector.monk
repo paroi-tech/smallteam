@@ -1,0 +1,7 @@
+<div class="TaskFlagSelector">
+  <header class="TaskFlagSelector-header js-header">
+    Flags &nbsp;
+    <span class="js-busy-icon fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
+  </header>
+  <ul class="TaskFlagSelector-ul"></ul>
+</div>

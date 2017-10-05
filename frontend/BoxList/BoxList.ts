@@ -1,5 +1,4 @@
 import { Dash } from "bkb"
-import TaskBox from "../TaskBox/TaskBox"
 import App from "../App/App"
 import * as Sortable from "sortablejs"
 import { render } from "monkberry"
@@ -76,7 +75,7 @@ export default class BoxList<T extends Box> {
   private sortable: Sortable
 
   // Map storing boxes of the list.
-  private boxes: Map<string, HTMLElement> = new Map()
+  private boxes = new Map<string, HTMLElement>()
 
   /**
    * Create a new empty BoxList.

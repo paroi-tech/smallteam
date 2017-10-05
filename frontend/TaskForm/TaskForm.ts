@@ -2,6 +2,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import { Model, TaskModel } from "../AppModel/AppModel"
+import TaskFlagSelector from "../TaskFlagSelector/TaskFlagSelector"
 import * as MonkBerry from "monkberry"
 
 import * as template  from "./taskform.monk"
@@ -17,10 +18,13 @@ export default class TaskForm {
   private descriptionEl: HTMLTextAreaElement
   private submitSpinnerEl: HTMLElement
   private deleteSpinnerEl: HTMLElement
+  private flagSelectorContainerEl: HTMLElement
 
   private view: MonkberryView
   private task: TaskModel | undefined = undefined
   private model: Model
+
+  private flagSelector: TaskFlagSelector
 
   /**
    * Create a new TaskForm.
@@ -28,6 +32,8 @@ export default class TaskForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
+    this.flagSelector = this.dash.create(TaskFlagSelector)
+    this.flagSelectorContainerEl.appendChild(this.flagSelector.el)
   }
 
   /**
@@ -42,6 +48,7 @@ export default class TaskForm {
     this.descriptionEl = el.querySelector(".js-task-description") as HTMLTextAreaElement
     this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
     this.deleteSpinnerEl = el.querySelector(".js-delete-spinner") as HTMLElement
+    this.flagSelectorContainerEl = el.querySelector(".js-fselector-container") as HTMLElement
 
     let submitBtn = el.querySelector(".js-submit-button") as HTMLButtonElement
     submitBtn.addEventListener("click", ev => this.updateTask())
@@ -88,6 +95,7 @@ export default class TaskForm {
       description: task.description || "",
       label: task.label
     })
+    this.flagSelector.setTask(task)
   }
 
   private async deleteTask() {
@@ -158,5 +166,6 @@ export default class TaskForm {
       description: "",
       label: ""
     })
+    this.flagSelector.setTask(undefined)
   }
 }

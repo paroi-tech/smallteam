@@ -33,7 +33,6 @@ export default class TaskBox implements Box {
   constructor(private dash: Dash<App>, readonly task: TaskModel) {
     this.id = this.task.id
     this.model = this.dash.app.model
-    console.log(this.model.global.flags)
 
     this.view = render(template, document.createElement("div"))
     this.el = this.view.nodes[0] as HTMLElement
@@ -49,26 +48,18 @@ export default class TaskBox implements Box {
   }
 
   private addFlags() {
-    if (!this.task.flagIds) {
-      console.log("no flag for task", this.task.label)
+    if (!this.task.flagIds)
       return
-    }
-    console.log("task flags", this.task.flagIds)
+
     for (let flagId of this.task.flagIds) {
       let flag = this.model.global.flags.get(flagId)
       if (flag) {
-        console.log("got flag")
         let flagComp = this.dash.create(TaskFlagComponent, flag)
         this.flagContainerLeftEl.appendChild(flagComp.el)
       }
     }
   }
 
-  /**
-   * Listen to events from model.
-   * The following events are handled:
-   *  - Task update
-   */
   private listenToModel() {
     // Task update.
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
@@ -76,11 +67,18 @@ export default class TaskBox implements Box {
       if (task.id === this.task.id)
         this.spanEl.textContent = task.label
     })
+
+    // Flag added to Task.
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createTaskFlag").onData(data => {
+      // TODO: Implement this.
+    })
+
+    // Flag removed from Task.
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTaskFlag").onData(data => {
+      // TODO: Implement this.
+    })
   }
 
-  /**
-   * Add or remove focus from the TaskBox.
-   */
   public setWithFocus(focus: boolean) {
     if (focus)
       this.el.classList.add("focus")

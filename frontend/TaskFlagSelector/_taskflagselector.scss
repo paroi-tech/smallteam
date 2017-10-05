@@ -1,0 +1,16 @@
+.TaskFlagSelector {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 5px;
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  padding: 5px;
+
+  &-header {
+    font-weight: bold;
+    margin-bottom: 5px;
+  }
+
+  &-li {
+    align-items: baseline;
+    display: flex;
+  }
+}
