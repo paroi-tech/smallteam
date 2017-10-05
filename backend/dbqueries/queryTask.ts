@@ -31,7 +31,7 @@ export async function queryTasks(loader: CargoLoader, filters: TaskQuery) {
   if (filters.description)
     sql.andWhere("d.description", filters.description)
   let rs = await cn.all(sql.toSql())
-  addDependenciesTo(rs)
+  await addDependenciesTo(rs)
   for (let row of rs) {
     let frag = toTaskFragment(row)
     loader.addFragment({
@@ -48,7 +48,7 @@ export async function fetchProjectTasks(loader: CargoLoader, projectIdList: numb
   sql.where("s.project_id", "in", projectIdList)
   //sql.andWhere("s.step_type_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
   let rs = await cn.all(sql.toSql())
-  addDependenciesTo(rs)
+  await addDependenciesTo(rs)
   for (let row of rs) {
     let frag = toTaskFragment(row)
     loader.modelUpdate.addFragment("Task", frag.id, frag)
@@ -62,7 +62,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   let sql = selectFromTask()
     .where("t.task_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
-  addDependenciesTo(rs)
+  await addDependenciesTo(rs)
   for (let row of rs) {
     let data = toTaskFragment(row)
     loader.modelUpdate.addFragment("Task", data.id, data)
