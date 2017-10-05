@@ -16,6 +16,9 @@ the time, so I can't use JIRA.
 - Refactoring in the backend, for the reordering
 
 # Lionel
+- On task update, update the flags shown in TaskBox
+- On Flag reordering, reorder checkboxes in TaskFlagSelector
+- Implement flag adding/removing in TaslFlagSelector
 - Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task

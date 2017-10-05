@@ -80,7 +80,7 @@ export default class TaskForm {
     })
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
       if (this.task && this.task.id === data.id)
-        this.setTask(data.model) // Refresh the panel, lazy way :)
+        this.setTask(data.model) // Refresh the form, lazy way :)
     })
   }
 
