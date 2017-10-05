@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "sass": "node-sass --recursive --source-map-embed --output-style expanded frontend/ -o www-server/www/",
-    "sass:watch": "node-sass --watch --recursive --source-map-embed --output-style expanded frontend/ -o www-server/www/",
+    "_sass:watch": "node-sass --watch --recursive --source-map-embed --output-style expanded frontend/ -o www-server/www/",
+    "sass:watch": "run-s sass _sass:watch",
     "webpack": "webpack --config frontend/webpack.config.js",
     "webpack:watch": "webpack --watch --config frontend/webpack.config.js",
     "backend-tsc": "tsc --project backend/",
