@@ -16,12 +16,10 @@ the time, so I can't use JIRA.
 - Refactoring in the backend, for the reordering
 
 # Lionel
-
 - Implement a new component `BackgroundCommandManager`
-- Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
-  - Show, Add, remove the flags for the task
+  - Show, Add, remove the flags for the task (Use BoxList)
   - Show, Add, update, remove comments
 - In `TaskBox`:
   - Show the contributors affected to the task
@@ -43,6 +41,7 @@ the time, so I can't use JIRA.
   - Use a session token
 
 # Lionel - DONE
+- Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - Do not hide any existing StepSwitcher by default
 - Contributor (form, management, backend queries)
 - Refactoring in WorkspaceViewer (with Thomas)
