@@ -6,9 +6,6 @@ import { render } from "monkberry"
 import * as template from "./steptypeform.monk"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
 
-/**
- * Component used to create and update step types.
- */
 export default class StepTypeForm {
   readonly el: HTMLElement
 
@@ -43,9 +40,6 @@ export default class StepTypeForm {
     this.listenToModel()
   }
 
-  /**
-   * Create StepTypeForm HTML elements.
-   */
   private createHtmlElements() {
     this.view = render(template, document.createElement("div"))
 
@@ -62,9 +56,6 @@ export default class StepTypeForm {
     return el
   }
 
-  /**
-   * Create DropDownMenu subcomponent.
-   */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, "right")
     this.dropdownMenu.addItem({
@@ -74,9 +65,6 @@ export default class StepTypeForm {
     this.menuContainerEl.appendChild(this.dropdownMenu.el)
   }
 
-  /**
-   * Listen to events from child components.
-   */
   private listenToChildren() {
     this.dash.listenTo(this.dropdownMenu, "select").onData(itemId => {
       if (itemId === "deleteCurrentStepType")
@@ -84,9 +72,6 @@ export default class StepTypeForm {
     })
   }
 
-  /**
-   * Listen to events from model.
-   */
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStepType").onData(data => {
       if (this.stepType && this.stepType.id === data.id)
@@ -94,9 +79,6 @@ export default class StepTypeForm {
     })
   }
 
-  /**
-   * Add event handlers to events from the form fields.
-   */
   private listenToForm() {
     // Submit button click.
     this.submitButtonEl.addEventListener("click", ev => {
@@ -128,27 +110,13 @@ export default class StepTypeForm {
     })
   }
 
-  /**
-   * Fill the fields of the form with data from a step type.
-   *
-   * @param stepType - the step type to show in the form
-   */
   public setStepType(stepType: StepTypeModel) {
     this.clear()
     this.stepType = stepType
     this.fillFieldsWithCurrentStepType()
   }
 
-  /**
-   * Update the current step type in the model.
-   *
-   * If the update fails, the old name of the step type is kept back
-   *
-   * @param newName - the new name of the step type
-   */
   private async updateStepType(newName: string) {
-    // The stepType attribute can't be undefined in this function, but since its type is
-    // StepTypeModel | undefined, we have to do this control, or else the TS compiler won't be happy.
     if (!this.stepType)
       return
     this.submitButtonSpinnerEl.style.display = "inline"
@@ -168,35 +136,25 @@ export default class StepTypeForm {
     this.submitButtonSpinnerEl.style.display = "none"
   }
 
-  /**
-   * Delete the form current StepType.
-   */
   private async deleteCurrentStepType() {
     if (!this.stepType)
       return
-    console.warn("StepType deletion is not implemented...")
-    // try {
-    //   let w = await this.stepType.whoUse()
-    //   if (w.length !== 0)
-    //     return
-    //   await this.model.exec("delete", "StepType", { id: this.stepType.id })
-    // } catch (error) {
-    //   console.log(`Error while deleting StepType with ID: ${this.stepType.id} in StepTypeForm`)
-    // }
+    try {
+      let w = await this.stepType.whoUse()
+      if (w.length !== 0) {
+        alert("Can't delete step type.")
+        return
+      }
+      await this.model.exec("delete", "StepType", { id: this.stepType.id })
+    } catch (error) {
+      console.log(`Error while deleting StepType with ID ${this.stepType.id}`)
+    }
   }
 
-  /**
-   * Return the StepTypeModel the form is currently working on.
-   */
   get currentStepType(): StepTypeModel | undefined {
     return this.stepType
   }
 
-  /**
-   * Reset the component state.
-   *
-   * Its fields are reinitialized and the embedded step type is set to `undefined`.
-   */
   public clear() {
     this.stepType = undefined
     this.clearFields()
@@ -211,9 +169,6 @@ export default class StepTypeForm {
       })
   }
 
-  /**
-   * Reset the fields in the form.
-   */
   private clearFields() {
     this.view.update({
       name: "",
