@@ -4,7 +4,8 @@
   "description": "",
   "scripts": {
     "sass": "node-sass --recursive --source-map-embed --output-style expanded frontend/ -o www-server/www/",
-    "sass:watch": "node-sass --watch --recursive --source-map-embed --output-style expanded frontend/ -o www-server/www/",
+    "_sass:watch": "node-sass --watch --recursive --source-map-embed --output-style expanded frontend/ -o www-server/www/",
+    "sass:watch": "run-s sass _sass:watch",
     "webpack": "webpack --config frontend/webpack.config.js",
     "webpack:watch": "webpack --watch --config frontend/webpack.config.js",
     "backend-tsc": "tsc --project backend/",
@@ -13,9 +14,9 @@
     "server:watch": "nodemon --watch www-server/backend --watch www-server/isomorphic www-server/backend/",
     "build": "run-s sass webpack backend-tsc",
     "_server:wait": "just-wait -p \"www-server/backend/index.js\" -d 500",
-    "_server:wait-watch": "run-s _server:wait server:watch",
+    "_server:wait-then-watch": "run-s _server:wait server:watch",
     "_server:tsc-run": "run-s backend-tsc server:run",
-    "watch": "run-p sass:watch webpack:watch backend-tsc:watch _server:wait-watch",
+    "watch": "run-p sass:watch webpack:watch backend-tsc:watch _server:wait-then-watch",
     "watch:light": "run-p sass:watch webpack:watch _server:tsc-run"
   },
   "repository": {
