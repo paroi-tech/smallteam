@@ -3,8 +3,10 @@ the time, so I can't use JIRA.
 
 # Thomas
 
+- In the backend, keep the session and associate a contributorId (string)
+  - Call logStepChange()
+    - Lionel: Add a button "Log" in the task form
 - In the Model:
-  - Implement async TaskModel.logEntries()
   - Implement methods whoUse
   - Add a boolean "processing" on each model
     - Lionel: disable forms for the models in processing
@@ -13,7 +15,7 @@ the time, so I can't use JIRA.
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - Deploy the project on the Web server
 - Keep HKMap?
-- Refactoring in the backend, for the reordering
+- Refactoring in the backend, one code for all the reordering
 
 # Lionel
 - On task update, update the flags shown in TaskBox
@@ -80,5 +82,6 @@ the time, so I can't use JIRA.
   - Implement TaskModel.flags (list)
   - Implement async TaskModel.getComments()
   - In `TaskFragment`, add a field `commentCount`
+  - Implement async TaskModel.logEntries()
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid

@@ -29,3 +29,5 @@ export const taskLogEntryMeta: FragmentMeta = {
     }
   }
 }
+
+export type TaskLogEntryQuery = Pick<TaskLogEntryFragment, "taskId">

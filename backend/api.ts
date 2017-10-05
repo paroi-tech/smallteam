@@ -8,6 +8,7 @@ import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorder
 import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
 import { queryComments, createComment, updateComment, deleteComment, fetchComments } from "./dbqueries/queryComment"
+import { queryTaskLogEntries, fetchTaskLogEntries } from "./dbqueries/queryTaskLogEntry"
 
 export async function routeQuery(data): Promise<Cargo> {
   let loader = new CargoLoader()
@@ -40,7 +41,8 @@ const queries = {
   StepType: queryStepTypes,
   Flag: queryFlags,
   Contributor: queryContributors,
-  Comment: queryComments
+  Comment: queryComments,
+  TaskLogEntry: queryTaskLogEntries
 }
 
 async function executeQuery(data, loader: CargoLoader) {
@@ -168,5 +170,6 @@ async function completeCargo(loader: CargoLoader) {
     await fetchFlags(loader, loader.modelUpdate.getNeededFragments("Flag") as any)
     await fetchContributors(loader, loader.modelUpdate.getNeededFragments("Contributor") as any)
     await fetchComments(loader, loader.modelUpdate.getNeededFragments("Comment") as any)
+    await fetchTaskLogEntries(loader, loader.modelUpdate.getNeededFragments("TaskLogEntry") as any)
   }
 }

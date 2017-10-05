@@ -6,7 +6,9 @@ import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
 import { Collection } from "../modelDefinitions"
 import { CommentModel } from "./CommentModel"
-import { CommentQuery } from "../../../isomorphic/fragments/Comment";
+import { CommentQuery } from "../../../isomorphic/fragments/Comment"
+import { TaskLogEntryModel } from "./TaskLogEntryModel"
+import { TaskLogEntryQuery } from "../../../isomorphic/fragments/TaskLogEntry"
 
 export interface TaskModel extends TaskFragment {
   readonly project: ProjectModel
@@ -17,7 +19,7 @@ export interface TaskModel extends TaskFragment {
   affectedTo?: Collection<ContributorModel, string>
   flags?: Collection<FlagModel, string>
   getComments(): Promise<Collection<CommentModel, string>>
-  // getLogEntries: TaskLogEntryModel[] // => TODO: Async load
+  getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
   // getAttachments(): Promise<Attachment[]>
 }
 
@@ -67,8 +69,13 @@ export function registerTask(engine: ModelEngine) {
         return engine.query("Comment", {
           taskId: getFrag().id
         } as CommentQuery)
+      },
+      getLogEntries(): Promise<Collection<TaskLogEntryModel, string>> {
+        return engine.query("TaskLogEntry", {
+          taskId: getFrag().id
+        } as TaskLogEntryQuery)
       }
-    }
+    } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)
     return model as any
   })
