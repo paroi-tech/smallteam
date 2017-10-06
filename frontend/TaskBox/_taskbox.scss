@@ -1,6 +1,6 @@
 .TaskBox {
   font-style: italic;
-
+  min-width: 150px;
 }
 
 .FlagContainer {
@@ -17,6 +17,9 @@
   }
 
   &-right {
+    align-items: baseline;
+    display: flex;
+    justify-content: flex-end;
     width: 40%;
   }
 }

@@ -2,6 +2,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
 import TaskFlag from "../TaskFlag/TaskFlag"
+import ContributorFlag from "../ContributorFlag/ContributorFlag"
 import { Model, TaskModel } from "../AppModel/AppModel"
 import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
 import { render } from "monkberry"
@@ -20,7 +21,8 @@ export default class TaskBox implements Box {
   readonly id: string
 
   private spanEl: HTMLElement
-  private flagContainerLeftEl: HTMLElement
+  private flagContainerEl: HTMLElement
+  private contributorContainerEl: HTMLElement
 
   private view: MonkberryView
 
@@ -41,14 +43,28 @@ export default class TaskBox implements Box {
     this.spanEl = this.el.querySelector(".js-span") as HTMLElement
     this.spanEl.textContent = this.task.label
 
-    this.flagContainerLeftEl = this.el.querySelector(".js-container-left") as HTMLElement
+    this.flagContainerEl = this.el.querySelector(".js-container-left") as HTMLElement
+    this.contributorContainerEl = this.el.querySelector(".js-container-right") as HTMLElement
 
-    this.addFlags()
+    this.addTaskFlags()
+    this.addContributorFlags()
     this.listenToModel()
     this.el.addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))
   }
 
-  private addFlags() {
+  private addContributorFlags() {
+    if (!this.task.affectedToIds)
+      return
+    for (let contributorId of this.task.affectedToIds) {
+      let contributor = this.model.global.contributors.get(contributorId)
+      if (contributor) {
+        let comp = this.dash.create(ContributorFlag, contributor)
+        this.contributorContainerEl.appendChild(comp.el)
+      }
+    }
+  }
+
+  private addTaskFlags() {
     if (!this.task.flagIds)
       return
 
@@ -56,7 +72,7 @@ export default class TaskBox implements Box {
       let flag = this.model.global.flags.get(flagId)
       if (flag) {
         let flagComp = this.dash.create(TaskFlag, flag)
-        this.flagContainerLeftEl.appendChild(flagComp.el)
+        this.flagContainerEl.appendChild(flagComp.el)
       }
     }
   }
@@ -68,8 +84,8 @@ export default class TaskBox implements Box {
       if (task.id === this.task.id) {
         this.spanEl.textContent = task.label
         // Update the flags.
-        removeAllChildren(this.flagContainerLeftEl)
-        this.addFlags()
+        removeAllChildren(this.flagContainerEl)
+        this.addTaskFlags()
       }
     })
 
@@ -78,10 +94,10 @@ export default class TaskBox implements Box {
       if (data.type !== "Flag")
         return
       console.log("taskbox got reorder event")
-      console.log("number of flags:", this.flagContainerLeftEl.childNodes.length)
-      removeAllChildren(this.flagContainerLeftEl)
-      console.log("number of flags:", this.flagContainerLeftEl.childNodes.length)
-      this.addFlags()
+      console.log("number of flags:", this.flagContainerEl.childNodes.length)
+      removeAllChildren(this.flagContainerEl)
+      console.log("number of flags:", this.flagContainerEl.childNodes.length)
+      this.addTaskFlags()
     })
   }
 

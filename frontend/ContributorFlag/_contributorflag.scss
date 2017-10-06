@@ -1,8 +1,16 @@
 .ContributorFlag {
-  color: white;
-  background-color: royalblue;
-  height: 20px;
+  border: 2px solid transparent;
+  vertical-align: middle;
+}
+
+.ContributorFlagContent {
+  background-color: #05237E;
+  border-radius: 2px;
+  color: burlywood;
+  font-family: monospace;
+  font-style: normal;
+  font-weight: bold;
+  padding: 2px 4px;
   text-align: center;
   vertical-align: middle;
-  width: 20px;
 }

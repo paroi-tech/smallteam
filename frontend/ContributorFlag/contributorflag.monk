@@ -1,1 +1,3 @@
-<span class="ContributorFlag"></span>
+<span class="ContributorFlag">
+  <span class="ContributorFlagContent js-content"></span>
+</span>
