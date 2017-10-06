@@ -250,26 +250,26 @@ async function getDefaultOrderNum(parentTaskId: number) {
 export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) {
   let cn = await getDbConnection()
 
-  let values = toSqlValues(updFrag, updTaskMeta, "exceptId")
-  if (values === null)
-    return
-
   let taskId = int(updFrag.id)
 
-  let sql = buildUpdate()
-    .update("task")
-    .set(values)
-    .where("task_id", taskId)
-  await cn.run(sql.toSql())
+  let values = toSqlValues(updFrag, updTaskMeta, "exceptId")
+  if (values !== null) {
+
+    let sql = buildUpdate()
+      .update("task")
+      .set(values)
+      .where("task_id", taskId)
+    await cn.run(sql.toSql())
+  }
 
   if (updFrag.description !== undefined)
-    updateTaskDescription(taskId, updFrag.description)
+    await updateTaskDescription(taskId, updFrag.description)
 
   if (updFrag.affectedToIds)
-    updateTaskAffectedToContributors(taskId, updFrag.affectedToIds)
+    await updateTaskAffectedToContributors(taskId, updFrag.affectedToIds)
 
   if (updFrag.flagIds)
-    updateTaskflags(taskId, updFrag.flagIds)
+    await updateTaskflags(taskId, updFrag.flagIds)
 
   loader.addFragment({
     type: "Task",
