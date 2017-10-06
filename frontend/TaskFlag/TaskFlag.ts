@@ -4,9 +4,9 @@ import { Model, FlagModel } from "../AppModel/AppModel"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
 import { render } from "monkberry"
 
-import * as template from "./taskflagcomponent.monk"
+import * as template from "./taskflag.monk"
 
-export default class TaskFlagComponent {
+export default class TaskFlag {
   readonly el: HTMLElement
 
   private view: MonkberryView

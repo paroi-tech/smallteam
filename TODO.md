@@ -18,9 +18,6 @@ the time, so I can't use JIRA.
 - Refactoring in the backend, one code for all the reordering
 
 # Lionel
-- On task update, update the flags shown in TaskBox
-- On Flag reordering, reorder checkboxes in TaskFlagSelector
-- Implement flag adding/removing in TaslFlagSelector
 - Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
@@ -46,6 +43,9 @@ the time, so I can't use JIRA.
   - Use a session token
 
 # Lionel - DONE
+- On task update, update the flags shown in TaskBox
+- On Flag reordering, reorder checkboxes in TaskFlagSelector
+- Implement flag adding/removing in TaskFlagSelector
 - Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - Do not hide any existing StepSwitcher by default
 - Contributor (form, management, backend queries)

@@ -1,34 +1,35 @@
 .BoxList {
   &-ul {
     background-color: darkgray;
-    min-height: 30px;
   }
   &-li {
+    display: flex;
     min-height: 30px;
     padding: 5px 5px 5px 40px;
     position: relative;
+    vertical-align: middle;
   }
 }
 
-.BoxListTitle {
+.BoxList-header {
   @extend .BlockTitle;
   align-items: baseline;
   display: flex;
   flex-direction: row;
   justify-content: space-between;
-  padding: 10px;
 }
 
 .BoxListHandle {
-  background-color: #eee;
+  align-items: center;
+  background-color: aliceblue;
+  border-radius: 2px;
   bottom: 5px;
-  color: dimgray;
-  display: inline-block;
-  font-size: inherit;
+  color: #494545;
+  display: flex;
+  justify-content: center;
   left: 5px;
   position: absolute;
   text-align: center;
-  vertical-align: middle;
   top: 5px;
   width: 30px;
 

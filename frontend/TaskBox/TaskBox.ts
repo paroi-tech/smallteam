@@ -1,10 +1,11 @@
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Box } from "../BoxList/BoxList"
-import TaskFlagComponent from "../TaskFlagComponent/TaskFlagComponent"
+import TaskFlag from "../TaskFlag/TaskFlag"
 import { Model, TaskModel } from "../AppModel/AppModel"
-import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
 import { render } from "monkberry"
+import { removeAllChildren } from "../libraries/utils"
 
 import * as template from "./taskbox.monk"
 
@@ -54,7 +55,7 @@ export default class TaskBox implements Box {
     for (let flagId of this.task.flagIds) {
       let flag = this.model.global.flags.get(flagId)
       if (flag) {
-        let flagComp = this.dash.create(TaskFlagComponent, flag)
+        let flagComp = this.dash.create(TaskFlag, flag)
         this.flagContainerLeftEl.appendChild(flagComp.el)
       }
     }
@@ -64,18 +65,23 @@ export default class TaskBox implements Box {
     // Task update.
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
       let task = data.model as TaskModel
-      if (task.id === this.task.id)
+      if (task.id === this.task.id) {
         this.spanEl.textContent = task.label
+        // Update the flags.
+        removeAllChildren(this.flagContainerLeftEl)
+        this.addFlags()
+      }
     })
 
-    // Flag added to Task.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createTaskFlag").onData(data => {
-      // TODO: Implement this.
-    })
-
-    // Flag removed from Task.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTaskFlag").onData(data => {
-      // TODO: Implement this.
+    // Listen to flag reorder event.
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorder").onData(data => {
+      if (data.type !== "Flag")
+        return
+      console.log("taskbox got reorder event")
+      console.log("number of flags:", this.flagContainerLeftEl.childNodes.length)
+      removeAllChildren(this.flagContainerLeftEl)
+      console.log("number of flags:", this.flagContainerLeftEl.childNodes.length)
+      this.addFlags()
     })
   }
 
