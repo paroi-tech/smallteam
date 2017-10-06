@@ -114,17 +114,19 @@ export default class TaskFlagSelector {
       checkBox.checked = false
 
     this.task = task
-    if (!task || !task.flagIds) {
+    if (!task) {
       this.el.style.pointerEvents = "none"
       return
     }
 
+    this.el.style.pointerEvents = "auto"
+    if (!task.flagIds)
+      return
     for (let flagId of task.flagIds) {
       let checkBox = this.checkBoxes.get(flagId)
       if (checkBox)
       checkBox.checked = true
     }
-    this.el.style.pointerEvents = "auto"
   }
 }
 
