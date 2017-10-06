@@ -1,21 +1,22 @@
 .TaskBox {
   font-style: italic;
 
-  &FlagContainer {
+}
+
+.FlagContainer {
+  align-items: baseline;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+
+  &-left {
     align-items: baseline;
     display: flex;
-    flex-direction: row;
-    justify-content: space-between;
+    justify-content: flex-start;
+    width: 40%;
+  }
 
-    &-left {
-      align-items: baseline;
-      display: flex;
-      justify-content: flex-start;
-      width: 40%;
-    }
-
-    &-right {
-      width: 40%;
-    }
+  &-right {
+    width: 40%;
   }
 }

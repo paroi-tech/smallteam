@@ -1,5 +1,6 @@
 .StepTypeWorkspace {
-  &BoxListContainer, &FormContainer {
+  &-boxListContainer,
+  &-formContainer {
     vertical-align: top;
     display: inline-block;
   }

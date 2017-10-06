@@ -1,14 +1,14 @@
 <section class="StepSwitcher">
-  <div class="StepSwitcherTitle">
+  <div class="StepSwitcher-title BlockTitle">
     <span class="js-title"></span>&nbsp;
     <div>
-      <button class="js-toggle-btn StepSwitcherToggleButton" title="Fold/Unfold"></button>
-      <button class="js-close-btn StepSwitcherCloseButton" title="Hide"></button>
+      <button class="js-toggle-btn StepSwitcher-toggleButton" title="Fold/Unfold"></button>
+      <button class="js-close-btn StepSwitcher-closeButton" title="Hide"></button>
       <span class="js-indicator fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
     </div>
   </div>
 
-  <div class="StepSwitcherFoldableContent js-foldable">
+  <div class="StepSwitcher-foldableContent js-foldable">
     <div class="AutoColumns js-boxlist-container"></div>
     <div class="AddTaskPane js-add-task-pane">
       <label>Task name <input class="js-task-name" type="text" minlength="20"></label>

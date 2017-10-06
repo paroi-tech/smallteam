@@ -1,7 +1,7 @@
 <div class="js-container StepTypeWorkspace">
   <div>
-    <div class="js-boxlist-container StepTypeWorkspaceBoxListContainer"></div>
-    <div class="js-edit-form-container StepTypeWorkspaceFormContainer"></div>
+    <div class="js-boxlist-container StepTypeWorkspace-boxListContainer"></div>
+    <div class="js-edit-form-container StepTypeWorkspace-formContainer"></div>
   </div>
 
   <div class="js-add-form-container">

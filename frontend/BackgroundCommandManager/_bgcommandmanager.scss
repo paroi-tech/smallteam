@@ -1,3 +1,8 @@
+.BgCommandManagerBtn {
+  font-weight: bold;
+  padding: 5px;
+}
+
 .BgCommandManager {
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 6px;
@@ -12,11 +17,6 @@
     right: 0;
     bottom: 0;
     background-color: rgba(0, 0, 0, 0.6);
-  }
-
-  &Btn {
-    font-weight: bold;
-    padding: 5px;
   }
 
   &-header {

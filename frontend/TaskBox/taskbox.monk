@@ -1,7 +1,7 @@
 <div class="TaskBox">
   <span class="js-span"></span>
-  <div class="TaskBoxFlagContainer">
-    <div class="TaskBoxFlagContainer-left js-container-left"></div>
-    <div class="TaskBoxFlagContainer-right"></div>
+  <div class="FlagContainer">
+    <div class="FlagContainer-left js-container-left"></div>
+    <div class="FlagContainer-right"></div>
   </div>
 </div>
