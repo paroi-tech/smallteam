@@ -25,7 +25,7 @@
   &-body {
     grid-area: 2 / 2 / span 1 / span 14;
     min-height: 300px;
-    overflow-y: scroll;
+    overflow-y: auto;
     padding: $vGap2 0;
   }
 }

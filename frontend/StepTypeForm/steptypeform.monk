@@ -1,5 +1,5 @@
 <div class="StepTypeForm">
-  <div class="StepTypeForm-header">
+  <div class="StepTypeForm-header BlockTitle">
     <span>Step type form</span>
     <div class="js-menu-container"></div>
   </div>

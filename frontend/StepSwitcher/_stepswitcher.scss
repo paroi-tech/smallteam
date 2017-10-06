@@ -1,6 +1,5 @@
 .StepSwitcher {
-  &Title {
-    @extend .BlockTitle;
+  &-title {
     align-items: baseline;
     border-top-left-radius: 3px;
     border-top-right-radius: 3px;
@@ -10,7 +9,7 @@
     padding: 3px 5px;
   }
 
-  &ToggleButton, &CloseButton {
+  &-toggleButton, &-closeButton {
     padding: 5px;
     &:focus, &:hover {
       background-color: rgba(255, 255, 255, 0.42);
@@ -18,7 +17,7 @@
     }
   }
 
-  &FoldableContent {
+  &-foldableContent {
     height: 250px;
     overflow: hidden;
     transition-duration: 0.5s;

@@ -1,6 +1,7 @@
 .BoxList {
   &-ul {
     background-color: darkgray;
+    padding-bottom: 20px;
   }
   &-li {
     display: flex;
@@ -12,7 +13,6 @@
 }
 
 .BoxList-header {
-  @extend .BlockTitle;
   align-items: baseline;
   display: flex;
   flex-direction: row;
