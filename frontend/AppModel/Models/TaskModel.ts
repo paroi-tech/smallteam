@@ -1,5 +1,5 @@
 import { TaskFragment } from "../../../isomorphic/fragments/Task"
-import ModelEngine, { appendGettersToModel, toCollection } from "../ModelEngine"
+import ModelEngine, { appendGettersToModel, toCollection, OrderProperties } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
@@ -9,6 +9,7 @@ import { CommentModel } from "./CommentModel"
 import { CommentQuery } from "../../../isomorphic/fragments/Comment"
 import { TaskLogEntryModel } from "./TaskLogEntryModel"
 import { TaskLogEntryQuery } from "../../../isomorphic/fragments/TaskLogEntry"
+import { Type } from "../../../isomorphic/Cargo";
 
 export interface TaskModel extends TaskFragment {
   readonly project: ProjectModel
@@ -78,5 +79,12 @@ export function registerTask(engine: ModelEngine) {
     } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)
     return model as any
+  })
+
+  engine.registerDependency("reorder", "Flag", function (props: OrderProperties) {
+    return {
+      type: "Task" as Type,
+      idList: engine.getAllModels<TaskModel>("Task").filter(task => !!task.flagIds).map(task => task.id)
+    }
   })
 }
