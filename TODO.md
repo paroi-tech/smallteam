@@ -3,9 +3,6 @@ the time, so I can't use JIRA.
 
 # Thomas
 
-- In the backend, keep the session and associate a contributorId (string)
-  - Call logStepChange()
-    - Lionel: Add a button "Log" in the task form
 - In the Model:
   - Implement methods whoUse
   - Add a boolean "processing" on each model
@@ -23,6 +20,7 @@ the time, so I can't use JIRA.
   - Show, Add, remove, reorder the contributors affected to the task
   - Show, Add, remove the flags for the task (Use BoxList)
   - Show, Add, update, remove comments
+  - Add a button "Log" in the task form, and show the task log in a dialog
 - In `TaskBox`:
   - Show the contributors affected to the task
   - Show the flags for the task
@@ -85,3 +83,5 @@ the time, so I can't use JIRA.
   - Implement async TaskModel.logEntries()
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
+- In the backend, keep the session and associate a contributorId (string)
+  - Call logStepChange()
