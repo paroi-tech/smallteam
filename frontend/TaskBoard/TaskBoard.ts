@@ -143,11 +143,7 @@ export default class TaskBoard {
       throw new Error(`Unable to find StepSwitcher with ID ${parentTask.id} in TaskBoard`)
     // We find the task that just come before the current task and which StepSwitcher is displayed.
     // First we retrieve the index of the current task in its parent children array.
-    console.log("parent children: length", parentTask.children.length, parentTask.children)
-    let currentTaskIndex = parentTask.children.findIndex(t => {
-      console.log(`comparing ${t.id}:${t.label} to ${task.id}:${task.label}`)
-      return t.id === task.id
-    })
+    let currentTaskIndex = parentTask.children.findIndex(t => t.id === task.id)
     if (currentTaskIndex < 0)
       throw new Error(`Unable to find task in its parent children: task: ${task.label} parent: ${parentTask.label} `)
     let precedingStepSwitcher: StepSwitcher | undefined = undefined

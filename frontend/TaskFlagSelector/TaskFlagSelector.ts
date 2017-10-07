@@ -39,34 +39,35 @@ export default class TaskFlagSelector {
     return el
   }
 
-  private async toggleFlag(flag: FlagModel): Promise<boolean> {
-    if (!this.task)
-      return false
+  // TODO: Remove this function. It is no more used.
+  // private async toggleFlag(flag: FlagModel): Promise<boolean> {
+  //   if (!this.task)
+  //     return false
 
-    let a = this.task.flagIds ? this.task.flagIds.slice() : []
-    let j = a.findIndex(id => id === flag.id)
-    let result = false
+  //   let a = this.task.flagIds ? this.task.flagIds.slice() : []
+  //   let j = a.findIndex(id => id === flag.id)
+  //   let result = false
 
-    if (j == -1)
-      a.push(flag.id) // Flag is added
-    else
-      a.splice(j, 1) // Flag is removed.
+  //   if (j == -1)
+  //     a.push(flag.id) // Flag is added
+  //   else
+  //     a.splice(j, 1) // Flag is removed.
 
-    let fragment = {
-      id: this.task.id,
-      flagIds: a
-    }
+  //   let fragment = {
+  //     id: this.task.id,
+  //     flagIds: a
+  //   }
 
-    try {
-      await this.model.exec("update", "Task", fragment)
-      result = true
-      console.log("Flag successfully toggled...")
-    } catch (err) {
-      console.error("Sorry, flag not updated")
-    }
+  //   try {
+  //     await this.model.exec("update", "Task", fragment)
+  //     result = true
+  //     console.log("Flag successfully toggled...")
+  //   } catch (err) {
+  //     console.error("Sorry, flag not updated")
+  //   }
 
-    return result
-  }
+  //   return result
+  // }
 
   private addItemFor(flag: FlagModel) {
     let box = this.dash.create(FlagBox, flag)
@@ -74,11 +75,11 @@ export default class TaskFlagSelector {
     let li = view.nodes[0] as HTMLLIElement
     let checkBox = li.querySelector("input") as HTMLInputElement
 
-    checkBox.onclick = async ev => {
-      if (! await this.toggleFlag(flag))
-        checkBox.checked = !checkBox.checked
-    }
-
+    // TODO: Remove this block: dead code.
+    // checkBox.onclick = async ev => {
+    //   if (! await this.toggleFlag(flag))
+    //     checkBox.checked = !checkBox.checked
+    // }
     this.items.set(flag.id, li)
     this.checkBoxes.set(flag.id, checkBox)
     li.appendChild(box.el)
@@ -126,6 +127,32 @@ export default class TaskFlagSelector {
       let checkBox = this.checkBoxes.get(flagId)
       if (checkBox)
       checkBox.checked = true
+    }
+  }
+
+  get selectedFlagIds(): string[] {
+    if (!this.task)
+      return []
+    let arr: string[] = []
+    for (let entry of this.checkBoxes.entries()) {
+      if (entry[1].checked)
+        arr.push(entry[0] as string)
+    }
+    return arr
+  }
+
+  /**
+   * Refresh the state of the checkboxes in the selector.
+   *
+   * Note: use when the task update fails.
+   */
+  public refreshFlags() {
+    if (!this.task || !this.task.flagIds)
+      return
+    for (let flagId of this.task.flagIds) {
+      let checkBox = this.checkBoxes.get(flagId)
+      if (checkBox)
+        checkBox.checked = true
     }
   }
 }

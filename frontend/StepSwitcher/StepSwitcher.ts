@@ -214,7 +214,7 @@ export default class StepSwitcher {
   private async onAddtaskClick() {
     let name = this.taskNameEl.value.trim()
 
-    if (name.length < 1) {
+    if (name.length < 4) {
       console.log("Impossible to create a new task. Invalid name...")
       this.taskNameEl.focus()
       return

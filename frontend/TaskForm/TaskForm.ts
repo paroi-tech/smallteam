@@ -126,11 +126,13 @@ export default class TaskForm {
       await this.model.exec("update", "Task", {
         id: this.task.id,
         label: label.trim(),
-        description: this.descriptionEl.value.trim() || ""
+        description: this.descriptionEl.value.trim() || "",
+        flagIds: this.flagSelector.selectedFlagIds
       })
     } catch(err) {
       this.labelEl.value = this.task.label
       this.descriptionEl.value = this.task.description || ""
+      this.flagSelector.refreshFlags()
       console.error(`Error while updating task ${this.task}: ${err}`)
     }
     this.submitSpinnerEl.style.display = "none"

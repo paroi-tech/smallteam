@@ -11,6 +11,8 @@
     <textarea class="js-task-description" placeholder="Task description...">{{ description }}</textarea>
   </label>
 
+  <div class="js-fselector-container"></div>
+
   <button type="button" class="js-submit-button">
     Submit
     <span class="js-submit-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
@@ -24,6 +26,4 @@
       <span class="js-delete-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
     </button>
   </div>
-
-  <div class="js-fselector-container"></div>
 </div>
