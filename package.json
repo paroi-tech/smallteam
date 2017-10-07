@@ -33,17 +33,19 @@
   "dependencies": {
     "bcrypt": "1.0.3",
     "bkb": "0.18.1",
+    "connect-sqlite3": "0.9.10",
     "express": "4.16.1",
+    "express-session": "1.15.6",
     "jquery": "3.2.1",
     "monkberry": "4.0.8",
     "monkberry-directives": "4.0.8",
     "monkberry-events": "4.0.8",
     "sortablejs": "1.6.1",
-    "sqlite": "2.8.0",
-    "whatwg-fetch": "2.0.3"
+    "sqlite": "2.8.0"
   },
   "devDependencies": {
     "@types/express": "4.0.37",
+    "@types/express-session": "1.15.3",
     "@types/jquery": "3.2.12",
     "html-loader": "0.5.1",
     "just-wait": "1.0.11",

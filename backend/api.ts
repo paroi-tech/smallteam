@@ -9,20 +9,24 @@ import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
 import { queryComments, createComment, updateComment, deleteComment, fetchComments } from "./dbqueries/queryComment"
 import { queryTaskLogEntries, fetchTaskLogEntries } from "./dbqueries/queryTaskLogEntry"
+import { SessionData } from "./session"
 
-export async function routeQuery(data): Promise<Cargo> {
+export async function routeQuery(data, sessionData: SessionData): Promise<Cargo> {
+console.log(".......Session Q> " + sessionData.contributorId)
   let loader = new CargoLoader()
   await executeQuery(data, loader)
   return loader.toCargo()
 }
 
-export async function routeExec(data): Promise<Cargo> {
+export async function routeExec(data, sessionData: SessionData): Promise<Cargo> {
+console.log(".......Session E> " + sessionData.contributorId)
   let loader = new CargoLoader()
   await executeCommand(data, loader)
   return loader.toCargo()
 }
 
-export async function executeBatch(list: any[]): Promise<BatchCargo> {
+export async function executeBatch(list: any[], sessionData: SessionData): Promise<BatchCargo> {
+console.log(".......Session B> " + sessionData.contributorId)
   let loader = new CargoLoader(true)
   for (let data of list) {
     let cmd = data.cmd

@@ -1,8 +1,18 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 
+export function getSqlLiteDbConf() {
+  let dir = path.join(__dirname, "..", ".."),
+    file = "ourdb.sqlite"
+  return {
+    dir,
+    file,
+    path: path.join(dir, file)
+  }
+}
+
 export async function getDbConnection() {
-  let cn = await sqlite.open(path.join(__dirname, "..", "..", "ourdb.sqlite"))
+  let cn = await sqlite.open(getSqlLiteDbConf().path)
   //;(cn as any).driver.configure("busyTimeout", 2000)
   await cn.run("PRAGMA foreign_keys = ON")
   await cn.migrate({
