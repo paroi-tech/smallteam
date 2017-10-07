@@ -1,10 +1,7 @@
+import { hash, compare } from "bcrypt"
 import { getDbConnection } from "./dbqueries/dbUtils"
 import { buildSelect } from "./sql92builder/Sql92Builder"
-import { hash, compare } from "bcrypt"
-
-export interface SessionData {
-  contributorId: string
-}
+import { SessionData } from "./backendContext/context"
 
 export async function routeConnect(data, sessionData: SessionData): Promise<any> {
   let row = await getContributor(data.login)

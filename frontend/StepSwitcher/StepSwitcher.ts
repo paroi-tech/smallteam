@@ -272,7 +272,7 @@ export default class StepSwitcher {
       // We restore the previous order of the elements in the BoxList.
       // The following retrieve the child tasks which are in the concerned step.
       let taskIds = this.parentTask.children!.reduce((result: string[], task: TaskModel) => {
-          if (task.currentStep.id == ev.boxListId)
+          if (task.currentStep.id === ev.boxListId)
             result.push(task.id)
           return result
         }, []
@@ -316,7 +316,7 @@ export default class StepSwitcher {
       // We find the index of the Step in projectModel#steps and insert a BoxList
       // in $boxListContainer.
       let i = this.project.steps.findIndex(step => step.id === newStep.id)
-      if (i != -1) {
+      if (i !== -1) {
         let list = this.createBoxListFor(newStep)
         let parent = this.boxListContainerEl
         parent.insertBefore(list.el, i < parent.childNodes.length? parent.childNodes[i]: null)
@@ -351,7 +351,7 @@ export default class StepSwitcher {
     // Task creation event.
     this.dash.listenTo<UpdateModelEvent>(this.model, "createTask").onData(data => {
       let task = data.model as TaskModel
-      if (task.projectId != this.project.id || task.parentTaskId != this.parentTask.id)
+      if (task.projectId !== this.project.id || task.parentTaskId !== this.parentTask.id)
         return
       let list = this.boxLists.get(task.curStepId)
       if (list) {

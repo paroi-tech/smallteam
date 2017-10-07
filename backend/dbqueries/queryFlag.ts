@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { FlagFragment, NewFlagFragment, newFlagMeta, UpdFlagFragment, updFlagMeta, FlagIdFragment } from "../../isomorphic/fragments/Flag"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
@@ -10,13 +10,13 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function queryFlags(loader: CargoLoader) {
+export async function queryFlags(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromFlag()
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toFlagFragment(row)
-    loader.addFragment({
+    context.loader.addFragment({
       type: "Flag",
       frag: frag,
       asResult: "fragments"
@@ -24,7 +24,7 @@ export async function queryFlags(loader: CargoLoader) {
   }
 }
 
-export async function fetchFlags(loader: CargoLoader, idList: string[]) {
+export async function fetchFlags(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -33,7 +33,7 @@ export async function fetchFlags(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toFlagFragment(row)
-    loader.modelUpdate.addFragment("Flag", data.id, data)
+    context.loader.modelUpdate.addFragment("Flag", data.id, data)
   }
 }
 
@@ -57,7 +57,7 @@ function toFlagFragment(row): FlagFragment {
 // -- Create
 // --
 
-export async function createFlag(loader: CargoLoader, newFrag: NewFlagFragment) {
+export async function createFlag(context: BackendContext, newFrag: NewFlagFragment) {
   let cn = await getDbConnection()
 
   if (newFrag.orderNum === undefined)
@@ -69,7 +69,7 @@ export async function createFlag(loader: CargoLoader, newFrag: NewFlagFragment) 
   let ps = await cn.run(sql.toSql()),
     flagId = ps.lastID
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Flag",
     id: flagId.toString(),
     asResult: "fragment",
@@ -90,7 +90,7 @@ async function getDefaultOrderNum() {
 // -- Update
 // --
 
-export async function updateFlag(loader: CargoLoader, updFrag: UpdFlagFragment) {
+export async function updateFlag(context: BackendContext, updFrag: UpdFlagFragment) {
   let cn = await getDbConnection()
 
   let flagId = parseInt(updFrag.id, 10)
@@ -106,7 +106,7 @@ export async function updateFlag(loader: CargoLoader, updFrag: UpdFlagFragment) 
 
   await cn.run(sql.toSql())
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Flag",
     id: flagId.toString(),
     asResult: "fragment",
@@ -118,7 +118,7 @@ export async function updateFlag(loader: CargoLoader, updFrag: UpdFlagFragment) 
 // -- Delete
 // --
 
-export async function deleteFlag(loader: CargoLoader, frag: FlagIdFragment) {
+export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) {
   let cn = await getDbConnection()
 
   let sql = buildDelete()
@@ -127,14 +127,14 @@ export async function deleteFlag(loader: CargoLoader, frag: FlagIdFragment) {
 
   await cn.run(sql.toSql())
 
-  loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
+  context.loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
 }
 
 // --
 // -- Reorder
 // --
 
-export async function reorderFlags(loader: CargoLoader, idList: string[]) {
+export async function reorderFlags(context: BackendContext, idList: string[]) {
   let cn = await getDbConnection()
 
   let oldNums = await loadOrderNums(),
@@ -144,7 +144,7 @@ export async function reorderFlags(loader: CargoLoader, idList: string[]) {
       oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
-      loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
+      context.loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
   }
@@ -154,10 +154,10 @@ export async function reorderFlags(loader: CargoLoader, idList: string[]) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateOrderNum(id, curNum)
-      loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
+      context.loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
     }
   }
-  loader.modelUpdate.markIdsAsReordered("Flag", idList)
+  context.loader.modelUpdate.markIdsAsReordered("Flag", idList)
 }
 
 async function updateOrderNum(flagId: number, orderNum: number) {

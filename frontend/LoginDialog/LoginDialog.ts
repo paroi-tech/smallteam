@@ -59,7 +59,7 @@ export default class LoginDialog {
       return
     }
 
-    if (password.length == 0) {
+    if (password.length === 0) {
       this.passwordEl.style.borderColor = "red"
       this.passwordEl.focus()
       this.el.style.pointerEvents = "auto"

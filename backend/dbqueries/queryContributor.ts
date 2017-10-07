@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { ContributorFragment, NewContributorFragment, newContributorMeta, UpdContributorFragment, updContributorMeta, ContributorIdFragment } from "../../isomorphic/fragments/Contributor"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
@@ -9,7 +9,7 @@ import { hash, compare } from "bcrypt"
 
 const saltRounds = 10
 
-export async function fetchContributors(loader: CargoLoader, idList: string[]) {
+export async function fetchContributors(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -18,18 +18,18 @@ export async function fetchContributors(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toContributorFragment(row)
-    loader.modelUpdate.addFragment("Contributor", data.id, data)
+    context.loader.modelUpdate.addFragment("Contributor", data.id, data)
   }
 }
 
-export async function queryContributors(loader: CargoLoader) {
+export async function queryContributors(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromContributor()
     .orderBy("name")
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toContributorFragment(row)
-    loader.addFragment({
+    context.loader.addFragment({
       type: "Contributor",
       frag,
       asResult: "fragments"
@@ -56,7 +56,7 @@ function selectFromContributor() {
 // -- Create
 // --
 
-export async function createContributor(loader: CargoLoader, newFrag: NewContributorFragment) {
+export async function createContributor(context: BackendContext, newFrag: NewContributorFragment) {
   let cn = await getDbConnection()
   let passwordHash = await hash("init", saltRounds)
   let sql = buildInsert()
@@ -65,7 +65,7 @@ export async function createContributor(loader: CargoLoader, newFrag: NewContrib
     .values({ "password": passwordHash })
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),
     asResult: "fragment",
@@ -77,7 +77,7 @@ export async function createContributor(loader: CargoLoader, newFrag: NewContrib
 // -- Update
 // --
 
-export async function updateContributor(loader: CargoLoader, updFrag: UpdContributorFragment) {
+export async function updateContributor(context: BackendContext, updFrag: UpdContributorFragment) {
   let cn = await getDbConnection()
   let contributorId = parseInt(updFrag.id, 10)
 
@@ -89,7 +89,7 @@ export async function updateContributor(loader: CargoLoader, updFrag: UpdContrib
     .set(values)
     .where("contributor_id", contributorId) // FIXME: Update this after fixing bug with with toSqlValues
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),
     asResult: "fragment",
@@ -103,7 +103,7 @@ export async function updateContributor(loader: CargoLoader, updFrag: UpdContrib
 // -- Delete
 // --
 
-export async function deleteContributor(loader: CargoLoader, frag: ContributorIdFragment) {
+export async function deleteContributor(context: BackendContext, frag: ContributorIdFragment) {
   let cn = await getDbConnection()
 
   let sql = buildDelete()
@@ -112,14 +112,14 @@ export async function deleteContributor(loader: CargoLoader, frag: ContributorId
 
   await cn.run(sql.toSql())
 
-  loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
+  context.loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
 }
 
 // --
 // -- Reorder affectedTo tasks
 // --
 
-export async function reorderAffectedContributors(loader: CargoLoader, idList: string[], taskIdStr: string) {
+export async function reorderAffectedContributors(context: BackendContext, idList: string[], taskIdStr: string) {
   let cn = await getDbConnection()
   let taskId = int(taskIdStr)
 
@@ -130,7 +130,7 @@ export async function reorderAffectedContributors(loader: CargoLoader, idList: s
       oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateAffectedOrderNum(id, taskId, curNum)
-      loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
+      context.loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
   }
@@ -140,10 +140,10 @@ export async function reorderAffectedContributors(loader: CargoLoader, idList: s
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateAffectedOrderNum(id, taskId, curNum)
-      loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
+      context.loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
     }
   }
-  loader.modelUpdate.markIdsAsReordered("Contributor", idList)
+  context.loader.modelUpdate.markIdsAsReordered("Contributor", idList)
 }
 
 async function updateAffectedOrderNum(contributorId: number, taskId: number, orderNum: number) {

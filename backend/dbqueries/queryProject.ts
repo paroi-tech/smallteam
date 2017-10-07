@@ -1,6 +1,6 @@
 import * as path from "path"
 //import * as sqlite from "sqlite"
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery, ProjectIdFragment } from "../../isomorphic/fragments/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
@@ -12,7 +12,7 @@ import { fetchStepsByProjects } from "./queryStep"
 // -- Read
 // --
 
-export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) {
+export async function queryProjects(context: BackendContext, filters: ProjectQuery) {
   let cn = await getDbConnection()
   let sql = selectFromProject()
   if (filters.archived !== undefined)
@@ -37,19 +37,19 @@ export async function queryProjects(loader: CargoLoader, filters: ProjectQuery) 
     projectIdList: number[] = []
   for (let row of rs) {
     let frag = toProjectFragment(row)
-    loader.addFragment({
+    context.loader.addFragment({
       type: "Project",
       frag,
       asResult: "fragments"
     })
-    loader.modelUpdate.addFragment("Task", frag.rootTaskId)
+    context.loader.modelUpdate.addFragment("Task", frag.rootTaskId)
     projectIdList.push(row["project_id"])
   }
-  await fetchStepsByProjects(loader, projectIdList)
-  await fetchProjectTasks(loader, projectIdList)
+  await fetchStepsByProjects(context, projectIdList)
+  await fetchProjectTasks(context, projectIdList)
 }
 
-export async function fetchProjects(loader: CargoLoader, idList: string[]) {
+export async function fetchProjects(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -58,8 +58,8 @@ export async function fetchProjects(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toProjectFragment(row)
-    loader.modelUpdate.addFragment("Project", frag.id, frag)
-    loader.modelUpdate.addFragment("Task", frag.rootTaskId)
+    context.loader.modelUpdate.addFragment("Project", frag.id, frag)
+    context.loader.modelUpdate.addFragment("Task", frag.rootTaskId)
   }
 }
 
@@ -89,7 +89,7 @@ function toProjectFragment(row): ProjectFragment {
 // -- Create
 // --
 
-export async function createProject(loader: CargoLoader, newFrag: NewProjectFragment) {
+export async function createProject(context: BackendContext, newFrag: NewProjectFragment) {
   let cn = await getDbConnection()
 
   // Project
@@ -153,21 +153,21 @@ export async function createProject(loader: CargoLoader, newFrag: NewProjectFrag
     await cn.run(sql.toSql())
   }
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Project",
     id: projectId.toString(),
     asResult: "fragment",
     markAs: "created"
   })
 
-  loader.modelUpdate.addFragment("Task", taskId.toString())
+  context.loader.modelUpdate.addFragment("Task", taskId.toString())
 }
 
 // --
 // -- Update
 // --
 
-export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFragment) {
+export async function updateProject(context: BackendContext, updFrag: UpdProjectFragment) {
   let cn = await getDbConnection()
 
   let projectId = parseInt(updFrag.id, 10)
@@ -198,10 +198,10 @@ export async function updateProject(loader: CargoLoader, updFrag: UpdProjectFrag
     if (updFrag.name !== undefined)
       sql.set({ label: updFrag.name })
     await cn.run(sql.toSql())
-    loader.modelUpdate.addFragment("Task", taskId.toString())
+    context.loader.modelUpdate.addFragment("Task", taskId.toString())
   }
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Project",
     id: projectId.toString(),
     asResult: "fragment",
@@ -247,7 +247,7 @@ async function getRootTaskId(projectId: number) {
  * @param loader
  * @param frag
  */
-export async function deleteProject(loader: CargoLoader, frag: ProjectIdFragment) {
+export async function deleteProject(context: BackendContext, frag: ProjectIdFragment) {
   // FIXME: This function should use transaction...
   let cn = await getDbConnection()
 
@@ -281,7 +281,7 @@ export async function deleteProject(loader: CargoLoader, frag: ProjectIdFragment
       .toSql()
 
   await cn.run(deleteProjectSql)
-  loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
+  context.loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
 }
 
 // --

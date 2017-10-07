@@ -1,4 +1,4 @@
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -8,14 +8,14 @@ import { TaskLogEntryFragment, TaskLogEntryQuery } from "../../isomorphic/fragme
 // -- Read
 // --
 
-export async function queryTaskLogEntries(loader: CargoLoader, filters: TaskLogEntryQuery) {
+export async function queryTaskLogEntries(context: BackendContext, filters: TaskLogEntryQuery) {
   let cn = await getDbConnection()
   let sql = selectFromTaskLogEntry()
     .andWhere("l.task_id", int(filters.taskId))
     .orderBy("l.entry_ts desc")
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    loader.addFragment({
+    context.loader.addFragment({
       type: "TaskLogEntry",
       frag: toTaskLogEntryFragment(row),
       asResult: "fragments"
@@ -23,7 +23,7 @@ export async function queryTaskLogEntries(loader: CargoLoader, filters: TaskLogE
   }
 }
 
-export async function fetchTaskLogEntries(loader: CargoLoader, idList: string[]) {
+export async function fetchTaskLogEntries(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -32,7 +32,7 @@ export async function fetchTaskLogEntries(loader: CargoLoader, idList: string[])
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toTaskLogEntryFragment(row)
-    loader.modelUpdate.addFragment("TaskLogEntry", data.id, data)
+    context.loader.modelUpdate.addFragment("TaskLogEntry", data.id, data)
   }
 }
 
