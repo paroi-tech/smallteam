@@ -85,7 +85,7 @@ export default class LoginDialog {
     let contributorId: string | undefined = undefined
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/connect`, {
+      let response = await fetch(`${config.urlPrefix}/api/session/connect`, {
         method: "post",
         credentials: "include",
         headers: {

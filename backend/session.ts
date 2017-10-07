@@ -2,10 +2,15 @@ import { getDbConnection } from "./dbqueries/dbUtils"
 import { buildSelect } from "./sql92builder/Sql92Builder"
 import { hash, compare } from "bcrypt"
 
-export async function routeConnect(data): Promise<any> {
+export interface SessionData {
+  contributorId: string
+}
+
+export async function routeConnect(data, sessionData: SessionData): Promise<any> {
   let row = await getContributor(data.login)
 
   if (row && await compare(data.password, row.password)) {
+    sessionData.contributorId = row.id.toString()
     return {
       done: true,
       contributorId: row.id
@@ -20,9 +25,9 @@ export async function routeConnect(data): Promise<any> {
 async function getContributor(login: string) {
   let cn = await getDbConnection()
   let sql = buildSelect()
-              .select("contributor_id, password")
-              .from("contributor")
-              .where("login", "=", login)
+    .select("contributor_id, password")
+    .from("contributor")
+    .where("login", "=", login)
   let rs = await cn.all(sql.toSql())
 
   if (rs.length === 1) {
