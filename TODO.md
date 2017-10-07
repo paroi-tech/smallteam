@@ -9,12 +9,23 @@ the time, so I can't use JIRA.
     - Lionel: disable forms for the models in processing
   - Remove StepFragment.name => call step.stepType.name
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
+- Add a frontend router
+  - Add a menu item in the session menu: "Edit profile"
+- Sessions in the backend
+  - Implement `session/current` Auto-login when a session is already opened
+  - Implement `session/recover` the password recovery
+  - Implement `session/save-password`
+  - Implement `session/disconnect`
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
-- Deploy the project on the Web server
+- Use HTTPS, deploy the project on the Web server
 - Keep HKMap?
 - Refactoring in the backend, one code for all the reordering
 
 # Lionel
+- The drop-down menu of the session:
+  - Add another drop-down menu to the right of the main drop-down menu
+  - Show the user's avatar on the button (do not use `…`)
+  - Add a menu item: "Disconnect"
 - Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
