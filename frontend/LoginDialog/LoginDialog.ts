@@ -87,7 +87,7 @@ export default class LoginDialog {
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/connect`, {
         method: "post",
-        credentials: "include",
+        credentials: "same-origin",
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json"

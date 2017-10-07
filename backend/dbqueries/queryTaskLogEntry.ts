@@ -56,7 +56,7 @@ function toTaskLogEntryFragment(row): TaskLogEntryFragment {
 // -- Create
 // --
 
-export async function logStepChange(taskId: string, stepId: string, contributorId: string) {
+export async function logStepChange(context: BackendContext, taskId: string, stepId: string) {
   let cn = await getDbConnection()
 
   let sql = buildInsert()
@@ -64,7 +64,7 @@ export async function logStepChange(taskId: string, stepId: string, contributorI
     .values({
       "task_id": int(taskId),
       "step_id": int(stepId),
-      "contributorId": int(contributorId)
+      "contributor_id": int(context.sessionData.contributorId)
     })
   await cn.run(sql.toSql())
 }

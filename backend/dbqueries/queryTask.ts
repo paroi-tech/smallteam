@@ -6,6 +6,7 @@ import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92buil
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { makeTaskCodeFromStep } from "./queryProject"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { logStepChange } from "./queryTaskLogEntry"
 
 // --
 // -- Read
@@ -253,7 +254,9 @@ export async function updateTask(context: BackendContext, updFrag: UpdTaskFragme
   let taskId = int(updFrag.id)
 
   let values = toSqlValues(updFrag, updTaskMeta, "exceptId")
-  if (values !== null) {
+  if (values) {
+    if (await hasStepChange(context, updFrag))
+      await logStepChange(context, updFrag.id, updFrag.curStepId!)
 
     let sql = buildUpdate()
       .update("task")
@@ -277,6 +280,18 @@ export async function updateTask(context: BackendContext, updFrag: UpdTaskFragme
     asResult: "fragment",
     markAs: "updated"
   })
+}
+
+async function hasStepChange(context: BackendContext, updFrag: UpdTaskFragment): Promise<boolean> {
+  if (updFrag.curStepId === undefined)
+    return false
+  let cn = await getDbConnection()
+  let sql = buildSelect().select("cur_step_id").from("task").where("task_id", int(updFrag.id))
+  let rs = await cn.all(sql.toSql())
+  if (rs.length !== 1)
+    return false
+  let prevStepId = rs[0]["cur_step_id"]
+  return int(updFrag.curStepId) !== prevStepId
 }
 
 // --

@@ -66,7 +66,7 @@ create table task_affected_to (
 
 create table task_log (
     task_log_id integer not null primary key autoincrement,
-    task_id bigint not null references task(task_id),
+    task_id bigint not null references task(task_id) on delete cascade,
     step_id bigint not null references step(step_id),
     entry_ts timestamp not null default current_timestamp,
     contributor_id bigint not null references contributor(contributor_id)

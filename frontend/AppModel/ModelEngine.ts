@@ -572,7 +572,7 @@ async function httpSendJson(method: HttpMethod, url: string, data): Promise<any>
   console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {
     method: method,
-    credentials: "include",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json"
     },
