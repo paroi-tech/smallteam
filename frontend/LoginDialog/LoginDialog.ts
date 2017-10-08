@@ -1,9 +1,10 @@
 import config from "../../isomorphic/config"
 import App from "../App/App"
 import { Bkb, Dash } from "bkb"
-import { Model, ContributorModel } from "../AppModel/AppModel"
+import { Model, ContributorModel, SessionData } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import * as template from "./logindialog.monk"
+import Deferred from "../libraries/Deferred"
 
 export default class LoginDialog {
   readonly el: HTMLDialogElement
@@ -13,14 +14,20 @@ export default class LoginDialog {
   private submitBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
 
-  private returnValue = ""
-
   private view: MonkberryView
+
+  private curDfd: Deferred<SessionData> | undefined
 
   constructor(private dash: Dash<App>) {
     this.el = this.createView()
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
+  }
+
+  public open(): Promise<SessionData> {
+    this.el.showModal()
+    this.curDfd = new Deferred()
+    return this.curDfd.promise
   }
 
   private createView() {
@@ -36,6 +43,12 @@ export default class LoginDialog {
     el.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
         this.submitBtnEl.click()
+    })
+    el.addEventListener("close", () => {
+      if (this.curDfd) {
+        this.curDfd.reject(new Error("Fail to connect"))
+        this.curDfd = undefined;
+      }
     })
     document.body.appendChild(el)
 
@@ -68,12 +81,14 @@ export default class LoginDialog {
 
     this.spinnerEl.style.display = "inline"
 
-    let contributorId = await this.doLogin(name, password)
+    let contributorId = await this.tryToLogin(name, password)
 
     if (contributorId) {
-      // IMPORTANT: the dialog return value is set here...
-      this.returnValue = contributorId
-      this.close()
+      this.el.close()
+      if (this.curDfd) {
+        this.curDfd.resolve({ contributorId })
+        this.curDfd = undefined
+      }
     }  else {
       this.nameEl.focus()
     }
@@ -81,7 +96,7 @@ export default class LoginDialog {
     this.el.style.pointerEvents = "auto"
   }
 
-  private async doLogin(name: string, password: string): Promise<string | undefined> {
+  private async tryToLogin(name: string, password: string): Promise<string | undefined> {
     let contributorId: string | undefined = undefined
 
     try {
@@ -114,13 +129,5 @@ export default class LoginDialog {
     }
 
     return contributorId
-  }
-
-  private show() {
-    this.el.showModal()
-  }
-
-  private close() {
-    this.el.close(this.returnValue)
   }
 }

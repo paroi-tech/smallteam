@@ -29,7 +29,7 @@ async function getContributor(login: string) {
 
   if (rs.length === 1) {
     return {
-      id: rs[0]["contributor_id"],
+      id: rs[0]["contributor_id"].toString(),
       password: rs[0]["password"]
     }
   }

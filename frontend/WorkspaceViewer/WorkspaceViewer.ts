@@ -12,11 +12,12 @@ import { render } from "monkberry"
 import * as template from "./workspaceviewer.monk"
 import { removeAllChildren } from "../libraries/utils"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
-import { EasyRouter, createEasyRouter, ERQuery } from "../libraries/EasyRouter"
+import { EasyRouter, createEasyRouter, ERQuery, ChildEasyRouter } from "../libraries/EasyRouter"
 
 export interface Workspace {
   activate(ctrl: ViewerController): void
   deactivate(): void
+  readonly childRouter?: ChildEasyRouter
 }
 
 export interface ViewerController {
@@ -49,18 +50,13 @@ export default class WorkspaceViewer {
   private sidebarEl: HTMLElement
   private bodyEl: HTMLElement
 
-  private router: EasyRouter
+  readonly router: EasyRouter
 
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
     this.el = this.createView()
 
-    this.dash.listenTo<string>(this.menu, "select").onData(path => this.router.navigate(path)
-      // this.activateWorkspace(path)
-    )
-    this.dash.listenTo<string>(this.dropdownMenu, "select").onData(path => this.router.navigate(path)
-      // this.activateWorkspace(path)
-    )
+    this.dash.listenToChildren<string>("select").onData(path => this.router.navigate(path).catch(console.log))
 
     // Handler for project deletion event.
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteProject").onData(data => {
@@ -87,6 +83,15 @@ export default class WorkspaceViewer {
       },
       title: '404 Not Found'
     })
+    this.router.map({
+      route: "",
+      activate: (query: ERQuery) => {
+        console.log("MAIN PAGE", query)
+      }
+    })
+  }
+
+  public start() {
     this.router.start({
       baseUrl: config.urlPrefix,
       hashMode: true,
@@ -111,10 +116,19 @@ export default class WorkspaceViewer {
     this.router.map({
       route: path,
       activate: (query: ERQuery) => {
-        this.activateWorkspace(query.route!)
+        this.activateWorkspace(path)
       },
       title: menuLabel
     })
+    if (w.childRouter) {
+      this.router.map({
+        route: `${path}/*`,
+        child: w.childRouter,
+        activate: (query: ERQuery) => {
+          this.activateWorkspace(path)
+        }
+      })
+    }
   }
 
   private activateWorkspace(path: string) {

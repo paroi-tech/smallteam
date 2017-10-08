@@ -81,8 +81,17 @@ export interface GlobalModels {
   readonly projects: ReadonlyCollection<ProjectModel, string>
 }
 
+export interface SessionData {
+  readonly contributorId: string
+}
+
+export interface Session {
+  readonly contributor: ContributorModel
+}
+
 export interface Model extends ModelCommandMethods {
   createCommandBatch(): CommandBatch
   readonly global: GlobalModels
+  readonly session: Session
   readonly bgCommandMng: BgCommandManager
 }

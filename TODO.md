@@ -10,7 +10,8 @@ the time, so I can't use JIRA.
   - Remove StepFragment.name => call step.stepType.name
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Add a frontend router
-  - Add a menu item in the session menu: "Edit profile"
+  - Create a 404 workspace
+  - Create a root workspace
 - Sessions in the backend
   - Implement `session/current` Auto-login when a session is already opened
   - Implement `session/recover` the password recovery
@@ -20,12 +21,14 @@ the time, so I can't use JIRA.
 - Use HTTPS, deploy the project on the Web server
 - Keep HKMap?
 - Refactoring in the backend, one code for all the reordering
+- Rewrite EasyRouter
 
 # Lionel
 - The drop-down menu of the session:
   - Add another drop-down menu to the right of the main drop-down menu
   - Show the user's avatar on the button (do not use `…`)
   - Add a menu item: "Disconnect"
+  - Add a menu item: "Edit my profile" → navigate to "/settings/contributors/my-profile"
 - Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
@@ -96,3 +99,5 @@ the time, so I can't use JIRA.
 - CSS: use flexbox & grid
 - In the backend, keep the session and associate a contributorId (string)
   - Call logStepChange()
+- Add a frontend router
+  - Sub-routers provided by workspaces

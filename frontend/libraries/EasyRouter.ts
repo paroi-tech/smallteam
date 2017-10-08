@@ -15,7 +15,7 @@ export interface ERQuery {
   queryString: string | null
   queryHash: string | null
   queryParams: { [index: string]: string } | null
-  route?: string
+  route?: string | null
   routeParams?: { [index: string]: string | undefined }
   processedQueryString?: string | null
   remainingQueryString?: string | null
@@ -26,7 +26,7 @@ export interface ERRouteActivator {
   /**
    * Required if canActivate is not defined
    */
-  route?: string
+  route?: string | null
   useQueryString?: string
   canActivate?(query: ERQuery): boolean | Promise<boolean>
   redirectTo?: string
@@ -179,6 +179,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
 
   //private onAsyncErrCb: (err: any) => void
 
+  private isStarted = false
   private isRoot: boolean
   private rootBaseUrl: string
   private rootQSStack: string[]
@@ -201,6 +202,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   public start(config: ERConfig): Promise<void> {
     if (this.isRoot !== undefined)
       throw Error("Cannot call start(), the router is " + (this.isRoot ? "already root" : "a child"))
+    this.isStarted = true
     this.isRoot = true
     this.rootQSStack = []
     // - Base URL
@@ -264,6 +266,8 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       if (ra.child) {
         const child = getSourceFromProxy<ChildRouter>(ra.child)
         this.children.push(child)
+        if (this.isStarted)
+          child.startAsChild(this, this.withHistory)
       }
     }
     return this
@@ -296,6 +300,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         throw Error("Router cannot have several parents")
       return
     }
+    this.isStarted = true
     this.parent = parent
     this.isRoot = false
     this.withHistory = withHistory
@@ -468,6 +473,10 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       return p.then<boolean>((done: boolean): any => {
         if (!done)
           return false
+        if (activator.activate) {
+          var activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
+          //return activated ? activated.then(() => true) : true
+        }
         var parentUrl = this.toUrl(completed.processedQueryString, null),
           childQS = completed.remainingQueryString
         return child.childNavigate(childQS, changeHist, parentUrl, completed).then((done: boolean): any => {
@@ -659,7 +668,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       }
     }
     var query: ERQuery = {
-      queryString: queryString,
+      queryString: queryString!,
       queryHash: hash,
       queryParams: params
     }
