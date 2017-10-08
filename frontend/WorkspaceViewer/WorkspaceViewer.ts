@@ -1,3 +1,4 @@
+import config from "../../isomorphic/config"
 import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Menu, MenuItem } from "../Menu/Menu"
@@ -11,6 +12,7 @@ import { render } from "monkberry"
 import * as template from "./workspaceviewer.monk"
 import { removeAllChildren } from "../libraries/utils"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { EasyRouter, createEasyRouter, ERQuery } from "../libraries/EasyRouter"
 
 export interface Workspace {
   activate(ctrl: ViewerController): void
@@ -47,15 +49,17 @@ export default class WorkspaceViewer {
   private sidebarEl: HTMLElement
   private bodyEl: HTMLElement
 
+  private router: EasyRouter
+
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
     this.el = this.createView()
 
-    this.dash.listenTo<string>(this.menu, "select").onData(path =>
-      this.activateWorkspace(path)
+    this.dash.listenTo<string>(this.menu, "select").onData(path => this.router.navigate(path)
+      // this.activateWorkspace(path)
     )
-    this.dash.listenTo<string>(this.dropdownMenu, "select").onData(path =>
-      this.activateWorkspace(path)
+    this.dash.listenTo<string>(this.dropdownMenu, "select").onData(path => this.router.navigate(path)
+      // this.activateWorkspace(path)
     )
 
     // Handler for project deletion event.
@@ -66,12 +70,28 @@ export default class WorkspaceViewer {
       if (info) {
         (info.menu === "main" ? this.menu : this.dropdownMenu).removeItem(info.path)
         this.workspaces.delete(path)
-        if(info === this.currentWInfo) {
+        if (info === this.currentWInfo) {
           removeAllChildren(this.bodyEl)
           removeAllChildren(this.sidebarEl)
           this.h1El.textContent = ""
         }
       }
+    })
+
+    this.router = createEasyRouter()
+    this.router.addAsyncErrorListener(console.log)
+    this.router.mapUnknownRoutes({
+      useQueryString: '404',
+      activate: (query: ERQuery) => {
+        console.log("404", query)
+      },
+      title: '404 Not Found'
+    })
+    this.router.start({
+      baseUrl: config.urlPrefix,
+      hashMode: true,
+      // noHistory: false,
+      firstQueryString: ""
     })
   }
 
@@ -88,6 +108,13 @@ export default class WorkspaceViewer {
         label: menuLabel
       })
     }
+    this.router.map({
+      route: path,
+      activate: (query: ERQuery) => {
+        this.activateWorkspace(query.route!)
+      },
+      title: menuLabel
+    })
   }
 
   private activateWorkspace(path: string) {

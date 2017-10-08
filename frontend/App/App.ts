@@ -62,10 +62,10 @@ export default class App {
   }
 
   private createWorkspaces(viewer: WorkspaceViewer) {
-    viewer.addWorkspace("createProject", "dropdown", "New project", this.dash.create(ProjectForm))
-    viewer.addWorkspace("manageStepTypes", "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
-    viewer.addWorkspace("manageContributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
-    viewer.addWorkspace("manageFlags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
+    viewer.addWorkspace("new-project", "dropdown", "New project", this.dash.create(ProjectForm))
+    viewer.addWorkspace("settings/step-types", "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
+    viewer.addWorkspace("settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
+    viewer.addWorkspace("settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
 
     let projects = this.model.global.projects
     for (let p of projects)
