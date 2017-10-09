@@ -1,4 +1,4 @@
-import { TaskLogEntryFragment } from "../../../isomorphic/fragments/TaskLogEntry"
+import { TaskLogEntryFragment } from "../../../isomorphic/meta/TaskLogEntry"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
 import { StepModel } from "./StepModel"

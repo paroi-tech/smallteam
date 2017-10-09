@@ -2,13 +2,13 @@ import { BackendContext } from "../backendContext/context"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
-import { CommentFragment, NewCommentFragment, newCommentMeta, CommentIdFragment, UpdCommentFragment, updCommentMeta, CommentQuery } from "../../isomorphic/fragments/Comment"
+import commentMeta, { CommentFragment, CommentCreateFragment, CommentIdFragment, CommentUpdateFragment, CommentFetchFragment } from "../../isomorphic/meta/Comment"
 
 // --
 // -- Read
 // --
 
-export async function queryComments(context: BackendContext, filters: CommentQuery) {
+export async function queryComments(context: BackendContext, filters: CommentFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromComment()
   sql.andWhere("c.task_id", int(filters.taskId))
@@ -57,11 +57,11 @@ function toCommentFragment(row): CommentFragment {
 // -- Create
 // --
 
-export async function createComment(context: BackendContext, newFrag: NewCommentFragment) {
+export async function createComment(context: BackendContext, newFrag: CommentCreateFragment) {
   let cn = await getDbConnection()
 
   // Comment
-  let values = toSqlValues(newFrag, newCommentMeta)!
+  let values = toSqlValues(newFrag, commentMeta.create)!
   let sql = buildInsert()
     .insertInto("comment")
     .values(values)
@@ -82,10 +82,10 @@ export async function createComment(context: BackendContext, newFrag: NewComment
 // -- Update
 // --
 
-export async function updateComment(context: BackendContext, updFrag: UpdCommentFragment) {
+export async function updateComment(context: BackendContext, updFrag: CommentUpdateFragment) {
   let cn = await getDbConnection()
 
-  let values = toSqlValues(updFrag, updCommentMeta, "exceptId")
+  let values = toSqlValues(updFrag, commentMeta.update, "exceptId")
   if (values === null)
     return
 

@@ -1,6 +1,6 @@
-import { ProjectFragment } from "../../../isomorphic/fragments/Project"
+import { ProjectFragment } from "../../../isomorphic/meta/Project"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
-import { StepFragment } from "../../../isomorphic/fragments/Step"
+import { StepFragment } from "../../../isomorphic/meta/Step"
 import { TaskModel } from "./TaskModel"
 import { StepModel, isStepNormal, isStepSpecial } from "./StepModel"
 import { Collection } from "../modelDefinitions"

@@ -1,7 +1,6 @@
 import config from "../../isomorphic/config"
 import { Dash } from "bkb"
-import { FragmentMeta } from "../../isomorphic/FragmentMeta"
-import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
+import { getFragmentMeta, toIdentifier, FragmentMeta } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate, Identifiers, Dependencies } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
@@ -472,6 +471,18 @@ export function appendGettersToModel(model: object, type: Type, getFrag: () => o
       configurable: false
     })
   }
+}
+
+export interface UpdateToolsOptions {
+  processing?: boolean,
+  whoUse?: boolean,
+  toFragment?: boolean,
+  diffToUpdate?: boolean
+}
+
+export function appendUpdateToolsToModel(model: object, type: Type, getFrag: () => object, opt: UpdateToolsOptions) {
+  let fragMeta = getFragmentMeta(type)
+  // TODO: implement
 }
 
 // --

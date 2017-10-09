@@ -1,7 +1,7 @@
 import * as path from "path"
 //import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import { ProjectFragment, NewProjectFragment, newProjectMeta, UpdProjectFragment, updProjectMeta, ProjectQuery, ProjectIdFragment } from "../../isomorphic/fragments/Project"
+import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectFetchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -12,7 +12,7 @@ import { fetchStepsByProjects } from "./queryStep"
 // -- Read
 // --
 
-export async function queryProjects(context: BackendContext, filters: ProjectQuery) {
+export async function queryProjects(context: BackendContext, filters: ProjectFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromProject()
   if (filters.archived !== undefined)
@@ -89,7 +89,7 @@ function toProjectFragment(row): ProjectFragment {
 // -- Create
 // --
 
-export async function createProject(context: BackendContext, newFrag: NewProjectFragment) {
+export async function createProject(context: BackendContext, newFrag: ProjectCreateFragment) {
   let cn = await getDbConnection()
 
   // Project
@@ -167,19 +167,19 @@ export async function createProject(context: BackendContext, newFrag: NewProject
 // -- Update
 // --
 
-export async function updateProject(context: BackendContext, updFrag: UpdProjectFragment) {
+export async function updateProject(context: BackendContext, updFrag: ProjectUpdateFragment) {
   let cn = await getDbConnection()
 
   let projectId = parseInt(updFrag.id, 10)
 
-  let valuesToUpd = toSqlValues(updFrag, updProjectMeta, "exceptId")
+  let valuesToUpd = toSqlValues(updFrag, projectMeta.update, "exceptId")
   if (valuesToUpd) {
     if (updFrag.code !== undefined && await hasTasks(projectId))
       throw new Error(`Cannot update the project "${updFrag.id}" because it has tasks`)
     let sql = buildUpdate()
       .update("project")
       .set(valuesToUpd)
-      .where(toSqlValues(updFrag, updProjectMeta, "onlyId"))
+      .where(toSqlValues(updFrag, projectMeta.update, "onlyId"))
     await cn.run(sql.toSql())
   }
 

@@ -1,4 +1,4 @@
-import { FlagFragment } from "../../../isomorphic/fragments/Flag"
+import { FlagFragment } from "../../../isomorphic/meta/Flag"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 import { WhoUseItem } from "../modelDefinitions"
 

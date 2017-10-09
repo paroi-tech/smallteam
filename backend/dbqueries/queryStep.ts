@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import { StepFragment, NewStepFragment, StepIdFragment, newStepMeta } from "../../isomorphic/fragments/Step"
+import stepMeta, { StepFragment, StepCreateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -72,13 +72,13 @@ function toStepFragment(row): StepFragment {
 // -- Create
 // --
 
-export async function createStep(context: BackendContext, newFrag: NewStepFragment) {
+export async function createStep(context: BackendContext, newFrag: StepCreateFragment) {
   let cn = await getDbConnection()
 
-  let values = toSqlValues(newFrag, newStepMeta) || {}
+  let values = toSqlValues(newFrag, stepMeta.create) || {}
   let sql = buildInsert()
     .insertInto("step")
-    .values(toSqlValues(newFrag, newStepMeta))
+    .values(toSqlValues(newFrag, stepMeta.create))
   let ps = await cn.run(sql.toSql()),
     stepId = ps.lastID
 

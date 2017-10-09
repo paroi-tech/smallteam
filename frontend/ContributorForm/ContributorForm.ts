@@ -3,7 +3,7 @@ import { Bkb, Dash } from "bkb"
 import { Model, ContributorModel } from "../AppModel/AppModel"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import { NewContributorFragment, UpdContributorFragment } from "../../isomorphic/fragments/Contributor"
+import { ContributorCreateFragment, ContributorUpdateFragment } from "../../isomorphic/meta/Contributor"
 
 import * as template from "./ContributorForm.monk"
 
@@ -103,7 +103,7 @@ export default class ContributorForm {
     this.submitSpinnerEl.style.display = "none"
   }
 
-  private async createContributor(frag: NewContributorFragment) {
+  private async createContributor(frag: ContributorCreateFragment) {
     try {
       await this.model.exec("create", "Contributor", frag)
       this.reset()
@@ -113,7 +113,7 @@ export default class ContributorForm {
     }
   }
 
-  private async updateContributor(frag: UpdContributorFragment) {
+  private async updateContributor(frag: ContributorUpdateFragment) {
     if (!this.contributor)
       return
     try {

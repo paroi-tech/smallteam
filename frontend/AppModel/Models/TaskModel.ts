@@ -1,4 +1,4 @@
-import { TaskFragment } from "../../../isomorphic/fragments/Task"
+import { TaskFragment } from "../../../isomorphic/meta/Task"
 import ModelEngine, { appendGettersToModel, toCollection, OrderProperties } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
@@ -6,9 +6,9 @@ import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
 import { Collection } from "../modelDefinitions"
 import { CommentModel } from "./CommentModel"
-import { CommentQuery } from "../../../isomorphic/fragments/Comment"
+import { CommentFetchFragment } from "../../../isomorphic/meta/Comment"
 import { TaskLogEntryModel } from "./TaskLogEntryModel"
-import { TaskLogEntryQuery } from "../../../isomorphic/fragments/TaskLogEntry"
+import { TaskLogEntryFetchFragment } from "../../../isomorphic/meta/TaskLogEntry"
 import { Type } from "../../../isomorphic/Cargo";
 
 export interface TaskModel extends TaskFragment {
@@ -69,12 +69,12 @@ export function registerTask(engine: ModelEngine) {
       getComments(): Promise<Collection<CommentModel, string>> {
         return engine.query("Comment", {
           taskId: getFrag().id
-        } as CommentQuery)
+        } as CommentFetchFragment)
       },
       getLogEntries(): Promise<Collection<TaskLogEntryModel, string>> {
         return engine.query("TaskLogEntry", {
           taskId: getFrag().id
-        } as TaskLogEntryQuery)
+        } as TaskLogEntryFetchFragment)
       }
     } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)

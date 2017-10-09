@@ -4,9 +4,9 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
-  - Implement methods `whoUse`
   - Add events `processingUpdateStepType`, `processingDelete`, etc.
   - On each model, add a member `tools`:
+    - Implement methods `whoUse`
     - Add a member `processing: boolean` (for update, delete)
       - Lionel: disable forms for the models during processing
     - Add a method `toFragment(variant: "update" | "insert" | "id")`
@@ -29,11 +29,12 @@ the time, so I can't use JIRA.
 - Rewrite EasyRouter
 
 # Lionel
+- Show an animated loader on the background command button when there is something started
 - Create a component `SessionMenu`:
   - It contains a drop-down menu to append to the right of the main drop-down menu
   - Show the user's avatar on the button (do not use `…`)
-  - Add a menu item: "Disconnect"
   - Add a menu item: "Edit my profile" → app.navigate to "/settings/contributors/my-profile"
+  - Add a menu item: "Disconnect"
 - Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
@@ -55,9 +56,8 @@ the time, so I can't use JIRA.
 
 # Thomas or Lionel
 
-- Connection:
-  - Chromium ask for saving password => find a solution
-  - Use a session token
+- Add roles for users
+
 
 # Lionel - DONE
 - On task update, update the flags shown in TaskBox
@@ -106,3 +106,9 @@ the time, so I can't use JIRA.
   - Call logStepChange()
 - Add a frontend router
   - Sub-routers provided by workspaces
+
+# Thomas or Lionel - DONE
+
+- Connection:
+  - Chromium ask for saving password => find a solution
+  - Use a session token

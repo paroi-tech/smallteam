@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import { TaskFragment, NewTaskFragment, newTaskMeta, TaskIdFragment, UpdTaskFragment, updTaskMeta, TaskQuery } from "../../isomorphic/fragments/Task"
+import taskMeta, { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { makeTaskCodeFromStep } from "./queryProject"
@@ -12,7 +12,7 @@ import { logStepChange } from "./queryTaskLogEntry"
 // -- Read
 // --
 
-export async function queryTasks(context: BackendContext, filters: TaskQuery) {
+export async function queryTasks(context: BackendContext, filters: TaskFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
   if (filters.createdById !== undefined)
@@ -182,14 +182,14 @@ async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, n
 // -- Create
 // --
 
-export async function createTask(context: BackendContext, newFrag: NewTaskFragment) {
+export async function createTask(context: BackendContext, newFrag: TaskCreateFragment) {
   let cn = await getDbConnection()
 
   if (newFrag.parentTaskId === undefined)
     throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
 
   // Task
-  let values = toSqlValues(newFrag, newTaskMeta) || {}
+  let values = toSqlValues(newFrag, taskMeta.create) || {}
   values.code = await makeTaskCodeFromStep(int(newFrag.curStepId))
   let sql = buildInsert()
     .insertInto("task")
@@ -248,12 +248,12 @@ async function getDefaultOrderNum(parentTaskId: number) {
 // -- Update
 // --
 
-export async function updateTask(context: BackendContext, updFrag: UpdTaskFragment) {
+export async function updateTask(context: BackendContext, updFrag: TaskUpdateFragment) {
   let cn = await getDbConnection()
 
   let taskId = int(updFrag.id)
 
-  let values = toSqlValues(updFrag, updTaskMeta, "exceptId")
+  let values = toSqlValues(updFrag, taskMeta.update, "exceptId")
   if (values) {
     if (await hasStepChange(context, updFrag))
       await logStepChange(context, updFrag.id, updFrag.curStepId!)
@@ -282,7 +282,7 @@ export async function updateTask(context: BackendContext, updFrag: UpdTaskFragme
   })
 }
 
-async function hasStepChange(context: BackendContext, updFrag: UpdTaskFragment): Promise<boolean> {
+async function hasStepChange(context: BackendContext, updFrag: TaskUpdateFragment): Promise<boolean> {
   if (updFrag.curStepId === undefined)
     return false
   let cn = await getDbConnection()

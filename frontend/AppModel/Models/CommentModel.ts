@@ -1,4 +1,4 @@
-import { CommentFragment } from "../../../isomorphic/fragments/Comment"
+import { CommentFragment } from "../../../isomorphic/meta/Comment"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
 import { ContributorModel } from "./ContributorModel"

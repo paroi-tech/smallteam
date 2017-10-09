@@ -1,20 +1,20 @@
 import { Type, Identifier } from "../../isomorphic/Cargo"
-import { NewContributorFragment, UpdContributorFragment, ContributorQuery, ContributorIdFragment } from "../../isomorphic/fragments/Contributor"
+import { ContributorCreateFragment, ContributorUpdateFragment, ContributorFetchFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { ContributorModel, registerContributor } from "./Models/ContributorModel"
-import { NewProjectFragment, UpdProjectFragment, ProjectIdFragment, ProjectQuery } from "../../isomorphic/fragments/Project"
+import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, ProjectFetchFragment } from "../../isomorphic/meta/Project"
 import { ProjectModel, registerProject } from "./Models/ProjectModel"
-import { NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorphic/fragments/Task"
+import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../isomorphic/meta/Task"
 import { TaskModel, registerTask } from "./Models/TaskModel"
-import { NewStepFragment, StepIdFragment } from "../../isomorphic/fragments/Step"
+import { StepCreateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { StepModel, registerStep } from "./Models/StepModel"
-import { NewStepTypeFragment, UpdStepTypeFragment, StepTypeIdFragment } from "../../isomorphic/fragments/StepType"
+import { StepTypeCreateFragment, StepTypeUpdateFragment, StepTypeIdFragment } from "../../isomorphic/meta/StepType"
 import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import ModelEngine, { CommandType } from "./ModelEngine"
 import { ComponentEvent, Transmitter } from "bkb"
 import { BgCommandManager, BgCommand } from "./BgCommandManager"
-import { NewFlagFragment, UpdFlagFragment, FlagIdFragment } from "../../isomorphic/fragments/Flag"
-import { CommentIdFragment, NewCommentFragment, UpdCommentFragment } from "../../isomorphic/fragments/Comment"
+import { FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
+import { CommentIdFragment, CommentCreateFragment, CommentUpdateFragment } from "../../isomorphic/meta/Comment"
 
 export interface WhoUseItem {
   type: Type,
@@ -22,37 +22,37 @@ export interface WhoUseItem {
 }
 
 export interface ModelCommandMethods {
-  exec(cmd: "create", type: "Contributor", frag: NewContributorFragment): Promise<ContributorModel>
-  exec(cmd: "update", type: "Contributor", frag: UpdContributorFragment): Promise<ContributorModel>
+  exec(cmd: "create", type: "Contributor", frag: ContributorCreateFragment): Promise<ContributorModel>
+  exec(cmd: "update", type: "Contributor", frag: ContributorUpdateFragment): Promise<ContributorModel>
   exec(cmd: "delete", type: "Contributor", frag: ContributorIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Project", frag: NewProjectFragment): Promise<ProjectModel>
-  exec(cmd: "update", type: "Project", frag: UpdProjectFragment): Promise<ProjectModel>
+  exec(cmd: "create", type: "Project", frag: ProjectCreateFragment): Promise<ProjectModel>
+  exec(cmd: "update", type: "Project", frag: ProjectUpdateFragment): Promise<ProjectModel>
   exec(cmd: "delete", type: "Project", frag: ProjectIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Task", frag: NewTaskFragment): Promise<TaskModel>
-  exec(cmd: "update", type: "Task", frag: UpdTaskFragment): Promise<TaskModel>
+  exec(cmd: "create", type: "Task", frag: TaskCreateFragment): Promise<TaskModel>
+  exec(cmd: "update", type: "Task", frag: TaskUpdateFragment): Promise<TaskModel>
   exec(cmd: "delete", type: "Task", frag: TaskIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Step", frag: NewStepFragment): Promise<StepModel>
+  exec(cmd: "create", type: "Step", frag: StepCreateFragment): Promise<StepModel>
   exec(cmd: "delete", type: "Step", frag: StepIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "StepType", frag: NewStepTypeFragment): Promise<StepTypeModel>
-  exec(cmd: "update", type: "StepType", frag: UpdStepTypeFragment): Promise<StepTypeModel>
+  exec(cmd: "create", type: "StepType", frag: StepTypeCreateFragment): Promise<StepTypeModel>
+  exec(cmd: "update", type: "StepType", frag: StepTypeUpdateFragment): Promise<StepTypeModel>
   exec(cmd: "delete", type: "StepType", frag: StepTypeIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Flag", frag: NewFlagFragment): Promise<FlagModel>
-  exec(cmd: "update", type: "Flag", frag: UpdFlagFragment): Promise<FlagModel>
+  exec(cmd: "create", type: "Flag", frag: FlagCreateFragment): Promise<FlagModel>
+  exec(cmd: "update", type: "Flag", frag: FlagUpdateFragment): Promise<FlagModel>
   exec(cmd: "delete", type: "Flag", frag: FlagIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Comment", frag: NewCommentFragment): Promise<FlagModel>
-  exec(cmd: "update", type: "Comment", frag: UpdCommentFragment): Promise<FlagModel>
+  exec(cmd: "create", type: "Comment", frag: CommentCreateFragment): Promise<FlagModel>
+  exec(cmd: "update", type: "Comment", frag: CommentUpdateFragment): Promise<FlagModel>
   exec(cmd: "delete", type: "Comment", frag: CommentIdFragment): Promise<void>
 
-  query(type: "Project", filters: ProjectQuery): Promise<Collection<ProjectModel, string>>
+  query(type: "Project", filters: ProjectFetchFragment): Promise<Collection<ProjectModel, string>>
   query(type: "StepType"): Promise<Collection<StepTypeModel, string>>
   query(type: "Flag"): Promise<Collection<FlagModel, string>>
-  query(type: "Contributor", filters?: ContributorQuery): Promise<Collection<ContributorModel, string>>
+  query(type: "Contributor", filters?: ContributorFetchFragment): Promise<Collection<ContributorModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "StepType", idList: string[]): Promise<string[]>

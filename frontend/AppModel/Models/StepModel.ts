@@ -1,7 +1,7 @@
-import { StepFragment } from "../../../isomorphic/fragments/Step"
+import { StepFragment } from "../../../isomorphic/meta/Step"
 import ModelEngine, { appendGettersToModel, CommandType, OrderProperties } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
-import { StepTypeFragment, UpdStepTypeFragment } from "../../../isomorphic/fragments/StepType"
+import { StepTypeFragment, StepTypeUpdateFragment } from "../../../isomorphic/meta/StepType"
 import { Model } from "../modelDefinitions"
 import { Type } from "../../../isomorphic/Cargo"
 
@@ -35,7 +35,7 @@ export function registerStep(engine: ModelEngine, appModel: Model) {
     return model as any
   })
 
-  engine.registerDependency("update", "StepType", function (frag: UpdStepTypeFragment) {
+  engine.registerDependency("update", "StepType", function (frag: StepTypeUpdateFragment) {
     return {
       type: "Step" as Type,
       idList: engine.getModels<StepModel>({
