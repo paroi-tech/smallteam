@@ -1,22 +1,23 @@
 .BoxList {
+  &-header {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
   &-ul {
     background-color: darkgray;
     padding-bottom: 20px;
   }
   &-li {
+    align-items: center;
     display: flex;
+    justify-content: space-between;
     min-height: 30px;
     padding: 5px 5px 5px 40px;
     position: relative;
     vertical-align: middle;
   }
-}
-
-.BoxList-header {
-  align-items: baseline;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
 }
 
 .BoxListHandle {
@@ -36,4 +37,9 @@
   &:hover {
     cursor: move;
   }
+}
+
+.BoxListItemRemove {
+  color: rgba(233, 6, 6, 0.876);
+  vertical-align: middle;
 }

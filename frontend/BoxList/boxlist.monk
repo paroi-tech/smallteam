@@ -1,7 +1,7 @@
 <div class="BoxList">
-  <div class="BoxList-header BlockTitle js-boxlist-header">
+  <header class="BoxList-header BlockTitle js-boxlist-header">
     <span class="js-title"></span>
     <span class="js-busy-icon fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
-  </div>
+  </header>
   <ul class="BoxList-ul"></ul>
 </div>
