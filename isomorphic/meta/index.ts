@@ -60,22 +60,20 @@ export function getFragmentMeta(type: Type, variant: TypeVariant = "read"): Frag
   return result
 }
 
-export function toIdentifier(frag: object, typeOrFragMeta: Type | FragmentMeta): Identifier {
-  let fragMeta = typeof typeOrFragMeta === "string" ? getFragmentMeta(typeOrFragMeta) : typeOrFragMeta
+export function toIdentifier(frag: object, type: Type): Identifier {
+  let fragMeta = getFragmentMeta(type, "id")
   let singleVal: string | undefined,
     values: { [fieldName: string]: string } | undefined
-  for (let fieldName in fragMeta.fields) {
-    if (fragMeta.fields.hasOwnProperty(fieldName) && fragMeta.fields[fieldName].id) {
-      if (frag[fieldName] === undefined)
-        throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName}`)
-      if (values)
-        singleVal = undefined
-      else {
-        singleVal = frag[fieldName]
-        values = {}
-      }
-      values[fieldName] = frag[fieldName]
+  for (let fieldName of Object.keys(fragMeta.fields)) {
+    if (frag[fieldName] === undefined)
+      throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName}`)
+    if (values)
+      singleVal = undefined
+    else {
+      singleVal = frag[fieldName]
+      values = {}
     }
+    values[fieldName] = frag[fieldName]
   }
   if (!values)
     throw new Error(`[${fragMeta.type}] No identifier`)

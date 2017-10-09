@@ -1,13 +1,20 @@
-import { StepTypeFragment, StepTypeUpdateFragment } from "../../../isomorphic/meta/StepType"
-import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { StepTypeFragment, StepTypeUpdateFragment, StepTypeCreateFragment, StepTypeIdFragment } from "../../../isomorphic/meta/StepType"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { WhoUseItem } from "../modelDefinitions"
 import { isStepSpecial } from "./StepModel"
 
-
+export interface StepTypeUpdateTools {
+  processing: boolean
+  whoUse(): Promise<WhoUseItem[] | null>
+  toFragment(variant: "update"): StepTypeUpdateFragment
+  toFragment(variant: "create"): StepTypeCreateFragment
+  toFragment(variant: "id"): StepTypeIdFragment
+  isModified(frag: StepTypeUpdateFragment): boolean
+  getDiffToUpdate(frag: StepTypeUpdateFragment): StepTypeUpdateFragment | null
+}
 
 export interface StepTypeModel extends StepTypeFragment {
-  isModified(frag: StepTypeUpdateFragment): boolean
-  whoUse(): Promise<WhoUseItem[]> // TODO: to implement
+  readonly updateTools: StepTypeUpdateTools
   readonly isSpecial: boolean
 }
 
@@ -24,6 +31,12 @@ export function registerStepType(engine: ModelEngine) {
       }
     }
     appendGettersToModel(model, "StepType", getFrag)
+    appendUpdateToolsToModel(model, "StepType", getFrag, engine, {
+      processing: true,
+      whoUse: true,
+      toFragment: true,
+      diffToUpdate: true
+    })
     return model as any
   })
 }

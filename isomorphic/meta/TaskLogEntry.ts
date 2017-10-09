@@ -1,4 +1,5 @@
 import { FragmentMeta } from "./index"
+import { pickFragmentMeta } from "./metaHelpers"
 
 export interface TaskLogEntryFragment {
   readonly id: string
@@ -31,8 +32,11 @@ const meta: FragmentMeta = {
   }
 }
 
+export type TaskLogEntryIdFragment = Pick<TaskLogEntryFragment, "id">
 export type TaskLogEntryFetchFragment = Pick<TaskLogEntryFragment, "taskId">
 
 export default {
-  read: meta
+  read: meta,
+  id: pickFragmentMeta("id", meta, ["id"]),
+  fetch: pickFragmentMeta("fetch", meta, ["taskId"])
 }

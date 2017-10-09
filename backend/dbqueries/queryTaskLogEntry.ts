@@ -8,7 +8,7 @@ import { TaskLogEntryFragment, TaskLogEntryFetchFragment } from "../../isomorphi
 // -- Read
 // --
 
-export async function queryTaskLogEntries(context: BackendContext, filters: TaskLogEntryFetchFragment) {
+export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntryFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromTaskLogEntry()
     .andWhere("l.task_id", int(filters.taskId))
@@ -23,7 +23,7 @@ export async function queryTaskLogEntries(context: BackendContext, filters: Task
   }
 }
 
-export async function fetchTaskLogEntries(context: BackendContext, idList: string[]) {
+export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()

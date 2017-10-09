@@ -12,7 +12,7 @@ import { logStepChange } from "./queryTaskLogEntry"
 // -- Read
 // --
 
-export async function queryTasks(context: BackendContext, filters: TaskFetchFragment) {
+export async function fetchTasks(context: BackendContext, filters: TaskFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
   if (filters.createdById !== undefined)
@@ -56,7 +56,7 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
   }
 }
 
-export async function fetchTasks(context: BackendContext, idList: string[]) {
+export async function fetchTasksByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()

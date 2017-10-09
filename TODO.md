@@ -10,7 +10,7 @@ the time, so I can't use JIRA.
     - Add a member `processing: boolean` (for update, delete)
       - Lionel: disable forms for the models during processing
     - Add a method `toFragment(variant: "update" | "insert" | "id")`
-    - Add a method `hasDiffToUpdate(updFrag): boolean`
+    - Add a method `isModified(updFrag): boolean`
     - Add a method `getDiffToUpdate(updFrag): null | FragUpd`
   - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies

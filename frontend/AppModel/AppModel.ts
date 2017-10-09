@@ -17,7 +17,6 @@ import { registerComment } from "./Models/CommentModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
 import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection, Session, SessionData } from "./modelDefinitions"
-import { FragmentMeta, toIdentifier } from "../../isomorphic/meta"
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
 import GenericBgCommandManager from "./BgCommandManager"
 
@@ -40,13 +39,13 @@ export { Session, SessionData }
 
 export default class ModelComp implements Model {
   private engine: ModelEngine
-  readonly bgCommandMng: GenericBgCommandManager
+  readonly bgManager: GenericBgCommandManager
   readonly global: GlobalModels
   readonly session: Session
 
   constructor(private dash: Dash<App>, sessionData: SessionData) {
     this.engine = new ModelEngine(dash)
-    this.bgCommandMng = new GenericBgCommandManager(dash)
+    this.bgManager = this.engine.bgManager
     registerContributor(this.engine)
     registerComment(this.engine)
     registerFlag(this.engine)
@@ -64,15 +63,15 @@ export default class ModelComp implements Model {
   // --
 
   public exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
-    return this.bgCommandMng.add(this.engine.exec(cmd, type, fragOrId), `${cmd} ${type}`).promise
+    return this.engine.exec(cmd, type, fragOrId)
   }
 
-  public query(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
-    return this.bgCommandMng.add(this.engine.query(type, filters), `query ${type}`).promise
+  public fetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
+    return this.engine.fetch(type, filters)
   }
 
   public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
-    return this.bgCommandMng.add(this.engine.reorder(type, { idList, groupName, groupId }), `reorder ${type}`).promise
+    return this.engine.reorder(type, { idList, groupName, groupId })
   }
 
   // --
@@ -80,16 +79,16 @@ export default class ModelComp implements Model {
   // --
 
   public createCommandBatch(): CommandBatch {
-    return new GenericCommandBatch(this.engine, this.bgCommandMng)
+    return new GenericCommandBatch(this.engine)
   }
 }
 
 function createGlobal(model: ModelComp): GlobalModels {
   let batch = model.createCommandBatch()
-  batch.query("StepType")
-  batch.query("Flag")
-  batch.query("Contributor")
-  batch.query("Project", { archived: false })
+  batch.fetch("StepType")
+  batch.fetch("Flag")
+  batch.fetch("Contributor")
+  batch.fetch("Project", { archived: false })
 
   let propNames = ["stepTypes", "flags", "contributors", "projects"]
   let typeNames: Type[] = ["StepType", "Flag", "Contributor", "Project"]

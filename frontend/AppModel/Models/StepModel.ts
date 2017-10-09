@@ -1,12 +1,19 @@
-import { StepFragment } from "../../../isomorphic/meta/Step"
-import ModelEngine, { appendGettersToModel, CommandType, OrderProperties } from "../ModelEngine"
+import { StepFragment, StepCreateFragment, StepIdFragment } from "../../../isomorphic/meta/Step"
+import ModelEngine, { appendGettersToModel, CommandType, OrderProperties, appendUpdateToolsToModel } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepTypeFragment, StepTypeUpdateFragment } from "../../../isomorphic/meta/StepType"
-import { Model } from "../modelDefinitions"
+import { Model, WhoUseItem } from "../modelDefinitions"
 import { Type } from "../../../isomorphic/Cargo"
 
+export interface StepUpdateTools {
+  processing: boolean
+  whoUse(): Promise<WhoUseItem[] | null>
+  toFragment(variant: "create"): StepCreateFragment
+  toFragment(variant: "id"): StepIdFragment
+}
 
 export interface StepModel extends StepFragment {
+  readonly updateTools: StepUpdateTools
   readonly project: ProjectModel
   readonly isSpecial: boolean
   readonly taskCount: number
@@ -32,6 +39,11 @@ export function registerStep(engine: ModelEngine, appModel: Model) {
       }
     }
     appendGettersToModel(model, "Step", getFrag)
+    appendUpdateToolsToModel(model, "Step", getFrag, engine, {
+      processing: true,
+      whoUse: true,
+      toFragment: true
+    })
     return model as any
   })
 

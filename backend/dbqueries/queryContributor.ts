@@ -9,7 +9,7 @@ import { hash, compare } from "bcrypt"
 
 const saltRounds = 10
 
-export async function fetchContributors(context: BackendContext, idList: string[]) {
+export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -22,7 +22,7 @@ export async function fetchContributors(context: BackendContext, idList: string[
   }
 }
 
-export async function queryContributors(context: BackendContext) {
+export async function fetchContributors(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromContributor()
     .orderBy("name")

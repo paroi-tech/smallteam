@@ -8,7 +8,7 @@ import commentMeta, { CommentFragment, CommentCreateFragment, CommentIdFragment,
 // -- Read
 // --
 
-export async function queryComments(context: BackendContext, filters: CommentFetchFragment) {
+export async function fetchComments(context: BackendContext, filters: CommentFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromComment()
   sql.andWhere("c.task_id", int(filters.taskId))
@@ -22,7 +22,7 @@ export async function queryComments(context: BackendContext, filters: CommentFet
   }
 }
 
-export async function fetchComments(context: BackendContext, idList: string[]) {
+export async function fetchCommentsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()

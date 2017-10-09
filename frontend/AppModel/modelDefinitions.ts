@@ -49,10 +49,10 @@ export interface ModelCommandMethods {
   exec(cmd: "update", type: "Comment", frag: CommentUpdateFragment): Promise<FlagModel>
   exec(cmd: "delete", type: "Comment", frag: CommentIdFragment): Promise<void>
 
-  query(type: "Project", filters: ProjectFetchFragment): Promise<Collection<ProjectModel, string>>
-  query(type: "StepType"): Promise<Collection<StepTypeModel, string>>
-  query(type: "Flag"): Promise<Collection<FlagModel, string>>
-  query(type: "Contributor", filters?: ContributorFetchFragment): Promise<Collection<ContributorModel, string>>
+  fetch(type: "Project", filters: ProjectFetchFragment): Promise<Collection<ProjectModel, string>>
+  fetch(type: "StepType"): Promise<Collection<StepTypeModel, string>>
+  fetch(type: "Flag"): Promise<Collection<FlagModel, string>>
+  fetch(type: "Contributor", filters?: ContributorFetchFragment): Promise<Collection<ContributorModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "StepType", idList: string[]): Promise<string[]>
@@ -93,5 +93,5 @@ export interface Model extends ModelCommandMethods {
   createCommandBatch(): CommandBatch
   readonly global: GlobalModels
   readonly session: Session
-  readonly bgCommandMng: BgCommandManager
+  readonly bgManager: BgCommandManager
 }

@@ -10,7 +10,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function queryFlags(context: BackendContext) {
+export async function fetchFlags(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromFlag()
   let rs = await cn.all(sql.toSql())
@@ -24,7 +24,7 @@ export async function queryFlags(context: BackendContext) {
   }
 }
 
-export async function fetchFlags(context: BackendContext, idList: string[]) {
+export async function fetchFlagsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()

@@ -12,7 +12,7 @@ import { fetchStepsByProjects } from "./queryStep"
 // -- Read
 // --
 
-export async function queryProjects(context: BackendContext, filters: ProjectFetchFragment) {
+export async function fetchProjects(context: BackendContext, filters: ProjectFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromProject()
   if (filters.archived !== undefined)
@@ -49,7 +49,7 @@ export async function queryProjects(context: BackendContext, filters: ProjectFet
   await fetchProjectTasks(context, projectIdList)
 }
 
-export async function fetchProjects(context: BackendContext, idList: string[]) {
+export async function fetchProjectsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()

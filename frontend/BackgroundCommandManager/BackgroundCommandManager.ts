@@ -21,7 +21,7 @@ export default class BackgroundCommandManager {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.bgCmdManager = this.dash.app.model.bgCommandMng
+    this.bgCmdManager = this.dash.app.model.bgManager
     this.el = this.createHtmlElements()
     this.buttonEl = this.createHtmlMenuButtonElement()
     this.listenToModel()

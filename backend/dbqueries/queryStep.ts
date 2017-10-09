@@ -10,7 +10,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function fetchSteps(context: BackendContext, idList: string[]) {
+export async function fetchStepsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
