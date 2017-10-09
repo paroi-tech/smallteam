@@ -111,7 +111,7 @@ export default class ModelEngine {
   private processing = new Set<string>()
 
   constructor(private dash: Dash<object>) {
-    this.dash.exposeEvents(`change`, `create`, `update`, `delete`, `reorder`)
+    this.dash.exposeEvents("change", "create", "update", "delete", "reorder", "processing", "endProcessing")
     this.bgManager = new GenericBgCommandManager(dash)
   }
 
@@ -121,7 +121,10 @@ export default class ModelEngine {
       indexes: makeHKMap<any, any>(),
       modelMaker
     })
-    this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`)
+    this.dash.exposeEvents(
+      `change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`,
+      `processing${type}`, `endProcessing${type}`
+    )
   }
 
   public registerDependency(cmd: CommandType | "reorder", dependOf: Type, getDependencies: GetDependencies) {
@@ -165,9 +168,12 @@ export default class ModelEngine {
   private async doExec(cmd: CommandType, type: Type, frag: object): Promise<any | undefined> {
     let dependencies = this.getExecDependencies(cmd, type, frag)
     let del = cmd === "delete"
-    let processingKey = del || cmd === "update" ? JSON.stringify([type, toIdentifier(frag, type)]) : null
-    if (processingKey)
-      this.processing.add(processingKey)
+    let processingKey: string | undefined,
+      id: Identifier | undefined
+    if (cmd === "delete" || cmd === "update") {
+      id = toIdentifier(frag, type)
+      processingKey = this.startProcessing(type, cmd, id)
+    }
     try {
       let resultFrag = await this.httpSendAndUpdate(
         "POST",
@@ -179,8 +185,32 @@ export default class ModelEngine {
         return this.getModel(type, toIdentifier(resultFrag, type))
     } finally {
       if (processingKey)
-        this.processing.delete(processingKey)
+        this.endProcessing(type, cmd, id!, processingKey)
     }
+  }
+
+  private endProcessing(type: Type, cmd: CommandType, id: Identifier, processingKey: string) {
+    let that = this
+    this.processing.delete(processingKey)
+    this.dash.emit(["endProcessing", `endProcessing${type}`], {
+      type, cmd, id,
+      get model() {
+        return cmd === "delete" ? undefined : that.getModel(type, id)
+      }
+    } as UpdateModelEvent)
+  }
+
+  private startProcessing(type: Type, cmd: CommandType, id: Identifier): string {
+    let processingKey = JSON.stringify([type, id])
+    let that = this
+    this.processing.add(processingKey)
+    this.dash.emit(["processing", `processing${type}`], {
+      type, cmd, id,
+      get model() {
+        return cmd === "delete" ? undefined : that.getModel(type, id)
+      }
+    } as UpdateModelEvent)
+    return processingKey
   }
 
   public isProcessing(id: Identifier, type: Type): boolean {

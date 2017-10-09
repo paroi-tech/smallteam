@@ -4,7 +4,7 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
-  - Add events `processingUpdateStepType`, `processingDelete`, etc.
+  - Add events `processing${type}`, `endProcessing${type}`, etc.
   - On each model, add a member `tools`:
     - Implement methods `whoUse`
     - Add a member `processing: boolean` (for update, delete)
