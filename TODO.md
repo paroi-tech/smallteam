@@ -14,7 +14,7 @@ the time, so I can't use JIRA.
   - Implement `session/recover` the password recovery
   - Implement `session/save-password`
   - Implement `session/disconnect`
-- Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
+- Investigate TS transformers, maybe they could generate meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - Use HTTPS, deploy the project on the Web server
 - Keep HKMap?
 - Refactoring in the backend, one code for all the reordering
@@ -46,10 +46,14 @@ the time, so I can't use JIRA.
   - Disable the submit button until there are any changes
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
-# Thomas or Lionel
+# Not urgent
 
 - Add roles for users
-
+- Replace `alert` & `confirm` with a component `ShortDialog`
+- Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
+- Use true avatars
+- Add attached files to tasks
+- Use a GitHub hook to show the commits on tasks
 
 # Lionel - DONE
 - On task update, update the flags shown in TaskBox
