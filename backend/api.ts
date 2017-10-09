@@ -1,13 +1,13 @@
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { fetchContributors, queryContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor } from "./dbqueries/queryContributor"
-import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
-import { createStep, deleteStep, fetchSteps } from "./dbqueries/queryStep"
-import { createTask, updateTask, fetchTasks, reorderChildTasks, deleteTask } from "./dbqueries/queryTask"
-import { createStepType, fetchStepTypes, queryStepTypes, updateStepType, reorderStepTypes, deleteStepType } from "./dbqueries/queryStepType"
+import { fetchContributorsByIds, fetchContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor } from "./dbqueries/queryContributor"
+import { fetchProjects, createProject, fetchProjectsByIds, updateProject, deleteProject } from "./dbqueries/queryProject"
+import { createStep, deleteStep, fetchStepsByIds } from "./dbqueries/queryStep"
+import { createTask, updateTask, fetchTasksByIds, reorderChildTasks, deleteTask, fetchTasks } from "./dbqueries/queryTask"
+import { createStepType, fetchStepTypesByIds, fetchStepTypes, updateStepType, reorderStepTypes, deleteStepType } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
-import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
-import { queryComments, createComment, updateComment, deleteComment, fetchComments } from "./dbqueries/queryComment"
-import { queryTaskLogEntries, fetchTaskLogEntries } from "./dbqueries/queryTaskLogEntry"
+import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
+import { fetchComments, createComment, updateComment, deleteComment, fetchCommentsByIds } from "./dbqueries/queryComment"
+import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 
 export async function routeQuery(data, sessionData: SessionData): Promise<Cargo> {
@@ -15,7 +15,7 @@ export async function routeQuery(data, sessionData: SessionData): Promise<Cargo>
     sessionData,
     loader: new CargoLoader()
   }
-  await executeQuery(context, data)
+  await executeFetch(context, data)
   return context.loader.toCargo()
 }
 
@@ -37,8 +37,8 @@ export async function executeBatch(list: any[], sessionData: SessionData): Promi
     let cmd = data.cmd
     if (!cmd)
       throw new Error(`Missing command`)
-    if (cmd === "query")
-      await executeQuery(context, data)
+    if (cmd === "fetch")
+      await executeFetch(context, data)
     else
       await executeCommand(context, data)
   }
@@ -46,19 +46,20 @@ export async function executeBatch(list: any[], sessionData: SessionData): Promi
 }
 
 const queries = {
-  Project: queryProjects,
-  StepType: queryStepTypes,
-  Flag: queryFlags,
-  Contributor: queryContributors,
-  Comment: queryComments,
-  TaskLogEntry: queryTaskLogEntries
+  Project: fetchProjects,
+  Task: fetchTasks,
+  StepType: fetchStepTypes,
+  Flag: fetchFlags,
+  Contributor: fetchContributors,
+  Comment: fetchComments,
+  TaskLogEntry: fetchTaskLogEntries
 }
 
-async function executeQuery(context: BackendContext, data) {
+async function executeFetch(context: BackendContext, data) {
   context.loader.startResponse("fragments")
   let cb = queries[data.type]
   if (!cb)
-    throw new Error(`Invalid query type: "${data.type}"`)
+    throw new Error(`Invalid fetch type: "${data.type}"`)
   await cb(context, data.filters || {})
   await completeCargo(context)
 }
@@ -173,13 +174,13 @@ async function completeCargo(context: BackendContext) {
   while (!upd.isFragmentsComplete()) {
     if (++count > 100)
       throw new Error(`Cannot complete the cargo, missing: ${upd.getMissingFragmentTypes().join(", ")}`)
-    await fetchProjects(context, upd.getNeededFragments("Project") as any)
-    await fetchTasks(context, upd.getNeededFragments("Task") as any)
-    await fetchSteps(context, upd.getNeededFragments("Step") as any)
-    await fetchStepTypes(context, upd.getNeededFragments("StepType") as any)
-    await fetchFlags(context, upd.getNeededFragments("Flag") as any)
-    await fetchContributors(context, upd.getNeededFragments("Contributor") as any)
-    await fetchComments(context, upd.getNeededFragments("Comment") as any)
-    await fetchTaskLogEntries(context, upd.getNeededFragments("TaskLogEntry") as any)
+    await fetchProjectsByIds(context, upd.getNeededFragments("Project") as any)
+    await fetchTasksByIds(context, upd.getNeededFragments("Task") as any)
+    await fetchStepsByIds(context, upd.getNeededFragments("Step") as any)
+    await fetchStepTypesByIds(context, upd.getNeededFragments("StepType") as any)
+    await fetchFlagsByIds(context, upd.getNeededFragments("Flag") as any)
+    await fetchContributorsByIds(context, upd.getNeededFragments("Contributor") as any)
+    await fetchCommentsByIds(context, upd.getNeededFragments("Comment") as any)
+    await fetchTaskLogEntriesByIds(context, upd.getNeededFragments("TaskLogEntry") as any)
   }
 }

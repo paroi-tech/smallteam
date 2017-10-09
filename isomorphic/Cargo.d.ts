@@ -1,11 +1,11 @@
-import { CommentFragment } from "./fragments/Comment"
-import { ContributorFragment } from "./fragments/Contributor"
-import { FlagFragment } from "./fragments/Flag"
-import { ProjectFragment } from "./fragments/Project"
-import { StepFragment } from "./fragments/Step"
-import { StepTypeFragment } from "./fragments/StepType"
-import { TaskFragment } from "./fragments/Task"
-import { TaskLogEntryFragment } from "./fragments/TaskLogEntry"
+import { CommentFragment } from "./meta/Comment"
+import { ContributorFragment } from "./meta/Contributor"
+import { FlagFragment } from "./meta/Flag"
+import { ProjectFragment } from "./meta/Project"
+import { StepFragment } from "./meta/Step"
+import { StepTypeFragment } from "./meta/StepType"
+import { TaskFragment } from "./meta/Task"
+import { TaskLogEntryFragment } from "./meta/TaskLogEntry"
 
 export interface Fragments {
   Comment?: CommentFragment[]

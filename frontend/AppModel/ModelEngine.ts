@@ -1,12 +1,12 @@
 import config from "../../isomorphic/config"
 import { Dash } from "bkb"
-import { FragmentMeta } from "../../isomorphic/FragmentMeta"
-import { getFragmentMeta, toIdentifier } from "../../isomorphic/meta"
+import { getFragmentMeta, toIdentifier, FragmentMeta, TypeVariant } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate, Identifiers, Dependencies } from "../../isomorphic/Cargo"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
 import { toDebugStr } from "../../isomorphic/libraries/helpers"
-import { Collection } from "./modelDefinitions"
+import { Collection, WhoUseItem } from "./modelDefinitions"
+import GenericBgCommandManager from "./BgCommandManager"
 
 // --
 // -- Public types
@@ -103,12 +103,16 @@ interface Batch {
 }
 
 export default class ModelEngine {
+  readonly bgManager: GenericBgCommandManager
+
   private store = makeHKMap<Type, TypeStorage>()
   private dependencies = new Map<string, GetDependencies[]>()
   private batch: Batch | null = null
+  private processing = new Set<string>()
 
   constructor(private dash: Dash<object>) {
-    this.dash.exposeEvents(`change`, `create`, `update`, `delete`, `reorder`)
+    this.dash.exposeEvents("change", "create", "update", "delete", "reorder", "processing", "endProcessing")
+    this.bgManager = new GenericBgCommandManager(dash)
   }
 
   public registerType(type: Type, modelMaker: (getFrag: () => object) => object) {
@@ -117,7 +121,10 @@ export default class ModelEngine {
       indexes: makeHKMap<any, any>(),
       modelMaker
     })
-    this.dash.exposeEvents(`change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`)
+    this.dash.exposeEvents(
+      `change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`,
+      `processing${type}`, `endProcessing${type}`
+    )
   }
 
   public registerDependency(cmd: CommandType | "reorder", dependOf: Type, getDependencies: GetDependencies) {
@@ -154,20 +161,67 @@ export default class ModelEngine {
     }
   }
 
-  public async exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
-    let del = cmd === "delete"
-    let dependencies = this.getExecDependencies(cmd, type, frag)
-    let resultFrag = await this.httpSendAndUpdate(
-      "POST",
-      "/api/exec",
-      { cmd, type, frag, dependencies },
-      del ? "none" : "fragment"
-    )
-    if (!del)
-      return this.getModel(type, toIdentifier(resultFrag, getFragmentMeta(type)))
+  public exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
+    return this.bgManager.add(this.doExec(cmd, type, frag), `${cmd} ${type}`).promise
   }
 
-  public async reorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
+  private async doExec(cmd: CommandType, type: Type, frag: object): Promise<any | undefined> {
+    let dependencies = this.getExecDependencies(cmd, type, frag)
+    let del = cmd === "delete"
+    let processingKey: string | undefined,
+      id: Identifier | undefined
+    if (cmd === "delete" || cmd === "update") {
+      id = toIdentifier(frag, type)
+      processingKey = this.startProcessing(type, cmd, id)
+    }
+    try {
+      let resultFrag = await this.httpSendAndUpdate(
+        "POST",
+        "/api/exec",
+        { cmd, type, frag, dependencies },
+        del ? "none" : "fragment"
+      )
+      if (!del)
+        return this.getModel(type, toIdentifier(resultFrag, type))
+    } finally {
+      if (processingKey)
+        this.endProcessing(type, cmd, id!, processingKey)
+    }
+  }
+
+  private endProcessing(type: Type, cmd: CommandType, id: Identifier, processingKey: string) {
+    let that = this
+    this.processing.delete(processingKey)
+    this.dash.emit(["endProcessing", `endProcessing${type}`], {
+      type, cmd, id,
+      get model() {
+        return cmd === "delete" ? undefined : that.getModel(type, id)
+      }
+    } as UpdateModelEvent)
+  }
+
+  private startProcessing(type: Type, cmd: CommandType, id: Identifier): string {
+    let processingKey = JSON.stringify([type, id])
+    let that = this
+    this.processing.add(processingKey)
+    this.dash.emit(["processing", `processing${type}`], {
+      type, cmd, id,
+      get model() {
+        return cmd === "delete" ? undefined : that.getModel(type, id)
+      }
+    } as UpdateModelEvent)
+    return processingKey
+  }
+
+  public isProcessing(id: Identifier, type: Type): boolean {
+    return this.processing.has(JSON.stringify([type, id]))
+  }
+
+  public reorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
+    return this.bgManager.add(this.doReorder(type, orderedIds), `reorder ${type}`).promise
+  }
+
+  private async doReorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
     let orderFieldName = getFragmentMeta(type).orderFieldName
     if (!orderFieldName)
       throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
@@ -181,13 +235,17 @@ export default class ModelEngine {
       .map(obj => obj.id)
   }
 
-  public async query(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
-    let data: any = { cmd: "query", type }
+  public fetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
+    return this.bgManager.add(this.doFetch(type, filters), `fetch ${type}`).promise
+  }
+
+  public async doFetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
+    let data: any = { cmd: "fetch", type }
     if (filters)
       data.filters = filters
     let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/query", data, "fragments"),
       fragMeta = getFragmentMeta(type)
-    return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, fragMeta))), type)
+    return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, type))), type)
   }
 
   public getModel(type: Type, id: Identifier): any {
@@ -292,13 +350,11 @@ export default class ModelEngine {
   }
 
   private updateStore(fragments: Fragments) {
-    for (let type in fragments) {
-      if (!fragments.hasOwnProperty(type))
-        continue
+    for (let [type, list] of Object.entries(fragments)) {
       let storage = this.getTypeStorage(type as Type)
       let fragMeta = getFragmentMeta(type as Type)
-      for (let frag of fragments[type]) {
-        let id = toIdentifier(frag, fragMeta),
+      for (let frag of list) {
+        let id = toIdentifier(frag, type as Type),
           prevEntity = storage.entities.get(id)
         if (prevEntity) {
           if (prevEntity.deleted)
@@ -316,13 +372,11 @@ export default class ModelEngine {
   }
 
   private updateStoreFromPartial(partial: PartialFragments) {
-    for (let type in partial) {
-      if (!partial.hasOwnProperty(type))
-        continue
+    for (let [type, list] of Object.entries(partial)) {
       let storage = this.getTypeStorage(type as Type)
       let fragMeta = getFragmentMeta(type as Type)
-      for (let partialFrag of partial[type]) {
-        let id = toIdentifier(partialFrag, fragMeta)
+      for (let partialFrag of list!) {
+        let id = toIdentifier(partialFrag, type as Type)
         let entity = storage.entities.get(id)
         if (entity && !entity.deleted)
           updateEntityFromPartial(storage, id, partialFrag, entity, fragMeta)
@@ -464,13 +518,78 @@ export default class ModelEngine {
 // -- Public tools
 // --
 
-export function appendGettersToModel(model: object, type: Type, getFrag: () => object) {
+export function appendGettersToModel(output: object, type: Type, getFrag: () => object) {
   let fragMeta = getFragmentMeta(type)
   for (let fieldName of Object.keys(fragMeta.fields)) {
-    Object.defineProperty(model, fieldName, {
+    Object.defineProperty(output, fieldName, {
       get: function () { return getFrag()[fieldName] },
       configurable: false
     })
+  }
+}
+
+export interface UpdateToolsOptions {
+  processing?: boolean,
+  whoUse?: boolean,
+  toFragment?: boolean,
+  diffToUpdate?: boolean
+}
+
+export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () => object, engine: ModelEngine, opt: UpdateToolsOptions) {
+  output.updateTools = {}
+
+  if (opt.processing) {
+    Object.defineProperty(output.updateTools, "processing", {
+      get: function () {
+        return engine.isProcessing(toIdentifier(getFrag(), type), type)
+      },
+      configurable: false
+    })
+  }
+
+  if (opt.whoUse) {
+    output.updateTools.whoUse = () => engine.bgManager.add((async () => {
+      let fetched = await httpSendJson("POST", "/who-use", { // TODO: implement in backend
+        type,
+        id: toIdentifier(getFrag(), type)
+      })
+      if (!fetched.done)
+        throw new Error(`Error on server: ${fetched.error}`)
+      return (fetched.result || null) as WhoUseItem[] | null
+    })(), `who-use ${type}`).promise
+  }
+
+  if (opt.toFragment) {
+    output.updateTools.toFragment = (variant: TypeVariant) => {
+      let input = getFrag(),
+        result: any = {},
+        meta = getFragmentMeta(type, variant)
+      for (let fieldName of Object.keys(meta.fields))
+        result[fieldName] = input[fieldName]
+      return result
+    }
+  }
+
+  if (opt.diffToUpdate) {
+    output.updateTools.isModified = (updFrag: any) => {
+      let orig = getFrag(),
+        meta = getFragmentMeta(type, "update")
+      for (let fieldName of Object.keys(meta.fields)) {
+        if (updFrag[fieldName] !== undefined && updFrag[fieldName] !== orig[fieldName])
+          return true
+      }
+      return false
+    }
+    output.updateTools.getDiffToUpdate = (updFrag: any) => {
+      let orig = getFrag(),
+        diff: any = {},
+        meta = getFragmentMeta(type, "update")
+      for (let fieldName of Object.keys(meta.fields)) {
+        if (updFrag[fieldName] !== undefined && updFrag[fieldName] !== orig[fieldName])
+          diff[fieldName] = updFrag[fieldName]
+      }
+      return diff
+    }
   }
 }
 
@@ -567,7 +686,7 @@ function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
   return !ref["list"]
 }
 
-async function httpSendJson(method: HttpMethod, url: string, data): Promise<any> {
+export async function httpSendJson(method: HttpMethod, url: string, data): Promise<any> {
   url = `${config.urlPrefix}${url}`
   console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {

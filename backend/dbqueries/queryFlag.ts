@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import { FlagFragment, NewFlagFragment, newFlagMeta, UpdFlagFragment, updFlagMeta, FlagIdFragment } from "../../isomorphic/fragments/Flag"
+import flagMeta, { FlagFragment, FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -10,7 +10,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function queryFlags(context: BackendContext) {
+export async function fetchFlags(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromFlag()
   let rs = await cn.all(sql.toSql())
@@ -24,7 +24,7 @@ export async function queryFlags(context: BackendContext) {
   }
 }
 
-export async function fetchFlags(context: BackendContext, idList: string[]) {
+export async function fetchFlagsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -57,7 +57,7 @@ function toFlagFragment(row): FlagFragment {
 // -- Create
 // --
 
-export async function createFlag(context: BackendContext, newFrag: NewFlagFragment) {
+export async function createFlag(context: BackendContext, newFrag: FlagCreateFragment) {
   let cn = await getDbConnection()
 
   if (newFrag.orderNum === undefined)
@@ -65,7 +65,7 @@ export async function createFlag(context: BackendContext, newFrag: NewFlagFragme
 
   let sql = buildInsert()
     .insertInto("flag")
-    .values(toSqlValues(newFrag, newFlagMeta))
+    .values(toSqlValues(newFrag, flagMeta.create))
   let ps = await cn.run(sql.toSql()),
     flagId = ps.lastID
 
@@ -90,12 +90,12 @@ async function getDefaultOrderNum() {
 // -- Update
 // --
 
-export async function updateFlag(context: BackendContext, updFrag: UpdFlagFragment) {
+export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFragment) {
   let cn = await getDbConnection()
 
   let flagId = parseInt(updFrag.id, 10)
 
-  let values = toSqlValues(updFrag, updFlagMeta, "exceptId")
+  let values = toSqlValues(updFrag, flagMeta.update, "exceptId")
   if (values === null)
     return
 

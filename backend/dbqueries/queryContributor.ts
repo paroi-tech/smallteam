@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import { ContributorFragment, NewContributorFragment, newContributorMeta, UpdContributorFragment, updContributorMeta, ContributorIdFragment } from "../../isomorphic/fragments/Contributor"
+import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -9,7 +9,7 @@ import { hash, compare } from "bcrypt"
 
 const saltRounds = 10
 
-export async function fetchContributors(context: BackendContext, idList: string[]) {
+export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -22,7 +22,7 @@ export async function fetchContributors(context: BackendContext, idList: string[
   }
 }
 
-export async function queryContributors(context: BackendContext) {
+export async function fetchContributors(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromContributor()
     .orderBy("name")
@@ -56,12 +56,12 @@ function selectFromContributor() {
 // -- Create
 // --
 
-export async function createContributor(context: BackendContext, newFrag: NewContributorFragment) {
+export async function createContributor(context: BackendContext, newFrag: ContributorCreateFragment) {
   let cn = await getDbConnection()
   let passwordHash = await hash("init", saltRounds)
   let sql = buildInsert()
     .insertInto("contributor")
-    .values(toSqlValues(newFrag, newContributorMeta))
+    .values(toSqlValues(newFrag, contributorMeta.create))
     .values({ "password": passwordHash })
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
@@ -77,11 +77,11 @@ export async function createContributor(context: BackendContext, newFrag: NewCon
 // -- Update
 // --
 
-export async function updateContributor(context: BackendContext, updFrag: UpdContributorFragment) {
+export async function updateContributor(context: BackendContext, updFrag: ContributorUpdateFragment) {
   let cn = await getDbConnection()
   let contributorId = parseInt(updFrag.id, 10)
 
-  let values = toSqlValues(updFrag, updContributorMeta, "exceptId")
+  let values = toSqlValues(updFrag, contributorMeta.update, "exceptId")
   if (values === null)
     return
   let sql = buildUpdate()

@@ -97,6 +97,14 @@ export default class App {
       console.log(`[BG] Error: ${data.label}`, data.errorMessage)
     })
 
+    this.dash.listenTo<UpdateModelEvent>(this.model, "processing").onData(data => {
+      console.log(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
+
+    this.dash.listenTo<UpdateModelEvent>(this.model, "endProcessing").onData(data => {
+      console.log(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
+
     await this.model.global.load
   }
 }

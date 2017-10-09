@@ -1,4 +1,5 @@
-import { FragmentMeta, pickFragmentMeta, UpdPick, updPickFragmentMeta } from "../FragmentMeta"
+import { FragmentMeta } from "./index"
+import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta, SearchPick, searchPickFragmentMeta } from "./metaHelpers"
 
 export interface StepFragment {
   readonly id: string
@@ -8,8 +9,9 @@ export interface StepFragment {
   readonly projectId: string
 }
 
-export const stepMeta: FragmentMeta = {
+const meta: FragmentMeta = {
   type: "Step",
+  variant: "read",
   fields: {
     id: {
       dataType: "string",
@@ -32,8 +34,11 @@ export const stepMeta: FragmentMeta = {
   orderFieldName: "orderNum"
 }
 
-export type NewStepFragment = Pick<StepFragment, "typeId" | "projectId">
-export const newStepMeta = pickFragmentMeta("New", stepMeta, ["typeId", "projectId"])
-
+export type StepCreateFragment = Pick<StepFragment, "typeId" | "projectId">
 export type StepIdFragment = Pick<StepFragment, "id">
-export const StepIdMeta = pickFragmentMeta("Id", stepMeta, ["id"])
+
+export default {
+  read: meta,
+  create: pickFragmentMeta("create", meta, ["typeId", "projectId"]),
+  id: pickFragmentMeta("id", meta, ["id"])
+}

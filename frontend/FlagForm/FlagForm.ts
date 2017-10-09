@@ -4,7 +4,7 @@ import { Model, FlagModel } from "../AppModel/AppModel"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import { NewFlagFragment, UpdFlagFragment } from "../../isomorphic/fragments/Flag"
+import { FlagCreateFragment, FlagUpdateFragment } from "../../isomorphic/meta/Flag"
 
 import * as template from "./flagform.monk"
 
@@ -112,7 +112,7 @@ export default class FlagForm {
     this.submitSpinnerEl.style.display = "none"
   }
 
-  private async createFlag(frag: NewFlagFragment) {
+  private async createFlag(frag: FlagCreateFragment) {
     try {
       await this.model.exec("create", "Flag", frag)
       this.reset()
@@ -122,7 +122,7 @@ export default class FlagForm {
     }
   }
 
-  private async updateFlag(frag: UpdFlagFragment) {
+  private async updateFlag(frag: FlagUpdateFragment) {
     if (!this.flag)
       return
     try {

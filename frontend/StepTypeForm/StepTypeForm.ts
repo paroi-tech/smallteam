@@ -140,8 +140,8 @@ export default class StepTypeForm {
     if (!this.stepType)
       return
     try {
-      let w = await this.stepType.whoUse()
-      if (w.length !== 0) {
+      let w = await this.stepType.updateTools.whoUse()
+      if (w) {
         alert("Can't delete step type.")
         return
       }

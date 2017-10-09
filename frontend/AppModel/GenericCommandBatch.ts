@@ -13,7 +13,7 @@ interface EngineCommand {
 export class GenericCommandBatch implements ModelCommandMethods {
   private commands: EngineCommand[] = []
 
-  constructor(private engine: ModelEngine, private bgCommandMng: GenericBgCommandManager) {
+  constructor(private engine: ModelEngine) {
   }
 
   public exec(...args): Promise<any> {
@@ -23,17 +23,17 @@ export class GenericCommandBatch implements ModelCommandMethods {
       args,
       deferred
     })
-    return this.bgCommandMng.add(deferred.promise, `${args[0]} ${args[1]}`).promise
+    return deferred.promise
   }
 
-  public query(...args): Promise<Collection<any, Identifier>> {
+  public fetch(...args): Promise<Collection<any, Identifier>> {
     let deferred = new Deferred<Collection<any, Identifier>>()
     this.commands.push({
-      method: "query",
+      method: "fetch",
       args,
       deferred
     })
-    return this.bgCommandMng.add(deferred.promise, `query ${args[0]}`).promise
+    return deferred.promise
   }
 
   public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
@@ -43,7 +43,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
       args: [type, { idList, groupId }],
       deferred
     })
-    return this.bgCommandMng.add(deferred.promise, `reorder ${type}`).promise
+    return deferred.promise
   }
 
   public async sendAll(): Promise<any[]> {

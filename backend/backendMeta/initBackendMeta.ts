@@ -1,16 +1,16 @@
 import { addBackendFragmentMeta } from "./backendMetaStore"
-import { projectMeta } from "../../isomorphic/fragments/Project"
-import { taskMeta } from "../../isomorphic/fragments/Task"
-import { stepMeta } from "../../isomorphic/fragments/Step"
-import { stepTypeMeta } from "../../isomorphic/fragments/StepType"
-import { taskLogEntryMeta } from "../../isomorphic/fragments/TaskLogEntry"
-import { flagMeta } from "../../isomorphic/fragments/Flag"
-import { commentMeta } from "../../isomorphic/fragments/Comment"
-import { contributorMeta } from "../../isomorphic/fragments/Contributor"
+import projectMeta from "../../isomorphic/meta/Project"
+import taskMeta from "../../isomorphic/meta/Task"
+import stepMeta from "../../isomorphic/meta/Step"
+import stepTypeMeta from "../../isomorphic/meta/StepType"
+import taskLogEntryMeta from "../../isomorphic/meta/TaskLogEntry"
+import flagMeta from "../../isomorphic/meta/Flag"
+import commentMeta from "../../isomorphic/meta/Comment"
+import contributorMeta from "../../isomorphic/meta/Contributor"
 
 
 addBackendFragmentMeta(
-  projectMeta,
+  projectMeta.read,
   {
     id: {
       column: "project_id",
@@ -22,7 +22,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  contributorMeta,
+  contributorMeta.read,
   {
     id: {
       column: "contributor_id",
@@ -35,7 +35,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  taskMeta,
+  taskMeta.read,
   {
     id: {
       column: "task_id",
@@ -60,7 +60,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  stepMeta,
+  stepMeta.read,
   {
     id: {
       column: "step_id",
@@ -77,7 +77,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  stepTypeMeta,
+  stepTypeMeta.read,
   {
     id: {
       column: "step_type_id",
@@ -89,7 +89,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  taskLogEntryMeta,
+  taskLogEntryMeta.read,
   {
     id: {
       column: "task_log_id",
@@ -111,7 +111,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  flagMeta,
+  flagMeta.read,
   {
     id: {
       column: "flag_id",
@@ -123,7 +123,7 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  commentMeta,
+  commentMeta.read,
   {
     id: {
       column: "flag_id",

@@ -1,8 +1,9 @@
-import { TaskLogEntryFragment } from "../../../isomorphic/fragments/TaskLogEntry"
-import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import { TaskLogEntryFragment, TaskLogEntryIdFragment } from "../../../isomorphic/meta/TaskLogEntry"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
+import { WhoUseItem } from "../modelDefinitions";
 
 export interface TaskLogEntryModel extends TaskLogEntryFragment {
   readonly task: TaskModel

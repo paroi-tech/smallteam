@@ -2,13 +2,13 @@ import { BackendContext } from "../backendContext/context"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
-import { TaskLogEntryFragment, TaskLogEntryQuery } from "../../isomorphic/fragments/TaskLogEntry"
+import { TaskLogEntryFragment, TaskLogEntryFetchFragment } from "../../isomorphic/meta/TaskLogEntry"
 
 // --
 // -- Read
 // --
 
-export async function queryTaskLogEntries(context: BackendContext, filters: TaskLogEntryQuery) {
+export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntryFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromTaskLogEntry()
     .andWhere("l.task_id", int(filters.taskId))
@@ -23,7 +23,7 @@ export async function queryTaskLogEntries(context: BackendContext, filters: Task
   }
 }
 
-export async function fetchTaskLogEntries(context: BackendContext, idList: string[]) {
+export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()

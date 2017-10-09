@@ -1,5 +1,5 @@
-import { FragmentMeta, FieldMeta } from "../../isomorphic/FragmentMeta"
 import { Type } from "../../isomorphic/Cargo"
+import { FragmentMeta, FieldMeta } from "../../isomorphic/meta/index"
 
 // --
 // -- Types

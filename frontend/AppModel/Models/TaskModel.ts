@@ -1,17 +1,28 @@
-import { TaskFragment } from "../../../isomorphic/fragments/Task"
-import ModelEngine, { appendGettersToModel, toCollection, OrderProperties } from "../ModelEngine"
+import { TaskFragment, TaskUpdateFragment, TaskCreateFragment, TaskIdFragment } from "../../../isomorphic/meta/Task"
+import ModelEngine, { appendGettersToModel, toCollection, OrderProperties, appendUpdateToolsToModel } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
-import { Collection } from "../modelDefinitions"
+import { Collection, WhoUseItem } from "../modelDefinitions"
 import { CommentModel } from "./CommentModel"
-import { CommentQuery } from "../../../isomorphic/fragments/Comment"
+import { CommentFetchFragment } from "../../../isomorphic/meta/Comment"
 import { TaskLogEntryModel } from "./TaskLogEntryModel"
-import { TaskLogEntryQuery } from "../../../isomorphic/fragments/TaskLogEntry"
+import { TaskLogEntryFetchFragment } from "../../../isomorphic/meta/TaskLogEntry"
 import { Type } from "../../../isomorphic/Cargo";
 
+export interface TaskUpdateTools {
+  processing: boolean
+  whoUse(): Promise<WhoUseItem[]>
+  toFragment(variant: "update"): TaskUpdateFragment
+  toFragment(variant: "create"): TaskCreateFragment
+  toFragment(variant: "id"): TaskIdFragment
+  isModified(frag: TaskUpdateFragment): boolean
+  getDiffToUpdate(frag: TaskUpdateFragment): TaskUpdateFragment | null
+}
+
 export interface TaskModel extends TaskFragment {
+  readonly updateTools: TaskUpdateTools
   readonly project: ProjectModel
   readonly currentStep: StepModel
   readonly parent?: TaskModel
@@ -67,17 +78,23 @@ export function registerTask(engine: ModelEngine) {
         return toCollection(list, "Flag")
       },
       getComments(): Promise<Collection<CommentModel, string>> {
-        return engine.query("Comment", {
+        return engine.fetch("Comment", {
           taskId: getFrag().id
-        } as CommentQuery)
+        } as CommentFetchFragment)
       },
       getLogEntries(): Promise<Collection<TaskLogEntryModel, string>> {
-        return engine.query("TaskLogEntry", {
+        return engine.fetch("TaskLogEntry", {
           taskId: getFrag().id
-        } as TaskLogEntryQuery)
+        } as TaskLogEntryFetchFragment)
       }
     } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)
+    appendUpdateToolsToModel(model, "Task", getFrag, engine, {
+      processing: true,
+      whoUse: true,
+      toFragment: true,
+      diffToUpdate: true
+    })
     return model as any
   })
 

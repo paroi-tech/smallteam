@@ -1,11 +1,22 @@
-import { ProjectFragment } from "../../../isomorphic/fragments/Project"
-import ModelEngine, { appendGettersToModel } from "../ModelEngine"
-import { StepFragment } from "../../../isomorphic/fragments/Step"
+import { ProjectFragment, ProjectUpdateFragment, ProjectCreateFragment, ProjectIdFragment } from "../../../isomorphic/meta/Project"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
+import { StepFragment } from "../../../isomorphic/meta/Step"
 import { TaskModel } from "./TaskModel"
 import { StepModel, isStepNormal, isStepSpecial } from "./StepModel"
-import { Collection } from "../modelDefinitions"
+import { Collection, WhoUseItem } from "../modelDefinitions"
+
+export interface ProjectUpdateTools {
+  processing: boolean
+  whoUse(): Promise<WhoUseItem[] | null>
+  toFragment(variant: "update"): ProjectUpdateFragment
+  toFragment(variant: "create"): ProjectCreateFragment
+  toFragment(variant: "id"): ProjectIdFragment
+  isModified(frag: ProjectUpdateFragment): boolean
+  getDiffToUpdate(frag: ProjectUpdateFragment): ProjectUpdateFragment | null
+}
 
 export interface ProjectModel extends ProjectFragment {
+  readonly updateTools: ProjectUpdateTools
   readonly rootTask: TaskModel
   readonly steps: Collection<StepModel, string>
   readonly specialSteps: Collection<StepModel, string>
@@ -61,13 +72,6 @@ export function registerProject(engine: ModelEngine) {
         })
         return item
       },
-      // findStep(stepId: string) {
-      //   for (let step of this.steps) {
-      //     if (step.id === stepId)
-      //       return step
-      //   }
-      //   return undefined
-      // },
       get tasks() {
         return this.rootTask.children
       },
@@ -79,6 +83,12 @@ export function registerProject(engine: ModelEngine) {
       }
     }
     appendGettersToModel(model, "Project", getFrag)
+    appendUpdateToolsToModel(model, "Project", getFrag, engine, {
+      processing: true,
+      whoUse: true,
+      toFragment: true,
+      diffToUpdate: true
+    })
     return model as any
   })
 }

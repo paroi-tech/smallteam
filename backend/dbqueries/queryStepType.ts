@@ -1,7 +1,7 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import { StepTypeFragment, NewStepTypeFragment, newStepTypeMeta, UpdStepTypeFragment, updStepTypeMeta, StepTypeIdFragment } from "../../isomorphic/fragments/StepType"
+import stepTypeMeta, { StepTypeFragment, StepTypeCreateFragment, StepTypeUpdateFragment, StepTypeIdFragment } from "../../isomorphic/meta/StepType"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -10,7 +10,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function queryStepTypes(context: BackendContext) {
+export async function fetchStepTypes(context: BackendContext) {
   let cn = await getDbConnection()
   let sql = selectFromStepType()
   let rs = await cn.all(sql.toSql())
@@ -24,7 +24,7 @@ export async function queryStepTypes(context: BackendContext) {
   }
 }
 
-export async function fetchStepTypes(context: BackendContext, idList: string[]) {
+export async function fetchStepTypesByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -56,7 +56,7 @@ function toStepTypeFragment(row): StepTypeFragment {
 // -- Create
 // --
 
-export async function createStepType(context: BackendContext, newFrag: NewStepTypeFragment) {
+export async function createStepType(context: BackendContext, newFrag: StepTypeCreateFragment) {
   let cn = await getDbConnection()
 
   if (newFrag.orderNum === undefined)
@@ -64,7 +64,7 @@ export async function createStepType(context: BackendContext, newFrag: NewStepTy
 
   let sql = buildInsert()
     .insertInto("step_type")
-    .values(toSqlValues(newFrag, newStepTypeMeta))
+    .values(toSqlValues(newFrag, stepTypeMeta.create))
   let ps = await cn.run(sql.toSql()),
     stepTypeId = ps.lastID
 
@@ -89,12 +89,12 @@ async function getDefaultOrderNum() {
 // -- Update
 // --
 
-export async function updateStepType(context: BackendContext, updFrag: UpdStepTypeFragment) {
+export async function updateStepType(context: BackendContext, updFrag: StepTypeUpdateFragment) {
   let cn = await getDbConnection()
 
   let stepTypeId = parseInt(updFrag.id, 10)
 
-  let values = toSqlValues(updFrag, updStepTypeMeta, "exceptId")
+  let values = toSqlValues(updFrag, stepTypeMeta.update, "exceptId")
   if (values === null)
     return
 
