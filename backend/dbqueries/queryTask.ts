@@ -1,17 +1,18 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { TaskFragment, NewTaskFragment, newTaskMeta, TaskIdFragment, UpdTaskFragment, updTaskMeta, TaskQuery } from "../../isomorphic/fragments/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { makeTaskCodeFromStep } from "./queryProject"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { logStepChange } from "./queryTaskLogEntry"
 
 // --
 // -- Read
 // --
 
-export async function queryTasks(loader: CargoLoader, filters: TaskQuery) {
+export async function queryTasks(context: BackendContext, filters: TaskQuery) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
   if (filters.createdById !== undefined)
@@ -34,7 +35,7 @@ export async function queryTasks(loader: CargoLoader, filters: TaskQuery) {
   await addDependenciesTo(rs)
   for (let row of rs) {
     let frag = toTaskFragment(row)
-    loader.addFragment({
+    context.loader.addFragment({
       type: "Task",
       frag: frag,
       asResult: "fragments"
@@ -42,7 +43,7 @@ export async function queryTasks(loader: CargoLoader, filters: TaskQuery) {
   }
 }
 
-export async function fetchProjectTasks(loader: CargoLoader, projectIdList: number[]) {
+export async function fetchProjectTasks(context: BackendContext, projectIdList: number[]) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
   sql.where("s.project_id", "in", projectIdList)
@@ -51,11 +52,11 @@ export async function fetchProjectTasks(loader: CargoLoader, projectIdList: numb
   await addDependenciesTo(rs)
   for (let row of rs) {
     let frag = toTaskFragment(row)
-    loader.modelUpdate.addFragment("Task", frag.id, frag)
+    context.loader.modelUpdate.addFragment("Task", frag.id, frag)
   }
 }
 
-export async function fetchTasks(loader: CargoLoader, idList: string[]) {
+export async function fetchTasks(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -65,7 +66,7 @@ export async function fetchTasks(loader: CargoLoader, idList: string[]) {
   await addDependenciesTo(rs)
   for (let row of rs) {
     let data = toTaskFragment(row)
-    loader.modelUpdate.addFragment("Task", data.id, data)
+    context.loader.modelUpdate.addFragment("Task", data.id, data)
   }
 }
 
@@ -181,7 +182,7 @@ async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, n
 // -- Create
 // --
 
-export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) {
+export async function createTask(context: BackendContext, newFrag: NewTaskFragment) {
   let cn = await getDbConnection()
 
   if (newFrag.parentTaskId === undefined)
@@ -225,7 +226,7 @@ export async function createTask(loader: CargoLoader, newFrag: NewTaskFragment) 
   if (newFrag.flagIds)
     insertTaskFlags(taskId, newFrag.flagIds)
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Task",
     id: taskId.toString(),
     asResult: "fragment",
@@ -247,13 +248,15 @@ async function getDefaultOrderNum(parentTaskId: number) {
 // -- Update
 // --
 
-export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) {
+export async function updateTask(context: BackendContext, updFrag: UpdTaskFragment) {
   let cn = await getDbConnection()
 
   let taskId = int(updFrag.id)
 
   let values = toSqlValues(updFrag, updTaskMeta, "exceptId")
-  if (values !== null) {
+  if (values) {
+    if (await hasStepChange(context, updFrag))
+      await logStepChange(context, updFrag.id, updFrag.curStepId!)
 
     let sql = buildUpdate()
       .update("task")
@@ -271,7 +274,7 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   if (updFrag.flagIds)
     await updateTaskflags(taskId, updFrag.flagIds)
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Task",
     id: taskId.toString(),
     asResult: "fragment",
@@ -279,11 +282,23 @@ export async function updateTask(loader: CargoLoader, updFrag: UpdTaskFragment) 
   })
 }
 
+async function hasStepChange(context: BackendContext, updFrag: UpdTaskFragment): Promise<boolean> {
+  if (updFrag.curStepId === undefined)
+    return false
+  let cn = await getDbConnection()
+  let sql = buildSelect().select("cur_step_id").from("task").where("task_id", int(updFrag.id))
+  let rs = await cn.all(sql.toSql())
+  if (rs.length !== 1)
+    return false
+  let prevStepId = rs[0]["cur_step_id"]
+  return int(updFrag.curStepId) !== prevStepId
+}
+
 // --
 // -- Delete
 // --
 
-export async function deleteTask(loader: CargoLoader, frag: TaskIdFragment) {
+export async function deleteTask(context: BackendContext, frag: TaskIdFragment) {
   let cn = await getDbConnection()
 
   let sql = buildDelete()
@@ -292,14 +307,14 @@ export async function deleteTask(loader: CargoLoader, frag: TaskIdFragment) {
 
   await cn.run(sql.toSql())
 
-  loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
+  context.loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
 }
 
 // --
 // -- Reorder child tasks
 // --
 
-export async function reorderChildTasks(loader: CargoLoader, idList: string[], parentIdStr: string) {
+export async function reorderChildTasks(context: BackendContext, idList: string[], parentIdStr: string) {
   let cn = await getDbConnection()
   let parentId = int(parentIdStr)
 
@@ -310,7 +325,7 @@ export async function reorderChildTasks(loader: CargoLoader, idList: string[], p
       oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateChildOrderNum(id, parentId, curNum)
-      loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
+      context.loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
   }
@@ -320,10 +335,10 @@ export async function reorderChildTasks(loader: CargoLoader, idList: string[], p
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateChildOrderNum(id, parentId, curNum)
-      loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
+      context.loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
   }
-  loader.modelUpdate.markIdsAsReordered("Task", idList)
+  context.loader.modelUpdate.markIdsAsReordered("Task", idList)
 }
 
 async function updateChildOrderNum(taskId: number, parentId: number, orderNum: number) {

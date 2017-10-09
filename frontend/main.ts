@@ -4,8 +4,8 @@ import App from "./App/App"
 async function startup() {
   try {
     let app = createApplication(App)
-    await app.connect()
-    await app.start()
+    let sessionData = await app.connect()
+    await app.start(sessionData)
   } catch (err) {
     console.log(err)
   }

@@ -4,9 +4,10 @@ import { Request, Response, Router } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 import { routeQuery, routeExec, executeBatch } from "./api"
-import { routeConnect, SessionData } from "./session"
+import { routeConnect } from "./session"
 import config from "../isomorphic/config"
 import { getSqlLiteDbConf } from "./dbqueries/dbUtils"
+import { SessionData } from "./backendContext/context"
 
 const PORT = 3921
 

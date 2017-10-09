@@ -1,4 +1,4 @@
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { getDbConnection, toIntList, int } from "./dbUtils"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -8,13 +8,13 @@ import { CommentFragment, NewCommentFragment, newCommentMeta, CommentIdFragment,
 // -- Read
 // --
 
-export async function queryComments(loader: CargoLoader, filters: CommentQuery) {
+export async function queryComments(context: BackendContext, filters: CommentQuery) {
   let cn = await getDbConnection()
   let sql = selectFromComment()
   sql.andWhere("c.task_id", int(filters.taskId))
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    loader.addFragment({
+    context.loader.addFragment({
       type: "Comment",
       frag: toCommentFragment(row),
       asResult: "fragments"
@@ -22,7 +22,7 @@ export async function queryComments(loader: CargoLoader, filters: CommentQuery) 
   }
 }
 
-export async function fetchComments(loader: CargoLoader, idList: string[]) {
+export async function fetchComments(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -31,7 +31,7 @@ export async function fetchComments(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toCommentFragment(row)
-    loader.modelUpdate.addFragment("Comment", data.id, data)
+    context.loader.modelUpdate.addFragment("Comment", data.id, data)
   }
 }
 
@@ -57,7 +57,7 @@ function toCommentFragment(row): CommentFragment {
 // -- Create
 // --
 
-export async function createComment(loader: CargoLoader, newFrag: NewCommentFragment) {
+export async function createComment(context: BackendContext, newFrag: NewCommentFragment) {
   let cn = await getDbConnection()
 
   // Comment
@@ -68,21 +68,21 @@ export async function createComment(loader: CargoLoader, newFrag: NewCommentFrag
   let ps = await cn.run(sql.toSql()),
     commentId = ps.lastID
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Comment",
     id: commentId.toString(),
     asResult: "fragment",
     markAs: "created"
   })
 
-  markTaskAsUpdated(loader, newFrag.taskId)
+  markTaskAsUpdated(context, newFrag.taskId)
 }
 
 // --
 // -- Update
 // --
 
-export async function updateComment(loader: CargoLoader, updFrag: UpdCommentFragment) {
+export async function updateComment(context: BackendContext, updFrag: UpdCommentFragment) {
   let cn = await getDbConnection()
 
   let values = toSqlValues(updFrag, updCommentMeta, "exceptId")
@@ -97,7 +97,7 @@ export async function updateComment(loader: CargoLoader, updFrag: UpdCommentFrag
     .where("comment_id", commentId)
   await cn.run(sql.toSql())
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Comment",
     id: commentId.toString(),
     asResult: "fragment",
@@ -109,8 +109,8 @@ export async function updateComment(loader: CargoLoader, updFrag: UpdCommentFrag
 // -- Delete
 // --
 
-export async function deleteComment(loader: CargoLoader, frag: CommentIdFragment) {
-  await markTaskAsUpdatedFromComment(loader, frag.id)
+export async function deleteComment(context: BackendContext, frag: CommentIdFragment) {
+  await markTaskAsUpdatedFromComment(context, frag.id)
 
   let cn = await getDbConnection()
 
@@ -120,10 +120,10 @@ export async function deleteComment(loader: CargoLoader, frag: CommentIdFragment
 
   await cn.run(sql.toSql())
 
-  loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
+  context.loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
 }
 
-async function markTaskAsUpdatedFromComment(loader: CargoLoader, commentId: string) {
+async function markTaskAsUpdatedFromComment(context: BackendContext, commentId: string) {
   let cn = await getDbConnection()
 
   let sql = buildSelect()
@@ -135,15 +135,15 @@ async function markTaskAsUpdatedFromComment(loader: CargoLoader, commentId: stri
 
   if (rs.length === 1) {
     let taskId = rs[0]["task_id"].toString()
-    markTaskAsUpdated(loader, taskId)
+    markTaskAsUpdated(context, taskId)
   }
 }
 
 /**
  * Updated field 'commentCount'
  */
-function markTaskAsUpdated(loader: CargoLoader, taskId: string) {
-  loader.addFragment({
+function markTaskAsUpdated(context: BackendContext, taskId: string) {
+  context.loader.addFragment({
     type: "Task",
     id: taskId,
     markAs: "updated"

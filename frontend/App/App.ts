@@ -1,6 +1,6 @@
 import { ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
 import WorkspaceViewer from "../WorkspaceViewer/WorkspaceViewer"
-import ModelComp, { Model, ProjectModel } from "../AppModel/AppModel"
+import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
 import ProjectForm from "../ProjectForm/ProjectForm"
@@ -14,6 +14,7 @@ import FlagWorkspace from "../FlagWorkspace/FlagWorkspace"
 export default class App {
   readonly log: Log
   private _model: Model
+  private viewer?: WorkspaceViewer
 
   constructor(private dash: ApplicationDash<App>) {
     this.log = dash.log
@@ -25,47 +26,39 @@ export default class App {
     return this._model
   }
 
-  public connect(): Promise<void> {
-    let resolveCb: () => void
-    let promise = new Promise<void>(resolve => {
-      resolveCb = resolve
-    })
-    let dialog = this.dash.create(LoginDialog)
-
-    dialog.el.addEventListener("close", function () {
-      if (this.returnValue)
-        resolveCb()
-      else
-        console.log("Unsuccessfull login...")
-    })
-    document.body.appendChild(dialog.el)
-    dialog.el.showModal()
-
-    return promise
+  public async navigate(queryString: string): Promise<void> {
+    if (!this.viewer)
+      return
+    await this.viewer.router.navigate(queryString)
   }
 
-  public async start() {
-    await this.initModel()
+  public async connect(): Promise<SessionData> {
+    let dialog = this.dash.create(LoginDialog)
+    return await dialog.open()
+  }
+
+  public async start(sessionData: SessionData) {
+    await this.initModel(sessionData)
 
     let appEl = document.querySelector(".js-app")
 
     if (appEl) {
-      let viewer = this.dash.create(WorkspaceViewer)
-
-      this.createWorkspaces(viewer)
-      appEl.appendChild(viewer.el)
+      this.viewer = this.dash.create(WorkspaceViewer)
+      this.createWorkspaces(this.viewer)
+      this.viewer.start()
+      appEl.appendChild(this.viewer.el)
 
       let bgCommandManager = this.dash.create(BackgroundCommandManager)
 
-      viewer.addElementToHeader(bgCommandManager.buttonEl)
+      this.viewer.addElementToHeader(bgCommandManager.buttonEl)
     }
   }
 
   private createWorkspaces(viewer: WorkspaceViewer) {
-    viewer.addWorkspace("createProject", "dropdown", "New project", this.dash.create(ProjectForm))
-    viewer.addWorkspace("manageStepTypes", "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
-    viewer.addWorkspace("manageContributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
-    viewer.addWorkspace("manageFlags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
+    viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm))
+    viewer.addWorkspace("/settings/step-types", "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
+    viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
+    viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
 
     let projects = this.model.global.projects
     for (let p of projects)
@@ -75,11 +68,11 @@ export default class App {
   }
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
-    viewer.addWorkspace(`prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, p))
+    viewer.addWorkspace(`/prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, p))
   }
 
-  private async initModel() {
-    this._model = this.dash.create(ModelComp)
+  private async initModel(sessionData: SessionData) {
+    this._model = this.dash.create(ModelComp, sessionData)
 
     this.dash.onData("log", (data: LogItem) => {
       console.log(`[LOG] ${data.type} `, data.messages)

@@ -48,7 +48,7 @@ export default class TaskFlagSelector {
   //   let j = a.findIndex(id => id === flag.id)
   //   let result = false
 
-  //   if (j == -1)
+  //   if (j === -1)
   //     a.push(flag.id) // Flag is added
   //   else
   //     a.splice(j, 1) // Flag is removed.

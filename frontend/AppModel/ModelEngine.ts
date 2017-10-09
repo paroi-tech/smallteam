@@ -572,7 +572,7 @@ async function httpSendJson(method: HttpMethod, url: string, data): Promise<any>
   console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {
     method: method,
-    credentials: "include",
+    credentials: "same-origin",
     headers: {
       "Content-Type": "application/json"
     },
@@ -596,7 +596,6 @@ export function toCollection<M extends object, ID extends Identifier>(models: M[
       map = makeHKMap<ID, M>()
       for (let model of models)
         map.set(toIdentifier(model, type) as ID, model)
-      console.log("...map", Array.from(map.entries()))
     }
     return map.get(id)
   }

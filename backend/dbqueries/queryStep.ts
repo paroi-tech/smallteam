@@ -1,6 +1,6 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
-import CargoLoader from "../cargoLoader/CargoLoader"
+import { BackendContext } from "../backendContext/context"
 import { StepFragment, NewStepFragment, StepIdFragment, newStepMeta } from "../../isomorphic/fragments/Step"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int } from "./dbUtils"
@@ -10,7 +10,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 // -- Read
 // --
 
-export async function fetchSteps(loader: CargoLoader, idList: string[]) {
+export async function fetchSteps(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let cn = await getDbConnection()
@@ -19,22 +19,22 @@ export async function fetchSteps(loader: CargoLoader, idList: string[]) {
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let data = toStepFragment(row)
-    loader.modelUpdate.addFragment("Step", data.id, data)
+    context.loader.modelUpdate.addFragment("Step", data.id, data)
   }
 }
 
-export async function fetchStepsByProjects(loader: CargoLoader, projectIdList: number[]) {
+export async function fetchStepsByProjects(context: BackendContext, projectIdList: number[]) {
   let cn = await getDbConnection()
   let sql = selectFromStep()
   sql.where("s.project_id", "in", projectIdList)
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = toStepFragment(row)
-    loader.modelUpdate.addFragment("Step", frag.id, frag)
+    context.loader.modelUpdate.addFragment("Step", frag.id, frag)
   }
 }
 
-// export async function markAsUpdatedStepsByType(loader: CargoLoader, stepTypeId: number) {
+// export async function markAsUpdatedStepsByType(context: BackendContext, stepTypeId: number) {
 //   let cn = await getDbConnection()
 //   let sql = selectFromStep().where("s.step_type_id", stepTypeId)
 //   let rs = await cn.all(sql.toSql())
@@ -72,7 +72,7 @@ function toStepFragment(row): StepFragment {
 // -- Create
 // --
 
-export async function createStep(loader: CargoLoader, newFrag: NewStepFragment) {
+export async function createStep(context: BackendContext, newFrag: NewStepFragment) {
   let cn = await getDbConnection()
 
   let values = toSqlValues(newFrag, newStepMeta) || {}
@@ -82,7 +82,7 @@ export async function createStep(loader: CargoLoader, newFrag: NewStepFragment) 
   let ps = await cn.run(sql.toSql()),
     stepId = ps.lastID
 
-  loader.addFragment({
+  context.loader.addFragment({
     type: "Step",
     id: stepId.toString(),
     asResult: "fragment",
@@ -94,7 +94,7 @@ export async function createStep(loader: CargoLoader, newFrag: NewStepFragment) 
 // -- Delete
 // --
 
-export async function deleteStep(loader: CargoLoader, frag: StepIdFragment) {
+export async function deleteStep(context: BackendContext, frag: StepIdFragment) {
   let cn = await getDbConnection()
 
   let sql = buildDelete()
@@ -103,5 +103,5 @@ export async function deleteStep(loader: CargoLoader, frag: StepIdFragment) {
 
   await cn.run(sql.toSql())
 
-  loader.modelUpdate.markFragmentAs("Step", frag.id, "deleted")
+  context.loader.modelUpdate.markFragmentAs("Step", frag.id, "deleted")
 }

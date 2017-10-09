@@ -1,4 +1,3 @@
-import CargoLoader from "./cargoLoader/CargoLoader"
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
 import { fetchContributors, queryContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor } from "./dbqueries/queryContributor"
 import { queryProjects, createProject, fetchProjects, updateProject, deleteProject } from "./dbqueries/queryProject"
@@ -9,35 +8,41 @@ import "./backendMeta/initBackendMeta"
 import { fetchFlags, queryFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
 import { queryComments, createComment, updateComment, deleteComment, fetchComments } from "./dbqueries/queryComment"
 import { queryTaskLogEntries, fetchTaskLogEntries } from "./dbqueries/queryTaskLogEntry"
-import { SessionData } from "./session"
+import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 
 export async function routeQuery(data, sessionData: SessionData): Promise<Cargo> {
-console.log(".......Session Q> " + sessionData.contributorId)
-  let loader = new CargoLoader()
-  await executeQuery(data, loader)
-  return loader.toCargo()
+  let context = {
+    sessionData,
+    loader: new CargoLoader()
+  }
+  await executeQuery(context, data)
+  return context.loader.toCargo()
 }
 
 export async function routeExec(data, sessionData: SessionData): Promise<Cargo> {
-console.log(".......Session E> " + sessionData.contributorId)
-  let loader = new CargoLoader()
-  await executeCommand(data, loader)
-  return loader.toCargo()
+  let context = {
+    sessionData,
+    loader: new CargoLoader()
+  }
+  await executeCommand(context, data)
+  return context.loader.toCargo()
 }
 
 export async function executeBatch(list: any[], sessionData: SessionData): Promise<BatchCargo> {
-console.log(".......Session B> " + sessionData.contributorId)
-  let loader = new CargoLoader(true)
+  let context = {
+    sessionData,
+    loader: new CargoLoader(true)
+  }
   for (let data of list) {
     let cmd = data.cmd
     if (!cmd)
       throw new Error(`Missing command`)
     if (cmd === "query")
-      await executeQuery(data, loader)
+      await executeQuery(context, data)
     else
-      await executeCommand(data, loader)
+      await executeCommand(context, data)
   }
-  return loader.toBatchCargo()
+  return context.loader.toBatchCargo()
 }
 
 const queries = {
@@ -49,13 +54,13 @@ const queries = {
   TaskLogEntry: queryTaskLogEntries
 }
 
-async function executeQuery(data, loader: CargoLoader) {
-  loader.startResponse("fragments")
+async function executeQuery(context: BackendContext, data) {
+  context.loader.startResponse("fragments")
   let cb = queries[data.type]
   if (!cb)
     throw new Error(`Invalid query type: "${data.type}"`)
-  await cb(loader, data.filters || {})
-  await completeCargo(loader)
+  await cb(context, data.filters || {})
+  await completeCargo(context)
 }
 
 const commands = {
@@ -68,112 +73,113 @@ const commands = {
   Comment: executeCommandComment
 }
 
-async function executeCommand(data, loader: CargoLoader) {
-  loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
+async function executeCommand(context: BackendContext, data) {
+  context.loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
   if (data.dependencies)
-    loader.addDependencies(data.dependencies)
+    context.loader.addDependencies(data.dependencies)
   let cb = commands[data.type]
   if (!cb)
     throw new Error(`Invalid type: "${data.type}"`)
-  await cb(data, loader)
-  await completeCargo(loader)
+  await cb(context, data)
+  await completeCargo(context)
 }
 
-async function executeCommandContributor(data, loader: CargoLoader) {
+async function executeCommandContributor(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createContributor(loader, data.frag)
+    await createContributor(context, data.frag)
   else if (data.cmd === "update")
-    await updateContributor(loader, data.frag)
+    await updateContributor(context, data.frag)
   else if (data.cmd === "delete")
-    await deleteContributor(loader, data.frag)
+    await deleteContributor(context, data.frag)
   else if (data.cmd === "reorder" && data.groupName === "affectedTo")
-    await reorderAffectedContributors(loader, data.idList, data.groupId)
+    await reorderAffectedContributors(context, data.idList, data.groupId)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandProject(data, loader: CargoLoader) {
+async function executeCommandProject(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createProject(loader, data.frag)
+    await createProject(context, data.frag)
   else if (data.cmd === "update")
-    await updateProject(loader, data.frag)
+    await updateProject(context, data.frag)
   else if (data.cmd === "delete")
-    await deleteProject(loader, data.frag)
+    await deleteProject(context, data.frag)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandStep(data, loader: CargoLoader) {
+async function executeCommandStep(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createStep(loader, data.frag)
+    await createStep(context, data.frag)
   else if (data.cmd === "delete")
-    await deleteStep(loader, data.frag)
+    await deleteStep(context, data.frag)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandStepType(data, loader: CargoLoader) {
+async function executeCommandStepType(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createStepType(loader, data.frag)
+    await createStepType(context, data.frag)
   else if (data.cmd === "update")
-    await updateStepType(loader, data.frag)
+    await updateStepType(context, data.frag)
   else if (data.cmd === "delete")
-    await deleteStepType(loader, data.frag)
+    await deleteStepType(context, data.frag)
   else if (data.cmd === "reorder")
-    await reorderStepTypes(loader, data.idList)
+    await reorderStepTypes(context, data.idList)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandFlag(data, loader: CargoLoader) {
+async function executeCommandFlag(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createFlag(loader, data.frag)
+    await createFlag(context, data.frag)
   else if (data.cmd === "update")
-    await updateFlag(loader, data.frag)
+    await updateFlag(context, data.frag)
   else if (data.cmd === "delete")
-    await deleteFlag(loader, data.frag)
+    await deleteFlag(context, data.frag)
   else if (data.cmd === "reorder")
-    await reorderFlags(loader, data.idList)
+    await reorderFlags(context, data.idList)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandTask(data, loader: CargoLoader) {
+async function executeCommandTask(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createTask(loader, data.frag)
+    await createTask(context, data.frag)
   else if (data.cmd === "update")
-    await updateTask(loader, data.frag)
-  else if (data.cmd == "delete")
-    await deleteTask(loader, data.frag)
+    await updateTask(context, data.frag)
+  else if (data.cmd === "delete")
+    await deleteTask(context, data.frag)
   else if (data.cmd === "reorder" && data.groupName === "childOf")
-    await reorderChildTasks(loader, data.idList, data.groupId)
+    await reorderChildTasks(context, data.idList, data.groupId)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandComment(data, loader: CargoLoader) {
+async function executeCommandComment(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createComment(loader, data.frag)
+    await createComment(context, data.frag)
   else if (data.cmd === "update")
-    await updateComment(loader, data.frag)
-  else if (data.cmd == "delete")
-    await deleteComment(loader, data.frag)
+    await updateComment(context, data.frag)
+  else if (data.cmd === "delete")
+    await deleteComment(context, data.frag)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function completeCargo(loader: CargoLoader) {
+async function completeCargo(context: BackendContext) {
+  const upd = context.loader.modelUpdate
   let count = 0
-  while (!loader.modelUpdate.isFragmentsComplete()) {
+  while (!upd.isFragmentsComplete()) {
     if (++count > 100)
-      throw new Error(`Cannot complete the cargo, missing: ${loader.modelUpdate.getMissingFragmentTypes().join(", ")}`)
-    await fetchProjects(loader, loader.modelUpdate.getNeededFragments("Project") as any)
-    await fetchTasks(loader, loader.modelUpdate.getNeededFragments("Task") as any)
-    await fetchSteps(loader, loader.modelUpdate.getNeededFragments("Step") as any)
-    await fetchStepTypes(loader, loader.modelUpdate.getNeededFragments("StepType") as any)
-    await fetchFlags(loader, loader.modelUpdate.getNeededFragments("Flag") as any)
-    await fetchContributors(loader, loader.modelUpdate.getNeededFragments("Contributor") as any)
-    await fetchComments(loader, loader.modelUpdate.getNeededFragments("Comment") as any)
-    await fetchTaskLogEntries(loader, loader.modelUpdate.getNeededFragments("TaskLogEntry") as any)
+      throw new Error(`Cannot complete the cargo, missing: ${upd.getMissingFragmentTypes().join(", ")}`)
+    await fetchProjects(context, upd.getNeededFragments("Project") as any)
+    await fetchTasks(context, upd.getNeededFragments("Task") as any)
+    await fetchSteps(context, upd.getNeededFragments("Step") as any)
+    await fetchStepTypes(context, upd.getNeededFragments("StepType") as any)
+    await fetchFlags(context, upd.getNeededFragments("Flag") as any)
+    await fetchContributors(context, upd.getNeededFragments("Contributor") as any)
+    await fetchComments(context, upd.getNeededFragments("Comment") as any)
+    await fetchTaskLogEntries(context, upd.getNeededFragments("TaskLogEntry") as any)
   }
 }

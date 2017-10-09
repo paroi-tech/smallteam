@@ -3,26 +3,43 @@ the time, so I can't use JIRA.
 
 # Thomas
 
-- In the backend, keep the session and associate a contributorId (string)
-  - Call logStepChange()
-    - Lionel: Add a button "Log" in the task form
 - In the Model:
-  - Implement methods whoUse
-  - Add a boolean "processing" on each model
-    - Lionel: disable forms for the models in processing
-  - Remove StepFragment.name => call step.stepType.name
+  - Implement methods `whoUse`
+  - Add events `processingUpdateStepType`, `processingDelete`, etc.
+  - On each model, add a member `tools`:
+    - Add a member `processing: boolean` (for update, delete)
+      - Lionel: disable forms for the models during processing
+    - Add a method `toFragment(variant: "update" | "insert" | "id")`
+    - Add a method `hasDiffToUpdate(updFrag): boolean`
+    - Add a method `getDiffToUpdate(updFrag): null | FragUpd`
+  - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
+- Add a frontend router
+  - Create a 404 workspace
+  - Create a root workspace
+- Sessions in the backend
+  - Implement `session/current` Auto-login when a session is already opened
+  - Implement `session/recover` the password recovery
+  - Implement `session/save-password`
+  - Implement `session/disconnect`
 - Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
-- Deploy the project on the Web server
+- Use HTTPS, deploy the project on the Web server
 - Keep HKMap?
 - Refactoring in the backend, one code for all the reordering
+- Rewrite EasyRouter
 
 # Lionel
+- Create a component `SessionMenu`:
+  - It contains a drop-down menu to append to the right of the main drop-down menu
+  - Show the user's avatar on the button (do not use `…`)
+  - Add a menu item: "Disconnect"
+  - Add a menu item: "Edit my profile" → app.navigate to "/settings/contributors/my-profile"
 - Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
   - Show, Add, remove the flags for the task (Use BoxList)
   - Show, Add, update, remove comments
+  - Add a button "Log" in the task form, and show the task log in a dialog
 - In `TaskBox`:
   - Show the contributors affected to the task
   - Show the flags for the task
@@ -85,3 +102,7 @@ the time, so I can't use JIRA.
   - Implement async TaskModel.logEntries()
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
+- In the backend, keep the session and associate a contributorId (string)
+  - Call logStepChange()
+- Add a frontend router
+  - Sub-routers provided by workspaces

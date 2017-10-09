@@ -8,6 +8,7 @@ import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../libraries/EasyRouter"
 import { render } from "monkberry"
 
 import * as template from "./ContributorWorkspace.monk"
@@ -27,6 +28,8 @@ export default class ContributorWorkspace implements Workspace {
   private contributors: Map<string, ContributorModel> = new Map()
   private boxes: Map<string, ContributorBox> = new Map()
 
+  readonly childRouter: ChildEasyRouter
+
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
@@ -34,6 +37,16 @@ export default class ContributorWorkspace implements Workspace {
     this.listenToModel()
     this.listenToChildren()
     this.fillBoxList()
+
+    this.childRouter = createChildEasyRouter()
+    this.childRouter.addAsyncErrorListener(console.log)
+    this.childRouter.map({
+      route: "my-profile",
+      activate: (query: ERQuery) => {
+        this.form.setContributor(this.model.session.contributor)
+      },
+      title: "My Profile"
+    })
   }
 
   private createHtmlElements(): HTMLElement {

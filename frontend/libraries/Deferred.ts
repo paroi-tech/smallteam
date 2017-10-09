@@ -1,21 +1,13 @@
 export default class Deferred<T> {
   public readonly promise: Promise<T>
 
-  private resolveCb?: (result: T) => void
-  private rejectCb?: (err: any) => void
-  private response?: ["resolve" | "reject", any]
+  private resolveCb: (result: T) => void
+  private rejectCb: (err: any) => void
 
   constructor() {
     this.promise = new Promise((resolve, reject) => {
       this.resolveCb = resolve
       this.rejectCb = reject
-      if (this.response) {
-        let [type, val] = this.response
-        if (type === "resolve")
-          resolve(val)
-        else
-          reject(val)
-      }
     })
   }
 
@@ -28,16 +20,10 @@ export default class Deferred<T> {
   }
 
   public resolve(result: T): void {
-    if (this.resolveCb)
-      this.resolveCb(result)
-    else
-      this.response = ["resolve", result]
+    this.resolveCb(result)
   }
 
   public reject(err: any): void {
-    if (this.rejectCb)
-      this.rejectCb(err)
-    else
-      this.response = ["reject", err]
+    this.rejectCb(err)
   }
 }

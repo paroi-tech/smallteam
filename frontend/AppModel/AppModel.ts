@@ -1,22 +1,22 @@
 import { Type, Identifier } from "../../isomorphic/Cargo"
 import { NewContributorFragment, UpdContributorFragment, ContributorQuery } from "../../isomorphic/fragments/Contributor"
-import { ContributorModel, registerContributor } from "./Models/ContributorModel"
+import { registerContributor } from "./Models/ContributorModel"
 import { NewProjectFragment, UpdProjectFragment, ProjectIdFragment, ProjectQuery } from "../../isomorphic/fragments/Project"
-import { ProjectModel, registerProject } from "./Models/ProjectModel"
+import { registerProject } from "./Models/ProjectModel"
 import { NewTaskFragment, UpdTaskFragment, TaskIdFragment } from "../../isomorphic/fragments/Task"
-import { TaskModel, registerTask } from "./Models/TaskModel"
+import { registerTask } from "./Models/TaskModel"
 import { NewStepFragment, StepIdFragment } from "../../isomorphic/fragments/Step"
-import { StepModel, registerStep } from "./Models/StepModel"
+import { registerStep } from "./Models/StepModel"
 import { NewStepTypeFragment, UpdStepTypeFragment } from "../../isomorphic/fragments/StepType"
-import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
-import { FlagModel, registerFlag } from "./Models/FlagModel"
+import { registerStepType } from "./Models/StepTypeModel"
+import { registerFlag } from "./Models/FlagModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
 import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
 import App from "../App/App"
 import { registerComment } from "./Models/CommentModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
 import { GenericCommandBatch } from "./GenericCommandBatch"
-import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection } from "./modelDefinitions"
+import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection, Session, SessionData } from "./modelDefinitions"
 import { FragmentMeta } from "../../isomorphic/FragmentMeta"
 import { toIdentifier } from "../../isomorphic/meta"
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
@@ -33,6 +33,7 @@ export { StepModel } from "./Models/StepModel"
 export { StepTypeModel } from "./Models/StepTypeModel"
 export { TaskLogEntryModel } from "./Models/TaskLogEntryModel"
 export { TaskModel } from "./Models/TaskModel"
+export { Session, SessionData }
 
 // --
 // -- Component ModelComp
@@ -42,8 +43,9 @@ export default class ModelComp implements Model {
   private engine: ModelEngine
   readonly bgCommandMng: GenericBgCommandManager
   readonly global: GlobalModels
+  readonly session: Session
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: Dash<App>, sessionData: SessionData) {
     this.engine = new ModelEngine(dash)
     this.bgCommandMng = new GenericBgCommandManager(dash)
     registerContributor(this.engine)
@@ -55,6 +57,7 @@ export default class ModelComp implements Model {
     registerStep(this.engine, this)
     registerStepType(this.engine)
     this.global = createGlobal(this)
+    this.session = createSession(this.global, sessionData.contributorId)
   }
 
   // --
@@ -119,4 +122,15 @@ function createGlobal(model: ModelComp): GlobalModels {
   Object.defineProperties(obj, properties)
 
   return obj as GlobalModels
+}
+
+function createSession(global: GlobalModels, contributorId: string): Session {
+  return {
+    get contributor() {
+      let contributor = global.contributors.get(contributorId)
+      if (!contributor)
+        throw new Error(`Unknown session contributor "${contributorId}"`)
+      return contributor
+    }
+  }
 }
