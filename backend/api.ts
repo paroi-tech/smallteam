@@ -1,16 +1,17 @@
 import { Cargo, BatchCargo } from "../isomorphic/Cargo"
-import { fetchContributorsByIds, fetchContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor } from "./dbqueries/queryContributor"
-import { fetchProjects, createProject, fetchProjectsByIds, updateProject, deleteProject } from "./dbqueries/queryProject"
-import { createStep, deleteStep, fetchStepsByIds } from "./dbqueries/queryStep"
-import { createTask, updateTask, fetchTasksByIds, reorderChildTasks, deleteTask, fetchTasks } from "./dbqueries/queryTask"
-import { createStepType, fetchStepTypesByIds, fetchStepTypes, updateStepType, reorderStepTypes, deleteStepType } from "./dbqueries/queryStepType"
+import { WhoUseItem } from "../isomorphic/transfers"
+import { fetchContributorsByIds, fetchContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor, whoUseContributor } from "./dbqueries/queryContributor"
+import { fetchProjects, createProject, fetchProjectsByIds, updateProject, deleteProject, whoUseProject } from "./dbqueries/queryProject"
+import { createStep, deleteStep, fetchStepsByIds, whoUseStep } from "./dbqueries/queryStep"
+import { createTask, updateTask, fetchTasksByIds, reorderChildTasks, deleteTask, fetchTasks, whoUseTask } from "./dbqueries/queryTask"
+import { createStepType, fetchStepTypesByIds, fetchStepTypes, updateStepType, reorderStepTypes, deleteStepType, whoUseStepType } from "./dbqueries/queryStepType"
 import "./backendMeta/initBackendMeta"
-import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorderFlags } from "./dbqueries/queryFlag"
+import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorderFlags, whoUseFlag } from "./dbqueries/queryFlag"
 import { fetchComments, createComment, updateComment, deleteComment, fetchCommentsByIds } from "./dbqueries/queryComment"
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 
-export async function routeQuery(data, sessionData: SessionData): Promise<Cargo> {
+export async function routeFetch(data, sessionData: SessionData): Promise<Cargo> {
   let context = {
     sessionData,
     loader: new CargoLoader()
@@ -28,7 +29,7 @@ export async function routeExec(data, sessionData: SessionData): Promise<Cargo> 
   return context.loader.toCargo()
 }
 
-export async function executeBatch(list: any[], sessionData: SessionData): Promise<BatchCargo> {
+export async function routeBatch(list: any[], sessionData: SessionData): Promise<BatchCargo> {
   let context = {
     sessionData,
     loader: new CargoLoader(true)
@@ -45,7 +46,27 @@ export async function executeBatch(list: any[], sessionData: SessionData): Promi
   return context.loader.toBatchCargo()
 }
 
-const queries = {
+const whoUseCallbacks = {
+  Contributor: whoUseContributor,
+  Flag: whoUseFlag,
+  Project: whoUseProject,
+  Task: whoUseTask,
+  Step: whoUseStep,
+  StepType: whoUseStepType
+}
+
+export async function routeWhoUse(data, sessionData: SessionData): Promise<object> {
+  let cb = whoUseCallbacks[data.type]
+  if (!cb)
+    throw new Error(`Invalid 'whoUser' type: "${data.type}"`)
+  let result: WhoUseItem[] | null = await cb(data.id)
+  return {
+    done: true,
+    result
+  }
+}
+
+const fetchCallbacks = {
   Project: fetchProjects,
   Task: fetchTasks,
   StepType: fetchStepTypes,
@@ -57,7 +78,7 @@ const queries = {
 
 async function executeFetch(context: BackendContext, data) {
   context.loader.startResponse("fragments")
-  let cb = queries[data.type]
+  let cb = fetchCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid fetch type: "${data.type}"`)
   await cb(context, data.filters || {})

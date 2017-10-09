@@ -4,14 +4,6 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
-  - Add events `processing${type}`, `endProcessing${type}`, etc.
-  - On each model, add a member `tools`:
-    - Implement methods `whoUse`
-    - Add a member `processing: boolean` (for update, delete)
-      - Lionel: disable forms for the models during processing
-    - Add a method `toFragment(variant: "update" | "insert" | "id")`
-    - Add a method `isModified(updFrag): boolean`
-    - Add a method `getDiffToUpdate(updFrag): null | FragUpd`
   - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Add a frontend router
@@ -22,7 +14,7 @@ the time, so I can't use JIRA.
   - Implement `session/recover` the password recovery
   - Implement `session/save-password`
   - Implement `session/disconnect`
-- Investigate TS transformers for updating meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
+- Investigate TS transformers, maybe they could generate meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - Use HTTPS, deploy the project on the Web server
 - Keep HKMap?
 - Refactoring in the backend, one code for all the reordering
@@ -54,10 +46,14 @@ the time, so I can't use JIRA.
   - Disable the submit button until there are any changes
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
-# Thomas or Lionel
+# Not urgent
 
 - Add roles for users
-
+- Replace `alert` & `confirm` with a component `ShortDialog`
+- Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
+- Use true avatars
+- Add attached files to tasks
+- Use a GitHub hook to show the commits on tasks
 
 # Lionel - DONE
 - On task update, update the flags shown in TaskBox
@@ -69,6 +65,11 @@ the time, so I can't use JIRA.
 - Refactoring in WorkspaceViewer (with Thomas)
 - Refactor Menu and DropDownMenu components
 - Add `disable` method to BoxList.
+- On each component form:
+  - Disable forms for the models during processing (see with Thomas for the events)
+  - Use `itemModel.updateTools.isModified()` to check if there is something to save
+  - Use `itemModel.updateTools.getDiffToUpdate()` to save only the modified data
+  - Use `itemModel.updateTools.whoUse` to check if it is possible to delete
 - **BoxList**: On reordering, add a flag in the BoxList to signal the current reordering process
 - **Task panel**:
   - Allow to delete a task that doesn't have child (after user confirmation)
@@ -100,6 +101,13 @@ the time, so I can't use JIRA.
   - Implement async TaskModel.getComments()
   - In `TaskFragment`, add a field `commentCount`
   - Implement async TaskModel.logEntries()
+  - Add events `processing${type}`, `endProcessing${type}`
+  - On each model, add a member `tools`:
+    - Implement methods `whoUse`
+    - Add a member `processing: boolean` (for update, delete)
+    - Add a method `toFragment(variant: "update" | "insert" | "id")`
+    - Add a method `isModified(updFrag): boolean`
+    - Add a method `getDiffToUpdate(updFrag): null | FragUpd`
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
 - In the backend, keep the session and associate a contributorId (string)

@@ -116,16 +116,15 @@ export default class LoginDialog {
       if (!response.ok) {
         alert("Error. Unable to get a response from server...")
       } else {
-        let json = await response.text()
-        let answer = JSON.parse(json)
+        let result = await response.json()
 
-        if (answer.done)
-          contributorId = answer.contributorId as string
+        if (result.done)
+          contributorId = result.contributorId as string
         else
-        alert("Wrong username or password.")
+          alert("Wrong username or password.")
       }
     } catch (err) {
-      console.warn(err)
+      this.dash.app.log.warn(err)
     }
 
     return contributorId

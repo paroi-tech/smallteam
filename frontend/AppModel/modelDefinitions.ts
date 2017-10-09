@@ -16,11 +16,6 @@ import { BgCommandManager, BgCommand } from "./BgCommandManager"
 import { FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
 import { CommentIdFragment, CommentCreateFragment, CommentUpdateFragment } from "../../isomorphic/meta/Comment"
 
-export interface WhoUseItem {
-  type: Type,
-  count: number
-}
-
 export interface ModelCommandMethods {
   exec(cmd: "create", type: "Contributor", frag: ContributorCreateFragment): Promise<ContributorModel>
   exec(cmd: "update", type: "Contributor", frag: ContributorUpdateFragment): Promise<ContributorModel>

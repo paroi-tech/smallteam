@@ -21,7 +21,7 @@ import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
 import GenericBgCommandManager from "./BgCommandManager"
 
 export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
-export { Model, WhoUseItem, CommandBatch } from "./modelDefinitions"
+export { Model, CommandBatch } from "./modelDefinitions"
 
 export { CommentModel } from "./Models/CommentModel"
 export { ContributorModel } from "./Models/ContributorModel"

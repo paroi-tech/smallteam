@@ -36,3 +36,15 @@ export function int(str: number | string): number {
 //   }
 //   return true
 // }
+
+export async function fetchOneValue(sql: string): Promise<any> {
+  let cn = await getDbConnection()
+  let rs = await cn.all(sql)
+  if (rs.length !== 1)
+    throw new Error(`Cannot fetch one value, row count: ${rs.length}`)
+  let row = rs[0]
+  let columns = Object.keys(row)
+  if (columns.length !== 1)
+    throw new Error(`Cannot fetch one value, column count: ${columns.length}`)
+  return row[columns[0]];
+}

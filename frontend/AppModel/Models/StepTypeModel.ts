@@ -1,7 +1,7 @@
 import { StepTypeFragment, StepTypeUpdateFragment, StepTypeCreateFragment, StepTypeIdFragment } from "../../../isomorphic/meta/StepType"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
-import { WhoUseItem } from "../modelDefinitions"
 import { isStepSpecial } from "./StepModel"
+import { WhoUseItem } from "../../../isomorphic/transfers"
 
 export interface StepTypeUpdateTools {
   processing: boolean

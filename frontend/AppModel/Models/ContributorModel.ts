@@ -1,6 +1,6 @@
 import { ContributorFragment, ContributorUpdateFragment, ContributorCreateFragment, ContributorIdFragment } from "../../../isomorphic/meta/Contributor"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
-import { WhoUseItem } from "../modelDefinitions"
+import { WhoUseItem } from "../../../isomorphic/transfers"
 
 export interface ContributorUpdateTools {
   processing: boolean

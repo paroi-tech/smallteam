@@ -1,6 +1,6 @@
 import { FlagFragment, FlagUpdateFragment, FlagCreateFragment, FlagIdFragment } from "../../../isomorphic/meta/Flag"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
-import { WhoUseItem } from "../modelDefinitions"
+import { WhoUseItem } from "../../../isomorphic/transfers"
 
 export interface FlagUpdateTools {
   processing: boolean

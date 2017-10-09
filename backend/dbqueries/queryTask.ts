@@ -3,10 +3,11 @@ import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import taskMeta, { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int } from "./dbUtils"
+import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
 import { makeTaskCodeFromStep } from "./queryProject"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
+import { WhoUseItem } from "../../isomorphic/transfers";
 
 // --
 // -- Read
@@ -104,6 +105,26 @@ function toTaskFragment(row): TaskFragment {
   if (row["flagIds"])
     frag.flagIds = row["flagIds"].map(id => id.toString())
   return frag
+}
+
+// --
+// -- Who use
+// --
+
+export async function whoUseTask(id: string): Promise<WhoUseItem[]> {
+  let dbId = int(id),
+    result: WhoUseItem[] = [],
+    count: number
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("task_child").where("parent_task_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "Task", count })
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("root_task").where("task_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "Project", count })
+
+  return result
 }
 
 // --
