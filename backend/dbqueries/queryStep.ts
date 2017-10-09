@@ -3,8 +3,9 @@ import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import stepMeta, { StepFragment, StepCreateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int } from "./dbUtils"
+import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { WhoUseItem } from "../../isomorphic/transfers";
 
 // --
 // -- Read
@@ -66,6 +67,22 @@ function toStepFragment(row): StepFragment {
     projectId: row["project_id"].toString()
   }
   return frag
+}
+
+// --
+// -- Who use
+// --
+
+export async function whoUseStep(id: string): Promise<WhoUseItem[]> {
+  let dbId = int(id),
+    result: WhoUseItem[] = [],
+    count: number
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("task").where("cur_step_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "Task", count })
+
+  return result
 }
 
 // --

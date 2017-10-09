@@ -3,8 +3,9 @@ import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import flagMeta, { FlagFragment, FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int } from "./dbUtils"
+import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { WhoUseItem } from "../../isomorphic/transfers";
 
 // --
 // -- Read
@@ -51,6 +52,22 @@ function toFlagFragment(row): FlagFragment {
     color: row["color"],
     orderNum: row["order_num"]
   }
+}
+
+// --
+// -- Who use
+// --
+
+export async function whoUseFlag(id: string): Promise<WhoUseItem[]> {
+  let dbId = int(id),
+    result: WhoUseItem[] = [],
+    count: number
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("task_flag").where("flag_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "Task", count })
+
+  return result
 }
 
 // --

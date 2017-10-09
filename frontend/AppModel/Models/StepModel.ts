@@ -2,8 +2,9 @@ import { StepFragment, StepCreateFragment, StepIdFragment } from "../../../isomo
 import ModelEngine, { appendGettersToModel, CommandType, OrderProperties, appendUpdateToolsToModel } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
 import { StepTypeFragment, StepTypeUpdateFragment } from "../../../isomorphic/meta/StepType"
-import { Model, WhoUseItem } from "../modelDefinitions"
+import { Model } from "../modelDefinitions"
 import { Type } from "../../../isomorphic/Cargo"
+import { WhoUseItem } from "../../../isomorphic/transfers"
 
 export interface StepUpdateTools {
   processing: boolean

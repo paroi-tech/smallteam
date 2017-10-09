@@ -3,7 +3,8 @@ import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../
 import { StepFragment } from "../../../isomorphic/meta/Step"
 import { TaskModel } from "./TaskModel"
 import { StepModel, isStepNormal, isStepSpecial } from "./StepModel"
-import { Collection, WhoUseItem } from "../modelDefinitions"
+import { Collection } from "../modelDefinitions"
+import { WhoUseItem } from "../../../isomorphic/transfers"
 
 export interface ProjectUpdateTools {
   processing: boolean

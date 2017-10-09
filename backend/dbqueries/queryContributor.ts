@@ -3,9 +3,10 @@ import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int } from "./dbUtils"
+import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
+import { WhoUseItem } from "../../isomorphic/transfers"
 
 const saltRounds = 10
 
@@ -50,6 +51,27 @@ function selectFromContributor() {
   return buildSelect()
     .select("contributor_id, login, name, email")
     .from("contributor")
+}
+
+// --
+// -- Who use
+// --
+
+export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
+  let dbId = int(id),
+    result: WhoUseItem[] = [],
+    count: number
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("task").where("created_by", dbId).toSql())
+  count += await fetchOneValue(buildSelect().select("count(1)").from("task_affected_to").where("contributor_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "Task", count })
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("task_log").where("contributor_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "TaskLogEntry", count })
+
+  return result
 }
 
 // --

@@ -3,7 +3,7 @@ import * as express from "express"
 import { Request, Response, Router } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
-import { routeQuery, routeExec, executeBatch } from "./api"
+import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
 import { routeConnect } from "./session"
 import config from "../isomorphic/config"
 import { getSqlLiteDbConf } from "./dbqueries/dbUtils"
@@ -47,9 +47,10 @@ declareRoute(router, "/api/session/connect", routeConnect, true)
 // declareRoute(router, "/api/session/recover", routeConnect, true)
 // declareRoute(router, "/api/session/save-password", routeConnect, true)
 
-declareRoute(router, "/api/query", routeQuery)
+declareRoute(router, "/api/query", routeFetch)
 declareRoute(router, "/api/exec", routeExec)
-declareRoute(router, "/api/batch", executeBatch)
+declareRoute(router, "/api/batch", routeBatch)
+declareRoute(router, "/api/who-use", routeWhoUse)
 
 router.use(express.static(path.join(__dirname, "..", "www")))
 

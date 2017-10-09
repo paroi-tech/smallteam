@@ -2,7 +2,6 @@ import { CommentFragment, CommentUpdateFragment, CommentCreateFragment, CommentI
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
 import { ContributorModel } from "./ContributorModel"
-import { WhoUseItem } from "../modelDefinitions"
 
 export interface CommentUpdateTools {
   processing: boolean

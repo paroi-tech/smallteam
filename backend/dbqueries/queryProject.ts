@@ -3,10 +3,11 @@ import * as path from "path"
 import { BackendContext } from "../backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectFetchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int } from "./dbUtils"
+import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
-import { fetchProjectTasks, updateTaskDescription } from "./queryTask"
+import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 import { fetchStepsByProjects } from "./queryStep"
+import { WhoUseItem } from "../../isomorphic/transfers";
 
 // --
 // -- Read
@@ -23,16 +24,16 @@ export async function fetchProjects(context: BackendContext, filters: ProjectFet
     sql.andWhere("t.label", "like", `%${filters.name}%`)
   if (filters.description)
     sql.andWhere("d.description", "like", `%${filters.description}%`)
-//   if (filters.search) {
-//     sql.andWhere("d.description", "like", `%${filters.description}%`) // TODO: build search criterion
+  //   if (filters.search) {
+  //     sql.andWhere("d.description", "like", `%${filters.description}%`) // TODO: build search criterion
 
-//     filter = buildFilter("and" | "or")
-//       .add()
-//     sql.andWhere(filter)
-//     sql.andWhere(filter.clone("and" | "or").replaceValuesWith(filters.search))
-// // {[filterSymbol]: any}
+  //     filter = buildFilter("and" | "or")
+  //       .add()
+  //     sql.andWhere(filter)
+  //     sql.andWhere(filter.clone("and" | "or").replaceValuesWith(filters.search))
+  // // {[filterSymbol]: any}
 
-//   }
+  //   }
   let rs = await cn.all(sql.toSql()),
     projectIdList: number[] = []
   for (let row of rs) {
@@ -83,6 +84,16 @@ function toProjectFragment(row): ProjectFragment {
   if (row["description"])
     frag.description = row["description"]
   return frag
+}
+
+// --
+// -- Who use
+// --
+
+export async function whoUseProject(id: string): Promise<WhoUseItem[]> {
+  let dbId = int(id)
+  let taskId = await fetchOneValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
+  return whoUseTask(taskId.toString())
 }
 
 // --
@@ -235,52 +246,34 @@ async function getRootTaskId(projectId: number) {
 // --
 // -- Delete
 // --
-/**
- * Delete a project in the database.
- *
- * There are 4 steps involved in project deletion:
- *  1. Retrieve the root task ID from the <code>root_task</code> table.
- *  2. Delete a row in the <code>root_task</code> table.
- *  3. Delete the row referenced by the <code>root task</code> in the <code>task</code> table.
- *  4. Delete the project in the <code>project</code> table.
- *
- * @param loader
- * @param frag
- */
+
 export async function deleteProject(context: BackendContext, frag: ProjectIdFragment) {
   // FIXME: This function should use transaction...
-  let cn = await getDbConnection()
+  let cn = await getDbConnection(),
+    dbId = int(frag.id)
 
-  let selectTaskIdSql = buildSelect()
-      .select("task_id")
-      .from("root_task")
-      .where("project_id", "=", int(frag.id))
-      .toSql()
+  let taskId = await fetchOneValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
 
-  let rs = await cn.all(selectTaskIdSql)
-  if (rs.length === 0)
-    throw new Error(`Cannot delete project with ID ${frag.id}. Unable to retrieve root task.`)
+  await cn.run(buildDelete()
+    .deleteFrom("root_task")
+    .where("project_id", dbId)
+    .toSql())
 
-  let taskId = rs[0]["task_id"]
+  await cn.run(buildDelete()
+    .deleteFrom("task")
+    .where("task_id", taskId)
+    .toSql())
 
-  let deleteRootTaskSql = buildDelete()
-      .deleteFrom("root_task")
-      .where("project_id", "=", int(frag.id))
-      .toSql()
-  await cn.run(deleteRootTaskSql)
+  await cn.run(buildDelete()
+    .deleteFrom("step")
+    .where("project_id", dbId)
+    .toSql())
 
-  let deleteTaskSql = buildDelete()
-      .deleteFrom("task")
-      .where("task_id", "=", int(taskId))
-      .toSql()
-  await cn.run(deleteTaskSql)
+  await cn.run(buildDelete()
+    .deleteFrom("project")
+    .where("project_id", dbId)
+    .toSql())
 
-  let deleteProjectSql = buildDelete()
-      .deleteFrom("project")
-      .where("project_id", "=", int(frag.id))
-      .toSql()
-
-  await cn.run(deleteProjectSql)
   context.loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
 }
 

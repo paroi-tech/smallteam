@@ -3,7 +3,6 @@ import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../
 import { TaskModel } from "./TaskModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
-import { WhoUseItem } from "../modelDefinitions";
 
 export interface TaskLogEntryModel extends TaskLogEntryFragment {
   readonly task: TaskModel

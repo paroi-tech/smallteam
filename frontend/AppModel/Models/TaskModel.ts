@@ -4,16 +4,17 @@ import { ProjectModel } from "./ProjectModel"
 import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
-import { Collection, WhoUseItem } from "../modelDefinitions"
+import { Collection } from "../modelDefinitions"
 import { CommentModel } from "./CommentModel"
 import { CommentFetchFragment } from "../../../isomorphic/meta/Comment"
 import { TaskLogEntryModel } from "./TaskLogEntryModel"
 import { TaskLogEntryFetchFragment } from "../../../isomorphic/meta/TaskLogEntry"
 import { Type } from "../../../isomorphic/Cargo";
+import { WhoUseItem } from "../../../isomorphic/transfers"
 
 export interface TaskUpdateTools {
   processing: boolean
-  whoUse(): Promise<WhoUseItem[]>
+  whoUse(): Promise<WhoUseItem[] | null>
   toFragment(variant: "update"): TaskUpdateFragment
   toFragment(variant: "create"): TaskCreateFragment
   toFragment(variant: "id"): TaskIdFragment

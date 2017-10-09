@@ -3,8 +3,9 @@ import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import stepTypeMeta, { StepTypeFragment, StepTypeCreateFragment, StepTypeUpdateFragment, StepTypeIdFragment } from "../../isomorphic/meta/StepType"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int } from "./dbUtils"
+import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { WhoUseItem } from "../../isomorphic/transfers";
 
 // --
 // -- Read
@@ -50,6 +51,22 @@ function toStepTypeFragment(row): StepTypeFragment {
     name: row["name"],
     orderNum: row["order_num"]
   }
+}
+
+// --
+// -- Who use
+// --
+
+export async function whoUseStepType(id: string): Promise<WhoUseItem[]> {
+  let dbId = int(id),
+    result: WhoUseItem[] = [],
+    count: number
+
+  count = await fetchOneValue(buildSelect().select("count(1)").from("step").where("step_type_id", dbId).toSql())
+  if (count > 0)
+    result.push({ type: "Step", count })
+
+  return result
 }
 
 // --

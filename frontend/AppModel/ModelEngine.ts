@@ -2,10 +2,11 @@ import config from "../../isomorphic/config"
 import { Dash } from "bkb"
 import { getFragmentMeta, toIdentifier, FragmentMeta, TypeVariant } from "../../isomorphic/meta"
 import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate, Identifiers, Dependencies } from "../../isomorphic/Cargo"
+import { WhoUseItem } from "../../isomorphic/transfers"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
 import { toDebugStr } from "../../isomorphic/libraries/helpers"
-import { Collection, WhoUseItem } from "./modelDefinitions"
+import { Collection } from "./modelDefinitions"
 import GenericBgCommandManager from "./BgCommandManager"
 
 // --
@@ -549,7 +550,7 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.whoUse) {
     output.updateTools.whoUse = () => engine.bgManager.add((async () => {
-      let fetched = await httpSendJson("POST", "/who-use", { // TODO: implement in backend
+      let fetched = await httpSendJson("POST", "/who-use", {
         type,
         id: toIdentifier(getFrag(), type)
       })
