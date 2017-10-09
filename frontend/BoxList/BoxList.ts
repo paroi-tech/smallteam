@@ -5,6 +5,7 @@ import { render } from "monkberry"
 
 import * as boxListTemplate from "./boxlist.monk"
 import * as boxTemplate from "./box.monk"
+import * as closeTemplate from "./close.monk"
 
 /**
  * As BoxList is a template class, a BoxList instance parameter should implement this interface.
@@ -34,6 +35,8 @@ export interface BoxListParams {
   obj?: any
   // Is the BoxList disabled?
   disabled?: boolean
+  // Add a remove button beside each element in the BoxList.
+  itemRemoveButton?: boolean
   // Can items be reordered within the BoxList?
   sort: boolean
 }
@@ -106,8 +109,32 @@ export default class BoxList<T extends Box> {
 
     li.setAttribute("data-id", box.id)
     li.appendChild(box.el)
+
+    if (this.params.itemRemoveButton) {
+      let el = this.createCloseItem()
+      let span = el.querySelector("span") as HTMLElement
+
+      span.addEventListener("click", ev => {
+        this.dash.emit("boxListItemRemoveRequested", {
+          boxListId: this.params.id,
+          boxId: box.id
+        })
+      })
+      li.addEventListener("mouseover", ev => span.style.visibility = "visible")
+      li.addEventListener("mouseleave", ev => span.style.visibility = "hidden")
+
+      li.appendChild(el)
+    }
+
     this.ul.appendChild(li)
     this.boxes.set(box.id, li)
+  }
+
+  private createCloseItem(): HTMLElement {
+    let view = render(closeTemplate, document.createElement("div"))
+    let el = view.nodes[0] as HTMLElement
+
+    return el
   }
 
   /**
