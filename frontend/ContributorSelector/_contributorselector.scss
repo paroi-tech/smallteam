@@ -1,5 +1,19 @@
 .ContributorSelector {
-  &-select {
+  &-button {
+    display: block;
+  }
+}
 
+.ContributorSelectorList {
+  display: none;
+
+  &-label {
+    display: flex;
+    vertical-align: baseline;
+
+    &:hover {
+      background-color: #205081;
+      color: white;
+    }
   }
 }

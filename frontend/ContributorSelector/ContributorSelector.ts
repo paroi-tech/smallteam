@@ -8,27 +8,33 @@ import { render } from "monkberry"
 
 import * as template from "./contributorselector.monk"
 import * as itemTemplate from "./item.monk"
-import * as optionTemplate from "./option.monk"
 
+// Idea for list of checkbox found here:
+// https://stackoverflow.com/questions/17714705/how-to-use-checkbox-inside-select-option
 export default class ContributorSelector {
   readonly el: HTMLElement
   private boxListContainerEl: HTMLElement
-  private selectEl: HTMLSelectElement
+  private listEl: HTMLSelectElement
+  private buttonEl: HTMLButtonElement
+
+  private expanded = false
+
+  private checkBoxes = new Map<string, HTMLInputElement>()
+  private itemViews = new Map<string, MonkberryView>()
+  private items = new Map<string, HTMLElement>()
 
   private view: MonkberryView
 
+  private boxList: BoxList<ContributorBox>
+
   private model: Model
   private task: TaskModel | undefined = undefined
-
-  private boxes = new Map<string, ContributorBox>()
-  private boxList: BoxList<ContributorBox>
-  private options = new Map<string, HTMLOptionElement>()
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createView()
     this.createChildComponents()
-    this.model.global.contributors.forEach(c => this.addOptionFor(c))
+    this.model.global.contributors.forEach(c => this.addItemFor(c))
   }
 
   private createView(): HTMLElement {
@@ -37,18 +43,27 @@ export default class ContributorSelector {
     let el = this.view.nodes[0] as HTMLElement
 
     this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
-    this.selectEl = el.querySelector(".js-select") as HTMLSelectElement
+    this.listEl = el.querySelector(".js-list") as HTMLSelectElement
+    this.buttonEl = el.querySelector(".js-button") as HTMLButtonElement
+
+    this.buttonEl.addEventListener("click", ev => {
+      this.listEl.style.display = this.expanded ? "none" : "block"
+      this.expanded = !this.expanded
+    })
 
     return el
   }
 
-  private addOptionFor(contributor: ContributorModel) {
-    let option = document.createElement("option")
+  private addItemFor(contributor: ContributorModel) {
+    let view = render(itemTemplate, document.createElement("div"))
+    let itemEl = view.nodes[0]as HTMLElement
+    let checkBox = itemEl.querySelector("input") as HTMLInputElement
 
-    option.value = contributor.id
-    option.textContent = contributor.name
-    this.selectEl.add(option)
-    this.options.set(contributor.id, option)
+    view.update({ value: contributor.name })
+    this.itemViews.set(contributor.id, view)
+    this.items.set(contributor.id, itemEl)
+    this.checkBoxes.set(contributor.id, checkBox)
+    this.listEl.appendChild(itemEl)
   }
 
   private createChildComponents() {

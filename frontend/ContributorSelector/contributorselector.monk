@@ -1,7 +1,9 @@
 <div class="ContributorSelector">
   <header class="ContributorSelector-header">Contributors</header>
   <div class="js-boxlist-container"></div>
-  <div>
-    <select class="ContributorSelector-select js-select"></select>
-  </div>
+  <button class="ContributorSelector-button js-button">
+    Select contributors
+    <span class="fa fa-caret-down fa-1x"></span>
+  </button>
+  <div class="ContributorSelectorList js-list"></div>
 </div>
