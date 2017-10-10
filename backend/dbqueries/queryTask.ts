@@ -402,7 +402,7 @@ async function insertTaskAffectedToContributors(taskId: number | string, contrib
       .values({
         "task_id": int(taskId),
         "contributor_id": int(contributorId),
-        "order_num": orderNum
+        "order_num": ++orderNum
       })
     await cn.run(sql.toSql())
   }

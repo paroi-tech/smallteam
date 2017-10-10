@@ -9,7 +9,7 @@ import { render } from "monkberry"
 import * as template from "./contributorselector.monk"
 import * as itemTemplate from "./item.monk"
 
-// Idea for list of checkbox found here:
+// The idea of a list of checkbox was found here:
 // https://stackoverflow.com/questions/17714705/how-to-use-checkbox-inside-select-option
 export default class ContributorSelector {
   readonly el: HTMLElement
@@ -34,7 +34,7 @@ export default class ContributorSelector {
     this.model = this.dash.app.model
     this.el = this.createView()
     this.createChildComponents()
-    this.model.global.contributors.forEach(c => this.addItemFor(c))
+    this.model.global.contributors.forEach(c => this.addSelectorFor(c))
     this.listenToModel()
   }
 
@@ -83,18 +83,26 @@ export default class ContributorSelector {
       if (el)
         this.listEl.removeChild(el)
 
-      if (this.boxList.hasBox(contributorId))
-        this.boxList.removeBox(contributorId)
       this.checkBoxes.delete(contributorId)
       this.itemViews.delete(contributorId)
       this.items.delete(contributorId)
+      this.boxList.removeBox(contributorId)
     })
   }
 
-  private addItemFor(contributor: ContributorModel) {
+  private addSelectorFor(contributor: ContributorModel) {
     let view = render(itemTemplate, document.createElement("div"))
     let itemEl = view.nodes[0]as HTMLElement
     let checkBox = itemEl.querySelector("input") as HTMLInputElement
+
+    checkBox.addEventListener("click", ev => {
+      // TODO: Improve this. Use a map to store old ContributorBoxes and reuse them,
+      // instead of creating new ones each time.
+      if (checkBox.checked)
+        this.addBoxFor(contributor)
+      else
+        this.boxList.removeBox(contributor.id)
+    })
 
     view.update({ value: contributor.name })
     this.itemViews.set(contributor.id, view)
@@ -137,16 +145,7 @@ export default class ContributorSelector {
   }
 
   get selectedContributorIds(): string[] {
-    if (!this.task)
-      return []
-
-    let arr: string[] = []
-    for (let entry of this.checkBoxes.entries()) {
-      if (entry[1].checked)
-        arr.push(entry[0] as string)
-    }
-
-    return arr
+      return this.task ? this.boxList.getBoxesOrder() : []
   }
 
   /**

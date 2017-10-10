@@ -2,8 +2,12 @@
   <div class="StepSwitcher-title BlockTitle">
     <span class="js-title"></span>&nbsp;
     <div>
-      <button class="js-toggle-btn StepSwitcher-toggleButton" title="Fold/Unfold"></button>
-      <button class="js-close-btn StepSwitcher-closeButton" title="Hide"></button>
+      <button class="js-toggle-btn StepSwitcher-toggleButton" title="Fold/Unfold">
+        <span class="fa fa-caret-up fa-1x" ></span>
+      </button>
+      <button class="js-close-btn StepSwitcher-closeButton" title="Hide">
+        <span class="fa fa-times fa-1x"></span>
+      </button>
       <span class="js-indicator fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
     </div>
   </div>

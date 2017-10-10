@@ -18,10 +18,8 @@
   }
 
   &-foldableContent {
-    height: 250px;
-    overflow: hidden;
     transition-duration: 0.5s;
-    transition-property: height;
+    transition-property: opacity;
     transition-timing-function: linear;
   }
 }

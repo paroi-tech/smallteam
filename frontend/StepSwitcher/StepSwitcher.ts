@@ -10,8 +10,6 @@ import { render } from "monkberry"
 
 import * as template from "./stepswitcher.monk"
 
-const foldableContentHeight = "250px"
-
 /**
  * Component used to display a task and its children (subtasks).
  *
@@ -32,6 +30,7 @@ export default class StepSwitcher {
   private busyIndicatorEl: HTMLElement
   private foldableEl: HTMLElement
   private toggleBtnEl: HTMLButtonElement
+  private toggleBtnSpanEl: HTMLElement
   private closeBtnEl: HTMLButtonElement
   private boxListContainerEl: HTMLElement
   private addTaskPane: HTMLElement
@@ -45,12 +44,6 @@ export default class StepSwitcher {
   // Map used to store TaskBoxes. The keys are the task IDs.
   private taskBoxes = new Map<string, TaskBox>()
 
-  /**
-   * Create a new StepSwitcher.
-   *
-   * @param dash
-   * @param parentTask
-   */
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.project = this.parentTask.project
@@ -77,21 +70,20 @@ export default class StepSwitcher {
     this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
     this.addTaskPane = el.querySelector(".js-add-task-pane") as HTMLElement
     this.toggleBtnEl = el.querySelector(".js-toggle-btn") as HTMLButtonElement
+    this.toggleBtnSpanEl = this.toggleBtnEl.querySelector("span") as HTMLElement
     this.closeBtnEl = el.querySelector(".js-close-btn") as HTMLButtonElement
 
     this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
-    this.taskNameEl.onkeyup = ev => {
+    this.taskNameEl.onkeyup = (ev => {
       if (ev.key === "Enter")
         this.addTaskBtnEl.click()
-    }
+    })
 
     // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
     let titleEl = el.querySelector(".js-title") as HTMLElement
-    titleEl.textContent = title
 
-    this.closeBtnEl.innerHTML = "&#10060;" // FIXME: Find a way to avoid the use of innerHTML
-    this.toggleBtnEl.innerHTML = "&#9650;" // FIXME: Find a way to avoid the use of innerHTML
+    titleEl.textContent = title
     this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
     this.closeBtnEl.addEventListener("click", ev => {
       // We can't hide the rootTask StepSwitcher
@@ -103,13 +95,14 @@ export default class StepSwitcher {
   }
 
   private toggleFoldableContent() {
-    // FIXME: Find a better way than setting the content height to use transition.
     if (this.collapsibleElVisible) {
-      this.toggleBtnEl.innerHTML = "&#9660;"
-      this.foldableEl.style.height = "0px"
+      this.toggleBtnSpanEl.classList.remove("fa-caret-up")
+      this.toggleBtnSpanEl.classList.add("fa-caret-down")
+      this.foldableEl.style.display = "none"
     } else {
-      this.toggleBtnEl.innerHTML = "&#9650;"
-      this.foldableEl.style.height = foldableContentHeight
+      this.toggleBtnSpanEl.classList.remove("fa-caret-down")
+      this.toggleBtnSpanEl.classList.add("fa-caret-up")
+      this.foldableEl.style.display = "block"
     }
     this.collapsibleElVisible = !this.collapsibleElVisible
   }
