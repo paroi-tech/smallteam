@@ -33,6 +33,8 @@ the time, so I can't use JIRA.
   - Show, Add, remove the flags for the task (Use BoxList)
   - Show, Add, update, remove comments
   - Add a button "Log" in the task form, and show the task log in a dialog
+  - On create/update/delete contributors, update the list in `TaskForm`
+  - On create/update/delete flags, update the list in `TaskForm`
 - In `TaskBox`:
   - Show the contributors affected to the task
   - Show the flags for the task
@@ -55,6 +57,7 @@ the time, so I can't use JIRA.
 - Add attached files to tasks
 - Use a GitHub hook to show the commits on tasks
 - Use HTTPS, deploy the project on the Web server
+- Internationalisation
 
 # Lionel - DONE
 - On task update, update the flags shown in TaskBox
