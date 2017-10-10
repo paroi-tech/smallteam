@@ -3,17 +3,17 @@
   <div class="js-form">
     <label class="FormField">
       <span class="FormField-span">Name</span>
-      <input type="text" class="js-name" value="{{ name }}">
+      <input type="text" class="js-name" value="{{ frag.name }}">
     </label>
 
     <label class="FormField">
       <span class="FormField-span">Login</span>
-      <input type="text" class="js-login" value="{{ login }}">
+      <input type="text" class="js-login" value="{{ frag.login }}">
     </label>
 
     <label class="FormField">
       <span class="FormField-span">Email</span>
-      <input type="email" class="js-email" value="{{ email }}" placeholder="john.doe@example.com">
+      <input type="email" class="js-email" value="{{ frag.email }}" placeholder="john.doe@example.com">
     </label>
 
     <div>

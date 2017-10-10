@@ -39,6 +39,7 @@ export default class TaskForm {
     this.flagContainerEl.appendChild(this.flagSelector.el)
     this.contributorSelector = this.dash.create(ContributorSelector)
     this.contributorContainerEl.appendChild(this.contributorSelector.el)
+    this.listenToModel()
   }
 
   /**
@@ -102,6 +103,7 @@ export default class TaskForm {
       label: task.label
     })
     this.flagSelector.setTask(task)
+    this.contributorSelector.setTask(task)
   }
 
   private async deleteTask() {
@@ -111,6 +113,8 @@ export default class TaskForm {
       return
     try {
       await this.model.exec("delete", "Task", { id: this.task.id})
+      // IMPORTANT: We listen to deleteTask event from the model. So the form will
+      // be updated when the current task is deleted.
     } catch (error) {
       console.log("Unable to delete task", error)
     }
@@ -133,12 +137,14 @@ export default class TaskForm {
         id: this.task.id,
         label: label.trim(),
         description: this.descriptionEl.value.trim() || "",
-        flagIds: this.flagSelector.selectedFlagIds
+        flagIds: this.flagSelector.selectedFlagIds,
+        affectedToIds: this.contributorSelector.selectedContributorIds
       })
     } catch(err) {
       this.labelEl.value = this.task.label
       this.descriptionEl.value = this.task.description || ""
       this.flagSelector.refreshFlags()
+      this.contributorSelector.refresh()
       console.error(`Error while updating task ${this.task}: ${err}`)
     }
     this.submitSpinnerEl.style.display = "none"
@@ -175,5 +181,6 @@ export default class TaskForm {
       label: ""
     })
     this.flagSelector.setTask(undefined)
+    this.contributorSelector.setTask(undefined)
   }
 }

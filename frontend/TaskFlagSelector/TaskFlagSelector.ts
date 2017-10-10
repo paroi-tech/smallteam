@@ -147,8 +147,11 @@ export default class TaskFlagSelector {
    * Note: use when the task update fails.
    */
   public refreshFlags() {
+    for (let checkBox of this.checkBoxes.values())
+      checkBox.checked = false
     if (!this.task || !this.task.flagIds)
       return
+
     for (let flagId of this.task.flagIds) {
       let checkBox = this.checkBoxes.get(flagId)
       if (checkBox)

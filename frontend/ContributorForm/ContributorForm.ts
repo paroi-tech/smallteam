@@ -18,9 +18,11 @@ export default class ContributorForm {
   private view: MonkberryView
 
   private state = {
-    name:  "",
-    login: "",
-    email: "",
+    frag: {
+      login: "",
+      name: "",
+      email: ""
+    },
     ctrl: {
       submit: () => this.onSubmit()
     }
@@ -50,14 +52,15 @@ export default class ContributorForm {
 
   public setContributor(contributor: ContributorModel) {
     this.contributor = contributor
-    this.updateView()
+    this.state.frag = contributor.updateTools.toFragment("update") as any
+    this.view.update(this.state)
   }
 
   public reset() {
     this.contributor = undefined
-    this.state.name = ""
-    this.state.login = ""
-    this.state.email = ""
+    this.state.frag.name = ""
+    this.state.frag.login = ""
+    this.state.frag.email = ""
     this.view.update(this.state)
   }
 
@@ -92,6 +95,7 @@ export default class ContributorForm {
     this.submitSpinnerEl.style.display = "inline"
     if (!this.contributor) {
       await this.createContributor({ name, login, email })
+      this.nameEl.focus()
     } else {
       await this.updateContributor({
         id: this.contributor ? this.contributor.id : "",
@@ -118,19 +122,11 @@ export default class ContributorForm {
       return
     try {
       this.contributor = await this.model.exec("update", "Contributor", frag)
-      this.updateView()
+      this.state.frag = this.contributor.updateTools.toFragment("update") as any
+      this.view.update(this.state)
     } catch (err) {
       console.error(`Unable to update contributor...`)
     }
-  }
-
-  private updateView() {
-    if (!this.contributor)
-      return
-    this.state.name = this.contributor.name
-    this.state.email = this.contributor.email
-    this.state.login = this.contributor.login
-    this.view.update(this.state)
   }
 
   // FIXME: Improve this method.

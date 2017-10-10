@@ -86,6 +86,8 @@ export default class TaskBox implements Box {
         // Update the flags.
         removeAllChildren(this.flagContainerEl)
         this.addTaskFlags()
+        removeAllChildren(this.contributorContainerEl)
+        this.addContributorFlags()
       }
     })
 

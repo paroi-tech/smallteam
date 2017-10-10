@@ -35,6 +35,7 @@ export default class ContributorSelector {
     this.el = this.createView()
     this.createChildComponents()
     this.model.global.contributors.forEach(c => this.addItemFor(c))
+    this.listenToModel()
   }
 
   private createView(): HTMLElement {
@@ -54,6 +55,42 @@ export default class ContributorSelector {
     return el
   }
 
+  private createChildComponents() {
+    this.boxList = this.dash.create(BoxList, {
+      id: "",
+      name: "Affected contributors",
+      group: undefined,
+      sort: true
+    })
+    this.boxListContainerEl.appendChild(this.boxList.el)
+  }
+
+  private listenToModel() {
+    // Contributor update.
+    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
+      let contributor = data.model as ContributorModel
+      let view = this.itemViews.get(contributor.id)
+
+      if (view)
+        view.update({ value: contributor.name })
+    })
+
+    // Contributor deletion.
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteContributor").onData(data => {
+      let contributorId = data.id as string
+
+      let el = this.items.get(contributorId)
+      if (el)
+        this.listEl.removeChild(el)
+
+      if (this.boxList.hasBox(contributorId))
+        this.boxList.removeBox(contributorId)
+      this.checkBoxes.delete(contributorId)
+      this.itemViews.delete(contributorId)
+      this.items.delete(contributorId)
+    })
+  }
+
   private addItemFor(contributor: ContributorModel) {
     let view = render(itemTemplate, document.createElement("div"))
     let itemEl = view.nodes[0]as HTMLElement
@@ -66,15 +103,70 @@ export default class ContributorSelector {
     this.listEl.appendChild(itemEl)
   }
 
-  private createChildComponents() {
-    this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Affected contributors",
-      group: undefined,
-      itemRemoveButton: true,
-      sort: true
-    })
-    this.boxListContainerEl.appendChild(this.boxList.el)
+  private addBoxFor(contributor: ContributorModel) {
+    let box = this.dash.create(ContributorBox, contributor)
+    this.boxList.addBox(box)
   }
 
+  public setTask(task: TaskModel | undefined) {
+    this.reset()
+    this.task = task
+    if (!task) {
+      this.listEl.style.pointerEvents = "none"
+      return
+    }
+
+    this.listEl.style.pointerEvents = "auto"
+    if (!task.affectedToIds)
+      return
+    task.affectedToIds.forEach(id => {
+      let contributor = this.model.global.contributors.get(id)
+      if (contributor)
+        this.addBoxFor(contributor)
+
+      let checkBox = this.checkBoxes.get(id)
+      if (checkBox)
+        checkBox.checked = true
+    })
+  }
+
+  private reset() {
+    this.boxList.clear()
+    for (let checkBox of this.checkBoxes.values())
+      checkBox.checked = false
+  }
+
+  get selectedContributorIds(): string[] {
+    if (!this.task)
+      return []
+
+    let arr: string[] = []
+    for (let entry of this.checkBoxes.entries()) {
+      if (entry[1].checked)
+        arr.push(entry[0] as string)
+    }
+
+    return arr
+  }
+
+  /**
+   * Refresh the checkboxes and the BoxList.
+   *
+   * Note: use when the task update fails.
+   */
+  public refresh() {
+    this.reset()
+    if (!this.task || !this.task.affectedToIds)
+      return
+
+    for (let id of this.task.affectedToIds) {
+      let contributor = this.model.global.contributors.get(id)
+      if (contributor)
+        this.addBoxFor(contributor)
+
+      let checkBox = this.checkBoxes.get(id)
+      if (checkBox)
+        checkBox.checked = true
+    }
+  }
 }
