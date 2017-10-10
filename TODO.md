@@ -17,6 +17,8 @@ the time, so I can't use JIRA.
 - Keep HKMap? (Identifier can be `string | number | string[]` ??)
 - Refactoring in the backend, one code for all the reordering
 - Rewrite EasyRouter
+- Refactoring: rename `step` to `project_step` (remove the PK), and `step_type` to `step`
+  - Remove the fragment of `project_step`, load the steps as an array of identifiers in `ProjectFragment`
 
 # Lionel
 - Show an animated loader on the background command button when there is something started
