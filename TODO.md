@@ -14,9 +14,7 @@ the time, so I can't use JIRA.
   - Implement `session/recover` the password recovery
   - Implement `session/save-password`
   - Implement `session/disconnect`
-- Investigate TS transformers, maybe they could generate meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
-- Use HTTPS, deploy the project on the Web server
-- Keep HKMap?
+- Keep HKMap? (Identifier can be `string | number | string[]` ??)
 - Refactoring in the backend, one code for all the reordering
 - Rewrite EasyRouter
 
@@ -54,6 +52,7 @@ the time, so I can't use JIRA.
 - Use true avatars
 - Add attached files to tasks
 - Use a GitHub hook to show the commits on tasks
+- Use HTTPS, deploy the project on the Web server
 
 # Lionel - DONE
 - On task update, update the flags shown in TaskBox
@@ -114,6 +113,7 @@ the time, so I can't use JIRA.
   - Call logStepChange()
 - Add a frontend router
   - Sub-routers provided by workspaces
+- Investigate TS transformers, maybe they could generate meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 
 # Thomas or Lionel - DONE
 
