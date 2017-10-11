@@ -66,6 +66,11 @@ export default class ContributorSelector {
   }
 
   private listenToModel() {
+    // Contributor creation.
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createContributor").onData(data => {
+      this.addSelectorFor(data.model as ContributorModel)
+    })
+
     // Contributor update.
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
       let contributor = data.model as ContributorModel

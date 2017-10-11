@@ -87,6 +87,11 @@ export default class TaskFlagSelector {
   }
 
   private listenToModel() {
+    // Listen to flag creation event.
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createFlag").onData(data => {
+      this.addItemFor(data.model as FlagModel)
+    })
+
     // Listen to flag deletion event in order to remove corresponding item from the selector.
     // IMPORTANT: What happens to orderNums where a flag is deleted ?
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteFlag").onData(data => {
