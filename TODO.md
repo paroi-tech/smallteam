@@ -6,9 +6,6 @@ the time, so I can't use JIRA.
 - In the Model:
   - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
-- Add a frontend router
-  - Create a 404 workspace
-  - Create a root workspace
 - Sessions in the backend
   - Implement `session/current` Auto-login when a session is already opened
   - Implement `session/recover` the password recovery
@@ -19,6 +16,7 @@ the time, so I can't use JIRA.
 - Rewrite EasyRouter
 - Refactoring: rename `step` to `project_step` (remove the PK), and `step_type` to `step`
   - Remove the fragment of `project_step`, load the steps as an array of identifiers in `ProjectFragment`
+- isModified, getDiffToUpdate: work with field types `any[]`
 
 # Lionel
 - Show an animated loader on the background command button when there is something started
@@ -39,6 +37,9 @@ the time, so I can't use JIRA.
   - Show the contributors affected to the task
   - Show the flags for the task
   - Show the field `commentCount`
+- Add static workspaces:
+  - Create a component `Simple404Workspace`
+  - Create a component `HomeWorkspace`
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"

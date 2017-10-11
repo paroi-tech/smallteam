@@ -29,8 +29,8 @@ export interface ViewerController {
 
 interface WorkspaceInfo {
   workspace: Workspace
-  path: string
-  menu: "main" | "dropdown"
+  path?: string
+  menu?: "main" | "dropdown"
   defaultTitle: string
 }
 
@@ -42,7 +42,8 @@ export default class WorkspaceViewer {
   private dropdownMenu: DropdownMenu
   private currentWInfo: WorkspaceInfo | undefined
 
-  private workspaces = new Map<string, WorkspaceInfo>()
+  private symb404 = Symbol("404")
+  private workspaces = new Map<string | Symbol, WorkspaceInfo>()
 
   private view: MonkberryView
 
@@ -64,7 +65,8 @@ export default class WorkspaceViewer {
       let path = `prj-${projectId}`
       let info = this.workspaces.get(path)
       if (info) {
-        (info.menu === "main" ? this.menu : this.dropdownMenu).removeItem(info.path)
+        if (info.path)
+          this.getMenu(info).removeItem(info.path)
         this.workspaces.delete(path)
         if (info === this.currentWInfo) {
           removeAllChildren(this.bodyEl)
@@ -76,19 +78,6 @@ export default class WorkspaceViewer {
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)
-    this.router.mapUnknownRoutes({
-      useQueryString: '404',
-      activate: (query: ERQuery) => {
-        console.log("404", query)
-      },
-      title: '404 Not Found'
-    })
-    this.router.map({
-      route: "",
-      activate: (query: ERQuery) => {
-        console.log("MAIN PAGE", query)
-      }
-    })
   }
 
   public start() {
@@ -97,6 +86,28 @@ export default class WorkspaceViewer {
       hashMode: true,
       // noHistory: false,
       firstQueryString: ""
+    })
+  }
+
+  public addHomeWorkspace(title: string, w: Workspace) {
+    let path = ""
+    this.workspaces.set(path, { workspace: w, path, defaultTitle: title })
+    this.router.map({
+      route: path,
+      activate: (query: ERQuery) => {
+        this.activateWorkspace(path)
+      }
+    })
+  }
+
+  public add404Workspace(title: string, w: Workspace) {
+    this.workspaces.set(this.symb404, { workspace: w, defaultTitle: title })
+    this.router.mapUnknownRoutes({
+      useQueryString: '404',
+      activate: (query: ERQuery) => {
+        this.activateWorkspace(this.symb404)
+      },
+      title
     })
   }
 
@@ -131,7 +142,13 @@ export default class WorkspaceViewer {
     }
   }
 
-  private activateWorkspace(path: string) {
+  private getMenu(info: WorkspaceInfo): Menu | DropdownMenu {
+    if (!info.menu)
+      throw new Error(`Missing menu for workspace: "${info.path}"`)
+    return info.menu === "main" ? this.menu : this.dropdownMenu
+  }
+
+  private activateWorkspace(path: string | Symbol) {
     let info = this.workspaces.get(path)
     if (!info)
       throw new Error(`Unknown workspace path: ${path}`)
@@ -148,10 +165,12 @@ export default class WorkspaceViewer {
   private createViewController(info: WorkspaceInfo): ViewerController {
     let obj = {
       setMenuLabel: (label: string) => {
-        if (info.menu === "main")
-          this.menu.setItemLabel(info.path, label)
-        else
-          this.dropdownMenu.setItemLabel(info.path, label)
+        if (info.path) {
+          if (info.menu === "main")
+            this.menu.setItemLabel(info.path, label)
+          else if (info.menu === "dropdown")
+            this.dropdownMenu.setItemLabel(info.path, label)
+        }
         return obj
       },
       setTitle: (title: string) => {
