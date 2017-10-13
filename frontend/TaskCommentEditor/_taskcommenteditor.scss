@@ -1,0 +1,15 @@
+.TaskCommentEditor {
+  &-header {
+    background-color: darkgray;
+    color: white;
+    font-weight: bold;
+    padding: 5px;
+    text-align: center;
+  }
+  &-textarea {
+    display: block;
+  }
+  &-ul {
+    min-height: 20px;
+  }
+}

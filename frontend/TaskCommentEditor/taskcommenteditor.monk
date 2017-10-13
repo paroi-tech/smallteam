@@ -1,0 +1,11 @@
+<div class="TaskCommentEditor">
+  <header class="TaskCommentEditor-header">Comments</header>
+  <ul class="TaskCommentEditor-ul js-ul"></ul>
+  <div>
+    <textarea class="TaskCommentEditor-textarea" rows="10" cols="25"></textarea>
+    <button type="button" class="js-submit">
+      Save comment
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
+    </button>
+  </div>
+</div>

@@ -133,6 +133,7 @@ addBackendFragmentMeta(
       columnType: "bigint"
     },
     writtenById: {
+      column: "written_by",
       columnType: "bigint"
     },
     body: {},

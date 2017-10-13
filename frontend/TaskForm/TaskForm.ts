@@ -2,6 +2,7 @@ import { Dash, Bkb } from "bkb"
 import App from "../App/App"
 import { Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 import { Model, TaskModel } from "../AppModel/AppModel"
+import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import ContributorSelector from "../ContributorSelector/ContributorSelector"
 import TaskFlagSelector from "../TaskFlagSelector/TaskFlagSelector"
 import * as MonkBerry from "monkberry"
@@ -20,12 +21,14 @@ export default class TaskForm {
   private submitSpinnerEl: HTMLElement
   private deleteSpinnerEl: HTMLElement
   private flagContainerEl: HTMLElement
+  private commentContainerEl: HTMLElement
   private contributorContainerEl: HTMLElement
 
   private view: MonkberryView
   private task: TaskModel | undefined = undefined
   private model: Model
 
+  private commentEditor: TaskCommentEditor
   private flagSelector: TaskFlagSelector
   private contributorSelector: ContributorSelector
 
@@ -35,10 +38,16 @@ export default class TaskForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
+
     this.flagSelector = this.dash.create(TaskFlagSelector)
     this.flagContainerEl.appendChild(this.flagSelector.el)
+
     this.contributorSelector = this.dash.create(ContributorSelector)
     this.contributorContainerEl.appendChild(this.contributorSelector.el)
+
+    this.commentEditor = this.dash.create(TaskCommentEditor)
+    this.commentContainerEl.appendChild(this.commentEditor.el)
+
     this.listenToModel()
   }
 
@@ -56,6 +65,7 @@ export default class TaskForm {
     this.deleteSpinnerEl = el.querySelector(".js-delete-spinner") as HTMLElement
     this.flagContainerEl = el.querySelector(".js-fselector-container") as HTMLElement
     this.contributorContainerEl = el.querySelector(".js-cselector-container") as HTMLElement
+    this.commentContainerEl = el.querySelector(".js-comment-container") as HTMLElement
 
     let submitBtn = el.querySelector(".js-submit-button") as HTMLButtonElement
     submitBtn.addEventListener("click", ev => this.updateTask())
@@ -85,9 +95,15 @@ export default class TaskForm {
       if (this.task !== undefined && this.task.id === data.id)
         this.clear()
     })
+
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
-      if (this.task && this.task.id === data.id)
-        this.setTask(data.model) // Refresh the form, lazy way :)
+      if (this.task && this.task.id === data.id) {
+        let state = {
+          description: this.task.description || "",
+          label: this.task.label
+        }
+        this.view.update(state)
+      }
     })
   }
 
@@ -104,6 +120,7 @@ export default class TaskForm {
     })
     this.flagSelector.setTask(task)
     this.contributorSelector.setTask(task)
+    this.commentEditor.setTask(task)
   }
 
   private async deleteTask() {
@@ -182,5 +199,6 @@ export default class TaskForm {
     })
     this.flagSelector.setTask(undefined)
     this.contributorSelector.setTask(undefined)
+    this.commentEditor.setTask(undefined)
   }
 }

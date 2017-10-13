@@ -20,6 +20,8 @@
     <span class="js-submit-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
   </button>
 
+  <div class="js-comment-container"></div>
+
   <div><button class="js-btn-panel">Show/Hide as parent</button></div>
 
   <div>
