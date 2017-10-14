@@ -14,11 +14,18 @@ the time, so I can't use JIRA.
 - Keep HKMap? (Identifier can be `string | number | string[]` ??)
 - Refactoring in the backend, one code for all the reordering
 - Rewrite EasyRouter
+  - rmChild (call from WorkspaceViewer.removeWorkspace)
 - Refactoring: rename `step` to `project_step` (remove the PK), and `step_type` to `step`
   - Remove the fragment of `project_step`, load the steps as an array of identifiers in `ProjectFragment`
 - isModified, getDiffToUpdate: work with field types `any[]`
+- Model:
+  - `this.project.steps` etc. => store the array? or rename to `getSteps()`
 
 # Lionel
+- Refactoring:
+  - In `ProjectForm`, create a project with a non-empty array for `stepIds`
+  - Rename all Monkberry files with the component name or the CSS class or the markup name
+  - Rename all SCSS files with the component name
 - Show an animated loader on the background command button when there is something started
 - Create a component `SessionMenu`:
   - It contains a drop-down menu to append to the right of the main drop-down menu

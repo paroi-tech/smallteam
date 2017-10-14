@@ -1,0 +1,14 @@
+<div class="js-container StepWorkspace">
+  <div>
+    <div class="js-boxlist-container StepWorkspace-boxListContainer"></div>
+    <div class="js-edit-form-container StepWorkspace-formContainer"></div>
+  </div>
+
+  <div class="js-add-form-container">
+    <input type="text" class="js-input" required>
+    <button type="button" class="js-add-form-btn">
+      Add
+      <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
+    </button>
+  </div>
+</div>

@@ -210,8 +210,9 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
   // Task
   let projectId = await fetchProjectIdFromTask(newFrag.parentTaskId)
   let values = toSqlValues(newFrag, taskMeta.create) || {}
-  values.projectId = int(projectId)
-  values.code = await findTaskCode(projectId)
+  values["project_id"] = int(projectId)
+  values["code"] = await findTaskCode(projectId)
+  values["created_by"] = int(context.sessionData.contributorId)
   let sql = buildInsert()
     .insertInto("task")
     .values(values)

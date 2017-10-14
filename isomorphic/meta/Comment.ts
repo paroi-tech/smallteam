@@ -37,14 +37,14 @@ const meta: FragmentMeta = {
   }
 }
 
-export type CommentCreateFragment = Pick<CommentFragment, "taskId" | "writtenById" | "body">
+export type CommentCreateFragment = Pick<CommentFragment, "taskId" | "body">
 export type CommentUpdateFragment = PickUpdate<CommentFragment, "id", "body">
 export type CommentIdFragment = Pick<CommentFragment, "id">
 export type CommentFetchFragment = Pick<CommentFragment, "taskId">
 
 export default {
   read: meta,
-  create: pickFragmentMeta("create", meta, ["taskId", "writtenById", "body"]),
+  create: pickFragmentMeta("create", meta, ["taskId", "body"]),
   update: pickUpdateFragmentMeta("update", meta, ["id"], ["body"]),
   id: pickFragmentMeta("id", meta, ["id"]),
   fetch: pickFragmentMeta("fetch", meta, ["taskId"])

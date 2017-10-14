@@ -42,10 +42,10 @@ addBackendFragmentMeta(
     },
     code: {},
     label: {},
-    createdById: {
-      column: "created_by",
-      columnType: "bigint"
-    },
+    // createdById: {
+    //   column: "created_by",
+    //   columnType: "bigint"
+    // },
     curStepId: {
       columnType: "bigint"
     },
@@ -114,10 +114,10 @@ addBackendFragmentMeta(
     taskId: {
       columnType: "bigint"
     },
-    writtenById: {
-      column: "written_by",
-      columnType: "bigint"
-    },
+    // writtenById: {
+    //   column: "written_by",
+    //   columnType: "bigint"
+    // },
     body: {},
     createTs: {
       columnType: "timestamp"

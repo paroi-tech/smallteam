@@ -62,6 +62,7 @@ export async function createComment(context: BackendContext, newFrag: CommentCre
 
   // Comment
   let values = toSqlValues(newFrag, commentMeta.create)!
+  values["written_by"] = int(context.sessionData.contributorId)
   let sql = buildInsert()
     .insertInto("comment")
     .values(values)

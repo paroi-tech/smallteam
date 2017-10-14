@@ -1,15 +1,15 @@
 import { ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
-import WorkspaceViewer from "../WorkspaceViewer/WorkspaceViewer"
 import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
-import ProjectWorkspace from "../ProjectWorkspace/ProjectWorkspace"
-import ProjectForm from "../ProjectForm/ProjectForm"
-import StepTypeWorkspace from "../StepTypeWorkspace/StepTypeWorkspace"
-import ContributorWorkspace from "../ContributorWorkspace/ContributorWorkspace"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
-import BackgroundCommandManager from "../BackgroundCommandManager/BackgroundCommandManager"
-import LoginDialog from "../LoginDialog/LoginDialog"
-import FlagWorkspace from "../FlagWorkspace/FlagWorkspace"
+import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
+import LoginDialog from "../generics/LoginDialog/LoginDialog";
+import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager";
+import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm";
+import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace";
+import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace";
+import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace";
+import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace";
 
 export default class App {
   readonly log: Log
@@ -56,7 +56,7 @@ export default class App {
 
   private createWorkspaces(viewer: WorkspaceViewer) {
     viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm))
-    viewer.addWorkspace("/settings/step-types", "dropdown", "Manage step types", this.dash.create(StepTypeWorkspace))
+    viewer.addWorkspace("/settings/stage-types", "dropdown", "Manage stage types", this.dash.create(StepWorkspace))
     viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
 
@@ -64,7 +64,13 @@ export default class App {
     for (let p of projects)
       this.addProject(viewer, p)
 
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createProject").onData(data => this.addProject(viewer, data.model))
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createProject").onData(
+      data => this.addProject(viewer, data.model)
+    )
+
+    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteProject").onData(
+      data => viewer.removeWorkspace(`/prj-${data.id}`)
+    )
   }
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {

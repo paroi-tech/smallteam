@@ -46,8 +46,7 @@ const meta: FragmentMeta = {
       update: true
     },
     createdById: {
-      dataType: "string",
-      update: true
+      dataType: "string"
     },
     parentTaskId: {
       dataType: "string",
@@ -81,15 +80,15 @@ const meta: FragmentMeta = {
   orderFieldName: "orderNum"
 }
 
-export type TaskCreateFragment = Pick<TaskFragment, "curStepId" | "label" | "description" | "createdById" | "parentTaskId" | "orderNum" | "affectedToIds" | "flagIds">
-export type TaskUpdateFragment = PickUpdate<TaskFragment, "id", "curStepId" | "label" | "description" | "createdById" | "parentTaskId" | "orderNum" | "affectedToIds" | "flagIds">
+export type TaskCreateFragment = Pick<TaskFragment, "curStepId" | "label" | "description" | "parentTaskId" | "orderNum" | "affectedToIds" | "flagIds">
+export type TaskUpdateFragment = PickUpdate<TaskFragment, "id", "curStepId" | "label" | "description" | "parentTaskId" | "orderNum" | "affectedToIds" | "flagIds">
 export type TaskIdFragment = Pick<TaskFragment, "id">
 export type TaskFetchFragment = SearchPick<TaskFragment, "projectId" | "curStepId" | "label" | "description" | "createdById" | "parentTaskId" | "affectedToIds" | "flagIds">
 
 export default {
   read: meta,
-  create: pickFragmentMeta("create", meta, ["curStepId", "label", "description" , "createdById", "parentTaskId", "orderNum", "affectedToIds", "flagIds"]),
-  update: pickUpdateFragmentMeta("update", meta, ["id"], ["curStepId", "label", "description" , "createdById", "parentTaskId", "orderNum", "affectedToIds", "flagIds"]),
+  create: pickFragmentMeta("create", meta, ["curStepId", "label", "description" , "parentTaskId", "orderNum", "affectedToIds", "flagIds"]),
+  update: pickUpdateFragmentMeta("update", meta, ["id"], ["curStepId", "label", "description" , "parentTaskId", "orderNum", "affectedToIds", "flagIds"]),
   id: pickFragmentMeta("id", meta, ["id"]),
   fetch: searchPickFragmentMeta("fetch", meta, ["projectId", "curStepId", "label", "description" , "createdById", "parentTaskId", "affectedToIds", "flagIds"])
 }

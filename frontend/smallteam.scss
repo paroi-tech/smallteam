@@ -40,32 +40,36 @@ button {
   background: none;
 	color: inherit;
 }
-
 /* End of css reset */
-
 
 @import "definitions/definitions";
 @import "App/form";
 @import "App/theme";
-@import "BackgroundCommandManager/bgcommandmanager";
-@import "BoxList/boxlist";
-@import "ContributorFlag/contributorflag";
-@import "ContributorSelector/contributorselector";
-@import "ContributorWorkspace/contributorworkspace";
-@import "DropdownMenu/dropdownmenu";
-@import "FlagBox/flagbox";
-@import "LoginDialog/logindialog";
-@import "Menu/menu";
-@import "ProjectWorkspace/projectworkspace";
-@import "ProjectForm/projectform";
-@import "StepSwitcher/stepswitcher";
-@import "StepTypeBox/steptypebox";
-@import "StepTypeForm/steptypeform";
-@import "StepTypeWorkspace/steptypeworkspace";
-@import "TaskBoard/taskboard";
-@import "TaskBox/taskbox";
-@import "TaskCommentEditor/taskcommenteditor";
-@import "TaskFlag/taskflag";
-@import "TaskFlagSelector/taskflagselector";
-@import "TaskForm/taskform";
-@import "WorkspaceViewer/workspaceviewer";
+
+@import "generics/BackgroundCommandManager/BackgroundCommandManager";
+@import "generics/BoxList/BoxList";
+@import "generics/LoginDialog/LoginDialog";
+@import "generics/Menu/Menu";
+@import "generics/WorkspaceViewer/WorkspaceViewer";
+@import "generics/DropdownMenu/DropdownMenu";
+
+@import "semantics/contributors/ContributorFlag/contributorflag";
+@import "semantics/contributors/ContributorSelector/contributorselector";
+@import "semantics/contributors/ContributorWorkspace/contributorworkspace";
+
+@import "semantics/flags/FlagBox/flagbox";
+@import "semantics/flags/TaskFlagSelector/taskflagselector";
+
+@import "semantics/projects/ProjectWorkspace/projectworkspace";
+@import "semantics/projects/ProjectForm/projectform";
+
+@import "semantics/steps/StepSwitcher/StepSwitcher";
+@import "semantics/steps/StepBox/stepbox";
+@import "semantics/steps/StepForm/stepform";
+@import "semantics/steps/StepWorkspace/stepworkspace";
+
+@import "semantics/tasks/TaskBoard/taskboard";
+@import "semantics/tasks/TaskBox/taskbox";
+@import "semantics/tasks/TaskCommentEditor/taskcommenteditor";
+@import "semantics/tasks/TaskFlag/taskflag";
+@import "semantics/tasks/TaskForm/taskform";

@@ -21,11 +21,13 @@ export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
   readonly steps: Collection<StepModel, string>
   readonly specialSteps: Collection<StepModel, string>
+  readonly allSteps: Collection<StepModel, string>
   readonly tasks?: TaskModel[]
   /**
    * Search the task on all the hierarchy
    */
   getTask(taskId: string): TaskModel
+  hasTaskForStep(stepId: string): boolean
 }
 
 export function registerProject(engine: ModelEngine) {
@@ -46,6 +48,11 @@ export function registerProject(engine: ModelEngine) {
           .filter(step => step.orderNum === undefined)
         return toCollection(list, "Step")
       },
+      get allSteps() {
+        let list = getFrag().stepIds
+          .map(stepId => engine.getModel<StepModel>("Step", stepId))
+        return toCollection(list, "Step")
+      },
       get tasks() {
         return this.rootTask.children
       },
@@ -54,6 +61,16 @@ export function registerProject(engine: ModelEngine) {
         if (task.projectId !== getFrag().id)
           throw new Error(`The task ${taskId} is in the project ${task.projectId}, current project: ${getFrag().id}`)
         return task
+      },
+      hasTaskForStep(stepId: string): boolean {
+        let tasks = engine.getModels<TaskModel>({
+          type: "Task",
+          index: "projectId",
+          key: {
+            projectId: getFrag().id
+          }
+        })
+        return tasks.find(task => task.curStepId === stepId) !== undefined
       }
     }
     appendGettersToModel(model, "Project", getFrag)

@@ -5,7 +5,7 @@ export interface ProjectFragment {
   readonly id: string
   code: string
   name: string
-  description?: string
+  description?: string | null
   archived: boolean
   readonly rootTaskId: string
   stepIds: string[]
