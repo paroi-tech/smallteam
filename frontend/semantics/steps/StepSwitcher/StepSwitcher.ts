@@ -11,7 +11,7 @@ const template = require("./StepSwitcher.monk")
 /**
  * Component used to display a task and its children (subtasks).
  *
- * A StepSwitcher can contain several BoxLists, one BoxList per project stage. Substasks are displayed
+ * A StepSwitcher can contain several BoxLists, one BoxList per project step. Substasks are displayed
  * in those BoxLists, according to subtasks states (e.g Todo, Running, Done, etc.)
  */
 export default class StepSwitcher {
@@ -36,7 +36,7 @@ export default class StepSwitcher {
   private collapsibleElVisible = true
   private visible = true
 
-  // BoxLists we created are stored in a map. The keys are the IDs of the project stages.
+  // BoxLists we created are stored in a map. The keys are the IDs of the project steps.
   private boxLists = new Map<string, BoxList<TaskBox>>()
 
   // Map used to store TaskBoxes. The keys are the task IDs.
@@ -113,7 +113,7 @@ export default class StepSwitcher {
   }
 
   /**
-   * Create a BoxList for each of the project stage.
+   * Create a BoxList for each of the project step.
    */
   private createBoxLists() {
     for (let step of this.project.steps) {
@@ -123,19 +123,19 @@ export default class StepSwitcher {
   }
 
   /**
-   * Create a BoxList for a given stage.
+   * Create a BoxList for a given step.
    *
-   * @param stage - the stage for which the BoxList will be created
+   * @param step - the step for which the BoxList will be created
    */
-  private createBoxListFor(stage: StepModel): BoxList<TaskBox> {
+  private createBoxListFor(step: StepModel): BoxList<TaskBox> {
     let params = {
-      id: stage.id,
+      id: step.id,
       group: this.parentTask.code,
-      name: stage.label,
+      name: step.label,
       sort: true
     }
     let b = this.dash.create(BoxList, params)
-    this.boxLists.set(stage.id, b)
+    this.boxLists.set(step.id, b)
     return b
   }
 
@@ -166,7 +166,7 @@ export default class StepSwitcher {
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher`)
     else if (!step)
-      throw new Error(`Unable to find Stage with ID "${ev.boxListId}" in StepSwitcher`)
+      throw new Error(`Unable to find step with ID "${ev.boxListId}" in StepSwitcher`)
     else {
       this.disable(true)
       let task = box.task
@@ -202,7 +202,7 @@ export default class StepSwitcher {
         let box = this.createTaskBoxFor(task)
         bl.addBox(box)
       } else
-        console.log(`Unknown Stage "${task.currentStep.id}" in StepSwitcher`, this)
+        console.log(`Missing step "${task.currentStep.id}" in StepSwitcher`, this)
     }
   }
 
@@ -268,7 +268,7 @@ export default class StepSwitcher {
     } catch (err) {
       console.log(`Impossible to reorder tasks in StepSwitcher "${this.parentTask.label}"`)
       // We restore the previous order of the elements in the BoxList.
-      // The following retrieve the child tasks which are in the concerned stage.
+      // The following retrieve the child tasks which are in the concerned step.
       let taskIds = this.parentTask.children!.reduce((result: string[], task: TaskModel) => {
           if (task.currentStep.id === ev.boxListId)
             result.push(task.id)
@@ -289,8 +289,8 @@ export default class StepSwitcher {
    * The following events are handled:
    *  - Step update, in order to update the BoxList titles.
    *  - Step reorder, to reorder the BoxLists.
-   *  - Stage creation, to add a new BoxList.
-   *  - Stage deletion, to remove the corresponding BoxList.
+   *  - ProjectStep creation, to add a new BoxList.
+   *  - ProjectStep deletion, to remove the corresponding BoxList.
    *  - Task creation, to create a taskBox for the new task.
    *  - Task deletion, to remove TaskBox (if any).
    */
@@ -305,7 +305,7 @@ export default class StepSwitcher {
       }
     })
 
-    // Stage creation event.
+    // ProjectStep creation event.
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateProject").onData(data => {
       if (data.id === this.project.id)
         this.reset()

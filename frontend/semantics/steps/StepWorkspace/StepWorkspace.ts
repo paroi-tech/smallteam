@@ -95,7 +95,7 @@ export default class StepWorkspace implements Workspace {
   private createChildComponents() {
     this.boxList = this.dash.create(BoxList, {
       id: "",
-      name: "Stage types",
+      name: "Steps",
       group: undefined,
       sort: true
     })
@@ -115,16 +115,16 @@ export default class StepWorkspace implements Workspace {
     if (name.length > 0)
       this.addStep(name)
     else {
-      console.log("The name you entered for the stage type is invalid.")
+      console.log("The name you entered for the step is invalid.")
       this.nameEl.focus()
     }
   }
 
   /**
-   * Schedule the update of stage types order.
+   * Schedule the update of steps order.
    *
    * A timeout of 2s is used to schedule the update. The timer is restarted if the user
-   * reorders the stage types within the 2s.
+   * reorders the steps within the 2s.
    */
   private handleBoxlistUpdate(ev: BoxListEvent) {
     if (this.timer)
@@ -135,11 +135,11 @@ export default class StepWorkspace implements Workspace {
   }
 
   /**
-   * Save the new order of the stage types in the model.
+   * Save the new order of the steps in the model.
    *
    * If the changes are not accepted by the server, then it rollback them in the boxlist.
    *
-   * @param ids - array of strings that contains the ids of stage types
+   * @param ids - array of strings that contains the ids of steps
    */
   private async doUpdate(ids: string[]): Promise<void> {
     let currentOrder = this.boxList.getBoxesOrder()
@@ -149,11 +149,11 @@ export default class StepWorkspace implements Workspace {
       let idList = await this.dash.app.model.reorder("Step", ids)
 
       if (!equal(idList, ids)) {
-        console.error("Sorry. Server rejected new order of stage types...", idList, ids)
+        console.error("Sorry. Server rejected new order of steps...", idList, ids)
         this.boxList.setBoxesOrder(idList)
       }
     } catch (err) {
-      console.log("Sorry. Unable to save the new order of stages on server.", err)
+      console.log("Sorry. Unable to save the new order of steps on server.", err)
       this.boxList.setBoxesOrder(currentOrder)
     }
 
@@ -174,7 +174,7 @@ export default class StepWorkspace implements Workspace {
       await this.model.exec("create", "Step", { label })
       this.nameEl.value = ""
     } catch (err) {
-      console.error("Unable to create new stage type...")
+      console.error("Unable to create new step...")
     }
     this.spinnerEl.style.display = "none"
     this.nameEl.focus()
@@ -182,7 +182,7 @@ export default class StepWorkspace implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-        .setTitle("Stage types")
+        .setTitle("Steps")
   }
 
   public deactivate() {

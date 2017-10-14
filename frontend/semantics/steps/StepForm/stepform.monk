@@ -1,6 +1,6 @@
 <div class="StepForm">
   <div class="StepForm-header BlockTitle">
-    <span>Stage type form</span>
+    <span>Step Form</span>
     <div class="js-menu-container"></div>
   </div>
 
@@ -8,11 +8,6 @@
     <label class="FormField">
       <span class="FormField-span">Name</span>
       <input type="text" class="js-name" required value="{{ name }}">
-    </label>
-
-    <label class="FormField">
-      <span class="FormField-span">Index</span>
-      <input type="number" class="js-ordernum" disabled value="{{ orderNum }}">
     </label>
 
     <div>

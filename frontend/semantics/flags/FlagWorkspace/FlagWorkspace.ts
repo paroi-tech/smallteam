@@ -102,10 +102,10 @@ export default class FlagWorkspace implements Workspace {
   }
 
   /**
-   * Schedule the update of stage types order.
+   * Schedule the update of steps order.
    *
    * A timeout of 2s is used to schedule the update. The timer is restarted if the user
-   * reorders the stage types within the 2s.
+   * reorders the steps within the 2s.
    */
   private handleBoxlistUpdate(ev: BoxListEvent) {
     if (this.timer)
@@ -120,7 +120,7 @@ export default class FlagWorkspace implements Workspace {
    *
    * If the changes are not accepted by the server, then it rollback them in the boxlist.
    *
-   * @param ids - array of strings that contains the ids of stage types
+   * @param ids - array of strings that contains the ids of steps
    */
   private async doUpdate(ids: string[]): Promise<void> {
     let currentOrder = this.boxList.getBoxesOrder()

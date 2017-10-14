@@ -56,7 +56,7 @@ export default class App {
 
   private createWorkspaces(viewer: WorkspaceViewer) {
     viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm))
-    viewer.addWorkspace("/settings/stage-types", "dropdown", "Manage stage types", this.dash.create(StepWorkspace))
+    viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
 

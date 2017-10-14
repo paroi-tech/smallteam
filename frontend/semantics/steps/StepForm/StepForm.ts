@@ -12,7 +12,6 @@ export default class StepForm {
   private menuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
   private nameEl: HTMLInputElement
-  private orderNumEl: HTMLInputElement
   private submitButtonEl: HTMLButtonElement
   private cancelButtonEl: HTMLButtonElement
   private submitButtonSpinnerEl: HTMLElement
@@ -27,7 +26,7 @@ export default class StepForm {
   /**
    * Create a new StepForm.
    *
-   * Note that this component is only used to update stage types, not to create them.
+   * Note that this component is only used to update steps, not to create them.
    *
    * @param dash - the current application dash
    */
@@ -48,7 +47,6 @@ export default class StepForm {
     this.menuContainerEl = el.querySelector(".js-menu-container") as HTMLElement
     this.fieldContainerEl = el.querySelector(".js-field-container") as HTMLElement
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
-    this.orderNumEl = this.fieldContainerEl.querySelector(".js-ordernum-index") as HTMLInputElement
     this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
     this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
     this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
@@ -60,7 +58,7 @@ export default class StepForm {
     this.dropdownMenu = this.dash.create(DropdownMenu, "right")
     this.dropdownMenu.addItem({
       id: "deleteCurrentStep",
-      label: "Delete stage type"
+      label: "Delete step"
     })
     this.menuContainerEl.appendChild(this.dropdownMenu.el)
   }
@@ -84,7 +82,7 @@ export default class StepForm {
     this.submitButtonEl.addEventListener("click", ev => {
       let name = this.nameEl.value.trim()
       if (name.length === 0) {
-        console.log("The name of the stage type should contain more characters...")
+        console.log("The name of the step should contain more characters...")
         return
       }
       this.updateStep(name)
@@ -142,7 +140,7 @@ export default class StepForm {
     try {
       let w = await this.step.updateTools.whoUse()
       if (w) {
-        alert("Can't delete stage type.")
+        alert("Can't delete step.")
         return
       }
       await this.model.exec("delete", "Step", { id: this.step.id })
