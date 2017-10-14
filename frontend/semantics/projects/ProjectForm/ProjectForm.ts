@@ -1,7 +1,7 @@
 import { Bkb, Dash } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import ProjectStepSelector from "../../steps/StepSelector/StepSelector";
+import StepSelector from "../../steps/StepSelector/StepSelector";
 import { Model, ProjectModel } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
@@ -20,7 +20,7 @@ export default class ProjectForm implements Workspace {
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
-  private projectStepSelector: ProjectStepSelector
+  private stepSelector: StepSelector
 
   private state = {
     name: "",
@@ -70,9 +70,9 @@ export default class ProjectForm implements Workspace {
   }
 
   private createChildComponents() {
-    this.projectStepSelector = this.dash.create(ProjectStepSelector)
-    this.projectStepSelector.hide()
-    this.el.appendChild(this.projectStepSelector.el)
+    this.stepSelector = this.dash.create(StepSelector)
+    this.stepSelector.hide()
+    this.el.appendChild(this.stepSelector.el)
   }
 
 
@@ -113,17 +113,17 @@ export default class ProjectForm implements Workspace {
    */
   public setProject(project: ProjectModel | undefined) {
     this.project = project
-    this.projectStepSelector.setProject(project)
+    this.stepSelector.setProject(project)
     if (project) {
       this.codeEl.setAttribute("readonly", "true")
       this.generateCode = false
       this.fillFieldsWithCurrentProject()
-      this.projectStepSelector.show()
+      this.stepSelector.show()
     } else {
       this.codeEl.removeAttribute("readonly")
       this.clearFormFields()
       this.generateCode = true
-      this.projectStepSelector.hide()
+      this.stepSelector.hide()
     }
   }
 
@@ -139,8 +139,8 @@ export default class ProjectForm implements Workspace {
       this.project = await this.model.exec("create", "Project", { code, name, description, stepIds })
       this.codeEl.setAttribute("readonly", "true")
       this.fillFieldsWithCurrentProject()
-      this.projectStepSelector.setProject(this.project)
-      this.projectStepSelector.show()
+      this.stepSelector.setProject(this.project)
+      this.stepSelector.show()
     } catch (error) {
       console.error("Error while creating new project...")
     }

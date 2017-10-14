@@ -7,51 +7,34 @@ import App from "../../../App/App";
 
 const template = require("./StepSelector.monk")
 
-export default class ProjectStepSelector {
+export default class StepSelector {
   readonly el: HTMLElement
 
   private view: MonkberryView
-
-  private freeStepBoxList: BoxList<StepBox>
-  private specialStepBoxList: BoxList<StepBox>
-  private usedStepBoxList: BoxList<StepBox>
-
-  private model: Model
-  private project: ProjectModel | undefined = undefined
-
-  /**
-   * Map used to store StepBoxes created in the panel.
-   */
+  private boxLists: {
+    available: BoxList<StepBox>,
+    used: BoxList<StepBox>,
+    special: BoxList<StepBox>
+  }
   private boxes = new Map<string, StepBox>()
 
-  /**
-   * Map used to store Steps.
-   */
-  private steps = new Map<string, StepModel>()
+  private model: Model
+  private project?: ProjectModel
 
-  /**
-   * Timer used to schedule the commit of the changes in the BoxLists to the model.
-   */
-  private timer: any = undefined
-
-  /**
-   * Create a new ProjectStepsPanel.
-   *
-   * @param dash
-   * @param project
-   */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createChildComponents()
     this.listenToModel()
-    this.model.global.steps.forEach(step => this.registerStep(step))
+
+    this.model.global.steps.forEach(step => this.createBoxForStep(step))
+    this.dash.listenTo<UpdateModelEvent>(this.model, "createStep").onData(data => {
+      let box = this.registerStep(data.model)
+      if (this.project)
+        this.availableStepBoxList.addBox(box)
+    })
   }
 
-  /**
-   *
-   * @param project
-   */
-  public setProject(project: ProjectModel | undefined) {
+  public setProject(project?: ProjectModel) {
     this.clear()
     this.project = project
     if (!project)
@@ -68,11 +51,6 @@ export default class ProjectStepSelector {
    */
   private listenToModel() {
     // Step creation event.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createStep").onData(data => {
-      let box = this.registerStep(data.model)
-      if (this.project)
-        this.freeStepBoxList.addBox(box)
-    })
 
     // Step deletion.
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {
@@ -81,7 +59,7 @@ export default class ProjectStepSelector {
       this.steps.delete(stepId)
       // If we have a project, we have to remove the StepBox created for the Step.
       if (this.project) {
-        let boxLists = [this.freeStepBoxList, this.specialStepBoxList, this.usedStepBoxList]
+        let boxLists = [this.availableStepBoxList, this.specialStepBoxList, this.usedStepBoxList]
         let boxList = boxLists.find(bl => bl.hasBox(stepId))
         if (boxList)
           boxList.removeBox(stepId)
@@ -105,7 +83,7 @@ export default class ProjectStepSelector {
         else
           spareStepIds.push(id)
       }
-      this.freeStepBoxList.setBoxesOrder(spareStepIds)
+      this.availableStepBoxList.setBoxesOrder(spareStepIds)
       this.usedStepBoxList.setBoxesOrder(usedStepIds)
     })
   }
@@ -127,8 +105,8 @@ export default class ProjectStepSelector {
       onMove: ev => this.validateStepMove(ev),
       sort: false
     }
-    this.freeStepBoxList = this.dash.create(BoxList, spareBoxListParams)
-    container.appendChild(this.freeStepBoxList.el)
+    this.availableStepBoxList = this.dash.create(BoxList, spareBoxListParams)
+    container.appendChild(this.availableStepBoxList.el)
 
     let usedBoxListParams = {
       id: "Used",
@@ -157,7 +135,7 @@ export default class ProjectStepSelector {
    * Clear the content of the BoxLists.
    */
   private clear() {
-    let boxLists = [this.freeStepBoxList, this.specialStepBoxList, this.usedStepBoxList]
+    let boxLists = [this.availableStepBoxList, this.specialStepBoxList, this.usedStepBoxList]
     boxLists.forEach(bl => bl.clear())
   }
 
@@ -173,23 +151,12 @@ export default class ProjectStepSelector {
   }
 
   /**
-   * Store the Step in the stepMap and create a box for the Step.
-   *
-   * @param step
-   * @return the created StepBox
-   */
-  private registerStep(step: StepModel) {
-    this.steps.set(step.id, step)
-    return this.createBoxForStep(step)
-  }
-
-  /**
    * Fill the BoxList with the Steps stored in the component.
    */
   private fillBoxLists() {
     if (!this.project)
       return
-    let projectSteps = this.project.steps
+    let projectSteps = this.project.allSteps
     this.steps.forEach(step => {
       let box = this.boxes.get(step.id)
       if (!box)
@@ -199,7 +166,7 @@ export default class ProjectStepSelector {
       else if (projectSteps.has(step.id))
         this.usedStepBoxList.addBox(box)
       else
-        this.freeStepBoxList.addBox(box)
+        this.availableStepBoxList.addBox(box)
     })
   }
 
@@ -217,68 +184,68 @@ export default class ProjectStepSelector {
     }, 2000)
   }
 
-  /**
-   * Request the update of the project Steps in the model.
-   */
-  private async doUpdate() {
-    // FIXME: Do not update here. The update is done in `ProjectForm` on `Project`
+  // /**
+  //  * Request the update of the project Steps in the model.
+  //  */
+  // private async doUpdate() {
+  //   // FIXME: Do not update here. The update must be done in the parent component `ProjectForm`
 
-    // if (!this.project)
-    //   return
-    // let used = this.usedStepBoxList.getBoxesOrder()
-    // let unused = this.freeStepBoxList.getBoxesOrder()
-    // let batch = this.model.createCommandBatch()
+  //   if (!this.project)
+  //     return
+  //   let used = this.usedStepBoxList.getBoxesOrder()
+  //   let unused = this.freeStepBoxList.getBoxesOrder()
+  //   let batch = this.model.createCommandBatch()
 
-    // let projectSteps = this.project.steps
+  //   let projectSteps = this.project.steps
 
-    // // We create steps for newly added Steps.
-    // for (let id of used) {
-    //   let step = this.steps.get(id)
-    //   if (!step) // This should not happen.
-    //     throw new Error(`Unknown Step ID ${id} in ProjectStepsPanel ${this.project.code}`)
-    //   if (!projectSteps.has(step.id))
-    //     batch.exec("create", "Step", { stepId: step.id, projectId: this.project.id })
-    // }
+  //   // We create ProjectSteps for newly added Steps.
+  //   for (let id of used) {
+  //     let step = this.steps.get(id)
+  //     if (!step) // This should not happen.
+  //       throw new Error(`Unknown step ID ${id} in project ${this.project.code}`)
+  //     if (!projectSteps.has(step.id))
+  //       batch.exec("update", "Project", { id: this.project.id, stepIds: this.stepIds })
+  //   }
 
-    // // We remove unused Steps. No need to check if there are tasks in the Step. There was an control
-    // // when the StepBox was moved.
-    // for (let id of unused) {
-    //   let step = this.steps.get(id)
-    //   if (!step) // This should not happen.
-    //     throw new Error(`Unknown Step ID ${id} in ProjectStepsPanel ${this.project.code}`)
-    //   let step = this.project.findStepByType(step.id)
-    //   if (step)
-    //     batch.exec("delete", "Step", { id: step.id })
-    // }
+  //   // We remove unused Steps. No need to check if there are tasks in the Step. There was an control
+  //   // when the StepBox was moved.
+  //   for (let id of unused) {
+  //     let step = this.steps.get(id)
+  //     if (!step) // This should not happen.
+  //       throw new Error(`Unknown Step ID ${id} in ProjectStepsPanel ${this.project.code}`)
+  //     let step = this.project.findStepByType(step.id)
+  //     if (step)
+  //       batch.exec("delete", "Step", { id: step.id })
+  //   }
 
-    // // Send request to the server...
-    // try {
-    //   let val = await batch.sendAll()
-    // } catch (err) {
-    //   console.error("Error while updating project steps.", err)
-    //   // We need to restore the content of the BoxLists.
-    //   for (let [id, box] of this.boxes.entries()) {
-    //     if (this.project.hasStep(id) && this.freeStepBoxList.hasBox(id)) {
-    //       this.freeStepBoxList.removeBox(id)
-    //       this.usedStepBoxList.addBox(box)
-    //     }
-    //     if (!this.project.hasStep(id) && this.usedStepBoxList.hasBox(id)) {
-    //       this.usedStepBoxList.removeBox(id)
-    //       this.freeStepBoxList.addBox(box)
-    //     }
-    //   }
-    // }
-    // // Now we sort the content of the BoxLists. Easy to sort the used Step BoxList...
-    // this.usedStepBoxList.setBoxesOrder(this.project.steps.map(step => step.stepId))
-    // // Tricky to sort the available Step BoxList. We get the unused Steps from `stepMap`,
-    // // then we sort them and finally we keep only the IDs in order to call BoxList#setBoxesOrder().
-    // let ids = Array.from(this.steps.values()).filter((step) => {
-    //   return !step.isSpecial && !this.project!.hasStep(step.id)
-    // }).sort((a: StepModel, b: StepModel) => {
-    //   return a.orderNum! - b.orderNum!
-    // }).map(step => step.id)
-    // this.freeStepBoxList.setBoxesOrder(ids)
-  }
+  //   // Send request to the server...
+  //   try {
+  //     let val = await batch.sendAll()
+  //   } catch (err) {
+  //     console.error("Error while updating project steps.", err)
+  //     // We need to restore the content of the BoxLists.
+  //     for (let [id, box] of this.boxes.entries()) {
+  //       if (this.project.hasStep(id) && this.freeStepBoxList.hasBox(id)) {
+  //         this.freeStepBoxList.removeBox(id)
+  //         this.usedStepBoxList.addBox(box)
+  //       }
+  //       if (!this.project.hasStep(id) && this.usedStepBoxList.hasBox(id)) {
+  //         this.usedStepBoxList.removeBox(id)
+  //         this.freeStepBoxList.addBox(box)
+  //       }
+  //     }
+  //   }
+  //   // Now we sort the content of the BoxLists. Easy to sort the used Step BoxList...
+  //   this.usedStepBoxList.setBoxesOrder(this.project.steps.map(step => step.stepId))
+  //   // Tricky to sort the available Step BoxList. We get the unused Steps from `stepMap`,
+  //   // then we sort them and finally we keep only the IDs in order to call BoxList#setBoxesOrder().
+  //   let ids = Array.from(this.steps.values()).filter((step) => {
+  //     return !step.isSpecial && !this.project!.hasStep(step.id)
+  //   }).sort((a: StepModel, b: StepModel) => {
+  //     return a.orderNum! - b.orderNum!
+  //   }).map(step => step.id)
+  //   this.freeStepBoxList.setBoxesOrder(ids)
+  // }
 
   /**
    * Check if a StepBox can be moved between BoxLists.
