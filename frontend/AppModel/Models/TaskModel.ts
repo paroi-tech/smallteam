@@ -1,7 +1,6 @@
 import { TaskFragment, TaskUpdateFragment, TaskCreateFragment, TaskIdFragment } from "../../../isomorphic/meta/Task"
 import ModelEngine, { appendGettersToModel, toCollection, OrderProperties, appendUpdateToolsToModel } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
-import { StepModel } from "./StepModel"
 import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
 import { Collection } from "../modelDefinitions"
@@ -11,6 +10,7 @@ import { TaskLogEntryModel } from "./TaskLogEntryModel"
 import { TaskLogEntryFetchFragment } from "../../../isomorphic/meta/TaskLogEntry"
 import { Type } from "../../../isomorphic/Cargo";
 import { WhoUseItem } from "../../../isomorphic/transfers"
+import { StepModel } from "./StepModel";
 
 export interface TaskUpdateTools {
   processing: boolean
@@ -29,8 +29,8 @@ export interface TaskModel extends TaskFragment {
   readonly parent?: TaskModel
   readonly children?: Collection<TaskModel, string>
   readonly createdBy: ContributorModel
-  affectedTo?: Collection<ContributorModel, string>
-  flags?: Collection<FlagModel, string>
+  readonly affectedTo?: Collection<ContributorModel, string>
+  readonly flags?: Collection<FlagModel, string>
   getComments(): Promise<Collection<CommentModel, string>>
   getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
   // getAttachments(): Promise<Attachment[]>

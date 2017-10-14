@@ -2,9 +2,8 @@ import { Cargo, BatchCargo } from "../isomorphic/Cargo"
 import { WhoUseItem } from "../isomorphic/transfers"
 import { fetchContributorsByIds, fetchContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor, whoUseContributor } from "./dbqueries/queryContributor"
 import { fetchProjects, createProject, fetchProjectsByIds, updateProject, deleteProject, whoUseProject } from "./dbqueries/queryProject"
-import { createStep, deleteStep, fetchStepsByIds, whoUseStep } from "./dbqueries/queryStep"
 import { createTask, updateTask, fetchTasksByIds, reorderChildTasks, deleteTask, fetchTasks, whoUseTask } from "./dbqueries/queryTask"
-import { createStepType, fetchStepTypesByIds, fetchStepTypes, updateStepType, reorderStepTypes, deleteStepType, whoUseStepType } from "./dbqueries/queryStepType"
+import { createStep, fetchStepsByIds, fetchSteps, updateStep, reorderSteps, deleteStep, whoUseStep } from "./dbqueries/queryStep"
 import "./backendMeta/initBackendMeta"
 import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorderFlags, whoUseFlag } from "./dbqueries/queryFlag"
 import { fetchComments, createComment, updateComment, deleteComment, fetchCommentsByIds } from "./dbqueries/queryComment"
@@ -51,8 +50,7 @@ const whoUseCallbacks = {
   Flag: whoUseFlag,
   Project: whoUseProject,
   Task: whoUseTask,
-  Step: whoUseStep,
-  StepType: whoUseStepType
+  Step: whoUseStep
 }
 
 export async function routeWhoUse(data, sessionData: SessionData): Promise<object> {
@@ -69,7 +67,7 @@ export async function routeWhoUse(data, sessionData: SessionData): Promise<objec
 const fetchCallbacks = {
   Project: fetchProjects,
   Task: fetchTasks,
-  StepType: fetchStepTypes,
+  Step: fetchSteps,
   Flag: fetchFlags,
   Contributor: fetchContributors,
   Comment: fetchComments,
@@ -89,7 +87,6 @@ const commands = {
   Contributor: executeCommandContributor,
   Project: executeCommandProject,
   Step: executeCommandStep,
-  StepType: executeCommandStepType,
   Flag: executeCommandFlag,
   Task: executeCommandTask,
   Comment: executeCommandComment
@@ -133,21 +130,12 @@ async function executeCommandProject(context: BackendContext, data) {
 async function executeCommandStep(context: BackendContext, data) {
   if (data.cmd === "create")
     await createStep(context, data.frag)
+  else if (data.cmd === "update")
+    await updateStep(context, data.frag)
   else if (data.cmd === "delete")
     await deleteStep(context, data.frag)
-  else
-    throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
-}
-
-async function executeCommandStepType(context: BackendContext, data) {
-  if (data.cmd === "create")
-    await createStepType(context, data.frag)
-  else if (data.cmd === "update")
-    await updateStepType(context, data.frag)
-  else if (data.cmd === "delete")
-    await deleteStepType(context, data.frag)
   else if (data.cmd === "reorder")
-    await reorderStepTypes(context, data.idList)
+    await reorderSteps(context, data.idList)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
@@ -198,7 +186,6 @@ async function completeCargo(context: BackendContext) {
     await fetchProjectsByIds(context, upd.getNeededFragments("Project") as any)
     await fetchTasksByIds(context, upd.getNeededFragments("Task") as any)
     await fetchStepsByIds(context, upd.getNeededFragments("Step") as any)
-    await fetchStepTypesByIds(context, upd.getNeededFragments("StepType") as any)
     await fetchFlagsByIds(context, upd.getNeededFragments("Flag") as any)
     await fetchContributorsByIds(context, upd.getNeededFragments("Contributor") as any)
     await fetchCommentsByIds(context, upd.getNeededFragments("Comment") as any)

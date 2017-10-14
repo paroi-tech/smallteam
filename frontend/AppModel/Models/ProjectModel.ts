@@ -1,10 +1,10 @@
 import { ProjectFragment, ProjectUpdateFragment, ProjectCreateFragment, ProjectIdFragment } from "../../../isomorphic/meta/Project"
-import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
-import { StepFragment } from "../../../isomorphic/meta/Step"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, toCollection, OrderProperties } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
-import { StepModel, isStepNormal, isStepSpecial } from "./StepModel"
 import { Collection } from "../modelDefinitions"
 import { WhoUseItem } from "../../../isomorphic/transfers"
+import { StepModel } from "./StepModel";
+import { Type } from "../../../isomorphic/Cargo";
 
 export interface ProjectUpdateTools {
   processing: boolean
@@ -21,9 +21,6 @@ export interface ProjectModel extends ProjectFragment {
   readonly rootTask: TaskModel
   readonly steps: Collection<StepModel, string>
   readonly specialSteps: Collection<StepModel, string>
-  hasStepType(stepTypeId: string): boolean
-  findStepByType(stepTypeId: string): StepModel | undefined
-  findStep(stepId: string): StepModel | undefined
   readonly tasks?: TaskModel[]
   /**
    * Search the task on all the hierarchy
@@ -38,40 +35,16 @@ export function registerProject(engine: ModelEngine) {
         return engine.getModel("Task", getFrag().rootTaskId)
       },
       get steps() {
-        return engine.getModels({
-          type: "Step",
-          index: "projectId",
-          indexCb: { "normal": isStepNormal },
-          key: {
-            projectId: getFrag().id
-          },
-          orderBy: ["orderNum", "asc"]
-        })
+        let list = getFrag().stepIds
+          .map(stepId => engine.getModel<StepModel>("Step", stepId))
+          .filter(step => step.orderNum !== undefined)
+        return toCollection(list, "Step")
       },
       get specialSteps() {
-        return engine.getModels({
-          type: "Step",
-          index: "projectId",
-          indexCb: { "special": isStepSpecial },
-          key: {
-            projectId: getFrag().id
-          },
-          orderBy: ["orderNum", "asc"]
-        })
-      },
-      hasStepType(stepTypeId: string) {
-        return !!this.findStepByType(stepTypeId)
-      },
-      findStepByType(stepTypeId: string) {
-        let item = engine.findSingleFromIndex({
-          type: "Step",
-          index: ["projectId", "typeId"],
-          key: {
-            projectId: getFrag().id,
-            typeId: stepTypeId
-          }
-        })
-        return item
+        let list = getFrag().stepIds
+          .map(stepId => engine.getModel<StepModel>("Step", stepId))
+          .filter(step => step.orderNum === undefined)
+        return toCollection(list, "Step")
       },
       get tasks() {
         return this.rootTask.children
@@ -91,5 +64,12 @@ export function registerProject(engine: ModelEngine) {
       diffToUpdate: true
     })
     return model as any
+  })
+
+  engine.registerDependency("reorder", "Step", function (props: OrderProperties) {
+    return {
+      type: "Project" as Type,
+      idList: engine.getAllModels<ProjectModel>("Project").map(project => project.id)
+    }
   })
 }

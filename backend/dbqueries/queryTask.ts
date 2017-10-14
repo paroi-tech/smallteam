@@ -4,7 +4,6 @@ import { BackendContext } from "../backendContext/context"
 import taskMeta, { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
 import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
-import { makeTaskCodeFromStep } from "./queryProject"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers";
@@ -16,18 +15,18 @@ import { WhoUseItem } from "../../isomorphic/transfers";
 export async function fetchTasks(context: BackendContext, filters: TaskFetchFragment) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
+  if (filters.projectId !== undefined)
+    sql.andWhere("s.project_id", int(filters.projectId))
+  if (filters.curStepId !== undefined)
+    sql.andWhere("s.cur_step_id", int(filters.curStepId))
   if (filters.createdById !== undefined)
     sql.andWhere("t.created_by", int(filters.createdById))
   // if (filters.affectedToId !== undefined && filters.affectedToId !== null) {
   //   sql.innerJoin("task_affected_to ac", "using", "task_id")
   //     .andWhere("ac.contributor_id", int(filters.affectedToId))
   // }
-  if (filters.curStepId !== undefined)
-    sql.andWhere("t.cur_step_id", int(filters.curStepId))
   if (filters.parentTaskId !== undefined)
     sql.andWhere("c.parent_task_id", int(filters.parentTaskId))
-  if (filters.projectId !== undefined)
-    sql.andWhere("s.project_id", int(filters.projectId))
   if (filters.label)
     sql.andWhere("t.label", filters.label)
   if (filters.description)
@@ -48,7 +47,7 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
   let cn = await getDbConnection()
   let sql = selectFromTask()
   sql.where("s.project_id", "in", projectIdList)
-  //sql.andWhere("s.step_type_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
+  //sql.andWhere("s.step_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
   let rs = await cn.all(sql.toSql())
   await addDependenciesTo(rs)
   for (let row of rs) {
@@ -73,23 +72,22 @@ export async function fetchTasksByIds(context: BackendContext, idList: string[])
 
 function selectFromTask() {
   return buildSelect()
-    .select("t.task_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num, count(m.comment_id) as comment_count")
+    .select("t.task_id, t.project_id, t.cur_step_id, t.code, t.label, t.created_by, t.create_ts, t.update_ts, d.description, c.parent_task_id, c.order_num, count(m.comment_id) as comment_count")
     .from("task t")
-    .innerJoin("step s", "on", "t.cur_step_id = s.step_id")
     .leftJoin("task_description d", "using", "task_id")
     .leftJoin("task_child c", "using", "task_id")
     .leftJoin("comment m", "using", "task_id")
-    .groupBy("t.task_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, s.project_id, c.parent_task_id, c.order_num")
+    .groupBy("t.task_id, t.project_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, c.parent_task_id, c.order_num")
 }
 
 function toTaskFragment(row): TaskFragment {
   let frag: TaskFragment = {
     id: row["task_id"].toString(),
+    projectId: row["project_id"].toString(),
+    curStepId: row["cur_step_id"].toString(),
     code: row["code"],
     label: row["label"],
     createdById: row["created_by"].toString(),
-    curStepId: row["cur_step_id"].toString(),
-    projectId: row["project_id"].toString(),
     createTs: row["create_ts"],
     updateTs: row["update_ts"],
     commentCount: row["comment_count"] || undefined
@@ -210,8 +208,10 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
     throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
 
   // Task
+  let projectId = await fetchProjectIdFromTask(newFrag.parentTaskId)
   let values = toSqlValues(newFrag, taskMeta.create) || {}
-  values.code = await makeTaskCodeFromStep(int(newFrag.curStepId))
+  values.projectId = int(projectId)
+  values.code = await findTaskCode(projectId)
   let sql = buildInsert()
     .insertInto("task")
     .values(values)
@@ -255,6 +255,11 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
   })
 }
 
+async function fetchProjectIdFromTask(taskId: string): Promise<string> {
+  let id = await fetchOneValue(buildSelect().select("project_id").from("task").where("task_id", taskId).toSql())
+  return id.toString()
+}
+
 async function getDefaultOrderNum(parentTaskId: number) {
   let cn = await getDbConnection()
   let sql = buildSelect()
@@ -293,7 +298,7 @@ export async function updateTask(context: BackendContext, updFrag: TaskUpdateFra
     await updateTaskAffectedToContributors(taskId, updFrag.affectedToIds)
 
   if (updFrag.flagIds)
-    await updateTaskflags(taskId, updFrag.flagIds)
+    await updateTaskFlags(taskId, updFrag.flagIds)
 
   context.loader.addFragment({
     type: "Task",
@@ -430,7 +435,7 @@ async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
   }
 }
 
-async function updateTaskflags(taskId: number | string, flagIds: string[]) {
+async function updateTaskFlags(taskId: number | string, flagIds: string[]) {
   let cn = await getDbConnection()
   let sql = buildDelete()
     .deleteFrom("task_flag")
@@ -468,4 +473,41 @@ export async function updateTaskDescription(taskId: number, description: string 
       await cn.run(sql.toSql())
     }
   }
+}
+
+async function findTaskCode(projectId: string): Promise<string> {
+  let cn = await getDbConnection()
+
+  // Select project code
+  let code = await fetchOneValue(buildSelect().select("p.code").from("project p").where("project_id", projectId).toSql())
+
+  // Update the sequence
+  let ps: /* sqlite.Statement */ any | undefined,
+    tries = 0,
+    prevSeqVal: number
+  do {
+    if (tries++ >= 10)
+      throw new Error(`Cannot get a new sequence value for project "${projectId}, (last changes: ${ps!.changes})"`)
+    // Select previous task_seq
+    let sql = buildSelect()
+      .select("task_seq")
+      .from("project")
+      .where("project_id", projectId)
+    let rs = await cn.all(sql.toSql())
+    if (rs.length !== 1)
+      throw new Error(`Cannot find the project "${projectId}"`)
+    prevSeqVal = rs[0]["task_seq"]
+
+    // Increment the task_seq
+    let upd = buildUpdate()
+      .update("project")
+      .set({
+        "task_seq": { "vanilla": "task_seq + 1" }
+      })
+      .where("project_id", projectId)
+      .andWhere("task_seq", prevSeqVal)
+    ps = await cn.run(upd.toSql())
+  } while (ps.changes !== 1)
+
+  return `${code}-${prevSeqVal + 1}`
 }

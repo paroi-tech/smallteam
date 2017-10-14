@@ -249,7 +249,7 @@ export default class ModelEngine {
     return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, type))), type)
   }
 
-  public getModel(type: Type, id: Identifier): any {
+  public getModel<M = any>(type: Type, id: Identifier): M {
     let storage = this.getTypeStorage(type),
       entity = storage.entities.get(id)
     if (!entity)
@@ -261,7 +261,7 @@ export default class ModelEngine {
         return entity!.fragment
       })
     }
-    return entity.model
+    return entity.model as any
   }
 
   public getModels<M = any>(query: ModelsQuery, onEmptyVal: any = []): Collection<M, Identifier> {
@@ -719,5 +719,6 @@ export function toCollection<M extends object, ID extends Identifier>(models: M[
     }
     return map.get(id)
   }
+  alias.has = id => alias.get(id) !== undefined
   return alias
 }

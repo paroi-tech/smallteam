@@ -15,9 +15,9 @@ create table contributor (
     -- avatar as file
 );
 
-create table step_type (
-    step_type_id integer not null primary key autoincrement,
-    name varchar(255) not null unique,
+create table step (
+    step_id integer not null primary key autoincrement,
+    label varchar(255) not null unique,
     order_num integer
 );
 
@@ -28,22 +28,22 @@ create table project (
     task_seq bigint not null
 );
 
-create table step (
-    step_id integer not null primary key autoincrement,
-    step_type_id bigint not null references step_type(step_type_id),
+create table project_step (
     project_id bigint not null references project(project_id) on delete cascade,
-    unique (step_type_id, project_id)
+    step_id bigint not null references step(step_id),
+    primary key (project_id, step_id)
 );
 
 create table task (
     task_id integer not null primary key autoincrement,
+    project_id bigint not null references project(project_id),
+    cur_step_id bigint not null references step(step_id),
     code varchar(255) not null unique,
     created_by bigint not null references contributor(contributor_id),
-    cur_step_id bigint not null references step(step_id),
     label varchar(255) not null,
     create_ts timestamp not null default current_timestamp,
-    update_ts timestamp not null default current_timestamp
-    -- attachments as files on S3 buckets?
+    update_ts timestamp not null default current_timestamp,
+    foreign key (project_id, cur_step_id) references project_step(project_id, step_id)
 );
 
 create table task_child (
@@ -99,8 +99,8 @@ create table comment (
     update_ts timestamp not null default current_timestamp
 );
 
-insert into step_type (name) values ('On Hold');
-insert into step_type (name) values ('Archived');
+insert into step (label) values ('On Hold');
+insert into step (label) values ('Archived');
 
 -- Fake data
 insert into contributor (name, login, email, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');

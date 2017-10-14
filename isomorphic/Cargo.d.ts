@@ -3,7 +3,6 @@ import { ContributorFragment } from "./meta/Contributor"
 import { FlagFragment } from "./meta/Flag"
 import { ProjectFragment } from "./meta/Project"
 import { StepFragment } from "./meta/Step"
-import { StepTypeFragment } from "./meta/StepType"
 import { TaskFragment } from "./meta/Task"
 import { TaskLogEntryFragment } from "./meta/TaskLogEntry"
 
@@ -13,7 +12,6 @@ export interface Fragments {
   Flag?: FlagFragment[]
   Project?: ProjectFragment[]
   Step?: StepFragment[]
-  StepType?: StepTypeFragment[]
   Task?: TaskFragment[]
   TaskLogEntry?: TaskLogEntryFragment[]
 }

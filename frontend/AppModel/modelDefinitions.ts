@@ -5,10 +5,8 @@ import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, Projec
 import { ProjectModel, registerProject } from "./Models/ProjectModel"
 import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../isomorphic/meta/Task"
 import { TaskModel, registerTask } from "./Models/TaskModel"
-import { StepCreateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
+import { StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { StepModel, registerStep } from "./Models/StepModel"
-import { StepTypeCreateFragment, StepTypeUpdateFragment, StepTypeIdFragment } from "../../isomorphic/meta/StepType"
-import { StepTypeModel, registerStepType } from "./Models/StepTypeModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import ModelEngine, { CommandType } from "./ModelEngine"
 import { ComponentEvent, Transmitter } from "bkb"
@@ -30,11 +28,8 @@ export interface ModelCommandMethods {
   exec(cmd: "delete", type: "Task", frag: TaskIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Step", frag: StepCreateFragment): Promise<StepModel>
+  exec(cmd: "update", type: "Step", frag: StepUpdateFragment): Promise<StepModel>
   exec(cmd: "delete", type: "Step", frag: StepIdFragment): Promise<void>
-
-  exec(cmd: "create", type: "StepType", frag: StepTypeCreateFragment): Promise<StepTypeModel>
-  exec(cmd: "update", type: "StepType", frag: StepTypeUpdateFragment): Promise<StepTypeModel>
-  exec(cmd: "delete", type: "StepType", frag: StepTypeIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Flag", frag: FlagCreateFragment): Promise<FlagModel>
   exec(cmd: "update", type: "Flag", frag: FlagUpdateFragment): Promise<FlagModel>
@@ -45,18 +40,19 @@ export interface ModelCommandMethods {
   exec(cmd: "delete", type: "Comment", frag: CommentIdFragment): Promise<void>
 
   fetch(type: "Project", filters: ProjectFetchFragment): Promise<Collection<ProjectModel, string>>
-  fetch(type: "StepType"): Promise<Collection<StepTypeModel, string>>
+  fetch(type: "Step"): Promise<Collection<StepModel, string>>
   fetch(type: "Flag"): Promise<Collection<FlagModel, string>>
   fetch(type: "Contributor", filters?: ContributorFetchFragment): Promise<Collection<ContributorModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
-  reorder(type: "StepType", idList: string[]): Promise<string[]>
+  reorder(type: "Step", idList: string[]): Promise<string[]>
   reorder(type: "Task", idList: string[], group: "childOf", parentTaskId: string): Promise<string[]>
   reorder(type: "Contributor", idList: string[], group: "affectedTo", taskId: string): Promise<string[]>
 }
 
 export interface Collection<M, ID> extends Array<M> {
   get(id: ID): M | undefined
+  has(id: ID): boolean
 }
 
 export interface ReadonlyCollection<M, ID> extends ReadonlyArray<M> {
@@ -70,7 +66,7 @@ export interface CommandBatch extends ModelCommandMethods {
 export interface GlobalModels {
   readonly isReady: boolean
   readonly load: Promise<void>
-  readonly stepTypes: ReadonlyCollection<StepTypeModel, string>
+  readonly steps: ReadonlyCollection<StepModel, string>
   readonly flags: ReadonlyCollection<FlagModel, string>
   readonly contributors: ReadonlyCollection<ContributorModel, string>
   readonly projects: ReadonlyCollection<ProjectModel, string>

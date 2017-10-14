@@ -5,9 +5,10 @@ export interface ProjectFragment {
   readonly id: string
   code: string
   name: string
-  description?: string | null
+  description?: string
   archived: boolean
   readonly rootTaskId: string
+  stepIds: string[]
 }
 
 const meta: FragmentMeta = {
@@ -37,19 +38,23 @@ const meta: FragmentMeta = {
     },
     rootTaskId: {
       dataType: "string"
+    },
+    stepIds: {
+      dataType: "string[]",
+      update: true
     }
   }
 }
 
-export type ProjectCreateFragment = Pick<ProjectFragment, "code" | "name" | "description">
-export type ProjectUpdateFragment = PickUpdate<ProjectFragment, "id", "code" | "name" | "description" | "archived">
+export type ProjectCreateFragment = Pick<ProjectFragment, "code" | "name" | "description" | "stepIds">
+export type ProjectUpdateFragment = PickUpdate<ProjectFragment, "id", "code" | "name" | "description" | "archived" | "stepIds">
 export type ProjectIdFragment = Pick<ProjectFragment, "id">
 export type ProjectFetchFragment = SearchPick<ProjectFragment, "code" | "name" | "description" | "archived">
 
 export default {
   read: meta,
-  create: pickFragmentMeta("create", meta, ["code", "name", "description"]),
-  update: pickUpdateFragmentMeta("update", meta, ["id"], ["code", "name", "description", "archived"]),
+  create: pickFragmentMeta("create", meta, ["code", "name", "description", "stepIds"]),
+  update: pickUpdateFragmentMeta("update", meta, ["id"], ["code", "name", "description", "archived", "stepIds"]),
   id: pickFragmentMeta("id", meta, ["id"]),
   fetch: searchPickFragmentMeta("fetch", meta, ["code", "name", "description", "archived"])
 }

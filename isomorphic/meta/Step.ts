@@ -3,10 +3,8 @@ import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta, SearchPick, searc
 
 export interface StepFragment {
   readonly id: string
-  readonly name: string
-  readonly orderNum?: number
-  readonly typeId: string
-  readonly projectId: string
+  label: string
+  orderNum?: number | null
 }
 
 const meta: FragmentMeta = {
@@ -17,28 +15,26 @@ const meta: FragmentMeta = {
       dataType: "string",
       id: true
     },
-    name: {
-      dataType: "string"
+    label: {
+      dataType: "string",
+      update: true
     },
     orderNum: {
       dataType: "number",
+      update: true,
       optional: true
-    },
-    typeId: {
-      dataType: "string"
-    },
-    projectId: {
-      dataType: "string"
     }
   },
   orderFieldName: "orderNum"
 }
 
-export type StepCreateFragment = Pick<StepFragment, "typeId" | "projectId">
+export type StepCreateFragment = Pick<StepFragment, "label" | "orderNum">
+export type StepUpdateFragment = PickUpdate<StepFragment, "id", "label" | "orderNum">
 export type StepIdFragment = Pick<StepFragment, "id">
 
 export default {
   read: meta,
-  create: pickFragmentMeta("create", meta, ["typeId", "projectId"]),
+  create: pickFragmentMeta("create", meta, ["label", "orderNum"]),
+  update: pickUpdateFragmentMeta("update", meta, ["id"], ["label", "orderNum"]),
   id: pickFragmentMeta("id", meta, ["id"])
 }

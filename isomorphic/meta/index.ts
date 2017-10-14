@@ -3,12 +3,11 @@ import contributorMetaVariants from "./Contributor"
 import flagMetaVariants from "./Flag"
 import projectMetaVariants from "./Project"
 import stepMetaVariants from "./Step"
-import stepTypeMetaVariants from "./StepType"
 import taskMetaVariants from "./Task"
 import taskLogEntryMetaVariants from "./TaskLogEntry"
 import { Type, Identifier } from "../Cargo"
 
-export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "StepType", "Task", "TaskLogEntry"]) as any
+export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "Task", "TaskLogEntry"]) as any
 
 export type TypeVariant = "read" | "create" | "update" | "id" | "fetch"
 
@@ -45,7 +44,6 @@ let allMeta: { [type: string]: MetaVariants } = {
   Flag: flagMetaVariants,
   Project: projectMetaVariants,
   Step: stepMetaVariants,
-  StepType: stepTypeMetaVariants,
   Task: taskMetaVariants,
   TaskLogEntry: taskLogEntryMetaVariants,
 }

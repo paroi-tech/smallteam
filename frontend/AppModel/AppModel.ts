@@ -5,10 +5,8 @@ import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment } from 
 import { registerProject } from "./Models/ProjectModel"
 import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../isomorphic/meta/Task"
 import { registerTask } from "./Models/TaskModel"
-import { StepCreateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
+import { StepCreateFragment, StepUpdateFragment } from "../../isomorphic/meta/Step"
 import { registerStep } from "./Models/StepModel"
-import { StepTypeCreateFragment, StepTypeUpdateFragment } from "../../isomorphic/meta/StepType"
-import { registerStepType } from "./Models/StepTypeModel"
 import { registerFlag } from "./Models/FlagModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
 import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
@@ -28,7 +26,6 @@ export { ContributorModel } from "./Models/ContributorModel"
 export { FlagModel } from "./Models/FlagModel"
 export { ProjectModel } from "./Models/ProjectModel"
 export { StepModel } from "./Models/StepModel"
-export { StepTypeModel } from "./Models/StepTypeModel"
 export { TaskLogEntryModel } from "./Models/TaskLogEntryModel"
 export { TaskModel } from "./Models/TaskModel"
 export { Session, SessionData }
@@ -52,8 +49,7 @@ export default class ModelComp implements Model {
     registerTaskLogEntry(this.engine)
     registerProject(this.engine)
     registerTask(this.engine)
-    registerStep(this.engine, this)
-    registerStepType(this.engine)
+    registerStep(this.engine)
     this.global = createGlobal(this)
     this.session = createSession(this.global, sessionData.contributorId)
   }
@@ -85,13 +81,13 @@ export default class ModelComp implements Model {
 
 function createGlobal(model: ModelComp): GlobalModels {
   let batch = model.createCommandBatch()
-  batch.fetch("StepType")
+  batch.fetch("Step")
   batch.fetch("Flag")
   batch.fetch("Contributor")
   batch.fetch("Project", { archived: false })
 
-  let propNames = ["stepTypes", "flags", "contributors", "projects"]
-  let typeNames: Type[] = ["StepType", "Flag", "Contributor", "Project"]
+  let propNames = ["steps", "flags", "contributors", "projects"]
+  let typeNames: Type[] = ["Step", "Flag", "Contributor", "Project"]
   let isReady = false,
     collections = {}
   let batchPromise = batch.sendAll().then(results => {

@@ -2,7 +2,6 @@ import { addBackendFragmentMeta } from "./backendMetaStore"
 import projectMeta from "../../isomorphic/meta/Project"
 import taskMeta from "../../isomorphic/meta/Task"
 import stepMeta from "../../isomorphic/meta/Step"
-import stepTypeMeta from "../../isomorphic/meta/StepType"
 import taskLogEntryMeta from "../../isomorphic/meta/TaskLogEntry"
 import flagMeta from "../../isomorphic/meta/Flag"
 import commentMeta from "../../isomorphic/meta/Comment"
@@ -66,24 +65,7 @@ addBackendFragmentMeta(
       column: "step_id",
       columnType: "bigint"
     },
-    typeId: {
-      column: "step_type_id",
-      columnType: "bigint"
-    },
-    projectId: {
-      columnType: "bigint"
-    }
-  }
-)
-
-addBackendFragmentMeta(
-  stepTypeMeta.read,
-  {
-    id: {
-      column: "step_type_id",
-      columnType: "bigint"
-    },
-    name: {},
+    label: {},
     orderNum: {}
   }
 )
