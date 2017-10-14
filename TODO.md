@@ -59,6 +59,7 @@ the time, so I can't use JIRA.
 - Use a GitHub hook to show the commits on tasks
 - Use HTTPS, deploy the project on the Web server
 - Internationalisation
+- Multi-teams
 
 # Lionel - DONE
 - On task update, update the flags shown in TaskBox
