@@ -1,5 +1,0 @@
-<li class="TaskFlagSelector-li">
-  <span class="TaskFlagSelector-span js-selector-span">
-    <input type="checkbox" class="js-checkbox">
-  </span>
-</li>

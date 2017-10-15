@@ -1,10 +1,11 @@
 import { Bkb, Dash } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import StepSelector from "../../steps/StepSelector/StepSelector";
-import { Model, ProjectModel } from "../../../AppModel/AppModel";
+import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
+import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect";
+import StepBox from "../../steps/StepBox/StepBox";
 
 const template = require("./projectform.monk")
 
@@ -20,7 +21,7 @@ export default class ProjectForm implements Workspace {
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
-  private stepSelector: StepSelector
+  private stepMultiSelect: CheckboxMultiSelect<StepModel>
 
   private state = {
     name: "",
@@ -49,7 +50,25 @@ export default class ProjectForm implements Workspace {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
     this.listenToForm()
-    this.createChildComponents()
+    this.stepMultiSelect = this.createStepMultiSelect()
+  }
+
+  private createStepMultiSelect() {
+    let multiSelect = this.dash.create(
+      CheckboxMultiSelect,
+      "Steps",
+      (dash: Dash, step: StepModel) => dash.create(StepBox, step)
+    )
+    // this.stepSelector.hide()
+    this.el.appendChild(multiSelect.el)
+    this.dash.listenTo<UpdateModelEvent>(this.model, "changeStep").onData(data => {
+      multiSelect.setAllItems(this.model.global.steps)
+    })
+    this.dash.listenTo<UpdateModelEvent>(this.model, "reorderStep").onData(data => {
+      multiSelect.setAllItems(this.model.global.steps)
+    })
+    multiSelect.setAllItems(this.model.global.steps)
+    return multiSelect
   }
 
   /**
@@ -68,13 +87,6 @@ export default class ProjectForm implements Workspace {
 
     return el
   }
-
-  private createChildComponents() {
-    this.stepSelector = this.dash.create(StepSelector)
-    this.stepSelector.hide()
-    this.el.appendChild(this.stepSelector.el)
-  }
-
 
   /**
    * Listen to events from the form.
@@ -99,10 +111,11 @@ export default class ProjectForm implements Workspace {
       this.submitSpinnerEl.style.display = "none"
       return
     }
+    let stepIds = this.stepMultiSelect.getSelected().map(step => step.id)
     if (!this.project)
-      await this.createProject(code, name, description, []) // FIXME: fill stepIds with a non-empty array!
+      await this.createProject(code, name, description, stepIds)
     else
-      await this.updateProject(name, description)
+      await this.updateProject(name, description, stepIds)
     this.submitSpinnerEl.style.display = "none"
   }
 
@@ -113,17 +126,15 @@ export default class ProjectForm implements Workspace {
    */
   public setProject(project: ProjectModel | undefined) {
     this.project = project
-    this.stepSelector.setProject(project)
+    this.stepMultiSelect.selectItems(project ? project.allSteps : [])
     if (project) {
       this.codeEl.setAttribute("readonly", "true")
       this.generateCode = false
       this.fillFieldsWithCurrentProject()
-      this.stepSelector.show()
     } else {
       this.codeEl.removeAttribute("readonly")
       this.clearFormFields()
       this.generateCode = true
-      this.stepSelector.hide()
     }
   }
 
@@ -136,11 +147,12 @@ export default class ProjectForm implements Workspace {
    */
   private async createProject(code: string, name: string, description: string, stepIds: string[]) {
     try {
-      this.project = await this.model.exec("create", "Project", { code, name, description, stepIds })
-      this.codeEl.setAttribute("readonly", "true")
-      this.fillFieldsWithCurrentProject()
-      this.stepSelector.setProject(this.project)
-      this.stepSelector.show()
+      let project = await this.model.exec("create", "Project", { code, name, description, stepIds })
+      this.setProject(project)
+      // this.codeEl.setAttribute("readonly", "true")
+      // this.fillFieldsWithCurrentProject()
+      // this.stepMultiSelect.setProject(this.project)
+      // this.stepMultiSelect.show()
     } catch (error) {
       console.error("Error while creating new project...")
     }
@@ -152,14 +164,15 @@ export default class ProjectForm implements Workspace {
    * @param name
    * @param description
    */
-  private async updateProject(name: string, description: string) {
+  private async updateProject(name: string, description: string, stepIds: string[]) {
     if (!this.project)
       return
     try {
       await this.model.exec("update", "Project", {
         id: this.project.id,
         name,
-        description
+        description,
+        stepIds
       })
     } catch (error) {
       console.error("Error while updating project...")

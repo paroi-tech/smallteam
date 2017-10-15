@@ -188,9 +188,10 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
   sql = buildInsert()
     .insertInto("task")
     .values({
+      "project_id": projectId,
+      "cur_step_id": 1, // FIXME: step "Not Started" (or make the column NULLABLE?)
       "code": `${newFrag.code}-0`,
       "created_by": int(context.sessionData.contributorId),
-      "cur_step_id": 1, // FIXME: step "Not Started" (or make the column NULLABLE?)
       "label": newFrag.name
     })
   ps = await cn.run(sql.toSql())

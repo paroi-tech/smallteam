@@ -14,7 +14,7 @@ import App from "../App/App"
 import { registerComment } from "./Models/CommentModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
 import { GenericCommandBatch } from "./GenericCommandBatch"
-import { Model, CommandBatch, GlobalModels, ReadonlyCollection, Collection, Session, SessionData } from "./modelDefinitions"
+import { Model, CommandBatch, GlobalModels, Collection, Session, SessionData } from "./modelDefinitions"
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
 import GenericBgCommandManager from "./BgCommandManager"
 

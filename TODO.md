@@ -20,6 +20,15 @@ the time, so I can't use JIRA.
 - isModified, getDiffToUpdate: work with field types `any[]`
 - Model:
   - `this.project.steps` etc. => store the array? or rename to `getSteps()`
+- Bkb:
+  - bkb.children(...groups: string[])
+  - dash.destroyChildren(...groups: string[])
+  - dash.appendInGroup(child: object, group: string, ...groups: string[])
+  - dash.isInGroup(child: object, group: string, ...groups: string[])
+  - dash.isChild(obj: object)
+  - dash.isComponent(obj: object)
+  - remove dash.customCreate
+  - listenTo() with several event names
 
 # Lionel
 - Refactoring:

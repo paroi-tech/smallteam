@@ -1,7 +1,6 @@
 import { Dash } from "bkb"
 import * as Sortable from "sortablejs"
 import { render } from "monkberry"
-import App from "../../App/App";
 
 import * as boxListTemplate from "./BoxList.monk"
 import * as boxTemplate from "./Li.monk"
@@ -86,7 +85,7 @@ export default class BoxList<T extends Box> {
    * @param dash - the current application dash
    * @param params - wrapper of the Boxlist parameters
    */
-  constructor(private dash: Dash<App>, private params: BoxListParams) {
+  constructor(private dash: Dash, private params: BoxListParams) {
     this.view = render(boxListTemplate, document.createElement("div"))
     this. el = this.view.nodes[0] as HTMLElement
 

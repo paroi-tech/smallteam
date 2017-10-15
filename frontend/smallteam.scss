@@ -48,17 +48,18 @@ button {
 
 @import "generics/BackgroundCommandManager/BackgroundCommandManager";
 @import "generics/BoxList/BoxList";
+@import "generics/CheckboxMultiSelect/CheckboxMultiSelect";
 @import "generics/LoginDialog/LoginDialog";
 @import "generics/Menu/Menu";
-@import "generics/WorkspaceViewer/WorkspaceViewer";
 @import "generics/DropdownMenu/DropdownMenu";
+@import "generics/WorkspaceViewer/WorkspaceViewer";
 
 @import "semantics/contributors/ContributorFlag/contributorflag";
 @import "semantics/contributors/ContributorSelector/contributorselector";
 @import "semantics/contributors/ContributorWorkspace/contributorworkspace";
 
 @import "semantics/flags/FlagBox/flagbox";
-@import "semantics/flags/TaskFlagSelector/taskflagselector";
+@import "semantics/flags/FlagSelector/FlagSelector";
 
 @import "semantics/projects/ProjectWorkspace/projectworkspace";
 @import "semantics/projects/ProjectForm/projectform";

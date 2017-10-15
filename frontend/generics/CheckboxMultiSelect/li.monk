@@ -1,0 +1,4 @@
+<li>
+  <input class="CheckboxMultiSelect-input js-checkbox" type="checkbox">
+  <div class="CheckboxMultiSelect-itemContent js-itemContent"></div>
+</li>

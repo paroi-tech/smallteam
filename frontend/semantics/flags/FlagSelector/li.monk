@@ -1,0 +1,5 @@
+<li>
+  <span class="FlagSelector-span js-selector-span">
+    <input type="checkbox" class="js-checkbox">
+  </span>
+</li>

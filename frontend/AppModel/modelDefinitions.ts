@@ -55,9 +55,9 @@ export interface Collection<M, ID> extends Array<M> {
   has(id: ID): boolean
 }
 
-export interface ReadonlyCollection<M, ID> extends ReadonlyArray<M> {
-  get(id: ID): M | undefined
-}
+// export interface ReadonlyCollection<M, ID> extends ReadonlyArray<M> {
+//   get(id: ID): M | undefined
+// }
 
 export interface CommandBatch extends ModelCommandMethods {
   sendAll(): Promise<any[]>
@@ -66,10 +66,10 @@ export interface CommandBatch extends ModelCommandMethods {
 export interface GlobalModels {
   readonly isReady: boolean
   readonly load: Promise<void>
-  readonly steps: ReadonlyCollection<StepModel, string>
-  readonly flags: ReadonlyCollection<FlagModel, string>
-  readonly contributors: ReadonlyCollection<ContributorModel, string>
-  readonly projects: ReadonlyCollection<ProjectModel, string>
+  readonly steps: Collection<StepModel, string>
+  readonly flags: Collection<FlagModel, string>
+  readonly contributors: Collection<ContributorModel, string>
+  readonly projects: Collection<ProjectModel, string>
 }
 
 export interface SessionData {

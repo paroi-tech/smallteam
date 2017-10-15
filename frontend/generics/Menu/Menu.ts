@@ -1,6 +1,5 @@
 import { Dash, Bkb } from "bkb"
 import { render } from "monkberry"
-import App from "../../App/App"
 
 const template = require("./Menu.monk")
 const itemTemplate = require("./li.monk")
@@ -30,7 +29,7 @@ export class Menu {
   /**
    * Create a new menu.
    */
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: Dash) {
     this.el = this.createView()
   }
 

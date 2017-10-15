@@ -2,7 +2,7 @@ import { Dash, Bkb } from "bkb"
 import * as MonkBerry from "monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel";
-import TaskFlagSelector from "../../flags/TaskFlagSelector/TaskFlagSelector";
+import FlagSelector from "../../flags/FlagSelector/FlagSelector";
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector";
 import App from "../../../App/App";
 
@@ -27,7 +27,7 @@ export default class TaskForm {
   private model: Model
 
   private commentEditor: TaskCommentEditor
-  private flagSelector: TaskFlagSelector
+  private flagSelector: FlagSelector
   private contributorSelector: ContributorSelector
 
   /**
@@ -37,7 +37,7 @@ export default class TaskForm {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
 
-    this.flagSelector = this.dash.create(TaskFlagSelector)
+    this.flagSelector = this.dash.create(FlagSelector)
     this.flagContainerEl.appendChild(this.flagSelector.el)
 
     this.contributorSelector = this.dash.create(ContributorSelector)

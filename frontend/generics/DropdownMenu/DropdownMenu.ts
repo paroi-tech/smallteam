@@ -1,6 +1,5 @@
 import { Dash, Bkb } from "bkb"
 import { render } from "monkberry"
-import App from "../../App/App";
 import { MenuItem } from "../Menu/Menu"
 
 const template = require("./DropdownMenu.monk")
@@ -27,7 +26,7 @@ export class DropdownMenu {
   /**
    * Create a new dropdown menu.
    */
-  constructor(private dash: Dash<App>, readonly align: Alignment) {
+  constructor(private dash: Dash, readonly align: Alignment) {
     this.el = this.createView()
   }
 

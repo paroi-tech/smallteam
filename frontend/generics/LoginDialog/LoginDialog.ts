@@ -1,7 +1,6 @@
 import config from "../../../isomorphic/config"
 import { Bkb, Dash } from "bkb"
 import { render } from "monkberry"
-import App from "../../App/App"
 import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
 
@@ -19,7 +18,7 @@ export default class LoginDialog {
 
   private curDfd: Deferred<SessionData> | undefined
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: Dash) {
     this.el = this.createView()
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
