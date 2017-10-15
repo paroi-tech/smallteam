@@ -66,6 +66,9 @@
   }
   &-h1 {
     bottom: 0;
+    color: #F5F5F5;
+    text-shadow: -1px 0 1px #666;
+    // text-transform: uppercase;
     font-size: $f40;
     font-weight: bold;
     margin: -20px 18px;

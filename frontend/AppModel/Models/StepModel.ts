@@ -21,7 +21,7 @@ export function registerStep(engine: ModelEngine) {
   engine.registerType("Step", function (getFrag: () => StepFragment): StepModel {
     let model = {
       get isSpecial() {
-        return getFrag().orderNum === undefined
+        return getFrag().orderNum === null
       }
     }
     appendGettersToModel(model, "Step", getFrag)

@@ -16,9 +16,9 @@ export async function fetchTasks(context: BackendContext, filters: TaskFetchFrag
   let cn = await getDbConnection()
   let sql = selectFromTask()
   if (filters.projectId !== undefined)
-    sql.andWhere("s.project_id", int(filters.projectId))
+    sql.andWhere("t.project_id", int(filters.projectId))
   if (filters.curStepId !== undefined)
-    sql.andWhere("s.cur_step_id", int(filters.curStepId))
+    sql.andWhere("t.cur_step_id", int(filters.curStepId))
   if (filters.createdById !== undefined)
     sql.andWhere("t.created_by", int(filters.createdById))
   // if (filters.affectedToId !== undefined && filters.affectedToId !== null) {
@@ -46,7 +46,7 @@ export async function fetchTasks(context: BackendContext, filters: TaskFetchFrag
 export async function fetchProjectTasks(context: BackendContext, projectIdList: number[]) {
   let cn = await getDbConnection()
   let sql = selectFromTask()
-  sql.where("s.project_id", "in", projectIdList)
+  sql.where("t.project_id", "in", projectIdList)
   //sql.andWhere("s.step_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
   let rs = await cn.all(sql.toSql())
   await addDependenciesTo(rs)

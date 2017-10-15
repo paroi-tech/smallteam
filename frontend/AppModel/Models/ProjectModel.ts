@@ -39,13 +39,13 @@ export function registerProject(engine: ModelEngine) {
       get steps() {
         let list = getFrag().stepIds
           .map(stepId => engine.getModel<StepModel>("Step", stepId))
-          .filter(step => step.orderNum !== undefined)
+          .filter(step => step.orderNum !== null)
         return toCollection(list, "Step")
       },
       get specialSteps() {
         let list = getFrag().stepIds
           .map(stepId => engine.getModel<StepModel>("Step", stepId))
-          .filter(step => step.orderNum === undefined)
+          .filter(step => step.orderNum === null)
         return toCollection(list, "Step")
       },
       get allSteps() {
