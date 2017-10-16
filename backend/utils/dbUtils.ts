@@ -1,6 +1,6 @@
 import * as path from "path"
 import { open } from "sqlite"
-import { sqliteConnection, Connection } from "./sqlite-with-transactions";
+import { sqliteConnection, Connection } from "./sqlite-with-transactions"
 
 export const dbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
