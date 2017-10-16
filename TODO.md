@@ -17,10 +17,9 @@ the time, so I can't use JIRA.
   - rmChild (call from WorkspaceViewer.removeWorkspace)
 - Refactoring: rename `step` to `project_step` (remove the PK), and `step_type` to `step`
   - Remove the fragment of `project_step`, load the steps as an array of identifiers in `ProjectFragment`
-- isModified, getDiffToUpdate: work with field types `any[]`
+- isModified, getDiffToUpdate: should work with field type `string[]`
 - Model:
   - `this.project.steps` etc. => store the array? or rename to `getSteps()`
-- Backend: make a database connection layer, with transactions
 - Publish the package `sqlite-with-transactions` on GitHub and npm
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 
@@ -132,16 +131,17 @@ the time, so I can't use JIRA.
   - Sub-routers provided by workspaces
 - Investigate TS transformers, maybe they could generate meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
 - Bkb:
-x  - bkb.children(...groups: string[])
-x  - dash.appendInGroup(child: object, group: string, ...groups: string[])
-x  - dash.isInGroup(child: object, group: string, ...groups: string[])
-x  - dash.isChild(obj: object)
-x  - dash.isComponent(obj: object)
-x  - remove dash.customCreate
-x  - listenTo() with several event names
-x  - dash.destroyChildren(...groups: string[])
-x  - dash.listenAllParents()
-x  - getBkbOf => getPublicDashOf
+  - bkb.children(...groups: string[])
+  - dash.appendInGroup(child: object, group: string, ...groups: string[])
+  - dash.isInGroup(child: object, group: string, ...groups: string[])
+  - dash.isChild(obj: object)
+  - dash.isComponent(obj: object)
+  - remove dash.customCreate
+  - listenTo() with several event names
+  - dash.destroyChildren(...groups: string[])
+  - dash.listenAllParents()
+  - getBkbOf => getPublicDashOf
+- Backend: make a database connection layer, with transactions
 
 # Thomas or Lionel - DONE
 
