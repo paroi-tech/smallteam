@@ -2,8 +2,8 @@ import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import taskMeta, { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers";
@@ -13,7 +13,6 @@ import { WhoUseItem } from "../../isomorphic/transfers";
 // --
 
 export async function fetchTasks(context: BackendContext, filters: TaskFetchFragment) {
-  let cn = await getDbConnection()
   let sql = selectFromTask()
   if (filters.projectId !== undefined)
     sql.andWhere("t.project_id", int(filters.projectId))
@@ -44,7 +43,6 @@ export async function fetchTasks(context: BackendContext, filters: TaskFetchFrag
 }
 
 export async function fetchProjectTasks(context: BackendContext, projectIdList: number[]) {
-  let cn = await getDbConnection()
   let sql = selectFromTask()
   sql.where("t.project_id", "in", projectIdList)
   //sql.andWhere("s.step_id", "<>", 2) // TODO: Better way to find the ID of type "Finished"?
@@ -59,7 +57,6 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
 export async function fetchTasksByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
   let sql = selectFromTask()
     .where("t.task_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -114,11 +111,11 @@ export async function whoUseTask(id: string): Promise<WhoUseItem[]> {
     result: WhoUseItem[] = [],
     count: number
 
-  count = await fetchOneValue(buildSelect().select("count(1)").from("task_child").where("parent_task_id", dbId).toSql())
+  count = await cn.singleValue(buildSelect().select("count(1)").from("task_child").where("parent_task_id", dbId).toSql())
   if (count > 0)
     result.push({ type: "Task", count })
 
-  count = await fetchOneValue(buildSelect().select("count(1)").from("root_task").where("task_id", dbId).toSql())
+  count = await cn.singleValue(buildSelect().select("count(1)").from("root_task").where("task_id", dbId).toSql())
   if (count > 0)
     result.push({ type: "Project", count })
 
@@ -146,7 +143,6 @@ async function addDependenciesTo(taskRows: any[]) {
 }
 
 async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("a.task_id, a.contributor_id")
     .from("task_affected_to a")
@@ -170,7 +166,6 @@ async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<num
 }
 
 async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("tf.task_id, tf.flag_id")
     .from("task_flag tf")
@@ -202,8 +197,6 @@ async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, n
 // --
 
 export async function createTask(context: BackendContext, newFrag: TaskCreateFragment) {
-  let cn = await getDbConnection()
-
   if (newFrag.parentTaskId === undefined)
     throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
 
@@ -257,12 +250,11 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
 }
 
 async function fetchProjectIdFromTask(taskId: string): Promise<string> {
-  let id = await fetchOneValue(buildSelect().select("project_id").from("task").where("task_id", taskId).toSql())
+  let id = await cn.singleValue(buildSelect().select("project_id").from("task").where("task_id", taskId).toSql())
   return id.toString()
 }
 
 async function getDefaultOrderNum(parentTaskId: number) {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("max(order_num) as max")
     .from("task_child")
@@ -276,8 +268,6 @@ async function getDefaultOrderNum(parentTaskId: number) {
 // --
 
 export async function updateTask(context: BackendContext, updFrag: TaskUpdateFragment) {
-  let cn = await getDbConnection()
-
   let taskId = int(updFrag.id)
 
   let values = toSqlValues(updFrag, taskMeta.update, "exceptId")
@@ -312,7 +302,6 @@ export async function updateTask(context: BackendContext, updFrag: TaskUpdateFra
 async function hasStepChange(context: BackendContext, updFrag: TaskUpdateFragment): Promise<boolean> {
   if (updFrag.curStepId === undefined)
     return false
-  let cn = await getDbConnection()
   let sql = buildSelect().select("cur_step_id").from("task").where("task_id", int(updFrag.id))
   let rs = await cn.all(sql.toSql())
   if (rs.length !== 1)
@@ -326,8 +315,6 @@ async function hasStepChange(context: BackendContext, updFrag: TaskUpdateFragmen
 // --
 
 export async function deleteTask(context: BackendContext, frag: TaskIdFragment) {
-  let cn = await getDbConnection()
-
   let sql = buildDelete()
     .deleteFrom("task")
     .where("task_id", int(frag.id))
@@ -342,7 +329,6 @@ export async function deleteTask(context: BackendContext, frag: TaskIdFragment) 
 // --
 
 export async function reorderChildTasks(context: BackendContext, idList: string[], parentIdStr: string) {
-  let cn = await getDbConnection()
   let parentId = int(parentIdStr)
 
   let oldNums = await loadChildOrderNums(parentId),
@@ -369,7 +355,6 @@ export async function reorderChildTasks(context: BackendContext, idList: string[
 }
 
 async function updateChildOrderNum(taskId: number, parentId: number, orderNum: number) {
-  let cn = await getDbConnection()
   let sql = buildUpdate()
     .update("task_child")
     .set({
@@ -383,7 +368,6 @@ async function updateChildOrderNum(taskId: number, parentId: number, orderNum: n
 }
 
 async function loadChildOrderNums(parentId: number): Promise<Map<number, number>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("c.task_id, c.order_num")
     .from("task_child c")
@@ -400,7 +384,6 @@ async function loadChildOrderNums(parentId: number): Promise<Map<number, number>
 // --
 
 async function insertTaskAffectedToContributors(taskId: number | string, contributorIds: string[]) {
-  let cn = await getDbConnection()
   let orderNum = 0
   for (let contributorId of contributorIds) {
     let sql = buildInsert()
@@ -415,7 +398,6 @@ async function insertTaskAffectedToContributors(taskId: number | string, contrib
 }
 
 async function updateTaskAffectedToContributors(taskId: number | string, contributorIds: string[]) {
-  let cn = await getDbConnection()
   let sql = buildDelete()
     .deleteFrom("task_affected_to")
     .where("task_id", int(taskId))
@@ -424,7 +406,6 @@ async function updateTaskAffectedToContributors(taskId: number | string, contrib
 }
 
 async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
-  let cn = await getDbConnection()
   for (let flagId of flagIds) {
     let sql = buildInsert()
       .insertInto("task_flag")
@@ -437,7 +418,6 @@ async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
 }
 
 async function updateTaskFlags(taskId: number | string, flagIds: string[]) {
-  let cn = await getDbConnection()
   let sql = buildDelete()
     .deleteFrom("task_flag")
     .where("task_id", int(taskId))
@@ -450,7 +430,6 @@ async function updateTaskFlags(taskId: number | string, flagIds: string[]) {
 // --
 
 export async function updateTaskDescription(taskId: number, description: string | null) {
-  let cn = await getDbConnection()
   if (description === null) {
     let sql = buildDelete()
       .deleteFrom("task_description")
@@ -477,10 +456,8 @@ export async function updateTaskDescription(taskId: number, description: string 
 }
 
 async function findTaskCode(projectId: string): Promise<string> {
-  let cn = await getDbConnection()
-
   // Select project code
-  let code = await fetchOneValue(buildSelect().select("p.code").from("project p").where("project_id", projectId).toSql())
+  let code = await cn.singleValue(buildSelect().select("p.code").from("project p").where("project_id", projectId).toSql())
 
   // Update the sequence
   let ps: /* sqlite.Statement */ any | undefined,

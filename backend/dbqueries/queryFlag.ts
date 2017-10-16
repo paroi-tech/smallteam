@@ -2,8 +2,8 @@ import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import flagMeta, { FlagFragment, FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { WhoUseItem } from "../../isomorphic/transfers";
 
@@ -12,7 +12,6 @@ import { WhoUseItem } from "../../isomorphic/transfers";
 // --
 
 export async function fetchFlags(context: BackendContext) {
-  let cn = await getDbConnection()
   let sql = selectFromFlag()
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
@@ -28,7 +27,6 @@ export async function fetchFlags(context: BackendContext) {
 export async function fetchFlagsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
   let sql = selectFromFlag()
     .where("flag_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -63,7 +61,7 @@ export async function whoUseFlag(id: string): Promise<WhoUseItem[]> {
     result: WhoUseItem[] = [],
     count: number
 
-  count = await fetchOneValue(buildSelect().select("count(1)").from("task_flag").where("flag_id", dbId).toSql())
+  count = await cn.singleValue(buildSelect().select("count(1)").from("task_flag").where("flag_id", dbId).toSql())
   if (count > 0)
     result.push({ type: "Task", count })
 
@@ -75,8 +73,6 @@ export async function whoUseFlag(id: string): Promise<WhoUseItem[]> {
 // --
 
 export async function createFlag(context: BackendContext, newFrag: FlagCreateFragment) {
-  let cn = await getDbConnection()
-
   if (newFrag.orderNum === undefined)
     newFrag.orderNum = await getDefaultOrderNum()
 
@@ -95,7 +91,6 @@ export async function createFlag(context: BackendContext, newFrag: FlagCreateFra
 }
 
 async function getDefaultOrderNum() {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("max(order_num) as max")
     .from("flag")
@@ -108,8 +103,6 @@ async function getDefaultOrderNum() {
 // --
 
 export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFragment) {
-  let cn = await getDbConnection()
-
   let flagId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, flagMeta.update, "exceptId")
@@ -136,8 +129,6 @@ export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFra
 // --
 
 export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) {
-  let cn = await getDbConnection()
-
   let sql = buildDelete()
     .deleteFrom("flag")
     .where("flag_id", int(frag.id))
@@ -152,8 +143,6 @@ export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) 
 // --
 
 export async function reorderFlags(context: BackendContext, idList: string[]) {
-  let cn = await getDbConnection()
-
   let oldNums = await loadOrderNums(),
     curNum = 0
   for (let idStr of idList) {
@@ -178,7 +167,6 @@ export async function reorderFlags(context: BackendContext, idList: string[]) {
 }
 
 async function updateOrderNum(flagId: number, orderNum: number) {
-  let cn = await getDbConnection()
   let sql = buildUpdate()
     .update("flag")
     .set({
@@ -189,7 +177,6 @@ async function updateOrderNum(flagId: number, orderNum: number) {
 }
 
 async function loadOrderNums(): Promise<Map<number, number>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("flag_id, order_num")
     .from("flag")

@@ -2,8 +2,8 @@ import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
@@ -13,7 +13,6 @@ const saltRounds = 10
 export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
   let sql = selectFromContributor()
     .where("contributor_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -24,7 +23,6 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
 }
 
 export async function fetchContributors(context: BackendContext) {
-  let cn = await getDbConnection()
   let sql = selectFromContributor()
     .orderBy("name")
   let rs = await cn.all(sql.toSql())
@@ -62,12 +60,12 @@ export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
     result: WhoUseItem[] = [],
     count: number
 
-  count = await fetchOneValue(buildSelect().select("count(1)").from("task").where("created_by", dbId).toSql())
-  count += await fetchOneValue(buildSelect().select("count(1)").from("task_affected_to").where("contributor_id", dbId).toSql())
+  count = await cn.singleValue(buildSelect().select("count(1)").from("task").where("created_by", dbId).toSql())
+  count += await cn.singleValue(buildSelect().select("count(1)").from("task_affected_to").where("contributor_id", dbId).toSql())
   if (count > 0)
     result.push({ type: "Task", count })
 
-  count = await fetchOneValue(buildSelect().select("count(1)").from("task_log").where("contributor_id", dbId).toSql())
+  count = await cn.singleValue(buildSelect().select("count(1)").from("task_log").where("contributor_id", dbId).toSql())
   if (count > 0)
     result.push({ type: "TaskLogEntry", count })
 
@@ -79,7 +77,6 @@ export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
 // --
 
 export async function createContributor(context: BackendContext, newFrag: ContributorCreateFragment) {
-  let cn = await getDbConnection()
   let passwordHash = await hash("init", saltRounds)
   let sql = buildInsert()
     .insertInto("contributor")
@@ -100,7 +97,6 @@ export async function createContributor(context: BackendContext, newFrag: Contri
 // --
 
 export async function updateContributor(context: BackendContext, updFrag: ContributorUpdateFragment) {
-  let cn = await getDbConnection()
   let contributorId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, contributorMeta.update, "exceptId")
@@ -126,8 +122,6 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
 // --
 
 export async function deleteContributor(context: BackendContext, frag: ContributorIdFragment) {
-  let cn = await getDbConnection()
-
   let sql = buildDelete()
     .deleteFrom("contributor")
     .where("contributor_id", int(frag.id))
@@ -142,7 +136,6 @@ export async function deleteContributor(context: BackendContext, frag: Contribut
 // --
 
 export async function reorderAffectedContributors(context: BackendContext, idList: string[], taskIdStr: string) {
-  let cn = await getDbConnection()
   let taskId = int(taskIdStr)
 
   let oldNums = await loadAffectedOrderNums(taskId),
@@ -169,7 +162,6 @@ export async function reorderAffectedContributors(context: BackendContext, idLis
 }
 
 async function updateAffectedOrderNum(contributorId: number, taskId: number, orderNum: number) {
-  let cn = await getDbConnection()
   let sql = buildUpdate()
     .update("task_affected_to")
     .set({
@@ -183,7 +175,6 @@ async function updateAffectedOrderNum(contributorId: number, taskId: number, ord
 }
 
 async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("c.contributor_id, c.order_num")
     .from("task_affected_to c")

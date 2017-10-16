@@ -2,18 +2,18 @@ import * as path from "path"
 //import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectFetchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 import { WhoUseItem } from "../../isomorphic/transfers";
+import { Connection, InTransactionConnection } from "../utils/sqlite-with-transactions";
 
 // --
 // -- Read
 // --
 
 export async function fetchProjects(context: BackendContext, filters: ProjectFetchFragment) {
-  let cn = await getDbConnection()
   let sql = selectFromProject()
   if (filters.archived !== undefined)
     sql.andWhere("p.archived", filters.archived)
@@ -52,7 +52,6 @@ export async function fetchProjects(context: BackendContext, filters: ProjectFet
 export async function fetchProjectsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
   let sql = selectFromProject()
     .where("p.project_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -93,7 +92,7 @@ function toProjectFragment(row): ProjectFragment {
 
 export async function whoUseProject(id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
-  let taskId = await fetchOneValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
+  let taskId = await cn.singleValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
   return whoUseTask(taskId.toString())
 }
 
@@ -101,7 +100,7 @@ export async function whoUseProjectStep(projectId: string, stepId: string): Prom
   let result: WhoUseItem[] = [],
     count: number
 
-  count = await fetchOneValue(buildSelect()
+  count = await cn.singleValue(buildSelect()
     .select("count(1)")
     .from("task")
     .where({
@@ -125,7 +124,6 @@ async function addDependenciesTo(projectRows: any[]) {
 }
 
 async function fetchStepIdentifiers(projectIdList: number[]): Promise<Map<number, number[]>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("pt.project_id, pt.step_id")
     .from("project_step pt")
@@ -154,79 +152,86 @@ async function fetchStepIdentifiers(projectIdList: number[]): Promise<Map<number
 // --
 
 export async function createProject(context: BackendContext, newFrag: ProjectCreateFragment) {
-  let cn = await getDbConnection()
+  let transCn = await cn.beginTransaction()
 
-  // Project
-  let sql = buildInsert()
-    .insertInto("project")
-    .values({
-      "code": newFrag.code,
-      "task_seq": 0
-    })
-  let ps = await cn.run(sql.toSql()),
-    projectId = ps.lastID
-
-  // Step "Not Started"
-  sql = buildInsert()
-    .insertInto("project_step")
-    .values({
-      "project_id": projectId,
-      "step_id": 1
-    })
-  ps = await cn.run(sql.toSql())
-
-  // Step "Archived"
-  sql = buildInsert()
-    .insertInto("project_step")
-    .values({
-      "project_id": projectId,
-      "step_id": 2
-    })
-  await cn.run(sql.toSql())
-
-  // Task
-  sql = buildInsert()
-    .insertInto("task")
-    .values({
-      "project_id": projectId,
-      "cur_step_id": 1, // FIXME: step "Not Started" (or make the column NULLABLE?)
-      "code": `${newFrag.code}-0`,
-      "created_by": int(context.sessionData.contributorId),
-      "label": newFrag.name
-    })
-  ps = await cn.run(sql.toSql())
-  let taskId = ps.lastID
-
-  // Mark as root task
-  sql = buildInsert()
-    .insertInto("root_task")
-    .values({
-      "project_id": projectId,
-      "task_id": taskId
-    })
-  await cn.run(sql.toSql())
-
-  // Description
-  if (newFrag.description) {
-    sql = buildInsert()
-      .insertInto("task_description")
+  try {
+    // Project
+    let sql = buildInsert()
+      .insertInto("project")
       .values({
-        "task_id": taskId,
-        "description": newFrag.description
+        "code": newFrag.code,
+        "task_seq": 0
       })
-    await cn.run(sql.toSql())
+    let ps = await transCn.run(sql.toSql()),
+      projectId = ps.lastID
+
+    // Step "Not Started"
+    sql = buildInsert()
+      .insertInto("project_step")
+      .values({
+        "project_id": projectId,
+        "step_id": 1
+      })
+    ps = await transCn.run(sql.toSql())
+
+    // Step "Archived"
+    sql = buildInsert()
+      .insertInto("project_step")
+      .values({
+        "project_id": projectId,
+        "step_id": 2
+      })
+    await transCn.run(sql.toSql())
+
+    // Task
+    sql = buildInsert()
+      .insertInto("task")
+      .values({
+        "project_id": projectId,
+        "cur_step_id": 1, // FIXME: step "Not Started" (or make the column NULLABLE?)
+        "code": `${newFrag.code}-0`,
+        "created_by": int(context.sessionData.contributorId),
+        "label": newFrag.name
+      })
+    ps = await transCn.run(sql.toSql())
+    let taskId = ps.lastID
+
+    // Mark as root task
+    sql = buildInsert()
+      .insertInto("root_task")
+      .values({
+        "project_id": projectId,
+        "task_id": taskId
+      })
+    await transCn.run(sql.toSql())
+
+    // Description
+    if (newFrag.description) {
+      sql = buildInsert()
+        .insertInto("task_description")
+        .values({
+          "task_id": taskId,
+          "description": newFrag.description
+        })
+      await transCn.run(sql.toSql())
+    }
+
+    await insertProjectSteps(transCn, taskId, newFrag.stepIds)
+
+    await transCn.commit()
+
+    context.loader.addFragment({
+      type: "Project",
+      id: projectId.toString(),
+      asResult: "fragment",
+      markAs: "created"
+    })
+
+    context.loader.modelUpdate.addFragment("Task", taskId.toString())
+  } finally {
+    if (transCn.inTransaction)
+      await transCn.rollback()
   }
-
-  insertProjectSteps(taskId, newFrag.stepIds)
-
-  context.loader.addFragment({
-    type: "Project",
-    id: projectId.toString(),
-    asResult: "fragment",
-    markAs: "created"
-  })
-
-  context.loader.modelUpdate.addFragment("Task", taskId.toString())
 }
 
 // --
@@ -234,59 +239,65 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
 // --
 
 export async function updateProject(context: BackendContext, updFrag: ProjectUpdateFragment) {
-  let cn = await getDbConnection()
+  let transCn = await cn.beginTransaction()
 
-  let projectId = parseInt(updFrag.id, 10)
+  try {
+    let projectId = parseInt(updFrag.id, 10)
 
-  let valuesToUpd = toSqlValues(updFrag, projectMeta.update, "exceptId")
-  if (valuesToUpd) {
-    if (updFrag.code !== undefined && await hasTasks(projectId))
-      throw new Error(`Cannot update the project "${updFrag.id}" because it has tasks`)
-    let sql = buildUpdate()
-      .update("project")
-      .set(valuesToUpd)
-      .where(toSqlValues(updFrag, projectMeta.update, "onlyId"))
-    await cn.run(sql.toSql())
+    let valuesToUpd = toSqlValues(updFrag, projectMeta.update, "exceptId")
+    if (valuesToUpd) {
+      if (updFrag.code !== undefined && await hasTasks(projectId))
+        throw new Error(`Cannot update the project "${updFrag.id}" because it has tasks`)
+      let sql = buildUpdate()
+        .update("project")
+        .set(valuesToUpd)
+        .where(toSqlValues(updFrag, projectMeta.update, "onlyId"))
+      await transCn.run(sql.toSql())
+    }
+
+    if (updFrag.name !== undefined || updFrag.description !== undefined) {
+      let taskId = await getRootTaskId(projectId)
+
+      if (updFrag.description !== undefined)
+        await updateTaskDescription(taskId, updFrag.description)
+
+      let sql = buildUpdate()
+        .update("task")
+        .set({
+          update_ts: { "vanilla": "current_timestamp" }
+        })
+        .where("task_id", taskId)
+      if (updFrag.name !== undefined)
+        sql.set({ label: updFrag.name })
+      await transCn.run(sql.toSql())
+      context.loader.modelUpdate.addFragment("Task", taskId.toString())
+    }
+
+    if (updFrag.stepIds)
+      await updateProjectSteps(transCn, projectId, updFrag.stepIds)
+
+    await transCn.commit()
+
+    context.loader.addFragment({
+      type: "Project",
+      id: projectId.toString(),
+      asResult: "fragment",
+      markAs: "updated"
+    })
+  } finally {
+    if (transCn.inTransaction)
+      await transCn.rollback()
   }
-
-  if (updFrag.name !== undefined || updFrag.description !== undefined) {
-    let taskId = await getRootTaskId(projectId)
-
-    if (updFrag.description !== undefined)
-      await updateTaskDescription(taskId, updFrag.description)
-
-    let sql = buildUpdate()
-      .update("task")
-      .set({
-        update_ts: { "vanilla": "current_timestamp" }
-      })
-      .where("task_id", taskId)
-    if (updFrag.name !== undefined)
-      sql.set({ label: updFrag.name })
-    await cn.run(sql.toSql())
-    context.loader.modelUpdate.addFragment("Task", taskId.toString())
-  }
-
-  if (updFrag.stepIds)
-    await updateProjectSteps(projectId, updFrag.stepIds)
-
-  context.loader.addFragment({
-    type: "Project",
-    id: projectId.toString(),
-    asResult: "fragment",
-    markAs: "updated"
-  })
 }
 
 async function hasTasks(projectId: number) {
-  let count = await fetchOneValue(
+  let count = await cn.singleValue(
     buildSelect().select("count(task_id)").from("task").where("project_id", projectId).toSql()
   )
   return count > 0
 }
 
 async function getRootTaskId(projectId: number) {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("task_id")
     .from("root_task")
@@ -302,36 +313,42 @@ async function getRootTaskId(projectId: number) {
 // --
 
 export async function deleteProject(context: BackendContext, frag: ProjectIdFragment) {
-  // FIXME: This function should use transaction...
-  let cn = await getDbConnection(),
-    dbId = int(frag.id)
+  let transCn = await cn.beginTransaction()
 
-  let taskId = await fetchOneValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
+  try {
+    let dbId = int(frag.id)
 
-  await cn.run(buildDelete()
-    .deleteFrom("root_task")
-    .where("project_id", dbId)
-    .toSql())
+    let taskId = await cn.singleValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
 
-  await cn.run(buildDelete()
-    .deleteFrom("task")
-    .where("task_id", taskId)
-    .toSql())
+    await cn.run(buildDelete()
+      .deleteFrom("root_task")
+      .where("project_id", dbId)
+      .toSql())
 
-  await cn.run(buildDelete()
-    .deleteFrom("project")
-    .where("project_id", dbId)
-    .toSql())
+    await cn.run(buildDelete()
+      .deleteFrom("task")
+      .where("task_id", taskId)
+      .toSql())
 
-  context.loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
+    await cn.run(buildDelete()
+      .deleteFrom("project")
+      .where("project_id", dbId)
+      .toSql())
+
+    await transCn.commit()
+
+    context.loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
+  } finally {
+    if (transCn.inTransaction)
+      await transCn.rollback()
+  }
 }
 
 // --
 // -- Dependencies
 // --
 
-async function insertProjectSteps(projectId: number | string, stepIds: string[]) {
-  let cn = await getDbConnection()
+async function insertProjectSteps(cn: InTransactionConnection, projectId: number | string, stepIds: string[]) {
   for (let stepId of stepIds) {
     let sql = buildInsert()
       .insertInto("project_step")
@@ -343,11 +360,10 @@ async function insertProjectSteps(projectId: number | string, stepIds: string[])
   }
 }
 
-async function updateProjectSteps(projectId: number | string, stepIds: string[]) {
-  let cn = await getDbConnection()
+async function updateProjectSteps(cn: InTransactionConnection, projectId: number | string, stepIds: string[]) {
   let sql = buildDelete()
     .deleteFrom("project_step")
     .where("project_id", int(projectId))
   await cn.run(sql.toSql())
-  await insertProjectSteps(projectId, stepIds)
+  await insertProjectSteps(cn, projectId, stepIds)
 }

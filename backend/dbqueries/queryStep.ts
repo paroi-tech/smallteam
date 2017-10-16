@@ -2,8 +2,8 @@ import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import stepMeta, { StepFragment, StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
-import { getDbConnection, toIntList, int, fetchOneValue } from "./dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { WhoUseItem } from "../../isomorphic/transfers";
 
@@ -12,7 +12,6 @@ import { WhoUseItem } from "../../isomorphic/transfers";
 // --
 
 export async function fetchSteps(context: BackendContext) {
-  let cn = await getDbConnection()
   let sql = selectFromStep()
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
@@ -28,7 +27,7 @@ export async function fetchSteps(context: BackendContext) {
 export async function fetchStepsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
+
   let sql = selectFromStep()
     .where("step_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -62,7 +61,7 @@ export async function whoUseStep(id: string): Promise<WhoUseItem[]> {
     result: WhoUseItem[] = [],
     count: number
 
-  count = await fetchOneValue(buildSelect().select("count(1)").from("project_step").where("step_id", dbId).toSql())
+  count = await cn.singleValue(buildSelect().select("count(1)").from("project_step").where("step_id", dbId).toSql())
   if (count > 0)
     result.push({ type: "Project", count })
 
@@ -74,8 +73,6 @@ export async function whoUseStep(id: string): Promise<WhoUseItem[]> {
 // --
 
 export async function createStep(context: BackendContext, newFrag: StepCreateFragment) {
-  let cn = await getDbConnection()
-
   if (newFrag.orderNum === undefined)
     newFrag.orderNum = await getDefaultOrderNum()
 
@@ -94,7 +91,6 @@ export async function createStep(context: BackendContext, newFrag: StepCreateFra
 }
 
 async function getDefaultOrderNum() {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("max(order_num) as max")
     .from("step")
@@ -107,8 +103,6 @@ async function getDefaultOrderNum() {
 // --
 
 export async function updateStep(context: BackendContext, updFrag: StepUpdateFragment) {
-  let cn = await getDbConnection()
-
   let stepId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, stepMeta.update, "exceptId")
@@ -135,8 +129,6 @@ export async function updateStep(context: BackendContext, updFrag: StepUpdateFra
 // --
 
 export async function deleteStep(context: BackendContext, frag: StepIdFragment) {
-  let cn = await getDbConnection()
-
   let sql = buildDelete()
     .deleteFrom("step")
     .where("step_id", int(frag.id))
@@ -151,8 +143,6 @@ export async function deleteStep(context: BackendContext, frag: StepIdFragment) 
 // --
 
 export async function reorderSteps(context: BackendContext, idList: string[]) {
-  let cn = await getDbConnection()
-
   let oldNums = await loadOrderNums(),
     curNum = 0
   for (let idStr of idList) {
@@ -177,7 +167,6 @@ export async function reorderSteps(context: BackendContext, idList: string[]) {
 }
 
 async function updateOrderNum(stepId: number, orderNum: number) {
-  let cn = await getDbConnection()
   let sql = buildUpdate()
     .update("step")
     .set({
@@ -188,7 +177,6 @@ async function updateOrderNum(stepId: number, orderNum: number) {
 }
 
 async function loadOrderNums(): Promise<Map<number, number>> {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("step_id, order_num")
     .from("step")

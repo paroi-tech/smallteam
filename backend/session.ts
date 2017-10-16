@@ -1,6 +1,6 @@
 import { hash, compare } from "bcrypt"
-import { getDbConnection } from "./dbqueries/dbUtils"
-import { buildSelect } from "./sql92builder/Sql92Builder"
+import { cn } from "./utils/dbUtils"
+import { buildSelect } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 
 export async function routeConnect(data, sessionData: SessionData): Promise<any> {
@@ -20,7 +20,6 @@ export async function routeConnect(data, sessionData: SessionData): Promise<any>
 }
 
 async function getContributor(login: string) {
-  let cn = await getDbConnection()
   let sql = buildSelect()
     .select("contributor_id, password")
     .from("contributor")

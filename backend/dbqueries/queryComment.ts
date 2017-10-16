@@ -1,6 +1,6 @@
 import { BackendContext } from "../backendContext/context"
-import { getDbConnection, toIntList, int } from "./dbUtils"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import commentMeta, { CommentFragment, CommentCreateFragment, CommentIdFragment, CommentUpdateFragment, CommentFetchFragment } from "../../isomorphic/meta/Comment"
 
@@ -9,7 +9,6 @@ import commentMeta, { CommentFragment, CommentCreateFragment, CommentIdFragment,
 // --
 
 export async function fetchComments(context: BackendContext, filters: CommentFetchFragment) {
-  let cn = await getDbConnection()
   let sql = selectFromComment()
   sql.andWhere("c.task_id", int(filters.taskId))
   let rs = await cn.all(sql.toSql())
@@ -25,7 +24,6 @@ export async function fetchComments(context: BackendContext, filters: CommentFet
 export async function fetchCommentsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
   let sql = selectFromComment()
     .where("c.comment_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -58,8 +56,6 @@ function toCommentFragment(row): CommentFragment {
 // --
 
 export async function createComment(context: BackendContext, newFrag: CommentCreateFragment) {
-  let cn = await getDbConnection()
-
   // Comment
   let values = toSqlValues(newFrag, commentMeta.create)!
   values["written_by"] = int(context.sessionData.contributorId)
@@ -84,8 +80,6 @@ export async function createComment(context: BackendContext, newFrag: CommentCre
 // --
 
 export async function updateComment(context: BackendContext, updFrag: CommentUpdateFragment) {
-  let cn = await getDbConnection()
-
   let values = toSqlValues(updFrag, commentMeta.update, "exceptId")
   if (values === null)
     return
@@ -113,8 +107,6 @@ export async function updateComment(context: BackendContext, updFrag: CommentUpd
 export async function deleteComment(context: BackendContext, frag: CommentIdFragment) {
   await markTaskAsUpdatedFromComment(context, frag.id)
 
-  let cn = await getDbConnection()
-
   let sql = buildDelete()
     .deleteFrom("comment")
     .where("comment_id", int(frag.id))
@@ -125,8 +117,6 @@ export async function deleteComment(context: BackendContext, frag: CommentIdFrag
 }
 
 async function markTaskAsUpdatedFromComment(context: BackendContext, commentId: string) {
-  let cn = await getDbConnection()
-
   let sql = buildSelect()
     .select("task_id")
     .from("comment")

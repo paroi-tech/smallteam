@@ -1,6 +1,6 @@
 import { BackendContext } from "../backendContext/context"
-import { getDbConnection, toIntList, int } from "./dbUtils"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../sql92builder/Sql92Builder"
+import { cn, toIntList, int } from "../utils/dbUtils"
+import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { TaskLogEntryFragment, TaskLogEntryFetchFragment } from "../../isomorphic/meta/TaskLogEntry"
 
@@ -9,7 +9,6 @@ import { TaskLogEntryFragment, TaskLogEntryFetchFragment } from "../../isomorphi
 // --
 
 export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntryFetchFragment) {
-  let cn = await getDbConnection()
   let sql = selectFromTaskLogEntry()
     .andWhere("l.task_id", int(filters.taskId))
     .orderBy("l.entry_ts desc")
@@ -26,7 +25,6 @@ export async function fetchTaskLogEntries(context: BackendContext, filters: Task
 export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let cn = await getDbConnection()
   let sql = selectFromTaskLogEntry()
     .where("l.task_log_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
@@ -57,8 +55,6 @@ function toTaskLogEntryFragment(row): TaskLogEntryFragment {
 // --
 
 export async function logStepChange(context: BackendContext, taskId: string, stepId: string) {
-  let cn = await getDbConnection()
-
   let sql = buildInsert()
     .insertInto("task_log")
     .values({

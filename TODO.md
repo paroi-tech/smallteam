@@ -29,6 +29,7 @@ the time, so I can't use JIRA.
   - dash.isComponent(obj: object)
   - remove dash.customCreate
   - listenTo() with several event names
+- Backend: make a database connection layer, with transactions
 
 # Lionel
 - Refactoring:
