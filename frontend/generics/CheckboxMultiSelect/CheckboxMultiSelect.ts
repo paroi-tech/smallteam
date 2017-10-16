@@ -77,7 +77,7 @@ export default class CheckboxMultiSelect<M> {
   private removeItem(item: Item<M>) {
     if (item.liEl.parentElement === this.olEl)
       this.olEl.removeChild(item.liEl)
-    this.dash.getBkbOf(item.comp).destroy()
+    this.dash.getPublicDashOf(item.comp).destroy()
     this.items.delete(item.data)
   }
 

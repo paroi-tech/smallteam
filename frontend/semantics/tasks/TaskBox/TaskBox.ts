@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import { render } from "monkberry"
 import TaskFlag from "../TaskFlag/TaskFlag"
 import { Model, TaskModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel";

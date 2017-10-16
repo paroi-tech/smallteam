@@ -26,7 +26,7 @@ export async function sqliteConnection(openSqliteConnection: () => Promise<Datab
 
 function doCreateConnection(pool: Pool, transactionDb?: Database): Connection | InTransactionConnection {
   let thisObj: Partial<InTransactionConnection> = {}
-  let isRoot = !transactionDb
+  let isRoot = !transactionDb,
     closed = false
 
   for (let method of METHODS) {

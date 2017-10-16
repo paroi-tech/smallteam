@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import { render } from "monkberry"
 import { Box } from "../../../generics/BoxList/BoxList";
 import { StepModel, UpdateModelEvent } from "../../../AppModel/AppModel";

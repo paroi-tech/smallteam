@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import { render } from "monkberry"
 import StepForm from "../StepForm/StepForm"
 import StepBox from "../StepBox/StepBox"

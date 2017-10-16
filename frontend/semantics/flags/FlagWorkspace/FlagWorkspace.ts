@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import { render } from "monkberry"
 import FlagForm from "../FlagForm/FlagForm"
 import FlagBox from "../FlagBox/FlagBox"

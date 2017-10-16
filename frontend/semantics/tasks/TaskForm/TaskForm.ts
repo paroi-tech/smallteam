@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import * as MonkBerry from "monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel";

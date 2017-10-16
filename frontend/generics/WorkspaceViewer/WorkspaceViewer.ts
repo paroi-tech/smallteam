@@ -1,5 +1,5 @@
 import config from "../../../isomorphic/config"
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import { render } from "monkberry"
 import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"

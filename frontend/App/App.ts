@@ -1,4 +1,4 @@
-import { ApplicationDash, ApplicationBkb, Log, LogItem } from "bkb"
+import { ApplicationDash, Log, LogItem } from "bkb"
 import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"

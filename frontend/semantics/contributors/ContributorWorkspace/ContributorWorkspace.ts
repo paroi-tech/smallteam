@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { render } from "monkberry"

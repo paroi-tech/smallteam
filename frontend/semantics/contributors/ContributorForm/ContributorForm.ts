@@ -1,4 +1,4 @@
-import { Bkb, Dash } from "bkb"
+import { PublicDash, Dash } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel";

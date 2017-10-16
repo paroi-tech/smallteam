@@ -1,4 +1,4 @@
-import { Dash, Bkb } from "bkb"
+import { Dash } from "bkb"
 import { render } from "monkberry"
 import { Model, ProjectModel, TaskModel, StepModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel";
 import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList";
@@ -106,7 +106,7 @@ export default class StepSwitcher {
   }
 
   private reset() {
-    this.dash.find().forEach(child => this.dash.getBkbOf(child).destroy())
+    this.dash.children().forEach(child => this.dash.getPublicDashOf(child).destroy())
     removeAllChildren(this.boxListContainerEl)
     this.createBoxLists()
     this.fillBoxLists()
@@ -144,11 +144,8 @@ export default class StepSwitcher {
    * @param task the task for which the box will be created for.
    */
   private createTaskBoxFor(task: TaskModel) {
-    let box = this.dash.customCreate({
-      Class: TaskBox,
-      group: "items",
-      argument: task
-    })
+    let box = this.dash.create(TaskBox, task)
+    this.dash.addToGroup(box, "items")
     this.taskBoxes.set(task.id, box)
     return box
   }

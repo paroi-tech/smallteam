@@ -112,7 +112,7 @@ export default class ModelEngine {
   private processing = new Set<string>()
 
   constructor(private dash: Dash<object>) {
-    this.dash.exposeEvents("change", "create", "update", "delete", "reorder", "processing", "endProcessing")
+    this.dash.exposeEvent("change", "create", "update", "delete", "reorder", "processing", "endProcessing")
     this.bgManager = new GenericBgCommandManager(dash)
   }
 
@@ -122,7 +122,7 @@ export default class ModelEngine {
       indexes: makeHKMap<any, any>(),
       modelMaker
     })
-    this.dash.exposeEvents(
+    this.dash.exposeEvent(
       `change${type}`, `create${type}`, `update${type}`, `delete${type}`, `reorder${type}`,
       `processing${type}`, `endProcessing${type}`
     )

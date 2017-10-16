@@ -20,16 +20,9 @@ the time, so I can't use JIRA.
 - isModified, getDiffToUpdate: work with field types `any[]`
 - Model:
   - `this.project.steps` etc. => store the array? or rename to `getSteps()`
-- Bkb:
-  - bkb.children(...groups: string[])
-  - dash.destroyChildren(...groups: string[])
-  - dash.appendInGroup(child: object, group: string, ...groups: string[])
-  - dash.isInGroup(child: object, group: string, ...groups: string[])
-  - dash.isChild(obj: object)
-  - dash.isComponent(obj: object)
-  - remove dash.customCreate
-  - listenTo() with several event names
 - Backend: make a database connection layer, with transactions
+- Publish the package `sqlite-with-transactions` on GitHub and npm
+- Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 
 # Lionel
 - Refactoring:
@@ -138,6 +131,17 @@ the time, so I can't use JIRA.
 - Add a frontend router
   - Sub-routers provided by workspaces
 - Investigate TS transformers, maybe they could generate meta: https://github.com/Microsoft/TypeScript/issues/3628#issuecomment-298236279
+- Bkb:
+x  - bkb.children(...groups: string[])
+x  - dash.appendInGroup(child: object, group: string, ...groups: string[])
+x  - dash.isInGroup(child: object, group: string, ...groups: string[])
+x  - dash.isChild(obj: object)
+x  - dash.isComponent(obj: object)
+x  - remove dash.customCreate
+x  - listenTo() with several event names
+x  - dash.destroyChildren(...groups: string[])
+x  - dash.listenAllParents()
+x  - getBkbOf => getPublicDashOf
 
 # Thomas or Lionel - DONE
 

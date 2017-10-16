@@ -1,5 +1,5 @@
 import config from "../../../isomorphic/config"
-import { Bkb, Dash } from "bkb"
+import { PublicDash, Dash } from "bkb"
 import { render } from "monkberry"
 import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"

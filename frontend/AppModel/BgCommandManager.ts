@@ -21,7 +21,7 @@ export default class GenericBgCommandManager implements BgCommandManager {
   private errorCommands = new Set<BgCommand>()
 
   constructor(private dash: Dash<object>) {
-    this.dash.exposeEvents("bgCommandAdded", "bgCommandDone", "bgCommandError")
+    this.dash.exposeEvent("bgCommandAdded", "bgCommandDone", "bgCommandError")
   }
 
   public add<R>(promise: Promise<R>, label: string): BgCommand<R> {

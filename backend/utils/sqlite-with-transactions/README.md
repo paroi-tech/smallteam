@@ -4,7 +4,7 @@
 2. The package [sqlite](https://github.com/kriasoft/node-sqlite) is a wrapper to promisify the package _sqlite3_;
 3. This package **sqlite-with-transactions** is a wrapper to add transactions over the package _sqlite_.
 
-Notice: A package [sqlite3-transactions](https://github.com/Strix-CZ/sqlite3-transactions) exists but it locks the whole database. Locking the database is a bad design choice.
+Notice: A package [sqlite3-transactions](https://github.com/Strix-CZ/sqlite3-transactions) exists but it locks the whole database during each transaction. Locking the database is a bad design choice.
 
 # Principle
 
