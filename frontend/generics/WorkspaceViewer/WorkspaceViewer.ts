@@ -57,7 +57,7 @@ export default class WorkspaceViewer {
 
   public start() {
     this.router.start({
-      baseUrl: config.urlPrefix,
+      baseUrl: config.urlPrefix + "/",
       hashMode: true,
       // noHistory: false,
       firstQueryString: ""

@@ -126,7 +126,7 @@ export default class ProjectForm implements Workspace {
    */
   public setProject(project: ProjectModel | undefined) {
     this.project = project
-    this.stepMultiSelect.selectItems(project ? project.allSteps : [])
+    this.stepMultiSelect.selectItems(project ? project.steps : [])
     if (project) {
       this.codeEl.setAttribute("readonly", "true")
       this.generateCode = false
@@ -149,10 +149,6 @@ export default class ProjectForm implements Workspace {
     try {
       let project = await this.model.exec("create", "Project", { code, name, description, stepIds })
       this.setProject(project)
-      // this.codeEl.setAttribute("readonly", "true")
-      // this.fillFieldsWithCurrentProject()
-      // this.stepMultiSelect.setProject(this.project)
-      // this.stepMultiSelect.show()
     } catch (error) {
       console.error("Error while creating new project...")
     }

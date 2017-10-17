@@ -67,6 +67,8 @@ export interface GlobalModels {
   readonly isReady: boolean
   readonly load: Promise<void>
   readonly steps: Collection<StepModel, string>
+  readonly specialSteps: Collection<StepModel, string>
+  readonly allSteps: Collection<StepModel, string>
   readonly flags: Collection<FlagModel, string>
   readonly contributors: Collection<ContributorModel, string>
   readonly projects: Collection<ProjectModel, string>

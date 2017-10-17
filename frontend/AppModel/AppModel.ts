@@ -6,7 +6,7 @@ import { registerProject } from "./Models/ProjectModel"
 import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../isomorphic/meta/Task"
 import { registerTask } from "./Models/TaskModel"
 import { StepCreateFragment, StepUpdateFragment } from "../../isomorphic/meta/Step"
-import { registerStep } from "./Models/StepModel"
+import { registerStep, StepModel } from "./Models/StepModel"
 import { registerFlag } from "./Models/FlagModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
 import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
@@ -25,7 +25,7 @@ export { CommentModel } from "./Models/CommentModel"
 export { ContributorModel } from "./Models/ContributorModel"
 export { FlagModel } from "./Models/FlagModel"
 export { ProjectModel } from "./Models/ProjectModel"
-export { StepModel } from "./Models/StepModel"
+export { StepModel }
 export { TaskLogEntryModel } from "./Models/TaskLogEntryModel"
 export { TaskModel } from "./Models/TaskModel"
 export { Session, SessionData }
@@ -86,13 +86,37 @@ function createGlobal(model: ModelComp): GlobalModels {
   batch.fetch("Contributor")
   batch.fetch("Project", { archived: false })
 
-  let propNames = ["steps", "flags", "contributors", "projects"]
-  let typeNames: Type[] = ["Step", "Flag", "Contributor", "Project"]
+  let collFactories = {
+    "steps": {
+      fetchIndex: 0,
+      factory: (list: StepModel[]) => toCollection(list.filter(step => step.orderNum !== null), "Step")
+    },
+    "specialSteps": {
+      fetchIndex: 0,
+      factory: (list: StepModel[]) => toCollection(list.filter(step => step.orderNum === null), "Step")
+    },
+    "allSteps": {
+      fetchIndex: 0,
+      factory: list => toCollection(list, "Step")
+    },
+    "flags": {
+      fetchIndex: 1,
+      factory: list => toCollection(list, "Flag")
+    },
+    "contributors": {
+      fetchIndex: 2,
+      factory: list => toCollection(list, "Contributor")
+    },
+    "projects": {
+      fetchIndex: 3,
+      factory: list => toCollection(list, "Project")
+    }
+  }
   let isReady = false,
     collections = {}
   let batchPromise = batch.sendAll().then(results => {
-    for (let i = 0; i < propNames.length; ++i)
-      collections[propNames[i]] = toCollection(results[i], typeNames[i])
+    for (let [propName, collFactory] of Object.entries(collFactories))
+      collections[propName] = collFactory.factory(results[collFactory.fetchIndex])
     isReady = true
   })
 
@@ -100,22 +124,27 @@ function createGlobal(model: ModelComp): GlobalModels {
     isReady,
     load: batchPromise
   }
+  Object.defineProperties(obj, makeGlobalProperties(Object.keys(collFactories), collections))
+  return obj as GlobalModels
+}
 
+/**
+ * @param asyncCollections Will be filled after the call of this method
+ */
+function makeGlobalProperties(propNames: string[], asyncCollections: object) {
   let properties = {}
   for (let name of propNames) {
     properties[name] = {
       configurable: false,
       enumerable: true,
       get: function () {
-        if (!collections[name])
+        if (!asyncCollections[name])
           throw new Error(`Model "global" is not ready`)
-        return collections[name]
+        return asyncCollections[name] // FIXME: Call engine.getModels() to get an up-to-date list
       }
     }
   }
-  Object.defineProperties(obj, properties)
-
-  return obj as GlobalModels
+  return properties
 }
 
 function createSession(global: GlobalModels, contributorId: string): Session {
