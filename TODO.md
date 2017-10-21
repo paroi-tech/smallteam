@@ -49,6 +49,7 @@ the time, so I can't use JIRA.
 - Add static workspaces:
   - Create a component `Simple404Workspace`
   - Create a component `HomeWorkspace`
+- Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
