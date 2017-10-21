@@ -361,9 +361,25 @@ async function insertProjectSteps(cn: InTransactionConnection, projectId: number
 }
 
 async function updateProjectSteps(cn: InTransactionConnection, projectId: number | string, stepIds: string[]) {
-  let sql = buildDelete()
-    .deleteFrom("project_step")
-    .where("project_id", int(projectId))
-  await cn.run(sql.toSql())
-  await insertProjectSteps(cn, projectId, stepIds)
+  let rs = await cn.all(buildSelect()
+    .select("ps.step_id")
+    .from("project_step ps")
+    .innerJoin("step s", "using", "step_id")
+    .where("ps.project_id", int(projectId))
+    .andWhere("s.order_num is not null") // the special steps are never updated (out of the scope)
+    .toSql()
+  )
+  let prevArr = rs.map(row => row["step_id"].toString()) as string[]
+  let prevSet = new Set<string>(prevArr)
+  let idsSet = new Set<string>(stepIds)
+  let toAdd = stepIds.filter(id => !prevSet.has(id))
+  let toDelete = prevArr.filter(id => !idsSet.has(id))
+  if (toDelete.length > 0) {
+    let sql = buildDelete()
+      .deleteFrom("project_step")
+      .where("project_id", int(projectId))
+      .andWhere("step_id", "in", toIntList(toDelete))
+    await cn.run(sql.toSql())
+  }
+  await insertProjectSteps(cn, projectId, toAdd)
 }
