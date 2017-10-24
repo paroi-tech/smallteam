@@ -3,8 +3,8 @@ import * as Sortable from "sortablejs"
 import { render } from "monkberry"
 
 import * as boxListTemplate from "./BoxList.monk"
-import * as boxTemplate from "./Li.monk"
-import * as closeTemplate from "./Rm.monk"
+import * as boxTemplate from "./li.monk"
+import * as closeTemplate from "./ItemRemove.monk"
 
 /**
  * As BoxList is a template class, a BoxList instance parameter should implement this interface.

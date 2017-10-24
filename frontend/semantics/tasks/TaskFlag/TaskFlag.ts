@@ -3,7 +3,7 @@ import { render } from "monkberry"
 import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 
-const template = require("./taskflag.monk")
+const template = require("./TaskFlag.monk")
 
 export default class TaskFlag {
   readonly el: HTMLElement

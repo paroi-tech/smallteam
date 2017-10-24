@@ -7,7 +7,7 @@ import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/W
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect";
 import StepBox from "../../steps/StepBox/StepBox";
 
-const template = require("./projectform.monk")
+const template = require("./ProjectForm.monk")
 
 /**
  * Component that enables to create and edit project setings.

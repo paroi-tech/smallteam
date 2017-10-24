@@ -5,7 +5,7 @@ import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher";
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 
-const template = require("./taskboard.monk")
+const template = require("./TaskBoard.monk")
 
 export default class TaskBoard {
   readonly el: HTMLElement

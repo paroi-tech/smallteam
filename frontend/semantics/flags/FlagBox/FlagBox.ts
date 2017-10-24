@@ -4,7 +4,7 @@ import { Box } from "../../../generics/BoxList/BoxList";
 import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 
-const template = require("./flagbox.monk")
+const template = require("./FlagBox.monk")
 
 export default class FlagBox implements Box {
   readonly el: HTMLElement

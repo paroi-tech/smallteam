@@ -7,7 +7,7 @@ import App from "../../../App/App";
 import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag";
 import { removeAllChildren } from "../../../libraries/utils";
 
-const template = require("./taskbox.monk")
+const template = require("./TaskBox.monk")
 
 /**
  * Component used to show basic information about a task of a project.

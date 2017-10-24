@@ -5,7 +5,7 @@ import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../isomorphic/meta/Flag";
 
-const template = require("./flagform.monk")
+const template = require("./FlagForm.monk")
 
 export default class FlagForm {
   readonly el: HTMLElement

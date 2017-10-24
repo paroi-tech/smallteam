@@ -5,8 +5,8 @@ import BoxList from "../../../generics/BoxList/BoxList";
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 
-const template = require("./contributorselector.monk")
-const itemTemplate = require("./item.monk")
+const template = require("./ContributorSelector.monk")
+const itemTemplate = require("./label.monk")
 
 // The idea of a list of checkbox was found here:
 // https://stackoverflow.com/questions/17714705/how-to-use-checkbox-inside-select-option

@@ -9,7 +9,7 @@ import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 import { equal } from "../../../libraries/utils";
 
-const template = require("./flagworkspace.monk")
+const template = require("./FlagWorkspace.monk")
 
 export default class FlagWorkspace implements Workspace {
   readonly el: HTMLElement

@@ -54,23 +54,25 @@ button {
 @import "generics/DropdownMenu/DropdownMenu";
 @import "generics/WorkspaceViewer/WorkspaceViewer";
 
-@import "semantics/contributors/ContributorFlag/contributorflag";
-@import "semantics/contributors/ContributorSelector/contributorselector";
-@import "semantics/contributors/ContributorWorkspace/contributorworkspace";
+@import "semantics/contributors/ContributorFlag/ContributorFlag";
+@import "semantics/contributors/ContributorSelector/ContributorSelector";
+@import "semantics/contributors/ContributorWorkspace/ContributorWorkspace";
 
-@import "semantics/flags/FlagBox/flagbox";
+@import "semantics/flags/FlagBox/FlagBox";
+@import "semantics/flags/FlagForm/FlagForm";
 @import "semantics/flags/FlagSelector/FlagSelector";
+@import "semantics/flags/FlagWorkspace/FlagWorkspace";
 
-@import "semantics/projects/ProjectWorkspace/projectworkspace";
-@import "semantics/projects/ProjectForm/projectform";
+@import "semantics/projects/ProjectWorkspace/ProjectWorkspace";
+@import "semantics/projects/ProjectForm/ProjectForm";
 
 @import "semantics/steps/StepSwitcher/StepSwitcher";
-@import "semantics/steps/StepBox/stepbox";
-@import "semantics/steps/StepForm/stepform";
-@import "semantics/steps/StepWorkspace/stepworkspace";
+@import "semantics/steps/StepBox/StepBox";
+@import "semantics/steps/StepForm/StepForm";
+@import "semantics/steps/StepWorkspace/StepWorkspace";
 
-@import "semantics/tasks/TaskBoard/taskboard";
-@import "semantics/tasks/TaskBox/taskbox";
-@import "semantics/tasks/TaskCommentEditor/taskcommenteditor";
-@import "semantics/tasks/TaskFlag/taskflag";
-@import "semantics/tasks/TaskForm/taskform";
+@import "semantics/tasks/TaskBoard/TaskBoard";
+@import "semantics/tasks/TaskBox/TaskBox";
+@import "semantics/tasks/TaskCommentEditor/TaskCommentEditor";
+@import "semantics/tasks/TaskFlag/TaskFlag";
+@import "semantics/tasks/TaskForm/TaskForm";

@@ -8,7 +8,7 @@ import { Model, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 import { equal } from "../../../libraries/utils";
 
-const template = require("./stepworkspace.monk")
+const template = require("./StepWorkspace.monk")
 
 export default class StepWorkspace implements Workspace {
   readonly el: HTMLElement

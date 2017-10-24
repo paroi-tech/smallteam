@@ -4,7 +4,7 @@ import { Box } from "../../../generics/BoxList/BoxList";
 import { StepModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 
-const template = require("./stepbox.monk")
+const template = require("./StepBox.monk")
 
 /**
  * Component used to show basic information about a Step object.

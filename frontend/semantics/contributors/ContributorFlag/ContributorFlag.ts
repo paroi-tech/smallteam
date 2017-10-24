@@ -3,7 +3,7 @@ import { render } from "monkberry"
 import App from "../../../App/App";
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 
-const template = require("./contributorflag.monk")
+const template = require("./ContributorFlag.monk")
 
 export default class ContributorFlag {
   readonly el: HTMLElement

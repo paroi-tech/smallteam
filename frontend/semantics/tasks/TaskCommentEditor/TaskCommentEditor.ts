@@ -5,7 +5,7 @@ import App from "../../../App/App";
 import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment";
 import { removeAllChildren } from "../../../libraries/utils";
 
-const template = require("./taskcommenteditor.monk")
+const template = require("./TaskCommentEditor.monk")
 
 export default class TaskCommentEditor {
   readonly el: HTMLElement

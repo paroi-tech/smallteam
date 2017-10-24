@@ -4,7 +4,7 @@ import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
 import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 
-const template = require("./stepform.monk")
+const template = require("./StepForm.monk")
 
 export default class StepForm {
   readonly el: HTMLElement

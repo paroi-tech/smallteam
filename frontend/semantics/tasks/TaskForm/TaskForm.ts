@@ -6,7 +6,7 @@ import FlagSelector from "../../flags/FlagSelector/FlagSelector";
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector";
 import App from "../../../App/App";
 
-const template = require("./taskform.monk")
+const template = require("./TaskForm.monk")
 
 /**
  * Component used to display and edit information about a task.
