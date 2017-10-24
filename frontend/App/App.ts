@@ -10,6 +10,7 @@ import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace";
 import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace";
 import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace";
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace";
+import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
 
 export default class App {
   readonly log: Log
@@ -59,6 +60,8 @@ export default class App {
     viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
+    // viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
+    viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
 
     let projects = this.model.global.projects
     for (let p of projects)

@@ -21,7 +21,9 @@ export default class TaskBox implements Box {
 
   private spanEl: HTMLElement
   private flagContainerEl: HTMLElement
+  private counterContainerEl: HTMLElement
   private contributorContainerEl: HTMLElement
+  private commentCounterEl: HTMLElement
 
   private view: MonkberryView
 
@@ -44,8 +46,11 @@ export default class TaskBox implements Box {
 
     this.flagContainerEl = this.el.querySelector(".js-container-left") as HTMLElement
     this.contributorContainerEl = this.el.querySelector(".js-container-right") as HTMLElement
+    this.counterContainerEl = this.el.querySelector(".js-container-center") as HTMLElement
+    this.commentCounterEl = this.el.querySelector(".js-counter") as HTMLElement
 
     this.addTaskFlags()
+    this.commentCounterEl.textContent = (this.task.commentCount || 0).toString()
     this.addContributorFlags()
     this.listenToModel()
     this.el.addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))

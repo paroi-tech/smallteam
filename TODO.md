@@ -24,17 +24,13 @@ the time, so I can't use JIRA.
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 
 # Lionel
-- Refactoring:
-  - In `ProjectForm`, create a project with a non-empty array for `stepIds`
-  - Rename all Monkberry files with the component name or the CSS class or the markup name
-  - Rename all SCSS files with the component name
+
 - Show an animated loader on the background command button when there is something started
 - Create a component `SessionMenu`:
   - It contains a drop-down menu to append to the right of the main drop-down menu
   - Show the user's avatar on the button (do not use `…`)
   - Add a menu item: "Edit my profile" → app.navigate to "/settings/contributors/my-profile"
   - Add a menu item: "Disconnect"
-- Implement a new component `BackgroundCommandManager`
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
   - Show, Add, remove the flags for the task (Use BoxList)
@@ -54,7 +50,7 @@ the time, so I can't use JIRA.
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
     - A button "Archived Tasks" => Implement a new component "Archived Tasks"
-- **Step type form**: Allow to delete a stepType when it has no step (after user confirmation)
+- **Step form**: Allow to delete a stepType when it has no step (after user confirmation)
 - For each form:
   - Disable the submit button until there are any changes
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
@@ -72,6 +68,11 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- Implement a new component `BackgroundCommandManager`
+- Refactoring:
+  - In `ProjectForm`, create a project with a non-empty array for `stepIds`
+  - Rename all Monkberry files with the component name or the CSS class or the markup name
+  - Rename all SCSS files with the component name
 - On task update, update the flags shown in TaskBox
 - On Flag reordering, reorder checkboxes in TaskFlagSelector
 - Implement flag adding/removing in TaskFlagSelector
