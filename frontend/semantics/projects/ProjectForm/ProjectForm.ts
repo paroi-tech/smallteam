@@ -43,9 +43,6 @@ export default class ProjectForm implements Workspace {
    */
   private generateCode = true
 
-  /**
-   * Create a new project form.
-   */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
@@ -99,9 +96,6 @@ export default class ProjectForm implements Workspace {
     }
   }
 
-  /**
-   * Submit  button click handler.
-   */
   private async onSubmit() {
     this.submitSpinnerEl.style.display = "inline"
     let code = this.codeEl.value.trim()

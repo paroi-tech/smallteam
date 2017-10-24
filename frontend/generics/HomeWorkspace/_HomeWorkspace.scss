@@ -1,0 +1,14 @@
+.HomeWorkspace {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+
+  &-header {
+    font-size: $f16;
+  }
+
+  &-img {
+    display: block;
+    margin: 0px auto;
+  }
+}

@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import ProjectForm from "../ProjectForm/ProjectForm"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
+import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
 import TaskBoard from "../../tasks/TaskBoard/TaskBoard";
 import { Model, ProjectModel } from "../../../AppModel/AppModel";

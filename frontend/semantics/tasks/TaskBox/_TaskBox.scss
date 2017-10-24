@@ -1,9 +1,8 @@
 .TaskBox {
-  font-style: italic;
   min-width: 150px;
 }
 
-.FlagContainer {
+.TaskFlagContainer {
   align-items: baseline;
   display: flex;
   flex-direction: row;
@@ -16,6 +15,13 @@
     width: 40%;
   }
 
+  &-center {
+    align-items: baseline;
+    display: flex;
+    justify-content: center;
+    width: 20px;
+  }
+
   &-right {
     align-items: baseline;
     display: flex;
@@ -23,3 +29,15 @@
     width: 40%;
   }
 }
+
+.TaskCommentCounter {
+  background-color: orchid;
+  border-radius: 2px;
+  color: white;
+  font-family: monospace;
+  font-weight: bold;
+  padding: 4px;
+  text-align: center;
+  vertical-align: middle;
+}
+

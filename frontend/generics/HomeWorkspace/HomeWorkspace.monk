@@ -1,0 +1,4 @@
+<div class="HomeWorkspace js-workspace">
+  <header class="HomeWorkspace-header js-header">Welcome</header>
+  <img class="HomeWorkspace-img" src="./logo.png" alt="SmallTeam logo">
+</div>
