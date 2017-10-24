@@ -1,14 +1,15 @@
 .HomeWorkspace {
+  align-items: center;
   display: flex;
   flex-direction: column;
-  justify-content: space-evenly;
+  justify-content: center;
+  min-height: 300px;
 
   &-header {
-    font-size: $f16;
+    font-size: $f38;
   }
 
   &-img {
     display: block;
-    margin: 0px auto;
   }
 }
