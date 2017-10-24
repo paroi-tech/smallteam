@@ -3,14 +3,15 @@ import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppMode
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
 import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
-import LoginDialog from "../generics/LoginDialog/LoginDialog";
-import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager";
-import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm";
-import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace";
-import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace";
-import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace";
-import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace";
+import LoginDialog from "../generics/LoginDialog/LoginDialog"
+import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
+import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
+import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
+import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace"
+import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace"
+import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
 import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
+import Workspace404 from "../generics/Workspace404/Workspace404"
 
 export default class App {
   readonly log: Log
@@ -60,7 +61,7 @@ export default class App {
     viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
-    // viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
+    viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
 
     let projects = this.model.global.projects
