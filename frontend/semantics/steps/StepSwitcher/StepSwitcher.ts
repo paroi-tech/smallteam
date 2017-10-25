@@ -8,6 +8,10 @@ import { removeAllChildren } from "../../../libraries/utils";
 
 const template = require("./StepSwitcher.monk")
 
+const caretUp = "\u{25B2}"
+const caretDown = "\u{25BC}"
+const times = "\u{00D7}"
+
 /**
  * Component used to display a task and its children (subtasks).
  *
@@ -71,6 +75,9 @@ export default class StepSwitcher {
     this.toggleBtnSpanEl = this.toggleBtnEl.querySelector("span") as HTMLElement
     this.closeBtnEl = el.querySelector(".js-close-btn") as HTMLButtonElement
 
+    this.toggleBtnSpanEl.textContent = caretUp
+    this.closeBtnEl.textContent = times
+
     this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
     this.taskNameEl.onkeyup = (ev => {
       if (ev.key === "Enter")
@@ -94,12 +101,10 @@ export default class StepSwitcher {
 
   private toggleFoldableContent() {
     if (this.collapsibleElVisible) {
-      this.toggleBtnSpanEl.classList.remove("fa-caret-up")
-      this.toggleBtnSpanEl.classList.add("fa-caret-down")
+      this.toggleBtnSpanEl.textContent = caretDown
       this.foldableEl.style.display = "none"
     } else {
-      this.toggleBtnSpanEl.classList.remove("fa-caret-down")
-      this.toggleBtnSpanEl.classList.add("fa-caret-up")
+      this.toggleBtnSpanEl.textContent = caretUp
       this.foldableEl.style.display = "block"
     }
     this.collapsibleElVisible = !this.collapsibleElVisible

@@ -28,7 +28,7 @@ the time, so I can't use JIRA.
 - Show an animated loader on the background command button when there is something started
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
-  - Show, Add, remove the flags for the task (Use BoxList)
+  - Show, Add, remove the flags for the task
   - Show, Add, update, remove comments
   - Add a button "Log" in the task form, and show the task log in a dialog
   - On create/update/delete contributors, update the list in `TaskForm`

@@ -83,9 +83,8 @@ export class DropdownMenu {
       arr[0].style.pointerEvents = "none"
   }
 
-  // FIXME: Find a way to avoid the use of innerHTML...
   public setButtonContent(content: string) {
-    this.btnEl.innerHTML = content
+    this.btnEl.textContent = content
   }
 
   public enableItem(itemId: string) {

@@ -1,4 +1,4 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { render } from "monkberry"
@@ -23,6 +23,8 @@ export default class ContributorWorkspace implements Workspace {
 
   private model: Model
 
+  private log: Log
+
   private contributors: Map<string, ContributorModel> = new Map()
   private boxes: Map<string, ContributorBox> = new Map()
 
@@ -30,6 +32,7 @@ export default class ContributorWorkspace implements Workspace {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createHtmlElements()
     this.createChildComponents()
     this.listenToModel()
@@ -37,7 +40,7 @@ export default class ContributorWorkspace implements Workspace {
     this.fillBoxList()
 
     this.childRouter = createChildEasyRouter()
-    this.childRouter.addAsyncErrorListener(console.log)
+    this.childRouter.addAsyncErrorListener(this.log.info)
     this.childRouter.map({
       route: "my-profile",
       activate: (query: ERQuery) => {

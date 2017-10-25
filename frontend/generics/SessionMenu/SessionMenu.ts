@@ -3,12 +3,14 @@ import { render } from "monkberry"
 import { MenuItem } from "../Menu/Menu"
 import { DropdownMenu, Alignment } from "../DropdownMenu/DropdownMenu"
 
+const manIcon = "\u{1F468}"
+
 export default class SessionMenu {
   private menu: DropdownMenu
 
   constructor(private dash: Dash, align: Alignment) {
     this.menu = this.dash.create(DropdownMenu, align)
-    this.menu.setButtonContent("&#x1F468;")
+    this.menu.setButtonContent(manIcon)
     this.addItemsToMenu()
   }
 

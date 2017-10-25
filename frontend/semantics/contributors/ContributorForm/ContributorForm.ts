@@ -1,4 +1,4 @@
-import { PublicDash, Dash } from "bkb"
+import { PublicDash, Dash, Log } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel";
@@ -17,6 +17,8 @@ export default class ContributorForm {
 
   private view: MonkberryView
 
+  private log: Log
+
   private state = {
     frag: {
       login: "",
@@ -33,6 +35,7 @@ export default class ContributorForm {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createHtmlElements()
   }
 
@@ -75,19 +78,19 @@ export default class ContributorForm {
     let email = this.emailEl.value.trim()
 
     if (name.length < 1) {
-      console.warn("Name should have at least one character...")
+      this.log.warn("Name should have at least one character...")
       this.nameEl.focus()
       return
     }
 
     if (login.length < 4) {
-      console.warn("Login should have at least 4 characters...")
+      this.log.warn("Login should have at least 4 characters...")
       this.loginEl.focus()
       return
     }
 
     if (!this.validateEmail) {
-      console.warn("Invalid email...")
+      this.log.warn("Invalid email...")
       this.emailEl.focus()
       return
     }
@@ -112,7 +115,7 @@ export default class ContributorForm {
       await this.model.exec("create", "Contributor", frag)
       this.reset()
     } catch (err) {
-      console.error("Unable to create new contributor...", err)
+      this.log.error("Unable to create new contributor...", err)
       this.nameEl.focus()
     }
   }
@@ -125,7 +128,7 @@ export default class ContributorForm {
       this.state.frag = this.contributor.updateTools.toFragment("update") as any
       this.view.update(this.state)
     } catch (err) {
-      console.error(`Unable to update contributor...`)
+      this.log.error(`Unable to update contributor...`)
     }
   }
 

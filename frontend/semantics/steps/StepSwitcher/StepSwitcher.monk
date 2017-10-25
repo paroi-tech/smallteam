@@ -3,10 +3,12 @@
     <span class="js-title"></span>&nbsp;
     <div>
       <button class="js-toggle-btn StepSwitcher-toggleButton" title="Fold/Unfold">
-        <span class="fa fa-caret-up fa-1x" ></span>
+        <!-- Monkberry does not handle HTML entities code. -->
+        <!-- The content of the span will be set in component constructor. -->
+        <span></span>
       </button>
       <button class="js-close-btn StepSwitcher-closeButton" title="Hide">
-        <span class="fa fa-times fa-1x"></span>
+        <!-- Same remark as above for the content. -->
       </button>
       <span class="js-indicator fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
     </div>

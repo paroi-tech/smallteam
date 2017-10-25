@@ -1,9 +1,9 @@
-import { PublicDash, Dash } from "bkb"
+import { PublicDash, Dash, Log } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
-import { FlagCreateFragment, FlagUpdateFragment } from "../../../../isomorphic/meta/Flag";
+import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
+import { FlagCreateFragment, FlagUpdateFragment } from "../../../../isomorphic/meta/Flag"
 
 const template = require("./FlagForm.monk")
 
@@ -17,12 +17,14 @@ export default class FlagForm {
 
   private view: MonkberryView
 
+  private log: Log
+
   private state = {
     label:  "",
     color: "#000000",
     orderNum: "",
     ctrl: {
-      submit: () => this.onSubmit().catch(err => console.log(err))
+      submit: () => this.onSubmit().catch(err => this.log.error(err))
     }
   }
 
@@ -31,6 +33,7 @@ export default class FlagForm {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createView()
 
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteFlag").onData(data => {
@@ -87,13 +90,13 @@ export default class FlagForm {
     let color = this.colorEl.value.trim()
 
     if (label.length < 1) {
-      console.warn("Label should have at least one character...")
+      this.log.warn("Label should have at least one character...")
       this.labelEl.focus()
       return
     }
 
     if (color === "") {
-      console.warn("Please select a color...")
+      this.log.warn("Please select a color...")
       this.colorEl.focus()
       return
     }
@@ -116,7 +119,7 @@ export default class FlagForm {
       await this.model.exec("create", "Flag", frag)
       this.reset()
     } catch (err) {
-      console.error("Unable to create new flag...", err)
+      this.log.error("Unable to create new flag...", err)
       this.labelEl.focus()
     }
   }
@@ -128,7 +131,7 @@ export default class FlagForm {
       this.flag = await this.model.exec("update", "Flag", frag)
       this.updateView()
     } catch (err) {
-      console.error(`Unable to update contributor...`)
+      this.log.error(`Unable to update contributor...`)
     }
   }
 }
