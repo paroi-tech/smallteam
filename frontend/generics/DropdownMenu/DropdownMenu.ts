@@ -16,6 +16,7 @@ export type Alignment = "left" | "right"
 export class DropdownMenu {
   readonly el: HTMLElement
   private ul: HTMLElement
+  private btnEl: HTMLElement
 
   private view: MonkberryView
 
@@ -23,16 +24,10 @@ export class DropdownMenu {
 
   private menuVisible = false
 
-  /**
-   * Create a new dropdown menu.
-   */
-  constructor(private dash: Dash, readonly align: Alignment) {
+ constructor(private dash: Dash, readonly align: Alignment) {
     this.el = this.createView()
   }
 
-  /**
-   * Create menu content from the template.
-   */
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
 
@@ -41,17 +36,12 @@ export class DropdownMenu {
     this.ul = el.querySelector(".js-ul") as HTMLElement
     this.ul.style[this.align] = "0"
 
-    let btn = el.querySelector(".js-btn") as HTMLButtonElement
-    btn.addEventListener("click", ev => this.toggle())
+    this.btnEl = el.querySelector(".js-btn") as HTMLButtonElement
+    this.btnEl.addEventListener("click", ev => this.toggle())
 
     return el
   }
 
-  /**
-   * Add an item to the menu.
-   *
-   * @param item - the item to add.
-   */
   public addItem(item: MenuItem) {
     if (this.items.has(item.id))
       throw new Error(`Item with ID ${item.id} already exists`)
@@ -69,20 +59,12 @@ export class DropdownMenu {
     this.ul.appendChild(li)
   }
 
-  /**
-   * Toggle the dropdown menu.
-   */
   public toggle() {
     this.ul.style.display = this.menuVisible ? "none" : "block"
     this.menuVisible = !this.menuVisible
   }
 
-  /**
-   * Add several items to the menu.
-   *
-   * @param items - items to add.
-   */
-  public addItems(items: Array<MenuItem>) {
+  public addItems(items: MenuItem[]) {
     for (let i of items)
       this.addItem(i)
   }
@@ -95,22 +77,17 @@ export class DropdownMenu {
     }
   }
 
-  /**
-   * Disable an item of the menu.
-   *
-   * @param itemId - the id of the item to disable.
-   */
   public disableItem(itemId: string) {
     let arr = this.items.get(itemId)
     if (arr)
       arr[0].style.pointerEvents = "none"
   }
 
-  /**
-   * Enable an item of the menu.
-   *
-   * @param itemId - the id of the item to enable.
-   */
+  // FIXME: Find a way to avoid the use of innerHTML...
+  public setButtonContent(content: string) {
+    this.btnEl.innerHTML = content
+  }
+
   public enableItem(itemId: string) {
     let arr = this.items.get(itemId)
     if (arr)

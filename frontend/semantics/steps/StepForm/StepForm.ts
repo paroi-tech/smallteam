@@ -23,13 +23,6 @@ export default class StepForm {
 
   private model: Model
 
-  /**
-   * Create a new StepForm.
-   *
-   * Note that this component is only used to update steps, not to create them.
-   *
-   * @param dash - the current application dash
-   */
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()

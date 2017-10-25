@@ -3,6 +3,7 @@ import { Dash } from "bkb"
 import { render } from "monkberry"
 import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
+import SessionMenu from "../SessionMenu/SessionMenu"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter";
 import { removeAllChildren } from "../../libraries/utils";
 
@@ -33,6 +34,7 @@ export default class WorkspaceViewer {
 
   private menu: Menu
   private dropdownMenu: DropdownMenu
+  private sessionMenu: SessionMenu
   private currentWInfo: WorkspaceInfo | undefined
 
   private symb404 = Symbol("404")
@@ -49,6 +51,7 @@ export default class WorkspaceViewer {
   constructor(private dash: Dash) {
     this.el = this.createView()
 
+    // FIXME: Is this a good idea?
     this.dash.listenToChildren<string>("select").onData(path => this.router.navigate(path).catch(console.log))
 
     this.router = createEasyRouter()
@@ -193,6 +196,9 @@ export default class WorkspaceViewer {
     this.dropdownMenu = this.dash.create(DropdownMenu, "right")
     let navRightEl = el.querySelector(".js-nav-right") as HTMLElement
     navRightEl.appendChild(this.dropdownMenu.el)
+
+    this.sessionMenu = this.dash.create(SessionMenu, "right")
+    navRightEl.appendChild(this.sessionMenu.el)
 
     return el
   }

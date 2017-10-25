@@ -26,11 +26,6 @@ the time, so I can't use JIRA.
 # Lionel
 
 - Show an animated loader on the background command button when there is something started
-- Create a component `SessionMenu`:
-  - It contains a drop-down menu to append to the right of the main drop-down menu
-  - Show the user's avatar on the button (do not use `…`)
-  - Add a menu item: "Edit my profile" → app.navigate to "/settings/contributors/my-profile"
-  - Add a menu item: "Disconnect"
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
   - Show, Add, remove the flags for the task (Use BoxList)
@@ -38,19 +33,11 @@ the time, so I can't use JIRA.
   - Add a button "Log" in the task form, and show the task log in a dialog
   - On create/update/delete contributors, update the list in `TaskForm`
   - On create/update/delete flags, update the list in `TaskForm`
-- In `TaskBox`:
-  - Show the contributors affected to the task
-  - Show the flags for the task
-  - Show the field `commentCount`
-- Add static workspaces:
-  - Create a component `Simple404Workspace`
-  - Create a component `HomeWorkspace`
 - Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
     - A button "Archived Tasks" => Implement a new component "Archived Tasks"
-- **Step form**: Allow to delete a stepType when it has no step (after user confirmation)
 - For each form:
   - Disable the submit button until there are any changes
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
@@ -68,6 +55,19 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- Create a component `SessionMenu`:
+  - It contains a drop-down menu to append to the right of the main drop-down menu
+  - Show the user's avatar on the button (do not use `…`)
+  - Add a menu item: "Edit my profile" → app.navigate to "/settings/contributors/my-profile"
+  - Add a menu item: "Disconnect"
+- **Step form**: Allow to delete a stepType when it has no step (after user confirmation)
+- In `TaskBox`:
+  - Show the contributors affected to the task
+  - Show the flags for the task
+  - Show the field `commentCount`
+- Add static workspaces:
+  - Create a component `Simple404Workspace`
+  - Create a component `HomeWorkspace`
 - Implement a new component `BackgroundCommandManager`
 - Refactoring:
   - In `ProjectForm`, create a project with a non-empty array for `stepIds`
