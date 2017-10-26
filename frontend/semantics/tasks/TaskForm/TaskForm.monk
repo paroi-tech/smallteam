@@ -22,7 +22,13 @@
 
   <div class="js-comment-container"></div>
 
-  <div><button class="js-btn-panel">Show/Hide as parent</button></div>
+  <div>
+    <button class="js-btn-panel">Show/Hide as parent</button>
+  </div>
+
+  <div>
+    <button class="js-btn-log">Show logs</button>
+  </div>
 
   <div>
     <button class="js-btn-delete">
