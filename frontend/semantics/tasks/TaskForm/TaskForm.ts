@@ -1,10 +1,11 @@
 import { Dash } from "bkb"
 import * as MonkBerry from "monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
-import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel";
-import FlagSelector from "../../flags/FlagSelector/FlagSelector";
-import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector";
-import App from "../../../App/App";
+import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
+import FlagSelector from "../../flags/FlagSelector/FlagSelector"
+import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
+import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
+import App from "../../../App/App"
 
 const template = require("./TaskForm.monk")
 
@@ -29,6 +30,7 @@ export default class TaskForm {
   private commentEditor: TaskCommentEditor
   private flagSelector: FlagSelector
   private contributorSelector: ContributorSelector
+  private logDialog: TaskLogDialog
 
   /**
    * Create a new TaskForm.
@@ -45,6 +47,8 @@ export default class TaskForm {
 
     this.commentEditor = this.dash.create(TaskCommentEditor)
     this.commentContainerEl.appendChild(this.commentEditor.el)
+
+    this.logDialog = this.dash.create(TaskLogDialog)
 
     this.listenToModel()
   }
@@ -72,6 +76,12 @@ export default class TaskForm {
     showPanelBtn.addEventListener("click", ev => {
       if (this.task)
         this.dash.emit("showStepSwitcher", this.task)
+    })
+
+    let showLogBtn = el.querySelector(".js-btn-log") as HTMLButtonElement
+    showLogBtn.addEventListener("click", ev => {
+      if (this.task)
+        this.logDialog.show()
     })
 
     let deleteBtn = el.querySelector(".js-btn-delete") as HTMLButtonElement
@@ -119,6 +129,7 @@ export default class TaskForm {
     this.flagSelector.setTask(task)
     this.contributorSelector.setTask(task)
     this.commentEditor.setTask(task)
+    this.logDialog.setTask(task)
   }
 
   private async deleteTask() {
@@ -198,5 +209,6 @@ export default class TaskForm {
     this.flagSelector.setTask(undefined)
     this.contributorSelector.setTask(undefined)
     this.commentEditor.setTask(undefined)
+    this.logDialog.setTask(undefined)
   }
 }

@@ -2,7 +2,7 @@
   display: flex;
 
   &-left {
-    min-height: 80px;
+    min-height: 60px;
     overflow: hidden;
     position: relative;
     width: 75%;
@@ -14,10 +14,22 @@
 
   &-textarea {
     display: none;
-    height: 100px;
+    height: 100%;
     left: 0px;
     position: absolute;
     top: 0px;
     width: 100%;
   }
+}
+
+.TaskCommentEditBtn {
+  display: block;
+}
+
+.TaskCommentCancelBtn {
+  display: block;
+}
+
+.TaskCommentCancelBtn {
+  display: block;
 }

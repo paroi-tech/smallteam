@@ -24,7 +24,7 @@ the time, so I can't use JIRA.
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 
 # Lionel
-
+- For TaskLogDialog, load logs only when the dialog is shown.
 - Show an animated loader on the background command button when there is something started
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task

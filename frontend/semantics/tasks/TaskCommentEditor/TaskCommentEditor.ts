@@ -59,18 +59,6 @@ export default class TaskCommentEditor {
         this.addComment(comment)
     })
 
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateComment").onData(data => {
-      if (!this.task)
-        return
-      let comment = data.model as CommentModel
-      if (comment.taskId === this.task.id) {
-        let li = this.listItems.get(comment.id)
-        if (!li)
-          throw new Error(`Unable to find comment with ID ${comment.id}`)
-        li.textContent = comment.body
-      }
-    })
-
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteComment").onData(data => {
       if (!this.task)
         return
