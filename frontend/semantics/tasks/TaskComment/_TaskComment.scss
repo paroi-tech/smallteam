@@ -1,0 +1,23 @@
+.TaskComment {
+  display: flex;
+
+  &-left {
+    min-height: 80px;
+    overflow: hidden;
+    position: relative;
+    width: 75%;
+  }
+
+  &-button {
+    display: block;
+  }
+
+  &-textarea {
+    display: none;
+    height: 100px;
+    left: 0px;
+    position: absolute;
+    top: 0px;
+    width: 100%;
+  }
+}

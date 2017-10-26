@@ -3,6 +3,7 @@
  * v2.0 | 20110126
  * License: none (public domain)
  */
+
 * {
 	border: 0;
   box-sizing: border-box;
@@ -40,7 +41,27 @@ button {
   background: none;
 	color: inherit;
 }
+
 /* End of css reset */
+
+/* Changes for Markdown. */
+/* We are using Markdown, which uses <strong> and <em> tags for italic and bold text. */
+/* But because of the css reset above, this elements are not correctly rendered.      */
+/* So the following settings retalish the default styles for the tags in concern.     */
+
+em {
+	font-style: italic;
+}
+
+strong {
+	font-weight: bold;
+}
+
+code {
+	font-family: Menlo, Monaco, Consolas, 'Ubuntu Mono', 'Courier New', monospace;
+}
+
+/* End of changes for Markdown. */
 
 @import "definitions/definitions";
 @import "App/form";
@@ -76,5 +97,6 @@ button {
 @import "semantics/tasks/TaskBoard/TaskBoard";
 @import "semantics/tasks/TaskBox/TaskBox";
 @import "semantics/tasks/TaskCommentEditor/TaskCommentEditor";
+@import "semantics/tasks/TaskComment/TaskComment";
 @import "semantics/tasks/TaskFlag/TaskFlag";
 @import "semantics/tasks/TaskForm/TaskForm";

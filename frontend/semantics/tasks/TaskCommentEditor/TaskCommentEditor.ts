@@ -1,9 +1,10 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
+import App from "../../../App/App"
+import { Model, TaskModel, UpdateModelEvent, CommentModel } from "../../../AppModel/AppModel"
+import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment"
+import TaskComment from "../TaskComment/TaskComment"
 import { render } from "monkberry"
-import { Model, TaskModel, UpdateModelEvent, CommentModel } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
-import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment";
-import { removeAllChildren } from "../../../libraries/utils";
+import { removeAllChildren } from "../../../libraries/utils"
 
 const template = require("./TaskCommentEditor.monk")
 
@@ -22,8 +23,11 @@ export default class TaskCommentEditor {
   private model: Model
   private task: TaskModel | undefined = undefined
 
+  private log: Log
+
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createView()
     this.listenToModel()
   }
@@ -96,7 +100,7 @@ export default class TaskCommentEditor {
       await this.model.exec("create", "Comment", frag)
       this.textAreaEl.value = ""
     } catch (err) {
-      console.error("Unable to create new comment")
+      this.log.error("Unable to create new comment")
     }
   }
 
@@ -111,7 +115,7 @@ export default class TaskCommentEditor {
       for (let comment of comments)
         this.addComment(comment)
     } catch (err) {
-      console.error("Unable to get task comments...", err)
+      this.log.error("Unable to get task comments...", err)
     }
   }
 
@@ -119,7 +123,7 @@ export default class TaskCommentEditor {
     let li = document.createElement("li")
 
     this.listItems.set(comment.id, li)
-    li.textContent = comment.body
+    li.appendChild(this.dash.create(TaskComment, comment).el)
     this.listEl.appendChild(li)
   }
 

@@ -1,4 +1,4 @@
-import CargoLoader from "./CargoLoader";
+import CargoLoader from "./CargoLoader"
 
 export { CargoLoader }
 
