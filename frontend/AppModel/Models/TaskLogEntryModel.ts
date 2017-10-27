@@ -2,7 +2,7 @@ import { TaskLogEntryFragment, TaskLogEntryIdFragment } from "../../../isomorphi
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
 import { ContributorModel } from "./ContributorModel"
-import { StepModel } from "./StepModel";
+import { StepModel } from "./StepModel"
 
 export interface TaskLogEntryModel extends TaskLogEntryFragment {
   readonly task: TaskModel

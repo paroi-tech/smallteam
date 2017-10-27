@@ -24,15 +24,7 @@ the time, so I can't use JIRA.
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 
 # Lionel
-- For TaskLogDialog, load logs only when the dialog is shown.
 - Show an animated loader on the background command button when there is something started
-- In `TaskForm`:
-  - Show, Add, remove, reorder the contributors affected to the task
-  - Show, Add, remove the flags for the task
-  - Show, Add, update, remove comments
-  - Add a button "Log" in the task form, and show the task log in a dialog
-  - On create/update/delete contributors, update the list in `TaskForm`
-  - On create/update/delete flags, update the list in `TaskForm`
 - Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
@@ -55,6 +47,13 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- In `TaskForm`:
+  - Show, Add, remove, reorder the contributors affected to the task
+  - Show, Add, remove the flags for the task
+  - Show, Add, update, remove comments
+  - Add a button "Log" in the task form, and show the task log in a dialog
+  - On create/update/delete contributors, update the list in `TaskForm`
+  - On create/update/delete flags, update the list in `TaskForm`
 - Create a component `SessionMenu`:
   - It contains a drop-down menu to append to the right of the main drop-down menu
   - Show the user's avatar on the button (do not use `…`)

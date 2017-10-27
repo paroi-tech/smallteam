@@ -16,7 +16,9 @@ export type Alignment = "left" | "right"
 export class DropdownMenu {
   readonly el: HTMLElement
   private ul: HTMLElement
-  private btnEl: HTMLElement
+  private btnEl: HTMLButtonElement
+
+  private buttons = new Set<HTMLElement>()
 
   private view: MonkberryView
 
@@ -38,6 +40,8 @@ export class DropdownMenu {
 
     this.btnEl = el.querySelector(".js-btn") as HTMLButtonElement
     this.btnEl.addEventListener("click", ev => this.toggle())
+    this.btnEl.addEventListener("focusout", ev => this.onButtonFocusLose(ev as FocusEvent))
+    this.buttons.add(this.btnEl)
 
     return el
   }
@@ -55,13 +59,28 @@ export class DropdownMenu {
       this.toggle()
       this.dash.emit("select", item.id)
     })
+    btn.addEventListener("focusout", ev => this.onButtonFocusLose(ev as FocusEvent))
+    this.buttons.add(btn)
     this.items.set(item.id, [li, btn])
     this.ul.appendChild(li)
   }
 
   public toggle() {
-    this.ul.style.display = this.menuVisible ? "none" : "block"
-    this.menuVisible = !this.menuVisible
+    if (this.menuVisible)
+      this.hideMenu()
+    else
+      this.showMenu()
+  }
+
+  private showMenu() {
+    this.menuVisible = true
+    this.ul.style.display = "block"
+    this.ul.focus()
+  }
+
+  private hideMenu() {
+    this.menuVisible = false
+    this.ul.style.display = "none"
   }
 
   public addItems(items: MenuItem[]) {
@@ -74,6 +93,7 @@ export class DropdownMenu {
     if (arr) {
       this.ul.removeChild(arr[0])
       this.items.delete(itemId)
+      this.buttons.delete(arr[1] as HTMLButtonElement)
     }
   }
 
@@ -99,4 +119,10 @@ export class DropdownMenu {
       throw new Error(`Unkown ID ${id}`)
     arr[1].textContent = label
   }
+
+  private onButtonFocusLose(ev: FocusEvent) {
+    if (!this.buttons.has(ev.relatedTarget as HTMLElement) && this.menuVisible)
+      this.hideMenu()
+  }
+
 }

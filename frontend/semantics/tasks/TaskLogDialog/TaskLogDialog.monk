@@ -5,6 +5,11 @@
     </button>
   </header>
 
+  <div class="TaskLogDialogLoader js-loader">
+    <span class="fa fa-spin fa-spinner fa-1x"></span>
+    <p>Loading logs</p>
+  </div>
+
   <table class="TaskLogDialog-table js-table">
     <caption>List of logs</caption>
       <thead>
