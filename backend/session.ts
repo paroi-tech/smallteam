@@ -3,7 +3,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 
-export async function routeConnect(data, sessionData: SessionData): Promise<any> {
+export async function routeConnect(data: any, sessionData: SessionData): Promise<any> {
   let row = await getContributor(data.login)
 
   if (row && await compare(data.password, row.password)) {
@@ -17,6 +17,24 @@ export async function routeConnect(data, sessionData: SessionData): Promise<any>
   return {
     done: false
   }
+}
+
+export async function routeRecover(data: any, sessionData?: SessionData) {
+  if (sessionData && sessionData.contributorId && await checkContributor(sessionData.contributorId)) {
+    return {
+      done: true,
+      contributorId: sessionData.contributorId
+    }
+  }
+
+  return {
+    done: false
+  }
+}
+
+export async function routeDisconnect(data: any, sessionData: SessionData) {
+  // FIXME: Improve this function.
+  sessionData.contributorId = ""
 }
 
 async function getContributor(login: string) {
@@ -34,4 +52,14 @@ async function getContributor(login: string) {
   }
 
   return undefined
+}
+
+async function checkContributor(id: string): Promise<boolean> {
+  let sql = buildSelect()
+    .select("contributor_id")
+    .from("contributor")
+    .where("contributor_id", "=", id)
+  let rs = await cn.all(sql.toSql())
+
+  return (rs.length === 1)
 }

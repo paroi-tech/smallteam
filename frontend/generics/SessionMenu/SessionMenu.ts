@@ -29,9 +29,8 @@ export default class SessionMenu {
     this.dash.listenTo(this.menu, "select").onData(async itemId => {
       if (itemId === "editProfile")
         await this.dash.app.navigate("/settings/contributors/my-profile")
-      else if (itemId === "disconnect") {
-        // TODO: Disconnect user.
-      }
+      else if (itemId === "disconnect")
+        await this.dash.app.navigate("/disconnect") // TODO: fix this
     })
   }
 

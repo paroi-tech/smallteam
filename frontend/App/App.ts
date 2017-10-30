@@ -12,6 +12,7 @@ import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace"
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
 import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
 import Workspace404 from "../generics/Workspace404/Workspace404"
+import config from "../../isomorphic/config"
 
 export default class App {
   readonly log: Log
@@ -35,6 +36,35 @@ export default class App {
   }
 
   public async connect(): Promise<SessionData> {
+    // First, we try to recover session, if any...
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/session/recover`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+      })
+
+      if (!response.ok)
+        this.log.warn("Error. Unable to get a response from server while trying to recover session...")
+      else {
+        let result = await response.json()
+
+        if (result.done) {
+          this.log.info("Session recovered...")
+          return {
+            contributorId: result.contributorId
+          }
+        }
+      }
+    } catch (err) {
+      this.log.warn(err)
+    }
+
+    // Show login dialog if session recover failed.
     let dialog = this.dash.create(LoginDialog)
     return await dialog.open()
   }
