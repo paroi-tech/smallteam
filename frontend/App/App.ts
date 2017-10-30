@@ -69,6 +69,33 @@ export default class App {
     return await dialog.open()
   }
 
+  public async disconnect() {
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/session/disconnect`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({})
+      })
+
+      if (!response.ok)
+        this.log.warn("Error. Unable to get a response from server while trying to disconnect...")
+      else {
+        let result = await response.json()
+
+        if (result.done) {
+          await this.navigate("") // This prevents the router to show current page next login.
+          document.location.reload(false)
+        }
+      }
+    } catch (err) {
+      this.log.warn("Unable to disconnect user...")
+    }
+  }
+
   public async start(sessionData: SessionData) {
     await this.initModel(sessionData)
 
@@ -84,6 +111,10 @@ export default class App {
 
       this.viewer.addElementToHeader(bgCommandManager.buttonEl)
     }
+  }
+
+  public async restart() {
+
   }
 
   private createWorkspaces(viewer: WorkspaceViewer) {

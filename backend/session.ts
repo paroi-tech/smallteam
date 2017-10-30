@@ -19,7 +19,7 @@ export async function routeConnect(data: any, sessionData: SessionData): Promise
   }
 }
 
-export async function routeRecover(data: any, sessionData?: SessionData) {
+export async function routeRecover(data: any, sessionData?: SessionData): Promise<any> {
   if (sessionData && sessionData.contributorId && await checkContributor(sessionData.contributorId)) {
     return {
       done: true,
@@ -32,9 +32,13 @@ export async function routeRecover(data: any, sessionData?: SessionData) {
   }
 }
 
-export async function routeDisconnect(data: any, sessionData: SessionData) {
-  // FIXME: Improve this function.
-  sessionData.contributorId = ""
+export async function routeDisconnect(data: any, sessionData: SessionData): Promise<any> {
+  // FIXME: Is this the only thing to do?
+  sessionData["contributorId"] = ""
+
+  return {
+    done: true
+  }
 }
 
 async function getContributor(login: string) {

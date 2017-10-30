@@ -388,8 +388,8 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // -- Private - Routes
   // --
 
-  private doNavigate(queryString: string | null, changeHist: boolean, parentUrl: string | null = null, parentQuery: any = null,
-      alreadyWorking = false): Promise<boolean> {
+  private doNavigate(queryString: string | null, changeHist: boolean, parentUrl: string | null = null,
+                     parentQuery: any = null, alreadyWorking = false): Promise<boolean> {
     if (!alreadyWorking) {
       if (this.working)
         return Promise.resolve<boolean>(false)
@@ -512,7 +512,8 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       return this.setNewQuery(finalRoute, activator).then(() => {
         if (changeHist)
           this.pushState(this.curQuery!, parentUrl)
-        document.title = this.curQuery!.title!
+        // Sometimes, the router set the page title to `null`. This fixes the bug.
+        document.title = this.curQuery!.title || "SmallTeam"
         var activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
         return activated ? activated.then(() => true) : true
       })

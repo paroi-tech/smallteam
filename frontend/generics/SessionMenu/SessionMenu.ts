@@ -12,6 +12,7 @@ export default class SessionMenu {
     this.menu = this.dash.create(DropdownMenu, align)
     this.menu.setButtonContent(manIcon)
     this.addItemsToMenu()
+    this.listenToEvents()
   }
 
   private addItemsToMenu() {
@@ -27,10 +28,11 @@ export default class SessionMenu {
 
   private listenToEvents() {
     this.dash.listenTo(this.menu, "select").onData(async itemId => {
+      console.log("click on menu...")
       if (itemId === "editProfile")
         await this.dash.app.navigate("/settings/contributors/my-profile")
       else if (itemId === "disconnect")
-        await this.dash.app.navigate("/disconnect") // TODO: fix this
+        await this.dash.app.disconnect()
     })
   }
 

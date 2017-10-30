@@ -4,7 +4,7 @@ import { render } from "monkberry"
 import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import SessionMenu from "../SessionMenu/SessionMenu"
-import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter";
+import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { removeAllChildren } from "../../libraries/utils";
 
 const template = require("./WorkspaceViewer.monk")
