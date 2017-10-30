@@ -1,5 +1,5 @@
-import { startWebServer } from "./webServer";
-import { initConnection } from "./utils/dbUtils";
+import { startWebServer } from "./webServer"
+import { initConnection } from "./utils/dbUtils"
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)

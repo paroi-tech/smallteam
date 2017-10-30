@@ -7,7 +7,7 @@ import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
 import { routeConnect } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
-import { dbConf } from "./utils/dbUtils";
+import { dbConf } from "./utils/dbUtils"
 
 const PORT = 3921
 
