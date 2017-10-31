@@ -1,9 +1,9 @@
 import { PublicDash, Dash, Log } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import { Model, ContributorModel } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
-import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor";
+import { Model, ContributorModel } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
+import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
 
 const template = require("./ContributorForm.monk")
 

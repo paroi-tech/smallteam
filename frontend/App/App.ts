@@ -8,6 +8,7 @@ import BackgroundCommandManager from "../generics/BackgroundCommandManager/Backg
 import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
 import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
 import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace"
+import ContributorHome from "../semantics/contributors/ContributorHome/ContributorHome"
 import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace"
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
 import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
@@ -38,7 +39,7 @@ export default class App {
   public async connect(): Promise<SessionData> {
     // First, we try to recover session, if any...
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/recover`, {
+      let response = await fetch(`${config.urlPrefix}/api/session/current`, {
         method: "post",
         credentials: "same-origin",
         headers: {
@@ -49,12 +50,11 @@ export default class App {
       })
 
       if (!response.ok)
-        this.log.warn("Error. Unable to get a response from server while trying to recover session...")
+        this.log.warn("Unable to get a response from server while trying to recover session")
       else {
         let result = await response.json()
 
         if (result.done) {
-          this.log.info("Session recovered...")
           return {
             contributorId: result.contributorId
           }
@@ -124,6 +124,9 @@ export default class App {
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
+
+    let w = this.dash.create(ContributorHome, this.model.session.contributor)
+    viewer.addHomeWorkspace("Personal space", w, "/settings/my-profile")
 
     let projects = this.model.global.projects
     for (let p of projects)

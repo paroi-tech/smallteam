@@ -28,15 +28,14 @@ export default class SessionMenu {
 
   private listenToEvents() {
     this.dash.listenTo(this.menu, "select").onData(async itemId => {
-      console.log("click on menu...")
       if (itemId === "editProfile")
-        await this.dash.app.navigate("/settings/contributors/my-profile")
+        await this.dash.emit("select", "/settings/my-profile")
       else if (itemId === "disconnect")
         await this.dash.app.disconnect()
     })
   }
 
   get el(): HTMLElement {
-    return this.menu.el;
+    return this.menu.el
   }
 }

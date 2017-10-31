@@ -5,7 +5,7 @@ import { Menu, MenuItem } from "../Menu/Menu"
 import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
 import SessionMenu from "../SessionMenu/SessionMenu"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
-import { removeAllChildren } from "../../libraries/utils";
+import { removeAllChildren } from "../../libraries/utils"
 
 const template = require("./WorkspaceViewer.monk")
 
@@ -67,9 +67,13 @@ export default class WorkspaceViewer {
     })
   }
 
-  public addHomeWorkspace(title: string, w: Workspace) {
-    let path = ""
-    this.workspaces.set(path, { workspace: w, path, defaultTitle: title })
+  public addHomeWorkspace(title: string, w: Workspace, workspacePath?: string) {
+    let path = workspacePath || ""
+    this.workspaces.set(path, {
+      workspace: w,
+      path,
+      defaultTitle: title
+    })
     this.router.map({
       route: path,
       activate: (query: ERQuery) => {
@@ -79,7 +83,10 @@ export default class WorkspaceViewer {
   }
 
   public add404Workspace(title: string, w: Workspace) {
-    this.workspaces.set(this.symb404, { workspace: w, defaultTitle: title })
+    this.workspaces.set(this.symb404, {
+      workspace: w,
+      defaultTitle: title
+    })
     this.router.mapUnknownRoutes({
       useQueryString: '404',
       activate: (query: ERQuery) => {

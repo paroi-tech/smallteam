@@ -19,7 +19,7 @@ export async function routeConnect(data: any, sessionData: SessionData): Promise
   }
 }
 
-export async function routeRecover(data: any, sessionData?: SessionData): Promise<any> {
+export async function routeCurrentSession(data: any, sessionData?: SessionData): Promise<any> {
   if (sessionData && sessionData.contributorId && await checkContributor(sessionData.contributorId)) {
     return {
       done: true,

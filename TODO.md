@@ -25,7 +25,6 @@ the time, so I can't use JIRA.
 
 # Lionel
 - Show an animated loader on the background command button when there is something started
-- Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
@@ -47,6 +46,7 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
   - Show, Add, remove the flags for the task

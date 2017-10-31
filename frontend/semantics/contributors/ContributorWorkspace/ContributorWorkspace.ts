@@ -2,12 +2,12 @@ import { Dash, Log } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { render } from "monkberry"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
-import BoxList from "../../../generics/BoxList/BoxList";
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
-import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel";
-import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter";
-import App from "../../../App/App";
+import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import BoxList from "../../../generics/BoxList/BoxList"
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
+import App from "../../../App/App"
 
 const template = require("./ContributorWorkspace.monk")
 
