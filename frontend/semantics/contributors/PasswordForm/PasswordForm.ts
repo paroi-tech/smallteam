@@ -91,7 +91,10 @@ export default class PasswordForm {
       }
       else {
         let result = await response.json()
-        alert(result.done ? "Password successfully updated." : "Sorry. Password was not changed.")
+        if (result.done)
+          alert("Password successfully updated.")
+        else
+          alert("Password was not changed. Maybe you mistyped your current password.")
       }
     } catch (err) {
       this.log.error("Error while updating password.", err)

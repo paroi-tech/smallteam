@@ -46,21 +46,25 @@ export async function routeDisconnect(data: any, req: Request, res: Response): P
 function destroySession(req: Request): Promise<boolean> {
   return new Promise((resolve, reject) => {
     req.session!.destroy(err => {
-      resolve(err ? false: true)
+      resolve(err ? false : true)
     })
   })
 }
 
-export async function routeChangePassword(data: any, req: Request, res: Response): Promise<boolean> {
+export async function routeChangePassword(data: any, req: Request, res: Response) {
   let sessionData: SessionData = req.session as any
-  let row = await getContributorById(sessionData.contributorId)
+  let row = await getContributorById(sessionData.contributorId as string)
 
   if (row && await compare(data.currentPassword, row.password)) {
-    updateContributorPassword(row.id, data.newPassword)
-    return true
+    await updateContributorPassword(row.id, data.newPassword)
+    return {
+      done: true
+    }
   }
 
-  return false
+  return {
+    done: false
+  }
 }
 
 async function getContributorByLogin(login: string) {
@@ -73,7 +77,7 @@ async function getContributorByLogin(login: string) {
   if (rs.length === 1) {
     return {
       id: rs[0]["contributor_id"].toString(),
-      password: rs[0]["password"]
+      password: rs[0]["password"].toString()
     }
   }
 
