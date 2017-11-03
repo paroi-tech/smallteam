@@ -4,7 +4,7 @@ import { Request, Response, Router } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
-import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
+import { routeConnect, routeCurrentSession, routeDisconnect, routeChangePassword } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { dbConf } from "./utils/dbUtils"
@@ -37,7 +37,7 @@ export function startWebServer() {
   declareRoute(router, "/api/session/connect", routeConnect, true)
   declareRoute(router, "/api/session/current", routeCurrentSession, true)
   declareRoute(router, "/api/session/disconnect", routeDisconnect)
-  // declareRoute(router, "/api/session/save-password", routeConnect, true)
+  declareRoute(router, "/api/session/change-password", routeChangePassword)
 
   declareRoute(router, "/api/query", routeFetch)
   declareRoute(router, "/api/exec", routeExec)

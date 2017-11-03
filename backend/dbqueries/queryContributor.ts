@@ -8,7 +8,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 
-const saltRounds = 10
+export const bcryptSaltRounds = 10
 
 export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
@@ -77,7 +77,7 @@ export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
 // --
 
 export async function createContributor(context: BackendContext, newFrag: ContributorCreateFragment) {
-  let passwordHash = await hash("init", saltRounds)
+  let passwordHash = await hash("init", bcryptSaltRounds)
   let sql = buildInsert()
     .insertInto("contributor")
     .values(toSqlValues(newFrag, contributorMeta.create))

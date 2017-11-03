@@ -18,7 +18,7 @@ export default class SessionMenu {
   private addItemsToMenu() {
     this.menu.addItem({
       id: "editProfile",
-      label: "Edit my profile"
+      label: "My profile"
     })
     this.menu.addItem({
       id: "disconnect",
