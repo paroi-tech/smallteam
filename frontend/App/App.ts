@@ -89,6 +89,8 @@ export default class App {
         if (result.done) {
           await this.navigate("") // This prevents the router to show current page next login.
           document.location.reload(false)
+        } else {
+          alert("Unable to end session. Please try again.")
         }
       }
     } catch (err) {

@@ -1,11 +1,13 @@
+import { Request, Response } from "express"
 import { hash, compare } from "bcrypt"
 import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
 
-export async function routeConnect(data: any, sessionData: SessionData): Promise<any> {
+export async function routeConnect(data: any, req: Request, res: Response): Promise<any> {
   let row = await getContributorByLogin(data.login)
+  let sessionData: SessionData = req.session as any
 
   if (row && await compare(data.password, row.password)) {
     sessionData.contributorId = row.id.toString()
@@ -20,11 +22,11 @@ export async function routeConnect(data: any, sessionData: SessionData): Promise
   }
 }
 
-export async function routeCurrentSession(data: any, sessionData?: SessionData): Promise<any> {
-  if (sessionData && sessionData.contributorId && await getContributorById(sessionData.contributorId)) {
+export async function routeCurrentSession(data: any, req: Request, res: Response): Promise<any> {
+  if (req.session && req.session.contributorId && await getContributorById(req.session.contributorId)) {
     return {
       done: true,
-      contributorId: sessionData.contributorId
+      contributorId: req.session.contributorId
     }
   }
 
@@ -33,21 +35,28 @@ export async function routeCurrentSession(data: any, sessionData?: SessionData):
   }
 }
 
-export async function routeDisconnect(data: any, sessionData: SessionData): Promise<any> {
-  // FIXME: Is this the only thing to do?
-  sessionData.contributorId = ""
+export async function routeDisconnect(data: any, req: Request, res: Response): Promise<any> {
+  let b = await destroySession(req)
 
   return {
-    done: true
+    done: b
   }
 }
 
-export async function routeChangePassword(data: any, sessionData: SessionData): Promise<boolean> {
+function destroySession(req: Request): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    req.session!.destroy(err => {
+      resolve(err ? false: true)
+    })
+  })
+}
+
+export async function routeChangePassword(data: any, req: Request, res: Response): Promise<boolean> {
+  let sessionData: SessionData = req.session as any
   let row = await getContributorById(sessionData.contributorId)
 
   if (row && await compare(data.currentPassword, row.password)) {
     updateContributorPassword(row.id, data.newPassword)
-
     return true
   }
 
@@ -75,7 +84,7 @@ async function getContributorById(id: string) {
   let sql = buildSelect()
     .select("contributor_id, password")
     .from("contributor")
-    .where("id", "=", id)
+    .where("contributor_id", "=", id)
   let rs = await cn.all(sql.toSql())
 
   if (rs.length === 1) {

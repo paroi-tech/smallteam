@@ -34,10 +34,10 @@ export function startWebServer() {
 
   let router = Router()
 
-  declareRoute(router, "/api/session/connect", routeConnect, true)
-  declareRoute(router, "/api/session/current", routeCurrentSession, true)
-  declareRoute(router, "/api/session/disconnect", routeDisconnect)
-  declareRoute(router, "/api/session/change-password", routeChangePassword)
+  declareSessionRoute(router, "/api/session/connect", routeConnect, true)
+  declareSessionRoute(router, "/api/session/current", routeCurrentSession, true)
+  declareSessionRoute(router, "/api/session/disconnect", routeDisconnect)
+  declareSessionRoute(router, "/api/session/change-password", routeChangePassword)
 
   declareRoute(router, "/api/query", routeFetch)
   declareRoute(router, "/api/exec", routeExec)
@@ -60,6 +60,7 @@ function wait(delayMs: number): Promise<void> {
 }
 
 type RouteCb = (data, sessionData?: SessionData) => Promise<any>
+type SessionRouteCb = (data, req: Request, res: Response) => Promise<any>
 
 function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = false) {
   router.post(route, function (req, res) {
@@ -73,6 +74,7 @@ function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = fal
 
     let sessionData: SessionData = req.session as any
     var body = ""
+
     req.on("data", function (data) {
       body += data
     })
@@ -90,6 +92,41 @@ async function processRoute(req: Request, res: Response, body: string, cb: Route
     }
     await wait(500) // TODO: Remove this line before to release!
     let resData = await cb(reqData, sessionData)
+    writeServerResponse(res, 200, resData)
+  } catch (err) {
+    writeServerResponseError(res, err)
+  }
+}
+
+function declareSessionRoute(router: Router, route: string, cb: SessionRouteCb, isPublic = false) {
+  router.post(route, function (req, res) {
+    if (!isPublic && (!req.session || !req.session.contributorId)) {
+      console.log("404>>", req.session)
+      write404(res)
+      return
+    }
+
+    var body = ""
+
+    req.on("data", function (data) {
+      body += data
+    })
+    req.on("end", () => processSessionRoute(req, res, body, cb))
+  })
+}
+
+async function processSessionRoute(req: Request, res: Response, body: string, cb: SessionRouteCb) {
+  let reqData: any
+
+  try {
+    try {
+      reqData = JSON.parse(body)
+    } catch (err) {
+      throw new Error(`Invalid JSON request: ${body}`)
+    }
+
+    await wait(500) // TODO: Remove this line before to release!
+    let resData = await cb(reqData, req, res)
     writeServerResponse(res, 200, resData)
   } catch (err) {
     writeServerResponseError(res, err)

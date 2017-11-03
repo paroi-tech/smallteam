@@ -3,6 +3,7 @@ import { render } from "monkberry"
 import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
+import config from "../../../../isomorphic/config"
 
 const template = require("./PasswordForm.monk")
 
@@ -68,12 +69,34 @@ export default class PasswordForm {
     await this.doPasswordUpdate(this.passwordEl.value, this.newPasswordEl.value)
   }
 
-  private async doPasswordUpdate(password: string, newPassword: string) {
-    // TODO: Implement this method.
+  private async doPasswordUpdate(currentPassword: string, newPassword: string) {
     this.submitSpinnerEl.style.display = "inline"
-    setTimeout(function() {
-      this.submitSpinnerEl.style.display = "none"
-    }, 1000);
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/session/change-password`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          currentPassword,
+          newPassword
+        })
+      })
+
+      if (!response.ok) {
+        this.log.warn("Unable to get a response from server while trying to change password.")
+        alert("Unable to change password. Server not responding.")
+      }
+      else {
+        let result = await response.json()
+        alert(result.done ? "Password successfully updated." : "Sorry. Password was not changed.")
+      }
+    } catch (err) {
+      this.log.error("Error while updating password.", err)
+    }
+    this.submitSpinnerEl.style.display = "none"
   }
 
   private onCancel() {
