@@ -1,11 +1,12 @@
 import { PublicDash, Dash } from "bkb"
 import { render } from "monkberry"
 import directives from "monkberry-directives"
-import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
-import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
-import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect";
-import StepBox from "../../steps/StepBox/StepBox";
+import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import StepBox from "../../steps/StepBox/StepBox"
 
 const template = require("./ProjectForm.monk")
 
@@ -21,7 +22,9 @@ export default class ProjectForm implements Workspace {
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
+
   private stepMultiSelect: CheckboxMultiSelect<StepModel>
+  private menu: DropdownMenu
 
   private state = {
     name: "",
@@ -43,11 +46,27 @@ export default class ProjectForm implements Workspace {
    */
   private generateCode = true
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: Dash<App>, private reusable = false) {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
-    this.listenToForm()
+    this.menu = this.createDropdownMenu()
     this.stepMultiSelect = this.createStepMultiSelect()
+    this.listenToForm()
+  }
+
+  private createDropdownMenu() {
+    let menu = this.dash.create(DropdownMenu)
+
+    menu.addItem({
+      id: "clear",
+      label: "Create another project"
+    })
+    this.dash.listenTo(menu, "select").onEvent(ev => {
+      this.setProject(undefined)
+      this.nameEl.focus()
+    })
+
+    return menu
   }
 
   private createStepMultiSelect() {
@@ -56,7 +75,7 @@ export default class ProjectForm implements Workspace {
       "Steps",
       (dash: Dash, step: StepModel) => dash.create(StepBox, step)
     )
-    // this.stepSelector.hide()
+
     this.el.appendChild(multiSelect.el)
     this.dash.listenTo<UpdateModelEvent>(this.model, "changeStep").onData(data => {
       multiSelect.setAllItems(this.model.global.steps)
@@ -65,6 +84,7 @@ export default class ProjectForm implements Workspace {
       multiSelect.setAllItems(this.model.global.steps)
     })
     multiSelect.setAllItems(this.model.global.steps)
+
     return multiSelect
   }
 
@@ -73,6 +93,7 @@ export default class ProjectForm implements Workspace {
    */
   private createHtmlElements() {
     this.view = render(template, document.createElement("div"), { directives })
+
     let el = this.view.nodes[0] as HTMLDivElement
 
     this.codeEl = el.querySelector(".js-code") as HTMLInputElement
@@ -98,18 +119,23 @@ export default class ProjectForm implements Workspace {
 
   private async onSubmit() {
     this.submitSpinnerEl.style.display = "inline"
+
     let code = this.codeEl.value.trim()
     let name = this.nameEl.value.trim()
     let description = this.descriptionEl.value.trim()
+
     if (code.length < 4 && name.length === 0) {
       this.submitSpinnerEl.style.display = "none"
       return
     }
+
     let stepIds = this.stepMultiSelect.getSelected().map(step => step.id)
+
     if (!this.project)
       await this.createProject(code, name, description, stepIds)
     else
       await this.updateProject(name, description, stepIds)
+
     this.submitSpinnerEl.style.display = "none"
   }
 
@@ -200,12 +226,12 @@ export default class ProjectForm implements Workspace {
   }
 
   public activate(ctrl: ViewerController) {
+    if (this.reusable)
+      this.setProject(undefined)
     ctrl.setContentEl(this.el)
-    if (!this.hasProject()) {
-      ctrl.setTitle("Create new project")
-      this.nameEl.focus()
-    } else
-      ctrl.setTitle("Edit ptoject")
+    ctrl.setTitle(this.hasProject() ? "Edit ptoject" : "Create new project")
+    ctrl.setSidebarEl(this.menu.el)
+    this.nameEl.focus()
   }
 
   public deactivate() {
