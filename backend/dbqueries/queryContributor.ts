@@ -7,6 +7,7 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
+import { sendActivationMail } from "../mail"
 
 export const bcryptSaltRounds = 10
 
@@ -84,6 +85,8 @@ export async function createContributor(context: BackendContext, newFrag: Contri
     .values({ "password": passwordHash })
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
+
+  await sendActivationMail(contributorId.toString(), newFrag.email)
   context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),

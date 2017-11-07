@@ -99,6 +99,13 @@ create table comment (
     update_ts timestamp not null default current_timestamp
 );
 
+create table reset_token (
+    token_id integer not null primary key autoincrement,
+    contributor_id bigint not null references contributor(contributor_id),
+    token varchar(255) not null unique,
+    create_ts timestamp not null default current_timestamp,
+);
+
 insert into step (label) values ('On Hold');
 insert into step (label) values ('Archived');
 
