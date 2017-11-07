@@ -86,7 +86,24 @@ export async function createContributor(context: BackendContext, newFrag: Contri
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
 
-  await sendActivationMail(contributorId.toString(), newFrag.email)
+  sendActivationMail(newFrag.email).then(async result => {
+    if (!result.done)
+      return
+
+    let sql = buildInsert()
+      .insertInto("mail_challenge")
+      .values({
+        "contributor_id": contributorId,
+        "token": result.token!
+      })
+
+    try {
+      await cn.run(sql.toSql())
+    } catch (err) {
+      console.log("Unable to save email challenge in database", err)
+    }
+  })
+
   context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),
