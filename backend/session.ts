@@ -84,6 +84,20 @@ async function getContributorByLogin(login: string) {
   return undefined
 }
 
+export async function routeResetPassword(req: Request, res: Response) {
+  if (req.query.token) {
+    let token = req.query.token as string
+    let sql = buildSelect()
+      .select("*")
+      .from("mail_challenge")
+      .where("token", "=", token)
+    let rs = await cn.all(sql.toSql())
+
+    // Now, we check timestamp and we send page if the token is still valid.
+  }
+  res.end()
+}
+
 async function getContributorById(id: string) {
   let sql = buildSelect()
     .select("contributor_id, password")

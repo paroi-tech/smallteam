@@ -22,7 +22,7 @@ export async function sendActivationMail(email: string): Promise<{ done: boolean
       }
     })
 
-    let url = "http://localhost:3921" + config.urlPrefix + "/set-password?token=" + token
+    let url = "http://localhost:3921" + config.urlPrefix + "/reset-password?token=" + token
     let mailOptions = {
       from: "smallteambot@smallteam.com",
       to: email,

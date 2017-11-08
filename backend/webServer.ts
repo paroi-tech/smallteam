@@ -4,7 +4,7 @@ import { Request, Response, Router } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
-import { routeConnect, routeCurrentSession, routeDisconnect, routeChangePassword } from "./session"
+import { routeConnect, routeCurrentSession, routeDisconnect, routeChangePassword, routeResetPassword } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { dbConf } from "./utils/dbUtils"
@@ -47,6 +47,8 @@ export function startWebServer() {
   router.use(express.static(path.join(__dirname, "..", "www")))
 
   app.use(config.urlPrefix, router)
+
+  router.get("/reset-password", (req, res) => routeResetPassword(req, res))
 
   app.get("*", (req, res) => write404(res))
 
