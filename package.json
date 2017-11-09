@@ -8,6 +8,8 @@
     "sass:watch": "run-s sass _sass:watch",
     "webpack": "webpack --config frontend/webpack.config.js",
     "webpack:watch": "webpack --watch --config frontend/webpack.config.js",
+    "webpack-pwd": "webpack --config frontend-pwd/webpack.config.js",
+    "webpack-pwd:watch": "webpack --watch --config frontend-pwd/webpack.config.js",
     "backend-tsc": "tsc --project backend/",
     "backend-tsc:watch": "tsc --watch --project backend/",
     "server:run": "node www-server/backend/",
@@ -16,7 +18,7 @@
     "_server:wait": "just-wait -p \"www-server/backend/index.js\" -d 500",
     "_server:wait-then-watch": "run-s _server:wait server:watch",
     "_server:tsc-run": "run-s backend-tsc server:run",
-    "watch": "run-p sass:watch webpack:watch backend-tsc:watch _server:wait-then-watch",
+    "watch": "run-p sass:watch webpack:watch webpack-pwd:watch backend-tsc:watch _server:wait-then-watch",
     "watch:light": "run-p sass:watch webpack:watch _server:tsc-run"
   },
   "repository": {

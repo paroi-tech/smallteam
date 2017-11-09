@@ -8,9 +8,11 @@ const account = {
   password: "xNGuRQs1yNmXK4vPJM"
 }
 
-export async function sendActivationMail(email: string): Promise<{ done: boolean, token?: string }> {
+export async function sendActivationMail(contributorId: string, email: string): Promise<{ done: boolean, token?: string }> {
+  let host = "http://localhost:3921"
+
   try {
-    let token = randomBytes(64).toString("hex")
+    let token = randomBytes(16).toString("hex")
 
     let transporter = await createTransport({
       host: "smtp.ethereal.email",
@@ -22,7 +24,7 @@ export async function sendActivationMail(email: string): Promise<{ done: boolean
       }
     })
 
-    let url = "http://localhost:3921" + config.urlPrefix + "/reset-password?token=" + token
+    let url = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
     let mailOptions = {
       from: "smallteambot@smallteam.com",
       to: email,

@@ -34,7 +34,8 @@ the time, so I can't use JIRA.
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Not urgent
-
+- Add a background task that removesexpired tokens from mail_challenge table
+- Remove used password reset token from database
 - Add roles for users
 - Replace `alert` & `confirm` with a component `ShortDialog`
 - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary

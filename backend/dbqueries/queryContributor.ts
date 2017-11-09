@@ -86,7 +86,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
   let ps = await cn.run(sql.toSql())
   let contributorId = ps.lastID
 
-  sendActivationMail(newFrag.email).then(async result => {
+  sendActivationMail(contributorId.toString(), newFrag.email).then(async result => {
     if (!result.done)
       return
 

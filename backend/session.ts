@@ -1,9 +1,17 @@
 import { Request, Response } from "express"
 import { hash, compare } from "bcrypt"
 import { cn } from "./utils/dbUtils"
-import { buildSelect, buildUpdate } from "./utils/sql92builder/Sql92Builder"
+import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
+
+const tokenMaxValidity = 7 * 24 * 3600 // 7 days
+
+declare type PasswordUpdateInfo = {
+  contributorId: string
+  createTs: number
+  token: string
+}
 
 export async function routeConnect(data: any, req: Request, res: Response): Promise<any> {
   let row = await getContributorByLogin(data.login)
@@ -84,18 +92,55 @@ async function getContributorByLogin(login: string) {
   return undefined
 }
 
-export async function routeResetPassword(req: Request, res: Response) {
-  if (req.query.token) {
-    let token = req.query.token as string
-    let sql = buildSelect()
-      .select("*")
-      .from("mail_challenge")
-      .where("token", "=", token)
-    let rs = await cn.all(sql.toSql())
+export async function routeResetPassword(data: any, req: Request, res: Response) {
+  let token = data.token as string
+  let contributorId = data.contributorId as string
+  let select = buildSelect()
+    .select("*")
+    .from("mail_challenge")
+    .where("token", "=", token)
+    .andHaving("contributor_id", "=", contributorId)
+  let rs = await cn.all(select.toSql())
 
-    // Now, we check timestamp and we send page if the token is still valid.
+  if (rs.length === 0) {
+    return {
+      done: false,
+      reason: "Token not found!"
+    }
   }
-  res.end()
+
+  let info = toPasswordUpdateInfo(rs[0])
+  let currentTs = Date.now() / 1000
+  if (currentTs - info.createTs > tokenMaxValidity) {
+    removeMailChallenge(token).catch(err => console.log(`Cannot remove expired mail token ${token}`, err))
+    return {
+      done: false,
+      reason: "Token expired!"
+    }
+  }
+
+  await updateContributorPassword(data.contributorId, data.password)
+  removeMailChallenge(token).catch(err => console.log(`Cannot remove used mail token ${token}`, err))
+
+  return {
+    done: true
+  }
+}
+
+function toPasswordUpdateInfo(row): PasswordUpdateInfo {
+  return {
+    contributorId: row["contributor_id"].toString(),
+    createTs: row["create_ts"],
+    token: row["token"]
+  }
+}
+
+function removeMailChallenge(token: string) {
+  let sql = buildDelete()
+    .deleteFrom("mail_challenge")
+    .where("token", "=", token)
+
+  return cn.run(sql.toSql())
 }
 
 async function getContributorById(id: string) {

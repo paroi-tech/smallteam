@@ -38,6 +38,7 @@ export function startWebServer() {
   declareSessionRoute(router, "/api/session/current", routeCurrentSession, true)
   declareSessionRoute(router, "/api/session/disconnect", routeDisconnect)
   declareSessionRoute(router, "/api/session/change-password", routeChangePassword)
+  declareSessionRoute(router, "/reset-passwd", routeResetPassword, true)
 
   declareRoute(router, "/api/query", routeFetch)
   declareRoute(router, "/api/exec", routeExec)
@@ -47,8 +48,6 @@ export function startWebServer() {
   router.use(express.static(path.join(__dirname, "..", "www")))
 
   app.use(config.urlPrefix, router)
-
-  router.get("/reset-password", (req, res) => routeResetPassword(req, res))
 
   app.get("*", (req, res) => write404(res))
 
