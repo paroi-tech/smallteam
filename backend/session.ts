@@ -99,7 +99,7 @@ export async function routeResetPassword(data: any, req: Request, res: Response)
     .select("*")
     .from("mail_challenge")
     .where("token", "=", token)
-    .andHaving("contributor_id", "=", contributorId)
+    .andWhere("contributor_id", "=", contributorId)
   let rs = await cn.all(select.toSql())
 
   if (rs.length === 0) {

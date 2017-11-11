@@ -45,7 +45,6 @@ export default class LoginDialog {
 
   private async onSubmit() {
     let password = this.passwordEl.value
-    let start = false
 
     if (password.length < 8 || password.length > 32) {
       alert("Password should have at least 8 characters and at most 32 characters.")
@@ -59,13 +58,45 @@ export default class LoginDialog {
       return
     }
 
-    // TODO: Request actions on server here...
-
     this.spinnerEl.style.display = "inline"
+    await this.doPasswordChange(password)
+    this.spinnerEl.style.display = "none"
   }
 
-  private async doPasswordChange() {
+  private async doPasswordChange(password: string) {
+    try {
+      let response = await fetch(`${config.urlPrefix}/reset-passwd`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contributorId: this.contributorId,
+          token: this.token,
+          password
+        })
+      })
 
+      if (!response.ok) {
+        alert("Error. Unable to get a response from server.")
+        return
+      }
+
+      let result = await response.json()
+
+      if (result.done) {
+        setTimeout(() => {
+          window.location.href = `${config.urlPrefix}/index.html`
+        }, 4000)
+        alert("Password changed. You will be redirected to the login page.")
+      } else
+        alert(`Sorry. Impossible to change your password. ${result.reason}`)
+    } catch (err) {
+      alert("Impossible to change the password. Error on server.")
+      this.dash.app.log.warn(err)
+    }
   }
 
 }

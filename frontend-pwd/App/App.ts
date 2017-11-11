@@ -10,7 +10,7 @@ export default class App {
   }
 
   public start() {
-    let dialog = this.dash.create(PasswordResetDialog, this.token, this.uid)
+    let dialog = this.dash.create(PasswordResetDialog, this.uid, this.token)
     dialog.open()
   }
 }
