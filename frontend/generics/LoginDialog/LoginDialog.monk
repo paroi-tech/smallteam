@@ -1,20 +1,14 @@
 <dialog class="js-form LoginDialog">
-  <h1 class="LoginDialog-h1">Log in</h1>
+  <header class="LoginDialog-header"></header>
 
-  <label class="FormField">
-    <span class="FormField-span">Username</span>
-    <input type="text" class="LoginDialog-input js-username">
-  </label>
-
-  <label class="FormField">
-    <span class="FormField-span">Password</span>
-    <input type="password" class="LoginDialog-input js-password">
-  </label>
-
-  <div class="LoginDialog-div">
-    <button type="button" class="js-submit-btn">
+  <main class="LoginDialog-main">
+    <h1 class="LoginDialog-h1">Login to your account</h1>
+    <input type="text" class="LoginDialog-input js-username" placeholder="Username">
+    <input type="password" class="LoginDialog-input js-password" placeholder="Password">
+    <button type="button" class="LoginDialog-button js-submit-btn">
       Submit
       <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
     </button>
-  </div>
+    <p class="LoginDialog-p">Forgot your password? <a class="LoginDialog-a" href="#">Click here</a></p>
+  </main>
 </dialog>
