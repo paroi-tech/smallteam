@@ -14,11 +14,12 @@
     background-color: royalblue;
     display: block;
     color: white;
-    padding: 10px 15px;
+    padding: 8px 15px;
+    margin-top: 75px;
   }
 
   &-h1 {
-    font-size: $f28;
+    font-size: $f24;
     font-weight: bold;
     text-align: left;
   }
@@ -31,11 +32,9 @@
   }
 
   &-input {
-    border: 1px solid gray;
-    border-left: 3px solid royalblue;
+    border: 0px;
     display: block;
     outline: none;
-    padding: 5px;
     width: 100%;
   }
 
@@ -45,11 +44,37 @@
     padding: 30px 30px 70px;
   }
 
-  &-main * {
+  &-main > * {
     margin-bottom: 15px;
   }
 
   &-p {
     margin-top: 40px;
+  }
+
+  &-spanLogin, &-spanPassword {
+    border: 1px solid gray;
+    border-left: 3px solid royalblue;
+    display: block;
+    padding: 5px 5px 5px 20px;
+    position: relative;
+    width: 100%;
+  }
+
+  &-spanLogin::before, &-spanPassword::before {
+    content: "";
+    height: 15px;
+    left: 2px;
+    position: absolute;
+    top: 4px;
+    width: 15px;
+  }
+
+  &-spanLogin::before {
+    background: url("sprite-login.png") no-repeat -7px -117px;
+  }
+
+  &-spanPassword::before {
+    background: url("sprite-login.png") no-repeat -7px -136px;
   }
 }

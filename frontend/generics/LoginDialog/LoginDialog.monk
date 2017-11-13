@@ -3,12 +3,20 @@
 
   <main class="LoginDialog-main">
     <h1 class="LoginDialog-h1">Login to your account</h1>
-    <input type="text" class="LoginDialog-input js-username" placeholder="Username">
-    <input type="password" class="LoginDialog-input js-password" placeholder="Password">
+
+    <span class="LoginDialog-spanLogin">
+      <input type="text" class="LoginDialog-input js-username" placeholder="Username">
+    </span>
+
+    <span class="LoginDialog-spanPassword">
+      <input type="password" class="LoginDialog-input js-password" placeholder="Password">
+    </span>
+
     <button type="button" class="LoginDialog-button js-submit-btn">
       Submit
-      <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
+      <span class="fa fa-spinner fa-spin fa-1x fa-fw js-spinner" style="display: none"></span>
     </button>
+
     <p class="LoginDialog-p">Forgot your password? <a class="LoginDialog-a" href="#">Click here</a></p>
   </main>
 </dialog>
