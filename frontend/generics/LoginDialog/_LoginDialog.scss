@@ -2,6 +2,15 @@
   background-color: transparent;
   margin: 0px auto;
 
+  &::backdrop {
+    background-color: transparent;
+    bottom: 0;
+    left: 0;
+    position: fixed;
+    right: 0;
+    top: 0;
+  }
+
   &-a {
     color: royalblue;
     text-decoration: none;
@@ -15,7 +24,6 @@
     display: block;
     color: white;
     padding: 8px 15px;
-    margin-top: 75px;
   }
 
   &-h1 {
