@@ -1,8 +1,8 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
-import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
 
 const template = require("./StepForm.monk")
 
@@ -110,19 +110,20 @@ export default class StepForm {
   private async updateStep(newName: string) {
     if (!this.step)
       return
+
     this.submitButtonSpinnerEl.style.display = "inline"
-    let fragUpd = {
-      id: this.step.id,
-      name: newName
-    }
-    try {
-      let step = await this.model.exec("update", "Step", fragUpd)
-      this.setStep(step)
-      this.submitButtonEl.setAttribute("disabled", "true")
-    } catch (err) {
-      this.clear()
-      if (this.step)
-        this.setStep(this.step)
+    let id = this.step.id
+    let frag = this.step.updateTools.getDiffToUpdate({ id, label: newName })
+    if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object)) {
+      try {
+        let step = await this.model.exec("update", "Step", { id, ...frag })
+        this.setStep(step)
+        this.submitButtonEl.setAttribute("disabled", "true")
+      } catch (err) {
+        this.clear()
+        if (this.step)
+          this.setStep(this.step)
+      }
     }
     this.submitButtonSpinnerEl.style.display = "none"
   }

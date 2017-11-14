@@ -105,11 +105,11 @@ export default class FlagForm {
     if (!this.flag)
       await this.createFlag({ label, color })
     else {
-      await this.updateFlag({
-        id: this.flag!.id,
-        label,
-        color
-      })
+      let id = this.flag.id
+      let frag = this.flag.updateTools.getDiffToUpdate({ id, label, color })
+
+      if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
+        await this.updateFlag({ id, ...frag })
     }
     this.submitSpinnerEl.style.display = "none"
   }

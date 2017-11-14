@@ -7,6 +7,7 @@ import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/W
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepBox from "../../steps/StepBox/StepBox"
+import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 
 const template = require("./ProjectForm.monk")
 
@@ -52,6 +53,19 @@ export default class ProjectForm implements Workspace {
     this.menu = this.createDropdownMenu()
     this.stepMultiSelect = this.createStepMultiSelect()
     this.listenToForm()
+
+    let events = ["createStep", "updateStep", "deleteStep"]
+    this.dash.listenTo<UpdateModelEvent>(this.model, events).onEvent(ev => {
+      this.stepMultiSelect.setAllItems(this.model.global.steps)
+      if (this.project)
+        this.stepMultiSelect.selectItems(this.project.steps)
+    })
+
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep").onData(data => {
+      this.stepMultiSelect.setAllItems(this.model.global.steps)
+      if (this.project)
+        this.stepMultiSelect.selectItems(this.project.steps)
+    })
   }
 
   private createDropdownMenu() {
@@ -99,7 +113,7 @@ export default class ProjectForm implements Workspace {
     this.codeEl = el.querySelector(".js-code") as HTMLInputElement
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.descriptionEl = el.querySelector(".js-description") as HTMLTextAreaElement
-    this.submitSpinnerEl = el.querySelector(".js-submitSpinner") as HTMLElement
+    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
 
     this.view.update(this.state)
 

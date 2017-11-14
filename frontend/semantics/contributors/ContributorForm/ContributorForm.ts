@@ -101,15 +101,12 @@ export default class ContributorForm {
       await this.createContributor({ name, login, email })
       this.nameEl.focus()
     } else {
-      let frag = this.contributor.updateTools.getDiffToUpdate({
-        id: this.contributor.id,
-        name,
-        login,
-        email
-      })
+      let id = this.contributor.id
+      let frag = this.contributor.updateTools.getDiffToUpdate({ id, name, login, email })
 
-      if (frag)
-        this.updateContributor(frag)
+      // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+      if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
+        this.updateContributor({ id, ...frag })
     }
 
     this.submitSpinnerEl.style.display = "none"

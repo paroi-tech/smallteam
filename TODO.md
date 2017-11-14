@@ -20,6 +20,9 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Listen to events (create, update, delete) in CheckboxMultiSelect in order to reorder and update items
+  - Create a listener object and pass it as optional parameter to CheckboxMultiSelect.
+  - Thd listener will listen to update events from model and update the CheckboxMultiSelect
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):

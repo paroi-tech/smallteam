@@ -19,7 +19,7 @@
     <div>
       <button type="button" :onclick={{ ctrl.submit }}>
         Submit
-        <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submitSpinner" style="display: none"></span>
+        <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submit-spinner" style="display: none"></span>
       </button>
     </div>
   </div>

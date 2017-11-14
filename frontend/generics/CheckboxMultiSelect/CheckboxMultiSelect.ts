@@ -58,7 +58,6 @@ export default class CheckboxMultiSelect<M> {
   }
 
   public setEnabled(enabled: boolean) {
-    // this.el.style.pointerEvents = enabled ? "auto" : "none"
     this.fieldsetEl.disabled = !enabled
   }
 
