@@ -1,9 +1,9 @@
 import { Dash } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import { render } from "monkberry"
-import BoxList from "../../../generics/BoxList/BoxList";
-import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
+import BoxList from "../../../generics/BoxList/BoxList"
+import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")

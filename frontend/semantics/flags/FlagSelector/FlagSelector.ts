@@ -50,11 +50,13 @@ export default class FlagSelector {
   get selectedFlagIds(): string[] {
     if (!this.task)
       return []
+
     let arr: string[] = []
     for (let entry of this.checkBoxes.entries()) {
       if (entry[1].checked)
         arr.push(entry[0] as string)
     }
+
     return arr
   }
 
@@ -91,11 +93,6 @@ export default class FlagSelector {
     let li = view.nodes[0] as HTMLLIElement
     let checkBox = li.querySelector("input") as HTMLInputElement
 
-    // TODO: Remove this block: dead code.
-    // checkBox.onclick = async ev => {
-    //   if (! await this.toggleFlag(flag))
-    //     checkBox.checked = !checkBox.checked
-    // }
     this.items.set(flag.id, li)
     this.checkBoxes.set(flag.id, checkBox)
     li.appendChild(box.el)
@@ -123,12 +120,13 @@ export default class FlagSelector {
       if (data.type !== "Flag")
         return
       let flagIds = data.orderedIds as string[]
-      flagIds.forEach(flagId => {
+      for (let flagId of flagIds) {
         let el = this.items.get(flagId)
         if (el)
           this.listEl.appendChild(el)
-      })
+      }
     })
   }
+
 }
 

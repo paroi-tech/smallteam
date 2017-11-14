@@ -8,7 +8,6 @@ const template = require("./FlagBox.monk")
 
 export default class FlagBox implements Box {
   readonly el: HTMLElement
-  readonly id: string
 
   private colorEl: HTMLElement
 
@@ -17,7 +16,6 @@ export default class FlagBox implements Box {
 
   constructor(private dash: Dash<App>, readonly flag: FlagModel) {
     this.model = this.dash.app.model
-    this.id = this.flag.id
 
     this.view = render(template, document.createElement("div"))
     this.el = this.view.nodes[0] as HTMLElement
@@ -44,5 +42,9 @@ export default class FlagBox implements Box {
       this.el.classList.add("focus")
     else
       this.el.classList.remove("focus")
+  }
+
+  get id(): string {
+    return this.flag.id
   }
 }

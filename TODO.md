@@ -6,11 +6,6 @@ the time, so I can't use JIRA.
 - In the Model:
   - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
-- Sessions in the backend
-  - Implement `session/current` Auto-login when a session is already opened
-  - Implement `session/recover` the password recovery
-  - Implement `session/save-password`
-  - Implement `session/disconnect`
 - Keep HKMap? (Identifier can be `string | number | string[]` ??)
 - Refactoring in the backend, one code for all the reordering
 - Rewrite EasyRouter
@@ -24,6 +19,7 @@ the time, so I can't use JIRA.
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 
 # Lionel
+
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
@@ -34,8 +30,8 @@ the time, so I can't use JIRA.
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Not urgent
-- Add a background task that removesexpired tokens from mail_challenge table
-- Remove used password reset token from database
+
+- Add a background task that removes expired tokens from mail_challenge table
 - Add roles for users
 - Replace `alert` & `confirm` with a component `ShortDialog`
 - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
@@ -47,6 +43,7 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+
 - Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - In `TaskForm`:
   - Show, Add, remove, reorder the contributors affected to the task
@@ -106,6 +103,11 @@ the time, so I can't use JIRA.
 
 # Thomas - DONE
 
+- Sessions in the backend
+  - Implement `session/current` Auto-login when a session is already opened
+  - Implement `session/recover` the password recovery
+  - Implement `session/save-password`
+  - Implement `session/disconnect`
 - In the Model:
   - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
   - Load data on init: `stepTypes`, `flags`, `contributors`

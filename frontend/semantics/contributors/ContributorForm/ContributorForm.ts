@@ -96,17 +96,22 @@ export default class ContributorForm {
     }
 
     this.submitSpinnerEl.style.display = "inline"
+
     if (!this.contributor) {
       await this.createContributor({ name, login, email })
       this.nameEl.focus()
     } else {
-      await this.updateContributor({
-        id: this.contributor ? this.contributor.id : "",
+      let frag = this.contributor.updateTools.getDiffToUpdate({
+        id: this.contributor.id,
         name,
         login,
         email
       })
+
+      if (frag)
+        this.updateContributor(frag)
     }
+
     this.submitSpinnerEl.style.display = "none"
   }
 

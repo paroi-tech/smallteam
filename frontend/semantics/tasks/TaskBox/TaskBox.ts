@@ -1,11 +1,11 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
 import TaskFlag from "../TaskFlag/TaskFlag"
-import { Model, TaskModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel";
-import { Box } from "../../../generics/BoxList/BoxList";
-import App from "../../../App/App";
-import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag";
-import { removeAllChildren } from "../../../libraries/utils";
+import { Model, TaskModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
+import { Box } from "../../../generics/BoxList/BoxList"
+import App from "../../../App/App"
+import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag"
+import { removeAllChildren } from "../../../libraries/utils"
 
 const template = require("./TaskBox.monk")
 
@@ -17,7 +17,6 @@ const template = require("./TaskBox.monk")
  */
 export default class TaskBox implements Box {
   readonly el: HTMLElement
-  readonly id: string
 
   private spanEl: HTMLElement
   private flagContainerEl: HTMLElement
@@ -35,7 +34,6 @@ export default class TaskBox implements Box {
    * @param task - the task for which the box is created for
    */
   constructor(private dash: Dash<App>, readonly task: TaskModel) {
-    this.id = this.task.id
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -99,12 +97,13 @@ export default class TaskBox implements Box {
     this.dash.listenTo<ReorderModelEvent>(this.model, "reorder").onData(data => {
       if (data.type !== "Flag")
         return
-      console.log("taskbox got reorder event")
-      console.log("number of flags:", this.flagContainerEl.childNodes.length)
       removeAllChildren(this.flagContainerEl)
-      console.log("number of flags:", this.flagContainerEl.childNodes.length)
       this.addTaskFlags()
     })
+  }
+
+  get id() {
+    return this.task.id
   }
 
   public setWithFocus(focus: boolean) {

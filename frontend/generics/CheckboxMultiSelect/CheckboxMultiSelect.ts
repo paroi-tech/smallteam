@@ -30,10 +30,12 @@ export default class CheckboxMultiSelect<M> {
 
   public setAllItems(dataList: M[]) {
     let dataSet = new Set(dataList)
+
     Array.from(this.items.values())
       .filter(item => !dataSet.has(item.data))
       .forEach(item => this.removeItem(item))
     removeAllChildren(this.olEl)
+
     for (let data of dataList) {
       let item = this.items.get(data)
       if (!item)
