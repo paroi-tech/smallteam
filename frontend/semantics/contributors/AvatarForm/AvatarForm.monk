@@ -1,0 +1,5 @@
+<div class="AvatarForm">
+  <header class="AvatarForm-header">Change your profile picture (PNG, JPEG or GIF)</header>
+  <input type="file" class="AvatarForm-input js-input" accept="image/png, image/jpeg, image/gif">
+  <button type="button" class="AvatarForm-button">Submit</button>
+</div>
