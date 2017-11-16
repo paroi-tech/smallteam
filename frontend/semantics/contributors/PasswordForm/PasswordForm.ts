@@ -86,8 +86,8 @@ export default class PasswordForm {
       })
 
       if (!response.ok) {
-        this.log.warn("Unable to get a response from server while trying to change password.")
-        alert("Unable to change password. Server not responding.")
+        this.log.warn("Password change request was not processed by server.")
+        alert("Error. Request was not processed by server.")
       }
       else {
         let result = await response.json()
