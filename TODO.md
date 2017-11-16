@@ -4,19 +4,33 @@ the time, so I can't use JIRA.
 # Thomas
 
 - In the Model:
+  - Keep `global` lists up-to-date
   - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Keep HKMap? (Identifier can be `string | number | string[]` ??)
 - Refactoring in the backend, one code for all the reordering
 - Rewrite EasyRouter
   - rmChild (call from WorkspaceViewer.removeWorkspace)
-- Refactoring: rename `step` to `project_step` (remove the PK), and `step_type` to `step`
-  - Remove the fragment of `project_step`, load the steps as an array of identifiers in `ProjectFragment`
 - isModified, getDiffToUpdate: should work with field type `string[]`
 - Model:
-  - `this.project.steps` etc. => store the array? or rename to `getSteps()`
+  - `this.project.steps` etc. => store the array? or rename to `getSteps()` or cache as `global`
 - Publish the package `sqlite-with-transactions` on GitHub and npm
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
+- In the ModelEngine, remove the `HKMap` for indexes => use `Map` with string keys. And use the following declarations:
+
+      {
+        type: "Task",
+        index: {
+          projectId: getFrag().id
+        }
+      }
+      {
+        type: "Step",
+        filteredIndex: {
+          entryKey: "orderNum<>null",
+          filter: step => step.orderNum !== null
+        }
+      }
 
 # Lionel
 
@@ -149,6 +163,8 @@ the time, so I can't use JIRA.
   - dash.listenAllParents()
   - getBkbOf => getPublicDashOf
 - Backend: make a database connection layer, with transactions
+- Refactoring: rename `step` to `project_step` (remove the PK), and `step_type` to `step`
+  - Remove the fragment of `project_step`, load the steps as an array of identifiers in `ProjectFragment`
 
 # Thomas or Lionel - DONE
 

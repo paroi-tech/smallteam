@@ -65,7 +65,7 @@ export interface CommandBatch extends ModelCommandMethods {
 
 export interface GlobalModels {
   readonly isReady: boolean
-  readonly load: Promise<void>
+  readonly loading: Promise<void>
   readonly steps: Collection<StepModel, string>
   readonly specialSteps: Collection<StepModel, string>
   readonly allSteps: Collection<StepModel, string>
