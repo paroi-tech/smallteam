@@ -127,12 +127,6 @@ export async function routeResetPassword(data: any, req: Request, res: Response)
   }
 }
 
-export async function routeChangeAvatar(data: any, req: Request, res: Response) {
-  return {
-    done: true
-  }
-}
-
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   return {
     contributorId: row["contributor_id"].toString(),
