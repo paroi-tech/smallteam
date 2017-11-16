@@ -181,6 +181,6 @@ export default class App {
       console.log(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
-    await this.model.global.load
+    await this.model.global.loading
   }
 }

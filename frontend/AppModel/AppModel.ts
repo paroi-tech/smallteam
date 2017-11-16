@@ -2,10 +2,10 @@ import { Type, Identifier } from "../../isomorphic/Cargo"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../isomorphic/meta/Contributor"
 import { registerContributor } from "./Models/ContributorModel"
 import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
-import { registerProject } from "./Models/ProjectModel"
+import { registerProject, ProjectModel } from "./Models/ProjectModel"
 import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../isomorphic/meta/Task"
 import { registerTask } from "./Models/TaskModel"
-import { StepCreateFragment, StepUpdateFragment } from "../../isomorphic/meta/Step"
+import { StepCreateFragment, StepUpdateFragment, StepFragment } from "../../isomorphic/meta/Step"
 import { registerStep, StepModel } from "./Models/StepModel"
 import { registerFlag } from "./Models/FlagModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
@@ -24,7 +24,7 @@ export { Model, CommandBatch } from "./modelDefinitions"
 export { CommentModel } from "./Models/CommentModel"
 export { ContributorModel } from "./Models/ContributorModel"
 export { FlagModel } from "./Models/FlagModel"
-export { ProjectModel } from "./Models/ProjectModel"
+export { ProjectModel }
 export { StepModel }
 export { TaskLogEntryModel } from "./Models/TaskLogEntryModel"
 export { TaskModel } from "./Models/TaskModel"
@@ -50,7 +50,7 @@ export default class ModelComp implements Model {
     registerProject(this.engine)
     registerTask(this.engine)
     registerStep(this.engine)
-    this.global = createGlobal(this)
+    this.global = createGlobal(this.dash, this.engine)
     this.session = createSession(this.global, sessionData.contributorId)
   }
 
@@ -79,72 +79,81 @@ export default class ModelComp implements Model {
   }
 }
 
-function createGlobal(model: ModelComp): GlobalModels {
-  let batch = model.createCommandBatch()
+function createGlobal(dash: Dash<App>, engine: ModelEngine): GlobalModels {
+  let batch = new GenericCommandBatch(engine)
   batch.fetch("Step")
   batch.fetch("Flag")
   batch.fetch("Contributor")
   batch.fetch("Project", { archived: false })
-
-  let collFactories = {
-    "steps": {
-      fetchIndex: 0,
-      factory: (list: StepModel[]) => toCollection(list.filter(step => step.orderNum !== null), "Step")
-    },
-    "specialSteps": {
-      fetchIndex: 0,
-      factory: (list: StepModel[]) => toCollection(list.filter(step => step.orderNum === null), "Step")
-    },
-    "allSteps": {
-      fetchIndex: 0,
-      factory: list => toCollection(list, "Step")
-    },
-    "flags": {
-      fetchIndex: 1,
-      factory: list => toCollection(list, "Flag")
-    },
-    "contributors": {
-      fetchIndex: 2,
-      factory: list => toCollection(list, "Contributor")
-    },
-    "projects": {
-      fetchIndex: 3,
-      factory: list => toCollection(list, "Project")
-    }
-  }
-  let isReady = false,
-    collections = {}
+  let isReady = false
   let batchPromise = batch.sendAll().then(results => {
-    for (let [propName, collFactory] of Object.entries(collFactories))
-      collections[propName] = collFactory.factory(results[collFactory.fetchIndex])
     isReady = true
   })
 
+  /*
+
+
+
+  */
+
+
+  const collFactories = {
+    "steps": {
+      type: "Step",
+      factory: () => engine.getAllModels<StepModel>("Step", ["orderNum", "asc"]).filter(step => step.orderNum !== null)
+    },
+    "specialSteps": {
+      type: "Step",
+      factory: () => engine.getAllModels<StepModel>("Step", ["orderNum", "asc"]).filter(step => step.orderNum === null)
+    },
+    "allSteps": {
+      type: "Step",
+      factory: () => engine.getAllModels<StepModel>("Step", ["orderNum", "asc"])
+    },
+    "flags": {
+      type: "Flag",
+      factory: () => engine.getAllModels("Flag", ["orderNum", "asc"])
+    },
+    "contributors": {
+      type: "Contributor",
+      factory: () => engine.getAllModels("Contributor", ["name", "asc"])
+    },
+    "projects": {
+      type: "Project",
+      factory: () => engine.getAllModels<ProjectModel>("Project", ["name", "asc"]).filter(project => !project.archived)
+    }
+  }
+
+  let cache = new Map(),
+    properties = {}
+  for (let [name, options] of Object.entries(collFactories)) {
+    properties[name] = {
+      configurable: false,
+      enumerable: true,
+      get: function () {
+        if (!isReady)
+          throw new Error(`Model "global" is not ready`)
+        let coll = cache.get(name)
+        if (!coll)
+          cache.set(name, coll = options.factory())
+        return coll
+      }
+    }
+    dash.listen(`change${options.type}`).onData(model => cache.delete(name))
+  }
+
   let obj = {
     isReady,
-    load: batchPromise
+    loading: batchPromise
   }
-  Object.defineProperties(obj, makeGlobalProperties(Object.keys(collFactories), collections))
+  Object.defineProperties(obj, properties)
   return obj as GlobalModels
 }
 
 /**
  * @param asyncCollections Will be filled after the call of this method
  */
-function makeGlobalProperties(propNames: string[], asyncCollections: object) {
-  let properties = {}
-  for (let name of propNames) {
-    properties[name] = {
-      configurable: false,
-      enumerable: true,
-      get: function () {
-        if (!asyncCollections[name])
-          throw new Error(`Model "global" is not ready`)
-        return asyncCollections[name] // FIXME: Call engine.getModels() to get an up-to-date list
-      }
-    }
-  }
-  return properties
+function makeGlobalProperties(propNames: string[], collFactories: object) {
 }
 
 function createSession(global: GlobalModels, contributorId: string): Session {

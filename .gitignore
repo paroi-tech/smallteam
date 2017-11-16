@@ -4,11 +4,9 @@ node_modules
 www-server/*
 !www-server/sqlite-scripts
 !www-server/www
-www-server/www/*
-!www-server/www/index.html
-!www-server/www/favicon.ico
-!www-server/www/logo.png
-!www-server/www/font-awesome
+www-server/www/bundle.js*
+www-server/www/bundle-pwd.js*
+www-server/www/smallteam.css*
 *.sqlite
 
 .ropeproject

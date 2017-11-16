@@ -19,18 +19,18 @@ type GetDependencies = (fragOrOrderProps: object | OrderProperties) => Dependenc
 
 export type OrderProperties = { idList: Identifier[], groupName?: string, groupId?: Identifier }
 
-export interface IndexCallbacks {
-  [name: string]: (frag: object) => boolean
+export interface IndexCallbacks<M = any> {
+  [name: string]: (frag: M) => boolean
 }
 
-export interface IndexQuery {
+export interface IndexQuery<M = any> {
   type: Type
   index: Index
-  indexCb?: IndexCallbacks
+  indexCb?: IndexCallbacks<M>
   key: IndexKey
 }
 
-export interface ModelsQuery extends IndexQuery {
+export interface ModelsQuery<M = any> extends IndexQuery<M> {
   orderBy?: [string, "asc" | "desc"] | ((a, b) => number)
 }
 
@@ -264,7 +264,7 @@ export default class ModelEngine {
     return entity.model as any
   }
 
-  public getModels<M = any>(query: ModelsQuery, onEmptyVal: any = []): Collection<M, Identifier> {
+  public getModels<M = any>(query: ModelsQuery<M>, onEmptyVal: any = []): Collection<M, Identifier> {
     let identifiers = this.findIdentifiersFromIndex(query)
     let list: any[] = []
     if (identifiers) {
@@ -281,13 +281,17 @@ export default class ModelEngine {
     return toCollection(list, query.type)
   }
 
-  public getAllModels<M = any>(type: Type, onEmptyVal = []): M[] {
+  public getAllModels<M = any>(type: Type, orderBy?: [string, "asc" | "desc"] | ((a, b) => number)): M[] {
     let storage = this.getTypeStorage(type),
       identifiers = storage.entities.keys()
     let list: any[] = []
     for (let id of identifiers)
       list.push(this.getModel(type, id))
-    return toCollection(list.length === 0 ? onEmptyVal : list, type)
+    if (orderBy) {
+      let sortFn = Array.isArray(orderBy) ? makeDefaultSortFn(orderBy) : orderBy
+      list.sort(sortFn)
+    }
+    return toCollection(list, type)
   }
 
   public countModels(query: IndexQuery): number {
