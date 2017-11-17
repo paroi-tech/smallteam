@@ -13,7 +13,6 @@ import { routeChangeAvatar } from "./uploadEngine"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { dbConf } from "./utils/dbUtils"
-import { connect } from "net";
 
 const PORT = 3921
 
@@ -22,7 +21,7 @@ export function startWebServer() {
   let upload = multer({
     dest: path.join(__dirname, "..", "uploads"),
     limits: {
-      fileSize: 1024
+      fileSize: 1024 * 1024
     }
   })
 
@@ -53,22 +52,7 @@ export function startWebServer() {
   declareSessionRoute(router, "/api/session/change-password", routeChangePassword)
   declareSessionRoute(router, "/reset-passwd", routeResetPassword, true)
 
-  // declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
-  router.post("/api/session/change-avatar", upload.single("avatar"), async function (req, res, next) {
-    if (!req.session || !req.session.contributorId) {
-      console.log("404>>", req.session)
-      write404(res)
-      return
-    }
-
-    try {
-      await wait(500) // TODO: Remove this line before to release!
-      let resData = await routeChangeAvatar(req, res)
-      writeServerResponse(res, 200, resData)
-    } catch (err) {
-      writeServerResponseError(res, err)
-    }
-  })
+  declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
 
   // @ts-ignore
   declareRoute(router, "/api/query", routeFetch)

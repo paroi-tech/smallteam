@@ -28,11 +28,15 @@ export default class AvatarForm {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-    this.buttonEl = el.querySelector("button") as HTMLButtonElement
-    this.inputEl = el.querySelector(".js-input") as HTMLInputElement
     this.formEl = el.querySelector("form") as HTMLFormElement
-    this.buttonEl.addEventListener("click", ev => this.onSubmit())
+    this.buttonEl = this.formEl.querySelector("button") as HTMLButtonElement
+    this.inputEl = this.formEl.querySelector(".js-input") as HTMLInputElement
     this.spinnerEl = this.buttonEl.querySelector(".js-spinner") as HTMLElement
+
+    this.formEl.onsubmit = (ev) => {
+      ev.preventDefault()
+      this.onSubmit()
+    }
 
     return el
   }
@@ -45,7 +49,6 @@ export default class AvatarForm {
 
     this.spinnerEl.style.display = "inline"
     let fd = new FormData(this.formEl)
-    fd.append("avatar", this.inputEl.files.item(0), "avatar.png")
     await this.doUpload(fd)
     this.spinnerEl.style.display = "none"
   }
@@ -55,10 +58,6 @@ export default class AvatarForm {
       let response = await fetch(`${config.urlPrefix}/api/session/change-avatar`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "image/png, image/jpeg, image/gif"
-        },
         body: fd
       })
 
