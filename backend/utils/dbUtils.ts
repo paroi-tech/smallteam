@@ -2,9 +2,19 @@ import * as path from "path"
 import { open } from "sqlite"
 import { sqliteConnection, Connection } from "./sqlite-with-transactions"
 
-export const dbConf = (function () {
+export const mainDbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
-    file = "ourdb.sqlite"
+      file = "ourdb.sqlite"
+  return {
+    dir,
+    file,
+    path: path.join(dir, file)
+  }
+})()
+
+export const fileDbConf = (function() {
+  let dir = path.join(__dirname, "..", ".."),
+      file = "files.sqlite"
   return {
     dir,
     file,
@@ -13,14 +23,25 @@ export const dbConf = (function () {
 })()
 
 export let cn: Connection
+export let fileCn: Connection
 
 export async function initConnection() {
   cn = await sqliteConnection(async () => {
-    let db = await open(dbConf.path)
-    //;(db as any).driver.configure("busyTimeout", 2000)
+    let db = await open(mainDbConf.path)
     await db.run("PRAGMA foreign_keys = ON")
     await db.migrate({
-      migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts")
+      migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts/main")
+    })
+    return db
+  }, {
+    logError: console.log
+  })
+
+  fileCn = await sqliteConnection(async () => {
+    let db = await open(fileDbConf.path)
+    await db.run("PRAGMA foreign_keys = ON")
+    await db.migrate({
+      migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts/files")
     })
     return db
   }, {

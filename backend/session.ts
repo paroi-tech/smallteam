@@ -4,6 +4,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
+import { changeAvatar, checkAvatarFileType } from "./uploadEngine"
 
 const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
@@ -125,6 +126,19 @@ export async function routeResetPassword(data: any, req: Request, res: Response)
   return {
     done: true
   }
+}
+
+export async function routeChangeAvatar(req: Request, res: Response) {
+  if (!req.file)
+    throw new Error("No avatar provided")
+
+  let sessionData: SessionData = req.session as any
+  let f = req.file
+
+  if (!checkAvatarFileType(f))
+    throw new Error("Only PNG, JPEG and GIF files are allowed.")
+
+  return await changeAvatar(sessionData.contributorId, f)
 }
 
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {

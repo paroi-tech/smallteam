@@ -8,25 +8,24 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeResetPassword } from "./session"
-import { routeChangeAvatar } from "./uploadEngine"
+import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
-import { dbConf } from "./utils/dbUtils"
+import { mainDbConf } from "./utils/dbUtils"
 
 const PORT = 3921
 
 export function startWebServer() {
   let app = express()
   let upload = multer({
-    dest: path.join(__dirname, "..", "uploads"),
+    storage: multer.memoryStorage(),
     limits: {
       fileSize: 1024 * 1024
     }
   })
 
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
-  let { dir, file } = dbConf
+  let { dir, file } = mainDbConf
 
   app.use(session({
       secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",
