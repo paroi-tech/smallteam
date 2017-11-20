@@ -3,11 +3,15 @@ import * as multer from "multer"
 import { buildSelect, buildUpdate, buildDelete, buildInsert } from "./utils/sql92builder/Sql92Builder"
 import { fileCn as cn } from "./utils/dbUtils"
 
+// --
+// -- Types declaration
+// --
+
 type File = Express.Multer.File
 type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
 type FileFilter = (req: Request, file: File, cb: ImageFilterCb) => void
 
-type RawFileMeta = {
+type FileMeta = {
   fileId: string
   code: string
   value: number | string
@@ -20,6 +24,11 @@ export type FileInfo = {
   name?: string
   mimeType?: string
   weight?: number
+}
+
+export type FileFragment = {
+  info: FileInfo
+  buffer: any
 }
 
 // --
@@ -43,8 +52,8 @@ export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: strin
     throw new Error(`Unknown MetaCode: ${metaCode}`)
 }
 
-export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string) {
-  let arr = new Array<FileInfo>()
+export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<FileInfo[]> {
+  let arr: FileInfo[] = []
   let sql = buildSelect()
     .select("file_id")
     .from("meta_int")
@@ -58,12 +67,12 @@ export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: strin
       fileId
     }
 
-    for (let meta of (await getAllMetaInt(fileId)).concat(await getAllMetaInt(fileId))) {
+    for (let meta of await getAllMeta(fileId)) {
       if (meta.code === "name")
         info.name = meta.value as string
       else if (meta.code === "weight")
         info.weight = meta.value as number
-      else if (meta.code === "mimeType")
+      else if (meta.code === "mime")
         info.mimeType = meta.value as string
     }
 
@@ -71,6 +80,28 @@ export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: strin
   }
 
   return arr
+}
+
+export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
+  let arr = await getRelatedFilesInfo(metaCode, metaVal)
+  let result: FileFragment[] = []
+
+  for (let info of arr) {
+    let sql = buildSelect()
+      .select("bin_data")
+      .from("file")
+      .where("file_id", "=", info.fileId)
+    let rs = await cn.all(sql.toSql())
+
+    if (rs.length !== 0) {
+      result.push({
+        info,
+        buffer: rs[0]["bin_data"]
+      })
+    }
+  }
+
+  return result
 }
 
 // --
@@ -144,7 +175,16 @@ async function insertTaskAttachment(f: File, taskId: string) {
 // -- Utility functions
 // --
 
-async function getAllMetaInt(fileId: string) {
+async function getAllMeta(fileId: string): Promise<FileMeta[]> {
+  let arr: FileMeta[] = []
+
+  arr = arr.concat(await getAllMetaInt(fileId))
+  arr = arr.concat(await getAllMetaStr(fileId))
+
+  return arr
+}
+
+async function getAllMetaInt(fileId: string): Promise<FileMeta[]> {
   let sql = buildSelect()
     .select("file_id, code, val")
     .from("meta_int")
@@ -154,7 +194,7 @@ async function getAllMetaInt(fileId: string) {
   return rs.map(row => toMetaInt(row))
 }
 
-async function getAllMetaStr(fileId: string) {
+async function getAllMetaStr(fileId: string): Promise<FileMeta[]> {
   let sql = buildSelect()
     .select("file_id, code, val")
     .from("meta_str")
@@ -184,18 +224,18 @@ async function addMetaStr(fileId: string, code: string, val: string) {
   })
 }
 
-function toMetaInt(row): RawFileMeta {
+function toMetaInt(row): FileMeta {
   return {
     fileId: row["file_id"].toString(),
     code: row["code"],
-    value: row["value"]
+    value: row["val"]
   }
 }
 
-function toMetaStr(row): RawFileMeta {
+function toMetaStr(row): FileMeta {
   return {
     fileId: row["file_id"].toString(),
     code: row["code"],
-    value: row["value"]
+    value: row["val"]
   }
 }

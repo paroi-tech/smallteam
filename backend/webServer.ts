@@ -50,7 +50,7 @@ export function startWebServer() {
   declareSessionRoute(router, "/reset-passwd", routeResetPassword, true)
   declareSessionRoute(router, "/api/session/disconnect", routeDisconnect)
   declareSessionRoute(router, "/api/session/change-password", routeChangePassword)
-  declareSessionRoute(router, "/get-avatar", routeGetAvatar)
+  declareSessionRoute(router, "/api/session/get-avatar", routeGetAvatar)
 
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
 

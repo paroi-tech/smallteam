@@ -4,7 +4,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
-import { insertFile, checkAvatarFileType } from "./uploadEngine"
+import { insertFile, checkAvatarFileType, fetchRelatedFiles } from "./uploadEngine"
 
 const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
@@ -142,8 +142,12 @@ export async function routeChangeAvatar(req: Request, res: Response) {
 }
 
 export async function routeGetAvatar(data: any, req: Request, res: Response) {
+  let sessionData: SessionData = req.session as any
+  let files = await fetchRelatedFiles("contributor_id", sessionData.contributorId)
+
   return {
-    done: true
+    done: true,
+    files
   }
 }
 
