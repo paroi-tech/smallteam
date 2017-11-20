@@ -4,7 +4,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
-import { changeAvatar, checkAvatarFileType } from "./uploadEngine"
+import { insertFile, checkAvatarFileType } from "./uploadEngine"
 
 const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
@@ -138,7 +138,13 @@ export async function routeChangeAvatar(req: Request, res: Response) {
   if (!checkAvatarFileType(f))
     throw new Error("Only PNG, JPEG and GIF files are allowed.")
 
-  return await changeAvatar(sessionData.contributorId, f)
+  return await insertFile(f, "contributor_id", sessionData.contributorId)
+}
+
+export async function routeGetAvatar(data: any, req: Request, res: Response) {
+  return {
+    done: true
+  }
 }
 
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {

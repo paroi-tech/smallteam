@@ -1,17 +1,83 @@
 import { Request, Response } from "express"
 import * as multer from "multer"
 import { buildSelect, buildUpdate, buildDelete, buildInsert } from "./utils/sql92builder/Sql92Builder"
-import { fileCn } from "./utils/dbUtils"
+import { fileCn as cn } from "./utils/dbUtils"
 
 type File = Express.Multer.File
 type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
 type FileFilter = (req: Request, file: File, cb: ImageFilterCb) => void
 
-export function checkAvatarFileType(file: File): boolean {
-  return file.originalname.match(/\.(jpg|jpeg|png|gif)$/) !== null
+type RawFileMeta = {
+  fileId: string
+  code: string
+  value: number | string
 }
 
-export async function changeAvatar(contributorId: string, f: File) {
+export type MainMetaCode = "contributor_id" | "task_id"
+
+export type FileInfo = {
+  fileId: string
+  name?: string
+  mimeType?: string
+  weight?: number
+}
+
+// --
+// -- Public functions
+// --
+
+export function checkAvatarFileType(f: File): boolean {
+  return f.originalname.match(/\.(jpg|jpeg|png|gif)$/) !== null
+}
+
+export function checkAttachmentType(f: File): boolean {
+  return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
+}
+
+export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: string) {
+  if (metaCode === "contributor_id")
+    return await insertAvatar(f, metaVal)
+  else if ("task_id")
+    return await insertTaskAttachment(f, metaVal)
+  else
+    throw new Error(`Unknown MetaCode: ${metaCode}`)
+}
+
+export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string) {
+  let arr = new Array<FileInfo>()
+  let sql = buildSelect()
+    .select("file_id")
+    .from("meta_int")
+    .where("code", "=", metaCode)
+    .andWhere("val", "=", metaVal)
+  let rs = await cn.all(sql.toSql())
+
+  for (let row of rs) {
+    let fileId = row["file_id"].toString()
+    let info: FileInfo = {
+      fileId
+    }
+
+    for (let meta of (await getAllMetaInt(fileId)).concat(await getAllMetaInt(fileId))) {
+      if (meta.code === "name")
+        info.name = meta.value as string
+      else if (meta.code === "weight")
+        info.weight = meta.value as number
+      else if (meta.code === "mimeType")
+        info.mimeType = meta.value as string
+    }
+
+    arr.push(info)
+  }
+
+  return arr
+}
+
+// --
+// -- Avatar
+// --
+
+async function insertAvatar(f: File, contributorId: string) {
   let result = {
     done: false
   }
@@ -22,20 +88,17 @@ export async function changeAvatar(contributorId: string, f: File) {
     .where("code", "=", "contributor_id")
     .andWhere("val", "=", contributorId)
 
-  let transaction = await fileCn.beginTransaction()
+  let transaction = await cn.beginTransaction()
 
   try {
-    let rs = await fileCn.all(sql.toSql())
+    let rs = await cn.all(sql.toSql())
 
     if (rs.length === 0)
-      await createAvatar(contributorId, f)
+      await createAvatar(f, contributorId)
     else
-      await updateAvatar(rs[0]["file_id"], f)
-
+      await updateAvatar(f, rs[0]["file_id"])
     await transaction.commit()
     result.done = true
-  } catch (err) {
-    console.log("Error while updating avatar", err)
   } finally {
     if (transaction.inTransaction)
       await transaction.rollback()
@@ -44,12 +107,12 @@ export async function changeAvatar(contributorId: string, f: File) {
   return result
 }
 
-async function createAvatar(contributorId: string, f: File) {
+async function createAvatar(f: File, contributorId: string) {
   let sql = "INSERT INTO file(bin_data) VALUES($data)"
-  let ps = await fileCn.run(sql, {
+  let ps = await cn.run(sql, {
     $data: f.buffer
   })
-  let fId = ps.lastID
+  let fId = ps.lastID.toString()
 
   await addMetaInt(fId, "contributor_id", parseInt(contributorId))
   await addMetaInt(fId, "weight", f.size)
@@ -57,34 +120,82 @@ async function createAvatar(contributorId: string, f: File) {
   await addMetaStr(fId, "name", f.originalname)
 }
 
-async function updateAvatar(fId: number, f: File) {
+async function updateAvatar(f: File, fileId: string) {
   let sql = "UPDATE file SET bin_data=$data WHERE file_id=$fId"
 
-  await fileCn.run(sql, {
-    $fId: fId,
+  await cn.run(sql, {
+    $fId: fileId,
     $data: f.buffer
   })
-  await addMetaInt(fId, "weight", f.size)
-  await addMetaStr(fId, "mime", f.mimetype)
-  await addMetaStr(fId, "name", f.originalname)
+  await addMetaInt(fileId, "weight", f.size)
+  await addMetaStr(fileId, "mime", f.mimetype)
+  await addMetaStr(fileId, "name", f.originalname)
 }
 
-async function addMetaInt(fId: number, code: string, val: number) {
+// --
+// -- Task attachments
+// --
+
+async function insertTaskAttachment(f: File, taskId: string) {
+
+}
+
+// --
+// -- Utility functions
+// --
+
+async function getAllMetaInt(fileId: string) {
+  let sql = buildSelect()
+    .select("file_id, code, val")
+    .from("meta_int")
+    .where("file_id", "=", fileId)
+  let rs = await cn.all(sql.toSql())
+
+  return rs.map(row => toMetaInt(row))
+}
+
+async function getAllMetaStr(fileId: string) {
+  let sql = buildSelect()
+    .select("file_id, code, val")
+    .from("meta_str")
+    .where("file_id", "=", fileId)
+  let rs = await cn.all(sql.toSql())
+
+  return rs.map(row => toMetaStr(row))
+}
+
+async function addMetaInt(fileId: string, code: string, val: number) {
   let sql = "INSERT OR REPLACE INTO meta_int VALUES($fId, $code, $val)"
 
-  await fileCn.run(sql, {
-    $fId: fId.toString(),
+  await cn.run(sql, {
+    $fId: fileId,
     $code: code,
     $val: val
   })
 }
 
-async function addMetaStr(fId, code: string, val: string) {
+async function addMetaStr(fileId: string, code: string, val: string) {
   let sql = "INSERT OR REPLACE INTO meta_str VALUES($fId, $code, $val)"
 
-  await fileCn.run(sql, {
-    $fId: fId.toString(),
+  await cn.run(sql, {
+    $fId: fileId,
     $code: code,
     $val: val
   })
+}
+
+function toMetaInt(row): RawFileMeta {
+  return {
+    fileId: row["file_id"].toString(),
+    code: row["code"],
+    value: row["value"]
+  }
+}
+
+function toMetaStr(row): RawFileMeta {
+  return {
+    fileId: row["file_id"].toString(),
+    code: row["code"],
+    value: row["value"]
+  }
 }

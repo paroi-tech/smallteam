@@ -8,7 +8,7 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
+import { routeChangePassword, routeResetPassword, routeChangeAvatar, routeGetAvatar } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
@@ -47,9 +47,10 @@ export function startWebServer() {
 
   declareSessionRoute(router, "/api/session/connect", routeConnect, true)
   declareSessionRoute(router, "/api/session/current", routeCurrentSession, true)
+  declareSessionRoute(router, "/reset-passwd", routeResetPassword, true)
   declareSessionRoute(router, "/api/session/disconnect", routeDisconnect)
   declareSessionRoute(router, "/api/session/change-password", routeChangePassword)
-  declareSessionRoute(router, "/reset-passwd", routeResetPassword, true)
+  declareSessionRoute(router, "/get-avatar", routeGetAvatar)
 
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
 
