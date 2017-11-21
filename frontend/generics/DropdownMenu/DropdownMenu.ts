@@ -26,7 +26,7 @@ export class DropdownMenu {
 
   private menuVisible = false
 
- constructor(private dash: Dash, readonly align: Alignment) {
+ constructor(private dash: Dash, readonly align: Alignment, private label?: string) {
     this.el = this.createView()
   }
 
@@ -41,6 +41,8 @@ export class DropdownMenu {
     this.btnEl = el.querySelector(".js-btn") as HTMLButtonElement
     this.btnEl.addEventListener("click", ev => this.toggle())
     this.btnEl.addEventListener("focusout", ev => this.onButtonFocusLose(ev as FocusEvent))
+    if (this.label)
+      this.btnEl.textContent = this.label
     this.buttons.add(this.btnEl)
 
     return el

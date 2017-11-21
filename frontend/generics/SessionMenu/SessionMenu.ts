@@ -9,8 +9,8 @@ export default class SessionMenu {
   private menu: DropdownMenu
 
   constructor(private dash: Dash, align: Alignment) {
-    this.menu = this.dash.create(DropdownMenu, align)
-    this.menu.setButtonContent(manIcon)
+    this.menu = this.dash.create(DropdownMenu, align, this.dash.app.model.session.contributor.name)
+    // this.menu.setButtonContent(manIcon)
     this.addItemsToMenu()
     this.listenToEvents()
   }
