@@ -94,6 +94,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
       .insertInto("mail_challenge")
       .values({
         "contributor_id": contributorId,
+        // @ts-ignore
         "token": result.token!
       })
 

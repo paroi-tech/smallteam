@@ -10,7 +10,10 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 
-export async function routeFetch(data, sessionData: SessionData): Promise<Cargo> {
+export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
+  if (!sessionData)
+    throw new Error("Required sessionData missing in route callback")
+
   let context = {
     sessionData,
     loader: new CargoLoader()
@@ -19,7 +22,10 @@ export async function routeFetch(data, sessionData: SessionData): Promise<Cargo>
   return context.loader.toCargo()
 }
 
-export async function routeExec(data, sessionData: SessionData): Promise<Cargo> {
+export async function routeExec(data, sessionData?: SessionData): Promise<Cargo> {
+  if (!sessionData)
+    throw new Error("Required sessionData missing in route callback")
+
   let context = {
     sessionData,
     loader: new CargoLoader()
@@ -28,7 +34,10 @@ export async function routeExec(data, sessionData: SessionData): Promise<Cargo> 
   return context.loader.toCargo()
 }
 
-export async function routeBatch(list: any[], sessionData: SessionData): Promise<BatchCargo> {
+export async function routeBatch(list: any[], sessionData?: SessionData): Promise<BatchCargo> {
+  if (!sessionData)
+    throw new Error("Required sessionData missing in route callback")
+
   let context = {
     sessionData,
     loader: new CargoLoader(true)
@@ -53,7 +62,10 @@ const whoUseCallbacks = {
   Step: whoUseStep
 }
 
-export async function routeWhoUse(data, sessionData: SessionData): Promise<object> {
+export async function routeWhoUse(data, sessionData?: SessionData): Promise<object> {
+  if (!sessionData)
+    throw new Error("Required sessionData missing in route callback")
+
   let cb = whoUseCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid 'whoUser' type: "${data.type}"`)

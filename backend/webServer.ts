@@ -15,6 +15,9 @@ import { mainDbConf } from "./utils/dbUtils"
 
 const PORT = 3921
 
+type RouteCb = (data, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
+type UploadRouteCb = (req: Request, res: Response) => Promise<any>
+
 export function startWebServer() {
   let app = express()
   let upload = multer({
@@ -45,23 +48,19 @@ export function startWebServer() {
 
   let router = Router()
 
-  declareSessionRoute(router, "/api/session/connect", routeConnect, true)
-  declareSessionRoute(router, "/api/session/current", routeCurrentSession, true)
-  declareSessionRoute(router, "/reset-passwd", routeResetPassword, true)
-  declareSessionRoute(router, "/api/session/disconnect", routeDisconnect)
-  declareSessionRoute(router, "/api/session/change-password", routeChangePassword)
-  declareSessionRoute(router, "/api/session/get-avatar", routeGetAvatar)
+  declareRoute(router, "/api/session/connect", routeConnect, true)
+  declareRoute(router, "/api/session/current", routeCurrentSession, true)
+  declareRoute(router, "/reset-passwd", routeResetPassword, true)
+  declareRoute(router, "/api/session/disconnect", routeDisconnect, false)
+  declareRoute(router, "/api/session/change-password", routeChangePassword, false)
+  declareRoute(router, "/api/session/get-avatar", routeGetAvatar, false)
+
+  declareRoute(router, "/api/query", routeFetch, false)
+  declareRoute(router, "/api/exec", routeExec, false)
+  declareRoute(router, "/api/batch", routeBatch, false)
+  declareRoute(router, "/api/who-use", routeWhoUse, false)
 
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
-
-  // @ts-ignore
-  declareRoute(router, "/api/query", routeFetch)
-  // @ts-ignore
-  declareRoute(router, "/api/exec", routeExec)
-  // @ts-ignore
-  declareRoute(router, "/api/batch", routeBatch)
-  // @ts-ignore
-  declareRoute(router, "/api/who-use", routeWhoUse)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
@@ -77,10 +76,6 @@ export function startWebServer() {
 function wait(delayMs: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(resolve, delayMs))
 }
-
-type RouteCb = (data, sessionData?: SessionData) => Promise<any>
-type SessionRouteCb = (data, req: Request, res: Response) => Promise<any>
-type UploadRouteCb = (req: Request, res: Response) => Promise<any>
 
 function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = false) {
   router.post(route, function (req, res) {
@@ -108,42 +103,7 @@ async function processRoute(req: Request, res: Response, body: string, cb: Route
       throw new Error(`Invalid JSON request: ${body}`)
     }
     await wait(500) // TODO: Remove this line before to release!
-    let resData = await cb(reqData, sessionData)
-    writeServerResponse(res, 200, resData)
-  } catch (err) {
-    writeServerResponseError(res, err)
-  }
-}
-
-function declareSessionRoute(router: Router, route: string, cb: SessionRouteCb, isPublic = false) {
-  router.post(route, function (req, res) {
-    if (!isPublic && (!req.session || !req.session.contributorId)) {
-      console.log("404>>", req.session)
-      write404(res)
-      return
-    }
-
-    let body = ""
-
-    req.on("data", function (data) {
-      body += data
-    })
-    req.on("end", () => processSessionRoute(req, res, body, cb))
-  })
-}
-
-async function processSessionRoute(req: Request, res: Response, body: string, cb: SessionRouteCb) {
-  let reqData: any
-
-  try {
-    try {
-      reqData = JSON.parse(body)
-    } catch (err) {
-      throw new Error(`Invalid JSON request: ${body}`)
-    }
-
-    await wait(500) // TODO: Remove this line before to release!
-    let resData = await cb(reqData, req, res)
+    let resData = await cb(reqData, sessionData, req, res)
     writeServerResponse(res, 200, resData)
   } catch (err) {
     writeServerResponseError(res, err)

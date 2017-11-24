@@ -14,12 +14,20 @@ declare type PasswordUpdateInfo = {
   token: string
 }
 
-export async function routeConnect(data: any, req: Request, res: Response): Promise<any> {
+// --
+// -- Public functions
+// --
+
+export async function routeConnect(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!req)
+    throw new Error("Required parameter missing in route callback")
+
+  sessionData = req.session as any
+
   let row = await getContributorByLogin(data.login)
-  let sessionData: SessionData = req.session as any
 
   if (row && await compare(data.password, row.password)) {
-    sessionData.contributorId = row.id.toString()
+    sessionData!.contributorId = row.id.toString()
     return {
       done: true,
       contributorId: row.id
@@ -31,8 +39,8 @@ export async function routeConnect(data: any, req: Request, res: Response): Prom
   }
 }
 
-export async function routeCurrentSession(data: any, req: Request, res: Response): Promise<any> {
-  if (req.session && req.session.contributorId && await getContributorById(req.session.contributorId)) {
+export async function routeCurrentSession(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (req && req.session && req.session.contributorId && await getContributorById(req.session.contributorId)) {
     return {
       done: true,
       contributorId: req.session.contributorId
@@ -44,7 +52,10 @@ export async function routeCurrentSession(data: any, req: Request, res: Response
   }
 }
 
-export async function routeDisconnect(data: any, req: Request, res: Response): Promise<any> {
+export async function routeDisconnect(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!req)
+    throw new Error("Required parameter missing in route callback")
+
   let b = await destroySession(req)
 
   return {
@@ -52,16 +63,10 @@ export async function routeDisconnect(data: any, req: Request, res: Response): P
   }
 }
 
-function destroySession(req: Request): Promise<boolean> {
-  return new Promise((resolve, reject) => {
-    req.session!.destroy(err => {
-      resolve(err ? false : true)
-    })
-  })
-}
+export async function routeChangePassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Required parameter missing in route callback")
 
-export async function routeChangePassword(data: any, req: Request, res: Response) {
-  let sessionData: SessionData = req.session as any
   let row = await getContributorById(sessionData.contributorId as string)
 
   if (row && await compare(data.currentPassword, row.password)) {
@@ -76,24 +81,7 @@ export async function routeChangePassword(data: any, req: Request, res: Response
   }
 }
 
-async function getContributorByLogin(login: string) {
-  let sql = buildSelect()
-    .select("contributor_id, password")
-    .from("contributor")
-    .where("login", "=", login)
-  let rs = await cn.all(sql.toSql())
-
-  if (rs.length === 1) {
-    return {
-      id: rs[0]["contributor_id"].toString(),
-      password: rs[0]["password"].toString()
-    }
-  }
-
-  return undefined
-}
-
-export async function routeResetPassword(data: any, req: Request, res: Response) {
+export async function routeResetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let token = data.token as string
   let contributorId = data.contributorId as string
   let select = buildSelect()
@@ -129,10 +117,11 @@ export async function routeResetPassword(data: any, req: Request, res: Response)
 }
 
 export async function routeChangeAvatar(req: Request, res: Response) {
+  let sessionData: SessionData = req.session as any
+
   if (!req.file)
     throw new Error("No avatar provided")
 
-  let sessionData: SessionData = req.session as any
   let f = req.file
 
   if (!checkAvatarFileType(f))
@@ -141,8 +130,10 @@ export async function routeChangeAvatar(req: Request, res: Response) {
   return await insertFile(f, "contributor_id", sessionData.contributorId)
 }
 
-export async function routeGetAvatar(data: any, req: Request, res: Response) {
-  let sessionData: SessionData = req.session as any
+export async function routeGetAvatar(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Required parameter missing in route callback")
+
   let files = await fetchRelatedFiles("contributor_id", sessionData.contributorId)
 
   return {
@@ -150,6 +141,10 @@ export async function routeGetAvatar(data: any, req: Request, res: Response) {
     files
   }
 }
+
+// --
+// -- Utilily functions
+// --
 
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   return {
@@ -184,6 +179,23 @@ async function getContributorById(id: string) {
   return undefined
 }
 
+async function getContributorByLogin(login: string) {
+  let sql = buildSelect()
+    .select("contributor_id, password")
+    .from("contributor")
+    .where("login", "=", login)
+  let rs = await cn.all(sql.toSql())
+
+  if (rs.length === 1) {
+    return {
+      id: rs[0]["contributor_id"].toString(),
+      password: rs[0]["password"].toString()
+    }
+  }
+
+  return undefined
+}
+
 async function updateContributorPassword(contributorId: string, password: string): Promise<boolean> {
   let passwordHash = await hash(password, bcryptSaltRounds)
   let sql = buildUpdate()
@@ -194,4 +206,12 @@ async function updateContributorPassword(contributorId: string, password: string
   await cn.run(sql.toSql())
 
   return true
+}
+
+function destroySession(req: Request): Promise<boolean> {
+  return new Promise((resolve, reject) => {
+    req.session!.destroy(err => {
+      resolve(err ? false : true)
+    })
+  })
 }

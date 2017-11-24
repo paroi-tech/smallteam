@@ -53,7 +53,7 @@ export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: strin
 }
 
 export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<FileInfo[]> {
-  let arr: FileInfo[] = []
+  let arr = [] as FileInfo[]
   let sql = buildSelect()
     .select("file_id")
     .from("meta_int")
@@ -84,7 +84,7 @@ export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: strin
 
 export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
   let arr = await getRelatedFilesInfo(metaCode, metaVal)
-  let result: FileFragment[] = []
+  let result = [] as FileFragment[]
 
   for (let info of arr) {
     let sql = buildSelect()
@@ -102,6 +102,35 @@ export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string)
   }
 
   return result
+}
+
+export async function fetchFileById(fileId: string): Promise<FileFragment | undefined> {
+  let sql = buildSelect()
+    .select("bin_data")
+    .from("file")
+    .where("file_id", "=", fileId)
+  let rs = await cn.all(sql.toSql())
+
+  if (rs.length === 0)
+    return undefined
+
+  let info: FileInfo = {
+    fileId
+  }
+
+  for (let meta of await getAllMeta(fileId)) {
+    if (meta.code === "name")
+      info.name = meta.value as string
+    else if (meta.code === "weight")
+      info.weight = meta.value as number
+    else if (meta.code === "mime")
+      info.mimeType = meta.value as string
+  }
+
+  return {
+    info,
+    buffer: rs[0]["bin_data"]
+  }
 }
 
 // --
@@ -176,7 +205,7 @@ async function insertTaskAttachment(f: File, taskId: string) {
 // --
 
 async function getAllMeta(fileId: string): Promise<FileMeta[]> {
-  let arr: FileMeta[] = []
+  let arr = [] as FileMeta[]
 
   arr = arr.concat(await getAllMetaInt(fileId))
   arr = arr.concat(await getAllMetaStr(fileId))
