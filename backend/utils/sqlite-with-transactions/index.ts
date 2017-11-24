@@ -21,10 +21,10 @@ export interface InTransactionConnection extends Connection {
 const METHODS = ["run", "get", "all", "exec", "each", "prepare", "migrate"] // all methods except 'close'
 
 export async function sqliteConnection(openSqliteConnection: () => Promise<Database>, poolOptions: PoolOptions = {}): Promise<Connection> {
-  return doCreateConnection(await createPool(openSqliteConnection, poolOptions)) as Connection
+  return await doCreateConnection(await createPool(openSqliteConnection, poolOptions)) as Connection
 }
 
-function doCreateConnection(pool: Pool, transactionDb?: Database): Connection | InTransactionConnection {
+async function doCreateConnection(pool: Pool, transactionDb?: Database): Promise<Connection | InTransactionConnection> {
   let thisObj: Partial<InTransactionConnection> = {}
   let isRoot = !transactionDb,
     closed = false
@@ -61,7 +61,7 @@ function doCreateConnection(pool: Pool, transactionDb?: Database): Connection | 
     rollbacked = false
   if (transactionDb) {
     transactionDepth = 1
-    transactionDb.exec("begin")
+    await transactionDb.exec("begin")
     for (let method of ["commit", "rollback"]) {
       thisObj[method] = async () => {
         if (closed)
@@ -90,7 +90,7 @@ function doCreateConnection(pool: Pool, transactionDb?: Database): Connection | 
       ++transactionDepth
       return thisObj as InTransactionConnection
     }
-    return doCreateConnection(pool, await pool.grab()) as InTransactionConnection
+    return await doCreateConnection(pool, await pool.grab()) as InTransactionConnection
   }
 
   thisObj.close = async () => {

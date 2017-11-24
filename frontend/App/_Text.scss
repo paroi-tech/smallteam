@@ -1,0 +1,24 @@
+.InlineText {
+	em {
+		font-style: italic;
+	}
+
+	strong {
+		font-weight: bold;
+	}
+
+	code {
+		font-family: Menlo, Monaco, Consolas, 'Ubuntu Mono', 'Courier New', monospace;
+	}
+}
+
+.Text {
+	@extend .InlineText;
+
+	p,
+	ul,
+	ol,
+	blockquote {
+		margin: .25em 0;
+	}
+}
