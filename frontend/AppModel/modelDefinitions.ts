@@ -3,7 +3,7 @@ import { ContributorCreateFragment, ContributorUpdateFragment, ContributorFetchF
 import { ContributorModel, registerContributor } from "./Models/ContributorModel"
 import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, ProjectFetchFragment } from "../../isomorphic/meta/Project"
 import { ProjectModel, registerProject } from "./Models/ProjectModel"
-import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../isomorphic/meta/Task"
+import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
 import { TaskModel, registerTask } from "./Models/TaskModel"
 import { StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { StepModel, registerStep } from "./Models/StepModel"
@@ -43,6 +43,7 @@ export interface ModelCommandMethods {
   fetch(type: "Step"): Promise<Collection<StepModel, string>>
   fetch(type: "Flag"): Promise<Collection<FlagModel, string>>
   fetch(type: "Contributor", filters?: ContributorFetchFragment): Promise<Collection<ContributorModel, string>>
+  fetch(type: "Task", filters: TaskFetchFragment): Promise<Collection<TaskModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "Step", idList: string[]): Promise<string[]>

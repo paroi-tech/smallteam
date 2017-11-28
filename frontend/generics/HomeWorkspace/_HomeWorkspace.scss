@@ -4,6 +4,7 @@
   flex-direction: column;
   justify-content: center;
   min-height: 300px;
+  position: relative;
 
   &-header {
     font-size: $f38;
@@ -13,5 +14,20 @@
     background: url("./images/sprite-login.png") no-repeat -5px -7px transparent;
     height: 91px;
     width: 342px;
+  }
+
+  &-searchDiv {
+    right: 0;
+    padding: 5px 0px;
+    position: absolute;
+    text-align: right;
+    top: 0;
+    width: 100%;
+  }
+
+  &-searchInput {
+    border: 1px solid darkgrey;
+    margin: 0px 5px 0px 0px;
+    padding: 3px 2px;
   }
 }

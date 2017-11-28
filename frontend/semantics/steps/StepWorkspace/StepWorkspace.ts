@@ -2,11 +2,11 @@ import { Dash } from "bkb"
 import { render } from "monkberry"
 import StepForm from "../StepForm/StepForm"
 import StepBox from "../StepBox/StepBox"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
-import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList";
-import { Model, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
-import { equal } from "../../../libraries/utils";
+import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList"
+import { Model, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
+import { equal } from "../../../libraries/utils"
 
 const template = require("./StepWorkspace.monk")
 

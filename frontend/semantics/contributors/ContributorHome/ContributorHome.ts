@@ -39,18 +39,6 @@ export default class ContributorHome implements Workspace {
     this.form.setContributor(this.contributor)
     this.passwdFormContainerEl.appendChild(this.passwordForm.el)
     this.avatarFormContainer.appendChild(this.avatarForm.el)
-
-    fetch(`${config.urlPrefix}/api/session/get-avatar`, {
-      method: "post",
-      credentials: "same-origin",
-      body: JSON.stringify({})
-    }).then(res => {
-      return res.json()
-    }).then(val => {
-      console.log("response", val)
-    }).catch(err => {
-      console.error("error", err)
-    })
   }
 
   private createView(): HTMLElement {
