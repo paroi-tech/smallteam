@@ -1,0 +1,38 @@
+.AppFrame {
+  height: 100%;
+  position: fixed;
+  width: 100%;
+
+  &-wrapper {
+    background-color: #F5F5F5;
+    display: grid;
+    grid-template-columns: repeat(15, 1fr);
+    grid-column-gap: 24px;
+    grid-template-rows: 60px auto 25px;
+    height: 100%;
+    margin: 0 auto;
+    max-width: 1420px; // $c18
+  }
+
+  &-top {
+    grid-area: 1 / 1 / span 1 / span 15;
+  }
+
+  &-bottom {
+    grid-area: 1 / 3 / span 1 / span 15;
+    min-height: 300px;
+    overflow-y: auto;
+    padding: $vGap2 0;
+  }
+
+  &-side {
+    grid-area: 2 / 1 / span 1 / span 1;
+  }
+
+  &-content {
+    grid-area: 2 / 2 / span 1 / span 14;
+    min-height: 300px;
+    overflow-y: auto;
+    padding: $vGap2 0;
+  }
+}

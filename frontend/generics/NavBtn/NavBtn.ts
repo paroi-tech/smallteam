@@ -2,14 +2,13 @@ import { Dash } from "bkb"
 import { render } from "monkberry"
 
 const template = require("./Menu.monk")
-const liTemplate = require("./li.monk")
+const itemTemplate = require("./li.monk")
 
-/**
- * Properties required by the Menu component for its items.
- */
-export interface MenuItem {
-  id: string
+
+export interface NavBtnOptions {
   label: string
+  cssClass: string
+  clickHandler: () => void
 }
 
 /**
@@ -18,7 +17,7 @@ export interface MenuItem {
  * The menu can contain several items. Each item has an ID and an event to emit when clicked.
  * Several items trigger the same event.
  */
-export class Menu {
+export default class NavBtn {
   readonly el: HTMLElement
 
   private ul: HTMLElement
@@ -50,7 +49,7 @@ export class Menu {
     if (this.items.has(item.id))
       throw new Error(`Item with ID ${item.id} already exists`)
 
-    let view = render(liTemplate, document.createElement("div"))
+    let view = render(itemTemplate, document.createElement("div"))
     let li = view.nodes[0] as HTMLLIElement
     let btn = li.querySelector("button") as HTMLButtonElement
 

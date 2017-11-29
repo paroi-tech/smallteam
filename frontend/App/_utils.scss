@@ -1,0 +1,13 @@
+.FlexBar {
+  display: flex;
+  justify-content: space-between;
+  // & > * {
+  //   flex: 0 1 auto;
+  // }
+  &.column {
+    flex-direction: column;
+  }
+  & > .grow {
+    flex: 1;
+  }
+}

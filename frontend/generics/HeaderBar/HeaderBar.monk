@@ -1,0 +1,6 @@
+<section class="HeaderBar FlexBar">
+  <div class="js-teamName"></div>
+  <nav class="grow">
+    <ul class="FlexBar js-menuUl"></ul>
+  </nav>
+</section>

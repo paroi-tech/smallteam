@@ -99,21 +99,21 @@ export class DropdownMenu {
     }
   }
 
-  public disableItem(itemId: string) {
-    let arr = this.items.get(itemId)
-    if (arr)
-      arr[0].style.pointerEvents = "none"
-  }
+  // public disableItem(itemId: string) {
+  //   let arr = this.items.get(itemId)
+  //   if (arr)
+  //     arr[0].style.pointerEvents = "none"
+  // }
 
   public setButtonContent(content: string) {
     this.btnEl.textContent = content
   }
 
-  public enableItem(itemId: string) {
-    let arr = this.items.get(itemId)
-    if (arr)
-      arr[0].style.pointerEvents = "auto"
-  }
+  // public enableItem(itemId: string) {
+  //   let arr = this.items.get(itemId)
+  //   if (arr)
+  //     arr[0].style.pointerEvents = "auto"
+  // }
 
   public setItemLabel(id: string, label: string) {
     let arr = this.items.get(id)
