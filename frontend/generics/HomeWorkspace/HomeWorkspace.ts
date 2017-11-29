@@ -37,10 +37,8 @@ export default class HomeWorkspace implements Workspace {
 
     let query = this.inputEl.value.trim()
 
-    if (query.length !== 0) {
-      console.log("search query", query)
+    if (query.length !== 0)
       this.dash.emit("search", query)
-    }
   }
 
   public activate(ctrl: ViewerController) {
