@@ -14,6 +14,7 @@ import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWork
 import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
 import Workspace404 from "../generics/Workspace404/Workspace404"
 import config from "../../isomorphic/config"
+import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 
 export default class App {
   readonly log: Log
@@ -87,7 +88,7 @@ export default class App {
         let result = await response.json()
 
         if (result.done) {
-          await this.navigate("") // This prevents the router to show current page next login.
+          await this.navigate("") // This prevents the router to show current page at next login.
           document.location.reload(false)
         } else {
           alert("Unable to end session. Please try again.")
@@ -124,6 +125,7 @@ export default class App {
     viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
+    viewer.addWorkspace("/search", "dropdown", "Search results", this.dash.create(SearchWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
 

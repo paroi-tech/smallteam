@@ -25,9 +25,11 @@ export default class SearchWorkspace implements Workspace {
     return el
   }
 
-  public activate(ctrl: ViewerController) {
+  public activate(ctrl: ViewerController, data?: any) {
     ctrl.setContentEl(this.el)
       .setTitle("Search results")
+    if (data && data.query)
+      console.log(`Search workspace activated with query: ${data.query}`)
   }
 
   public deactivate() {}

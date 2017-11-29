@@ -26,24 +26,21 @@ export default class HomeWorkspace implements Workspace {
     let el = this.view.nodes[0] as HTMLElement
 
     this.inputEl = el.querySelector(".js-input") as HTMLInputElement
-    this.inputEl.addEventListener("keypress", ev => {
-      if (ev.key === "Enter")
-        this.onSearch()
-    })
+    this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
 
     return el
   }
 
-  private async onSearch() {
-    let search = this.inputEl.value.trim()
-
-    if (search.length === 0)
+  private onSearch(ev: KeyboardEvent) {
+    if (ev.key !== "Enter")
       return
 
-    let result = await this.model.fetch("Task", {
-      search
-    })
-    console.log("search results:", result)
+    let query = this.inputEl.value.trim()
+
+    if (query.length !== 0) {
+      console.log("search query", query)
+      this.dash.emit("search", query)
+    }
   }
 
   public activate(ctrl: ViewerController) {

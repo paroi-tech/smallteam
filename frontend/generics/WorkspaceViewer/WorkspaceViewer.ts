@@ -10,7 +10,7 @@ import { removeAllChildren } from "../../libraries/utils"
 const template = require("./WorkspaceViewer.monk")
 
 export interface Workspace {
-  activate(ctrl: ViewerController): void
+  activate(ctrl: ViewerController, data?: any): void
   deactivate(): void
   readonly childRouter?: ChildEasyRouter
 }
@@ -51,8 +51,11 @@ export default class WorkspaceViewer {
   constructor(private dash: Dash) {
     this.el = this.createView()
 
-    // FIXME: Is this a good idea?
     this.dash.listenToChildren<string>("select").onData(path => this.router.navigate(path).catch(console.log))
+    this.dash.onData("search", data => {
+      console.log("search caught...")
+      this.activateWorkspace("/search", { query: data })
+    })
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)
@@ -88,7 +91,7 @@ export default class WorkspaceViewer {
       defaultTitle: title
     })
     this.router.mapUnknownRoutes({
-      useQueryString: '404',
+      useQueryString: "404",
       activate: (query: ERQuery) => {
         this.activateWorkspace(this.symb404)
       },
@@ -144,7 +147,7 @@ export default class WorkspaceViewer {
     return info.menu === "main" ? this.menu : this.dropdownMenu
   }
 
-  private activateWorkspace(path: string | Symbol) {
+  private activateWorkspace(path: string | Symbol, data?: any) {
     let info = this.workspaces.get(path)
     if (!info)
       throw new Error(`Unknown workspace path: ${path}`)
@@ -154,7 +157,7 @@ export default class WorkspaceViewer {
       removeAllChildren(this.bodyEl)
       removeAllChildren(this.sidebarEl)
     }
-    info.workspace.activate(this.createViewController(info))
+    info.workspace.activate(this.createViewController(info), data)
     this.currentWInfo = info
   }
 
