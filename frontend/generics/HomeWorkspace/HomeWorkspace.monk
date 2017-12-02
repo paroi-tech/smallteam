@@ -1,7 +1,4 @@
 <div class="HomeWorkspace js-workspace">
-  <div class="HomeWorkspace-searchDiv">
-    <input type="text" placeholder="Search tasks" class="js-input HomeWorkspace-searchInput">
-  </div>
   <header class="HomeWorkspace-header js-header">Welcome</header>
   <div class="HomeWorkspace-divLogo"></div>
 </div>

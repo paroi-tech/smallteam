@@ -7,7 +7,6 @@ const template = require("./HomeWorkspace.monk")
 
 export default class HomeWorkspace implements Workspace {
   readonly el: HTMLElement
-  private inputEl: HTMLInputElement
 
   private model: Model
 
@@ -25,20 +24,7 @@ export default class HomeWorkspace implements Workspace {
 
     let el = this.view.nodes[0] as HTMLElement
 
-    this.inputEl = el.querySelector(".js-input") as HTMLInputElement
-    this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
-
     return el
-  }
-
-  private onSearch(ev: KeyboardEvent) {
-    if (ev.key !== "Enter")
-      return
-
-    let query = this.inputEl.value.trim()
-
-    if (query.length !== 0)
-      this.dash.emit("search", query)
   }
 
   public activate(ctrl: ViewerController) {

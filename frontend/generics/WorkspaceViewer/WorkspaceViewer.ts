@@ -10,7 +10,7 @@ import { removeAllChildren } from "../../libraries/utils"
 const template = require("./WorkspaceViewer.monk")
 
 export interface Workspace {
-  activate(ctrl: ViewerController, data?: any): void
+  activate(ctrl: ViewerController): void
   deactivate(): void
   readonly childRouter?: ChildEasyRouter
 }
@@ -52,10 +52,6 @@ export default class WorkspaceViewer {
     this.el = this.createView()
 
     this.dash.listenToChildren<string>("select").onData(path => this.router.navigate(path).catch(console.log))
-    this.dash.onData("search", data => {
-      console.log("search caught...")
-      this.activateWorkspace("/search", { query: data })
-    })
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)
@@ -157,7 +153,7 @@ export default class WorkspaceViewer {
       removeAllChildren(this.bodyEl)
       removeAllChildren(this.sidebarEl)
     }
-    info.workspace.activate(this.createViewController(info), data)
+    info.workspace.activate(this.createViewController(info))
     this.currentWInfo = info
   }
 

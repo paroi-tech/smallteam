@@ -1,8 +1,8 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
-import { BgCommandManager, BgCommand } from "../../AppModel/BgCommandManager";
-import { Model } from "../../AppModel/AppModel";
-import App from "../../App/App";
+import { BgCommandManager, BgCommand } from "../../AppModel/BgCommandManager"
+import { Model } from "../../AppModel/AppModel"
+import App from "../../App/App"
 
 const template = require("./BackgroundCommandManager.monk")
 const templateMenuBtn = require("./MenuBtn.monk")
@@ -39,11 +39,14 @@ export default class BackgroundCommandManager {
 
   private createHtmlElements(): HTMLDialogElement {
     this.view = render(template, document.createElement("div"))
+
     let el = this.view.nodes[0] as HTMLDialogElement
+
     this.closeButtonEl = el.querySelector(".js-close-button") as HTMLButtonElement
     this.closeButtonEl.addEventListener("click", ev => this.hide())
     this.tableEl = el.querySelector(".js-table") as HTMLTableElement
     document.body.appendChild(el)
+
     return el
   }
 
@@ -52,16 +55,19 @@ export default class BackgroundCommandManager {
       this.buttonEl.style.backgroundColor = "orange"
 
       let row = this.tableEl.tBodies[0].insertRow(-1)
+
       row.insertCell(-1).textContent = bgCmd.label
       row.insertCell(-1).textContent = bgCmd.startDt.toLocaleTimeString()
 
       let progressCheckBox = document.createElement("input")
+
       progressCheckBox.setAttribute("type", "checkbox")
       progressCheckBox.disabled = true
       progressCheckBox.checked = bgCmd.done ? true : false
       row.insertCell(-1).appendChild(progressCheckBox)
 
       let doneCheckBox = document.createElement("input")
+
       doneCheckBox.setAttribute("type", "checkbox")
       doneCheckBox.disabled = true
       doneCheckBox.checked = bgCmd.done ? true : false

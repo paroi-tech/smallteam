@@ -125,7 +125,7 @@ export default class App {
     viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
-    viewer.addWorkspace("/search", "dropdown", "Search results", this.dash.create(SearchWorkspace))
+    viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
 

@@ -8,7 +8,7 @@ const account = {
   password: "xNGuRQs1yNmXK4vPJM"
 }
 
-export async function sendActivationMail(contributorId: string, email: string) {
+export async function sendActivationMail(contributorId: string, email: string): Promise<{ done: boolean, token?: string}> {
   let host = "http://localhost:3921"
 
   try {

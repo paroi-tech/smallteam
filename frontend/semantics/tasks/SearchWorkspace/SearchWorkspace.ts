@@ -8,6 +8,7 @@ const template = require("./SearchWorkspace.monk")
 
 export default class SearchWorkspace implements Workspace {
   readonly el: HTMLElement
+  private inputEl: HTMLInputElement
 
   private view: MonkberryView
 
@@ -20,16 +21,28 @@ export default class SearchWorkspace implements Workspace {
 
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
+
     let el = this.view.nodes[0] as HTMLElement
+
+    this.inputEl = el.querySelector(".js-input") as HTMLInputElement
+    this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
 
     return el
   }
 
-  public activate(ctrl: ViewerController, data?: any) {
+  private onSearch(ev: KeyboardEvent) {
+    if (ev.key !== "Enter")
+      return
+
+    let query = this.inputEl.value.trim()
+
+    if (query.length !== 0)
+      console.log(`search for: ${query}`)
+  }
+
+  public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-      .setTitle("Search results")
-    if (data && data.query)
-      console.log(`Search workspace activated with query: ${data.query}`)
+      .setTitle("Search tasks")
   }
 
   public deactivate() {}

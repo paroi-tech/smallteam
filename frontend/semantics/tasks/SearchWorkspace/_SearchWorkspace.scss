@@ -1,3 +1,19 @@
 .SearchWorkspace {
   margin: 10px auto;
+
+  &-header {
+    font-size: $f32;
+    text-align: center;
+  }
+
+  &-searchDiv {
+    margin-bottom: 10px;
+    padding: 5px;
+    text-align: right;
+  }
+
+  &-searchInput {
+    border: 1px solid darkgrey;
+    padding: 3px;
+  }
 }

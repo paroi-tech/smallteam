@@ -1,3 +1,6 @@
 <div class="js-container SearchWorkspace">
+  <div class="SearchWorkspace-searchDiv">
+    <input type="text" placeholder="Search tasks" class="js-input SearchWorkspace-searchInput">
+  </div>
   <header class="SearchWorkspace-header">Search results</header>
 </div>

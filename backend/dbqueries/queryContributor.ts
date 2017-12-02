@@ -87,15 +87,14 @@ export async function createContributor(context: BackendContext, newFrag: Contri
   let contributorId = ps.lastID
 
   sendActivationMail(contributorId.toString(), newFrag.email).then(async result => {
-    if (!result.done)
+    if (!result.done || !result.token)
       return
 
     let sql = buildInsert()
       .insertInto("mail_challenge")
       .values({
         "contributor_id": contributorId,
-        // @ts-ignore
-        "token": result.token!
+        "token": result.token
       })
 
     try {
