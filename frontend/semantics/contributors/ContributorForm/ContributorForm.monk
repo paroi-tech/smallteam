@@ -1,26 +1,34 @@
 <section class="ContributorForm">
-  <div class="js-title BlockTitle">Contributor details</div>
-  <div class="js-form">
-    <label class="FormField">
-      <span class="FormField-span">Name</span>
-      <input type="text" class="js-name" value="{{ frag.name }}">
-    </label>
-
-    <label class="FormField">
-      <span class="FormField-span">Login</span>
-      <input type="text" class="js-login" value="{{ frag.login }}">
-    </label>
-
-    <label class="FormField">
-      <span class="FormField-span">Email</span>
-      <input type="email" class="js-email" value="{{ frag.email }}" placeholder="john.doe@example.com">
-    </label>
-
-    <div>
-      <button type="button" :onclick={{ ctrl.submit }}>
-        Save changes
-        <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-spinner" style="display: none"></span>
-      </button>
+  <header class="ContributorForm-header js-header">
+    <div class="ContributorForm-headerLeft">Contributor details</div>
+    <div class="ContributorForm-headerRight">
+      <span class="fa fa-spinner fa-spin fa-1x fa-fw js-busy-indicator" style="display: none"></span>
     </div>
+  </header>
+
+  <div class="js-form">
+    <fieldset>
+      <label class="FormField">
+        <span class="FormField-span">Name</span>
+        <input type="text" class="js-name" value="{{ frag.name }}">
+      </label>
+
+      <label class="FormField">
+        <span class="FormField-span">Login</span>
+        <input type="text" class="js-login" value="{{ frag.login }}">
+      </label>
+
+      <label class="FormField">
+        <span class="FormField-span">Email</span>
+        <input type="email" class="js-email" value="{{ frag.email }}" placeholder="john.doe@example.com">
+      </label>
+
+      <div>
+        <button type="button" :onclick={{ ctrl.submit }}>
+          Save changes
+          <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submit-spinner" style="display: none"></span>
+        </button>
+      </div>
+    </fieldset>
   </div>
 </section>

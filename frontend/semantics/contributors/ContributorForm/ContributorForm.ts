@@ -10,10 +10,12 @@ const template = require("./ContributorForm.monk")
 export default class ContributorForm {
   readonly el: HTMLElement
 
+  private fieldsetEl: HTMLFieldSetElement
   private loginEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private emailEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
+  private busyIndicatorEl: HTMLElement
 
   private view: MonkberryView
 
@@ -22,7 +24,7 @@ export default class ContributorForm {
   private state = {
     frag: {
       login: "",
-      name: "",
+      name:  "",
       email: ""
     },
     ctrl: {
@@ -37,16 +39,29 @@ export default class ContributorForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
     this.el = this.createHtmlElements()
+
+    this.dash.listenTo<ContributorModel>(this.model, "endProcessing").onData(data => {
+      if (!this.contributor || this.contributor.id !== data.id)
+        return
+
+      this.state.frag = this.contributor.updateTools.toFragment("update") as any
+      this.view.update(this.state)
+
+      this.hideIndicators()
+      this.fieldsetEl.disabled = false
+    })
   }
 
   private createHtmlElements() {
     this.view = render(template, document.createElement("div"), { directives })
     let el = this.view.nodes[0] as HTMLElement
 
+    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.loginEl = el.querySelector(".js-login") as HTMLInputElement
     this.emailEl = el.querySelector(".js-email") as HTMLInputElement
-    this.submitSpinnerEl = el.querySelector(".js-spinner") as HTMLElement
+    this.busyIndicatorEl = el.querySelector(".js-busy-indicator") as HTMLElement
+    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
 
     this.view.update(this.state)
 
@@ -55,61 +70,87 @@ export default class ContributorForm {
 
   public setContributor(contributor: ContributorModel) {
     this.contributor = contributor
+
     this.state.frag = contributor.updateTools.toFragment("update") as any
     this.view.update(this.state)
+
+    if (contributor.updateTools.processing) {
+      this.fieldsetEl.disabled = true
+      this.showIndicators()
+    } else {
+      this.fieldsetEl.disabled = false
+      this.hideIndicators()
+    }
   }
 
   public reset() {
     this.contributor = undefined
-    this.state.frag.name = ""
+
+    this.state.frag.name  = ""
     this.state.frag.login = ""
     this.state.frag.email = ""
     this.view.update(this.state)
+
+    this.hideIndicators()
   }
 
   public switchToCreationMode() {
     this.reset()
+    this.fieldsetEl.disabled = false
     this.nameEl.focus()
   }
 
   private async onSubmit() {
-    let name = this.nameEl.value.trim()
+    let data = this.checkUserInput()
+    if (!data)
+      return
+
+    // FIXME: For creation, don't disable the fieldset. Just empty the field.
+    this.showIndicators()
+    this.fieldsetEl.disabled = true
+    if (!this.contributor) {
+      await this.createContributor(data)
+      // IMPORTANT: Check that the user is not doing something before clearing the form...
+      if (!this.contributor)
+        this.switchToCreationMode()
+    } else {
+      let id = this.contributor.id
+      let frag = this.contributor.updateTools.getDiffToUpdate({ id, ...data })
+
+      // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+      if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
+        this.updateContributor({ id, ...frag })
+    }
+  }
+
+  private checkUserInput() {
+    let name  = this.nameEl.value.trim()
     let login = this.loginEl.value.trim()
     let email = this.emailEl.value.trim()
 
     if (name.length < 1) {
       this.log.warn("Name should have at least one character...")
       this.nameEl.focus()
-      return
+      return undefined
     }
 
     if (login.length < 4) {
       this.log.warn("Login should have at least 4 characters...")
       this.loginEl.focus()
-      return
+      return undefined
     }
 
     if (!this.validateEmail) {
       this.log.warn("Invalid email...")
       this.emailEl.focus()
-      return
+      return undefined
     }
 
-    this.submitSpinnerEl.style.display = "inline"
-
-    if (!this.contributor) {
-      await this.createContributor({ name, login, email })
-      this.nameEl.focus()
-    } else {
-      let id = this.contributor.id
-      let frag = this.contributor.updateTools.getDiffToUpdate({ id, name, login, email })
-
-      // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
-      if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
-        this.updateContributor({ id, ...frag })
+    return {
+      name,
+      login,
+      email
     }
-
-    this.submitSpinnerEl.style.display = "none"
   }
 
   private async createContributor(frag: ContributorCreateFragment) {
@@ -126,12 +167,24 @@ export default class ContributorForm {
     if (!this.contributor)
       return
     try {
-      this.contributor = await this.model.exec("update", "Contributor", frag)
-      this.state.frag = this.contributor.updateTools.toFragment("update") as any
-      this.view.update(this.state)
+      await this.model.exec("update", "Contributor", frag)
     } catch (err) {
       this.log.error(`Unable to update contributor...`)
     }
+  }
+
+  get currentContributor(): ContributorModel | undefined {
+    return this.contributor
+  }
+
+  private showIndicators() {
+    this.busyIndicatorEl.style.display = "inline"
+    this.submitSpinnerEl.style.display = "inline"
+  }
+
+  private hideIndicators() {
+    this.busyIndicatorEl.style.display = "none"
+    this.submitSpinnerEl.style.display = "none"
   }
 
   // FIXME: Improve this method.

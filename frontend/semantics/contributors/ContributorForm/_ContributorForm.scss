@@ -1,0 +1,7 @@
+.ContributorForm {
+  &-header {
+    @extend .BlockTitle;
+    display: flex;
+    justify-content: space-between;
+  }
+}
