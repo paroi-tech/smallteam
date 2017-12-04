@@ -4,6 +4,7 @@ import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
+import { privateDecrypt } from "crypto";
 
 const template = require("./ContributorForm.monk")
 
@@ -18,9 +19,6 @@ export default class ContributorForm {
   private busyIndicatorEl: HTMLElement
 
   private view: MonkberryView
-
-  private log: Log
-
   private state = {
     frag: {
       login: "",
@@ -34,16 +32,20 @@ export default class ContributorForm {
 
   private model: Model
   private contributor: ContributorModel | undefined
+  private log: Log
+
+  private canClearForm = false
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
     this.el = this.createHtmlElements()
 
-    this.dash.listenTo<ContributorModel>(this.model, "endProcessing").onData(data => {
+    this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(data => {
       if (!this.contributor || this.contributor.id !== data.id)
         return
 
+      this.canClearForm = false
       this.state.frag = this.contributor.updateTools.toFragment("update") as any
       this.view.update(this.state)
 
@@ -69,6 +71,7 @@ export default class ContributorForm {
   }
 
   public setContributor(contributor: ContributorModel) {
+    this.canClearForm = false
     this.contributor = contributor
 
     this.state.frag = contributor.updateTools.toFragment("update") as any
@@ -96,6 +99,7 @@ export default class ContributorForm {
 
   public switchToCreationMode() {
     this.reset()
+    this.canClearForm = false
     this.fieldsetEl.disabled = false
     this.nameEl.focus()
   }
@@ -105,13 +109,12 @@ export default class ContributorForm {
     if (!data)
       return
 
-    // FIXME: For creation, don't disable the fieldset. Just empty the field.
     this.showIndicators()
     this.fieldsetEl.disabled = true
     if (!this.contributor) {
+      this.canClearForm = true
       await this.createContributor(data)
-      // IMPORTANT: Check that the user is not doing something before clearing the form...
-      if (!this.contributor)
+      if (this.canClearForm)
         this.switchToCreationMode()
     } else {
       let id = this.contributor.id
@@ -124,42 +127,38 @@ export default class ContributorForm {
   }
 
   private checkUserInput() {
-    let name  = this.nameEl.value.trim()
-    let login = this.loginEl.value.trim()
-    let email = this.emailEl.value.trim()
+    let frag = {
+      name:  this.nameEl.value.trim(),
+      login: this.loginEl.value.trim(),
+      email: this.emailEl.value.trim()
+    }
 
-    if (name.length < 1) {
+    if (frag.name.length < 1) {
       this.log.warn("Name should have at least one character...")
       this.nameEl.focus()
       return undefined
     }
 
-    if (login.length < 4) {
+    if (frag.login.length < 4) {
       this.log.warn("Login should have at least 4 characters...")
       this.loginEl.focus()
       return undefined
     }
 
-    if (!this.validateEmail) {
+    if (!this.validateEmail(frag.email)) {
       this.log.warn("Invalid email...")
       this.emailEl.focus()
       return undefined
     }
 
-    return {
-      name,
-      login,
-      email
-    }
+    return frag
   }
 
   private async createContributor(frag: ContributorCreateFragment) {
     try {
       await this.model.exec("create", "Contributor", frag)
-      this.reset()
     } catch (err) {
       this.log.error("Unable to create new contributor...", err)
-      this.nameEl.focus()
     }
   }
 
@@ -189,10 +188,7 @@ export default class ContributorForm {
 
   // FIXME: Improve this method.
   private validateEmail(email: string): boolean {
-    // The total length of an email address is limited to 254 characters.
-    // https://en.wikipedia.org/wiki/Email_address
-    if (email.length > 254)
-      return false
-    return true
+    // Email address is limited to 254 characters => https://en.wikipedia.org/wiki/Email_address
+    return email.length <= 254
   }
 }

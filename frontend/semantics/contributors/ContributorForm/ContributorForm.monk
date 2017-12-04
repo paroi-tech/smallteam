@@ -2,7 +2,7 @@
   <header class="ContributorForm-header js-header">
     <div class="ContributorForm-headerLeft">Contributor details</div>
     <div class="ContributorForm-headerRight">
-      <span class="fa fa-spinner fa-spin fa-1x fa-fw js-busy-indicator" style="display: none"></span>
+      <span class="fa fa-ban fa-1x js-busy-indicator" style="display: none"></span>
     </div>
   </header>
 
@@ -26,7 +26,7 @@
       <div>
         <button type="button" :onclick={{ ctrl.submit }}>
           Save changes
-          <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submit-spinner" style="display: none"></span>
+          <span class="fa fa-spinner fa-pulse fa-1x js-submit-spinner" style="display: none"></span>
         </button>
       </div>
     </fieldset>
