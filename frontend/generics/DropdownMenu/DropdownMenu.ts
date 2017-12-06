@@ -26,7 +26,7 @@ export class DropdownMenu {
 
   private menuVisible = false
 
- constructor(private dash: Dash, readonly align: Alignment, private label?: string) {
+ constructor(private dash: Dash, readonly align: Alignment = "right", private label?: string) {
     this.el = this.createView()
   }
 
