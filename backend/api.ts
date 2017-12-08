@@ -9,6 +9,9 @@ import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorde
 import { fetchComments, createComment, updateComment, deleteComment, fetchCommentsByIds } from "./dbqueries/queryComment"
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
+import { Request, Response } from "express"
+import { fetchFileById } from "./uploadEngine"
+import { inflate } from "zlib";
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
@@ -74,6 +77,29 @@ export async function routeWhoUse(data, sessionData?: SessionData): Promise<obje
     done: true,
     result
   }
+}
+
+export async function routeGetFile(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData || !req || ! res)
+    throw new Error("Required parameter missing in route callback")
+  if (!req.params.fileId)
+    throw new Error("Missing file ID in request")
+
+  let f = await fetchFileById(req.params.fileId)
+
+  if (f) {
+    let info = f.info
+
+    if (info.mimeType)
+      res.type(info.mimeType)
+    if (info.weight)
+      res.set("Content-Length", info.weight.toString())
+    res.write(f.buffer)
+  } else {
+    res.status(404)
+    res.send("404 Not Found")
+  }
+  res.end()
 }
 
 const fetchCallbacks = {

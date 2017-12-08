@@ -6,7 +6,7 @@ import { Request, Response, Router, RequestHandler } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
-import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
+import { routeFetch, routeExec, routeBatch, routeWhoUse, routeGetFile } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
 import { routeChangePassword, routeResetPassword, routeChangeAvatar, routeGetAvatar } from "./session"
 import config from "../isomorphic/config"
@@ -15,7 +15,7 @@ import { mainDbConf } from "./utils/dbUtils"
 
 const PORT = 3921
 
-type RouteCb = (data, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
+type RouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type UploadRouteCb = (req: Request, res: Response) => Promise<any>
 
 export function startWebServer() {
@@ -51,15 +51,15 @@ export function startWebServer() {
   declareRoute(router, "/api/session/connect", routeConnect, true)
   declareRoute(router, "/api/session/current", routeCurrentSession, true)
   declareRoute(router, "/reset-passwd", routeResetPassword, true)
-  declareRoute(router, "/api/session/disconnect", routeDisconnect, false)
-  declareRoute(router, "/api/session/change-password", routeChangePassword, false)
-  declareRoute(router, "/api/session/get-avatar", routeGetAvatar, false)
+  declareRoute(router, "/api/session/disconnect", routeDisconnect)
+  declareRoute(router, "/api/session/change-password", routeChangePassword)
 
-  declareRoute(router, "/api/query", routeFetch, false)
-  declareRoute(router, "/api/exec", routeExec, false)
-  declareRoute(router, "/api/batch", routeBatch, false)
-  declareRoute(router, "/api/who-use", routeWhoUse, false)
+  declareRoute(router, "/api/query", routeFetch)
+  declareRoute(router, "/api/exec", routeExec)
+  declareRoute(router, "/api/batch", routeBatch)
+  declareRoute(router, "/api/who-use", routeWhoUse)
 
+  declareGetRoute(router, "/get-file/:fileId", routeGetFile, true, true)
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
@@ -77,7 +77,7 @@ function wait(delayMs: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(resolve, delayMs))
 }
 
-function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = false) {
+function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = false, standaloneRoute = false) {
   router.post(route, function (req, res) {
     if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
       console.log("404>>", req.session)
@@ -87,10 +87,13 @@ function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = fal
 
     let body = ""
 
-    req.on("data", function (data) {
-      body += data
+    req.on("data", data => body += data)
+    req.on("end", () => {
+      if (!standaloneRoute)
+        processRoute(req, res, body, cb, req.session as any)
+      else
+        cb(body, req.session as any, req, res)
     })
-    req.on("end", () => processRoute(req, res, body, cb, req.session as any))
   })
 }
 
@@ -110,6 +113,34 @@ async function processRoute(req: Request, res: Response, body: string, cb: Route
   }
 }
 
+function declareGetRoute(router: Router, route: string, cb: RouteCb, isPublic = false, standaloneRoute = false) {
+  router.get(route, function (req, res) {
+    if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
+      console.log("404>>", req.session)
+      write404(res)
+      return
+    }
+
+    let body = ""
+
+    req.on("data", data => body += data)
+    req.on("end", () => {
+      if (!standaloneRoute)
+        processRoute(req, res, body, cb, req.session as any)
+      else
+        processStandaloneRoute(req, res, body, cb, req.session as any)
+    })
+  })
+}
+
+async function processStandaloneRoute(req: Request, res: Response, body: string, cb: RouteCb, sessionData?: SessionData) {
+  try {
+    cb(body, req.session as any, req, res)
+  }  catch (err) {
+    writeServerResponseError(res, err)
+  }
+}
+
 function declareUploadRoute(router: Router, route: string, handler:  RequestHandler, cb: UploadRouteCb) {
   router.post(route, handler, function (req, res) {
     if (!req.session || !req.session.contributorId) {
@@ -123,7 +154,6 @@ function declareUploadRoute(router: Router, route: string, handler:  RequestHand
 
 async function processUploadRoute(req: Request, res: Response, cb: UploadRouteCb) {
   try {
-    await wait(500) // TODO: Remove this line before to release!
     let resData = await cb(req, res)
     writeServerResponse(res, 200, resData)
   } catch (err) {
