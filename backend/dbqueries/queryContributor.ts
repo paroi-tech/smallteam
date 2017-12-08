@@ -37,6 +37,7 @@ export async function fetchContributors(context: BackendContext) {
   }
 }
 
+// TODO: get avatar here...
 function toContributorFragment(row): ContributorFragment {
   return {
     id: row["contributor_id"].toString(),

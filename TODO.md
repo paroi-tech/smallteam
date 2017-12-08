@@ -33,7 +33,7 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
-
+- Find lib to resize images with Nodejs
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
