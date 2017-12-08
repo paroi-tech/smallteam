@@ -17,6 +17,7 @@ const PORT = 3921
 
 type RouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type UploadRouteCb = (req: Request, res: Response) => Promise<any>
+type RouteMethod = "get" | "post"
 
 export function startWebServer() {
   let app = express()
@@ -48,18 +49,18 @@ export function startWebServer() {
 
   let router = Router()
 
-  declareRoute(router, "/api/session/connect", routeConnect, true)
-  declareRoute(router, "/api/session/current", routeCurrentSession, true)
-  declareRoute(router, "/reset-passwd", routeResetPassword, true)
-  declareRoute(router, "/api/session/disconnect", routeDisconnect)
-  declareRoute(router, "/api/session/change-password", routeChangePassword)
+  declareRoute(router, "/api/session/connect", routeConnect, "post", true)
+  declareRoute(router, "/api/session/current", routeCurrentSession, "post", true)
+  declareRoute(router, "/reset-passwd", routeResetPassword, "post", true)
+  declareRoute(router, "/api/session/disconnect", routeDisconnect, "post")
+  declareRoute(router, "/api/session/change-password", routeChangePassword, "post")
 
-  declareRoute(router, "/api/query", routeFetch)
-  declareRoute(router, "/api/exec", routeExec)
-  declareRoute(router, "/api/batch", routeBatch)
-  declareRoute(router, "/api/who-use", routeWhoUse)
+  declareRoute(router, "/api/query", routeFetch, "post")
+  declareRoute(router, "/api/exec", routeExec, "post")
+  declareRoute(router, "/api/batch", routeBatch, "post")
+  declareRoute(router, "/api/who-use", routeWhoUse, "post")
 
-  declareGetRoute(router, "/get-file/:fileId", routeGetFile, true, true)
+  declareRoute(router, "/get-file/:fileId", routeGetFile, "get", true, false)
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
@@ -77,8 +78,8 @@ function wait(delayMs: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(resolve, delayMs))
 }
 
-function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = false, standaloneRoute = false) {
-  router.post(route, function (req, res) {
+function declareRoute(router: Router, route: string, cb: RouteCb, method: RouteMethod, isPublic = false, standaloneRoute = true) {
+  router[method](route, function (req, res) {
     if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
       console.log("404>>", req.session)
       write404(res)
@@ -89,51 +90,33 @@ function declareRoute(router: Router, route: string, cb: RouteCb, isPublic = fal
 
     req.on("data", data => body += data)
     req.on("end", () => {
-      if (!standaloneRoute)
-        processRoute(req, res, body, cb, req.session as any)
+      if (standaloneRoute)
+        processRoute(req, res, body, cb)
       else
-        cb(body, req.session as any, req, res)
+        processStandaloneRoute(req, res, body, cb)
     })
   })
 }
 
-async function processRoute(req: Request, res: Response, body: string, cb: RouteCb, sessionData?: SessionData) {
-  let reqData
+async function processRoute(req: Request, res: Response, body: string, cb: RouteCb) {
+  let reqData, cbResult: any
+
   try {
     try {
       reqData = JSON.parse(body)
     } catch (err) {
       throw new Error(`Invalid JSON request: ${body}`)
     }
+
     await wait(500) // TODO: Remove this line before to release!
-    let resData = await cb(reqData, sessionData, req, res)
-    writeServerResponse(res, 200, resData)
+    cbResult = await cb(reqData, req.session as any, req, res)
+    writeServerResponse(res, 200, cbResult)
   } catch (err) {
     writeServerResponseError(res, err)
   }
 }
 
-function declareGetRoute(router: Router, route: string, cb: RouteCb, isPublic = false, standaloneRoute = false) {
-  router.get(route, function (req, res) {
-    if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
-      console.log("404>>", req.session)
-      write404(res)
-      return
-    }
-
-    let body = ""
-
-    req.on("data", data => body += data)
-    req.on("end", () => {
-      if (!standaloneRoute)
-        processRoute(req, res, body, cb, req.session as any)
-      else
-        processStandaloneRoute(req, res, body, cb, req.session as any)
-    })
-  })
-}
-
-async function processStandaloneRoute(req: Request, res: Response, body: string, cb: RouteCb, sessionData?: SessionData) {
+async function processStandaloneRoute(req: Request, res: Response, body: string, cb: RouteCb) {
   try {
     cb(body, req.session as any, req, res)
   }  catch (err) {
