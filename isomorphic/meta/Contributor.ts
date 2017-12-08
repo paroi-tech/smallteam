@@ -28,6 +28,10 @@ const meta: FragmentMeta = {
     email: {
       dataType: "string",
       update: true
+    },
+    avatarUrl: {
+      dataType: "string",
+      update: false
     }
   }
 }
@@ -35,7 +39,7 @@ const meta: FragmentMeta = {
 export type ContributorCreateFragment = Pick<ContributorFragment, "name" | "login" | "email">
 export type ContributorUpdateFragment = PickUpdate<ContributorFragment, "id", "name" | "login" | "email">
 export type ContributorIdFragment = Pick<ContributorFragment, "id">
-export type ContributorFetchFragment = SearchPick<ContributorFragment, "name" | "login" | "email">
+export type ContributorFetchFragment = SearchPick<ContributorFragment, "name" | "login" | "email" | "avatarUrl">
 
 export default {
   read: meta,

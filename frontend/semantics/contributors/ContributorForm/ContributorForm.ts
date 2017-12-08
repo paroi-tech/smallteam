@@ -92,8 +92,6 @@ export default class ContributorForm {
   // --
 
   public setContributor(contributor: ContributorModel) {
-    console.log("url", contributor.avatarUrl)
-
     this.canClearForm = false
     this.contributor  = contributor
 
