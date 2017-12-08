@@ -6,8 +6,7 @@ export interface ContributorFragment {
   name: string
   login: string
   email: string
-  readonly avatarUrl?: string
-  // readonly avatar: ImageModel
+  avatarUrl?: string
 }
 
 const meta: FragmentMeta = {

@@ -9,6 +9,7 @@ import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
 import { getRelatedFilesInfo } from "../uploadEngine"
+import config from "../../isomorphic/config"
 
 export const bcryptSaltRounds = 10
 
@@ -40,16 +41,15 @@ export async function fetchContributors(context: BackendContext) {
 
 async function toContributorFragment(row): Promise<ContributorFragment> {
   let frag: ContributorFragment = {
-    id: row["contributor_id"].toString(),
-    name: row["name"],
+    id:    row["contributor_id"].toString(),
+    name:  row["name"],
     login: row["login"],
     email: row["email"]
   }
   let arr = await getRelatedFilesInfo("contributor_id", frag.id)
 
-  if (arr.length >= 1) {
-
-  }
+  if (arr.length >= 1)
+    frag.avatarUrl = `${config.urlPrefix}/get-file/${arr[0].fileId}`
 
   return frag
 }
