@@ -11,7 +11,7 @@
     grid-template-rows: 40px auto;
     height: 100%;
     margin: 0 auto;
-    max-width: 1420px; // $c18
+    max-width: 1420px;
   }
 
   &-nav {
@@ -43,12 +43,15 @@
   &-right {
     align-items: center;
     display: flex;
-    // grid-column-end: 2;
-    // grid-column-start: 2;
-    // justify-content: flex-end;
-    // position: relative;
-    // right: 0;
-    // top: 6px;
+
+    > .DropdownMenu .DropdownMenu-btn::before {
+      background: url("./images/sprite.png") no-repeat -1px -54px;
+      height: 20px;
+      position: absolute;
+      right: 5px;
+      top: 5px;
+      width: 20px;
+    }
   }
 }
 
@@ -68,7 +71,6 @@
     bottom: 0;
     color: #F5F5F5;
     text-shadow: -1px 0 1px #666;
-    // text-transform: uppercase;
     font-size: $f40;
     font-weight: bold;
     margin: -20px 18px;
@@ -77,5 +79,4 @@
     transform-origin: top left;
     white-space: nowrap;
   }
-  // color: white;
 }

@@ -3,7 +3,8 @@
 
   &-btn {
     display: block;
-    padding: 5px;
+    padding: 5px 5px 5px 25px;
+    position: relative;
 
     &:focus,
     &:hover {

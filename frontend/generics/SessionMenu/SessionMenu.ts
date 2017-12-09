@@ -2,17 +2,28 @@ import { Dash } from "bkb"
 import { render } from "monkberry"
 import { MenuItem } from "../Menu/Menu"
 import { DropdownMenu, Alignment } from "../DropdownMenu/DropdownMenu"
+import { create } from "domain";
 
-const manIcon = "\u{1F468}"
+const template = require("./SessionMenu.monk")
 
 export default class SessionMenu {
+  readonly el: HTMLElement
   private menu: DropdownMenu
 
+  private view: MonkberryView
+
   constructor(private dash: Dash, align: Alignment) {
+    this.el = this.createView()
     this.menu = this.dash.create(DropdownMenu, align, this.dash.app.model.session.contributor.name)
-    // this.menu.setButtonContent(manIcon)
+    this.el.appendChild(this.menu.el)
     this.addItemsToMenu()
     this.listenToEvents()
+  }
+
+  private createView() {
+    this.view = render(template, document.createElement("div"))
+
+    return this.view.nodes[0] as HTMLElement
   }
 
   private addItemsToMenu() {
@@ -33,9 +44,5 @@ export default class SessionMenu {
       else if (itemId === "disconnect")
         await this.dash.app.disconnect()
     })
-  }
-
-  get el(): HTMLElement {
-    return this.menu.el
   }
 }

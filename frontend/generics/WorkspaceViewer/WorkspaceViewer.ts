@@ -31,6 +31,13 @@ interface WorkspaceInfo {
 
 export default class WorkspaceViewer {
   readonly el: HTMLElement
+  private h1El: HTMLElement
+  private sidebarEl: HTMLElement
+  private bodyEl: HTMLElement
+  private navLeftEl: HTMLElement
+  private navRightEl: HTMLElement
+
+  private view: MonkberryView
 
   private menu: Menu
   private dropdownMenu: DropdownMenu
@@ -39,29 +46,19 @@ export default class WorkspaceViewer {
 
   private symb404 = Symbol("404")
   private workspaces = new Map<string | Symbol, WorkspaceInfo>()
-
-  private view: MonkberryView
-
-  private h1El: HTMLElement
-  private sidebarEl: HTMLElement
-  private bodyEl: HTMLElement
-
   readonly router: EasyRouter
 
   constructor(private dash: Dash) {
     this.el = this.createView()
-
     this.dash.listenToChildren<string>("select").onData(path => this.router.navigate(path).catch(console.log))
-
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)
   }
 
   public start() {
     this.router.start({
-      baseUrl: config.urlPrefix + "/",
+      baseUrl: `${config.urlPrefix}/`,
       hashMode: true,
-      // noHistory: false,
       firstQueryString: ""
     })
   }
@@ -187,30 +184,29 @@ export default class WorkspaceViewer {
   }
 
   private createView() {
-    let el = document.createElement("div")
-    this.view = render(template, el)
+    this.menu = this.dash.create(Menu)
+    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
+    this.sessionMenu = this.dash.create(SessionMenu, "right")
 
+    let el = document.createElement("div")
+
+    this.view = render(template, el)
     this.h1El = el.querySelector(".js-h1") as HTMLElement
     this.sidebarEl = el.querySelector(".js-sidebar") as HTMLElement
     this.bodyEl = el.querySelector(".js-body") as HTMLElement
+    this.navLeftEl = el.querySelector(".js-nav-left") as HTMLElement
+    this.navRightEl = el.querySelector(".js-nav-right") as HTMLElement
 
-    this.menu = this.dash.create(Menu)
-
-    let navLeftEl = el.querySelector(".js-nav-left") as HTMLElement
-    navLeftEl.appendChild(this.menu.el)
-
-    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
-    let navRightEl = el.querySelector(".js-nav-right") as HTMLElement
-    navRightEl.appendChild(this.dropdownMenu.el)
-
-    this.sessionMenu = this.dash.create(SessionMenu, "right")
-    navRightEl.appendChild(this.sessionMenu.el)
+    this.navLeftEl.appendChild(this.menu.el)
+    this.navRightEl.appendChild(this.dropdownMenu.el)
+    this.navRightEl.appendChild(this.sessionMenu.el)
 
     return el
   }
 
   public addElementToHeader(el: HTMLElement) {
     let headerEl = this.el.querySelector(".js-nav-right") as HTMLElement
+
     headerEl.insertBefore(el, this.dropdownMenu.el)
   }
 }
