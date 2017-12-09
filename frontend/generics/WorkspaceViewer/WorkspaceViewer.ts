@@ -185,7 +185,7 @@ export default class WorkspaceViewer {
 
   private createView() {
     this.menu = this.dash.create(Menu)
-    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
+    this.dropdownMenu = this.dash.create(DropdownMenu, "right", "Settings")
     this.sessionMenu = this.dash.create(SessionMenu, "right")
 
     let el = document.createElement("div")

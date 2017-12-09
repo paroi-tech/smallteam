@@ -2,8 +2,10 @@
   position: relative;
 
   &-btn {
+    box-sizing: content-box;
     display: block;
-    padding: 5px 5px 5px 25px;
+    height: 20px;
+    padding: 5px 30px 5px 5px;
     position: relative;
 
     &:focus,

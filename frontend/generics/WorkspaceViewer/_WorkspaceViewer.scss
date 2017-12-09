@@ -31,9 +31,9 @@
 }
 
 .NavBar {
-  background-color: #205081;
+  background-color: #EAECFF;
   border-bottom: 1px solid #2e3d54;
-  color: white;
+  color: gray;
   display: flex;
 
   &-left {
@@ -44,8 +44,9 @@
     align-items: center;
     display: flex;
 
-    > .DropdownMenu .DropdownMenu-btn::before {
+    > .DropdownMenu .DropdownMenu-btn::after {
       background: url("./images/sprite.png") no-repeat -1px -54px;
+      content: "";
       height: 20px;
       position: absolute;
       right: 5px;
