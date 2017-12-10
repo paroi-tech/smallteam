@@ -7,12 +7,6 @@ const itemTemplate = require("./li.monk")
 
 export type Alignment = "left" | "right"
 
-/**
- * Dropdown menu component.
- *
- * It is made by a button and a list of clickable items shown when the button is clicked.
- * Each item in the menu has an ID and an event emited when clicked.
- */
 export class DropdownMenu {
   readonly el: HTMLElement
   private ul: HTMLElement
@@ -99,21 +93,9 @@ export class DropdownMenu {
     }
   }
 
-  // public disableItem(itemId: string) {
-  //   let arr = this.items.get(itemId)
-  //   if (arr)
-  //     arr[0].style.pointerEvents = "none"
-  // }
-
   public setButtonContent(content: string) {
     this.btnEl.textContent = content
   }
-
-  // public enableItem(itemId: string) {
-  //   let arr = this.items.get(itemId)
-  //   if (arr)
-  //     arr[0].style.pointerEvents = "auto"
-  // }
 
   public setItemLabel(id: string, label: string) {
     let arr = this.items.get(id)

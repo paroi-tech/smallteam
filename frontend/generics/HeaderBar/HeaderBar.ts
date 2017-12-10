@@ -11,7 +11,6 @@ export interface HeaderBarButton {
 export default class HeaderBar {
   readonly el: HTMLElement
 
-  private view: MonkberryView
   private teamNameEl: HTMLElement
   private menuUl: HTMLUListElement
 
@@ -27,11 +26,11 @@ export default class HeaderBar {
   }
 
   private createView() {
-    let el = document.createElement("div")
-    this.view = render(template, el)
+    let view = render(template, document.createElement("div"))
+    let el = view.nodes[0] as HTMLLIElement
 
-    this.teamNameEl =  this.el.querySelector(".js-teamName") as HTMLElement
-    this.menuUl =  this.el.querySelector(".js-menuUl") as HTMLUListElement
+    this.teamNameEl =  el.querySelector(".js-teamName") as HTMLElement
+    this.menuUl = el.querySelector(".js-menuUl") as HTMLUListElement
 
     return el
   }

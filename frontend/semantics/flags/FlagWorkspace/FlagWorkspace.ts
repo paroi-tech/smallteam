@@ -151,7 +151,7 @@ export default class FlagWorkspace implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-        .setSidebarEl(this.menu.el)
+        .setTitleRightEl(this.menu.el)
         .setTitle("Flags")
   }
 

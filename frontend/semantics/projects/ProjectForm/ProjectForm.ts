@@ -244,7 +244,7 @@ export default class ProjectForm implements Workspace {
       this.setProject(undefined)
     ctrl.setContentEl(this.el)
     ctrl.setTitle(this.hasProject() ? "Edit ptoject" : "Create new project")
-    ctrl.setSidebarEl(this.menu.el)
+    ctrl.setTitleRightEl(this.menu.el)
     this.nameEl.focus()
   }
 

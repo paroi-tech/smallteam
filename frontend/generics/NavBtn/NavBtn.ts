@@ -7,7 +7,7 @@ const templateWithAlert = require("./NavBtn-withAlert.monk")
 export interface NavBtnOptions {
   label: string
   cssClass?: string | string[]
-  clickHandler: () => void
+  onClick: () => void
   canHaveAlert?: boolean
 }
 
@@ -49,7 +49,7 @@ export default class NavBtn {
         el.classList.add(...this.options.cssClass)
     }
 
-    el.onclick = this.options.clickHandler
+    el.onclick = this.options.onClick
     return el
   }
 }

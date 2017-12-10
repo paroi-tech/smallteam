@@ -6,15 +6,17 @@ const template = require("./StatusBar.monk")
 export default class StatusBar {
   readonly el: HTMLElement
 
-  private view: MonkberryView
-
   constructor(private dash: Dash) {
     this.el = this.createView()
   }
 
   private createView() {
-    let el = document.createElement("div")
-    this.view = render(template, el)
+    let view = render(template, document.createElement("div"))
+    let el = view.nodes[0] as HTMLButtonElement
     return el
+  }
+
+  public addItem(el: HTMLElement) {
+    this.el.appendChild(el)
   }
 }

@@ -1,2 +1,24 @@
 .NavBtn {
+  padding: 0 10px;
+  height: 100%;
+}
+
+.WithIcon {
+  position: relative;
+  &::after {
+    content: "";
+    height: 25px;
+    position: absolute;
+    top: 0;
+    width: 25px;
+  }
+  &.right {
+    padding-right: 40px;
+    &::after {
+      right: 10px;
+    }
+  }
+  &.notif::after {
+    background: url(sprite.png) no-repeat 0 -25px;
+  }
 }

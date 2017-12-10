@@ -120,7 +120,7 @@ export default class ProjectWorkspace implements Workspace {
     this.ctrl = ctrl
     ctrl.setContentEl(this.taskBoard.el)
         .setTitle(this.project.name)
-        .setSidebarEl(this.dropdownMenu.el)
+        .setTitleRightEl(this.dropdownMenu.el)
   }
 
   public deactivate() {

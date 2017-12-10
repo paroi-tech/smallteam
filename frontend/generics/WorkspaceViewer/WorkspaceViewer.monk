@@ -1,17 +1,7 @@
-<div class="WorkspaceViewer">
-  <div class="WorkspaceViewer-wrapper">
-    <nav class="WorkspaceViewer-nav NavBar">
-      <div class="NavBar-left js-nav-left"></div>
-      <div class="NavBar-right js-nav-right"></div>
-    </nav>
-    <div class="WorkspaceViewer-title">
-      <header class="TitleBar">
-        <div class="TitleBar-h1Wrapper">
-          <h1 class="TitleBar-h1 js-h1"></h1>
-        </div>
-        <div class="TitleBar-sidebar js-sidebar"></div>
-      </header>
-    </div>
-    <div class="WorkspaceViewer-body js-body"></div>
-  </div>
-</div>
+<section class="WorkspaceViewer">
+  <header class="WorkspaceViewer-title TitleBar">
+    <h1 class="TitleBar-h1 js-h1"></h1>
+    <div class="TitleBar-right js-customMenu"></div>
+  </header>
+  <div class="WorkspaceViewer-body js-body"></div>
+</section>

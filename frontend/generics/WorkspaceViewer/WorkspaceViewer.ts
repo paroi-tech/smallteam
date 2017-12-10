@@ -1,9 +1,6 @@
 import config from "../../../isomorphic/config"
 import { Dash } from "bkb"
 import { render } from "monkberry"
-import { Menu, MenuItem } from "../Menu/Menu"
-import { DropdownMenu } from "../DropdownMenu/DropdownMenu"
-import SessionMenu from "../SessionMenu/SessionMenu"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { removeAllChildren } from "../../libraries/utils"
 
@@ -16,10 +13,10 @@ export interface Workspace {
 }
 
 export interface ViewerController {
-  setMenuLabel(label: string): this
+  // setMenuLabel(label: string): this
   setTitle(title: string): this
   setContentEl(el: HTMLElement): this
-  setSidebarEl(el: HTMLElement): this
+  setTitleRightEl(el: HTMLElement): this
 }
 
 interface WorkspaceInfo {
@@ -32,9 +29,6 @@ interface WorkspaceInfo {
 export default class WorkspaceViewer {
   readonly el: HTMLElement
 
-  private menu: Menu
-  private dropdownMenu: DropdownMenu
-  private sessionMenu: SessionMenu
   private currentWInfo: WorkspaceInfo | undefined
 
   private symb404 = Symbol("404")
@@ -43,15 +37,13 @@ export default class WorkspaceViewer {
   private view: MonkberryView
 
   private h1El: HTMLElement
-  private sidebarEl: HTMLElement
+  private customMenuPlaceEl: HTMLElement
   private bodyEl: HTMLElement
 
   readonly router: EasyRouter
 
   constructor(private dash: Dash) {
     this.el = this.createView()
-
-    this.dash.listenToChildren<string>("select").onData(path => this.router.navigate(path).catch(console.log))
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)
@@ -97,17 +89,6 @@ export default class WorkspaceViewer {
 
   public addWorkspace(path: string, menu: "main" | "dropdown", menuLabel: string, w: Workspace) {
     this.workspaces.set(path, { workspace: w, path, menu, defaultTitle: menuLabel })
-    if (menu === "main") {
-      this.menu.addItem({
-        id: path,
-        label: menuLabel
-      })
-    } else {
-      this.dropdownMenu.addItem({
-        id: path,
-        label: menuLabel
-      })
-    }
     this.router.map({
       route: path,
       activate: (query: ERQuery) => {
@@ -129,18 +110,10 @@ export default class WorkspaceViewer {
   public removeWorkspace(path: string) {
     let info = this.workspaces.get(path)
     if (info) {
-      if (info.path)
-        this.getMenu(info).removeItem(info.path)
       this.workspaces.delete(path)
       if (info === this.currentWInfo)
         this.router.navigate("") // Home
     }
-  }
-
-  private getMenu(info: WorkspaceInfo): Menu | DropdownMenu {
-    if (!info.menu)
-      throw new Error(`Missing menu for workspace: "${info.path}"`)
-    return info.menu === "main" ? this.menu : this.dropdownMenu
   }
 
   private activateWorkspace(path: string | Symbol, data?: any) {
@@ -151,7 +124,7 @@ export default class WorkspaceViewer {
       this.currentWInfo.workspace.deactivate()
       this.h1El.textContent = info.defaultTitle
       removeAllChildren(this.bodyEl)
-      removeAllChildren(this.sidebarEl)
+      removeAllChildren(this.customMenuPlaceEl)
     }
     info.workspace.activate(this.createViewController(info))
     this.currentWInfo = info
@@ -159,15 +132,6 @@ export default class WorkspaceViewer {
 
   private createViewController(info: WorkspaceInfo): ViewerController {
     let obj = {
-      setMenuLabel: (label: string) => {
-        if (info.path) {
-          if (info.menu === "main")
-            this.menu.setItemLabel(info.path, label)
-          else if (info.menu === "dropdown")
-            this.dropdownMenu.setItemLabel(info.path, label)
-        }
-        return obj
-      },
       setTitle: (title: string) => {
         this.h1El.textContent = title
         return obj
@@ -177,9 +141,9 @@ export default class WorkspaceViewer {
         this.bodyEl.appendChild(el)
         return obj
       },
-      setSidebarEl: (el: HTMLElement) => {
-        removeAllChildren(this.sidebarEl)
-        this.sidebarEl.appendChild(el)
+      setTitleRightEl: (el: HTMLElement) => {
+        removeAllChildren(this.customMenuPlaceEl)
+        this.customMenuPlaceEl.appendChild(el)
         return obj
       }
     }
@@ -191,26 +155,9 @@ export default class WorkspaceViewer {
     this.view = render(template, el)
 
     this.h1El = el.querySelector(".js-h1") as HTMLElement
-    this.sidebarEl = el.querySelector(".js-sidebar") as HTMLElement
+    this.customMenuPlaceEl = el.querySelector(".js-customMenu") as HTMLElement
     this.bodyEl = el.querySelector(".js-body") as HTMLElement
 
-    this.menu = this.dash.create(Menu)
-
-    let navLeftEl = el.querySelector(".js-nav-left") as HTMLElement
-    navLeftEl.appendChild(this.menu.el)
-
-    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
-    let navRightEl = el.querySelector(".js-nav-right") as HTMLElement
-    navRightEl.appendChild(this.dropdownMenu.el)
-
-    this.sessionMenu = this.dash.create(SessionMenu, "right")
-    navRightEl.appendChild(this.sessionMenu.el)
-
     return el
-  }
-
-  public addElementToHeader(el: HTMLElement) {
-    let headerEl = this.el.querySelector(".js-nav-right") as HTMLElement
-    headerEl.insertBefore(el, this.dropdownMenu.el)
   }
 }

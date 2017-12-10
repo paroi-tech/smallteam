@@ -15,11 +15,12 @@ import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
 import Workspace404 from "../generics/Workspace404/Workspace404"
 import config from "../../isomorphic/config"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
+import AppFrame from "../AppFrame/AppFrame";
 
 export default class App {
   readonly log: Log
   private _model: Model
-  private viewer?: WorkspaceViewer
+  private appFrame?: AppFrame
 
   constructor(private dash: ApplicationDash<App>) {
     this.log = dash.log
@@ -32,9 +33,9 @@ export default class App {
   }
 
   public async navigate(queryString: string): Promise<void> {
-    if (!this.viewer)
+    if (!this.appFrame)
       return
-    await this.viewer.router.navigate(queryString)
+    await this.appFrame.viewer.router.navigate(queryString)
   }
 
   public async connect(): Promise<SessionData> {
@@ -105,48 +106,13 @@ export default class App {
     let appEl = document.querySelector(".js-app")
 
     if (appEl) {
-      this.viewer = this.dash.create(WorkspaceViewer)
-      this.createWorkspaces(this.viewer)
-      this.viewer.start()
-      appEl.appendChild(this.viewer.el)
-
-      let bgCommandManager = this.dash.create(BackgroundCommandManager)
-
-      this.viewer.addElementToHeader(bgCommandManager.buttonEl)
+      this.appFrame = this.dash.create(AppFrame)
+      appEl.appendChild(this.appFrame.el)
     }
   }
 
   public async restart() {
 
-  }
-
-  private createWorkspaces(viewer: WorkspaceViewer) {
-    viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
-    viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
-    viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
-    viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
-    viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
-    viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
-    viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
-
-    let w = this.dash.create(ContributorHome, this.model.session.contributor)
-    viewer.addHomeWorkspace("Personal space", w, "/settings/my-profile")
-
-    let projects = this.model.global.projects
-    for (let p of projects)
-      this.addProject(viewer, p)
-
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createProject").onData(
-      data => this.addProject(viewer, data.model)
-    )
-
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteProject").onData(
-      data => viewer.removeWorkspace(`/prj-${data.id}`)
-    )
-  }
-
-  private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
-    viewer.addWorkspace(`/prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, p))
   }
 
   private async initModel(sessionData: SessionData) {

@@ -1,6 +1,4 @@
 <section class="HeaderBar FlexBar">
-  <div class="js-teamName"></div>
-  <nav class="grow">
-    <ul class="FlexBar js-menuUl"></ul>
-  </nav>
+  <div class="js-teamName"><img src="logo.png" width="140" height="40"/></div>
+  <ul class="FlexBar js-menuUl"></ul>
 </section>
