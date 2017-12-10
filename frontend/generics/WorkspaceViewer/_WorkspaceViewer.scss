@@ -44,6 +44,13 @@
     align-items: center;
     display: flex;
 
+    > .DropdownMenu .DropdownMenu-btn {
+      box-sizing: content-box;
+      height: 20px;
+      position: relative;
+      padding: 5px 30px 5px 5px;
+    }
+
     > .DropdownMenu .DropdownMenu-btn::after {
       background: url("./images/sprite.png") no-repeat -1px -54px;
       content: "";

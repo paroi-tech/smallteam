@@ -19,14 +19,12 @@ export class DropdownMenu {
   private btnEl: HTMLButtonElement
 
   private buttons = new Set<HTMLElement>()
-
-  private view: MonkberryView
-
   private items = new Map<string, HTMLElement[]>()
+  private view: MonkberryView
 
   private menuVisible = false
 
- constructor(private dash: Dash, readonly align: Alignment, private label?: string) {
+ constructor(private dash: Dash, readonly align: Alignment, private label: string) {
     this.el = this.createView()
   }
 
@@ -41,9 +39,8 @@ export class DropdownMenu {
     this.btnEl = el.querySelector(".js-btn") as HTMLButtonElement
     this.btnEl.addEventListener("click", ev => this.toggle())
     this.btnEl.addEventListener("focusout", ev => this.onButtonFocusLose(ev as FocusEvent))
-    if (this.label)
-      this.btnEl.textContent = this.label
     this.buttons.add(this.btnEl)
+    this.setLabel(this.label) // Weird but useful to keep the default label if user passes empty string as label...
 
     return el
   }
@@ -105,8 +102,11 @@ export class DropdownMenu {
       arr[0].style.pointerEvents = "none"
   }
 
-  public setButtonContent(content: string) {
-    this.btnEl.textContent = content
+  public setLabel(label: string) {
+    if (label) {
+      this.label = label
+      this.btnEl.textContent = label
+    }
   }
 
   public enableItem(itemId: string) {
@@ -126,5 +126,4 @@ export class DropdownMenu {
     if (!this.buttons.has(ev.relatedTarget as HTMLElement) && this.menuVisible)
       this.hideMenu()
   }
-
 }

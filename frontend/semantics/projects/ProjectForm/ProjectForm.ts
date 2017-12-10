@@ -69,7 +69,7 @@ export default class ProjectForm implements Workspace {
   }
 
   private createDropdownMenu() {
-    let menu = this.dash.create(DropdownMenu)
+    let menu = this.dash.create(DropdownMenu, "left", "")
 
     menu.addItem({
       id: "clear",

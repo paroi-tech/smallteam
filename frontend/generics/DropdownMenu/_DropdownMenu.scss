@@ -2,14 +2,10 @@
   position: relative;
 
   &-btn {
-    box-sizing: content-box;
     display: block;
-    height: 20px;
-    padding: 5px 30px 5px 5px;
-    position: relative;
+    padding: 5px;
 
-    &:focus,
-    &:hover {
+    &:focus, &:hover {
       background-color: rgba(255, 255, 255, 0.42);
       outline: none;
     }

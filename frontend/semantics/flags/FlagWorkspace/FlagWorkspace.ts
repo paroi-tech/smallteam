@@ -85,7 +85,7 @@ export default class FlagWorkspace implements Workspace {
     this.form = this.dash.create(FlagForm)
     this.formContainerEl.appendChild(this.form.el)
 
-    this.menu = this.dash.create(DropdownMenu, "left")
+    this.menu = this.dash.create(DropdownMenu, "left", "")
     this.menu.addItem({
       id: "createFlag",
       label: "Add new flag"

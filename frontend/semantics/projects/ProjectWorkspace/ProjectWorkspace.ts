@@ -98,7 +98,7 @@ export default class ProjectWorkspace implements Workspace {
    * Create ProjectWorkspace inner components, i.e. Menu, DropDownMenu, and TaskBoard.
    */
   private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, "left")
+    this.dropdownMenu = this.dash.create(DropdownMenu, "left", "")
     this.dropdownMenu.addItems(menuItems)
 
     this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)

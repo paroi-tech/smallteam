@@ -72,7 +72,7 @@ export default class ContributorWorkspace implements Workspace {
     this.boxList = this.dash.create(BoxList, params)
     this.boxListContainerEl.appendChild(this.boxList.el)
 
-    this.menu = this.dash.create(DropdownMenu, "left")
+    this.menu = this.dash.create(DropdownMenu, "left", "")
     this.menu.addItem({
       id: "createContributor",
       label: "Add contributor"

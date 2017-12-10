@@ -48,7 +48,7 @@ export default class StepForm {
   }
 
   private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
+    this.dropdownMenu = this.dash.create(DropdownMenu, "right", "")
     this.dropdownMenu.addItem({
       id: "deleteCurrentStep",
       label: "Delete step"
