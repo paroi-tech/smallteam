@@ -54,4 +54,8 @@ export default class NavBtn {
   public setLabel(label: string) {
     this.labelEl.textContent = label
   }
+
+  public addCssClass(cssClass: string | string[]) {
+    addCssClass(this.el, cssClass)
+  }
 }

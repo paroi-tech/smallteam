@@ -13,6 +13,7 @@ export interface DropdownMenuOptions {
    * Default value is: "right"
    */
   align?: "left" | "right"
+  navMenuOptions?: NavMenuOptions
 }
 
 export class DropdownMenu {
@@ -27,9 +28,9 @@ export class DropdownMenu {
     this.btnEl = options.btnEl
     let view = render(template, document.createElement("div"))
     this.el = view.nodes[0] as HTMLElement
-    this.entries = dash.create(NavMenu, {
-      direction: "column"
-    } as NavMenuOptions)
+
+    this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
+
     this.el.appendChild(this.entries.el)
     if (options.align !== "left")
       this.el.classList.add(options.align || "right")
@@ -76,5 +77,17 @@ export class DropdownMenu {
       return
     this.isVisible = false
     this.el.style.display = "none"
+  }
+}
+
+function makeNavMenuOptions(options: DropdownMenuOptions) {
+  let btnCssClass = options.navMenuOptions ? options.navMenuOptions.btnCssClass : undefined
+  btnCssClass = btnCssClass ? (typeof btnCssClass === "string" ? [btnCssClass] : btnCssClass) : []
+  btnCssClass.push("DdMenuBtn")
+
+  return {
+    direction: "column",
+    ...options.navMenuOptions,
+    btnCssClass
   }
 }

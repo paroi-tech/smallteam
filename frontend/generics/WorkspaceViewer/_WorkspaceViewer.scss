@@ -2,6 +2,14 @@
 }
 
 .TitleBar {
+  background-color: #e9efff;
+  line-height: 28px;
+  position: relative;
+  &-right {
+    position: absolute;
+    right: 0;
+    top: 0;
+  }
 }
 
 // .WorkspaceViewer {

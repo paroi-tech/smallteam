@@ -1,2 +1,8 @@
 .NavMenu {
+  & > li {
+    display: flex;
+    & > * {
+      flex: 1;
+    }
+  }
 }

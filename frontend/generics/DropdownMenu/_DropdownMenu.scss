@@ -1,9 +1,19 @@
 .DropdownMenu {
+  min-width: 174px;
   position: absolute;
 
   &.right {
     right: 0;
   }
+}
+
+.DdMenuBtn {
+  background-color: #051837;
+  color: #fff;
+  padding-bottom: 4px;
+  padding-top: 4px;
+  text-align: left;
+}
 
   // &-btn {
   //   display: block;
@@ -40,4 +50,3 @@
   //   position: absolute;
   //   z-index: 100;
   // }
-}

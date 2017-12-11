@@ -36,17 +36,17 @@ export default class AppFrame {
     let view = render(template, document.createElement("div"))
     this.el = view.nodes[0] as HTMLButtonElement
 
-    let topEl =  this.el.querySelector(".js-top") as HTMLElement
+    let topEl = this.el.querySelector(".js-top") as HTMLElement
     topEl.appendChild(this.createHeaderBar().el)
 
-    let bottomEl =  this.el.querySelector(".js-bottom") as HTMLElement
+    let bottomEl = this.el.querySelector(".js-bottom") as HTMLElement
     bottomEl.appendChild(this.createStatusBar().el)
 
-    let sideEl =  this.el.querySelector(".js-side") as HTMLElement
+    let sideEl = this.el.querySelector(".js-side") as HTMLElement
     sideEl.appendChild(this.createSidebar().el)
 
     this.viewer = this.createWorkspaceViewer()
-    let contentEl =  this.el.querySelector(".js-content") as HTMLElement
+    let contentEl = this.el.querySelector(".js-content") as HTMLElement
     contentEl.appendChild(this.viewer.el)
   }
 
@@ -113,7 +113,12 @@ export default class AppFrame {
   }
 
   private createSettingsMenu(btnEl: HTMLElement) {
-    let ddMenu = this.dash.create(DropdownMenu, { btnEl } as DropdownMenuOptions)
+    let ddMenu = this.dash.create(DropdownMenu, {
+      btnEl,
+      // navMenuOptions: {
+      //   btnCssClass: "BgDark1"
+      // }
+    } as DropdownMenuOptions)
     ddMenu.entries.createNavBtn(
       {
         label: "New project",

@@ -9,16 +9,17 @@ const liTemplate = require("./li.monk")
 export type Direction = "row" | "column" | "rowReverse" | "columnReverse"
 
 export interface NavMenuOptions {
-  cssClass?: string | string[]
   /**
    * Default value is: "row"
    */
   direction?: Direction
+  cssClass?: string | string[]
+  btnCssClass?: string | string[]
 }
 
-export interface NavMenuButton {
-  el: HTMLElement
-}
+// export interface NavMenuButton {
+//   el: HTMLElement
+// }
 
 export default class NavMenu {
   readonly el: HTMLUListElement
@@ -36,8 +37,10 @@ export default class NavMenu {
     this.addItem(...btnOptions.map(options => this.dash.create(NavBtn, options)))
   }
 
-  public addItem(...buttons: NavMenuButton[]) {
+  public addItem(...buttons: NavBtn[]) {
     for (let btn of buttons) {
+      if (this.options.btnCssClass)
+        btn.addCssClass(this.options.btnCssClass)
       let view = render(liTemplate, document.createElement("div"))
       let li = view.nodes[0] as HTMLLIElement
       li.appendChild(btn.el)
