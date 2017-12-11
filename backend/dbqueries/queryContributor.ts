@@ -8,6 +8,8 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
+import { getRelatedFilesInfo } from "../uploadEngine"
+import config from "../../isomorphic/config"
 
 export const bcryptSaltRounds = 10
 
@@ -18,7 +20,7 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
     .where("contributor_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    let data = toContributorFragment(row)
+    let data = await toContributorFragment(row)
     context.loader.modelUpdate.addFragment("Contributor", data.id, data)
   }
 }
@@ -28,7 +30,7 @@ export async function fetchContributors(context: BackendContext) {
     .orderBy("name")
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    let frag = toContributorFragment(row)
+    let frag = await toContributorFragment(row)
     context.loader.addFragment({
       type: "Contributor",
       frag,
@@ -37,13 +39,19 @@ export async function fetchContributors(context: BackendContext) {
   }
 }
 
-function toContributorFragment(row): ContributorFragment {
-  return {
-    id: row["contributor_id"].toString(),
-    name: row["name"],
+async function toContributorFragment(row): Promise<ContributorFragment> {
+  let frag: ContributorFragment = {
+    id:    row["contributor_id"].toString(),
+    name:  row["name"],
     login: row["login"],
     email: row["email"]
   }
+  let arr = await getRelatedFilesInfo("contributor_id", frag.id)
+
+  if (arr.length >= 1)
+    frag.avatarUrl = `${config.urlPrefix}/get-file/${arr[0].fileId}`
+
+  return frag
 }
 
 function selectFromContributor() {

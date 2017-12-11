@@ -4,7 +4,6 @@ import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
-import { privateDecrypt } from "crypto";
 
 const template = require("./ContributorForm.monk")
 
@@ -41,49 +40,12 @@ export default class ContributorForm {
     this.log = this.dash.app.log
     this.el = this.createHtmlElements()
 
-    this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(data => {
-      if (!this.contributor || this.contributor.id !== data.id)
-        return
-
-      this.canClearForm = false
-      this.state.frag = this.contributor.updateTools.toFragment("update") as any
-      this.view.update(this.state)
-
-      this.hideIndicators()
-      this.fieldsetEl.disabled = false
-    })
-  }
-
-  private createHtmlElements() {
-    this.view = render(template, document.createElement("div"), { directives })
-    let el = this.view.nodes[0] as HTMLElement
-
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
-    this.loginEl = el.querySelector(".js-login") as HTMLInputElement
-    this.emailEl = el.querySelector(".js-email") as HTMLInputElement
-    this.busyIndicatorEl = el.querySelector(".js-busy-indicator") as HTMLElement
-    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
-
-    this.view.update(this.state)
-
-    return el
-  }
-
-  public setContributor(contributor: ContributorModel) {
-    this.canClearForm = false
-    this.contributor = contributor
-
-    this.state.frag = contributor.updateTools.toFragment("update") as any
-    this.view.update(this.state)
-
-    if (contributor.updateTools.processing) {
-      this.fieldsetEl.disabled = true
-      this.showIndicators()
-    } else {
-      this.fieldsetEl.disabled = false
-      this.hideIndicators()
-    }
+    this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(
+      data => this.onEndProcessing(data)
+    )
+    this.dash.listenTo<ContributorModel>(this.model, "processingContributor").onData(
+      data => this.onProcessing(data)
+    )
   }
 
   public reset() {
@@ -100,17 +62,62 @@ export default class ContributorForm {
   public switchToCreationMode() {
     this.reset()
     this.canClearForm = false
-    this.fieldsetEl.disabled = false
+    this.unlockForm()
     this.nameEl.focus()
   }
+
+  // --
+  // -- Initialization functions
+  // --
+
+  private createHtmlElements() {
+    this.view = render(template, document.createElement("div"), { directives })
+
+    let el = this.view.nodes[0] as HTMLElement
+
+    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
+    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
+    this.loginEl = el.querySelector(".js-login") as HTMLInputElement
+    this.emailEl = el.querySelector(".js-email") as HTMLInputElement
+    this.busyIndicatorEl = el.querySelector(".js-busy-indicator") as HTMLElement
+    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
+
+    this.view.update(this.state)
+
+    return el
+  }
+
+  // --
+  // -- Accessors
+  // --
+
+  public setContributor(contributor: ContributorModel) {
+    this.canClearForm = false
+    this.contributor  = contributor
+
+    this.state.frag = contributor.updateTools.toFragment("update") as any
+    this.view.update(this.state)
+
+    if (contributor.updateTools.processing)
+      this.lockForm()
+    else
+      this.unlockForm()
+  }
+
+  get currentContributor(): ContributorModel | undefined {
+    return this.contributor
+  }
+
+  // --
+  // -- Event handlers
+  // --
 
   private async onSubmit() {
     let data = this.checkUserInput()
     if (!data)
       return
 
-    this.showIndicators()
-    this.fieldsetEl.disabled = true
+    this.lockForm()
     if (!this.contributor) {
       this.canClearForm = true
       await this.createContributor(data)
@@ -123,8 +130,53 @@ export default class ContributorForm {
       // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
         this.updateContributor({ id, ...frag })
+      else
+        this.unlockForm()
     }
   }
+
+  private onEndProcessing(data: ContributorModel) {
+    if (!this.contributor || this.contributor.id !== data.id)
+      return
+
+    this.canClearForm = false
+    this.state.frag = this.contributor.updateTools.toFragment("update") as any
+    this.view.update(this.state)
+
+    this.unlockForm()
+  }
+
+  private onProcessing(data: ContributorModel) {
+    if (!this.contributor || this.contributor.id !== data.id)
+      return
+    this.lockForm()
+  }
+
+  // --
+  // -- Model update functions
+  // --
+
+  private async createContributor(frag: ContributorCreateFragment) {
+    try {
+      await this.model.exec("create", "Contributor", frag)
+    } catch (err) {
+      this.log.error("Unable to create new contributor...", err)
+    }
+  }
+
+  private async updateContributor(frag: ContributorUpdateFragment) {
+    if (!this.contributor)
+      return
+    try {
+      await this.model.exec("update", "Contributor", frag)
+    } catch (err) {
+      this.log.error(`Unable to update contributor...`)
+    }
+  }
+
+  // --
+  // -- Utilities
+  // --
 
   private checkUserInput() {
     let frag = {
@@ -154,26 +206,9 @@ export default class ContributorForm {
     return frag
   }
 
-  private async createContributor(frag: ContributorCreateFragment) {
-    try {
-      await this.model.exec("create", "Contributor", frag)
-    } catch (err) {
-      this.log.error("Unable to create new contributor...", err)
-    }
-  }
-
-  private async updateContributor(frag: ContributorUpdateFragment) {
-    if (!this.contributor)
-      return
-    try {
-      await this.model.exec("update", "Contributor", frag)
-    } catch (err) {
-      this.log.error(`Unable to update contributor...`)
-    }
-  }
-
-  get currentContributor(): ContributorModel | undefined {
-    return this.contributor
+  private validateEmail(email: string): boolean {
+    // Email address is limited to 254 characters => https://en.wikipedia.org/wiki/Email_address
+    return (email.length > 0 && email.length <= 254)
   }
 
   private showIndicators() {
@@ -186,9 +221,13 @@ export default class ContributorForm {
     this.submitSpinnerEl.style.display = "none"
   }
 
-  // FIXME: Improve this method.
-  private validateEmail(email: string): boolean {
-    // Email address is limited to 254 characters => https://en.wikipedia.org/wiki/Email_address
-    return email.length <= 254
+  private lockForm() {
+    this.fieldsetEl.disabled = true
+    this.showIndicators()
+  }
+
+  private unlockForm() {
+    this.fieldsetEl.disabled = false
+    this.hideIndicators()
   }
 }

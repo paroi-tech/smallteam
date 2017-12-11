@@ -4,7 +4,7 @@ import App from "../../App/App"
 import NavBtn, { NavBtnOptions } from "../../generics/NavBtn/NavBtn";
 import { DropdownMenu, DropdownMenuOptions } from "../../generics/DropdownMenu/DropdownMenu";
 
-// const manIcon = "\u{1F468}"
+const template = require("./SessionMenu.monk")
 
 export default class SessionMenu {
   readonly menu: DropdownMenu
