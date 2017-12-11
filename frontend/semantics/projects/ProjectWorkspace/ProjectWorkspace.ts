@@ -50,7 +50,7 @@ export default class ProjectWorkspace implements Workspace {
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl(),
-      align: "left"
+      align: "right"
     } as DropdownMenuOptions)
     this.dropdownMenu.entries.createNavBtn(
       {

@@ -111,9 +111,8 @@ export default class App {
     }
   }
 
-  public async restart() {
-
-  }
+  // public async restart() {
+  // }
 
   private async initModel(sessionData: SessionData) {
     this._model = this.dash.create(ModelComp, sessionData)

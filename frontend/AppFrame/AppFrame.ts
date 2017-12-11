@@ -29,6 +29,7 @@ export default class AppFrame {
   readonly viewer: WorkspaceViewer
 
   private model: Model
+  private sidebar: Sidebar
 
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model
@@ -84,6 +85,7 @@ export default class AppFrame {
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
     viewer.addWorkspace(`/prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, p))
+    this.sidebar.addProject(p, `/prj-${p.id}`)
   }
 
   private createHeaderBar() {
@@ -158,6 +160,7 @@ export default class AppFrame {
 
   private createSidebar() {
     let bar = this.dash.create(Sidebar)
+    this.sidebar = bar;
     return bar
   }
 }

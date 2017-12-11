@@ -1,6 +1,4 @@
 <section class="Sidebar FlexBar column">
-  <nav class="grow">
-    <ul class="js-menuUl"></ul>
-  </nav>
-  <div class="js-bottom"></div>
+  <div class="grow js-top"></div>
+  <div class="Sidebar-bottom js-bottom"></div>
 </section>
