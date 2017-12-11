@@ -1,6 +1,7 @@
 .DropdownMenu {
   min-width: 174px;
   position: absolute;
+  z-index: 1;
 
   &.right {
     right: 0;
