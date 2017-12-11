@@ -1,24 +1,47 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
+import { addCssClass, catchAndLog } from "../../libraries/utils";
 
 const template = require("./NavBtn.monk")
 const templateWithAlert = require("./NavBtn-withAlert.monk")
+const templateWrapper = require("./NavBtnWrapper.monk")
 
 export interface NavBtnOptions {
   label: string
   cssClass?: string | string[]
-  onClick: () => void
+  onClick?: () => void
   canHaveAlert?: boolean
+  withWrapper?: boolean
 }
 
 export default class NavBtn {
   readonly el: HTMLButtonElement
+  readonly btnEl: HTMLButtonElement
 
   private labelEl: HTMLElement
   private alertEl?: HTMLElement
 
   constructor(private dash: Dash, private options: NavBtnOptions) {
-    this.el = this.createView()
+    let view = render(options.canHaveAlert ? templateWithAlert : template, document.createElement("div"))
+    this.btnEl = view.nodes[0] as HTMLButtonElement
+
+    this.labelEl = options.canHaveAlert ? this.btnEl.querySelector(".js-lbl") as HTMLElement : this.btnEl
+    this.setLabel(options.label)
+
+    if (options.canHaveAlert)
+      this.alertEl = this.btnEl.querySelector(".js-alert") as HTMLElement
+
+    addCssClass(this.btnEl, options.cssClass)
+
+    if (options.onClick)
+      this.btnEl.addEventListener("click", catchAndLog(options.onClick))
+
+    if (options.withWrapper) {
+      let view = render(templateWrapper, document.createElement("div"))
+      this.el = view.nodes[0] as HTMLButtonElement
+      this.el.appendChild(this.btnEl)
+    } else
+      this.el = this.btnEl
   }
 
   public setAlertCount(count: number) {
@@ -30,26 +53,5 @@ export default class NavBtn {
 
   public setLabel(label: string) {
     this.labelEl.textContent = label
-  }
-
-  private createView() {
-    let view = render(this.options.canHaveAlert ? templateWithAlert : template, document.createElement("div"))
-    let el = view.nodes[0] as HTMLButtonElement
-
-    this.labelEl = this.options.canHaveAlert ? el.querySelector(".js-lbl") as HTMLElement : el
-    this.setLabel(this.options.label)
-
-    if (this.options.canHaveAlert)
-      this.alertEl = el.querySelector(".js-alert") as HTMLElement
-
-    if (this.options.cssClass) {
-      if (typeof this.options.cssClass === "string")
-        el.classList.add(this.options.cssClass)
-      else
-        el.classList.add(...this.options.cssClass)
-    }
-
-    el.onclick = this.options.onClick
-    return el
   }
 }

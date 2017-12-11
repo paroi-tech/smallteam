@@ -18,3 +18,26 @@ export function removeAllChildren(el: HTMLElement) {
   while (el.firstChild)
     el.removeChild(el.firstChild)
 }
+
+export function catchAndLog<C extends (...args: any[]) => any>(cb: C): C {
+  return ((...args: any[]) => {
+    try {
+      let res = cb(...args)
+      if (res && typeof res.then === "function" && typeof res.catch === "function") {
+        res = res.catch(err => {
+          console.log("[catchAndLog async]", err)
+        })
+      }
+      return res
+    } catch (err) {
+      console.log("[catchAndLog]", err)
+    }
+  }) as any
+}
+
+export function addCssClass(el: HTMLElement, cssClass?: string | string[]) {
+  if (!cssClass)
+    return
+  cssClass = typeof cssClass === "string" ? [cssClass] : cssClass
+  el.classList.add(...cssClass)
+}

@@ -1,8 +1,9 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
 
 const template = require("./StepForm.monk")
 
@@ -27,7 +28,6 @@ export default class StepForm {
     this.model = this.dash.app.model
     this.el = this.createHtmlElements()
     this.createChildComponents()
-    this.listenToChildren()
     this.listenToForm()
     this.listenToModel()
   }
@@ -48,19 +48,14 @@ export default class StepForm {
   }
 
   private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, "right")
-    this.dropdownMenu.addItem({
-      id: "deleteCurrentStep",
-      label: "Delete step"
+    this.dropdownMenu = this.dash.create(DropdownMenu, {
+      btnEl: createCustomMenuBtnEl()
+    } as DropdownMenuOptions)
+    this.dropdownMenu.entries.createNavBtn({
+      label: "Delete step",
+      onClick: () => this.deleteCurrentStep()
     })
-    this.menuContainerEl.appendChild(this.dropdownMenu.el)
-  }
-
-  private listenToChildren() {
-    this.dash.listenTo(this.dropdownMenu, "select").onData(itemId => {
-      if (itemId === "deleteCurrentStep")
-        this.deleteCurrentStep()
-    })
+    this.menuContainerEl.appendChild(this.dropdownMenu.btnEl)
   }
 
   private listenToModel() {

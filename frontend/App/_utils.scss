@@ -7,6 +7,12 @@
   &.column {
     flex-direction: column;
   }
+  &.columnReverse {
+    flex-direction: column-reverse;
+  }
+  &.rowReverse {
+    flex-direction: row-reverse;
+  }
   & > .grow {
     flex: 1;
   }

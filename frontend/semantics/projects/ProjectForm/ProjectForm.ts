@@ -5,9 +5,11 @@ import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppMo
 import App from "../../../App/App"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepBox from "../../steps/StepBox/StepBox"
 import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
+import NavBtn from "../../../generics/NavBtn/NavBtn";
 
 const template = require("./ProjectForm.monk")
 
@@ -69,15 +71,16 @@ export default class ProjectForm implements Workspace {
   }
 
   private createDropdownMenu() {
-    let menu = this.dash.create(DropdownMenu)
+    let menu = this.dash.create(DropdownMenu, {
+      btnEl: createCustomMenuBtnEl()
+    } as DropdownMenuOptions)
 
-    menu.addItem({
-      id: "clear",
-      label: "Create another project"
-    })
-    this.dash.listenTo(menu, "select").onEvent(ev => {
-      this.setProject(undefined)
-      this.nameEl.focus()
+    menu.entries.createNavBtn({
+      label: "Create another project",
+      onClick: () => {
+        this.setProject(undefined)
+        this.nameEl.focus()
+      }
     })
 
     return menu
@@ -244,7 +247,7 @@ export default class ProjectForm implements Workspace {
       this.setProject(undefined)
     ctrl.setContentEl(this.el)
     ctrl.setTitle(this.hasProject() ? "Edit ptoject" : "Create new project")
-    ctrl.setTitleRightEl(this.menu.el)
+    ctrl.setTitleRightEl(this.menu.btnEl)
     this.nameEl.focus()
   }
 

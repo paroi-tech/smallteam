@@ -1,33 +1,11 @@
 import { Dash } from "bkb"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu";
 import TaskBoard from "../../tasks/TaskBoard/TaskBoard";
 import { Model, ProjectModel } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
-
-const menuItems = [
-  {
-    id: "editProject",
-    label: "Edit project"
-  },
-  {
-    id: "showTaskBoard",
-    label: "Show taskboard"
-  },
-  {
-    id: "showOnHoldTasks",
-    label: "Show on hold tasks"
-  },
-  {
-    id: "showArchivedTasks",
-    label: "Show archived tasks"
-  },
-  {
-    id: "deleteProject",
-    label: "Delete project"
-  }
-]
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
 
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: DropdownMenu
@@ -47,35 +25,7 @@ export default class ProjectWorkspace implements Workspace {
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
     this.createChildComponents()
-    this.listenToChildren()
     this.listenToModel()
-  }
-
-  private listenToChildren() {
-    this.dash.listenTo(this.dropdownMenu, "select").onData(itemId => {
-      switch (itemId) {
-        case "editProject":
-          if (this.ctrl) {
-            this.ctrl.setContentEl(this.form.el)
-            this.ctrl.setTitle(`Edit: ${this.project.name}`)
-          }
-          break;
-
-        case "showTaskBoard":
-          if (this.ctrl) {
-            this.ctrl.setContentEl(this.taskBoard.el)
-            this.ctrl.setTitle(this.project.name)
-          }
-          break;
-
-        case "deleteProject":
-          this.deleteProject()
-          break;
-
-        default:
-          throw new Error(`Unknown menu event ${itemId}`)
-      }
-    })
   }
 
   private async deleteProject() {
@@ -98,8 +48,46 @@ export default class ProjectWorkspace implements Workspace {
    * Create ProjectWorkspace inner components, i.e. Menu, DropDownMenu, and TaskBoard.
    */
   private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, "left")
-    this.dropdownMenu.addItems(menuItems)
+    this.dropdownMenu = this.dash.create(DropdownMenu, {
+      btnEl: createCustomMenuBtnEl(),
+      align: "left"
+    } as DropdownMenuOptions)
+    this.dropdownMenu.entries.createNavBtn(
+      {
+        label: "Edit project",
+        onClick: () => {
+          if (this.ctrl) {
+            this.ctrl.setContentEl(this.form.el)
+            this.ctrl.setTitle(`Edit: ${this.project.name}`)
+          }
+        }
+      },
+      {
+        label: "Show taskboard",
+        onClick: () => {
+          if (this.ctrl) {
+            this.ctrl.setContentEl(this.taskBoard.el)
+            this.ctrl.setTitle(this.project.name)
+          }
+        }
+      },
+      {
+        label: "Delete project",
+        onClick: () => this.deleteProject()
+      },
+      {
+        label: "Show on hold tasks",
+        onClick: () => {
+          console.log("Show on hold tasks not implemented…")
+        }
+      },
+      {
+        label: "Show archived tasks",
+        onClick: () => {
+          console.log("Show archived tasks not implemented…")
+        }
+      }
+    )
 
     this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
 
@@ -119,8 +107,8 @@ export default class ProjectWorkspace implements Workspace {
   public activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.taskBoard.el)
-        .setTitle(this.project.name)
-        .setTitleRightEl(this.dropdownMenu.el)
+      .setTitle(this.project.name)
+      .setTitleRightEl(this.dropdownMenu.btnEl)
   }
 
   public deactivate() {

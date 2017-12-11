@@ -4,10 +4,11 @@ import FlagForm from "../FlagForm/FlagForm"
 import FlagBox from "../FlagBox/FlagBox"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer";
 import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList";
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu";
 import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App";
 import { equal } from "../../../libraries/utils";
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
 
 const template = require("./FlagWorkspace.monk")
 
@@ -85,19 +86,13 @@ export default class FlagWorkspace implements Workspace {
     this.form = this.dash.create(FlagForm)
     this.formContainerEl.appendChild(this.form.el)
 
-    this.menu = this.dash.create(DropdownMenu, "left")
-    this.menu.addItem({
-      id: "createFlag",
-      label: "Add new flag"
-    })
-    this.dash.listenTo(this.menu, "select").onData(itemId => {
-      switch (itemId) {
-        case "createFlag":
-          this.form.switchToCreationMode()
-          break
-        default:
-          break
-      }
+    this.menu = this.dash.create(DropdownMenu, {
+      btnEl: createCustomMenuBtnEl(),
+      align: "left"
+    } as DropdownMenuOptions)
+    this.menu.entries.createNavBtn({
+      label: "Add new flag",
+      onClick: () => this.form.switchToCreationMode()
     })
   }
 
@@ -151,7 +146,7 @@ export default class FlagWorkspace implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-        .setTitleRightEl(this.menu.el)
+        .setTitleRightEl(this.menu.btnEl)
         .setTitle("Flags")
   }
 

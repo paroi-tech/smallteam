@@ -1,4 +1,3 @@
 <section class="HeaderBar FlexBar">
   <div class="js-teamName"><img src="logo.png" width="140" height="40"/></div>
-  <ul class="FlexBar js-menuUl"></ul>
 </section>

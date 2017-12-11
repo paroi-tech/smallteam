@@ -3,8 +3,9 @@ import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import { render } from "monkberry"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import BoxList from "../../../generics/BoxList/BoxList"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
 import App from "../../../App/App"
@@ -72,10 +73,12 @@ export default class ContributorWorkspace implements Workspace {
     this.boxList = this.dash.create(BoxList, params)
     this.boxListContainerEl.appendChild(this.boxList.el)
 
-    this.menu = this.dash.create(DropdownMenu, "left")
-    this.menu.addItem({
-      id: "createContributor",
-      label: "Add contributor"
+    this.menu = this.dash.create(DropdownMenu, {
+      btnEl: createCustomMenuBtnEl()
+    } as DropdownMenuOptions)
+    this.menu.entries.createNavBtn({
+      label: "Add contributor",
+      onClick: () => this.form.switchToCreationMode()
     })
   }
 
@@ -91,11 +94,6 @@ export default class ContributorWorkspace implements Workspace {
   private listenToChildren() {
     this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").onData(data => {
       this.form.setContributor(data)
-    })
-    this.dash.listenTo(this.menu, "select").onData(itemId => {
-      // FIXME: unselect current item in Contributor BoxList.
-      if (itemId === "createContributor")
-        this.form.switchToCreationMode()
     })
   }
 
@@ -115,8 +113,8 @@ export default class ContributorWorkspace implements Workspace {
 
   public activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-        .setTitleRightEl(this.menu.el)
-        .setTitle("Contributors")
+      .setTitleRightEl(this.menu.btnEl)
+      .setTitle("Contributors")
   }
 
   public deactivate() {

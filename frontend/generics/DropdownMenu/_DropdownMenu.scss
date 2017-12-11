@@ -1,39 +1,43 @@
 .DropdownMenu {
-  position: relative;
+  position: absolute;
 
-  &-btn {
-    display: block;
-    padding: 5px;
-
-    &:focus,
-    &:hover {
-      background-color: rgba(255, 255, 255, 0.42);
-      outline: none;
-    }
+  &.right {
+    right: 0;
   }
 
-  &-itemBtn {
-    border: 0;
-    color: $textColorDark1;
-    display: block;
-    font-weight: bold;
-    line-height: 20px;
-    padding: 3px 10px;
-    text-align: left;
-    width: 100%;
-    white-space: nowrap;
-    &:focus,
-    &:hover {
-      background-color: #205081;
-      color: white;
-    }
-  }
+  // &-btn {
+  //   display: block;
+  //   padding: 5px;
 
-  &-ul {
-    background-color: whitesmoke;
-    border: 1px solid gray;
-    display: none;
-    position: absolute;
-    z-index: 100;
-  }
+  //   &:focus,
+  //   &:hover {
+  //     background-color: rgba(255, 255, 255, 0.42);
+  //     outline: none;
+  //   }
+  // }
+
+  // &-itemBtn {
+  //   border: 0;
+  //   color: $textColorDark1;
+  //   display: block;
+  //   font-weight: bold;
+  //   line-height: 20px;
+  //   padding: 3px 10px;
+  //   text-align: left;
+  //   width: 100%;
+  //   white-space: nowrap;
+  //   &:focus,
+  //   &:hover {
+  //     background-color: #205081;
+  //     color: white;
+  //   }
+  // }
+
+  // &-ul {
+  //   background-color: whitesmoke;
+  //   border: 1px solid gray;
+  //   display: none;
+  //   position: absolute;
+  //   z-index: 100;
+  // }
 }

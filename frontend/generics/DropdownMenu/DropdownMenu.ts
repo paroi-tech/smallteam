@@ -1,112 +1,80 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
 import { MenuItem } from "../Menu/Menu"
+import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu";
+import { catchAndLog } from "../../libraries/utils";
 
 const template = require("./DropdownMenu.monk")
-const itemTemplate = require("./li.monk")
+const liTemplate = require("./li.monk")
 
-export type Alignment = "left" | "right"
+export interface DropdownMenuOptions {
+  btnEl: HTMLElement
+  /**
+   * Default value is: "right"
+   */
+  align?: "left" | "right"
+}
 
 export class DropdownMenu {
-  readonly el: HTMLElement
-  private ul: HTMLElement
-  private btnEl: HTMLButtonElement
+  readonly entries: NavMenu
+  readonly btnEl: HTMLElement
 
-  private buttons = new Set<HTMLElement>()
+  private el: HTMLElement
+  private detached = true
+  private isVisible = false
 
-  private view: MonkberryView
-
-  private items = new Map<string, HTMLElement[]>()
-
-  private menuVisible = false
-
- constructor(private dash: Dash, readonly align: Alignment = "right", private label?: string) {
-    this.el = this.createView()
-  }
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-
-    this.ul = el.querySelector(".js-ul") as HTMLElement
-    this.ul.style[this.align] = "0"
-
-    this.btnEl = el.querySelector(".js-btn") as HTMLButtonElement
-    this.btnEl.addEventListener("click", ev => this.toggle())
-    this.btnEl.addEventListener("focusout", ev => this.onButtonFocusLose(ev as FocusEvent))
-    if (this.label)
-      this.btnEl.textContent = this.label
-    this.buttons.add(this.btnEl)
-
-    return el
-  }
-
-  public addItem(item: MenuItem) {
-    if (this.items.has(item.id))
-      throw new Error(`Item with ID ${item.id} already exists`)
-
-    let view = render(itemTemplate, document.createElement("div"))
-    let li = view.nodes[0] as HTMLLIElement
-    let btn = li.querySelector(".js-btn") as HTMLButtonElement
-
-    btn.textContent = item.label
-    btn.addEventListener("click", ev => {
-      this.toggle()
-      this.dash.emit("select", item.id)
-    })
-    btn.addEventListener("focusout", ev => this.onButtonFocusLose(ev as FocusEvent))
-    this.buttons.add(btn)
-    this.items.set(item.id, [li, btn])
-    this.ul.appendChild(li)
+  constructor(private dash: Dash, private options: DropdownMenuOptions) {
+    this.btnEl = options.btnEl
+    let view = render(template, document.createElement("div"))
+    this.el = view.nodes[0] as HTMLElement
+    this.entries = dash.create(NavMenu, {
+      direction: "column"
+    } as NavMenuOptions)
+    this.el.appendChild(this.entries.el)
+    if (options.align !== "left")
+      this.el.classList.add(options.align || "right")
+    this.btnEl.addEventListener("click", catchAndLog(() => this.toggle()))
+    dash.listenToChildren("click").onEvent(() => this.hide())
   }
 
   public toggle() {
-    if (this.menuVisible)
-      this.hideMenu()
+    if (this.isVisible)
+      this.hide()
     else
-      this.showMenu()
+      this.show()
   }
 
-  private showMenu() {
-    this.menuVisible = true
-    this.ul.style.display = "block"
-    this.ul.focus()
+  private show() {
+    if (this.isVisible)
+      return
+    if (this.detached)
+      this.attachInDom()
+    this.position()
+    this.isVisible = true
+    this.el.style.display = "block"
+    this.el.focus()
   }
 
-  private hideMenu() {
-    this.menuVisible = false
-    this.ul.style.display = "none"
+  private attachInDom() {
+    this.detached = false
+    let parentEl = this.btnEl.parentElement
+    if (!parentEl)
+      throw new Error("The DropdownMenu cannot insert in the DOM, the button element is detached")
+    parentEl.insertBefore(this.el, this.options.btnEl.nextSibling)
   }
 
-  public addItems(items: MenuItem[]) {
-    for (let i of items)
-      this.addItem(i)
+  private position() {
+//     let menuTop = this.btnEl.offsetTop + this.btnEl.offsetHeight
+//     let menuLeft = this.btnEl.offsetLeft + this.btnEl.offsetWidth - this.el.offsetWidth
+//     this.el.style.top = `${menuTop}px`
+//     this.el.style.left = `${menuLeft}px`
+// console.log("position:", this.btnEl.offsetLeft, this.btnEl.offsetWidth, this.el.offsetWidth)
   }
 
-  public removeItem(itemId: string) {
-    let arr = this.items.get(itemId)
-    if (arr) {
-      this.ul.removeChild(arr[0])
-      this.items.delete(itemId)
-      this.buttons.delete(arr[1] as HTMLButtonElement)
-    }
+  private hide() {
+    if (!this.isVisible)
+      return
+    this.isVisible = false
+    this.el.style.display = "none"
   }
-
-  public setButtonContent(content: string) {
-    this.btnEl.textContent = content
-  }
-
-  public setItemLabel(id: string, label: string) {
-    let arr = this.items.get(id)
-    if (!arr)
-      throw new Error(`Unkown ID ${id}`)
-    arr[1].textContent = label
-  }
-
-  private onButtonFocusLose(ev: FocusEvent) {
-    if (!this.buttons.has(ev.relatedTarget as HTMLElement) && this.menuVisible)
-      this.hideMenu()
-  }
-
 }

@@ -20,6 +20,7 @@ import { UpdateModelEvent } from "../AppModel/ModelEngine";
 import { ProjectModel } from "../AppModel/AppModel";
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace";
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager";
+import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu";
 
 const template = require("./AppFrame.monk")
 
@@ -96,26 +97,24 @@ export default class AppFrame {
         console.log("Notifications to implement…") // TODO:
       }
     } as NavBtnOptions)
-    bar.addMenuItem(notifBtn)
+    bar.entries.addItem(notifBtn)
 
 
     let settingsBtn = this.dash.create(NavBtn, {
       label: "Settings",
       cssClass: ["WithIcon", "right", "settings"],
-      onClick: ev => {
-        console.log("Settings to implement…") // TODO:
-      }
+      withWrapper: true
     } as NavBtnOptions)
-    bar.addMenuItem(settingsBtn)
+    this.createSettingsMenu(settingsBtn.btnEl)
+    bar.entries.addItem(settingsBtn)
 
-    // TODO: Add the menu 'Settings'
     // TODO: Add the menu 'Session'
     return bar
   }
 
-  private createSettingsMenu() {
-    let menu = this.dash.create(NavMenu)
-    menu.createNavBtn(
+  private createSettingsMenu(btnEl: HTMLElement) {
+    let ddMenu = this.dash.create(DropdownMenu, { btnEl } as DropdownMenuOptions)
+    ddMenu.entries.createNavBtn(
       {
         label: "New project",
         onClick: async () => this.dash.app.navigate("/new-project")
