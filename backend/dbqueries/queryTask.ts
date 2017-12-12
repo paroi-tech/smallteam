@@ -1,13 +1,14 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import taskMeta  from "../../isomorphic/meta/Task"
+import taskMeta, { AttachedFile }  from "../../isomorphic/meta/Task"
 import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
+import { fetchRelatedFilesInfo } from "../uploadEngine"
 
 // --
 // -- Read
@@ -37,7 +38,7 @@ export async function fetchTasks(context: BackendContext, filters: TaskFetchFrag
 
   await addDependenciesTo(rs)
   for (let row of rs) {
-    let frag = toTaskFragment(row)
+    let frag = await toTaskFragment(row)
 
     if (!filters.search || taskMatchSearch(frag, filters.search)) {
       context.loader.addFragment({
@@ -63,7 +64,7 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
 
   await addDependenciesTo(rs)
   for (let row of rs) {
-    let frag = toTaskFragment(row)
+    let frag = await toTaskFragment(row)
     context.loader.modelUpdate.addFragment("Task", frag.id, frag)
   }
 }
@@ -78,7 +79,7 @@ export async function fetchTasksByIds(context: BackendContext, idList: string[])
 
   await addDependenciesTo(rs)
   for (let row of rs) {
-    let data = toTaskFragment(row)
+    let data = await toTaskFragment(row)
     context.loader.modelUpdate.addFragment("Task", data.id, data)
   }
 }
@@ -93,7 +94,7 @@ function selectFromTask() {
     .groupBy("t.task_id, t.project_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, c.parent_task_id, c.order_num")
 }
 
-function toTaskFragment(row): TaskFragment {
+async function toTaskFragment(row): Promise<TaskFragment> {
   let frag: TaskFragment = {
     id: row["task_id"].toString(),
     projectId: row["project_id"].toString(),
@@ -116,6 +117,19 @@ function toTaskFragment(row): TaskFragment {
     frag.affectedToIds = row["affectedToIds"].map(id => id.toString())
   if (row["flagIds"])
     frag.flagIds = row["flagIds"].map(id => id.toString())
+
+  let arr = await fetchRelatedFilesInfo("task_id", frag.id)
+
+  if (arr.length !== 0) {
+    frag.attachedFiles = [] as AttachedFile[]
+    for (let info of arr) {
+      let f: AttachedFile = {
+        ...info,
+        url: `/get-file/${info.id}`
+      }
+      frag.attachedFiles.push(f)
+    }
+  }
 
   return frag
 }

@@ -8,7 +8,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
-import { getRelatedFilesInfo } from "../uploadEngine"
+import { fetchRelatedFilesInfo } from "../uploadEngine"
 import config from "../../isomorphic/config"
 
 export const bcryptSaltRounds = 10
@@ -46,10 +46,10 @@ async function toContributorFragment(row): Promise<ContributorFragment> {
     login: row["login"],
     email: row["email"]
   }
-  let arr = await getRelatedFilesInfo("contributor_id", frag.id)
+  let arr = await fetchRelatedFilesInfo("contributor_id", frag.id)
 
   if (arr.length >= 1)
-    frag.avatarUrl = `${config.urlPrefix}/get-file/${arr[0].fileId}`
+    frag.avatarUrl = `${config.urlPrefix}/get-file/${arr[0].id}`
 
   return frag
 }

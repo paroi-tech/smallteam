@@ -20,10 +20,10 @@ type FileMeta = {
 export type MainMetaCode = "contributor_id" | "task_id"
 
 export type FileInfo = {
-  fileId: string
-  name?: string
-  mimeType?: string
-  weight?: number
+  id: string
+  name: string
+  mimeType: string
+  weight: number
 }
 
 export type FileFragment = {
@@ -52,7 +52,7 @@ export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: strin
     throw new Error(`Unknown MetaCode: ${metaCode}`)
 }
 
-export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<FileInfo[]> {
+export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<FileInfo[]> {
   let arr = [] as FileInfo[]
   let sql = buildSelect()
     .select("file_id")
@@ -63,7 +63,7 @@ export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: strin
 
   for (let row of rs) {
     let fileId = row["file_id"].toString()
-    let info: FileInfo = {
+    let info: any = {
       fileId
     }
 
@@ -83,14 +83,14 @@ export async function getRelatedFilesInfo(metaCode: MainMetaCode, metaVal: strin
 }
 
 export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
-  let arr = await getRelatedFilesInfo(metaCode, metaVal)
+  let arr = await fetchRelatedFilesInfo(metaCode, metaVal)
   let result = [] as FileFragment[]
 
   for (let info of arr) {
     let sql = buildSelect()
       .select("bin_data")
       .from("file")
-      .where("file_id", "=", info.fileId)
+      .where("file_id", "=", info.id)
     let rs = await cn.all(sql.toSql())
 
     if (rs.length !== 0) {
@@ -114,7 +114,7 @@ export async function fetchFileById(fileId: string): Promise<FileFragment | unde
   if (rs.length === 0)
     return undefined
 
-  let info: FileInfo = {
+  let info: any = {
     fileId
   }
 
