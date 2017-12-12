@@ -5,12 +5,13 @@ import { ContributorModel } from "./ContributorModel"
 import { FlagModel } from "./FlagModel"
 import { Collection } from "../modelDefinitions"
 import { CommentModel } from "./CommentModel"
-import { CommentFetchFragment } from "../../../isomorphic/meta/Comment"
+import { CommentSearchFragment } from "../../../isomorphic/meta/Comment"
 import { TaskLogEntryModel } from "./TaskLogEntryModel"
-import { TaskLogEntryFetchFragment } from "../../../isomorphic/meta/TaskLogEntry"
+import { TaskLogEntrySearchFragment } from "../../../isomorphic/meta/TaskLogEntry"
 import { Type } from "../../../isomorphic/Cargo";
 import { WhoUseItem } from "../../../isomorphic/transfers"
 import { StepModel } from "./StepModel";
+import { FileInfoModel } from "./FileInfoModel";
 
 export interface TaskUpdateTools {
   processing: boolean
@@ -33,7 +34,7 @@ export interface TaskModel extends TaskFragment {
   readonly flags?: Collection<FlagModel, string>
   getComments(): Promise<Collection<CommentModel, string>>
   getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
-  // getAttachments(): Promise<Attachment[]>
+  readonly attachedFiles?: Collection<FileInfoModel, string>
 }
 
 export function registerTask(engine: ModelEngine) {
@@ -72,21 +73,28 @@ export function registerTask(engine: ModelEngine) {
         return toCollection(list, "Contributor")
       },
       get flags() {
-        let frag = getFrag()
-        if (!frag.flagIds)
+        let flagIds = getFrag().flagIds
+        if (!flagIds)
           return undefined
-        let list = frag.flagIds.map(flagId => engine.getModel("Flag", flagId))
+        let list = flagIds.map(flagId => engine.getModel("Flag", flagId))
         return toCollection(list, "Flag")
       },
       getComments(): Promise<Collection<CommentModel, string>> {
         return engine.fetch("Comment", {
           taskId: getFrag().id
-        } as CommentFetchFragment)
+        } as CommentSearchFragment)
       },
       getLogEntries(): Promise<Collection<TaskLogEntryModel, string>> {
         return engine.fetch("TaskLogEntry", {
           taskId: getFrag().id
-        } as TaskLogEntryFetchFragment)
+        } as TaskLogEntrySearchFragment)
+      },
+      get getAttachedFiles() {
+        let fileIds = getFrag().attachedFileIds
+        if (!fileIds)
+          return undefined
+        let list = fileIds.map(fileId => engine.getModel("FileInfo", fileId))
+        return toCollection(list, "FileInfo")
       }
     } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)

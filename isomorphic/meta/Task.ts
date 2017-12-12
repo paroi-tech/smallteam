@@ -1,14 +1,6 @@
 import { FragmentMeta } from "./index"
 import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta, SearchPick, searchPickFragmentMeta } from "./metaHelpers"
 
-export interface AttachedFile {
-  readonly id: string
-  name: string
-  mimeType: string
-  weight: number
-  url: string
-}
-
 export interface TaskFragment {
   readonly id: string
   readonly projectId: string
@@ -24,7 +16,7 @@ export interface TaskFragment {
   affectedToIds?: string[]
   flagIds?: string[]
   readonly commentCount?: number
-  attachedFiles?: AttachedFile[]
+  attachedFileIds?: string[]
 }
 
 const meta: FragmentMeta = {
@@ -84,6 +76,10 @@ const meta: FragmentMeta = {
     commentCount: {
       dataType: "number",
       optional: true
+    },
+    attachedFileIds: {
+      dataType: "string[]",
+      optional: true
     }
   },
   orderFieldName: "orderNum"
@@ -92,7 +88,7 @@ const meta: FragmentMeta = {
 export type TaskCreateFragment = Pick<TaskFragment, "curStepId" | "label" | "description" | "parentTaskId" | "orderNum" | "affectedToIds" | "flagIds">
 export type TaskUpdateFragment = PickUpdate<TaskFragment, "id", "curStepId" | "label" | "description" | "parentTaskId" | "orderNum" | "affectedToIds" | "flagIds">
 export type TaskIdFragment = Pick<TaskFragment, "id">
-export type TaskFetchFragment = SearchPick<TaskFragment, "projectId" | "curStepId" | "label" | "description" | "createdById" | "parentTaskId" | "affectedToIds" | "flagIds">
+export type TaskSearchFragment = SearchPick<TaskFragment, "projectId" | "curStepId" | "label" | "description" | "createdById" | "parentTaskId" | "affectedToIds" | "flagIds">
 
 export default {
   read: meta,

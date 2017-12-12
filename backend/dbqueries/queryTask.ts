@@ -1,20 +1,20 @@
 import * as path from "path"
 import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import taskMeta, { AttachedFile }  from "../../isomorphic/meta/Task"
-import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
+import taskMeta from "../../isomorphic/meta/Task"
+import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskSearchFragment } from "../../isomorphic/meta/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
-import { fetchRelatedFilesInfo } from "../uploadEngine"
+import { getFileInfoFragments } from "./queryFileInfo"
 
 // --
 // -- Read
 // --
 
-export async function fetchTasks(context: BackendContext, filters: TaskFetchFragment) {
+export async function fetchTasks(context: BackendContext, filters: TaskSearchFragment) {
   let sql = selectFromTask()
 
   if (filters.projectId !== undefined)
@@ -38,7 +38,7 @@ export async function fetchTasks(context: BackendContext, filters: TaskFetchFrag
 
   await addDependenciesTo(rs)
   for (let row of rs) {
-    let frag = await toTaskFragment(row)
+    let frag = await toTaskFragment(context, row)
 
     if (!filters.search || taskMatchSearch(frag, filters.search)) {
       context.loader.addFragment({
@@ -64,7 +64,7 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
 
   await addDependenciesTo(rs)
   for (let row of rs) {
-    let frag = await toTaskFragment(row)
+    let frag = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", frag.id, frag)
   }
 }
@@ -79,7 +79,7 @@ export async function fetchTasksByIds(context: BackendContext, idList: string[])
 
   await addDependenciesTo(rs)
   for (let row of rs) {
-    let data = await toTaskFragment(row)
+    let data = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", data.id, data)
   }
 }
@@ -94,7 +94,7 @@ function selectFromTask() {
     .groupBy("t.task_id, t.project_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, c.parent_task_id, c.order_num")
 }
 
-async function toTaskFragment(row): Promise<TaskFragment> {
+async function toTaskFragment(context: BackendContext, row): Promise<TaskFragment> {
   let frag: TaskFragment = {
     id: row["task_id"].toString(),
     projectId: row["project_id"].toString(),
@@ -118,20 +118,24 @@ async function toTaskFragment(row): Promise<TaskFragment> {
   if (row["flagIds"])
     frag.flagIds = row["flagIds"].map(id => id.toString())
 
-  let arr = await fetchRelatedFilesInfo("task_id", frag.id)
-
-  if (arr.length !== 0) {
-    frag.attachedFiles = [] as AttachedFile[]
-    for (let info of arr) {
-      let f: AttachedFile = {
-        ...info,
-        url: `/get-file/${info.id}`
-      }
-      frag.attachedFiles.push(f)
-    }
-  }
-
+  await addAttachedFiles(context, frag)
   return frag
+}
+
+async function addAttachedFiles(context: BackendContext, frag: TaskFragment) {
+  let infos = await getFileInfoFragments("task_id", frag.id)
+
+  if (infos.length === 0)
+    return
+
+  frag.attachedFileIds = infos.map(info => info.id)
+
+  for (let info of infos) {
+    context.loader.addFragment({
+      type: "FileInfo",
+      frag: info,
+    })
+  }
 }
 
 // --

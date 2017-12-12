@@ -5,9 +5,12 @@ import projectMetaVariants from "./Project"
 import stepMetaVariants from "./Step"
 import taskMetaVariants from "./Task"
 import taskLogEntryMetaVariants from "./TaskLogEntry"
+import fileInfoMetaVariants from "./FileInfo"
 import { Type, Identifier } from "../Cargo"
 
-export let types: ReadonlyArray<Type> = Object.freeze(["Comment", "Contributor", "Flag", "Project", "Step", "Task", "TaskLogEntry"]) as any
+export let types: ReadonlyArray<Type> = Object.freeze([
+  "Comment", "Contributor", "Flag", "Project", "Step", "Task", "TaskLogEntry", "FileInfo"
+  ]) as any
 
 export type TypeVariant = "read" | "create" | "update" | "id" | "fetch"
 
@@ -46,6 +49,7 @@ let allMeta: { [type: string]: MetaVariants } = {
   Step: stepMetaVariants,
   Task: taskMetaVariants,
   TaskLogEntry: taskLogEntryMetaVariants,
+  FileInfo: fileInfoMetaVariants,
 }
 
 export function getFragmentMeta(type: Type, variant: TypeVariant = "read"): FragmentMeta {
@@ -64,7 +68,7 @@ export function toIdentifier(frag: object, type: Type): Identifier {
     values: { [fieldName: string]: string } | undefined
   for (let fieldName of Object.keys(fragMeta.fields)) {
     if (frag[fieldName] === undefined)
-      throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName}`)
+      throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName} in ${JSON.stringify(frag)}`)
     if (values)
       singleVal = undefined
     else {

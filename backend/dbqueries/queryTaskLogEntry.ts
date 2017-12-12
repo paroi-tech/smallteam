@@ -2,13 +2,13 @@ import { BackendContext } from "../backendContext/context"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
-import { TaskLogEntryFragment, TaskLogEntryFetchFragment } from "../../isomorphic/meta/TaskLogEntry"
+import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "../../isomorphic/meta/TaskLogEntry"
 
 // --
 // -- Read
 // --
 
-export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntryFetchFragment) {
+export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntrySearchFragment) {
   let sql = selectFromTaskLogEntry()
     .andWhere("l.task_id", int(filters.taskId))
     .orderBy("l.entry_ts desc")

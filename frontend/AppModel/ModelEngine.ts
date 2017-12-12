@@ -15,7 +15,7 @@ import GenericBgCommandManager from "./BgCommandManager"
 
 export type CommandType = "create" | "update" | "delete"
 
-type GetDependencies = (fragOrOrderProps: object | OrderProperties) => Dependencies | undefined
+type GetDependencies = (fragOrOrderProps: any | OrderProperties) => Dependencies | undefined  // FIXME: Why 'any' instead of 'object'?
 
 export type OrderProperties = { idList: Identifier[], groupName?: string, groupId?: Identifier }
 
@@ -116,7 +116,7 @@ export default class ModelEngine {
     this.bgManager = new GenericBgCommandManager(dash)
   }
 
-  public registerType(type: Type, modelMaker: (getFrag: () => object) => object) {
+  public registerType(type: Type, modelMaker: (getFrag: () => any) => object) { // FIXME: Why 'any' instead of 'object'?
     this.store.set(type, {
       entities: makeHKMap<any, any>(),
       indexes: makeHKMap<any, any>(),

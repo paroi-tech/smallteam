@@ -1,7 +1,7 @@
 import * as path from "path"
 //import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
-import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectFetchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
+import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
@@ -13,7 +13,7 @@ import { Connection, InTransactionConnection } from "../utils/sqlite-with-transa
 // -- Read
 // --
 
-export async function fetchProjects(context: BackendContext, filters: ProjectFetchFragment) {
+export async function fetchProjects(context: BackendContext, filters: ProjectSearchFragment) {
   let sql = selectFromProject()
   if (filters.archived !== undefined)
     sql.andWhere("p.archived", filters.archived)

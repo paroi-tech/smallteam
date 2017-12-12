@@ -5,6 +5,7 @@ import { ProjectFragment } from "./meta/Project"
 import { StepFragment } from "./meta/Step"
 import { TaskFragment } from "./meta/Task"
 import { TaskLogEntryFragment } from "./meta/TaskLogEntry"
+import { FileInfoFragment } from "./meta/FileInfo"
 
 export interface Fragments {
   Comment?: CommentFragment[]
@@ -14,6 +15,7 @@ export interface Fragments {
   Step?: StepFragment[]
   Task?: TaskFragment[]
   TaskLogEntry?: TaskLogEntryFragment[]
+  FileInfo?: FileInfoFragment[]
 }
 
 export type Type = keyof Fragments

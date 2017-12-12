@@ -49,7 +49,7 @@ const meta: FragmentMeta = {
 export type ProjectCreateFragment = Pick<ProjectFragment, "code" | "name" | "description" | "stepIds">
 export type ProjectUpdateFragment = PickUpdate<ProjectFragment, "id", "code" | "name" | "description" | "archived" | "stepIds">
 export type ProjectIdFragment = Pick<ProjectFragment, "id">
-export type ProjectFetchFragment = SearchPick<ProjectFragment, "code" | "name" | "description" | "archived">
+export type ProjectSearchFragment = SearchPick<ProjectFragment, "code" | "name" | "description" | "archived">
 
 export default {
   read: meta,

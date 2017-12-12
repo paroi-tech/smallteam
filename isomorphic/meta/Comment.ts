@@ -40,7 +40,7 @@ const meta: FragmentMeta = {
 export type CommentCreateFragment = Pick<CommentFragment, "taskId" | "body">
 export type CommentUpdateFragment = PickUpdate<CommentFragment, "id", "body">
 export type CommentIdFragment = Pick<CommentFragment, "id">
-export type CommentFetchFragment = Pick<CommentFragment, "taskId">
+export type CommentSearchFragment = Pick<CommentFragment, "taskId">
 
 export default {
   read: meta,

@@ -33,7 +33,7 @@ const meta: FragmentMeta = {
 }
 
 export type TaskLogEntryIdFragment = Pick<TaskLogEntryFragment, "id">
-export type TaskLogEntryFetchFragment = Pick<TaskLogEntryFragment, "taskId">
+export type TaskLogEntrySearchFragment = Pick<TaskLogEntryFragment, "taskId">
 
 export default {
   read: meta,

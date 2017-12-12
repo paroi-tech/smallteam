@@ -9,7 +9,7 @@ import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
 import { fetchRelatedFilesInfo } from "../uploadEngine"
-import config from "../../isomorphic/config"
+import { getSingleFileInfoFragment } from "./queryFileInfo";
 
 export const bcryptSaltRounds = 10
 
@@ -20,7 +20,7 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
     .where("contributor_id", "in", toIntList(idList))
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    let data = await toContributorFragment(row)
+    let data = await toContributorFragment(context, row)
     context.loader.modelUpdate.addFragment("Contributor", data.id, data)
   }
 }
@@ -30,7 +30,7 @@ export async function fetchContributors(context: BackendContext) {
     .orderBy("name")
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
-    let frag = await toContributorFragment(row)
+    let frag = await toContributorFragment(context, row)
     context.loader.addFragment({
       type: "Contributor",
       frag,
@@ -39,19 +39,26 @@ export async function fetchContributors(context: BackendContext) {
   }
 }
 
-async function toContributorFragment(row): Promise<ContributorFragment> {
+async function toContributorFragment(context: BackendContext, row): Promise<ContributorFragment> {
   let frag: ContributorFragment = {
     id:    row["contributor_id"].toString(),
     name:  row["name"],
     login: row["login"],
     email: row["email"]
   }
-  let arr = await fetchRelatedFilesInfo("contributor_id", frag.id)
-
-  if (arr.length >= 1)
-    frag.avatarUrl = `${config.urlPrefix}/get-file/${arr[0].id}`
-
+  await addAvatar(context, frag)
   return frag
+}
+
+async function addAvatar(context: BackendContext, frag: ContributorFragment) {
+  let info = await getSingleFileInfoFragment("contributor_id", frag.id)
+  if (!info)
+    return
+  frag.avatarId = info.id
+  context.loader.addFragment({
+    type: "FileInfo",
+    frag: info,
+  })
 }
 
 function selectFromContributor() {

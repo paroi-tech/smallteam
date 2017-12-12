@@ -1,10 +1,10 @@
 import { Type, Identifier } from "../../isomorphic/Cargo"
-import { ContributorCreateFragment, ContributorUpdateFragment, ContributorFetchFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
-import { ContributorModel, registerContributor } from "./Models/ContributorModel"
-import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, ProjectFetchFragment } from "../../isomorphic/meta/Project"
-import { ProjectModel, registerProject } from "./Models/ProjectModel"
-import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment, TaskFetchFragment } from "../../isomorphic/meta/Task"
-import { TaskModel, registerTask } from "./Models/TaskModel"
+import { ContributorCreateFragment, ContributorUpdateFragment, ContributorSearchFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
+import { ContributorModel } from "./Models/ContributorModel"
+import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, ProjectSearchFragment } from "../../isomorphic/meta/Project"
+import { ProjectModel } from "./Models/ProjectModel"
+import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment, TaskSearchFragment } from "../../isomorphic/meta/Task"
+import { TaskModel } from "./Models/TaskModel"
 import { StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { StepModel, registerStep } from "./Models/StepModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
@@ -39,11 +39,11 @@ export interface ModelCommandMethods {
   exec(cmd: "update", type: "Comment", frag: CommentUpdateFragment): Promise<FlagModel>
   exec(cmd: "delete", type: "Comment", frag: CommentIdFragment): Promise<void>
 
-  fetch(type: "Project", filters: ProjectFetchFragment): Promise<Collection<ProjectModel, string>>
+  fetch(type: "Project", filters: ProjectSearchFragment): Promise<Collection<ProjectModel, string>>
   fetch(type: "Step"): Promise<Collection<StepModel, string>>
   fetch(type: "Flag"): Promise<Collection<FlagModel, string>>
-  fetch(type: "Contributor", filters?: ContributorFetchFragment): Promise<Collection<ContributorModel, string>>
-  fetch(type: "Task", filters: TaskFetchFragment): Promise<Collection<TaskModel, string>>
+  fetch(type: "Contributor", filters?: ContributorSearchFragment): Promise<Collection<ContributorModel, string>>
+  fetch(type: "Task", filters: TaskSearchFragment): Promise<Collection<TaskModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "Step", idList: string[]): Promise<string[]>

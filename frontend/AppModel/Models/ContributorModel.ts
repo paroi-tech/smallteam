@@ -1,6 +1,7 @@
 import { ContributorFragment, ContributorUpdateFragment, ContributorCreateFragment, ContributorIdFragment } from "../../../isomorphic/meta/Contributor"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { WhoUseItem } from "../../../isomorphic/transfers"
+import { FileInfoModel } from "./FileInfoModel";
 
 export interface ContributorUpdateTools {
   processing: boolean
@@ -14,11 +15,17 @@ export interface ContributorUpdateTools {
 
 export interface ContributorModel extends ContributorFragment {
   readonly updateTools: ContributorUpdateTools
+  readonly avatar: FileInfoModel
 }
 
 export function registerContributor(engine: ModelEngine) {
   engine.registerType("Contributor", function (getFrag: () => ContributorFragment): ContributorModel {
-    let model = {}
+    let model = {
+      get avatar() {
+        let avatarId = getFrag().avatarId
+        return avatarId === undefined ? undefined : engine.getModel("FileInfo", avatarId)
+      }
+    }
     appendGettersToModel(model, "Contributor", getFrag)
     appendUpdateToolsToModel(model, "Contributor", getFrag, engine, {
       processing: true,

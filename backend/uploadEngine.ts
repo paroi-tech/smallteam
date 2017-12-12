@@ -64,7 +64,7 @@ export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: str
   for (let row of rs) {
     let fileId = row["file_id"].toString()
     let info: any = {
-      fileId
+      id: fileId
     }
 
     for (let meta of await getAllMeta(fileId)) {

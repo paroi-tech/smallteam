@@ -6,7 +6,7 @@ export interface ContributorFragment {
   name: string
   login: string
   email: string
-  avatarUrl?: string
+  avatarId?: string
 }
 
 const meta: FragmentMeta = {
@@ -29,9 +29,8 @@ const meta: FragmentMeta = {
       dataType: "string",
       update: true
     },
-    avatarUrl: {
-      dataType: "string",
-      update: false
+    avatarId: {
+      dataType: "string"
     }
   }
 }
@@ -39,7 +38,7 @@ const meta: FragmentMeta = {
 export type ContributorCreateFragment = Pick<ContributorFragment, "name" | "login" | "email">
 export type ContributorUpdateFragment = PickUpdate<ContributorFragment, "id", "name" | "login" | "email">
 export type ContributorIdFragment = Pick<ContributorFragment, "id">
-export type ContributorFetchFragment = SearchPick<ContributorFragment, "name" | "login" | "email" | "avatarUrl">
+export type ContributorSearchFragment = SearchPick<ContributorFragment, "name" | "login" | "email">
 
 export default {
   read: meta,
