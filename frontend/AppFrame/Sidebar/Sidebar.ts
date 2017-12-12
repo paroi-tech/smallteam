@@ -4,6 +4,7 @@ import { ProjectModel } from "../../AppModel/AppModel";
 import NavMenu, { NavMenuOptions } from "../../generics/NavMenu/NavMenu";
 import App from "../../App/App";
 import NavBtn, { NavBtnOptions } from "../../generics/NavBtn/NavBtn";
+import ProjectBtn, { ProjectBtnOptions } from "../../semantics/projects/ProjectBtn/ProjectBtn";
 
 const template = require("./Sidebar.monk")
 
@@ -28,10 +29,9 @@ export default class Sidebar {
     bottomEl.appendChild(addBtn.el)
   }
 
-  public addProject(p: ProjectModel, path: string) {
-    this.menu.createNavBtn({
-      label: p.code,
-      onClick: () => this.dash.app.navigate(path)
-    })
+  public addProject(project: ProjectModel, path: string) {
+    this.menu.addItem(
+      this.dash.create(ProjectBtn, { project } as ProjectBtnOptions)
+    )
   }
 }

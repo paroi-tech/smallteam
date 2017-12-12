@@ -15,7 +15,7 @@ export interface NavBtnOptions {
 }
 
 export default class NavBtn {
-  readonly el: HTMLButtonElement
+  readonly el: HTMLElement
   readonly btnEl: HTMLButtonElement
 
   private labelEl: HTMLElement

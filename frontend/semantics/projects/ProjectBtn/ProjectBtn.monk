@@ -1,0 +1,4 @@
+<button class="ProjectBtn" type="button">
+  <i class="ProjectBtn-code">{{code}}</i>
+  <span class="ProjectBtn-name">{{name}}</span>
+</button>

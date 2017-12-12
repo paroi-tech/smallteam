@@ -1,4 +1,7 @@
 <section class="Sidebar FlexBar column">
-  <div class="grow js-top"></div>
+  <div class="grow">
+    <h1 class="Sidebar-h1">Dashboard</h1>
+    <div class="js-top"></div>
+  </div>
   <div class="Sidebar-bottom js-bottom"></div>
 </section>

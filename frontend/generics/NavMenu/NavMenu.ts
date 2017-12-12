@@ -17,9 +17,10 @@ export interface NavMenuOptions {
   btnCssClass?: string | string[]
 }
 
-// export interface NavMenuButton {
-//   el: HTMLElement
-// }
+export interface NavMenuButton {
+  el: HTMLElement
+  addCssClass(cssClass: string | string[]): void
+}
 
 export default class NavMenu {
   readonly el: HTMLUListElement
@@ -37,7 +38,7 @@ export default class NavMenu {
     this.addItem(...btnOptions.map(options => this.dash.create(NavBtn, options)))
   }
 
-  public addItem(...buttons: NavBtn[]) {
+  public addItem(...buttons: NavMenuButton[]) {
     for (let btn of buttons) {
       if (this.options.btnCssClass)
         btn.addCssClass(this.options.btnCssClass)
