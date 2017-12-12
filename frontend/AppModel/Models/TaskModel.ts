@@ -89,7 +89,7 @@ export function registerTask(engine: ModelEngine) {
           taskId: getFrag().id
         } as TaskLogEntrySearchFragment)
       },
-      get getAttachedFiles() {
+      get attachedFiles() {
         let fileIds = getFrag().attachedFileIds
         if (!fileIds)
           return undefined
