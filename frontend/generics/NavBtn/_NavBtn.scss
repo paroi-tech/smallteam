@@ -7,24 +7,28 @@
   height: 100%;
   padding-left: 10px;
   padding-right: 10px;
-}
 
-.WithIcon {
-  position: relative;
-  &::after {
-    content: "";
-    height: 25px;
-    position: absolute;
-    top: 0;
-    width: 25px;
-  }
-  &.right {
-    padding-right: 40px;
-    &::after {
-      right: 10px;
+  &.icon22 {
+    position: relative;
+    &::before {
+      content: "";
+      height: 22px;
+      margin-top: -11px;
+      position: absolute;
+      top: 50%;
+      width: 22px;
     }
-  }
-  &.notif::after {
-    background: url(sprite.png) no-repeat 0 -25px;
+    &.left {
+      padding-left: 33px;
+      &::before {
+        left: 11px;
+      }
+    }
+    &.right {
+      padding-right: 33px;
+      &::before {
+        right: 11px;
+      }
+    }
   }
 }

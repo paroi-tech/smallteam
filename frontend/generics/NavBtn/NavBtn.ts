@@ -6,11 +6,17 @@ const template = require("./NavBtn.monk")
 const templateWithAlert = require("./NavBtn-withAlert.monk")
 const templateWrapper = require("./NavBtnWrapper.monk")
 
+export interface NavBtnIcon {
+  position: "left" | "right"
+  cssClass: string
+}
+
 export interface NavBtnOptions {
   label: string
   cssClass?: string | string[]
   onClick?: () => void
   canHaveAlert?: boolean
+  icon22?: NavBtnIcon
   withWrapper?: boolean
 }
 
@@ -30,6 +36,9 @@ export default class NavBtn {
 
     if (options.canHaveAlert)
       this.alertEl = this.btnEl.querySelector(".js-alert") as HTMLElement
+
+    if (options.icon22)
+      this.btnEl.classList.add("icon22", options.icon22.position, options.icon22.cssClass)
 
     addCssClass(this.btnEl, options.cssClass)
 
