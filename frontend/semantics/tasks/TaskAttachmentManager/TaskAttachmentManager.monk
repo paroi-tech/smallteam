@@ -1,0 +1,4 @@
+<div class="TaskAttachmentManager">
+  <header class="TaskAttachementManager-header">Attached files</header>
+  <ul class="TaskAttachementManager-ul"></ul>
+</div>
