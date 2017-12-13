@@ -1,10 +1,10 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
-import { Model, ProjectModel, TaskModel, StepModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel";
-import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList";
-import TaskBox from "../../tasks/TaskBox/TaskBox";
-import App from "../../../App/App";
-import { removeAllChildren } from "../../../libraries/utils";
+import { Model, ProjectModel, TaskModel, StepModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
+import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
+import TaskBox from "../../tasks/TaskBox/TaskBox"
+import App from "../../../App/App"
+import { removeAllChildren } from "../../../libraries/utils"
 
 const template = require("./StepSwitcher.monk")
 
@@ -56,9 +56,6 @@ export default class StepSwitcher {
     this.listenToChildren()
   }
 
-  /**
-   * Create StepSwitcher components from the template.
-   */
   private createView() {
     this.view = render(template, document.createElement("div"))
 
@@ -91,8 +88,8 @@ export default class StepSwitcher {
     titleEl.textContent = title
     this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
     this.closeBtnEl.addEventListener("click", ev => {
-      // We can't hide the rootTask StepSwitcher
-      if (this.parentTask.id !== this.project.rootTaskId)
+      // We can't hide the rootTask StepSwitcher or tasks with children.
+      if (this.parentTask.id !== this.project.rootTaskId && (!this.parentTask.children || this.parentTask.children.length === 0))
         this.setVisible(false)
     })
 
@@ -127,11 +124,6 @@ export default class StepSwitcher {
     }
   }
 
-  /**
-   * Create a BoxList for a given step.
-   *
-   * @param step - the step for which the BoxList will be created
-   */
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
     let params = {
       id: step.id,
@@ -144,10 +136,6 @@ export default class StepSwitcher {
     return b
   }
 
-  /**
-   * Create a StepSwitcher for a given task.
-   * @param task the task for which the box will be created for.
-   */
   private createTaskBoxFor(task: TaskModel) {
     let box = this.dash.create(TaskBox, task)
     this.dash.addToGroup(box, "items")
@@ -190,9 +178,6 @@ export default class StepSwitcher {
     }
   }
 
-  /**
-   * Fill the BoxLists with the subtasks of the parent task.
-   */
   private fillBoxLists() {
     if (!this.parentTask.children)
       return
@@ -208,9 +193,6 @@ export default class StepSwitcher {
     }
   }
 
-  /**
-   * Handle the creation of a new task.
-   */
   private async onAddtaskClick() {
     let name = this.taskNameEl.value.trim()
 
@@ -235,13 +217,6 @@ export default class StepSwitcher {
     this.taskNameEl.focus()
   }
 
-  /**
-   * Listen to event from children components.
-   * We listen to the following events:
-   *  - taskBoxSelected
-   *  - boxListItemAdded
-   *  - boxListSortingUpdated
-   */
   private listenToChildren() {
     // this.dash.listenToChildren<TaskModel>("taskBoxSelected").onData(data => {
     //   console.log(`TaskBox ${data.id} selected in StepSwitcher ${this.parentTask.id}`)
@@ -254,11 +229,6 @@ export default class StepSwitcher {
     })
   }
 
-  /**
-   * Update the order of the tasks in the model.
-   *
-   * @param ev
-   */
   private async onTaskReorder(ev: BoxListEvent) {
     let boxList = this.boxLists.get(ev.boxListId)
     if (!boxList)
@@ -378,24 +348,14 @@ export default class StepSwitcher {
     }
   }
 
-  /**
-   * Show the busy indicator.
-   */
   public showBusyIcon() {
     this.busyIndicatorEl.style.display = "inline"
   }
 
-  /**
-   * Hide the busy indicator.
-   */
   public hideBusyIcon() {
     this.busyIndicatorEl.style.display = "none"
   }
 
-  /**
-   * Show or hide the pane.
-   * @param b
-   */
   public setVisible(b: boolean) {
     if (b !== this.visible) {
       this.el.style.display = b ? "block" : "none"
@@ -403,18 +363,10 @@ export default class StepSwitcher {
     }
   }
 
-  /**
-   * Tell if the pane is currently visible or hidden.
-   */
   public get isVisible() {
     return this.visible
   }
 
-  /**
-   * Enable the component, i.e. the collapsible content.
-   *
-   * @param showBusyIcon Indicate if the busy icon should be hidden
-   */
   public enable(showBusyIcon: boolean = false) {
     this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.foldableEl.style.opacity = "1.0"
@@ -422,11 +374,6 @@ export default class StepSwitcher {
       this.hideBusyIcon()
   }
 
-  /**
-   * Disable the component, i.e. the collapsible content.
-   *
-   * @param showBusyIcon Indicate if the busy should be shown
-   */
   public disable(showBusyIcon: boolean = false) {
     this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.foldableEl.style.opacity = "0.4"

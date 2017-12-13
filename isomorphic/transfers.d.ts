@@ -1,4 +1,4 @@
-import { Type } from "./Cargo";
+import { Type } from "./Cargo"
 
 export interface WhoUseItem {
   type: Type,
