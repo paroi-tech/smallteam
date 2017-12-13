@@ -1,5 +1,5 @@
 import { FragmentMeta } from "./index"
-import { pickFragmentMeta } from "./metaHelpers";
+import { pickFragmentMeta } from "./metaHelpers"
 
 export interface FileInfoFragment {
   readonly id: string

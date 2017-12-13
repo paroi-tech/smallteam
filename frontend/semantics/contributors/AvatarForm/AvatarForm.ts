@@ -75,5 +75,4 @@ export default class AvatarForm {
       this.dash.app.log.warn(err)
     }
   }
-
 }

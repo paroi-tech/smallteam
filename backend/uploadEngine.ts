@@ -26,7 +26,7 @@ export type FileInfo = {
   weight: number
 }
 
-export type FileFragment = {
+export type FileObject = {
   info: FileInfo
   buffer: any
 }
@@ -62,19 +62,8 @@ export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: str
   let rs = await cn.all(sql.toSql())
 
   for (let row of rs) {
-    let fileId = row["file_id"].toString()
-    let info: any = {
-      id: fileId
-    }
-
-    for (let meta of await getAllMeta(fileId)) {
-      if (meta.code === "name")
-        info.name = meta.value as string
-      else if (meta.code === "weight")
-        info.weight = meta.value as number
-      else if (meta.code === "mime")
-        info.mimeType = meta.value as string
-    }
+    let fId = row["file_id"].toString()
+    let info = await fetchFileInfo(fId)
 
     arr.push(info)
   }
@@ -82,9 +71,35 @@ export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: str
   return arr
 }
 
+export async function fetchFileInfo(fId: string) {
+  let sql = buildSelect()
+    .select("file_id")
+    .from("file")
+    .where("file_id", "=", fId)
+  let rs = await cn.all(sql.toSql())
+
+  if (rs.length === 0)
+    return undefined
+
+  let info: any = {
+    id: fId
+  }
+
+  for (let meta of await getAllMeta(fId)) {
+    if (meta.code === "name")
+      info.name = meta.value as string
+    else if (meta.code === "weight")
+      info.weight = meta.value as number
+    else if (meta.code === "mime")
+      info.mimeType = meta.value as string
+  }
+
+  return info
+}
+
 export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
   let arr = await fetchRelatedFilesInfo(metaCode, metaVal)
-  let result = [] as FileFragment[]
+  let result = [] as FileObject[]
 
   for (let info of arr) {
     let sql = buildSelect()
@@ -104,28 +119,17 @@ export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string)
   return result
 }
 
-export async function fetchFileById(fileId: string): Promise<FileFragment | undefined> {
+export async function fetchFileById(fId: string): Promise<FileObject | undefined> {
   let sql = buildSelect()
     .select("bin_data")
     .from("file")
-    .where("file_id", "=", fileId)
+    .where("file_id", "=", fId)
   let rs = await cn.all(sql.toSql())
 
   if (rs.length === 0)
     return undefined
 
-  let info: any = {
-    fileId
-  }
-
-  for (let meta of await getAllMeta(fileId)) {
-    if (meta.code === "name")
-      info.name = meta.value as string
-    else if (meta.code === "weight")
-      info.weight = meta.value as number
-    else if (meta.code === "mime")
-      info.mimeType = meta.value as string
-  }
+  let info = await fetchFileInfo(fId)
 
   return {
     info,
