@@ -93,7 +93,10 @@ export default class AppFrame {
 
     let notifBtn = this.dash.create(NavBtn, {
       label: "Notifications",
-      cssClass: ["WithIcon", "right", "notif"],
+      icon22: {
+        position: "right",
+        cssClass: "notif"
+      },
       canHaveAlert: true,
       onClick: ev => {
         console.log("Notifications to implement…") // TODO:
@@ -104,7 +107,10 @@ export default class AppFrame {
 
     let settingsBtn = this.dash.create(NavBtn, {
       label: "Settings",
-      cssClass: ["WithIcon", "right", "settings"],
+      icon22: {
+        position: "right",
+        cssClass: "setting"
+      },
       withWrapper: true
     } as NavBtnOptions)
     this.createSettingsMenu(settingsBtn.btnEl)
@@ -122,13 +128,17 @@ export default class AppFrame {
       // }
     } as DropdownMenuOptions)
     ddMenu.entries.createNavBtn(
-      {
-        label: "New project",
-        onClick: async () => this.dash.app.navigate("/new-project")
-      },
+      // {
+      //   label: "New project",
+      //   onClick: async () => this.dash.app.navigate("/new-project")
+      // },
       {
         label: "Steps",
-        onClick: async () => this.dash.app.navigate("/settings/steps")
+        onClick: async () => this.dash.app.navigate("/settings/steps"),
+        icon22: {
+          position: "left",
+          cssClass: "step"
+        }
       },
       {
         label: "Contributors",
