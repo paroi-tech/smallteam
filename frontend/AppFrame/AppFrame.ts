@@ -105,7 +105,14 @@ export default class AppFrame {
     bar.entries.addItem(notifBtn)
 
 
-    let settingsBtn = this.dash.create(NavBtn, {
+    bar.entries.addItem(this.createSettingsMenu())
+    bar.entries.addItem(this.createSessionMenu())
+
+    return bar
+  }
+
+  private createSettingsMenu(): NavBtn {
+    let menuBtn = this.dash.create(NavBtn, {
       label: "Settings",
       icon22: {
         position: "right",
@@ -113,28 +120,18 @@ export default class AppFrame {
       },
       withWrapper: true
     } as NavBtnOptions)
-    this.createSettingsMenu(settingsBtn.btnEl)
-    bar.entries.addItem(settingsBtn)
 
-    // TODO: Add the menu 'Session'
-    return bar
-  }
-
-  private createSettingsMenu(btnEl: HTMLElement) {
     let ddMenu = this.dash.create(DropdownMenu, {
-      btnEl,
-      // navMenuOptions: {
-      //   btnCssClass: "BgDark1"
-      // }
+      btnEl: menuBtn.btnEl
     } as DropdownMenuOptions)
     ddMenu.entries.createNavBtn(
       // {
       //   label: "New project",
-      //   onClick: async () => this.dash.app.navigate("/new-project")
+      //   onClick: () => this.dash.app.navigate("/new-project")
       // },
       {
         label: "Steps",
-        onClick: async () => this.dash.app.navigate("/settings/steps"),
+        onClick: () => this.dash.app.navigate("/settings/steps"),
         icon22: {
           position: "left",
           cssClass: "step"
@@ -142,15 +139,15 @@ export default class AppFrame {
       },
       {
         label: "Contributors",
-        onClick: async () => this.dash.app.navigate("/settings/contributors")
+        onClick: () => this.dash.app.navigate("/settings/contributors")
       },
       {
         label: "Flags",
-        onClick: async () => this.dash.app.navigate("/settings/flags")
+        onClick: () => this.dash.app.navigate("/settings/flags")
       },
       {
         label: "Search",
-        onClick: async () => this.dash.app.navigate("/search")
+        onClick: () => this.dash.app.navigate("/search")
       }
     )
     // viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
@@ -158,6 +155,44 @@ export default class AppFrame {
     // viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     // viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
     // viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
+
+    return menuBtn
+  }
+
+  private createSessionMenu(): NavBtn {
+    let menuBtn = this.dash.create(NavBtn, {
+      label: this.dash.app.model.session.contributor.name,
+      withWrapper: true
+    } as NavBtnOptions)
+
+    this.dash.listenTo<UpdateModelEvent>(this.dash.app.model, "updateContributor").onData(evData => {
+      if (evData.model === this.dash.app.model.session.contributor)
+        menuBtn.setLabel(this.dash.app.model.session.contributor.name);
+    })
+
+    let ddMenu = this.dash.create(DropdownMenu, {
+      btnEl: menuBtn.btnEl
+    } as DropdownMenuOptions)
+    ddMenu.entries.createNavBtn(
+      {
+        label: "My profile",
+        onClick: () => this.dash.app.navigate("/settings/my-profile"),
+        icon22: {
+          position: "left",
+          cssClass: "profile"
+        }
+      },
+      {
+        label: "Log out",
+        onClick: () => this.dash.app.disconnect(),
+        icon22: {
+          position: "left",
+          cssClass: "logout"
+        }
+      },
+    )
+
+    return menuBtn
   }
 
   private createStatusBar() {
