@@ -6,7 +6,6 @@ import taskLogEntryMeta from "../../isomorphic/meta/TaskLogEntry"
 import flagMeta from "../../isomorphic/meta/Flag"
 import commentMeta from "../../isomorphic/meta/Comment"
 import contributorMeta from "../../isomorphic/meta/Contributor"
-import fileInfoMeta from "../../isomorphic/meta/FileInfo"
 
 addBackendFragmentMeta(
   projectMeta.read,
@@ -125,15 +124,5 @@ addBackendFragmentMeta(
     updateTs: {
       columnType: "timestamp"
     }
-  }
-)
-
-addBackendFragmentMeta(
-  fileInfoMeta.read,
-  {
-    id: {},
-    name: {},
-    weight: {},
-    mimeType: {}
   }
 )
