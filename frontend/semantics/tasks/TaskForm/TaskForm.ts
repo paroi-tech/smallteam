@@ -152,19 +152,20 @@ export default class TaskForm {
   }
 
   set task(task: TaskModel | undefined) {
-    if (!task)
+    if (!task) {
       this.clear()
-    else {
-      this.currentTask = task
-      this.view.update({
-        description: task.description || "",
-        label: task.label
-      })
-      this.flagSelector.setTask(task)
-      this.contributorSelector.setTask(task)
-      this.commentEditor.setTask(task)
-      this.logDialog.setTask(task)
+      return
     }
+
+    this.currentTask = task
+    this.view.update({
+      description: task.description || "",
+      label: task.label
+    })
+    this.flagSelector.task = task
+    this.contributorSelector.task = task
+    this.commentEditor.task = task
+    this.logDialog.task = task
   }
 
   public hide() {
@@ -181,9 +182,9 @@ export default class TaskForm {
       description: "",
       label: ""
     })
-    this.flagSelector.setTask(undefined)
-    this.contributorSelector.setTask(undefined)
-    this.commentEditor.setTask(undefined)
-    this.logDialog.setTask(undefined)
+    this.flagSelector.task = undefined
+    this.contributorSelector.task = undefined
+    this.commentEditor.task = undefined
+    this.logDialog.task = undefined
   }
 }

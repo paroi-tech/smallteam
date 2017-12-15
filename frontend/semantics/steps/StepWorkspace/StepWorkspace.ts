@@ -63,7 +63,7 @@ export default class StepWorkspace implements Workspace {
 
   private listenToChildComponents() {
     this.dash.listenToChildren<StepModel>("stepBoxSelected").onData(step => {
-      this.form.setStep(step)
+      this.form.step = step
     })
     this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => {
       this.handleBoxlistUpdate(data)
@@ -185,6 +185,5 @@ export default class StepWorkspace implements Workspace {
         .setTitle("Steps")
   }
 
-  public deactivate() {
-  }
+  public deactivate() {}
 }

@@ -1,21 +1,20 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
 import FlagBox from "../FlagBox/FlagBox"
-import { Model, TaskModel, FlagModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
+import { Model, TaskModel, FlagModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
 
 const template = require("./FlagSelector.monk")
 const liTemplate = require("./li.monk")
 
 export default class FlagSelector {
   readonly el: HTMLElement
-
   private listEl: HTMLElement
 
   private view: MonkberryView
 
   private model: Model
-  private task?: TaskModel
+  private currentTask: TaskModel | undefined
 
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
@@ -27,11 +26,15 @@ export default class FlagSelector {
     this.listenToModel()
   }
 
-  public setTask(task?: TaskModel) {
+  get task(): TaskModel | undefined {
+    return this.currentTask
+  }
+
+  set task(task: TaskModel| undefined) {
     for (let checkBox of this.checkBoxes.values())
       checkBox.checked = false
 
-    this.task = task
+    this.currentTask = task
     if (!task) {
       this.el.style.pointerEvents = "none"
       return
@@ -48,7 +51,7 @@ export default class FlagSelector {
   }
 
   get selectedFlagIds(): string[] {
-    if (!this.task)
+    if (!this.currentTask)
       return []
 
     let arr: string[] = []
@@ -68,10 +71,10 @@ export default class FlagSelector {
   public refreshFlags() {
     for (let checkBox of this.checkBoxes.values())
       checkBox.checked = false
-    if (!this.task || !this.task.flagIds)
+    if (!this.currentTask || !this.currentTask.flagIds)
       return
 
-    for (let flagId of this.task.flagIds) {
+    for (let flagId of this.currentTask.flagIds) {
       let checkBox = this.checkBoxes.get(flagId)
       if (checkBox)
         checkBox.checked = true
