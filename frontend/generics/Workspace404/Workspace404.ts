@@ -20,6 +20,5 @@ export default class Workspace404 implements Workspace {
         .setTitle("Oups!!!")
   }
 
-  public deactivate() {
-  }
+  public deactivate() {}
 }

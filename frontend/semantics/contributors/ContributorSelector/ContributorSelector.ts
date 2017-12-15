@@ -127,7 +127,7 @@ export default class ContributorSelector {
   }
 
   get selectedContributorIds(): string[] {
-    return this.currentTask ? this.boxList.getBoxesOrder() : []
+    return this.currentTask ? this.boxList.getOrder() : []
   }
 
   // --

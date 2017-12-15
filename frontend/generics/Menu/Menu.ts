@@ -26,26 +26,10 @@ export class Menu {
 
   private view: MonkberryView
 
-  /**
-   * Create a new menu.
-   */
   constructor(private dash: Dash) {
     this.el = this.createView()
   }
 
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-    let el = this.view.nodes[0] as HTMLElement
-    this.ul = el.querySelector("ul") as HTMLElement
-
-    return el
-  }
-
-  /**
-   * Add an item to the menu.
-   *
-   * @param item - the item to add.
-   */
   public addItem(item: MenuItem) {
     if (this.items.has(item.id))
       throw new Error(`Item with ID ${item.id} already exists`)
@@ -61,27 +45,38 @@ export class Menu {
     this.items.set(item.id, [li, btn])
   }
 
-  /**
-   * Add several items to the menu.
-   *
-   * @param items - items to add.
-   */
   public addItems(items: Array<MenuItem>) {
     for (let i of items)
       this.addItem(i)
   }
 
-  /**
-   * Remove an item from the menu.
-   *
-   * @param itemId
-   */
   public removeItem(itemId: string) {
     let arr = this.items.get(itemId)
+
     if (arr) {
       this.ul.removeChild(arr[0])
       this.items.delete(itemId)
     }
+  }
+
+  public setItemLabel(id: string, label: string) {
+    let arr = this.items.get(id)
+
+    if (!arr)
+      throw new Error(`Unkown ID ${id}`)
+    arr[1].textContent = label
+  }
+
+  // --
+  // -- utilities
+  // --
+
+  private createView() {
+    this.view = render(template, document.createElement("div"))
+    let el = this.view.nodes[0] as HTMLElement
+    this.ul = el.querySelector("ul") as HTMLElement
+
+    return el
   }
 
   // /**
@@ -105,11 +100,4 @@ export class Menu {
   //   if (arr)
   //     arr[0].style.pointerEvents = "auto"
   // }
-
-  public setItemLabel(id: string, label: string) {
-    let arr = this.items.get(id)
-    if (!arr)
-      throw new Error(`Unkown ID ${id}`)
-    arr[1].textContent = label
-  }
 }

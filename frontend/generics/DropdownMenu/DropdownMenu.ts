@@ -1,8 +1,8 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
 import { MenuItem } from "../Menu/Menu"
-import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu";
-import { catchAndLog } from "../../libraries/utils";
+import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
+import { catchAndLog } from "../../libraries/utils"
 
 const template = require("./DropdownMenu.monk")
 const liTemplate = require("./li.monk")
@@ -17,24 +17,26 @@ export interface DropdownMenuOptions {
 }
 
 export class DropdownMenu {
-  readonly entries: NavMenu
+  private el: HTMLElement
   readonly btnEl: HTMLElement
 
-  private el: HTMLElement
+  readonly entries: NavMenu
+
   private detached = true
   private isVisible = false
 
   constructor(private dash: Dash, private options: DropdownMenuOptions) {
-    this.btnEl = options.btnEl
     let view = render(template, document.createElement("div"))
-    this.el = view.nodes[0] as HTMLElement
 
+    this.el = view.nodes[0] as HTMLElement
+    this.btnEl = options.btnEl
     this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
 
     this.el.appendChild(this.entries.el)
     if (options.align !== "left")
       this.el.classList.add(options.align || "right")
     this.btnEl.addEventListener("click", catchAndLog(() => this.toggle()))
+
     dash.listenToChildren("click").onEvent(() => this.hide())
   }
 
@@ -48,6 +50,7 @@ export class DropdownMenu {
   private show() {
     if (this.isVisible)
       return
+
     if (this.detached)
       this.attachInDom()
     this.position()
@@ -65,18 +68,19 @@ export class DropdownMenu {
   }
 
   private position() {
-//     let menuTop = this.btnEl.offsetTop + this.btnEl.offsetHeight
-//     let menuLeft = this.btnEl.offsetLeft + this.btnEl.offsetWidth - this.el.offsetWidth
-//     this.el.style.top = `${menuTop}px`
-//     this.el.style.left = `${menuLeft}px`
-// console.log("position:", this.btnEl.offsetLeft, this.btnEl.offsetWidth, this.el.offsetWidth)
+    // let menuTop = this.btnEl.offsetTop + this.btnEl.offsetHeight
+    // let menuLeft = this.btnEl.offsetLeft + this.btnEl.offsetWidth - this.el.offsetWidth
+    //
+    // this.el.style.top = `${menuTop}px`
+    // this.el.style.left = `${menuLeft}px`
+    // console.log("position:", this.btnEl.offsetLeft, this.btnEl.offsetWidth, this.el.offsetWidth)
   }
 
   private hide() {
-    if (!this.isVisible)
-      return
-    this.isVisible = false
-    this.el.style.display = "none"
+    if (this.isVisible) {
+      this.isVisible = false
+      this.el.style.display = "none"
+    }
   }
 }
 

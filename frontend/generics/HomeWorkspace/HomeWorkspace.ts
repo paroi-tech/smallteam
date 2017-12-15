@@ -19,14 +19,6 @@ export default class HomeWorkspace implements Workspace {
     this.el = this.createView()
   }
 
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-
-    return el
-  }
-
   public activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.el)
@@ -34,4 +26,12 @@ export default class HomeWorkspace implements Workspace {
   }
 
   public deactivate() {}
+
+  private createView() {
+    this.view = render(template, document.createElement("div"))
+
+    let el = this.view.nodes[0] as HTMLElement
+
+    return el
+  }
 }
