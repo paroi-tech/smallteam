@@ -22,22 +22,37 @@ export default class BackgroundCommandManager {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.bgCmdManager = this.dash.app.model.bgManager
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
     this.buttonEl = this.createHtmlMenuButtonElement()
     this.listenToModel()
   }
 
+  public show() {
+    this.el.showModal()
+  }
+
+  public hide() {
+    if (this.el.open)
+      this.el.close()
+  }
+
+  // --
+  // -- Utilities
+  // --
+
   private createHtmlMenuButtonElement(): HTMLButtonElement {
-    this.view = render(templateMenuBtn, document.createElement("div"))
+    let view = render(templateMenuBtn, document.createElement("div"))
     let btnEl = this.view.nodes[0] as HTMLButtonElement
+
     btnEl.addEventListener("click", ev => {
       btnEl.style.backgroundColor = "transparent"
       this.show()
     })
+
     return btnEl
   }
 
-  private createHtmlElements(): HTMLDialogElement {
+  private createView(): HTMLDialogElement {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLDialogElement
@@ -50,36 +65,34 @@ export default class BackgroundCommandManager {
     return el
   }
 
+  // --
+  // -- Event handlers
+  // --
+
   private listenToModel() {
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").onData(bgCmd => {
-      this.buttonEl.style.backgroundColor = "orange"
-
-      let row = this.tableEl.tBodies[0].insertRow(-1)
-
-      row.insertCell(-1).textContent = bgCmd.label
-      row.insertCell(-1).textContent = bgCmd.startDt.toLocaleTimeString()
-
-      let progressCheckBox = document.createElement("input")
-
-      progressCheckBox.setAttribute("type", "checkbox")
-      progressCheckBox.disabled = true
-      progressCheckBox.checked = bgCmd.done ? true : false
-      row.insertCell(-1).appendChild(progressCheckBox)
-
-      let doneCheckBox = document.createElement("input")
-
-      doneCheckBox.setAttribute("type", "checkbox")
-      doneCheckBox.disabled = true
-      doneCheckBox.checked = bgCmd.done ? true : false
-      row.insertCell(-1).appendChild(doneCheckBox)
-    })
+    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").onData(bgCmd => this.onBgCommandError(bgCmd))
   }
 
-  private show() {
-    this.el.showModal()
-  }
+  private onBgCommandError(cmd: BgCommand) {
+    this.buttonEl.style.backgroundColor = "orange"
 
-  private hide() {
-    this.el.close()
+    let row = this.tableEl.tBodies[0].insertRow(-1)
+
+    row.insertCell(-1).textContent = cmd.label
+    row.insertCell(-1).textContent = cmd.startDt.toLocaleTimeString()
+
+    let progressCheckBox = document.createElement("input")
+
+    progressCheckBox.setAttribute("type", "checkbox")
+    progressCheckBox.disabled = true
+    progressCheckBox.checked = cmd.done ? true : false
+    row.insertCell(-1).appendChild(progressCheckBox)
+
+    let doneCheckBox = document.createElement("input")
+
+    doneCheckBox.setAttribute("type", "checkbox")
+    doneCheckBox.disabled = true
+    doneCheckBox.checked = cmd.done ? true : false
+    row.insertCell(-1).appendChild(doneCheckBox)
   }
 }

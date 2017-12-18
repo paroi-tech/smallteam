@@ -30,7 +30,7 @@ export default class TaskComment {
 
   private editMode = false
 
-  constructor(private dash: Dash<App>, private comment: CommentModel) {
+  constructor(private dash: Dash<App>, readonly comment: CommentModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
     this.contributorId = this.dash.app.model.session.contributor.id

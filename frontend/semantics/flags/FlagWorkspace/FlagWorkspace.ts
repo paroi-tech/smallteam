@@ -118,7 +118,7 @@ export default class FlagWorkspace implements Workspace {
    * @param ids - array of strings that contains the ids of steps
    */
   private async doUpdate(ids: string[]): Promise<void> {
-    let currentOrder = this.boxList.getBoxesOrder()
+    let currentOrder = this.boxList.getOrder()
     console.log(currentOrder)
     this.boxList.disable(true)
     try {
@@ -126,12 +126,12 @@ export default class FlagWorkspace implements Workspace {
 
       if (!equal(idList, ids)) {
         console.error("Sorry. Server rejected new order of flags...", idList, ids)
-        this.boxList.setBoxesOrder(idList)
+        this.boxList.sort(idList)
       }
     } catch (err) {
       console.log("Sorry. Unable to save the new order of flags on server.", err)
-      this.boxList.setBoxesOrder(currentOrder)
-      console.log(this.boxList.getBoxesOrder())
+      this.boxList.sort(currentOrder)
+      console.log(this.boxList.getOrder())
     }
 
     this.boxList.enable(true)

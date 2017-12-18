@@ -21,7 +21,7 @@ export default class TaskCommentEditor {
   private listItems = new Map<string, HTMLElement>()
 
   private model: Model
-  private task: TaskModel | undefined = undefined
+  private currentTask: TaskModel | undefined = undefined
 
   private log: Log
 
@@ -43,7 +43,7 @@ export default class TaskCommentEditor {
     this.submitBtnSpanEl = el.querySelector(".js-spinner") as HTMLElement
 
     this.submitBtnEl.addEventListener("click", ev => {
-      if (this.task)
+      if (this.currentTask)
         this.onSubmit()
     })
 
@@ -52,15 +52,15 @@ export default class TaskCommentEditor {
 
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "createComment").onData(data => {
-      if (!this.task)
+      if (!this.currentTask)
         return
       let comment = data.model as CommentModel
-      if (comment.taskId === this.task.id)
+      if (comment.taskId === this.currentTask.id)
         this.addComment(comment)
     })
 
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteComment").onData(data => {
-      if (!this.task)
+      if (!this.currentTask)
         return
       let commentId = data.id as string
       let li = this.listItems.get(commentId)
@@ -72,7 +72,7 @@ export default class TaskCommentEditor {
   }
 
   private async onSubmit() {
-    if (!this.task)
+    if (!this.currentTask)
       return
 
     let text = this.textAreaEl.value.trim()
@@ -81,7 +81,7 @@ export default class TaskCommentEditor {
 
     let frag: CommentCreateFragment = {
       body: text,
-      taskId: this.task.id
+      taskId: this.currentTask.id
     }
 
     try {
@@ -92,14 +92,23 @@ export default class TaskCommentEditor {
     }
   }
 
-  public async setTask(task: TaskModel | undefined) {
+  get task(): TaskModel | undefined {
+    return this.currentTask
+  }
+
+  set task(task: TaskModel | undefined) {
     this.clear()
-    this.task = task
+    this.currentTask = task
     if (!task)
       return
+    this.loadComments()
+  }
 
+  private async loadComments() {
+    if (!this.currentTask)
+      return
     try {
-      let comments = await task.getComments()
+      let comments = await this.currentTask.getComments()
       for (let comment of comments)
         this.addComment(comment)
     } catch (err) {

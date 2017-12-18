@@ -8,7 +8,6 @@ const template = require("./LoginDialog.monk")
 
 export default class LoginDialog {
   readonly el: HTMLDialogElement
-
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private submitBtnEl: HTMLButtonElement
@@ -27,6 +26,7 @@ export default class LoginDialog {
   public open(): Promise<SessionData> {
     this.el.showModal()
     this.curDfd = new Deferred()
+
     return this.curDfd.promise
   }
 
@@ -44,40 +44,34 @@ export default class LoginDialog {
       if (ev.key === "Enter")
         this.submitBtnEl.click()
     })
+
     el.addEventListener("close", () => {
       if (this.curDfd) {
         this.curDfd.reject(new Error("Fail to connect"))
-        this.curDfd = undefined;
+        this.curDfd = undefined
       }
     })
+
     document.body.appendChild(el)
 
     return el
   }
 
-  private async onSubmit() {
-    // Restore default border color of the fields.
+  private removeWarning() {
     this.nameEl.style.borderColor = "gray"
     this.passwordEl.style.borderColor = "gray"
     this.el.style.pointerEvents = "none"
+  }
+
+  private async onSubmit() {
+    this.removeWarning()
 
     let name = this.nameEl.value.trim()
     let password = this.passwordEl.value
     let start = false
 
-    if (name.length < 4) {
-      this.nameEl.style.borderColor = "red"
-      this.nameEl.focus()
-      this.el.style.pointerEvents = "auto"
+    if (!this.checkUserInput(name, password))
       return
-    }
-
-    if (password.length === 0) {
-      this.passwordEl.style.borderColor = "red"
-      this.passwordEl.focus()
-      this.el.style.pointerEvents = "auto"
-      return
-    }
 
     this.spinnerEl.style.display = "inline"
 
@@ -89,11 +83,31 @@ export default class LoginDialog {
         this.curDfd.resolve({ contributorId })
         this.curDfd = undefined
       }
-    }  else {
+    } else
       this.nameEl.focus()
-    }
+
     this.spinnerEl.style.display = "none"
     this.el.style.pointerEvents = "auto"
+  }
+
+  private checkUserInput(name: string, password: string) {
+    if (name.length < 4) {
+      this.nameEl.style.borderColor = "red"
+      this.nameEl.focus()
+      this.el.style.pointerEvents = "auto"
+
+      return false
+    }
+
+    if (password.length === 0) {
+      this.passwordEl.style.borderColor = "red"
+      this.passwordEl.focus()
+      this.el.style.pointerEvents = "auto"
+
+      return false
+    }
+
+    return true
   }
 
   private async tryToLogin(name: string, password: string): Promise<string | undefined> {

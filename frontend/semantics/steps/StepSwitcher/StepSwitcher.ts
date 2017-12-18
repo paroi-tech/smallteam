@@ -249,7 +249,7 @@ export default class StepSwitcher {
       )
       let list = this.boxLists.get(ev.boxListId)
       if (list)
-        list.setBoxesOrder(taskIds)
+        list.sort(taskIds)
       else
         console.error(`Cannot restore order in list "${ev.boxListId}" in StepSwitcher "${this.parentTask.label}"`)
     }

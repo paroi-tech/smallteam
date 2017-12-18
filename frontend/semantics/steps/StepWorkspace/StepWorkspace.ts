@@ -63,7 +63,7 @@ export default class StepWorkspace implements Workspace {
 
   private listenToChildComponents() {
     this.dash.listenToChildren<StepModel>("stepBoxSelected").onData(step => {
-      this.form.setStep(step)
+      this.form.step = step
     })
     this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => {
       this.handleBoxlistUpdate(data)
@@ -142,7 +142,7 @@ export default class StepWorkspace implements Workspace {
    * @param ids - array of strings that contains the ids of steps
    */
   private async doUpdate(ids: string[]): Promise<void> {
-    let currentOrder = this.boxList.getBoxesOrder()
+    let currentOrder = this.boxList.getOrder()
 
     this.boxList.disable(true)
     try {
@@ -150,11 +150,11 @@ export default class StepWorkspace implements Workspace {
 
       if (!equal(idList, ids)) {
         console.error("Sorry. Server rejected new order of steps...", idList, ids)
-        this.boxList.setBoxesOrder(idList)
+        this.boxList.sort(idList)
       }
     } catch (err) {
       console.log("Sorry. Unable to save the new order of steps on server.", err)
-      this.boxList.setBoxesOrder(currentOrder)
+      this.boxList.sort(currentOrder)
     }
 
     this.boxList.enable(true)
@@ -185,6 +185,5 @@ export default class StepWorkspace implements Workspace {
         .setTitle("Steps")
   }
 
-  public deactivate() {
-  }
+  public deactivate() {}
 }

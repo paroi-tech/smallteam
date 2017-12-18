@@ -45,7 +45,7 @@ export default class ContributorWorkspace implements Workspace {
     this.childRouter.map({
       route: "my-profile",
       activate: (query: ERQuery) => {
-        this.form.setContributor(this.model.session.contributor)
+        this.form.contributor = this.model.session.contributor
       },
       title: "My Profile"
     })
@@ -93,7 +93,7 @@ export default class ContributorWorkspace implements Workspace {
 
   private listenToChildren() {
     this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").onData(data => {
-      this.form.setContributor(data)
+      this.form.contributor = data
     })
   }
 

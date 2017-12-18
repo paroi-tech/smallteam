@@ -15,7 +15,7 @@ import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
 import Workspace404 from "../generics/Workspace404/Workspace404"
 import config from "../../isomorphic/config"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
-import AppFrame from "../AppFrame/AppFrame";
+import AppFrame from "../AppFrame/AppFrame"
 
 export default class App {
   readonly log: Log
@@ -68,6 +68,7 @@ export default class App {
 
     // Show login dialog if session recover failed.
     let dialog = this.dash.create(LoginDialog)
+
     return await dialog.open()
   }
 
@@ -111,8 +112,7 @@ export default class App {
     }
   }
 
-  // public async restart() {
-  // }
+  // public async restart() {}
 
   private async initModel(sessionData: SessionData) {
     this._model = this.dash.create(ModelComp, sessionData)

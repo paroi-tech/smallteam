@@ -20,8 +20,7 @@ export default class StepForm {
   private dropdownMenu: DropdownMenu
   private view: MonkberryView
 
-  private step: StepModel | undefined = undefined
-
+  private currentStep: StepModel | undefined
   private model: Model
 
   constructor(private dash: Dash<App>) {
@@ -60,7 +59,7 @@ export default class StepForm {
 
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {
-      if (this.step && this.step.id === data.id)
+      if (this.currentStep && this.currentStep.id === data.id)
         this.clear()
     })
   }
@@ -80,7 +79,7 @@ export default class StepForm {
     this.cancelButtonEl.addEventListener("click", ev => {
       this.clearFields()
       this.submitButtonEl.setAttribute("disabled", "true")
-      if (this.step)
+      if (this.currentStep)
         this.fillFieldsWithCurrentStep()
     })
 
@@ -96,63 +95,66 @@ export default class StepForm {
     })
   }
 
-  public setStep(step: StepModel) {
-    this.clear()
-    this.step = step
-    this.fillFieldsWithCurrentStep()
-  }
-
   private async updateStep(newName: string) {
-    if (!this.step)
+    if (!this.currentStep)
       return
 
     this.submitButtonSpinnerEl.style.display = "inline"
-    let id = this.step.id
-    let frag = this.step.updateTools.getDiffToUpdate({ id, label: newName })
+    let id = this.currentStep.id
+    let frag = this.currentStep.updateTools.getDiffToUpdate({ id, label: newName })
     if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object)) {
       try {
         let step = await this.model.exec("update", "Step", { id, ...frag })
-        this.setStep(step)
+        this.step = step
         this.submitButtonEl.setAttribute("disabled", "true")
       } catch (err) {
         this.clear()
-        if (this.step)
-          this.setStep(this.step)
+        if (this.currentStep)
+          this.step = this.currentStep
       }
     }
     this.submitButtonSpinnerEl.style.display = "none"
   }
 
   private async deleteCurrentStep() {
-    if (!this.step)
+    if (!this.currentStep)
       return
     try {
-      let w = await this.step.updateTools.whoUse()
+      let w = await this.currentStep.updateTools.whoUse()
       if (w) {
         alert("Can't delete step.")
         return
       }
-      await this.model.exec("delete", "Step", { id: this.step.id })
+      await this.model.exec("delete", "Step", { id: this.currentStep.id })
     } catch (error) {
-      console.log(`Error while deleting Step with ID ${this.step.id}`)
+      console.log(`Error while deleting Step with ID ${this.currentStep.id}`)
     }
   }
 
-  get currentStep(): StepModel | undefined {
-    return this.step
+  get step(): StepModel | undefined {
+    return this.currentStep
+  }
+
+  set step(step: StepModel | undefined) {
+    if (!step) {
+      this.clear()
+      return
+    }
+    this.currentStep = step
+    this.fillFieldsWithCurrentStep()
   }
 
   public clear() {
-    this.step = undefined
+    this.currentStep = undefined
     this.clearFields()
   }
 
   private fillFieldsWithCurrentStep() {
-    if (!this.step)
+    if (!this.currentStep)
       return
       this.view.update({
-        name: this.step.label,
-        orderNum: (this.step.orderNum || "").toString()
+        name: this.currentStep.label,
+        orderNum: (this.currentStep.orderNum || "").toString()
       })
   }
 

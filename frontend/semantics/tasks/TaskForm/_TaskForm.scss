@@ -1,0 +1,5 @@
+.TaskForm {
+  &-header {
+    @extend .BlockTitle;
+  }
+}

@@ -15,12 +15,11 @@ export default class TaskLogDialog {
   private view: MonkberryView
 
   private model: Model
-  private task: TaskModel | undefined = undefined
+  private currentTask: TaskModel | undefined
+  private log: Log
 
   // Used to know if the logs for the current task need to loaded from model.
   private needReload = false
-
-  private log: Log
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
@@ -29,7 +28,7 @@ export default class TaskLogDialog {
 
     this.dash.listenTo(this.model, "createTaskLogEntry").onData(data => {
       let entry = data.model as TaskLogEntryModel
-      if (!this.task || this.task.id !== entry.taskId)
+      if (!this.currentTask || this.currentTask.id !== entry.taskId)
         return
       this.addEntry(entry)
     })
@@ -37,23 +36,16 @@ export default class TaskLogDialog {
 
   private createView(): HTMLDialogElement {
     this.view = render(template, document.createElement("div"))
+
     let el = this.view.nodes[0] as HTMLDialogElement
 
     this.closeButtonEl = el.querySelector(".js-close") as HTMLButtonElement
     this.closeButtonEl.addEventListener("click", ev => this.hide())
-
     this.loadIndicatorEl = el.querySelector(".js-loader") as HTMLElement
     this.tableEl = el.querySelector(".js-table") as HTMLTableElement
-
     document.body.appendChild(el)
 
     return el
-  }
-
-  public async setTask(task: TaskModel | undefined) {
-    this.task = task
-    removeAllChildren(this.tableEl.tBodies[0])
-    this.needReload = (task !== undefined)
   }
 
   private addEntry(entry: TaskLogEntryModel) {
@@ -65,8 +57,14 @@ export default class TaskLogDialog {
     row.insertCell(-1).textContent = entry.contributor.login
   }
 
-  get currentTask(): TaskModel | undefined {
-    return this.currentTask
+  get task(): TaskModel | undefined {
+    return this.task
+  }
+
+  set task(task: TaskModel | undefined) {
+    this.currentTask = task
+    this.needReload = (task !== undefined)
+    removeAllChildren(this.tableEl.tBodies[0])
   }
 
   public show() {
@@ -82,17 +80,16 @@ export default class TaskLogDialog {
   }
 
   private async loadTaskLogEntries() {
-    if (!this.task)
+    if (!this.currentTask)
       return
 
     this.loadIndicatorEl.style.display = "block"
     try {
-      let entries = await this.task.getLogEntries()
+      let entries = await this.currentTask.getLogEntries()
       entries.forEach(entry => this.addEntry(entry))
     } catch (err) {
-      this.log.error(`Cannot get log entries for task ${this.task.id}`)
+      this.log.error(`Cannot get log entries for task ${this.currentTask.id}`)
     }
     this.loadIndicatorEl.style.display = "none"
   }
-
 }

@@ -68,40 +68,22 @@ export interface BoxListEvent extends BoxEvent {
  */
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
-
-  private view: MonkberryView
-
   private ul: HTMLElement
   private busyIndicatorEl: HTMLElement
   private titleEl: HTMLElement
   private sortable: Sortable
 
+  private view: MonkberryView
+
   // Map storing boxes of the list.
   private boxes = new Map<string, HTMLElement>()
 
-  /**
-   * Create a new empty BoxList.
-   *
-   * @param dash - the current application dash
-   * @param params - wrapper of the Boxlist parameters
-   */
   constructor(private dash: Dash, private params: BoxListParams) {
-    this.view = render(boxListTemplate, document.createElement("div"))
-    this. el = this.view.nodes[0] as HTMLElement
-
-    this.ul = this.el.querySelector("ul") as HTMLElement
-    this.busyIndicatorEl = this.el.querySelector(".js-busy-icon") as HTMLElement
-    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
-
+    this.el = this.createView()
     this.setTitle(this.params.name)
     this.makeSortable()
   }
 
-  /**
-   * Add a new element to the boxlist.
-   *
-   * @param box - the element to be added.
-   */
   public addBox(box: T) {
     let view = render(boxTemplate, document.createElement("div"))
     let li = view.nodes[0] as HTMLLIElement
@@ -121,7 +103,6 @@ export default class BoxList<T extends Box> {
       })
       li.addEventListener("mouseover", ev => span.style.visibility = "visible")
       li.addEventListener("mouseleave", ev => span.style.visibility = "hidden")
-
       li.appendChild(el)
     }
 
@@ -129,26 +110,10 @@ export default class BoxList<T extends Box> {
     this.boxes.set(box.id, li)
   }
 
-  private createCloseItem(): HTMLElement {
-    let view = render(closeTemplate, document.createElement("div"))
-    let el = view.nodes[0] as HTMLElement
-
-    return el
-  }
-
-  /**
-   * Indicate if the BoxList contains an element with a given ID.
-   * @param id
-   */
   public hasBox(id: string) {
     return this.boxes.has(id)
   }
 
-  /**
-   * Remove a box from the list.
-   *
-   * @param boxId - ID of the box to remove
-   */
   public removeBox(boxId: string) {
     let li = this.boxes.get(boxId)
     if (li) {
@@ -157,65 +122,10 @@ export default class BoxList<T extends Box> {
     }
   }
 
-  /**
-   * Remove all elements from the BoxList.
-   */
   public clear() {
     Array.from(this.boxes.keys()).forEach(key => this.removeBox(key))
   }
 
-  /***
-   * Make the boxList sortable by creating a Sortable object.
-   */
-  private makeSortable() {
-    this.sortable = Sortable.create(this.ul, {
-      handle: ".js-handle",
-      group: this.params.group,
-      sort: this.params.sort,
-      disabled: this.params.disabled === undefined ? false : this.params.disabled,
-      // Element is dropped into the list from another list.
-      onAdd: (ev) => {
-        this.boxes.set(ev.item.dataset.id, ev.item)
-        this.dash.emit("boxListItemAdded", {
-          boxListId: this.params.id,
-          boxId: ev.item.dataset.id
-        })
-      },
-      // Element is moved from the list into another list.
-      onRemove: (ev) => {
-        this.boxes.delete(ev.item.dataset.id)
-        this.dash.emit("boxListItemRemoved", {
-          boxListId: this.params.id,
-          boxId: ev.item.dataset.id
-        })
-      },
-      // Changed sorting within list.
-      onUpdate: (ev) => {
-        let boxId = ev.item.dataset.id
-        this.dash.emit("boxListSortingUpdated", {
-          boxListId: this.params.id,
-          boxId: ev.item.dataset.id,
-          boxIds: this.sortable.toArray()
-        })
-      },
-      // Event when an item is moved inside a list ot between lists.
-      onMove: (ev, originalEv) => {
-        if (this.params.obj && this.params.onMove) {
-          return this.params.onMove.call(this.params.obj, {
-            boxId: ev.dragged.dataset.id,
-            boxListId: this.params.id
-          })
-        } else
-          return true
-      }
-    })
-  }
-
-  /**
-   * Change the title of the list.
-   *
-   * @param title - the new title.
-   */
   public setTitle(title: string) {
     this.titleEl.textContent = title
   }
@@ -226,36 +136,17 @@ export default class BoxList<T extends Box> {
    * @param order - array of ids which will be used to sort the boxlist.
    * @see {@link https://github.com/RubaXa/Sortable#sortorderstring}
    */
-  public setBoxesOrder(order: string[]) {
+  public sort(order: string[]) {
     this.sortable.sort(order)
   }
 
   /**
    * Return the IDs of the BoxList elements, based on their current order.
    */
-  public getBoxesOrder(): string[] {
+  public getOrder(): string[] {
     return this.sortable.toArray()
   }
 
-  /**
-   * Enable ou disable the BoxList.
-   *
-   * If the component is disabled, it does not react to user actions.
-   * Code based on the answer by Kokodoko at:
-   * @url{https://stackoverflow.com/questions/639815/how-to-disable-all-div-content}
-   *
-   * @param b If `true`, the BoxList is enabled else the BoxList is disabled
-   */
-  public setEnabled(b: boolean) {
-    this.el.style.pointerEvents = b ? "auto" : "none"
-    this.el.style.opacity = b ? "1.0" : "0.4"
-  }
-
-  /**
-   * Enable the component.
-   *
-   * @param showBusyIcon Indicate if the busy icon should be hidden
-   */
   public enable(showBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.el.style.opacity = "1.0"
@@ -263,11 +154,6 @@ export default class BoxList<T extends Box> {
       this.hideBusyIcon()
   }
 
-  /**
-   * Disable the component.
-   *
-   * @param showBusyIcon Indicate if the busy should be shown
-   */
   public disable(showBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.el.style.opacity = "0.4"
@@ -305,11 +191,85 @@ export default class BoxList<T extends Box> {
     }
   }
 
-  public showBusyIcon() {
+  // --
+  // -- Utilities
+  // --
+
+  private createView() {
+    this.view = render(boxListTemplate, document.createElement("div"))
+
+    let el = this.view.nodes[0] as HTMLElement
+
+    this.ul = el.querySelector("ul") as HTMLElement
+    this.busyIndicatorEl = el.querySelector(".js-busy-icon") as HTMLElement
+    this.titleEl = el.querySelector(".js-title") as HTMLElement
+
+    return el
+  }
+
+  private createCloseItem(): HTMLElement {
+    let view = render(closeTemplate, document.createElement("div"))
+    let el = view.nodes[0] as HTMLElement
+
+    return el
+  }
+
+  /***
+   * Make the boxList sortable by creating a Sortable object.
+   */
+  private makeSortable() {
+    this.sortable = Sortable.create(this.ul, {
+      handle: ".js-handle",
+      group: this.params.group,
+      sort: this.params.sort,
+      disabled: this.params.disabled === undefined ? false : this.params.disabled,
+
+      // Element is dropped into the list from another list.
+      onAdd: (ev) => {
+        this.boxes.set(ev.item.dataset.id, ev.item)
+        this.dash.emit("boxListItemAdded", {
+          boxListId: this.params.id,
+          boxId: ev.item.dataset.id
+        })
+      },
+
+      // Element is moved from the list into another list.
+      onRemove: (ev) => {
+        this.boxes.delete(ev.item.dataset.id)
+        this.dash.emit("boxListItemRemoved", {
+          boxListId: this.params.id,
+          boxId: ev.item.dataset.id
+        })
+      },
+
+      // Changed sorting within list.
+      onUpdate: (ev) => {
+        let boxId = ev.item.dataset.id
+        this.dash.emit("boxListSortingUpdated", {
+          boxListId: this.params.id,
+          boxId: ev.item.dataset.id,
+          boxIds: this.sortable.toArray()
+        })
+      },
+
+      // Event when an item is moved inside a list ot between lists.
+      onMove: (ev, originalEv) => {
+        if (this.params.obj && this.params.onMove) {
+          return this.params.onMove.call(this.params.obj, {
+            boxId: ev.dragged.dataset.id,
+            boxListId: this.params.id
+          })
+        } else
+          return true
+      }
+    })
+  }
+
+  private showBusyIcon() {
     this.busyIndicatorEl.style.display = "inline"
   }
 
-  public hideBusyIcon() {
+  private hideBusyIcon() {
     this.busyIndicatorEl.style.display = "none"
   }
 }

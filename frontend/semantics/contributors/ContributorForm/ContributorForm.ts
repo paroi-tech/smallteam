@@ -30,7 +30,7 @@ export default class ContributorForm {
   }
 
   private model: Model
-  private contributor: ContributorModel | undefined
+  private currentContributor: ContributorModel | undefined
   private log: Log
 
   private canClearForm = false
@@ -49,7 +49,7 @@ export default class ContributorForm {
   }
 
   public reset() {
-    this.contributor = undefined
+    this.currentContributor = undefined
 
     this.state.frag.name  = ""
     this.state.frag.login = ""
@@ -91,10 +91,15 @@ export default class ContributorForm {
   // -- Accessors
   // --
 
-  public setContributor(contributor: ContributorModel) {
+  set contributor(contributor: ContributorModel | undefined) {
     this.canClearForm = false
-    this.contributor  = contributor
 
+    if (!contributor) {
+      this.reset()
+      return
+    }
+
+    this.currentContributor  = contributor
     this.state.frag = contributor.updateTools.toFragment("update") as any
     this.view.update(this.state)
 
@@ -104,8 +109,8 @@ export default class ContributorForm {
       this.unlockForm()
   }
 
-  get currentContributor(): ContributorModel | undefined {
-    return this.contributor
+  get contributor(): ContributorModel | undefined {
+    return this.currentContributor
   }
 
   // --
@@ -118,14 +123,14 @@ export default class ContributorForm {
       return
 
     this.lockForm()
-    if (!this.contributor) {
+    if (!this.currentContributor) {
       this.canClearForm = true
       await this.createContributor(data)
       if (this.canClearForm)
         this.switchToCreationMode()
     } else {
-      let id = this.contributor.id
-      let frag = this.contributor.updateTools.getDiffToUpdate({ id, ...data })
+      let id = this.currentContributor.id
+      let frag = this.currentContributor.updateTools.getDiffToUpdate({ id, ...data })
 
       // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
@@ -136,18 +141,18 @@ export default class ContributorForm {
   }
 
   private onEndProcessing(data: ContributorModel) {
-    if (!this.contributor || this.contributor.id !== data.id)
+    if (!this.currentContributor || this.currentContributor.id !== data.id)
       return
 
     this.canClearForm = false
-    this.state.frag = this.contributor.updateTools.toFragment("update") as any
+    this.state.frag = this.currentContributor.updateTools.toFragment("update") as any
     this.view.update(this.state)
 
     this.unlockForm()
   }
 
   private onProcessing(data: ContributorModel) {
-    if (!this.contributor || this.contributor.id !== data.id)
+    if (!this.currentContributor || this.currentContributor.id !== data.id)
       return
     this.lockForm()
   }
@@ -165,7 +170,7 @@ export default class ContributorForm {
   }
 
   private async updateContributor(frag: ContributorUpdateFragment) {
-    if (!this.contributor)
+    if (!this.currentContributor)
       return
     try {
       await this.model.exec("update", "Contributor", frag)
