@@ -406,7 +406,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     p = p.then<boolean>((can: boolean): any => {
       if (!can)
         return false
-      return this.searchRoute(query).then<boolean>((matching: MatchingRoute): any => {
+      return this.searchRoute(query).then<boolean>((matching: MatchingRoute | null): any => {
         if (matching === null)
           return this.parent ? this.parent.parentNavigateToUnknown(changeHist) : false
         return this.fireListeners("canNavigate", matching.completedQuery, true).then((can: boolean): any => {
