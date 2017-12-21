@@ -38,7 +38,7 @@ export default class ContributorForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
 
     this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(
       data => this.onEndProcessing(data)
@@ -70,11 +70,10 @@ export default class ContributorForm {
   // -- Initialization functions
   // --
 
-  private createHtmlElements() {
+  private createView() {
     this.view = render(template, document.createElement("div"), { directives })
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.loginEl = el.querySelector(".js-login") as HTMLInputElement

@@ -9,7 +9,6 @@ const template = require("./PasswordForm.monk")
 
 export default class PasswordForm {
   readonly el: HTMLElement
-
   private passwordEl: HTMLInputElement
   private newPasswordEl: HTMLInputElement
   private passwordConfirmEl: HTMLInputElement
@@ -18,15 +17,19 @@ export default class PasswordForm {
   private view: MonkberryView
 
   private log: Log
+  private model: Model
 
   private state = {
     ctrl: {
       submit: () => this.onSubmit(),
       cancel: () => this.onCancel()
+    },
+    frag: {
+      password: "",
+      newPassword: "",
+      passwordConfirm: ""
     }
   }
-
-  private model: Model
 
   constructor(private dash: Dash<App>, private contributor: ContributorModel) {
     this.model = this.dash.app.model
@@ -48,29 +51,37 @@ export default class PasswordForm {
   }
 
   private async onSubmit() {
+    if (!this.checkUserInput())
+      return
+
+    this.showSpinner()
+    await this.doPasswordUpdate(this.passwordEl.value, this.newPasswordEl.value)
+    this.hideSpinner()
+  }
+
+  private checkUserInput() {
     if (this.passwordEl.value.length === 0) {
       alert("Please enter your current password")
       this.passwordEl.focus()
-      return
+      return false
     }
 
     if (this.newPasswordEl.value.length === 0) {
       alert("Please enter new password")
       this.newPasswordEl.focus()
-      return
+      return false
     }
 
     if (this.newPasswordEl.value !== this.passwordConfirmEl.value) {
       alert("Passwords don't match")
       this.passwordConfirmEl.focus()
-      return
+      return false
     }
 
-    await this.doPasswordUpdate(this.passwordEl.value, this.newPasswordEl.value)
+    return true
   }
 
   private async doPasswordUpdate(currentPassword: string, newPassword: string) {
-    this.submitSpinnerEl.style.display = "inline"
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/change-password`, {
         method: "post",
@@ -88,24 +99,36 @@ export default class PasswordForm {
       if (!response.ok) {
         this.log.warn("Password change request was not processed by server.")
         alert("Error. Request was not processed by server.")
+        return
       }
-      else {
-        let result = await response.json()
-        if (result.done)
-          alert("Password successfully updated.")
-        else
-          alert("Password was not changed. Maybe you mistyped your current password.")
-      }
+
+      let result = await response.json()
+      if (result.done) {
+        this.clearFields()
+        alert("Password successfully updated.")
+      } else
+        alert("Password was not changed. Maybe you mistyped your current password.")
     } catch (err) {
       this.log.error("Error while updating password.", err)
     }
-    this.submitSpinnerEl.style.display = "none"
   }
 
   private onCancel() {
-    this.passwordEl.value = ""
-    this.newPasswordEl.value = ""
-    this.passwordConfirmEl.value = ""
+    this.clearFields()
   }
 
+  public showSpinner() {
+    this.submitSpinnerEl.style.display = "inline"
+  }
+
+  private hideSpinner() {
+    this.submitSpinnerEl.style.display = "none"
+  }
+
+  private clearFields() {
+    this.state.frag.password = ""
+    this.state.frag.newPassword = ""
+    this.state.frag.passwordConfirm = ""
+    this.view.update(this.state)
+  }
 }

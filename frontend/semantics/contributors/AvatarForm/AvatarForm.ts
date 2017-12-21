@@ -15,7 +15,6 @@ export default class AvatarForm {
 
   private model: Model
   private log: Log
-
   private view: MonkberryView
 
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
@@ -47,10 +46,10 @@ export default class AvatarForm {
       return
     }
 
-    this.spinnerEl.style.display = "inline"
+    this.showSpinner()
     let fd = new FormData(this.formEl)
     await this.doUpload(fd)
-    this.spinnerEl.style.display = "none"
+    this.hideSpinner()
   }
 
   private async doUpload(fd: FormData) {
@@ -74,5 +73,13 @@ export default class AvatarForm {
     } catch (err) {
       this.dash.app.log.warn(err)
     }
+  }
+
+  private showSpinner() {
+    this.spinnerEl.style.display = "inline"
+  }
+
+  private hideSpinner() {
+    this.spinnerEl.style.display = "none"
   }
 }

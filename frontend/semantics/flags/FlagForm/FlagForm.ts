@@ -9,16 +9,12 @@ const template = require("./FlagForm.monk")
 
 export default class FlagForm {
   readonly el: HTMLElement
-
   private labelEl: HTMLInputElement
   private colorEl: HTMLInputElement
   private orderNumEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
-
-  private log: Log
-
   private state = {
     label:  "",
     color: "#000000",
@@ -28,6 +24,7 @@ export default class FlagForm {
     }
   }
 
+  private log: Log
   private model: Model
   private flag: FlagModel | undefined
 
@@ -41,6 +38,24 @@ export default class FlagForm {
       if (this.flag && this.flag.id === id)
         this.reset()
     })
+  }
+
+  public setFlag(flag: FlagModel) {
+    this.flag = flag
+    this.updateView()
+  }
+
+  public reset() {
+    this.flag = undefined
+    this.state.color = "#000000"
+    this.state.label = ""
+    this.state.orderNum = ""
+    this.view.update(this.state)
+  }
+
+  public switchToCreationMode() {
+    this.reset()
+    this.labelEl.focus()
   }
 
   private createView(): HTMLElement {
@@ -67,41 +82,14 @@ export default class FlagForm {
     this.view.update(this.state)
   }
 
-  public setFlag(flag: FlagModel) {
-    this.flag = flag
-    this.updateView()
-  }
-
-  public reset() {
-    this.flag = undefined
-    this.state.color = "#000000"
-    this.state.label = ""
-    this.state.orderNum = ""
-    this.view.update(this.state)
-  }
-
-  public switchToCreationMode() {
-    this.reset()
-    this.labelEl.focus()
-  }
-
   private async onSubmit() {
     let label = this.labelEl.value.trim()
     let color = this.colorEl.value.trim()
 
-    if (label.length < 1) {
-      this.log.warn("Label should have at least one character...")
-      this.labelEl.focus()
+    if (!this.checkUserInput(label, color))
       return
-    }
 
-    if (color === "") {
-      this.log.warn("Please select a color...")
-      this.colorEl.focus()
-      return
-    }
-
-    this.submitSpinnerEl.style.display = "inline"
+    this.showSpinner()
     if (!this.flag)
       await this.createFlag({ label, color })
     else {
@@ -111,6 +99,30 @@ export default class FlagForm {
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
         await this.updateFlag({ id, ...frag })
     }
+    this.hideSpinner()
+  }
+
+  private checkUserInput(label: string, color: string) {
+    if (label.length < 1) {
+      this.log.warn("Label should have at least one character...")
+      this.labelEl.focus()
+      return false
+    }
+
+    if (color === "") {
+      this.log.warn("Please select a color...")
+      this.colorEl.focus()
+      return false
+    }
+
+    return true
+  }
+
+  private showSpinner() {
+    this.submitSpinnerEl.style.display = "inline"
+  }
+
+  private hideSpinner() {
     this.submitSpinnerEl.style.display = "none"
   }
 

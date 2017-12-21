@@ -41,6 +41,12 @@ export default class ContributorHome implements Workspace {
     this.avatarFormContainer.appendChild(this.avatarForm.el)
   }
 
+  activate(ctrl: ViewerController): void {
+    ctrl.setTitle("Personal space").setContentEl(this.el)
+  }
+
+  deactivate(): void {}
+
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
 
@@ -51,14 +57,4 @@ export default class ContributorHome implements Workspace {
 
     return el
   }
-
-  activate(ctrl: ViewerController): void {
-    ctrl.setTitle("Personal space")
-        .setContentEl(this.el)
-  }
-
-  deactivate(): void {
-
-  }
-
 }

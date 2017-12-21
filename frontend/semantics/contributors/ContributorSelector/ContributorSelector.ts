@@ -84,7 +84,6 @@ export default class ContributorSelector {
     // Contributor deletion.
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteContributor").onData(data => {
       let contributorId = data.id as string
-
       let el = this.items.get(contributorId)
       if (el)
         this.listEl.removeChild(el)
@@ -138,7 +137,6 @@ export default class ContributorSelector {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
     this.listEl = el.querySelector(".js-list") as HTMLSelectElement
     this.buttonEl = el.querySelector(".js-button") as HTMLButtonElement

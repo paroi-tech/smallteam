@@ -14,21 +14,12 @@ export default class ContributorBox implements Box {
 
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
-
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.view.update(this.contributor)
-
+    this.el = this.createView()
     this.listenToModel()
-    this.el.onclick = ev => this.dash.emit("contributorBoxSelected", this.contributor)
   }
 
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
-      let contributor = data.model as ContributorModel
-      if (contributor.id === this.contributor.id)
-        this.view.update(this.contributor)
-    })
+  get id(): string {
+    return this.contributor.id
   }
 
   public setWithFocus(focus: boolean) {
@@ -38,7 +29,25 @@ export default class ContributorBox implements Box {
       this.el.classList.remove("focus")
   }
 
-  get id(): string {
-    return this.contributor.id
+  // --
+  // -- Utilities
+  // --
+
+  private createView() {
+    this.view = render(template, document.createElement("div"))
+    this.view.update(this.contributor)
+
+    let el = this.view.nodes[0] as HTMLElement
+    el.onclick = ev => this.dash.emit("contributorBoxSelected", this.contributor)
+
+    return el
+  }
+
+  private listenToModel() {
+    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
+      let contributor = data.model as ContributorModel
+      if (contributor.id === this.contributor.id)
+        this.view.update(this.contributor)
+    })
   }
 }

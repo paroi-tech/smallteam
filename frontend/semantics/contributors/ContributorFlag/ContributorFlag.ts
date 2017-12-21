@@ -10,17 +10,25 @@ export default class ContributorFlag {
   private contentEl: HTMLElement
 
   private view: MonkberryView
-
   private model: Model
 
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
-
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.contentEl = this.el.querySelector(".js-content") as HTMLElement
+    this.el = this.createView()
     this.update()
+    this.listenToModel()
+  }
 
+  private createView() {
+    this.view = render(template, document.createElement("div"))
+
+    let el = this.view.nodes[0] as HTMLElement
+    this.contentEl = el.querySelector(".js-content") as HTMLElement
+
+    return el
+  }
+
+  private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
       let contributor = data.model as ContributorModel
       if (contributor.id === this.contributor.id)
