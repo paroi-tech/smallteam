@@ -113,21 +113,25 @@ export default class StepForm {
     if (!this.currentStep)
       return
 
-    this.submitButtonSpinnerEl.style.display = "inline"
+    this.showSpinner()
+
     let id = this.currentStep.id
     let frag = this.currentStep.updateTools.getDiffToUpdate({ id, label: newName })
-    if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object)) {
-      try {
-        let step = await this.model.exec("update", "Step", { id, ...frag })
-        this.step = step
-        this.submitButtonEl.setAttribute("disabled", "true")
-      } catch (err) {
-        this.reset()
-        if (this.currentStep)
-          this.step = this.currentStep
-      }
+    if (!frag || !(Object.keys(frag).length !== 0 || frag.constructor !== Object)) {
+      this.hideSpinner()
+      return
     }
-    this.submitButtonSpinnerEl.style.display = "none"
+
+    try {
+      let step = await this.model.exec("update", "Step", { id, ...frag })
+      this.step = step
+      this.submitButtonEl.setAttribute("disabled", "true")
+    } catch (err) {
+      this.reset()
+      this.updateView()
+    }
+
+    this.hideSpinner()
   }
 
   private async deleteCurrentStep() {
@@ -156,5 +160,13 @@ export default class StepForm {
 
   private clearContent() {
     this.view.update({ name: "", orderNum: "" })
+  }
+
+  private showSpinner() {
+    this.submitButtonSpinnerEl.style.display = "inline"
+  }
+
+  private hideSpinner() {
+    this.submitButtonSpinnerEl.style.display = "none"
   }
 }

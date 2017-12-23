@@ -1,4 +1,4 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import * as MonkBerry from "monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
@@ -9,12 +9,8 @@ import App from "../../../App/App"
 
 const template = require("./TaskForm.monk")
 
-/**
- * Component used to display and edit information about a task.
- */
 export default class TaskForm {
   readonly el: HTMLElement
-
   private fieldsetEl: HTMLFieldSetElement
   private labelEl: HTMLInputElement
   private descriptionEl: HTMLTextAreaElement
@@ -25,8 +21,10 @@ export default class TaskForm {
   private contributorContainerEl: HTMLElement
 
   private view: MonkberryView
+
   private currentTask: TaskModel | undefined
   private model: Model
+  private log: Log
 
   private commentEditor: TaskCommentEditor
   private flagSelector: FlagSelector
@@ -35,27 +33,64 @@ export default class TaskForm {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createView()
-
-    this.flagSelector = this.dash.create(FlagSelector)
-    this.flagContainerEl.appendChild(this.flagSelector.el)
-
-    this.contributorSelector = this.dash.create(ContributorSelector)
-    this.contributorContainerEl.appendChild(this.contributorSelector.el)
-
-    this.commentEditor = this.dash.create(TaskCommentEditor)
-    this.commentContainerEl.appendChild(this.commentEditor.el)
-
-    this.logDialog = this.dash.create(TaskLogDialog)
-
+    this.createChildComponents()
     this.listenToModel()
   }
+
+  public hide() {
+    this.el.style.display = "none"
+  }
+
+  public show() {
+    this.el.style.display = "block"
+  }
+
+  public reset() {
+    this.currentTask = undefined
+    this.view.update({
+      description: "",
+      label: ""
+    })
+    this.flagSelector.task = undefined
+    this.contributorSelector.task = undefined
+    this.commentEditor.task = undefined
+    this.logDialog.task = undefined
+  }
+
+  // --
+  // -- Accessors
+  // --
+
+  get task(): TaskModel | undefined {
+    return this.currentTask
+  }
+
+  set task(task: TaskModel | undefined) {
+    if (!task) {
+      this.reset()
+      return
+    }
+    this.currentTask = task
+    this.view.update({
+      description: task.description || "",
+      label: task.label
+    })
+    this.flagSelector.task = task
+    this.contributorSelector.task = task
+    this.commentEditor.task = task
+    this.logDialog.task = task
+  }
+
+  // --
+  // -- Utilities
+  // --
 
   private createView() {
     this.view = MonkBerry.render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLDivElement
-
     this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
     this.labelEl = el.querySelector(".js-task-label") as HTMLInputElement
     this.descriptionEl = el.querySelector(".js-task-description") as HTMLTextAreaElement
@@ -89,10 +124,23 @@ export default class TaskForm {
     return el
   }
 
+  private createChildComponents() {
+    this.flagSelector = this.dash.create(FlagSelector)
+    this.flagContainerEl.appendChild(this.flagSelector.el)
+
+    this.contributorSelector = this.dash.create(ContributorSelector)
+    this.contributorContainerEl.appendChild(this.contributorSelector.el)
+
+    this.commentEditor = this.dash.create(TaskCommentEditor)
+    this.commentContainerEl.appendChild(this.commentEditor.el)
+
+    this.logDialog = this.dash.create(TaskLogDialog)
+  }
+
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {
       if (this.currentTask !== undefined && this.currentTask.id === data.id)
-        this.clear()
+        this.reset()
     })
 
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
@@ -112,11 +160,11 @@ export default class TaskForm {
     if (!confirm("Do you really want to remove this task?"))
       return
     try {
-      await this.model.exec("delete", "Task", { id: this.currentTask.id})
+      await this.model.exec("delete", "Task", { id: this.currentTask.id })
       // IMPORTANT: We listen to deleteTask event from the model. So the form will
       // be updated when the current task is deleted.
     } catch (error) {
-      console.log("Unable to delete task", error)
+      this.log.info("Unable to delete task", error)
     }
   }
 
@@ -128,7 +176,7 @@ export default class TaskForm {
     if (label.length < 4)
       return
 
-    this.submitSpinnerEl.style.display = "inline"
+    this.showSpinner()
     try {
       await this.model.exec("update", "Task", {
         id: this.currentTask.id,
@@ -144,47 +192,14 @@ export default class TaskForm {
       this.contributorSelector.refresh()
       console.error(`Error while updating task ${this.currentTask}: ${err}`)
     }
+    this.hideSpinner()
+  }
+
+  private showSpinner() {
+    this.submitSpinnerEl.style.display = "inline"
+  }
+
+  private hideSpinner() {
     this.submitSpinnerEl.style.display = "none"
-  }
-
-  get task(): TaskModel | undefined {
-    return this.currentTask
-  }
-
-  set task(task: TaskModel | undefined) {
-    if (!task) {
-      this.clear()
-      return
-    }
-
-    this.currentTask = task
-    this.view.update({
-      description: task.description || "",
-      label: task.label
-    })
-    this.flagSelector.task = task
-    this.contributorSelector.task = task
-    this.commentEditor.task = task
-    this.logDialog.task = task
-  }
-
-  public hide() {
-    this.el.style.display = "none"
-  }
-
-  public show() {
-    this.el.style.display = "block"
-  }
-
-  public clear() {
-    this.currentTask = undefined
-    this.view.update({
-      description: "",
-      label: ""
-    })
-    this.flagSelector.task = undefined
-    this.contributorSelector.task = undefined
-    this.commentEditor.task = undefined
-    this.logDialog.task = undefined
   }
 }

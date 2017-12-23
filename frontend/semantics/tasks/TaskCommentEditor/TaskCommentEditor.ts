@@ -10,7 +10,6 @@ const template = require("./TaskCommentEditor.monk")
 
 export default class TaskCommentEditor {
   readonly el: HTMLElement
-
   private listEl: HTMLElement
   private textAreaEl: HTMLTextAreaElement
   private submitBtnEl: HTMLButtonElement
@@ -22,7 +21,6 @@ export default class TaskCommentEditor {
 
   private model: Model
   private currentTask: TaskModel | undefined = undefined
-
   private log: Log
 
   constructor(private dash: Dash<App>) {
@@ -32,11 +30,30 @@ export default class TaskCommentEditor {
     this.listenToModel()
   }
 
+  public addComment(comment: CommentModel) {
+    let li = document.createElement("li")
+
+    this.listItems.set(comment.id, li)
+    li.appendChild(this.dash.create(TaskComment, comment).el)
+    this.listEl.appendChild(li)
+  }
+
+  get task(): TaskModel | undefined {
+    return this.currentTask
+  }
+
+  set task(task: TaskModel | undefined) {
+    this.reset()
+    this.currentTask = task
+    if (!task)
+      return
+    this.loadComments()
+  }
+
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.listEl = el.querySelector(".js-ul") as HTMLElement
     this.textAreaEl = el.querySelector("textarea") as HTMLTextAreaElement
     this.submitBtnEl = el.querySelector(".js-submit") as HTMLButtonElement
@@ -92,18 +109,6 @@ export default class TaskCommentEditor {
     }
   }
 
-  get task(): TaskModel | undefined {
-    return this.currentTask
-  }
-
-  set task(task: TaskModel | undefined) {
-    this.clear()
-    this.currentTask = task
-    if (!task)
-      return
-    this.loadComments()
-  }
-
   private async loadComments() {
     if (!this.currentTask)
       return
@@ -116,15 +121,7 @@ export default class TaskCommentEditor {
     }
   }
 
-  public addComment(comment: CommentModel) {
-    let li = document.createElement("li")
-
-    this.listItems.set(comment.id, li)
-    li.appendChild(this.dash.create(TaskComment, comment).el)
-    this.listEl.appendChild(li)
-  }
-
-  private clear() {
+  private reset() {
     this.textAreaEl.value = ""
     removeAllChildren(this.listEl)
   }
