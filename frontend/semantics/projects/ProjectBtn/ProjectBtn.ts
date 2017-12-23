@@ -1,8 +1,8 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
-import { addCssClass, catchAndLog } from "../../../libraries/utils";
-import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
+import { addCssClass, catchAndLog } from "../../../libraries/utils"
+import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
 
 const template = require("./ProjectBtn.monk")
 
@@ -15,6 +15,7 @@ export default class ProjectBtn {
   readonly el: HTMLButtonElement
 
   private project: ProjectModel
+
   private view: MonkberryView
   private state = {
     code: "",

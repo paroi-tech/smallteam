@@ -1,4 +1,4 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import { render } from "monkberry"
 import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
@@ -18,20 +18,29 @@ export default class TaskBoard {
   private stepSwitcherMap = new Map<String, StepSwitcher>()
 
   private model: Model
+  private log: Log
 
   constructor(private dash: Dash<App>, readonly rootTask: TaskModel) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createView()
     this.createChildComponents()
     this.listenToChildren()
     this.listenToModel()
   }
 
+  public hide() {
+    this.el.style.display = "none"
+  }
+
+  public show() {
+    this.el.style.display = "block"
+  }
+
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.leftEl = el.querySelector(".js-left") as HTMLElement
     this.rightEl = el.querySelector(".js-right") as HTMLElement
 
@@ -72,7 +81,6 @@ export default class TaskBoard {
 
   private createStepSwitcher(task: TaskModel): StepSwitcher {
     let stepSwitcher = this.dash.create(StepSwitcher, task)
-
     this.stepSwitcherMap.set(task.id, stepSwitcher)
 
     return stepSwitcher
@@ -83,7 +91,6 @@ export default class TaskBoard {
       return
     parentTask.children.filter(t => t.children && t.children.length !== 0).forEach(task => {
       let stepSwitcher = this.createStepSwitcher(task)
-
       // The StepSwitchers created for child tasks are hidden by default.
       this.leftEl.appendChild(stepSwitcher.el)
       this.createStepSwitchersForChildren(task)
@@ -92,7 +99,6 @@ export default class TaskBoard {
 
   private showStepSwitcher(task: TaskModel) {
     let stepSwitcher = this.stepSwitcherMap.get(task.id)
-
     if (stepSwitcher) {
       stepSwitcher.setVisible(true)
       return
@@ -101,24 +107,20 @@ export default class TaskBoard {
     // The task does not have a StepSwitcher. We have to create a new one. But before that,
     // we have to discard all errors that can prevent the insertion of the panel in the DOM.
     let parentTask = task.parent
-
     if (!parentTask || !parentTask.children)
       throw new Error(`Task without a parent or invalid parent: task ${task} parent: ${parentTask}`)
 
     let parentStepSwitcher = this.stepSwitcherMap.get(parentTask.id)
-
     if (!parentStepSwitcher)
       throw new Error(`Unable to find StepSwitcher with ID ${parentTask.id} in TaskBoard`)
 
     // We find the task that just come before the current task and which StepSwitcher is displayed.
     // First we retrieve the index of the current task in its parent children array.
     let currentTaskIndex = parentTask.children.findIndex(t => t.id === task.id)
-
     if (currentTaskIndex < 0)
       throw new Error(`Unable to find task in its parent children: task: ${task.label} parent: ${parentTask.label} `)
 
     let precedingStepSwitcher: StepSwitcher | undefined = undefined
-
     for (let t of parentTask.children.slice(0, currentTaskIndex)) {
       precedingStepSwitcher = this.stepSwitcherMap.get(t.id)
       if (precedingStepSwitcher !== undefined)
@@ -140,15 +142,6 @@ export default class TaskBoard {
 
     let parentNode = this.leftEl
     let referenceNode = precedingStepSwitcher ? precedingStepSwitcher.el : parentStepSwitcher.el
-
     parentNode.insertBefore(stepSwitcher.el, referenceNode.nextSibling)
-  }
-
-  public hide() {
-    this.el.style.display = "none"
-  }
-
-  public show() {
-    this.el.style.display = "block"
   }
 }

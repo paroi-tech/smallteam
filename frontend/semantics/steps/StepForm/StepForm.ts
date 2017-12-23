@@ -1,15 +1,14 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import { render } from "monkberry"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
-import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 
 const template = require("./StepForm.monk")
 
 export default class StepForm {
   readonly el: HTMLElement
-
   private menuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
   private nameEl: HTMLInputElement
@@ -22,20 +21,39 @@ export default class StepForm {
 
   private currentStep: StepModel | undefined
   private model: Model
+  private log: Log
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createHtmlElements()
     this.createChildComponents()
     this.listenToForm()
     this.listenToModel()
   }
 
+  public reset() {
+    this.currentStep = undefined
+    this.clearContent()
+  }
+
+  get step(): StepModel | undefined {
+    return this.currentStep
+  }
+
+  set step(step: StepModel | undefined) {
+    if (!step) {
+      this.reset()
+      return
+    }
+    this.currentStep = step
+    this.updateView()
+  }
+
   private createHtmlElements() {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLDivElement
-
     this.menuContainerEl = el.querySelector(".js-menu-container") as HTMLElement
     this.fieldContainerEl = el.querySelector(".js-field-container") as HTMLElement
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
@@ -60,39 +78,35 @@ export default class StepForm {
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {
       if (this.currentStep && this.currentStep.id === data.id)
-        this.clear()
+        this.reset()
     })
   }
 
   private listenToForm() {
-    // Submit button click.
     this.submitButtonEl.addEventListener("click", ev => {
       let name = this.nameEl.value.trim()
       if (name.length === 0) {
-        console.log("The name of the step should contain more characters...")
+        this.log.warn("The name of the step should contain more characters...")
         return
       }
       this.updateStep(name)
     })
 
-    // Cancel button click.
     this.cancelButtonEl.addEventListener("click", ev => {
-      this.clearFields()
+      this.clearContent()
       this.submitButtonEl.setAttribute("disabled", "true")
       if (this.currentStep)
-        this.fillFieldsWithCurrentStep()
+        this.updateView()
     })
 
-    // Validating the content of the $stepName field triggers the $submitButton click event.
+    // Validating the content of the name field triggers the submit button click event.
     this.nameEl.addEventListener("keyup", ev => {
       if (!this.submitButtonEl.getAttribute("disabled") && ev.key === "Enter")
         this.submitButtonEl.click()
     })
 
-    // Editing the value of the Step name field enables the submit button.
-    this.nameEl.addEventListener("input", ev => {
-      this.submitButtonEl.removeAttribute("disabled")
-    })
+    // Editing the value of the name field enables the submit button.
+    this.nameEl.addEventListener("input", ev => this.submitButtonEl.removeAttribute("disabled"))
   }
 
   private async updateStep(newName: string) {
@@ -108,7 +122,7 @@ export default class StepForm {
         this.step = step
         this.submitButtonEl.setAttribute("disabled", "true")
       } catch (err) {
-        this.clear()
+        this.reset()
         if (this.currentStep)
           this.step = this.currentStep
       }
@@ -127,41 +141,20 @@ export default class StepForm {
       }
       await this.model.exec("delete", "Step", { id: this.currentStep.id })
     } catch (error) {
-      console.log(`Error while deleting Step with ID ${this.currentStep.id}`)
+      this.log.error(`Error while deleting Step with ID ${this.currentStep.id}`)
     }
   }
 
-  get step(): StepModel | undefined {
-    return this.currentStep
-  }
-
-  set step(step: StepModel | undefined) {
-    if (!step) {
-      this.clear()
-      return
-    }
-    this.currentStep = step
-    this.fillFieldsWithCurrentStep()
-  }
-
-  public clear() {
-    this.currentStep = undefined
-    this.clearFields()
-  }
-
-  private fillFieldsWithCurrentStep() {
+  private updateView() {
     if (!this.currentStep)
       return
-      this.view.update({
-        name: this.currentStep.label,
-        orderNum: (this.currentStep.orderNum || "").toString()
-      })
+    this.view.update({
+      name: this.currentStep.label,
+      orderNum: (this.currentStep.orderNum || "").toString()
+    })
   }
 
-  private clearFields() {
-    this.view.update({
-      name: "",
-      orderNum: ""
-    })
+  private clearContent() {
+    this.view.update({ name: "", orderNum: "" })
   }
 }

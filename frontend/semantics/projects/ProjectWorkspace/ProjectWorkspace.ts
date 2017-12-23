@@ -1,11 +1,11 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu";
-import TaskBoard from "../../tasks/TaskBoard/TaskBoard";
-import { Model, ProjectModel } from "../../../AppModel/AppModel";
-import App from "../../../App/App";
-import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
+import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
+import { Model, ProjectModel } from "../../../AppModel/AppModel"
+import App from "../../../App/App"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: DropdownMenu
@@ -13,19 +13,25 @@ export default class ProjectWorkspace implements Workspace {
   private form: ProjectForm
 
   private model: Model
+  private log: Log
 
   private ctrl: ViewerController | undefined
 
-  /**
-   * Create a new project board.
-   *
-   * @param dash - the current application dash.
-   * @param project - the project for which the project board is created.
-   */
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
+    this.log = this.dash.log
     this.createChildComponents()
     this.listenToModel()
+  }
+
+  public activate(ctrl: ViewerController) {
+    this.ctrl = ctrl
+    ctrl.setContentEl(this.taskBoard.el)
+      .setTitle(this.project.name)
+      .setTitleRightEl(this.dropdownMenu.btnEl)
+  }
+
+  public deactivate() {
   }
 
   private async deleteProject() {
@@ -44,9 +50,6 @@ export default class ProjectWorkspace implements Workspace {
     }
   }
 
-  /**
-   * Create ProjectWorkspace inner components, i.e. Menu, DropDownMenu, and TaskBoard.
-   */
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl(),
@@ -92,25 +95,9 @@ export default class ProjectWorkspace implements Workspace {
     this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
 
     this.form = this.dash.create(ProjectForm)
-    this.form.setProject(this.project)
+    this.form.project = this.project
   }
 
-  /**
-   * Listen to model events.
-   *
-   * Handled event are:
-   */
   private listenToModel() {
-
-  }
-
-  public activate(ctrl: ViewerController) {
-    this.ctrl = ctrl
-    ctrl.setContentEl(this.taskBoard.el)
-      .setTitle(this.project.name)
-      .setTitleRightEl(this.dropdownMenu.btnEl)
-  }
-
-  public deactivate() {
   }
 }

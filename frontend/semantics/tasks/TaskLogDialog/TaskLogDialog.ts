@@ -34,29 +34,6 @@ export default class TaskLogDialog {
     })
   }
 
-  private createView(): HTMLDialogElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-
-    this.closeButtonEl = el.querySelector(".js-close") as HTMLButtonElement
-    this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.loadIndicatorEl = el.querySelector(".js-loader") as HTMLElement
-    this.tableEl = el.querySelector(".js-table") as HTMLTableElement
-    document.body.appendChild(el)
-
-    return el
-  }
-
-  private addEntry(entry: TaskLogEntryModel) {
-    let row = this.tableEl.tBodies[0].insertRow(-1)
-
-    row.insertCell(-1).textContent = entry.id
-    row.insertCell(-1).textContent = new Date(entry.entryTs).toLocaleTimeString()
-    row.insertCell(-1).textContent = entry.step.label
-    row.insertCell(-1).textContent = entry.contributor.login
-  }
-
   get task(): TaskModel | undefined {
     return this.task
   }
@@ -79,10 +56,30 @@ export default class TaskLogDialog {
     this.el.close()
   }
 
+  private createView(): HTMLDialogElement {
+    this.view = render(template, document.createElement("div"))
+
+    let el = this.view.nodes[0] as HTMLDialogElement
+    this.closeButtonEl = el.querySelector(".js-close") as HTMLButtonElement
+    this.closeButtonEl.addEventListener("click", ev => this.hide())
+    this.loadIndicatorEl = el.querySelector(".js-loader") as HTMLElement
+    this.tableEl = el.querySelector(".js-table") as HTMLTableElement
+    document.body.appendChild(el)
+
+    return el
+  }
+
+  private addEntry(entry: TaskLogEntryModel) {
+    let row = this.tableEl.tBodies[0].insertRow(-1)
+    row.insertCell(-1).textContent = entry.id
+    row.insertCell(-1).textContent = new Date(entry.entryTs).toLocaleTimeString()
+    row.insertCell(-1).textContent = entry.step.label
+    row.insertCell(-1).textContent = entry.contributor.login
+  }
+
   private async loadTaskLogEntries() {
     if (!this.currentTask)
       return
-
     this.loadIndicatorEl.style.display = "block"
     try {
       let entries = await this.currentTask.getLogEntries()

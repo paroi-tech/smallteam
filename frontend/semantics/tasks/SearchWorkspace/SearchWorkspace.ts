@@ -19,11 +19,17 @@ export default class SearchWorkspace implements Workspace {
     this.el = this.createView()
   }
 
+  public activate(ctrl: ViewerController) {
+    ctrl.setContentEl(this.el).setTitle("Search tasks")
+  }
+
+  public deactivate() {
+  }
+
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.inputEl = el.querySelector(".js-input") as HTMLInputElement
     this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
 
@@ -33,17 +39,8 @@ export default class SearchWorkspace implements Workspace {
   private onSearch(ev: KeyboardEvent) {
     if (ev.key !== "Enter")
       return
-
     let query = this.inputEl.value.trim()
-
     if (query.length !== 0)
       console.log(`search for: ${query}`)
   }
-
-  public activate(ctrl: ViewerController) {
-    ctrl.setContentEl(this.el)
-      .setTitle("Search tasks")
-  }
-
-  public deactivate() {}
 }

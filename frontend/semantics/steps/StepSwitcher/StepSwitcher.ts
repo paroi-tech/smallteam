@@ -1,4 +1,4 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import { render } from "monkberry"
 import { Model, ProjectModel, TaskModel, StepModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
 import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
@@ -20,12 +20,6 @@ const times = "\u{00D7}"
  */
 export default class StepSwitcher {
   readonly el: HTMLElement
-
-  private view: MonkberryView
-
-  private model: Model
-  private project: ProjectModel
-
   private taskNameEl: HTMLInputElement
   private addTaskBtnEl: HTMLButtonElement
   private addTaskSpinnerEl: HTMLElement
@@ -36,6 +30,12 @@ export default class StepSwitcher {
   private closeBtnEl: HTMLButtonElement
   private boxListContainerEl: HTMLElement
   private addTaskPane: HTMLElement
+
+  private view: MonkberryView
+
+  private model: Model
+  private project: ProjectModel
+  private log: Log
 
   private collapsibleElVisible = true
   private visible = true
@@ -48,6 +48,7 @@ export default class StepSwitcher {
 
   constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
     this.model = dash.app.model
+    this.log = this.dash.app.log
     this.project = this.parentTask.project
     this.el = this.createView()
     this.createBoxLists()
@@ -56,11 +57,43 @@ export default class StepSwitcher {
     this.listenToChildren()
   }
 
+  public showBusyIcon() {
+    this.busyIndicatorEl.style.display = "inline"
+  }
+
+  public hideBusyIcon() {
+    this.busyIndicatorEl.style.display = "none"
+  }
+
+  public setVisible(b: boolean) {
+    if (b !== this.visible) {
+      this.el.style.display = b ? "block" : "none"
+      this.visible = b
+    }
+  }
+
+  public get isVisible() {
+    return this.visible
+  }
+
+  public enable(showBusyIcon: boolean = false) {
+    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
+    this.foldableEl.style.opacity = "1.0"
+    if (showBusyIcon)
+      this.hideBusyIcon()
+  }
+
+  public disable(showBusyIcon: boolean = false) {
+    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
+    this.foldableEl.style.opacity = "0.4"
+    if (showBusyIcon)
+      this.showBusyIcon()
+  }
+
   private createView() {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.taskNameEl = el.querySelector(".js-task-name")  as HTMLInputElement
     this.addTaskBtnEl = el.querySelector(".js-add-task-button") as HTMLButtonElement
     this.addTaskSpinnerEl = el.querySelector(".js-add-task-button .fa-spinner") as HTMLElement
@@ -84,8 +117,8 @@ export default class StepSwitcher {
     // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
     let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
     let titleEl = el.querySelector(".js-title") as HTMLElement
-
     titleEl.textContent = title
+
     this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
     this.closeBtnEl.addEventListener("click", ev => {
       // We can't hide the rootTask StepSwitcher or tasks with children.
@@ -143,39 +176,33 @@ export default class StepSwitcher {
     return box
   }
 
-  /**
-   * Handle the move of a TaskBox inside a BoxList.
-   *
-   * NOTE: this method is called when a TaskBox is added to a BoxList.
-   *
-   * @param ev
-   */
   private async onTaskBoxMove(ev: BoxEvent) {
     let box = this.taskBoxes.get(ev.boxId)
     let step = this.project.steps.find(step => step.id === ev.boxListId)
+
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher`)
-    else if (!step)
+    if (!step)
       throw new Error(`Unable to find step with ID "${ev.boxListId}" in StepSwitcher`)
-    else {
-      this.disable(true)
-      let task = box.task
-      try {
-        await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
-      } catch(err) {
-        console.error(`Unable to update task "${box.task.id}" in StepSwitcher "${this.parentTask.label}"`)
-        // We bring back the TaskBox in its old BoxList.
-        let newList = this.boxLists.get(step.id)
-        let oldList = this.boxLists.get(box.task.currentStep.id)
-        if (!newList)
-          throw new Error(`Cannot find BoxList with ID "${step.id}" in StepSwitcher "${this.parentTask.label}"`)
-        if (!oldList)
-          throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in StepSwitcher "${this.parentTask.label}"`)
-        newList.removeBox(box.task.id)
-        oldList.addBox(box)
-      }
-      this.enable(true)
+
+    let task = box.task
+    this.disable(true)
+    try {
+      await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
+    } catch(err) {
+      this.log.error(`Unable to update task "${box.task.id}" in StepSwitcher "${this.parentTask.label}"`)
+
+      // We bring back the TaskBox in its old BoxList.
+      let newList = this.boxLists.get(step.id)
+      let oldList = this.boxLists.get(box.task.currentStep.id)
+      if (!newList)
+        throw new Error(`Cannot find BoxList with ID "${step.id}" in StepSwitcher "${this.parentTask.label}"`)
+      if (!oldList)
+        throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in StepSwitcher "${this.parentTask.label}"`)
+      newList.removeBox(box.task.id)
+      oldList.addBox(box)
     }
+    this.enable(true)
   }
 
   private fillBoxLists() {
@@ -189,7 +216,7 @@ export default class StepSwitcher {
         let box = this.createTaskBoxFor(task)
         bl.addBox(box)
       } else
-        console.log(`Missing step "${task.currentStep.id}" in StepSwitcher`, this)
+        this.log.info(`Missing step "${task.currentStep.id}" in StepSwitcher`, this)
     }
   }
 
@@ -197,13 +224,13 @@ export default class StepSwitcher {
     let name = this.taskNameEl.value.trim()
 
     if (name.length < 4) {
-      console.log("Impossible to create a new task. Invalid name...")
+      this.log.warn("Impossible to create a new task. Invalid name...")
       this.taskNameEl.focus()
       return
     }
 
     if (this.project.steps.length === 0)  {
-      console.log("Impossible to create a new task. Project has no step.")
+      this.log.warn("Impossible to create a new task. Project has no step.")
       this.taskNameEl.focus()
       return
     }
@@ -219,7 +246,7 @@ export default class StepSwitcher {
 
   private listenToChildren() {
     // this.dash.listenToChildren<TaskModel>("taskBoxSelected").onData(data => {
-    //   console.log(`TaskBox ${data.id} selected in StepSwitcher ${this.parentTask.id}`)
+    //   this.log.info(`TaskBox ${data.id} selected in StepSwitcher ${this.parentTask.id}`)
     // })
     this.dash.listenToChildren<BoxEvent>("boxListItemAdded").onData(data => {
       this.onTaskBoxMove(data)
@@ -346,38 +373,5 @@ export default class StepSwitcher {
       console.error("Unable to create task...", err)
       return false
     }
-  }
-
-  public showBusyIcon() {
-    this.busyIndicatorEl.style.display = "inline"
-  }
-
-  public hideBusyIcon() {
-    this.busyIndicatorEl.style.display = "none"
-  }
-
-  public setVisible(b: boolean) {
-    if (b !== this.visible) {
-      this.el.style.display = b ? "block" : "none"
-      this.visible = b
-    }
-  }
-
-  public get isVisible() {
-    return this.visible
-  }
-
-  public enable(showBusyIcon: boolean = false) {
-    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
-    this.foldableEl.style.opacity = "1.0"
-    if (showBusyIcon)
-      this.hideBusyIcon()
-  }
-
-  public disable(showBusyIcon: boolean = false) {
-    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
-    this.foldableEl.style.opacity = "0.4"
-    if (showBusyIcon)
-      this.showBusyIcon()
   }
 }

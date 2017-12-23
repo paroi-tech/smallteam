@@ -1,4 +1,4 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import { render } from "monkberry"
 import StepForm from "../StepForm/StepForm"
 import StepBox from "../StepBox/StepBox"
@@ -12,7 +12,6 @@ const template = require("./StepWorkspace.monk")
 
 export default class StepWorkspace implements Workspace {
   readonly el: HTMLElement
-
   private boxListContainerEl: HTMLElement
   private formContainerEl: HTMLElement
   private addBtnEl: HTMLButtonElement
@@ -25,6 +24,7 @@ export default class StepWorkspace implements Workspace {
   private form: StepForm
 
   private model: Model
+  private log: Log
 
   /**
    * Timer used to schedule the commit of the changes in the BoxList to the model.
@@ -33,7 +33,7 @@ export default class StepWorkspace implements Workspace {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.timer = undefined
+    this.log = this.dash.app.log
     this.el = this.createView()
     this.createChildComponents()
     this.fillBoxList()
@@ -45,7 +45,6 @@ export default class StepWorkspace implements Workspace {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
     this.formContainerEl = el.querySelector(".js-edit-form-container") as HTMLElement
     this.addBtnEl = el.querySelector(".js-add-form-btn") as HTMLButtonElement
@@ -66,16 +65,10 @@ export default class StepWorkspace implements Workspace {
       this.form.step = step
     })
     this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => {
-      this.handleBoxlistUpdate(data)
+      this.scheduleStepOrderUpdate(data)
     })
-
   }
 
-  /**
-   * Listen to events from model.
-   * Handled events are:
-   *  - Step creation
-   */
   private listenToModel() {
     // Step creation.
     this.dash.listenTo<UpdateModelEvent>(this.model, "createStep").onData(data => {
@@ -89,9 +82,6 @@ export default class StepWorkspace implements Workspace {
     })
   }
 
-  /**
-   * Initialize the BoxList and Form components of the panel.
-   */
   private createChildComponents() {
     this.boxList = this.dash.create(BoxList, {
       id: "",
@@ -105,60 +95,40 @@ export default class StepWorkspace implements Workspace {
     this.formContainerEl.appendChild(this.form.el)
   }
 
-  /**
-   * Handle click on the `Add` button.
-   *
-   * If the name typed by the user is valid, it then calls the `addStep` method.
-   */
   private onAdd() {
     let name = this.nameEl.value.trim()
     if (name.length > 0)
       this.addStep(name)
     else {
-      console.log("The name you entered for the step is invalid.")
+      this.log.warn("The name you entered for the step is invalid.")
       this.nameEl.focus()
     }
   }
 
-  /**
-   * Schedule the update of steps order.
-   *
-   * A timeout of 2s is used to schedule the update. The timer is restarted if the user
-   * reorders the steps within the 2s.
-   */
-  private handleBoxlistUpdate(ev: BoxListEvent) {
+  private scheduleStepOrderUpdate(ev: BoxListEvent) {
     if (this.timer)
       clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      this.doUpdate(ev.boxIds)
+      this.doStepOrderUpdate(ev.boxIds)
     }, 2000)
   }
 
-  /**
-   * Save the new order of the steps in the model.
-   *
-   * If the changes are not accepted by the server, then it rollback them in the boxlist.
-   *
-   * @param ids - array of strings that contains the ids of steps
-   */
-  private async doUpdate(ids: string[]): Promise<void> {
+  private async doStepOrderUpdate(ids: string[]): Promise<void> {
     let currentOrder = this.boxList.getOrder()
 
     this.boxList.disable(true)
     try {
-      let idList = await this.dash.app.model.reorder("Step", ids)
-
-      if (!equal(idList, ids)) {
-        console.error("Sorry. Server rejected new order of steps...", idList, ids)
-        this.boxList.sort(idList)
+      let arr = await this.dash.app.model.reorder("Step", ids)
+      if (!equal(arr, ids)) {
+        console.error("Sorry. Server rejected new order of steps...", arr, ids)
+        this.boxList.sort(arr)
       }
     } catch (err) {
-      console.log("Sorry. Unable to save the new order of steps on server.", err)
+      this.log.info("Sorry. Unable to save the new order of steps on server.", err)
       this.boxList.sort(currentOrder)
     }
-
     this.boxList.enable(true)
-    this.form.clear()
+    this.form.reset()
   }
 
   private async fillBoxList() {
@@ -174,7 +144,7 @@ export default class StepWorkspace implements Workspace {
       await this.model.exec("create", "Step", { label })
       this.nameEl.value = ""
     } catch (err) {
-      console.error("Unable to create new step...")
+      this.log.error("Unable to create new step...")
     }
     this.spinnerEl.style.display = "none"
     this.nameEl.focus()
@@ -185,5 +155,6 @@ export default class StepWorkspace implements Workspace {
         .setTitle("Steps")
   }
 
-  public deactivate() {}
+  public deactivate() {
+  }
 }
