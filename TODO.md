@@ -33,10 +33,11 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- TaskAttachmentManager
 - In TaskForm, show contributor name and creation date beside a comment.
 - Improve contributors selector in taskform. Open a dialog to select constributors and use inline BoxList.
 - Find lib to resize images with Nodejs
-- Image library
+- Image library (sharp => https://github.com/lovell/sharp)
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
