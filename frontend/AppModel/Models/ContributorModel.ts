@@ -15,7 +15,7 @@ export interface ContributorUpdateTools {
 
 export interface ContributorModel extends ContributorFragment {
   readonly updateTools: ContributorUpdateTools
-  readonly avatar: FileInfoModel
+  readonly avatar?: FileInfoModel
 }
 
 export function registerContributor(engine: ModelEngine) {

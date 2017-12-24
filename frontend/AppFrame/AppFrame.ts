@@ -21,6 +21,7 @@ import { ProjectModel } from "../AppModel/AppModel";
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace";
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager";
 import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu";
+import { ContributorModel } from "../AppModel/Models/ContributorModel";
 
 const template = require("./AppFrame.monk")
 
@@ -161,13 +162,17 @@ export default class AppFrame {
 
   private createSessionMenu(): NavBtn {
     let menuBtn = this.dash.create(NavBtn, {
-      label: this.dash.app.model.session.contributor.name,
-      withWrapper: true
+      withWrapper: true,
+      innerEl: {
+        position: "left"
+      }
     } as NavBtnOptions)
+
+    updateSessionBtn(menuBtn, this.dash.app.model.session.contributor)
 
     this.dash.listenTo<UpdateModelEvent>(this.dash.app.model, "updateContributor").onData(evData => {
       if (evData.model === this.dash.app.model.session.contributor)
-        menuBtn.setLabel(this.dash.app.model.session.contributor.name);
+        updateSessionBtn(menuBtn, this.dash.app.model.session.contributor)
     })
 
     let ddMenu = this.dash.create(DropdownMenu, {
@@ -208,4 +213,10 @@ export default class AppFrame {
     this.sidebar = bar;
     return bar
   }
+}
+
+function updateSessionBtn(menuBtn: NavBtn, contributor: ContributorModel) {
+  console.log(">> update btn", contributor.avatar)
+  menuBtn.setLabel(contributor.name);
+  menuBtn.innerEl!.style.backgroundImage = contributor.avatar ? `url(${contributor.avatar.url})` : null
 }

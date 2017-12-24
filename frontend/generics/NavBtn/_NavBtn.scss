@@ -31,4 +31,29 @@
       }
     }
   }
+
+  &.leftInner {
+    padding-left: 44px;
+    position: relative;
+  }
+  &.rightInner {
+    padding-right: 44px;
+    position: relative;
+  }
+  &-inner {
+    background: no-repeat 50% 50%;
+    background-size: contain;
+    border-radius: 50%;
+    height: 34px;
+    margin-top: -17px;
+    position: absolute;
+    top: 50%;
+    width: 34px;
+    &.left {
+      left: 5px;
+    }
+    &.right {
+      right: 5px;
+    }
+  }
 }
