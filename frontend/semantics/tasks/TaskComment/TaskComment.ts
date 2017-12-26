@@ -20,6 +20,10 @@ export default class TaskComment {
   private contentEl: HTMLElement
 
   private view: MonkberryView
+  private state = {
+    author: "",
+    modificationDate: ""
+  }
 
   private converter: Converter
 
@@ -57,11 +61,22 @@ export default class TaskComment {
     this.deleteButtonEl.addEventListener("click", ev => this.onBtnDeleteClick())
 
     this.cancelButtonEl.style.display = "none" // Cancel button is hidden by default.
+    if (this.contributorId != this.comment.writtenById) {
+      // Only the creator of a comment can edit or delete it.
+      this.deleteButtonEl.style.display = "none"
+      this.editButtonEl.style.display = "none"
+    }
 
-    if (this.contributorId != this.comment.writtenById)
-      this.deleteButtonEl.style.display = "none" // Only the creator of a comment can edit it.
+    this.updateView()
 
     return el
+  }
+
+  private updateView() {
+    this.state.author = this.comment.writtenBy.login
+    let d = new Date(this.comment.updateTs)
+    this.state.modificationDate = `${d.toLocaleDateString()}@${d.toLocaleTimeString()}`
+    this.view.update(this.state)
   }
 
   private listenToModel() {
@@ -69,6 +84,7 @@ export default class TaskComment {
       let comment = data.model as CommentModel
       if (this.comment.id !== comment.id)
         return
+      this.updateView()
       this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
     })
   }

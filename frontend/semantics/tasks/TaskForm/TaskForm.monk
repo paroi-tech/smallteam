@@ -23,6 +23,8 @@
 
     <div class="js-comment-container"></div>
 
+    <div class="js-attachment-container"></div>
+
     <div>
       <button class="js-btn-panel">Show/Hide as parent</button>
     </div>

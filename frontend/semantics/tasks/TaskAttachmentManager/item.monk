@@ -1,0 +1,6 @@
+<li>
+  <button class="js-download-button" title="Click to download">{{ name }}</button> &nbsp;
+  <button class="js-remove-button">
+    <span class="fa fa-times fa-1x"></span>
+  </button>
+</li>

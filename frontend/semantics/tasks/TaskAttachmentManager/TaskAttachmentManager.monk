@@ -1,4 +1,8 @@
 <div class="TaskAttachmentManager">
-  <header class="TaskAttachementManager-header">Attached files</header>
+  <header class="TaskAttachmentManager-header">Attached files</header>
   <ul class="TaskAttachementManager-ul"></ul>
+  <button class="TaskAttachmentManager-uploadButton js-upload-button">
+    <span class="fa fa-upload fa-1x"></span>
+    Add file
+  </button>
 </div>

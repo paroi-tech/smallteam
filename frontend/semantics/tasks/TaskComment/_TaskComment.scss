@@ -8,7 +8,7 @@
     width: 75%;
   }
 
-  &-button {
+  &-editButton, &-cancelButton, &-deleteButton {
     display: block;
   }
 
@@ -20,16 +20,4 @@
     top: 0px;
     width: 100%;
   }
-}
-
-.TaskCommentEditBtn {
-  display: block;
-}
-
-.TaskCommentCancelBtn {
-  display: block;
-}
-
-.TaskCommentCancelBtn {
-  display: block;
 }

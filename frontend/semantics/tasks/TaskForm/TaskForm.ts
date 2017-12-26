@@ -5,6 +5,7 @@ import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
 import FlagSelector from "../../flags/FlagSelector/FlagSelector"
 import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
+import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import App from "../../../App/App"
 
 const template = require("./TaskForm.monk")
@@ -19,6 +20,7 @@ export default class TaskForm {
   private flagContainerEl: HTMLElement
   private commentContainerEl: HTMLElement
   private contributorContainerEl: HTMLElement
+  private attachmentContainerEl: HTMLElement
 
   private view: MonkberryView
 
@@ -30,6 +32,7 @@ export default class TaskForm {
   private flagSelector: FlagSelector
   private contributorSelector: ContributorSelector
   private logDialog: TaskLogDialog
+  private attachmentMgr: TaskAttachmentManager
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
@@ -99,6 +102,7 @@ export default class TaskForm {
     this.flagContainerEl = el.querySelector(".js-fselector-container") as HTMLElement
     this.contributorContainerEl = el.querySelector(".js-cselector-container") as HTMLElement
     this.commentContainerEl = el.querySelector(".js-comment-container") as HTMLElement
+    this.attachmentContainerEl = el.querySelector(".js-attachment-container") as HTMLElement
 
     let submitBtn = el.querySelector(".js-submit-button") as HTMLButtonElement
     submitBtn.addEventListener("click", ev => this.updateTask())
@@ -135,6 +139,9 @@ export default class TaskForm {
     this.commentContainerEl.appendChild(this.commentEditor.el)
 
     this.logDialog = this.dash.create(TaskLogDialog)
+
+    this.attachmentMgr = this.dash.create(TaskAttachmentManager)
+    this.attachmentContainerEl.appendChild(this.attachmentMgr.el)
   }
 
   private listenToModel() {
