@@ -13,7 +13,6 @@ const saveText = "\u{1F4BE}"
 
 export default class TaskComment {
   readonly el: HTMLElement
-
   private editButtonEl: HTMLButtonElement
   private cancelButtonEl: HTMLButtonElement
   private deleteButtonEl: HTMLButtonElement
@@ -44,8 +43,8 @@ export default class TaskComment {
 
   private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
-    let el = this.view.nodes[0] as HTMLElement
 
+    let el = this.view.nodes[0] as HTMLElement
     this.editButtonEl = el.querySelector(".js-edit") as HTMLButtonElement
     this.cancelButtonEl = el.querySelector(".js-cancel") as HTMLButtonElement
     this.deleteButtonEl = el.querySelector(".js-delete") as HTMLButtonElement
