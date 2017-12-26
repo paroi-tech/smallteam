@@ -4,6 +4,7 @@ import { addCssClass, catchAndLog } from "../../libraries/utils";
 
 const template = require("./NavBtn.monk")
 const templateWithAlert = require("./NavBtn-withAlert.monk")
+const templateWithInner = require("./NavBtn-withInner.monk")
 const templateWrapper = require("./NavBtnWrapper.monk")
 
 export interface NavBtnIcon {
@@ -11,28 +12,38 @@ export interface NavBtnIcon {
   cssClass: string
 }
 
+export interface NavBtnInnerEl {
+  position: "left" | "right"
+  cssClass?: string
+}
+
 export interface NavBtnOptions {
-  label: string
+  label?: string
   cssClass?: string | string[]
   onClick?: () => void
   canHaveAlert?: boolean
   icon22?: NavBtnIcon
   withWrapper?: boolean
+  innerEl?: NavBtnInnerEl
 }
 
 export default class NavBtn {
   readonly el: HTMLElement
   readonly btnEl: HTMLButtonElement
+  readonly innerEl?: HTMLSpanElement
 
   private labelEl: HTMLElement
   private alertEl?: HTMLElement
 
   constructor(private dash: Dash, private options: NavBtnOptions) {
-    let view = render(options.canHaveAlert ? templateWithAlert : template, document.createElement("div"))
+    let tpl = options.canHaveAlert ? templateWithAlert : options.innerEl ? templateWithInner : template
+    let view = render(tpl, document.createElement("div"))
     this.btnEl = view.nodes[0] as HTMLButtonElement
 
-    this.labelEl = options.canHaveAlert ? this.btnEl.querySelector(".js-lbl") as HTMLElement : this.btnEl
-    this.setLabel(options.label)
+    this.labelEl = tpl === template ? this.btnEl : this.btnEl.querySelector(".js-lbl") as HTMLElement
+
+    if (options.label)
+      this.setLabel(options.label)
 
     if (options.canHaveAlert)
       this.alertEl = this.btnEl.querySelector(".js-alert") as HTMLElement
@@ -51,6 +62,14 @@ export default class NavBtn {
       this.el.appendChild(this.btnEl)
     } else
       this.el = this.btnEl
+
+    if (options.innerEl) {
+      this.innerEl = this.btnEl.querySelector(".js-inner") as HTMLElement
+      this.innerEl.classList.add(options.innerEl.position)
+      if (options.innerEl.cssClass)
+        this.innerEl.classList.add(options.innerEl.cssClass)
+      this.btnEl.classList.add(`${options.innerEl.position}Inner`)
+    }
   }
 
   public setAlertCount(count: number) {

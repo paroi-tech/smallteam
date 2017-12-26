@@ -33,6 +33,9 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- Merge `ContributorHome` into `ContributorForm`
+  - Allow to upload an avatar from the `ContributorForm`
+  - Allow to change the password from the `ContributorForm`
 - TaskAttachmentManager
 - In TaskForm, show contributor name and creation date beside a comment.
 - Improve contributors selector in taskform. Open a dialog to select constributors and use inline BoxList.
