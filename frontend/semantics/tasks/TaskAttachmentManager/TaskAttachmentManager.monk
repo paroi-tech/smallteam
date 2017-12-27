@@ -1,8 +1,15 @@
 <div class="TaskAttachmentManager">
-  <header class="TaskAttachmentManager-header">Attached files</header>
+  <header class="TaskAttachmentManager-header">
+    <div class="TaskAttachmentManager-headerLeft">Attached files</div>
+    <div class="TaskAttachmentManager-headerRight">
+      <span class="fa fa-spin fa-spinner fa-1x" style="display: none"></span>
+    </div>
+  </header>
   <ul class="TaskAttachementManager-ul"></ul>
-  <button class="TaskAttachmentManager-uploadButton js-upload-button">
-    <span class="fa fa-upload fa-1x"></span>
-    Add file
-  </button>
+  <form action="" method="post" enctype="multipart/form-data">
+    <input name="attachment" type="file" class="js-input">
+    <button class="TaskAttachmentManager-uploadButton js-upload-button" type="submit">
+      <span class="fa fa-upload fa-1x js-spinner"></span> &nbsp; Add file
+    </button>
+  </form>
 </div>

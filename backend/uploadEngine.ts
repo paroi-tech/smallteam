@@ -40,14 +40,14 @@ export function checkAvatarFileType(f: File): boolean {
 }
 
 export function checkAttachmentType(f: File): boolean {
-  return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
+  return f.originalname.match(/\.(jpg|jpeg|png|gif|png|pdf)$/) !== null
 }
 
-export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: string) {
+export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: string, contributorId?: string) {
   if (metaCode === "contributor_id")
     return await insertAvatar(f, metaVal)
   else if ("task_id")
-    return await insertTaskAttachment(f, metaVal)
+    return await insertTaskAttachment(f, metaVal, contributorId)
   else
     throw new Error(`Unknown MetaCode: ${metaCode}`)
 }
@@ -200,7 +200,7 @@ async function updateAvatar(f: File, fileId: string) {
 // -- Task attachments
 // --
 
-async function insertTaskAttachment(f: File, taskId: string) {
+async function insertTaskAttachment(f: File, taskId: string, contributorId?: string) {
 
 }
 

@@ -60,8 +60,9 @@ export function startWebServer() {
   declareRoute(router, "/api/batch", routeBatch, "post")
   declareRoute(router, "/api/who-use", routeWhoUse, "post")
 
-  declareRoute(router, "/get-file/:fileId", routeGetFile, "get", true, false)
+  declareRoute(router, "/get-file/:fId", routeGetFile, "get", true, false)
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
+  declareUploadRoute(router, "/api/add-attachment/:taskId", upload.single("attachment"), routeChangeAvatar)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
@@ -124,7 +125,7 @@ async function processStandaloneRoute(req: Request, res: Response, body: string,
   }
 }
 
-function declareUploadRoute(router: Router, route: string, handler:  RequestHandler, cb: UploadRouteCb) {
+function declareUploadRoute(router: Router, route: string, handler: RequestHandler, cb: UploadRouteCb) {
   router.post(route, handler, function (req, res) {
     if (!req.session || !req.session.contributorId) {
       console.log("404>>", req.session)

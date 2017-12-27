@@ -1,5 +1,12 @@
 .TaskAttachmentManager {
   &-header {
     @extend .BlockTitle;
+    align-items: baseline;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &-uploadButton {
+    display: block;
   }
 }

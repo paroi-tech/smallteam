@@ -1,9 +1,10 @@
-import { Dash } from "bkb"
+import { Dash, Log } from "bkb"
 import App from "../../../App/App"
 import { render } from "monkberry"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
 import { FileInfoModel } from "../../../AppModel/Models/FileInfoModel"
+import config from "../../../../isomorphic/config"
 
 const template = require("./TaskAttachmentManager.monk")
 const itemTemplate = require("./item.monk")
@@ -11,15 +12,20 @@ const itemTemplate = require("./item.monk")
 export default class TaskAttachmentManager {
   readonly el: HTMLElement
   private listEl: HTMLElement
+  private formEl: HTMLFormElement
+  private inputEl: HTMLInputElement
   private uploadButtonEl: HTMLButtonElement
+  private spinnerEl: HTMLElement
 
   private model: Model
   private currentTask: TaskModel | undefined
+  private log: Log
 
   private view: MonkberryView
 
   constructor(private dash: Dash) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
     this.el = this.createView()
   }
 
@@ -46,14 +52,49 @@ export default class TaskAttachmentManager {
 
     let el = this.view.nodes[0] as HTMLElement
     this.listEl = el.querySelector("ul") as HTMLElement
+    this.formEl = el.querySelector("form") as HTMLFormElement
+    this.inputEl = el.querySelector(".js-input") as HTMLInputElement
     this.uploadButtonEl = el.querySelector(".js-upload-button") as HTMLButtonElement
-    this.uploadButtonEl.addEventListener("click", ev => this.onUploadButtonClick())
+    this.spinnerEl = el.querySelector(".js-spinner") as HTMLElement
+
+    this.formEl.onsubmit = (ev) => {
+      ev.preventDefault()
+      this.onFormSubmit()
+    }
 
     return el
   }
 
-  private onUploadButtonClick() {
+  private async onFormSubmit() {
+    if (!this.inputEl.files || this.inputEl.files.length === 0)
+      return
+    this.showSpinner()
+    let fd = new FormData(this.formEl)
+    await this.doUpload(fd)
+    this.hideSpinner()
+  }
 
+  private async doUpload(fd: FormData) {
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/session/change-avatar`, {
+        method: "post",
+        credentials: "same-origin",
+        body: fd
+      })
+
+      if (!response.ok) {
+        alert("Error. Request was not processed by server.")
+        return
+      }
+
+      let result = await response.json()
+      if (result.done)
+        console.log("Avatar successfully updloaded.")
+      else
+        console.log("Error while uploading image.")
+    } catch (err) {
+      this.dash.app.log.warn(err)
+    }
   }
 
   private addFile(f: FileInfoModel) {
@@ -72,5 +113,13 @@ export default class TaskAttachmentManager {
 
     view.update({ name: f.name })
     this.listEl.appendChild(el)
+  }
+
+  private showSpinner() {
+    this.spinnerEl.style.display = "inline"
+  }
+
+  private hideSpinner() {
+    this.spinnerEl.style.display = "none"
   }
 }

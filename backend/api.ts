@@ -10,7 +10,7 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
-import { fetchFileById } from "./uploadEngine"
+import { fetchFileById, checkAvatarFileType, checkAttachmentType, insertFile } from "./uploadEngine"
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
@@ -33,6 +33,7 @@ export async function routeExec(data, sessionData?: SessionData): Promise<Cargo>
     loader: new CargoLoader()
   }
   await executeCommand(context, data)
+
   return context.loader.toCargo()
 }
 
@@ -81,24 +82,35 @@ export async function routeWhoUse(data, sessionData?: SessionData): Promise<obje
 export async function routeGetFile(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData || !req || ! res)
     throw new Error("Required parameter missing in route callback")
-  if (!req.params.fileId)
+  if (!req.params.fId)
     throw new Error("Missing file ID in request")
 
-  let f = await fetchFileById(req.params.fileId)
-
+  let f = await fetchFileById(req.params.fId)
   if (f) {
     let info = f.info
-
-    if (info.mimeType)
-      res.type(info.mimeType)
-    if (info.weight)
-      res.set("Content-Length", info.weight.toString())
+    res.type(info.mimeType)
+    res.set("Content-Length", info.weight.toString())
     res.write(f.buffer)
   } else {
     res.status(404)
     res.send("404 Not Found")
   }
+
   res.end()
+}
+
+export async function routeAddAttachment(req: Request, res: Response) {
+  if (!req.params.taskId)
+    throw new Error("Missing task ID in request")
+
+  let sessionData: SessionData = req.session as any
+  let f = req.file
+  if (!f)
+    throw new Error("No avatar provided")
+  if (!checkAttachmentType(f))
+    throw new Error("Only PNG, JPEG and GIF files are allowed.")
+
+  return await insertFile(f, "task_id", req.params.taskId, sessionData.contributorId)
 }
 
 const fetchCallbacks = {
