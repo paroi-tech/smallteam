@@ -45,7 +45,7 @@ export function checkImageType(f: File): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
 }
 
-export async function store(f: File, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
+export async function storeFile(f: File, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
   let result = {
     done: false
   }
@@ -74,7 +74,7 @@ export async function store(f: File, metaCode: MainMetaCode, metaVal: string, up
   return result
 }
 
-export async function update(f: File, fId: string, uploaderId: string) {
+export async function updateFile(f: File, fId: string, uploaderId: string) {
   let result = {
     done: false
   }
@@ -91,6 +91,27 @@ export async function update(f: File, fId: string, uploaderId: string) {
     await addMetaStr(fId, "mime", f.mimetype)
     await addMetaStr(fId, "name", f.originalname)
     await addMetaStr(fId, "uploader", uploaderId)
+
+    await transaction.commit()
+    result.done = true
+  } finally {
+    if (transaction.inTransaction)
+      await transaction.rollback()
+  }
+
+  return result
+}
+
+export async function deleteFile(fId: string) {
+  let result = {
+    done: false
+  }
+  let transaction = await cn.beginTransaction()
+
+  try {
+    await removeAllMetaInt(fId)
+    await removeAllMetaStr(fId)
+    await removeFile(fId)
 
     await transaction.commit()
     result.done = true
@@ -149,6 +170,21 @@ export async function fetchFileInfo(fId: string) {
   return info
 }
 
+export async function fetchSingleRelatedFileInfo(metaCode: MainMetaCode, metaVal: string, fId: string): Promise<FileInfo | undefined> {
+  let sql = buildSelect()
+    .select("file_id, code, val")
+    .from("meta_str")
+    .where("code", "=", metaCode)
+    .andWhere("val", "=", metaVal)
+    .andWhere("file_id", "=", fId)
+  let rs = await cn.all(sql.toSql())
+
+  if (rs.length !== 1)
+    return undefined
+
+  return fetchFileInfo(fId)
+}
+
 export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
   let arr = await fetchRelatedFilesInfo(metaCode, metaVal)
   let result = [] as FileObject[]
@@ -200,41 +236,62 @@ async function getAllMeta(fId: string): Promise<FileMeta[]> {
   return ([] as FileMeta[]).concat(metaStr, metaInt)
 }
 
-async function getAllMetaInt(fileId: string): Promise<FileMeta[]> {
+async function getAllMetaInt(fId: string): Promise<FileMeta[]> {
   let sql = buildSelect()
     .select("file_id, code, val")
     .from("meta_int")
-    .where("file_id", "=", fileId)
+    .where("file_id", "=", fId)
   let rs = await cn.all(sql.toSql())
 
   return rs.map(row => toMetaInt(row))
 }
 
-async function getAllMetaStr(fileId: string): Promise<FileMeta[]> {
+async function getAllMetaStr(fId: string): Promise<FileMeta[]> {
   let sql = buildSelect()
     .select("file_id, code, val")
     .from("meta_str")
-    .where("file_id", "=", fileId)
+    .where("file_id", "=", fId)
   let rs = await cn.all(sql.toSql())
 
   return rs.map(row => toMetaStr(row))
 }
 
-async function addMetaInt(fileId: string, code: string, val: number) {
+async function addMetaInt(fId: string, code: string, val: number) {
   let sql = "INSERT OR REPLACE INTO meta_int VALUES($fId, $code, $val)"
   await cn.run(sql, {
-    $fId: fileId,
+    $fId: fId,
     $code: code,
     $val: val
   })
 }
 
-async function addMetaStr(fileId: string, code: string, val: string) {
+async function addMetaStr(fId: string, code: string, val: string) {
   let sql = "INSERT OR REPLACE INTO meta_str VALUES($fId, $code, $val)"
   await cn.run(sql, {
-    $fId: fileId,
+    $fId: fId,
     $code: code,
     $val: val
+  })
+}
+
+async function removeFile(fId: string) {
+  let sql = "DELETE FROM file WHERE file_id = $fId"
+  await cn.run(sql, {
+    $fId: fId
+  })
+}
+
+async function removeAllMetaStr(fId: string) {
+  let sql = "DELETE FROM meta_str WHERE file_id = $fId"
+  await cn.run(sql, {
+    $fId: fId
+  })
+}
+
+async function removeAllMetaInt(fId: string) {
+  let sql = "DELETE FROM meta_int WHERE file_id = $fId"
+  await cn.run(sql, {
+    $fId: fId
   })
 }
 

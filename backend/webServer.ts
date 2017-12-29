@@ -63,7 +63,7 @@ export function startWebServer() {
   declareRoute(router, "/get-file/:fId", routeGetFile, "get", true, false)
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
   declareUploadRoute(router, "/api/add-task-attachment/:taskId", upload.single("attachment"), routeAddTaskAttachment)
-  declareRoute(router, "/api/del-task-attachment/:taskId/:fId", routeDeleteTaskAttachment, "post", false)
+  declareRoute(router, "/api/del-task-attachment/:taskId/:fId", routeDeleteTaskAttachment, "post", false, false)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 

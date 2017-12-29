@@ -10,7 +10,7 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
-import { fetchFileById, checkAttachmentType, store } from "./uploadEngine"
+import { fetchFileById, checkAttachmentType, storeFile, fetchSingleRelatedFileInfo, deleteFile } from "./uploadEngine"
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
@@ -112,11 +112,20 @@ export async function routeAddTaskAttachment(req: Request, res: Response) {
   let contributorId = sessionData.contributorId
   let taskId = req.params.taskId
 
-  return await store(f, "task", taskId, contributorId)
+  return await storeFile(f, "task", taskId, contributorId)
 }
 
 export async function routeDeleteTaskAttachment(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!req)
+    throw new Error("Required parameter missing in route callback")
+  if (!req.params.taskId || !req.params.fId)
+    throw new Error("Missing task ID or file ID in request")
 
+  let info = fetchSingleRelatedFileInfo("task", req.params.taskId, req.params.fId)
+  if (info)
+    return await deleteFile(req.params.fId)
+  else
+    return { done: false }
 }
 
 const fetchCallbacks = {

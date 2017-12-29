@@ -4,7 +4,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
-import { store, fetchRelatedFiles, checkImageType, File, fetchRelatedFilesInfo, update, MainMetaCode } from "./uploadEngine"
+import { storeFile, fetchRelatedFiles, checkImageType, File, fetchRelatedFilesInfo, updateFile, MainMetaCode } from "./uploadEngine"
 
 const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
@@ -128,9 +128,9 @@ export async function routeChangeAvatar(req: Request, res: Response) {
   let arr = await fetchRelatedFilesInfo("contributorAvatar", contributorId)
 
   if (arr.length !== 0)
-    return await update(f, arr[0].id, contributorId)
+    return await updateFile(f, arr[0].id, contributorId)
   else
-    return await store(f, "contributorAvatar", contributorId, contributorId)
+    return await storeFile(f, "contributorAvatar", contributorId, contributorId)
 }
 
 // --
