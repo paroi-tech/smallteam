@@ -9,7 +9,7 @@ import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
 import { fetchRelatedFilesInfo } from "../uploadEngine"
-import { getSingleFileInfoFragment } from "./queryFileInfo";
+import { getSingleFileInfoFragment } from "./queryFileInfo"
 
 export const bcryptSaltRounds = 10
 
@@ -51,7 +51,7 @@ async function toContributorFragment(context: BackendContext, row): Promise<Cont
 }
 
 async function addAvatar(context: BackendContext, frag: ContributorFragment) {
-  let info = await getSingleFileInfoFragment("contributor_id", frag.id)
+  let info = await getSingleFileInfoFragment("contributorAvatar", frag.id)
   if (!info)
     return
   frag.avatarId = info.id

@@ -41,10 +41,7 @@ URL: /get-file/{file.fileId}/{media.baseName}-{file.altName}.{extension}
     - file.altName is optional
     - the extension ('jpeg', 'png', etc.) is not stored but evaluated from the mime type
 
-
-
 */
-
 
 create table media (
   media_id integer not null primary key autoincrement,

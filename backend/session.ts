@@ -4,7 +4,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
-import { insertFile, checkAvatarFileType, fetchRelatedFiles } from "./uploadEngine"
+import { store, fetchRelatedFiles, checkImageType, File, fetchRelatedFilesInfo, update, MainMetaCode } from "./uploadEngine"
 
 const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
@@ -117,29 +117,20 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
 }
 
 export async function routeChangeAvatar(req: Request, res: Response) {
-  let sessionData: SessionData = req.session as any
-
   if (!req.file)
     throw new Error("No avatar provided")
-
-  let f = req.file
-
-  if (!checkAvatarFileType(f))
+  if (!checkImageType(req.file))
     throw new Error("Only PNG, JPEG and GIF files are allowed.")
 
-  return await insertFile(f, "contributor_id", sessionData.contributorId)
-}
+  let f = req.file
+  let sessionData: SessionData = req.session as any
+  let contributorId = sessionData.contributorId
+  let arr = await fetchRelatedFilesInfo("contributorAvatar", contributorId)
 
-export async function routeGetAvatar(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  if (!sessionData)
-    throw new Error("Required parameter missing in route callback")
-
-  let files = await fetchRelatedFiles("contributor_id", sessionData.contributorId)
-
-  return {
-    done: true,
-    files
-  }
+  if (arr.length !== 0)
+    return await update(f, arr[0].id, contributorId)
+  else
+    return await store(f, "contributorAvatar", contributorId, contributorId)
 }
 
 // --

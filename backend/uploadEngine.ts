@@ -7,7 +7,6 @@ import { fileCn as cn } from "./utils/dbUtils"
 // -- Types declaration
 // --
 
-type File = Express.Multer.File
 type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
 type FileFilter = (req: Request, file: File, cb: ImageFilterCb) => void
 
@@ -17,13 +16,16 @@ type FileMeta = {
   value: number | string
 }
 
-export type MainMetaCode = "contributor_id" | "task_id"
+export type MainMetaCode = "contributorAvatar" | "task"
+
+export type File = Express.Multer.File
 
 export type FileInfo = {
   id: string
   name: string
   mimeType: string
   weight: number
+  uploaderId: string
 }
 
 export type FileObject = {
@@ -35,28 +37,76 @@ export type FileObject = {
 // -- Public functions
 // --
 
-export function checkAvatarFileType(f: File): boolean {
-  return f.originalname.match(/\.(jpg|jpeg|png|gif)$/) !== null
-}
-
 export function checkAttachmentType(f: File): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png|pdf)$/) !== null
 }
 
-export async function insertFile(f: File, metaCode: MainMetaCode, metaVal: string, contributorId?: string) {
-  if (metaCode === "contributor_id")
-    return await insertAvatar(f, metaVal)
-  else if ("task_id")
-    return await insertTaskAttachment(f, metaVal, contributorId)
-  else
-    throw new Error(`Unknown MetaCode: ${metaCode}`)
+export function checkImageType(f: File): boolean {
+  return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
+}
+
+export async function store(f: File, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
+  let result = {
+    done: false
+  }
+  let transaction = await cn.beginTransaction()
+
+  try {
+    let sql = "INSERT INTO file(bin_data) VALUES($data)"
+    let ps = await cn.run(sql, {
+      $data: f.buffer
+    })
+    let fId = ps.lastID.toString()
+
+    await addMetaStr(fId, metaCode, metaVal)
+    await addMetaStr(fId, "uploader", uploaderId)
+    await addMetaStr(fId, "mime", f.mimetype)
+    await addMetaStr(fId, "name", f.originalname)
+    await addMetaInt(fId, "weight", f.size)
+
+    await transaction.commit()
+    result.done = true
+  } finally {
+    if (transaction.inTransaction)
+      await transaction.rollback()
+  }
+
+  return result
+}
+
+export async function update(f: File, fId: string, uploaderId: string) {
+  let result = {
+    done: false
+  }
+  let transaction = await cn.beginTransaction()
+
+  try {
+    let sql = "UPDATE file SET bin_data=$data WHERE file_id=$fId"
+
+    await cn.run(sql, {
+      $fId: fId,
+      $data: f.buffer
+    })
+    await addMetaInt(fId, "weight", f.size)
+    await addMetaStr(fId, "mime", f.mimetype)
+    await addMetaStr(fId, "name", f.originalname)
+    await addMetaStr(fId, "uploader", uploaderId)
+
+    await transaction.commit()
+    result.done = true
+  } finally {
+    if (transaction.inTransaction)
+      await transaction.rollback()
+  }
+
+  return result
 }
 
 export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<FileInfo[]> {
   let arr = [] as FileInfo[]
   let sql = buildSelect()
     .select("file_id")
-    .from("meta_int")
+    .from("meta_str")
     .where("code", "=", metaCode)
     .andWhere("val", "=", metaVal)
   let rs = await cn.all(sql.toSql())
@@ -92,6 +142,8 @@ export async function fetchFileInfo(fId: string) {
       info.weight = meta.value as number
     else if (meta.code === "mime")
       info.mimeType = meta.value as string
+    else if (meta.code == "uploader")
+      info.uploaderId = meta.value as string
   }
 
   return info
@@ -138,83 +190,14 @@ export async function fetchFileById(fId: string): Promise<FileObject | undefined
 }
 
 // --
-// -- Avatar
-// --
-
-async function insertAvatar(f: File, contributorId: string) {
-  let result = {
-    done: false
-  }
-
-  let sql = buildSelect()
-    .select("file_id, code, val")
-    .from("meta_int")
-    .where("code", "=", "contributor_id")
-    .andWhere("val", "=", contributorId)
-
-  let transaction = await cn.beginTransaction()
-
-  try {
-    let rs = await cn.all(sql.toSql())
-
-    if (rs.length === 0)
-      await createAvatar(f, contributorId)
-    else
-      await updateAvatar(f, rs[0]["file_id"])
-    await transaction.commit()
-    result.done = true
-  } finally {
-    if (transaction.inTransaction)
-      await transaction.rollback()
-  }
-
-  return result
-}
-
-async function createAvatar(f: File, contributorId: string) {
-  let sql = "INSERT INTO file(bin_data) VALUES($data)"
-  let ps = await cn.run(sql, {
-    $data: f.buffer
-  })
-  let fId = ps.lastID.toString()
-
-  await addMetaInt(fId, "contributor_id", parseInt(contributorId))
-  await addMetaInt(fId, "weight", f.size)
-  await addMetaStr(fId, "mime", f.mimetype)
-  await addMetaStr(fId, "name", f.originalname)
-}
-
-async function updateAvatar(f: File, fileId: string) {
-  let sql = "UPDATE file SET bin_data=$data WHERE file_id=$fId"
-
-  await cn.run(sql, {
-    $fId: fileId,
-    $data: f.buffer
-  })
-  await addMetaInt(fileId, "weight", f.size)
-  await addMetaStr(fileId, "mime", f.mimetype)
-  await addMetaStr(fileId, "name", f.originalname)
-}
-
-// --
-// -- Task attachments
-// --
-
-async function insertTaskAttachment(f: File, taskId: string, contributorId?: string) {
-
-}
-
-// --
 // -- Utility functions
 // --
 
-async function getAllMeta(fileId: string): Promise<FileMeta[]> {
-  let arr = [] as FileMeta[]
+async function getAllMeta(fId: string): Promise<FileMeta[]> {
+  let metaInt = await getAllMetaInt(fId)
+  let metaStr = await getAllMetaStr(fId)
 
-  arr = arr.concat(await getAllMetaInt(fileId))
-  arr = arr.concat(await getAllMetaStr(fileId))
-
-  return arr
+  return ([] as FileMeta[]).concat(metaStr, metaInt)
 }
 
 async function getAllMetaInt(fileId: string): Promise<FileMeta[]> {
@@ -239,7 +222,6 @@ async function getAllMetaStr(fileId: string): Promise<FileMeta[]> {
 
 async function addMetaInt(fileId: string, code: string, val: number) {
   let sql = "INSERT OR REPLACE INTO meta_int VALUES($fId, $code, $val)"
-
   await cn.run(sql, {
     $fId: fileId,
     $code: code,
@@ -249,7 +231,6 @@ async function addMetaInt(fileId: string, code: string, val: number) {
 
 async function addMetaStr(fileId: string, code: string, val: string) {
   let sql = "INSERT OR REPLACE INTO meta_str VALUES($fId, $code, $val)"
-
   await cn.run(sql, {
     $fId: fileId,
     $code: code,

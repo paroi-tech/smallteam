@@ -10,7 +10,7 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
-import { fetchFileById, checkAvatarFileType, checkAttachmentType, insertFile } from "./uploadEngine"
+import { fetchFileById, checkAttachmentType, store } from "./uploadEngine"
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
@@ -99,18 +99,24 @@ export async function routeGetFile(data: any, sessionData?: SessionData, req?: R
   res.end()
 }
 
-export async function routeAddAttachment(req: Request, res: Response) {
+export async function routeAddTaskAttachment(req: Request, res: Response) {
   if (!req.params.taskId)
     throw new Error("Missing task ID in request")
+  if (!req.file)
+    throw new Error("No file provided")
+  if (!checkAttachmentType(req.file))
+    throw new Error("Only PDF, PNG, JPEG and GIF files are allowed.")
 
-  let sessionData: SessionData = req.session as any
   let f = req.file
-  if (!f)
-    throw new Error("No avatar provided")
-  if (!checkAttachmentType(f))
-    throw new Error("Only PNG, JPEG and GIF files are allowed.")
+  let sessionData: SessionData = req.session as any
+  let contributorId = sessionData.contributorId
+  let taskId = req.params.taskId
 
-  return await insertFile(f, "task_id", req.params.taskId, sessionData.contributorId)
+  return await store(f, "task", taskId, contributorId)
+}
+
+export async function routeDeleteTaskAttachment(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+
 }
 
 const fetchCallbacks = {

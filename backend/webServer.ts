@@ -6,9 +6,9 @@ import { Request, Response, Router, RequestHandler } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
-import { routeFetch, routeExec, routeBatch, routeWhoUse, routeGetFile } from "./api"
+import { routeFetch, routeExec, routeBatch, routeWhoUse, routeGetFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeResetPassword, routeChangeAvatar, routeGetAvatar } from "./session"
+import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
@@ -62,7 +62,8 @@ export function startWebServer() {
 
   declareRoute(router, "/get-file/:fId", routeGetFile, "get", true, false)
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
-  declareUploadRoute(router, "/api/add-attachment/:taskId", upload.single("attachment"), routeChangeAvatar)
+  declareUploadRoute(router, "/api/add-task-attachment/:taskId", upload.single("attachment"), routeAddTaskAttachment)
+  declareRoute(router, "/api/del-task-attachment/:taskId/:fId", routeDeleteTaskAttachment, "post", false)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
