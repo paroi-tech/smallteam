@@ -129,6 +129,7 @@ async function addAttachedFiles(context: BackendContext, frag: TaskFragment) {
     return
 
   frag.attachedFileIds = infos.map(info => info.id)
+  frag.attachedFileInfo = infos
 
   for (let info of infos) {
     context.loader.addFragment({

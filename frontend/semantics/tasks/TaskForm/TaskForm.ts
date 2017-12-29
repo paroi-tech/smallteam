@@ -60,6 +60,7 @@ export default class TaskForm {
     this.contributorSelector.task = undefined
     this.commentEditor.task = undefined
     this.logDialog.task = undefined
+    this.attachmentMgr.task = undefined
   }
 
   // --
@@ -84,6 +85,7 @@ export default class TaskForm {
     this.contributorSelector.task = task
     this.commentEditor.task = task
     this.logDialog.task = task
+    this.attachmentMgr.task = task
   }
 
   // --

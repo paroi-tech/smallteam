@@ -32,6 +32,7 @@ export default class TaskAttachmentManager {
   public reset() {
     this.currentTask = undefined
     removeAllChildren(this.listEl)
+    this.inputEl.value = ""
   }
 
   get task(): TaskModel | undefined {
@@ -75,8 +76,10 @@ export default class TaskAttachmentManager {
   }
 
   private async doUpload(fd: FormData) {
+    if (!this.currentTask)
+      return
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/change-avatar`, {
+      let response = await fetch(`${config.urlPrefix}/api/add-task-attachment/${this.currentTask.id}`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -89,11 +92,11 @@ export default class TaskAttachmentManager {
 
       let result = await response.json()
       if (result.done)
-        console.log("Avatar successfully updloaded.")
+        this.log.info("File successfully updloaded.")
       else
-        console.log("Error while uploading image.")
+        this.log.error("Error while uploading image.")
     } catch (err) {
-      this.dash.app.log.warn(err)
+      this.log.warn(err)
     }
   }
 
@@ -106,13 +109,17 @@ export default class TaskAttachmentManager {
       // TODO: Add code for attached file download.
     })
 
-    let deleteBtn = el.querySelector(".js-delete-button") as HTMLButtonElement
+    let deleteBtn = el.querySelector(".js-remove-button") as HTMLButtonElement
     deleteBtn.addEventListener("click", (ev) => {
-
+      // TODO: Add code to remove task attachment
     })
 
     view.update({ name: f.name })
     this.listEl.appendChild(el)
+  }
+
+  private removeTaskAttachment() {
+
   }
 
   private showSpinner() {

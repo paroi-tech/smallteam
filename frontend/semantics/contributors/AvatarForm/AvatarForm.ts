@@ -42,7 +42,7 @@ export default class AvatarForm {
 
   private async onSubmit() {
     if (!this.inputEl.files || this.inputEl.files.length === 0) {
-      console.log("No image provided...")
+      this.log.warn("No image provided...")
       return
     }
 
@@ -67,9 +67,9 @@ export default class AvatarForm {
 
       let result = await response.json()
       if (result.done)
-        console.log("Avatar successfully updloaded.")
+        this.log.info("Avatar successfully updloaded.")
       else
-        console.log("Error while uploading image.")
+        this.log.error("Error while uploading image.")
     } catch (err) {
       this.dash.app.log.warn(err)
     }

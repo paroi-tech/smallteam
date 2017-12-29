@@ -7,6 +7,7 @@ export interface FileInfoFragment {
   mimeType: string
   weight: number
   url: string
+  uploaderId: string
 }
 
 const meta: FragmentMeta = {
@@ -27,6 +28,9 @@ const meta: FragmentMeta = {
       dataType: "number"
     },
     url: {
+      dataType: "string"
+    },
+    uploaderId: {
       dataType: "string"
     }
   },

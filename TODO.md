@@ -36,8 +36,7 @@ the time, so I can't use JIRA.
 - Merge `ContributorHome` into `ContributorForm`
   - Allow to upload an avatar from the `ContributorForm`
   - Allow to change the password from the `ContributorForm`
-- TaskAttachmentManager
-- In TaskForm, show contributor name and creation date beside a comment.
+- TaskAttachmentManager => remove attached files (test only since it is not supported by model)
 - Improve contributors selector in taskform. Open a dialog to select constributors and use inline BoxList.
 - Find lib to resize images with Nodejs
 - Image library (sharp => https://github.com/lovell/sharp)
@@ -65,6 +64,7 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- In TaskForm, show contributor name and creation date beside a comment.
 - Listen to events (create, update, delete) in CheckboxMultiSelect in order to reorder and update items
   - Create a listener object and pass it as optional parameter to CheckboxMultiSelect.
   - The listener will listen to update events from model and update the CheckboxMultiSelect
