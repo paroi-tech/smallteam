@@ -3,7 +3,8 @@ import * as Sortable from "sortablejs"
 import { render } from "monkberry"
 
 import * as boxListTemplate from "./BoxList.monk"
-import * as boxTemplate from "./li.monk"
+import * as liTemplate from "./li.monk"
+import * as inlineLiTemplate from "./InlineLi.monk"
 import * as closeTemplate from "./ItemRemove.monk"
 
 /**
@@ -36,6 +37,8 @@ export interface BoxListParams {
   disabled?: boolean
   // Add a remove button beside each element in the BoxList.
   itemRemoveButton?: boolean
+  // Is this an InlineBoxlist?
+  inline: boolean | undefined
   // Can items be reordered within the BoxList?
   sort: boolean
 }
@@ -85,7 +88,8 @@ export default class BoxList<T extends Box> {
   }
 
   public addBox(box: T) {
-    let view = render(boxTemplate, document.createElement("div"))
+    let tpl = this.params.inline ? inlineLiTemplate : liTemplate
+    let view = render(tpl, document.createElement("div"))
     let li = view.nodes[0] as HTMLLIElement
 
     li.setAttribute("data-id", box.id)
@@ -199,10 +203,12 @@ export default class BoxList<T extends Box> {
     this.view = render(boxListTemplate, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLElement
-
     this.ul = el.querySelector("ul") as HTMLElement
     this.busyIndicatorEl = el.querySelector(".js-busy-icon") as HTMLElement
     this.titleEl = el.querySelector(".js-title") as HTMLElement
+
+    if (this.params.inline)
+      el.classList.add("InlineBoxList")
 
     return el
   }
@@ -219,7 +225,9 @@ export default class BoxList<T extends Box> {
    */
   private makeSortable() {
     this.sortable = Sortable.create(this.ul, {
-      handle: ".js-handle",
+      // For InlineBoxList, we do not need a handle.
+      handle: this.params.inline ? undefined : ".js-handle",
+
       group: this.params.group,
       sort: this.params.sort,
       disabled: this.params.disabled === undefined ? false : this.params.disabled,

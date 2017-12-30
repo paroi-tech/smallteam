@@ -154,7 +154,8 @@ export default class ContributorSelector {
       id: "",
       name: "Affected contributors",
       group: undefined,
-      sort: true
+      sort: true,
+      inline: true
     })
     this.boxListContainerEl.appendChild(this.boxList.el)
   }
