@@ -39,12 +39,11 @@ export default class ContributorSelector {
   }
 
   public refresh() {
-    this.reset()
-    if (!this.currentTask || !this.currentTask.affectedToIds)
+    this.boxList.clear()
+    if (!this.currentTask || !this.currentTask.affectedTo)
       return
-
-    for (let id of this.currentTask.affectedToIds) {
-    }
+    for (let c of this.currentTask.affectedTo)
+      this.addBoxFor(c)
   }
 
   // --
@@ -69,9 +68,9 @@ export default class ContributorSelector {
 
   set task(task: TaskModel | undefined) {
     this.reset()
+    this.currentTask = task
     if (!task || !task.affectedToIds)
       return
-    this.currentTask = task
     task.affectedToIds.forEach(id => {
       let contributor = this.model.global.contributors.get(id)
       if (contributor)
@@ -95,8 +94,10 @@ export default class ContributorSelector {
     this.buttonEl = el.querySelector(".js-button") as HTMLButtonElement
 
     this.buttonEl.addEventListener("click", ev => {
-      if (!this.currentTask)
+      if (!this.currentTask) {
+        console.log("no shit...")
         return
+      }
       this.dialog.selectContributors(this.currentTask.affectedTo || [])
       document.body.appendChild(this.dialog.el)
       this.dialog.show()
