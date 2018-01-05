@@ -67,26 +67,6 @@ export default class ContributorForm {
   }
 
   // --
-  // -- Initialization functions
-  // --
-
-  private createView() {
-    this.view = render(template, document.createElement("div"), { directives })
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
-    this.loginEl = el.querySelector(".js-login") as HTMLInputElement
-    this.emailEl = el.querySelector(".js-email") as HTMLInputElement
-    this.busyIndicatorEl = el.querySelector(".js-busy-indicator") as HTMLElement
-    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
-
-    this.view.update(this.state)
-
-    return el
-  }
-
-  // --
   // -- Accessors
   // --
 
@@ -110,6 +90,26 @@ export default class ContributorForm {
 
   get contributor(): ContributorModel | undefined {
     return this.currentContributor
+  }
+
+  // --
+  // -- Initialization functions
+  // --
+
+  private createView() {
+    this.view = render(template, document.createElement("div"), { directives })
+
+    let el = this.view.nodes[0] as HTMLElement
+    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
+    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
+    this.loginEl = el.querySelector(".js-login") as HTMLInputElement
+    this.emailEl = el.querySelector(".js-email") as HTMLInputElement
+    this.busyIndicatorEl = el.querySelector(".js-busy-indicator") as HTMLElement
+    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
+
+    this.view.update(this.state)
+
+    return el
   }
 
   // --

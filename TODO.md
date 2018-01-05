@@ -33,6 +33,7 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- Improve forms
 - Merge `ContributorHome` into `ContributorForm`
   - Allow to upload an avatar from the `ContributorForm`
   - Allow to change the password from the `ContributorForm`
