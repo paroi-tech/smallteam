@@ -2,7 +2,8 @@ I used this file to record ideas and things that I think useful. I don't have In
 the time, so I can't use JIRA.
 
 # Thomas
-
+- WebSocket:
+  - Accept to open only for connected users
 - In the Model:
   - Keep `global` lists up-to-date
   - Remove `StepFragment.name` => call `step.stepType.name`
