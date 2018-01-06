@@ -4,6 +4,7 @@ import { render } from "monkberry"
 import BoxList from "../../../generics/BoxList/BoxList"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
+import ContributorSelectionDialog from "../ContributorSelectionDialog/ContributorSelectionDialog"
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")
@@ -15,18 +16,12 @@ const itemTemplate = require("./label.monk")
 export default class ContributorSelector {
   readonly el: HTMLElement
   private boxListContainerEl: HTMLElement
-  private listEl: HTMLSelectElement
   private buttonEl: HTMLButtonElement
-
-  private expanded = false
-
-  private checkBoxes = new Map<string, HTMLInputElement>()
-  private itemViews = new Map<string, MonkberryView>()
-  private items = new Map<string, HTMLElement>()
 
   private view: MonkberryView
 
   private boxList: BoxList<ContributorBox>
+  private dialog: ContributorSelectionDialog
 
   private model: Model
   private currentTask: TaskModel | undefined
@@ -35,31 +30,20 @@ export default class ContributorSelector {
     this.model = this.dash.app.model
     this.el = this.createView()
     this.createChildComponents()
-    this.model.global.contributors.forEach(c => this.addSelectorFor(c))
     this.listenToModel()
   }
 
   public reset() {
     this.currentTask = undefined
     this.boxList.clear()
-    for (let checkBox of this.checkBoxes.values())
-      checkBox.checked = false
   }
 
   public refresh() {
-    this.reset()
-    if (!this.currentTask || !this.currentTask.affectedToIds)
+    this.boxList.clear()
+    if (!this.currentTask || !this.currentTask.affectedTo)
       return
-
-    for (let id of this.currentTask.affectedToIds) {
-      let contributor = this.model.global.contributors.get(id)
-      if (contributor)
-        this.addBoxFor(contributor)
-
-      let checkBox = this.checkBoxes.get(id)
-      if (checkBox)
-        checkBox.checked = true
-    }
+    for (let c of this.currentTask.affectedTo)
+      this.addBoxFor(c)
   }
 
   // --
@@ -67,30 +51,9 @@ export default class ContributorSelector {
   // --
 
   private listenToModel() {
-    // Contributor creation.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createContributor").onData(data => {
-      this.addSelectorFor(data.model as ContributorModel)
-    })
-
-    // Contributor update.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {
-      let contributor = data.model as ContributorModel
-      let view = this.itemViews.get(contributor.id)
-
-      if (view)
-        view.update({ value: contributor.name })
-    })
-
     // Contributor deletion.
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteContributor").onData(data => {
       let contributorId = data.id as string
-      let el = this.items.get(contributorId)
-      if (el)
-        this.listEl.removeChild(el)
-
-      this.checkBoxes.delete(contributorId)
-      this.itemViews.delete(contributorId)
-      this.items.delete(contributorId)
       this.boxList.removeBox(contributorId)
     })
   }
@@ -105,23 +68,13 @@ export default class ContributorSelector {
 
   set task(task: TaskModel | undefined) {
     this.reset()
-    if (!task) {
-      this.listEl.style.pointerEvents = "none"
-      return
-    }
-
     this.currentTask = task
-    this.listEl.style.pointerEvents = "auto"
-    if (!task.affectedToIds)
+    if (!task || !task.affectedToIds)
       return
     task.affectedToIds.forEach(id => {
       let contributor = this.model.global.contributors.get(id)
       if (contributor)
         this.addBoxFor(contributor)
-
-      let checkBox = this.checkBoxes.get(id)
-      if (checkBox)
-        checkBox.checked = true
     })
   }
 
@@ -138,12 +91,16 @@ export default class ContributorSelector {
 
     let el = this.view.nodes[0] as HTMLElement
     this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
-    this.listEl = el.querySelector(".js-list") as HTMLSelectElement
     this.buttonEl = el.querySelector(".js-button") as HTMLButtonElement
 
     this.buttonEl.addEventListener("click", ev => {
-      this.listEl.style.display = this.expanded ? "none" : "block"
-      this.expanded = !this.expanded
+      if (!this.currentTask) {
+        console.log("no shit...")
+        return
+      }
+      this.dialog.selectContributors(this.currentTask.affectedTo || [])
+      document.body.appendChild(this.dialog.el)
+      this.dialog.show()
     })
 
     return el
@@ -158,27 +115,13 @@ export default class ContributorSelector {
       inline: true
     })
     this.boxListContainerEl.appendChild(this.boxList.el)
-  }
 
-  private addSelectorFor(contributor: ContributorModel) {
-    let view = render(itemTemplate, document.createElement("div"))
-    let itemEl = view.nodes[0]as HTMLElement
-    let checkBox = itemEl.querySelector("input") as HTMLInputElement
-
-    checkBox.addEventListener("click", ev => {
-      // TODO: Improve this. Use a map to store old ContributorBoxes and reuse them,
-      // instead of creating new ones each time.
-      if (checkBox.checked)
-        this.addBoxFor(contributor)
-      else
-        this.boxList.removeBox(contributor.id)
+    this.dialog = this.dash.create(ContributorSelectionDialog)
+    this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed").onEvent(ev => {
+      let arr = this.dialog.selectedContributors()
+      this.boxList.clear()
+      arr.forEach(c => this.addBoxFor(c))
     })
-
-    view.update({ value: contributor.name })
-    this.itemViews.set(contributor.id, view)
-    this.items.set(contributor.id, itemEl)
-    this.checkBoxes.set(contributor.id, checkBox)
-    this.listEl.appendChild(itemEl)
   }
 
   private addBoxFor(contributor: ContributorModel) {

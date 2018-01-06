@@ -3,7 +3,6 @@
   <div class="js-boxlist-container"></div>
   <button class="ContributorSelector-button js-button">
     Select contributors
-    <span class="fa fa-caret-down fa-1x"></span>
+    <span class="fa fa-eye fa-1x"></span>
   </button>
-  <div class="ContributorSelectorList js-list"></div>
 </div>

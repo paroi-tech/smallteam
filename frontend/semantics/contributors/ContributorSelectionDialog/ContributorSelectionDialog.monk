@@ -1,0 +1,5 @@
+<dialog class="ContributorSelectionDialog">
+  <header class="ContributorSelectionDialog-header">Select contributors</header>
+  <div class="js-selector-container"></div>
+  <button class="ContributorSelectionDialog-closeButton js-button">Close</button>
+</dialog>
