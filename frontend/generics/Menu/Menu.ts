@@ -16,12 +16,12 @@ export interface MenuItem {
  * Horizontal menu component.
  *
  * The menu can contain several items. Each item has an ID and an event to emit when clicked.
- * Several items trigger the same event.
+ * Several items can trigger the same event.
  */
 export class Menu {
   readonly el: HTMLElement
-
   private ul: HTMLElement
+
   private items = new Map<string, HTMLElement[]>()
 
   private view: MonkberryView
@@ -37,7 +37,6 @@ export class Menu {
     let view = render(liTemplate, document.createElement("div"))
     let li = view.nodes[0] as HTMLLIElement
     let btn = li.querySelector("button") as HTMLButtonElement
-
     btn.textContent = item.label
     btn.addEventListener("click", (ev) => this.dash.emit("select", item.id))
 
@@ -68,7 +67,7 @@ export class Menu {
   }
 
   // --
-  // -- utilities
+  // -- Utilities
   // --
 
   private createView() {
