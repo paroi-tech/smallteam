@@ -15,7 +15,6 @@ export default class ContributorForm {
   private nameEl: HTMLInputElement
   private emailEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
-  private busyIndicatorEl: HTMLElement
 
   private view: MonkberryView
   private state = {
@@ -33,19 +32,17 @@ export default class ContributorForm {
   private currentContributor: ContributorModel | undefined
   private log: Log
 
+  /**
+   * Property used to know whether it is possible to empty the fields of the form afer
+   * the model has successfully created a contributor.
+   */
   private canClearForm = false
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
     this.el = this.createView()
-
-    this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(
-      data => this.onEndProcessing(data)
-    )
-    this.dash.listenTo<ContributorModel>(this.model, "processingContributor").onData(
-      data => this.onProcessing(data)
-    )
+    this.listenToModel()
   }
 
   public reset() {
@@ -56,12 +53,6 @@ export default class ContributorForm {
     this.state.frag.email = ""
     this.view.update(this.state)
 
-    this.hideIndicators()
-  }
-
-  public switchToCreationMode() {
-    this.reset()
-    this.canClearForm = false
     this.unlockForm()
     this.nameEl.focus()
   }
@@ -71,9 +62,8 @@ export default class ContributorForm {
   // --
 
   set contributor(contributor: ContributorModel | undefined) {
-    this.canClearForm = false
-
     if (!contributor) {
+      this.canClearForm = false
       this.reset()
       return
     }
@@ -104,12 +94,23 @@ export default class ContributorForm {
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.loginEl = el.querySelector(".js-login") as HTMLInputElement
     this.emailEl = el.querySelector(".js-email") as HTMLInputElement
-    this.busyIndicatorEl = el.querySelector(".js-busy-indicator") as HTMLElement
     this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
 
     this.view.update(this.state)
 
     return el
+  }
+
+  private listenToModel() {
+    this.dash.listenTo<ContributorModel>(this.model, "updateContributor").onData(
+      data => this.onContributorUpdate(data)
+    )
+    this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(
+      data => this.onEndProcessing(data)
+    )
+    this.dash.listenTo<ContributorModel>(this.model, "processingContributor").onData(
+      data => this.onProcessing(data)
+    )
   }
 
   // --
@@ -120,34 +121,16 @@ export default class ContributorForm {
     let data = this.checkUserInput()
     if (!data)
       return
-
-    this.lockForm()
     if (!this.currentContributor) {
       this.canClearForm = true
-      await this.createContributor(data)
-      if (this.canClearForm)
-        this.switchToCreationMode()
+      this.createContributor(data)
     } else {
       let id = this.currentContributor.id
       let frag = this.currentContributor.updateTools.getDiffToUpdate({ id, ...data })
-
       // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
         this.updateContributor({ id, ...frag })
-      else
-        this.unlockForm()
     }
-  }
-
-  private onEndProcessing(data: ContributorModel) {
-    if (!this.currentContributor || this.currentContributor.id !== data.id)
-      return
-
-    this.canClearForm = false
-    this.state.frag = this.currentContributor.updateTools.toFragment("update") as any
-    this.view.update(this.state)
-
-    this.unlockForm()
   }
 
   private onProcessing(data: ContributorModel) {
@@ -156,26 +139,48 @@ export default class ContributorForm {
     this.lockForm()
   }
 
+  private onEndProcessing(data: ContributorModel) {
+    if (!this.currentContributor || this.currentContributor.id !== data.id)
+      return
+    this.unlockForm()
+  }
+
+  private onContributorUpdate(contributor: ContributorModel) {
+    if (!this.currentContributor || this.currentContributor.id !== contributor.id)
+      return
+    this.canClearForm = false
+    this.state.frag = contributor.updateTools.toFragment("update") as any
+    this.view.update(this.state)
+  }
+
   // --
   // -- Model update functions
   // --
 
   private async createContributor(frag: ContributorCreateFragment) {
+    this.lockForm()
     try {
       await this.model.exec("create", "Contributor", frag)
+      if (this.canClearForm) {
+        this.reset()
+        return
+      }
     } catch (err) {
       this.log.error("Unable to create new contributor...", err)
     }
+    this.unlockForm()
   }
 
   private async updateContributor(frag: ContributorUpdateFragment) {
     if (!this.currentContributor)
       return
+    this.lockForm()
     try {
       await this.model.exec("update", "Contributor", frag)
     } catch (err) {
       this.log.error(`Unable to update contributor...`)
     }
+    this.unlockForm()
   }
 
   // --
@@ -215,23 +220,21 @@ export default class ContributorForm {
     return (email.length > 0 && email.length <= 254)
   }
 
-  private showIndicators() {
-    this.busyIndicatorEl.style.display = "inline"
+  private showIndicator() {
     this.submitSpinnerEl.style.display = "inline"
   }
 
-  private hideIndicators() {
-    this.busyIndicatorEl.style.display = "none"
+  private hideIndicator() {
     this.submitSpinnerEl.style.display = "none"
   }
 
   private lockForm() {
     this.fieldsetEl.disabled = true
-    this.showIndicators()
+    this.showIndicator()
   }
 
   private unlockForm() {
     this.fieldsetEl.disabled = false
-    this.hideIndicators()
+    this.hideIndicator()
   }
 }

@@ -36,7 +36,7 @@ export default class StepForm {
   public reset() {
     this.currentStep = undefined
     this.clearContent()
-    this.hideSpinner()
+    this.unlockForm()
   }
 
   get step(): StepModel | undefined {
@@ -51,6 +51,8 @@ export default class StepForm {
     this.updateView()
     if (this.currentStep.updateTools.processing)
       this.lockForm()
+    else
+     this.unlockForm()
   }
 
   // --
@@ -74,8 +76,9 @@ export default class StepForm {
 
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl()
-    } as DropdownMenuOptions)
+        btnEl: createCustomMenuBtnEl()
+      } as DropdownMenuOptions
+    )
     this.dropdownMenu.entries.createNavBtn({
       label: "Delete step",
       onClick: () => this.deleteCurrentStep()
@@ -187,11 +190,13 @@ export default class StepForm {
 
   private lockForm() {
     this.fieldsetEl.disabled = true
+    this.dropdownMenu.disable()
     this.showSpinner()
   }
 
   private unlockForm() {
     this.fieldsetEl.disabled = false
+    this.dropdownMenu.enable()
     this.hideSpinner()
   }
 

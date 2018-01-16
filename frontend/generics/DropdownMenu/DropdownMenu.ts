@@ -9,10 +9,7 @@ const liTemplate = require("./li.monk")
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement
-  /**
-   * Default value is: "right"
-   */
-  align?: "left" | "right"
+  align?: "left" | "right" // Default value is "right".
   navMenuOptions?: NavMenuOptions
 }
 
@@ -26,9 +23,7 @@ export class DropdownMenu {
   private isVisible = false
 
   constructor(private dash: Dash, private options: DropdownMenuOptions) {
-    let view = render(template, document.createElement("div"))
-
-    this.el = view.nodes[0] as HTMLElement
+    this.el = this.createView()
     this.btnEl = options.btnEl
     this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
 
@@ -47,16 +42,34 @@ export class DropdownMenu {
       this.show()
   }
 
+  public enable() {
+    this.el.style.pointerEvents = "none"
+  }
+
+  public disable() {
+    this.el.style.pointerEvents = "initial"
+  }
+
+  private createView() {
+    return render(template, document.createElement("div")).nodes[0] as HTMLElement
+  }
+
   private show() {
     if (this.isVisible)
       return
-
     if (this.detached)
       this.attachInDom()
     this.position()
     this.isVisible = true
     this.el.style.display = "block"
     this.el.focus()
+  }
+
+  private hide() {
+    if (this.isVisible) {
+      this.isVisible = false
+      this.el.style.display = "none"
+    }
   }
 
   private attachInDom() {
@@ -74,13 +87,6 @@ export class DropdownMenu {
     // this.el.style.top = `${menuTop}px`
     // this.el.style.left = `${menuLeft}px`
     // console.log("position:", this.btnEl.offsetLeft, this.btnEl.offsetWidth, this.el.offsetWidth)
-  }
-
-  private hide() {
-    if (this.isVisible) {
-      this.isVisible = false
-      this.el.style.display = "none"
-    }
   }
 }
 
