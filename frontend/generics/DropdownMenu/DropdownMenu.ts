@@ -42,12 +42,18 @@ export class DropdownMenu {
       this.show()
   }
 
+  /**
+   * IMPORTANT:
+   * The two following functions are temporary solutions used to disable the menu.
+   * We need them in StepForm when the ste displayed in the form is processed by the model
+   * and the form need to be locked.
+   */
   public enable() {
-    this.el.style.pointerEvents = "none"
+    this.btnEl.style.pointerEvents = "initial"
   }
 
   public disable() {
-    this.el.style.pointerEvents = "initial"
+    this.btnEl.style.pointerEvents = "none"
   }
 
   private createView() {

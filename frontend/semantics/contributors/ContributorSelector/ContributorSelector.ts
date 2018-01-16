@@ -4,7 +4,7 @@ import { render } from "monkberry"
 import BoxList from "../../../generics/BoxList/BoxList"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
-import ContributorSelectionDialog from "../ContributorSelectionDialog/ContributorSelectionDialog"
+import ContributorDialog from "../ContributorDialog/ContributorDialog"
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")
@@ -21,7 +21,7 @@ export default class ContributorSelector {
   private view: MonkberryView
 
   private boxList: BoxList<ContributorBox>
-  private dialog: ContributorSelectionDialog
+  private dialog: ContributorDialog
 
   private model: Model
   private currentTask: TaskModel | undefined
@@ -116,7 +116,7 @@ export default class ContributorSelector {
     })
     this.boxListContainerEl.appendChild(this.boxList.el)
 
-    this.dialog = this.dash.create(ContributorSelectionDialog)
+    this.dialog = this.dash.create(ContributorDialog)
     this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed").onEvent(ev => {
       let arr = this.dialog.selectedContributors()
       this.boxList.clear()

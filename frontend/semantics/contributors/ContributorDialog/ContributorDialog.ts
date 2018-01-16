@@ -5,9 +5,9 @@ import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxM
 import { render } from "monkberry"
 import ContributorBox from "../ContributorBox/ContributorBox"
 
-const template = require("./ContributorSelectionDialog.monk")
+const template = require("./ContributorDialog.monk")
 
-export default class ContributorSelectionDialog {
+export default class ContributorDialog {
   readonly el: HTMLDialogElement
   private buttonEl: HTMLButtonElement
   private selectorContainerEl: HTMLElement

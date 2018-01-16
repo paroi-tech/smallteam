@@ -52,7 +52,7 @@ export default class FlagWorkspace implements Workspace {
   }
 
   private listenToChildComponents() {
-    this.dash.listenToChildren<FlagModel>("flagBoxSelected").onData(flag => this.form.setFlag(flag))
+    this.dash.listenToChildren<FlagModel>("flagBoxSelected").onData(flag => this.form.flag = flag)
     this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => this.scheduleFlagReordering(data))
   }
 

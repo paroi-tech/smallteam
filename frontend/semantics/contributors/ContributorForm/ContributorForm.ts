@@ -33,7 +33,7 @@ export default class ContributorForm {
   private log: Log
 
   /**
-   * Property used to know whether it is possible to empty the fields of the form afer
+   * Property used to know whether we can empty the fields of the form afer
    * the model has successfully created a contributor.
    */
   private canClearForm = false

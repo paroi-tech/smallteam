@@ -51,8 +51,6 @@ export default class StepForm {
     this.updateView()
     if (this.currentStep.updateTools.processing)
       this.lockForm()
-    else
-     this.unlockForm()
   }
 
   // --
