@@ -106,20 +106,51 @@ export default class TaskAttachmentManager {
 
     let downloadBtn = el.querySelector(".js-download-button") as HTMLButtonElement
     downloadBtn.addEventListener("click", (ev) => {
-      // TODO: Add code for attached file download.
+      window.open(`${config.urlPrefix}/download-file/${f.id}`)
     })
 
     let deleteBtn = el.querySelector(".js-remove-button") as HTMLButtonElement
-    deleteBtn.addEventListener("click", (ev) => {
-      // TODO: Add code to remove task attachment
+    deleteBtn.addEventListener("click", ev => {
+      let contributorId = this.model.session.contributor.id
+      if (f.uploaderId === contributorId && this.removeTaskAttachment(f.id))
+        this.listEl.removeChild(el)
     })
 
     view.update({ name: f.name })
     this.listEl.appendChild(el)
   }
 
-  private removeTaskAttachment() {
+  private async removeTaskAttachment(fId: string) {
+    if (!this.currentTask)
+      return false
+    let taskId = this.currentTask.id
+    let result = false
 
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/del-task-attachment/${taskId}/${fId}`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }
+      })
+
+      if (!response.ok)
+        this.log.error("Unable to get a response from server...")
+      else {
+        let data = await response.json()
+        if (data.done) {
+          this.log.info("Attachment successfully removed")
+          result = true
+        } else
+          this.log.warn("Attachment not deleted")
+      }
+    } catch (err) {
+      this.log.warn(err)
+    }
+
+    return result
   }
 
   private showSpinner() {
