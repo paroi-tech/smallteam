@@ -1,3 +1,4 @@
+import * as http from "http"
 import * as path from "path"
 import * as express from "express"
 import * as multer from "multer"
@@ -12,6 +13,7 @@ import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./se
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
+import { wsEngineInit } from "./wsEngine"
 
 const PORT = 3921
 
@@ -21,6 +23,8 @@ type RouteMethod = "get" | "post"
 
 export function startWebServer() {
   let app = express()
+  let server = http.createServer(app)
+
   let upload = multer({
     storage: multer.memoryStorage(),
     limits: {
@@ -71,7 +75,8 @@ export function startWebServer() {
 
   app.get("*", (req, res) => write404(res))
 
-  app.listen(PORT, function () {
+  wsEngineInit(server)
+  server.listen(PORT, function () {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })
 }

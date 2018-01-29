@@ -46,6 +46,18 @@ export default class ContributorForm {
     this.dash.listenTo<ContributorModel>(this.model, "processingContributor").onData(
       data => this.onProcessing(data)
     )
+
+    this.dash.listenTo<ContributorModel>(this.model, "updateContributor").onData(
+      data => {
+        if (!this.currentContributor || this.currentContributor.id !== data.id)
+          return
+        this.canClearForm = false
+        this.state.frag = this.currentContributor.updateTools.toFragment("update") as any
+        this.view.update(this.state)
+      }
+    )
+
+
   }
 
   public reset() {
