@@ -34,6 +34,8 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- In webserver.ts, the `/get-file` route is declared as public. Anybody can download the files stored on the server.
+- Chrome does not ask for confirmation before downloading files from server.
 - Merge `ContributorHome` into `ContributorForm`
   - Allow to upload an avatar from the `ContributorForm`
   - Allow to change the password from the `ContributorForm`
@@ -63,7 +65,7 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
-
+- Improve forms
 - Improve contributors selector in taskform. Open a dialog to select constributors and use inline BoxList.
 - In TaskForm, show contributor name and creation date beside a comment.
 - Listen to events (create, update, delete) in CheckboxMultiSelect in order to reorder and update items

@@ -11,6 +11,7 @@ export default class StepForm {
   readonly el: HTMLElement
   private menuContainerEl: HTMLElement
   private fieldContainerEl: HTMLElement
+  private fieldsetEl: HTMLFieldSetElement
   private nameEl: HTMLInputElement
   private submitButtonEl: HTMLButtonElement
   private cancelButtonEl: HTMLButtonElement
@@ -26,7 +27,7 @@ export default class StepForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createHtmlElements()
+    this.el = this.createView()
     this.createChildComponents()
     this.listenToForm()
     this.listenToModel()
@@ -35,6 +36,7 @@ export default class StepForm {
   public reset() {
     this.currentStep = undefined
     this.clearContent()
+    this.unlockForm()
   }
 
   get step(): StepModel | undefined {
@@ -42,20 +44,26 @@ export default class StepForm {
   }
 
   set step(step: StepModel | undefined) {
-    if (!step) {
-      this.reset()
+    this.reset()
+    if (!step)
       return
-    }
     this.currentStep = step
     this.updateView()
+    if (this.currentStep.updateTools.processing)
+      this.lockForm()
   }
 
-  private createHtmlElements() {
+  // --
+  // -- Initialization functions
+  // --
+
+  private createView() {
     this.view = render(template, document.createElement("div"))
 
     let el = this.view.nodes[0] as HTMLDivElement
     this.menuContainerEl = el.querySelector(".js-menu-container") as HTMLElement
     this.fieldContainerEl = el.querySelector(".js-field-container") as HTMLElement
+    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
     this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
     this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
@@ -66,8 +74,9 @@ export default class StepForm {
 
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl()
-    } as DropdownMenuOptions)
+        btnEl: createCustomMenuBtnEl()
+      } as DropdownMenuOptions
+    )
     this.dropdownMenu.entries.createNavBtn({
       label: "Delete step",
       onClick: () => this.deleteCurrentStep()
@@ -80,6 +89,27 @@ export default class StepForm {
       if (this.currentStep && this.currentStep.id === data.id)
         this.reset()
     })
+
+    this.dash.listenTo<StepModel>(this.model, "endProcessingStep").onData(
+      data => this.onEndProcessing(data)
+    )
+
+    this.dash.listenTo<StepModel>(this.model, "processingStep").onData(
+      data => this.onProcessing(data)
+    )
+  }
+
+  private onEndProcessing(step: StepModel) {
+    if (!this.currentStep || this.currentStep.id !== step.id)
+      return
+    this.updateView()
+    this.unlockForm()
+  }
+
+  private onProcessing(step: StepModel) {
+    if (!this.currentStep || this.currentStep.id !== step.id)
+      return
+    this.lockForm()
   }
 
   private listenToForm() {
@@ -109,29 +139,19 @@ export default class StepForm {
     this.nameEl.addEventListener("input", ev => this.submitButtonEl.removeAttribute("disabled"))
   }
 
+  // --
+  // -- Model update functions
+  // --
+
   private async updateStep(newName: string) {
     if (!this.currentStep)
       return
 
-    this.showSpinner()
-
     let id = this.currentStep.id
     let frag = this.currentStep.updateTools.getDiffToUpdate({ id, label: newName })
-    if (!frag || !(Object.keys(frag).length !== 0 || frag.constructor !== Object)) {
-      this.hideSpinner()
+    if (!frag || !(Object.keys(frag).length !== 0 || frag.constructor !== Object))
       return
-    }
-
-    try {
-      let step = await this.model.exec("update", "Step", { id, ...frag })
-      this.step = step
-      this.submitButtonEl.setAttribute("disabled", "true")
-    } catch (err) {
-      this.reset()
-      this.updateView()
-    }
-
-    this.hideSpinner()
+    await this.model.exec("update", "Step", { id, ...frag })
   }
 
   private async deleteCurrentStep() {
@@ -149,6 +169,10 @@ export default class StepForm {
     }
   }
 
+  // --
+  // -- Utilities
+  // --
+
   private updateView() {
     if (!this.currentStep)
       return
@@ -160,6 +184,18 @@ export default class StepForm {
 
   private clearContent() {
     this.view.update({ name: "", orderNum: "" })
+  }
+
+  private lockForm() {
+    this.fieldsetEl.disabled = true
+    this.dropdownMenu.disable()
+    this.showSpinner()
+  }
+
+  private unlockForm() {
+    this.fieldsetEl.disabled = false
+    this.dropdownMenu.enable()
+    this.hideSpinner()
   }
 
   private showSpinner() {

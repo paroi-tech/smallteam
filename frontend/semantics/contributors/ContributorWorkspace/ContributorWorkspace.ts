@@ -84,7 +84,7 @@ export default class ContributorWorkspace implements Workspace {
     } as DropdownMenuOptions)
     this.menu.entries.createNavBtn({
       label: "Add contributor",
-      onClick: () => this.form.switchToCreationMode()
+      onClick: () => this.form.reset()
     })
   }
 

@@ -11,6 +11,7 @@ import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/query
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
 import { fetchFileById, checkAttachmentType, storeFile, fetchSingleRelatedFileInfo, deleteFile } from "./uploadEngine"
+import { unescape } from "querystring";
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
@@ -95,7 +96,26 @@ export async function routeGetFile(data: any, sessionData?: SessionData, req?: R
     res.status(404)
     res.send("404 Not Found")
   }
+  res.end()
+}
 
+export async function routeDownloadFile(download: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData || !req || ! res)
+    throw new Error("Required parameter missing in route callback")
+  if (!req.params.fId)
+    throw new Error("Missing file ID in request")
+
+  let f = await fetchFileById(req.params.fId)
+  if (f) {
+    let info = f.info
+    res.type(info.mimeType)
+    res.set("Content-Length", info.weight.toString())
+    res.set("Content-Disposition", `attachment;filename=${info.name}`)
+    res.write(f.buffer)
+  } else {
+    res.status(404)
+    res.send("404 Not Found")
+  }
   res.end()
 }
 

@@ -16,12 +16,13 @@ export interface MenuItem {
  * Horizontal menu component.
  *
  * The menu can contain several items. Each item has an ID and an event to emit when clicked.
- * Several items trigger the same event.
+ * Several items can trigger the same event.
  */
 export class Menu {
   readonly el: HTMLElement
-
+  private fieldsetEl: HTMLFieldSetElement
   private ul: HTMLElement
+
   private items = new Map<string, HTMLElement[]>()
 
   private view: MonkberryView
@@ -37,7 +38,6 @@ export class Menu {
     let view = render(liTemplate, document.createElement("div"))
     let li = view.nodes[0] as HTMLLIElement
     let btn = li.querySelector("button") as HTMLButtonElement
-
     btn.textContent = item.label
     btn.addEventListener("click", (ev) => this.dash.emit("select", item.id))
 
@@ -67,37 +67,41 @@ export class Menu {
     arr[1].textContent = label
   }
 
+  public enable() {
+    this.fieldsetEl.disabled = false
+  }
+
+  public disable() {
+    this.fieldsetEl.disabled = true
+  }
+
+  public disableItem(itemId: string) {
+    let arr = this.items.get(itemId)
+    if (arr) {
+      let btn = arr[1] as HTMLButtonElement
+      btn.disabled = true
+    }
+  }
+
+  public enableItem(itemId: string) {
+    let arr = this.items.get(itemId)
+    if (arr) {
+      let btn = arr[1] as HTMLButtonElement
+      btn.disabled = false
+    }
+  }
+
   // --
-  // -- utilities
+  // -- Utilities
   // --
 
   private createView() {
     this.view = render(template, document.createElement("div"))
+
     let el = this.view.nodes[0] as HTMLElement
+    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
     this.ul = el.querySelector("ul") as HTMLElement
 
     return el
   }
-
-  // /**
-  //  * Disable an item of the menu.
-  //  *
-  //  * @param itemId - the id of the item to disable.
-  //  */
-  // public disableItem(itemId: string) {
-  //   let arr = this.items.get(itemId)
-  //   if (arr)
-  //     arr[0].style.pointerEvents = "none"
-  // }
-
-  // /**
-  //  * Enable an item of the menu.
-  //  *
-  //  * @param itemId - the id of the item to enable.
-  //  */
-  // public enableItem(itemId: string) {
-  //   let arr = this.items.get(itemId)
-  //   if (arr)
-  //     arr[0].style.pointerEvents = "auto"
-  // }
 }
