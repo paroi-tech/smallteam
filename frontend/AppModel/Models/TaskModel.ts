@@ -8,10 +8,10 @@ import { CommentModel } from "./CommentModel"
 import { CommentSearchFragment } from "../../../isomorphic/meta/Comment"
 import { TaskLogEntryModel } from "./TaskLogEntryModel"
 import { TaskLogEntrySearchFragment } from "../../../isomorphic/meta/TaskLogEntry"
-import { Type } from "../../../isomorphic/Cargo";
+import { Type } from "../../../isomorphic/Cargo"
 import { WhoUseItem } from "../../../isomorphic/transfers"
-import { StepModel } from "./StepModel";
-import { FileInfoModel } from "./FileInfoModel";
+import { StepModel } from "./StepModel"
+import { FileInfoModel } from "./FileInfoModel"
 
 export interface TaskUpdateTools {
   processing: boolean
