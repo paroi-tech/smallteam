@@ -6,8 +6,7 @@
 -- Up
 --
 
-/*
-
+/**
 Example of an uploaded file 'DSC00034.JPG' as an avatar for the contributor 'Albert':
   - The media 'baseName' is : 'albert'
   - We store for example 3 files:
@@ -40,33 +39,33 @@ URL: /get-file/{file.fileId}/{media.baseName}-{file.altName}.{extension}
   Notice:
     - file.altName is optional
     - the extension ('jpeg', 'png', etc.) is not stored but evaluated from the mime type
-
 */
 
 create table media (
   media_id integer not null primary key autoincrement,
   ts timestamp not null default current_timestamp,
-  base_name varchar(255) not null,
+  base_name varchar(255),
   orig_name varchar(255)
 );
 
 create table media_ref (
-  media_id bigint not null references media(media_id),
-  code varchar(50) not null, -- examples: 'contributorAvatar', 'task'
-  val varchar(255) not null,
-  primary key (media_id, code, val)
+  media_id bigint not null primary key references media(media_id),
+  external_id varchar(255) not null,
+  external_type varchar(50) not null -- examples: 'contributorAvatar', 'task'
 );
+create index external_id_idx on media_ref(external_id);
+create index external_type_idx on media_ref(external_type);
 
 create table file (
   file_id integer not null primary key autoincrement,
   media_id bigint not null references media(media_id),
   bin_data blob not null,
   weight_b integer not null,
-  mime varchar(255) not null,
-  alt_name varchar(255) not null -- examples: 'orig', '800x600', '80x80'
+  im_type varchar(255) not null,
+  variant_name varchar(255) -- examples: '800x600', '80x80'
 );
 
-create table file_meta (
+create table file_meta_str (
   file_id bigint not null references file(file_id),
   code varchar(50) not null,
   val varchar(255) not null,
@@ -84,6 +83,10 @@ create table file_meta_int (
 -- Down
 --
 
+drop table if exists file_meta_int;
+drop table if exists file_meta_str;
 drop table if exists file;
-drop table if exists meta_int;
-drop table if exists meta_str;
+drop index if exists external_id_idx;
+drop index if exists external_type_idx;
+drop table if exists media_ref;
+drop table if exists media;

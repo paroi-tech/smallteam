@@ -16,6 +16,11 @@ type FileMeta = {
   value: number | string
 }
 
+type ImageDimension = {
+  width: number
+  height: number
+}
+
 export type MainMetaCode = "contributorAvatar" | "task"
 
 export type File = Express.Multer.File
@@ -33,6 +38,11 @@ export type FileObject = {
   buffer: any
 }
 
+let dimensions = [
+  { width: 32, height: 32 },
+  { width: 96, height: 96 }
+]
+
 // --
 // -- Public functions
 // --
@@ -43,6 +53,13 @@ export function checkAttachmentType(f: File): boolean {
 
 export function checkImageType(f: File): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
+}
+
+export async function storeMedia(f: File, extType: string, extId: string, ownerId: string, baseName?: string) {
+  let result = {
+    done: false
+  }
+
 }
 
 export async function storeFile(f: File, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
