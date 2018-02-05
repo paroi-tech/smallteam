@@ -1,0 +1,30 @@
+.ShortDialog {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  margin: 100px auto 0px;
+  width: 320px;
+
+  &::backdrop {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &-header {
+    align-items: baseline;
+    border-bottom: 1px solid gray outset;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
+  }
+
+  &-bottom {
+    border-top: 1px solid gray inset;
+    padding: 5px;
+    text-align: right;
+  }
+}

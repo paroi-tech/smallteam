@@ -1,0 +1,15 @@
+<dialog class="InfoDialog">
+  <header class="ShortDialog-header">
+    <div class="ShortDialog-headerLeft"> <span class="js-title"></span> </div>
+    <div class="ShortDialog-headerRight"> <span class="fas fa-times fa-1x"></span> </div>
+  </header>
+
+  <div class="InfoDialog-content">
+    <div class="InfoDialog-contentLeft"> <span class="fa fa-3x"></span> </div>
+    <div class="InfoDialog-contentRight"> <p class="js-message"></p> </div>
+  </div>
+
+  <div class="ShortDialog-bottom">
+    <button class="InfoDialog-button js-button">OK</button>
+  </div>
+</dialog>

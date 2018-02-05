@@ -1,0 +1,14 @@
+.InfoDialog {
+  @extend .ShortDialog;
+
+  &-content {
+    align-items: baseline;
+    display: flex;
+    flex-direction: row;
+    padding: 5px;
+
+    &-Left {
+      color: royalblue;
+    }
+  }
+}

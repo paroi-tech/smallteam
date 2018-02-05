@@ -7,6 +7,7 @@ import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import App from "../../../App/App"
+import InfoDialog from "../../../generics/ShortDialog/InfoDialog/InfoDialog"
 
 const template = require("./TaskForm.monk")
 
@@ -126,6 +127,16 @@ export default class TaskForm {
       if (this.currentTask)
         this.deleteTask()
     })
+
+    let testBtn = el.querySelector(".js-test-button") as HTMLButtonElement
+    testBtn.onclick = (ev) => {
+      let d = this.dash.create(InfoDialog)
+      let p = d.show("My first information", "Hello")
+      console.log("dialog opened")
+      p.then(b => {
+        console.log("fucking yeah")
+      })
+    }
 
     return el
   }

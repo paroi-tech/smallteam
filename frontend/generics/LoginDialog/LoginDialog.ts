@@ -7,7 +7,7 @@ import Deferred from "../../libraries/Deferred"
 const template = require("./LoginDialog.monk")
 
 export default class LoginDialog {
-  readonly el: HTMLDialogElement
+  private readonly el: HTMLDialogElement
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private submitBtnEl: HTMLButtonElement

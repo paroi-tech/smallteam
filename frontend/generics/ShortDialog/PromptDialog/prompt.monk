@@ -1,0 +1,15 @@
+<dialog class="PromptDialog">
+  <header class="PromptDialog-header">
+    <div class="PromptDialog-headerLeft"></div>
+    <div class="PromptDialog-headerRight"></div>
+  </header>
+
+  <div class="PromptDialog-content"></div>
+    <div class="PromptDialog-contentLeft"></div>
+    <div class="PromptDialog-contentRight"></div>
+  </div>
+
+  <div class="PromptDialog-bottom">
+    <button>OK</button>
+  </div>
+</dialog>

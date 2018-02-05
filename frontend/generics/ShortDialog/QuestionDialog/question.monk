@@ -1,0 +1,15 @@
+<dialog class="QuestionDialog">
+  <header class="QuestionDialog-header">
+    <div class="QuestionDialog-headerLeft"></div>
+    <div class="QuestionDialog-headerRight"></div>
+  </header>
+
+  <div class="QuestionDialog-content"></div>
+    <div class="QuestionDialog-contentLeft"></div>
+    <div class="QuestionDialog-contentRight"></div>
+  </div>
+
+  <div class="QuestionDialog-bottom">
+    <button>OK</button>
+  </div>
+</dialog>
