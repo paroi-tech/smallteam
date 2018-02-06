@@ -4,7 +4,7 @@
     <div class="PromptDialog-headerRight"></div>
   </header>
 
-  <div class="PromptDialog-content"></div>
+  <div class="PromptDialog-content">
     <div class="PromptDialog-contentLeft"></div>
     <div class="PromptDialog-contentRight"></div>
   </div>

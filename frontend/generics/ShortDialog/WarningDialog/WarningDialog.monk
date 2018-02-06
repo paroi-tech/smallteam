@@ -4,7 +4,7 @@
     <div class="WarnDialog-headerRight"></div>
   </header>
 
-  <div class="WarnDialog-content"></div>
+  <div class="WarnDialog-content">
     <div class="WarnDialog-contentLeft"></div>
     <div class="WarnDialog-contentRight"></div>
   </div>

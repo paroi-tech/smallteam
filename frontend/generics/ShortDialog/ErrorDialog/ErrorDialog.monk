@@ -1,0 +1,17 @@
+<dialog class="ErrorDialog">
+  <header class="ErrorDialog-header">
+    <div class="ErrorDialog-headerLeft"> <span class="js-title"></span> </div>
+    <div class="ErrorDialog-headerRight">
+        <span class="fas fa-times-circle fa-1x ShortDialogCloseItem js-close"></span>
+    </div>
+  </header>
+
+  <div class="ErrorDialog-content">
+    <div class="ErrorDialog-contentLeft"> <span class="fas fa-3x fa-exclamation-circle"></span> </div>
+    <div class="ErrorDialog-contentRight"> <p class="js-message"></p> </div>
+  </div>
+
+  <div class="ErrorDialog-bottom">
+      <button class="ShortDialogOkButton js-button">OK</button>
+  </div>
+</dialog>

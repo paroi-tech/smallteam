@@ -8,6 +8,8 @@ import ContributorSelector from "../../contributors/ContributorSelector/Contribu
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import App from "../../../App/App"
 import InfoDialog from "../../../generics/ShortDialog/InfoDialog/InfoDialog"
+import ErrorDialog from "../../../generics/ShortDialog/ErrorDialog/ErrorDialog"
+import QuestionDialog from "../../../generics/ShortDialog/QuestionDialog/QuestionDialog"
 
 const template = require("./TaskForm.monk")
 
@@ -130,7 +132,7 @@ export default class TaskForm {
 
     let testBtn = el.querySelector(".js-test-button") as HTMLButtonElement
     testBtn.onclick = (ev) => {
-      let d = this.dash.create(InfoDialog)
+      let d = this.dash.create(QuestionDialog)
       let p = d.show("My first information", "Hello")
       console.log("dialog opened")
       p.then(b => {

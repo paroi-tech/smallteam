@@ -2,9 +2,9 @@ import { Dash } from "bkb"
 import { render } from "monkberry"
 import Deferred from "../../../libraries/Deferred"
 
-const template = require("./InfoDialog.monk")
+const template = require("./ErrorDialog.monk")
 
-export default class InfoDialog {
+export default class ErrorDialog {
   private readonly el: HTMLDialogElement
   private msgEl: HTMLElement
   private titleEl: HTMLElement
@@ -17,7 +17,7 @@ export default class InfoDialog {
     this.el = this.createView()
   }
 
-  public show(msg: string, title = "Information"): Promise<boolean> {
+  public show(msg: string, title = "Error"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
