@@ -2,7 +2,7 @@
   <header class="QuestionDialog-header">
     <div class="QuestionDialog-headerLeft"> <span class="js-title"></span> </div>
     <div class="QuestionDialog-headerRight">
-        <span class="fas fa-times-circle fa-1x ShortDialogCloseItem js-close"></span>
+        <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
     </div>
   </header>
 
@@ -12,8 +12,8 @@
   </div>
 
   <div class="QuestionDialog-bottom">
-    <button class="ShortDialogCancelButton js-cancel-button">No</button>
+    <button class="ModalDialogCancelButton js-cancel-button">No</button>
     <pre>&nbsp;</pre>
-    <button class="ShortDialogOkButton js-ok-button">Yes</button>
+    <button class="ModalDialogOkButton js-ok-button">Yes</button>
   </div>
 </dialog>

@@ -51,7 +51,7 @@ the time, so I can't use JIRA.
 # Not urgent
 - Add a background task that removes expired tokens from mail_challenge table
 - Add roles for users
-- Replace `alert` & `confirm` with a component `ShortDialog`
+- Replace `alert` & `confirm` with a component `ModalDialog`
 - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Use true avatars
 - Add attached files to tasks

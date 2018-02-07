@@ -1,0 +1,17 @@
+<dialog class="WarningDialog">
+  <header class="WarningDialog-header">
+    <div class="WarningDialog-headerLeft"> <span class="js-title"></span> </div>
+    <div class="WarningDialog-headerRight">
+        <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
+    </div>
+  </header>
+
+  <div class="WarningDialog-content">
+    <div class="WarningDialog-contentLeft"> <span class="fas fa-3x fa-exclamation-triangle"></span> </div>
+    <div class="WarningDialog-contentRight"> <p class="js-message"></p> </div>
+  </div>
+
+  <div class="WarningDialog-bottom">
+      <button class="ModalDialogOkButton js-button">OK</button>
+  </div>
+</dialog>
