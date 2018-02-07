@@ -18,12 +18,12 @@
 @import "generics/NavBtn/NavBtn";
 @import "generics/NavMenu/NavMenu";
 
-@import "generics/ModalDialog/ModalDialog";
-@import "generics/ModalDialog/ErrorDialog/ErrorDialog";
-@import "generics/ModalDialog/InfoDialog/InfoDialog";
-@import "generics/ModalDialog/PromptDialog/PromptDialog";
-@import "generics/ModalDialog/QuestionDialog/QuestionDialog";
-@import "generics/ModalDialog/WarningDialog/WarningDialog";
+@import "generics/modal-dialogs/modal-dialog";
+@import "generics/modal-dialogs/ErrorDialog/ErrorDialog";
+@import "generics/modal-dialogs/InfoDialog/InfoDialog";
+@import "generics/modal-dialogs/PromptDialog/PromptDialog";
+@import "generics/modal-dialogs/QuestionDialog/QuestionDialog";
+@import "generics/modal-dialogs/WarningDialog/WarningDialog";
 
 @import "generics/StatusBar/StatusBar";
 @import "generics/Workspace404/Workspace404";

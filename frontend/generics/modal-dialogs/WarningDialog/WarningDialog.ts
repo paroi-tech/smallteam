@@ -52,5 +52,6 @@ export default class WarningDialog {
       this.currDfd && this.currDfd.resolve(true)
     this.currDfd = undefined
     this.el.close()
+    document.body.removeChild(this.el)
   }
 }

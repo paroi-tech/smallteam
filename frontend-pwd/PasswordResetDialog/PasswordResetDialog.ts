@@ -1,6 +1,8 @@
 import config from "../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
 import { render } from "monkberry"
+import InfoDialog from "../../frontend/generics/modal-dialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../frontend/generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./PasswordResetDialog.monk")
 
@@ -45,15 +47,16 @@ export default class LoginDialog {
 
   private async onSubmit() {
     let password = this.passwordEl.value
+    let d = this.dash.create(InfoDialog)
 
     if (password.length < 8 || password.length > 32) {
-      alert("Password should have at least 8 characters and at most 32 characters.")
+      await d.show("Password should have at least 8 characters and at most 32 characters.")
       this.passwordEl.focus()
       return
     }
 
     if (this.passwordConfirmEl.value !== password) {
-      alert("Passwords do not match.")
+      await d.show("Passwords do not match.")
       this.passwordConfirmEl.focus()
       return
     }
@@ -80,23 +83,21 @@ export default class LoginDialog {
       })
 
       if (!response.ok) {
-        alert("Error. Unable to get a response from server.")
+        await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
         return
       }
 
       let result = await response.json()
-
+      let fn = () => window.location.href = `${config.urlPrefix}/index.html`
       if (result.done) {
-        setTimeout(() => {
-          window.location.href = `${config.urlPrefix}/index.html`
-        }, 4000)
-        alert("Password changed. You will be redirected to the login page.")
-      } else
-        alert(`Sorry. Impossible to change your password. ${result.reason}`)
+        setTimeout(fn, 4000)
+        await this.dash.create(InfoDialog).show("Password changed. You will be redirected to the login page.")
+      } else {
+        await this.dash.create(InfoDialog).show(`Sorry. Impossible to change your password. ${result.reason}`)
+      }
     } catch (err) {
-      alert("Impossible to change the password. Error on server.")
+      await this.dash.create(ErrorDialog).show("Impossible to change the password. Error on server.")
       this.dash.app.log.warn(err)
     }
   }
-
 }

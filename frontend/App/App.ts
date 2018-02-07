@@ -16,6 +16,7 @@ import Workspace404 from "../generics/Workspace404/Workspace404"
 import config from "../../isomorphic/config"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 import AppFrame from "../AppFrame/AppFrame"
+import InfoDialog from "../generics/modal-dialogs/InfoDialog/InfoDialog"
 
 export default class App {
   readonly log: Log
@@ -93,7 +94,7 @@ export default class App {
           await this.navigate("") // This prevents the router to show current page at next login.
           document.location.reload(false)
         } else {
-          alert("Unable to end session. Please try again.")
+          await this.dash.create(InfoDialog).show("Unable to end session. Please try again.")
         }
       }
     } catch (err) {

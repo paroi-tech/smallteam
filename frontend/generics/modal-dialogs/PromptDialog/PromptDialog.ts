@@ -62,5 +62,6 @@ export default class PromptDialog {
       this.currDfd && this.currDfd.resolve(s)
     this.currDfd = undefined
     this.el.close()
+    document.body.removeChild(this.el)
   }
 }
