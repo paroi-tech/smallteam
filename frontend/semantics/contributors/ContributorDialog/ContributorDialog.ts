@@ -57,7 +57,7 @@ export default class ContributorDialog {
       CheckboxMultiSelect,
       "Steps",
       (dash: Dash, contributor: ContributorModel) => dash.create(ContributorBox, contributor)
-    )
+    ) as any
     this.selectorContainerEl.appendChild(ms.el)
 
     let events = ["updateContributor", "createContributor", "deleteContributor"]

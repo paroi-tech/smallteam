@@ -86,7 +86,7 @@ export default class App {
       })
 
       if (!response.ok)
-        this.log.warn("Error. Unable to get a response from server while trying to disconnect...")
+        this.log.error("Unable to get a response from server while trying to disconnect...")
       else {
         let result = await response.json()
 

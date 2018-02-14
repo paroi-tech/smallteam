@@ -138,7 +138,7 @@ export default class ProjectForm implements Workspace {
       CheckboxMultiSelect,
       "Steps",
       (dash: Dash, step: StepModel) => dash.create(StepBox, step)
-    )
+    ) as any
 
     this.el.appendChild(ms.el)
     this.dash.listenTo<UpdateModelEvent>(this.model, ["changeStep", "reorderStep"]).onData(
