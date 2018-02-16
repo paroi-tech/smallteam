@@ -5,8 +5,7 @@ import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql9
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
 import { storeFile, fetchRelatedFiles, checkImageType, File, fetchRelatedFilesInfo, updateFile, MainMetaCode } from "./uploadEngine"
-
-const tokenMaxValidity = 7 * 24 * 3600 // 7 days
+import { tokenMaxValidity } from "./mail"
 
 declare type PasswordUpdateInfo = {
   contributorId: string

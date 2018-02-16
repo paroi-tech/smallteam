@@ -1,14 +1,22 @@
 import { randomBytes } from "crypto"
+import { cn } from "./utils/dbUtils"
 import config from "../isomorphic/config"
 import { createTransport, getTestMessageUrl } from "nodemailer"
-import { buildSelect, buildUpdate } from "./utils/sql92builder/Sql92Builder"
+import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
+
+export const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
 const account = {
   user: "vutj6mmpseil725f@ethereal.email",
   password: "xNGuRQs1yNmXK4vPJM"
 }
 
-export async function sendActivationMail(contributorId: string, email: string): Promise<{ done: boolean, token?: string}> {
+type MailResult = {
+  done: boolean
+  token?: string
+}
+
+export async function sendActivationMail(contributorId: string, email: string): Promise<MailResult> {
   let host = "http://localhost:3921"
 
   try {
@@ -26,7 +34,7 @@ export async function sendActivationMail(contributorId: string, email: string): 
 
     let url = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
     let mailOptions = {
-      from: "smallteambot@smallteam.com",
+      from: "smallteambot@smallteam.bj",
       to: email,
       subject: "Account activation",
       text: `Please follow the link ${url} to activate your account`,
@@ -48,5 +56,16 @@ export async function sendActivationMail(contributorId: string, email: string): 
 
   return {
     done: false
+  }
+}
+
+export async function removeExpiredTokens() {
+  try {
+    let s = "delete from mail_challenge where create_ts - current_timestamp > $duration"
+    await cn.run(s, {
+      $duration: tokenMaxValidity
+    })
+  } catch (err) {
+    console.log("Error while removing expired account activation tokens", err)
   }
 }

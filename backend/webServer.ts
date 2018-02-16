@@ -6,12 +6,14 @@ import { Request, Response, Router, RequestHandler } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
-import { routeFetch, routeExec, routeBatch, routeWhoUse, routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
+import config from "../isomorphic/config"
+import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
+import { routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
 import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
-import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
+import { removeExpiredTokens } from "./mail"
 
 const PORT = 3921
 
@@ -69,12 +71,13 @@ export function startWebServer() {
   router.use(express.static(path.join(__dirname, "..", "www")))
 
   app.use(config.urlPrefix, router)
-
   app.get("*", (req, res) => write404(res))
-
   app.listen(PORT, function () {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })
+
+  // Scheduled task to removed expired mail challenges.
+  setTimeout(removeExpiredTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function wait(delayMs: number): Promise<void> {
