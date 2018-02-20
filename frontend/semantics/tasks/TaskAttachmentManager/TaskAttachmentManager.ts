@@ -128,7 +128,7 @@ export default class TaskAttachmentManager {
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/del-task-attachment/${taskId}/${fId}`, {
+      let response = await fetch(`${config.urlPrefix}/api/delete-attachment/${taskId}/${fId}`, {
         method: "post",
         credentials: "same-origin",
         headers: {
