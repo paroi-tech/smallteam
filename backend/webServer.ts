@@ -78,7 +78,7 @@ export function startWebServer() {
   app.use(config.urlPrefix, router)
   app.get("*", (req, res) => write404(res))
 
-  wsEngineInit(server)
+  // wsEngineInit(server)
   server.listen(PORT, function () {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })

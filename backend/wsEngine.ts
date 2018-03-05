@@ -1,20 +1,61 @@
 import { Server } from "http"
 import * as WebSocket from "ws"
+import { v4 as uuid } from "uuid";
+
+interface WebSocketWithProperties extends WebSocket {
+  attachedProperties?: WSProperties
+}
+
+interface WSProperties {
+  socketId: string
+  isAlive: boolean
+  listenModel?: boolean
+}
 
 export function wsEngineInit(server: Server) {
 
   const wss = new WebSocket.Server({ server })
 
-  wss.on("connection", function (ws, req) {
+  wss.on("connection", function (ws: WebSocketWithProperties, req) {
     // TODO: Check the session here
     // if (!req.session) {
     //   console.log("...........>> Missing session")
     //   return
     // }
 
-    // ws.on("message", onMessage)
-    ws.send("something")
+    ws.attachedProperties = {
+      socketId: uuid(),
+      isAlive: true
+    }
+
+    ws.on("pong", () => {
+      ws.attachedProperties!.isAlive = true
+    });
+    ws.on("listenModel", () => {
+      ws.attachedProperties!.listenModel = true
+    })
+
+    ws.send(JSON.stringify({
+      socketId: ws.attachedProperties.socketId
+    }))
   })
+
+
+  const interval = setInterval(function ping() {
+    wss.clients.forEach((ws: WebSocketWithProperties) => {
+      if (!ws.attachedProperties)
+        return
+      if (!ws.attachedProperties.isAlive) {
+        ws.terminate()
+        return
+      }
+      ws.attachedProperties.isAlive = false;
+      ws.ping(noop)
+    })
+  }, 60000)
+}
+
+function noop() {
 }
 
 function onMessage(message) {
