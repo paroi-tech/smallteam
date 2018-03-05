@@ -34,9 +34,6 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
-- Merge `ContributorHome` into `ContributorForm`
-  - Allow to upload an avatar from the `ContributorForm`
-  - Allow to change the password from the `ContributorForm`
 - TaskAttachmentManager => remove attached files (test only since it is not supported by model)
 - Image library (sharp => https://github.com/lovell/sharp)
 - Show an animated loader on the background command button when there is something started
@@ -59,6 +56,9 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- Merge `ContributorHome` into `ContributorForm`
+  - Allow to upload an avatar from the `ContributorForm`
+  - Allow to change the password from the `ContributorForm`
 - Replace `alert` & `confirm` with a component `ModalDialog`
 - Add a background task that removes expired tokens from mail_challenge table
 - In webserver.ts, the `/get-file` route is declared as public. Anybody can download the files stored on the server.

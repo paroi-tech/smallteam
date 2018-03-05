@@ -1,4 +1,4 @@
-<div class="TaskForm">
+<div class="TaskForm" style="visibility: hidden">
   <fieldset>
     <header class="TaskForm-header">Task Form</header>
 
