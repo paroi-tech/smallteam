@@ -4,6 +4,7 @@ import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMen
 import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
+import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 
 const template = require("./StepForm.monk")
 
@@ -160,7 +161,7 @@ export default class StepForm {
     try {
       let w = await this.currentStep.updateTools.whoUse()
       if (w) {
-        alert("Can't delete step.")
+        await this.dash.create(InfoDialog).show("Can't delete step.")
         return
       }
       await this.model.exec("delete", "Step", { id: this.currentStep.id })

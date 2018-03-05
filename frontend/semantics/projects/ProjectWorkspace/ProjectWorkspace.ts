@@ -6,6 +6,8 @@ import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
 import { Model, ProjectModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
+import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: DropdownMenu
@@ -36,7 +38,7 @@ export default class ProjectWorkspace implements Workspace {
 
   private async deleteProject() {
     if (this.project.tasks && this.project.tasks.length !== 0) {
-      alert("Sorry. The project can not be deleted. It contains tasks.")
+      await this.dash.create(InfoDialog).show("Sorry. The project can not be deleted. It contains tasks.")
       return
     }
 
@@ -46,7 +48,7 @@ export default class ProjectWorkspace implements Workspace {
     try {
       await this.model.exec("delete", "Project", { id: this.project.id })
     } catch (error) {
-      alert("Unable to delete project. Try again later.")
+      await this.dash.create(ErrorDialog).show("Unable to delete project. Try again later.")
     }
   }
 

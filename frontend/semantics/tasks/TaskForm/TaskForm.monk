@@ -39,6 +39,5 @@
         <span class="js-delete-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
       </button>
     </div>
-
   </fieldset>
 </div>

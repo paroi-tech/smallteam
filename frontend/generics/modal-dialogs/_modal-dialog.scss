@@ -1,0 +1,91 @@
+.ModalDialog {
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
+  margin: 50px auto 0px;
+  width: 320px;
+
+  &::backdrop {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+  }
+
+  &-header {
+    align-items: baseline;
+    background-color: #d3d3d3;
+    display: flex;
+    flex-direction: row;
+    font-weight: bold;
+    justify-content: space-between;
+    padding: 8px 6px;
+  }
+
+  &-content {
+    align-items: center;
+    display: grid;
+    grid-template-columns: 15% 5% 80%;
+    grid-template-rows: 100%;
+    padding: 8px 4px;
+
+    &Left {
+      grid-column-start: 1;
+      grid-column-end: 2;
+      justify-self: center;
+    }
+
+    &Right {
+      grid-column-start: 3;
+      grid-column-end: 4;
+    }
+  }
+
+  &-bottom {
+    align-items: center;
+    display: flex;
+    flex-direction: row;
+    justify-content: flex-end;
+    padding: 8px 6px;
+  }
+}
+
+.ModalDialogCancelButton, .ModalDialogOkButton {
+  border-radius: 4px;
+  border-right: 2px outset gray;
+  border-bottom: 2px outset gray;
+  color:#fff;
+  outline: none;
+
+  &:active {
+    border-right: 2px outset transparent;
+    border-bottom: 2px outset transparent;
+  }
+}
+
+.ModalDialogCancelButton {
+  background-color: #fa8072;
+  padding: 6px 16px 4px;
+
+  &:hover {
+    background-color: #cd5c5c;
+  }
+}
+
+.ModalDialogOkButton {
+  background-color: #1e90ff;
+  padding: 6px 16px 4px;
+
+  &:hover {
+    background-color: #4169e1;
+  }
+}
+
+.ModalDialogCloseItem {
+  color: #ff0000;
+
+  &:hover {
+    color: #8b0000;
+  }
+}

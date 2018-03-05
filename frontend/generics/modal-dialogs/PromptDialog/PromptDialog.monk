@@ -1,0 +1,23 @@
+<dialog class="PromptDialog">
+    <header class="PromptDialog-header">
+      <div class="PromptDialog-headerLeft"> <span class="js-title"></span> </div>
+      <div class="PromptDialog-headerRight">
+        <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
+      </div>
+    </header>
+
+    <div class="PromptDialog-content">
+      <div class="PromptDialog-contentLeft"> <span class="fas fa-3x fa-edit"></span> </div>
+      <div class="PromptDialog-contentRight">
+        <p class="js-message"></p>
+        <pre><br></pre>
+        <input type="text" class="PromptDialog-input js-input">
+      </div>
+    </div>
+
+    <div class="PromptDialog-bottom">
+      <button class="ModalDialogCancelButton js-cancel-button">Cancel</button>
+      <pre>&nbsp;</pre>
+      <button class="ModalDialogOkButton js-ok-button">OK</button>
+    </div>
+  </dialog>

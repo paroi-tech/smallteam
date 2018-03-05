@@ -34,13 +34,10 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
-- In webserver.ts, the `/get-file` route is declared as public. Anybody can download the files stored on the server.
-- Chrome does not ask for confirmation before downloading files from server.
 - Merge `ContributorHome` into `ContributorForm`
   - Allow to upload an avatar from the `ContributorForm`
   - Allow to change the password from the `ContributorForm`
 - TaskAttachmentManager => remove attached files (test only since it is not supported by model)
-- Find lib to resize images with Nodejs
 - Image library (sharp => https://github.com/lovell/sharp)
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
@@ -52,10 +49,7 @@ the time, so I can't use JIRA.
   - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Not urgent
-
-- Add a background task that removes expired tokens from mail_challenge table
 - Add roles for users
-- Replace `alert` & `confirm` with a component `ShortDialog`
 - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Use true avatars
 - Add attached files to tasks
@@ -65,6 +59,9 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- Replace `alert` & `confirm` with a component `ModalDialog`
+- Add a background task that removes expired tokens from mail_challenge table
+- In webserver.ts, the `/get-file` route is declared as public. Anybody can download the files stored on the server.
 - Improve forms
 - Improve contributors selector in taskform. Open a dialog to select constributors and use inline BoxList.
 - In TaskForm, show contributor name and creation date beside a comment.

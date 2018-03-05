@@ -132,10 +132,10 @@ export default class StepWorkspace implements Workspace {
   }
 
   private async fillBoxList() {
-    this.model.global.steps.forEach(step => {
+    for (let step of this.model.global.steps) {
       if (!step.isSpecial)
         this.boxList.addBox(this.dash.create(StepBox, step))
-    })
+    }
   }
 
   private async addStep(label: string) {
@@ -151,8 +151,7 @@ export default class StepWorkspace implements Workspace {
   }
 
   public activate(ctrl: ViewerController) {
-    ctrl.setContentEl(this.el)
-        .setTitle("Steps")
+    ctrl.setContentEl(this.el).setTitle("Steps")
   }
 
   public deactivate() {

@@ -5,6 +5,7 @@ import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
 import { FileInfoModel } from "../../../AppModel/Models/FileInfoModel"
 import config from "../../../../isomorphic/config"
+import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./TaskAttachmentManager.monk")
 const itemTemplate = require("./item.monk")
@@ -86,7 +87,7 @@ export default class TaskAttachmentManager {
       })
 
       if (!response.ok) {
-        alert("Error. Request was not processed by server.")
+        await this.dash.create(ErrorDialog).show("Request was not processed by server.")
         return
       }
 
@@ -127,7 +128,7 @@ export default class TaskAttachmentManager {
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/del-task-attachment/${taskId}/${fId}`, {
+      let response = await fetch(`${config.urlPrefix}/api/delete-attachment/${taskId}/${fId}`, {
         method: "post",
         credentials: "same-origin",
         headers: {

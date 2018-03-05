@@ -4,6 +4,8 @@ import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import config from "../../../../isomorphic/config"
+import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./PasswordForm.monk")
 
@@ -53,27 +55,28 @@ export default class PasswordForm {
   private async onSubmit() {
     if (!this.checkUserInput())
       return
-
     this.showSpinner()
     await this.doPasswordUpdate(this.passwordEl.value, this.newPasswordEl.value)
     this.hideSpinner()
   }
 
-  private checkUserInput() {
+  private async checkUserInput() {
+    let d = this.dash.create(InfoDialog)
+
     if (this.passwordEl.value.length === 0) {
-      alert("Please enter your current password")
+      await d.show("Please enter your current password")
       this.passwordEl.focus()
       return false
     }
 
     if (this.newPasswordEl.value.length === 0) {
-      alert("Please enter new password")
+      await d.show("Please enter new password")
       this.newPasswordEl.focus()
       return false
     }
 
     if (this.newPasswordEl.value !== this.passwordConfirmEl.value) {
-      alert("Passwords don't match")
+      await d.show("Passwords don't match")
       this.passwordConfirmEl.focus()
       return false
     }
@@ -98,18 +101,21 @@ export default class PasswordForm {
 
       if (!response.ok) {
         this.log.warn("Password change request was not processed by server.")
-        alert("Error. Request was not processed by server.")
+        await this.dash.create(ErrorDialog).show("Request was not processed by server.")
         return
       }
 
       let result = await response.json()
       if (result.done) {
         this.clearFields()
-        alert("Password successfully updated.")
-      } else
-        alert("Password was not changed. Maybe you mistyped your current password.")
+        await this.dash.create(InfoDialog).show("Password successfully updated.")
+      } else {
+        let msg = "Password was not changed. Maybe you mistyped your current password."
+        await this.dash.create(InfoDialog).show(msg)
+      }
     } catch (err) {
       this.log.error("Error while updating password.", err)
+      await this.dash.create(ErrorDialog).show("Unable to update password.")
     }
   }
 

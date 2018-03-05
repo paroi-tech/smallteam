@@ -7,13 +7,15 @@ import { Request, Response, Router, RequestHandler } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
-import { routeFetch, routeExec, routeBatch, routeWhoUse, routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
+import config from "../isomorphic/config"
+import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
+import { routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
 import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
-import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
+import { removeExpiredTokens } from "./mail"
 
 const PORT = 3921
 
@@ -53,41 +55,44 @@ export function startWebServer() {
 
   let router = Router()
 
-  declareRoute(router, "/api/session/connect", routeConnect, "post", true)
-  declareRoute(router, "/api/session/current", routeCurrentSession, "post", true)
-  declareRoute(router, "/reset-passwd", routeResetPassword, "post", true)
-  declareRoute(router, "/api/session/disconnect", routeDisconnect, "post")
-  declareRoute(router, "/api/session/change-password", routeChangePassword, "post")
+  declareRoute(router, "/api/session/connect", routeConnect, "post", true, false)
+  declareRoute(router, "/api/session/current", routeCurrentSession, "post", true, false)
+  declareRoute(router, "/reset-passwd", routeResetPassword, "post", true, false)
+  declareRoute(router, "/api/session/disconnect", routeDisconnect, "post", false, false)
+  declareRoute(router, "/api/session/change-password", routeChangePassword, "post", false, false)
 
-  declareRoute(router, "/api/query", routeFetch, "post")
-  declareRoute(router, "/api/exec", routeExec, "post")
-  declareRoute(router, "/api/batch", routeBatch, "post")
-  declareRoute(router, "/api/who-use", routeWhoUse, "post")
+  declareRoute(router, "/api/query", routeFetch, "post", false, false)
+  declareRoute(router, "/api/exec", routeExec, "post", false, false)
+  declareRoute(router, "/api/batch", routeBatch, "post", false, false)
+  declareRoute(router, "/api/who-use", routeWhoUse, "post", false, false)
 
-  declareRoute(router, "/get-file/:fId", routeGetFile, "get", false, false)
-  declareRoute(router, "/download-file/:fId", routeDownloadFile, "get", false, false)
+  declareRoute(router, "/get-file/:fId", routeGetFile, "get", false, true)
+  declareRoute(router, "/download-file/:fId", routeDownloadFile, "get", false, true)
+  declareRoute(router, "/api/delete-attachment/:taskId/:fId", routeDeleteTaskAttachment, "post", false, true)
+
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
   declareUploadRoute(router, "/api/add-task-attachment/:taskId", upload.single("attachment"), routeAddTaskAttachment)
-  declareRoute(router, "/api/del-task-attachment/:taskId/:fId", routeDeleteTaskAttachment, "post", false, false)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
   app.use(config.urlPrefix, router)
-
   app.get("*", (req, res) => write404(res))
 
   wsEngineInit(server)
   server.listen(PORT, function () {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })
+
+  // Scheduled task to removed expired mail challenges.
+  setTimeout(removeExpiredTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function wait(delayMs: number): Promise<void> {
   return new Promise<void>(resolve => setTimeout(resolve, delayMs))
 }
 
-function declareRoute(router: Router, route: string, cb: RouteCb, method: RouteMethod, isPublic = false, standaloneRoute = true) {
-  router[method](route, function (req, res) {
+function declareRoute(r: Router, path: string, cb: RouteCb, method: RouteMethod, isPublic: boolean, standalone: boolean) {
+  r[method](path, function (req, res) {
     if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
       console.log("404>>", req.session)
       write404(res)
@@ -95,10 +100,9 @@ function declareRoute(router: Router, route: string, cb: RouteCb, method: RouteM
     }
 
     let body = ""
-
     req.on("data", data => body += data)
     req.on("end", () => {
-      if (standaloneRoute)
+      if (!standalone)
         processRoute(req, res, body, cb)
       else
         processStandaloneRoute(req, res, body, cb)

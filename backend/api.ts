@@ -11,7 +11,6 @@ import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/query
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
 import { fetchFileById, checkAttachmentType, storeFile, fetchSingleRelatedFileInfo, deleteFile } from "./uploadEngine"
-import { unescape } from "querystring";
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
