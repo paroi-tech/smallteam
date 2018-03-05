@@ -44,7 +44,8 @@ async function toContributorFragment(context: BackendContext, row): Promise<Cont
     id:    row["contributor_id"].toString(),
     name:  row["name"],
     login: row["login"],
-    email: row["email"]
+    email: row["email"],
+    role: row["role"]
   }
   await addAvatar(context, frag)
   return frag
@@ -63,7 +64,7 @@ async function addAvatar(context: BackendContext, frag: ContributorFragment) {
 
 function selectFromContributor() {
   return buildSelect()
-    .select("contributor_id, login, name, email")
+    .select("contributor_id, login, name, email, role")
     .from("contributor")
 }
 

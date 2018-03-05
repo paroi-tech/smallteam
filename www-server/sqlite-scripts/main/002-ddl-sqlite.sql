@@ -11,6 +11,7 @@ create table contributor (
     name varchar(255) not null,
     login varchar(255) not null unique,
     email varchar(255) not null,
+    role varchar(50) not null default 'contrib',
     password varchar(255) null default null
     -- avatar as file
 );
@@ -110,7 +111,7 @@ insert into step (label) values ('On Hold');
 insert into step (label) values ('Archived');
 
 -- Fake data
-insert into contributor (name, login, email, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');
+insert into contributor (name, login, email, role, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', 'admin', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');
 
 --
 -- Down
