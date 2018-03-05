@@ -17,6 +17,24 @@
         <input type="email" class="js-email" value="{{ frag.email }}" placeholder="john.doe@example.com">
       </label>
 
+      <label class="FormField">
+        <span class="FormField-span">Role</span>
+        <select class="js-role">
+          <option value="admin">Admin</option>
+          <option value="contrib" selected="selected">Contributor</option>
+        </select>
+      </label>
+
+      <label class="FormField">
+        <span class="FormField-span">Password</span>
+        <input type="password" class="js-password" value="{{ frag.password }}" disabled>
+      </label>
+
+      <label class="FormField">
+        <span class="FormField-span">Confirm password</span>
+        <input type="password" class="js-password-2" value="{{ frag.password }}" disabled>
+      </label>
+
       <div>
         <button type="button" :onclick={{ ctrl.submit }}>
           Save changes

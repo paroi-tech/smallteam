@@ -11,7 +11,7 @@ import config from "../isomorphic/config"
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./api"
 import { routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
+import { routeChangePassword, routeSetPassword, routeResetPassword, routeChangeAvatar } from "./session"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -60,6 +60,7 @@ export function startWebServer() {
   declareRoute(router, "/reset-passwd", routeResetPassword, "post", true, false)
   declareRoute(router, "/api/session/disconnect", routeDisconnect, "post", false, false)
   declareRoute(router, "/api/session/change-password", routeChangePassword, "post", false, false)
+  declareRoute(router, "/api/session/set-password", routeSetPassword, "post", false, false)
 
   declareRoute(router, "/api/query", routeFetch, "post", false, false)
   declareRoute(router, "/api/exec", routeExec, "post", false, false)

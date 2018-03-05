@@ -4,6 +4,8 @@ import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
+import config from "../../../../isomorphic/config";
+import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
 
 const template = require("./ContributorForm.monk")
 
@@ -14,6 +16,9 @@ export default class ContributorForm {
   private loginEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private emailEl: HTMLInputElement
+  private roleEl: HTMLSelectElement
+  private passwordEl: HTMLInputElement
+  private passwordConfirmEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
 
   private view: MonkberryView
@@ -21,7 +26,9 @@ export default class ContributorForm {
     frag: {
       login: "",
       name:  "",
-      email: ""
+      email: "",
+      role: "",
+      password: ""
     },
     ctrl: {
       submit: () => this.onSubmit()
@@ -33,7 +40,7 @@ export default class ContributorForm {
   private log: Log
 
   /**
-   * Property used to know whether we can empty the fields of the form afer
+   * Property used to know whether we can empty the fields of the form after
    * the model has successfully created a contributor.
    */
   private canClearForm = false
@@ -43,6 +50,10 @@ export default class ContributorForm {
     this.log = this.dash.app.log
     this.el = this.createView()
     this.listenToModel()
+    if (this.dash.app.model.session.contributor.role === "admin") {
+      this.passwordEl.disabled = false
+      this.passwordConfirmEl.disabled = false
+    }
   }
 
   public reset() {
@@ -51,6 +62,8 @@ export default class ContributorForm {
     this.state.frag.name  = ""
     this.state.frag.login = ""
     this.state.frag.email = ""
+    this.state.frag.role = ""
+    this.state.frag.password = ""
     this.view.update(this.state)
 
     this.unlockForm()
@@ -68,9 +81,16 @@ export default class ContributorForm {
       return
     }
 
-    this.currentContributor  = contributor
+    let user = this.model.session.contributor
+    let b = user.role !== "admin"
+    this.passwordEl.disabled = b
+    this.passwordConfirmEl.disabled = b
+
+    this.currentContributor = contributor
     this.state.frag = contributor.updateTools.toFragment("update") as any
+    this.state.frag.password = ""
     this.view.update(this.state)
+    this.roleEl.value = this.state.frag.role
 
     if (contributor.updateTools.processing)
       this.lockForm()
@@ -94,6 +114,9 @@ export default class ContributorForm {
     this.nameEl = el.querySelector(".js-name") as HTMLInputElement
     this.loginEl = el.querySelector(".js-login") as HTMLInputElement
     this.emailEl = el.querySelector(".js-email") as HTMLInputElement
+    this.roleEl = el.querySelector(".js-role") as HTMLSelectElement
+    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
+    this.passwordConfirmEl = el.querySelector(".js-password-2") as HTMLInputElement
     this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
 
     this.view.update(this.state)
@@ -124,13 +147,26 @@ export default class ContributorForm {
     if (!this.currentContributor) {
       this.canClearForm = true
       this.createContributor(data)
-    } else {
-      let id = this.currentContributor.id
-      let frag = this.currentContributor.updateTools.getDiffToUpdate({ id, ...data })
-      // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
-      if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
-        this.updateContributor({ id, ...frag })
+      return
     }
+
+    let user = this.model.session.contributor
+    if (user.role === "admin" && this.passwordEl.value !== "") {
+      if (this.passwordEl.value !== this.passwordConfirmEl.value) {
+        await this.dash.create(WarningDialog).show("Passwords do not match.")
+        this.passwordConfirmEl.focus()
+        return
+      }
+      this.updatePassword(this.currentContributor.id, this.currentContributor.login, this.passwordEl.value)
+      this.passwordEl.value = ""
+      this.passwordConfirmEl.value = ""
+    }
+
+    let id = this.currentContributor.id
+    let frag = this.currentContributor.updateTools.getDiffToUpdate({ id, ...data })
+    // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
+    if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
+      this.updateContributor({ id, ...frag })
   }
 
   private onProcessing(data: ContributorModel) {
@@ -150,7 +186,9 @@ export default class ContributorForm {
       return
     this.canClearForm = false
     this.state.frag = contributor.updateTools.toFragment("update") as any
+    this.state.frag.password = ""
     this.view.update(this.state)
+    this.roleEl.value = this.state.frag.role
   }
 
   // --
@@ -183,6 +221,36 @@ export default class ContributorForm {
     this.unlockForm()
   }
 
+  private async updatePassword(contributorId: string, login: string, password: string) {
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/session/set-password`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: {
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          contributorId,
+          password
+        })
+      })
+
+      if (!response.ok) {
+        this.dash.log.warn("Unable to get a response from server.")
+        return
+      }
+
+      let data = await response.json()
+      if (!data.done)
+        this.dash.log.error("Password not changed.")
+      else
+        this.dash.log.info("Password successfully updated.")
+    } catch (err) {
+      this.dash.log.error(`Impossible to change the password for user '${login}'. Error on server`)
+    }
+  }
+
   // --
   // -- Utilities
   // --
@@ -191,7 +259,8 @@ export default class ContributorForm {
     let frag = {
       name:  this.nameEl.value.trim(),
       login: this.loginEl.value.trim(),
-      email: this.emailEl.value.trim()
+      email: this.emailEl.value.trim(),
+      role: this.roleEl.value
     }
 
     if (frag.name.length < 1) {
@@ -209,6 +278,12 @@ export default class ContributorForm {
     if (!this.validateEmail(frag.email)) {
       this.log.warn("Invalid email...")
       this.emailEl.focus()
+      return undefined
+    }
+
+    if (frag.role !== "admin" && frag.role !== "contrib") {
+      this.log.warn("Contributor role not defined...")
+      this.roleEl.focus()
       return undefined
     }
 
