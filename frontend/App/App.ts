@@ -17,6 +17,7 @@ import config from "../../isomorphic/config"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 import AppFrame from "../AppFrame/AppFrame"
 import InfoDialog from "../generics/modal-dialogs/InfoDialog/InfoDialog"
+import WarningDialog from "../generics/modal-dialogs/WarningDialog/WarningDialog";
 
 export default class App {
   readonly log: Log
@@ -25,6 +26,10 @@ export default class App {
 
   constructor(private dash: ApplicationDash<App>) {
     this.log = dash.log
+  }
+
+  public async alert(msg: string) {
+    await this.dash.create(WarningDialog).show(msg)
   }
 
   public get model(): Model {
