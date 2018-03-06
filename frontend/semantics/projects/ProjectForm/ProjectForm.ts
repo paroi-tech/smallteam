@@ -10,6 +10,7 @@ import StepBox from "../../steps/StepBox/StepBox"
 import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import NavBtn from "../../../generics/NavBtn/NavBtn"
+import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
 
 const template = require("./ProjectForm.monk")
 
@@ -29,7 +30,7 @@ export default class ProjectForm implements Workspace {
     code: "",
     // Monkberry does not work well with TextAreaElement, so we update manually the description field.
     ctrl: {
-      submit: () => this.onSubmit().catch(console.log)
+      submit: () => this.onSubmit()
     }
   }
 
@@ -195,8 +196,9 @@ export default class ProjectForm implements Workspace {
     try {
       let p = await this.model.exec("create", "Project", { code, name, description, stepIds })
       this.project = p
-    } catch (error) {
-      this.log.error("Error while creating new project...")
+    } catch (err) {
+      await this.dash.create(WarningDialog).show("Unable to create new project.")
+      this.log.error("Error while creating new project", err)
     }
   }
 
@@ -210,8 +212,9 @@ export default class ProjectForm implements Workspace {
         description,
         stepIds
       })
-    } catch (error) {
-      this.log.error("Error while updating project...")
+    } catch (err) {
+      await this.dash.create(WarningDialog).show("Unable to update project.")
+      this.log.error("Error while creating new project", err)
     }
     this.refresh()
   }

@@ -34,20 +34,23 @@ export async function fetchTasks(context: BackendContext, filters: TaskSearchFra
   if (filters.description)
     sql.andWhere("d.description", filters.description)
 
-  let rs = await cn.all(sql.toSql())
-
-  await addDependenciesTo(rs)
-  for (let row of rs) {
-    let frag = await toTaskFragment(context, row)
-
-    if (!filters.search || taskMatchSearch(frag, filters.search)) {
-      context.loader.addFragment({
-        type: "Task",
-        frag: frag,
-        asResult: "fragments"
-      })
-    }
+  if (filters.search) {
+    sql.orWhere("t.label", "like", `%${filters.search}%`)
+    sql.orWhere("d.description", "like", `%${filters.search}%`)
   }
+
+  let rs = await cn.all(sql.toSql())
+  await addDependenciesTo(rs)
+  // for (let row of rs) {
+  //   let frag = await toTaskFragment(context, row)
+  //   if (!filters.search || taskMatchSearch(frag, filters.search)) {
+  //     context.loader.addFragment({
+  //       type: "Task",
+  //       frag: frag,
+  //       asResult: "fragments"
+  //     })
+  //   }
+  // }
 }
 
 function taskMatchSearch(frag: TaskFragment, query: string) {

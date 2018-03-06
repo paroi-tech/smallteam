@@ -9,7 +9,6 @@ const template = require("./SearchWorkspace.monk")
 export default class SearchWorkspace implements Workspace {
   readonly el: HTMLElement
   private inputEl: HTMLInputElement
-
   private view: MonkberryView
 
   private model: Model
@@ -36,11 +35,13 @@ export default class SearchWorkspace implements Workspace {
     return el
   }
 
-  private onSearch(ev: KeyboardEvent) {
+  private async onSearch(ev: KeyboardEvent) {
     if (ev.key !== "Enter")
       return
     let query = this.inputEl.value.trim()
-    if (query.length !== 0)
-      console.log(`search for: ${query}`)
+    if (query.length !== 0) {
+      let r = await this.model.fetch("Task", { search: query })
+      console.log(`fetch ${query} =>`, r.length)
+    }
   }
 }
