@@ -41,16 +41,14 @@ export async function fetchTasks(context: BackendContext, filters: TaskSearchFra
 
   let rs = await cn.all(sql.toSql())
   await addDependenciesTo(rs)
-  // for (let row of rs) {
-  //   let frag = await toTaskFragment(context, row)
-  //   if (!filters.search || taskMatchSearch(frag, filters.search)) {
-  //     context.loader.addFragment({
-  //       type: "Task",
-  //       frag: frag,
-  //       asResult: "fragments"
-  //     })
-  //   }
-  // }
+  for (let row of rs) {
+    let frag = await toTaskFragment(context, row)
+    context.loader.addFragment({
+      type: "Task",
+      frag: frag,
+      asResult: "fragments"
+    })
+  }
 }
 
 function taskMatchSearch(frag: TaskFragment, query: string) {
