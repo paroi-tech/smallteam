@@ -8,9 +8,56 @@ import { fileCn as cn } from "./utils/dbUtils"
 // --
 
 type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
-type FileFilter = (req: Request, file: File, cb: ImageFilterCb) => void
+type FileFilter = (req: Request, file: MulterFile, cb: ImageFilterCb) => void
 
-type FileMeta = {
+interface ExternalRef {
+  type: string
+  id: string
+}
+
+interface Media {
+  id: string
+  ts: string
+  baseName?: string
+  originalName?: string
+  externalRef?: ExternalRef
+}
+
+interface File {
+  id: string
+  binData: Buffer
+  weightB: number
+  imType: string
+  variantName?: string
+  media: Media
+}
+
+type DownloadedMedia = Pick<Media, "id" | "ts">
+
+type DownloadedFile = Pick<File, "id" | "binData" | "weightB" | "imType"> & {
+  media: DownloadedMedia
+}
+
+type MediaInfo = Pick<Media, "id" | "ts" | "baseName" | "originalName">
+
+type FileInfo = Pick<File, "id" | "weightB" | "imType" | "variantName"> & {
+  media: MediaInfo
+  url: string
+}
+
+type QueryResult = FileInfo[]
+
+interface Query {
+  externalRef: ExternalRef
+  variantName: string | null
+}
+
+// URL: /get-file/{file.id}/{media.baseName}-{file.variantName}.{extension}
+
+
+
+
+interface FileMeta {
   fileId: string
   code: string
   value: number | string
@@ -23,9 +70,9 @@ type ImageDimension = {
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
-export type File = Express.Multer.File
+export type MulterFile = Express.Multer.File
 
-export type FileInfo = {
+export type __FileInfo = {
   id: string
   name: string
   mimeType: string
@@ -34,7 +81,7 @@ export type FileInfo = {
 }
 
 export type FileObject = {
-  info: FileInfo
+  info: __FileInfo
   buffer: any
 }
 
@@ -47,22 +94,22 @@ let dimensions = [
 // -- Public functions
 // --
 
-export function checkAttachmentType(f: File): boolean {
+export function checkAttachmentType(f: MulterFile): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png|pdf)$/) !== null
 }
 
-export function checkImageType(f: File): boolean {
+export function checkImageType(f: MulterFile): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
 }
 
-export async function storeMedia(f: File, extType: string, extId: string, ownerId: string, baseName?: string) {
+export async function storeMedia(f: MulterFile, extType: string, extId: string, ownerId: string, baseName?: string) {
   let result = {
     done: false
   }
 
 }
 
-export async function storeFile(f: File, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
+export async function storeFile(f: MulterFile, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
   let result = {
     done: false
   }
@@ -91,7 +138,7 @@ export async function storeFile(f: File, metaCode: MainMetaCode, metaVal: string
   return result
 }
 
-export async function updateFile(f: File, fId: string, uploaderId: string) {
+export async function updateFile(f: MulterFile, fId: string, uploaderId: string) {
   let result = {
     done: false
   }
@@ -140,8 +187,8 @@ export async function deleteFile(fId: string) {
   return result
 }
 
-export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<FileInfo[]> {
-  let arr = [] as FileInfo[]
+export async function fetchRelatedFilesInfo(metaCode: MainMetaCode, metaVal: string): Promise<__FileInfo[]> {
+  let arr = [] as __FileInfo[]
   let sql = buildSelect()
     .select("file_id")
     .from("meta_str")
@@ -187,7 +234,7 @@ export async function fetchFileInfo(fId: string) {
   return info
 }
 
-export async function fetchSingleRelatedFileInfo(metaCode: MainMetaCode, metaVal: string, fId: string): Promise<FileInfo | undefined> {
+export async function fetchSingleRelatedFileInfo(metaCode: MainMetaCode, metaVal: string, fId: string): Promise<__FileInfo | undefined> {
   let sql = buildSelect()
     .select("file_id, code, val")
     .from("meta_str")

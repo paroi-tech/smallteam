@@ -4,7 +4,7 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
-import { storeFile, fetchRelatedFiles, checkImageType, File, fetchRelatedFilesInfo, updateFile, MainMetaCode } from "./uploadEngine"
+import { storeFile, fetchRelatedFiles, checkImageType, MulterFile, fetchRelatedFilesInfo, updateFile, MainMetaCode } from "./uploadEngine"
 
 const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 

@@ -50,11 +50,10 @@ create table media (
 
 create table media_ref (
   media_id bigint not null primary key references media(media_id),
-  external_id varchar(255) not null,
-  external_type varchar(50) not null -- examples: 'contributorAvatar', 'task'
+  external_type varchar(50) not null, -- examples: 'contributorAvatar', 'task'
+  external_id varchar(255) not null
 );
-create index external_id_idx on media_ref(external_id);
-create index external_type_idx on media_ref(external_type);
+create index external_type_id_idx on media_ref(external_type, external_id);
 
 create table file (
   file_id integer not null primary key autoincrement,
@@ -86,7 +85,6 @@ create table file_meta_int (
 drop table if exists file_meta_int;
 drop table if exists file_meta_str;
 drop table if exists file;
-drop index if exists external_id_idx;
-drop index if exists external_type_idx;
+drop index if exists external_type_id_idx;
 drop table if exists media_ref;
 drop table if exists media;
