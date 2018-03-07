@@ -16,4 +16,9 @@
     border: 1px solid darkgrey;
     padding: 3px;
   }
+
+  &-body {
+    display: flex;
+    justify-content: space-around;
+  }
 }

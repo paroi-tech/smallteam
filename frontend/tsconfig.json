@@ -20,10 +20,14 @@
     "moduleResolution": "node",
     "sourceMap": true,
     "noEmit": true,
-    "strict": true,
-    //"suppressImplicitAnyIndexErrors": true
+    // "suppressImplicitAnyIndexErrors": true
+    // "strict": true,
+    "alwaysStrict": true,
     "noImplicitAny": false,
-    "noImplicitThis": false
+    "noImplicitThis": false,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictPropertyInitialization": false
   },
   "exclude": [
     "../node_modules"

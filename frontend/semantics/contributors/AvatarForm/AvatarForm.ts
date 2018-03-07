@@ -3,6 +3,7 @@ import { render } from "monkberry"
 import App from "../../../App/App"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import config from "../../../../isomorphic/config"
+import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./AvatarForm.monk")
 
@@ -61,7 +62,7 @@ export default class AvatarForm {
       })
 
       if (!response.ok) {
-        alert("Error. Request was not processed by server.")
+        await this.dash.create(ErrorDialog).show("Request was not processed by server.")
         return
       }
 

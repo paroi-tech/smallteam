@@ -43,11 +43,11 @@ export default class TaskForm {
   }
 
   public hide() {
-    this.el.style.display = "none"
+    this.el.style.visibility = "hidden"
   }
 
   public show() {
-    this.el.style.display = "block"
+    this.el.style.visibility = "visible"
   }
 
   public reset() {
@@ -74,13 +74,16 @@ export default class TaskForm {
   set task(task: TaskModel | undefined) {
     if (!task) {
       this.reset()
+      this.hide()
       return
     }
+
     this.currentTask = task
     this.view.update({
       description: task.description || "",
       label: task.label
     })
+    this.show()
     this.flagSelector.task = task
     this.contributorSelector.task = task
     this.commentEditor.task = task

@@ -6,6 +6,7 @@ export interface ContributorFragment {
   name: string
   login: string
   email: string
+  role: string
   avatarId?: string
 }
 
@@ -29,21 +30,25 @@ const meta: FragmentMeta = {
       dataType: "string",
       update: true
     },
+    role: {
+      dataType: "string",
+      update: true
+    },
     avatarId: {
       dataType: "string"
     }
   }
 }
 
-export type ContributorCreateFragment = Pick<ContributorFragment, "name" | "login" | "email">
-export type ContributorUpdateFragment = PickUpdate<ContributorFragment, "id", "name" | "login" | "email">
+export type ContributorCreateFragment = Pick<ContributorFragment, "name" | "login" | "email" | "role">
+export type ContributorUpdateFragment = PickUpdate<ContributorFragment, "id", "name" | "login" | "email" | "role">
 export type ContributorIdFragment = Pick<ContributorFragment, "id">
-export type ContributorSearchFragment = SearchPick<ContributorFragment, "name" | "login" | "email">
+export type ContributorSearchFragment = SearchPick<ContributorFragment, "name" | "login" | "email" | "role">
 
 export default {
   read: meta,
-  create: pickFragmentMeta("create", meta, ["name", "login", "email"]),
-  update: pickUpdateFragmentMeta("update", meta, ["id"], ["name", "login", "email"]),
+  create: pickFragmentMeta("create", meta, ["name", "login", "email", "role"]),
+  update: pickUpdateFragmentMeta("update", meta, ["id"], ["name", "login", "email", "role"]),
   id: pickFragmentMeta("id", meta, ["id"]),
-  fetch: searchPickFragmentMeta("fetch", meta, ["name", "login", "email"])
+  fetch: searchPickFragmentMeta("fetch", meta, ["name", "login", "email", "role"])
 }

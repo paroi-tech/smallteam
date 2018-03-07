@@ -5,8 +5,7 @@ import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql9
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
 import { storeFile, fetchRelatedFiles, checkImageType, MulterFile, fetchRelatedFilesInfo, updateFile, MainMetaCode } from "./uploadEngine"
-
-const tokenMaxValidity = 7 * 24 * 3600 // 7 days
+import { tokenMaxValidity } from "./mail"
 
 declare type PasswordUpdateInfo = {
   contributorId: string
@@ -63,22 +62,38 @@ export async function routeDisconnect(data: any, sessionData?: SessionData, req?
   }
 }
 
-export async function routeChangePassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  if (!sessionData)
+export async function routeSetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  let result = {
+    done: false
+  }
+
+  if (!sessionData || !data || !data.contributorId || !data.password)
     throw new Error("Required parameter missing in route callback")
 
   let row = await getContributorById(sessionData.contributorId as string)
+  if (!row || row.role !== "admin")
+    throw new Error("Current user is not allowed to change passwords this way")
 
-  if (row && await compare(data.currentPassword, row.password)) {
-    await updateContributorPassword(row.id, data.newPassword)
-    return {
-      done: true
-    }
-  }
+  await updateContributorPassword(data.contributorId, data.password)
+  result.done = true
 
-  return {
+  return result
+}
+
+export async function routeChangePassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  let result = {
     done: false
   }
+
+  if (!sessionData)
+    throw new Error("Required parameter missing in route callback")
+  let row = await getContributorById(sessionData.contributorId as string)
+  if (row && await compare(data.currentPassword, row.password)) {
+    await updateContributorPassword(row.id, data.newPassword)
+    result.done = true
+  }
+
+  return result
 }
 
 export async function routeResetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
@@ -155,7 +170,7 @@ function removeMailChallenge(token: string) {
 
 async function getContributorById(id: string) {
   let sql = buildSelect()
-    .select("contributor_id, password")
+    .select("contributor_id, password, role")
     .from("contributor")
     .where("contributor_id", "=", id)
   let rs = await cn.all(sql.toSql())
@@ -163,7 +178,8 @@ async function getContributorById(id: string) {
   if (rs.length === 1) {
     return {
       id: rs[0]["contributor_id"].toString(),
-      password: rs[0]["password"]
+      password: rs[0]["password"],
+      role: rs[0]["role"]
     }
   }
 
@@ -172,7 +188,7 @@ async function getContributorById(id: string) {
 
 async function getContributorByLogin(login: string) {
   let sql = buildSelect()
-    .select("contributor_id, password")
+    .select("contributor_id, password, role")
     .from("contributor")
     .where("login", "=", login)
   let rs = await cn.all(sql.toSql())
@@ -180,7 +196,8 @@ async function getContributorByLogin(login: string) {
   if (rs.length === 1) {
     return {
       id: rs[0]["contributor_id"].toString(),
-      password: rs[0]["password"].toString()
+      password: rs[0]["password"].toString(),
+      role: rs[0]["role"]
     }
   }
 
@@ -193,7 +210,6 @@ async function updateContributorPassword(contributorId: string, password: string
               .update("contributor")
               .set({ "password": passwordHash })
               .where("contributor_id", "=", contributorId)
-
   await cn.run(sql.toSql())
 
   return true

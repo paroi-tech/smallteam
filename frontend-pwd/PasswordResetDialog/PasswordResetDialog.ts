@@ -1,6 +1,8 @@
 import config from "../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
 import { render } from "monkberry"
+import InfoDialog from "../../frontend/generics/modal-dialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../frontend/generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./PasswordResetDialog.monk")
 
@@ -35,7 +37,7 @@ export default class LoginDialog {
     this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
 
     el.addEventListener("keyup", ev => {
-      if (ev.key === "Enter")
+      if ((ev as KeyboardEvent).key === "Enter")
         this.submitBtnEl.click()
     })
     document.body.appendChild(el)
@@ -47,13 +49,15 @@ export default class LoginDialog {
     let password = this.passwordEl.value
 
     if (password.length < 8 || password.length > 32) {
-      alert("Password should have at least 8 characters and at most 32 characters.")
+      await this.dash.create(InfoDialog).show(
+        "Password should have at least 8 characters and at most 32 characters."
+      )
       this.passwordEl.focus()
       return
     }
 
     if (this.passwordConfirmEl.value !== password) {
-      alert("Passwords do not match.")
+      await this.dash.create(InfoDialog).show("Passwords do not match.")
       this.passwordConfirmEl.focus()
       return
     }
@@ -64,6 +68,22 @@ export default class LoginDialog {
   }
 
   private async doPasswordChange(password: string) {
+    try {
+      let b = await this.doFetch(password)
+      if (b) {
+        let fn = () => window.location.href = `${config.urlPrefix}/index.html`
+        setTimeout(fn, 4000)
+        await this.dash.create(InfoDialog).show("Password changed. You will be redirected to the login page.")
+      }
+    } catch (err) {
+      await this.dash.create(ErrorDialog).show("Impossible to change the password. Error on server.")
+      this.dash.app.log.warn(err)
+    }
+  }
+
+  private async doFetch(password: string) {
+    let result = false
+
     try {
       let response = await fetch(`${config.urlPrefix}/reset-passwd`, {
         method: "post",
@@ -80,23 +100,20 @@ export default class LoginDialog {
       })
 
       if (!response.ok) {
-        alert("Error. Unable to get a response from server.")
-        return
+        await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
+        return false
       }
 
-      let result = await response.json()
-
-      if (result.done) {
-        setTimeout(() => {
-          window.location.href = `${config.urlPrefix}/index.html`
-        }, 4000)
-        alert("Password changed. You will be redirected to the login page.")
-      } else
-        alert(`Sorry. Impossible to change your password. ${result.reason}`)
+      let data = await response.json()
+      if (!data.done) {
+        await this.dash.create(InfoDialog).show(`Sorry. Impossible to change your password. ${data.reason}`)
+        return false
+      }
     } catch (err) {
-      alert("Impossible to change the password. Error on server.")
-      this.dash.app.log.warn(err)
+      await this.dash.create(ErrorDialog).show("Impossible to change the password. Error on server.")
+      return false
     }
-  }
 
+    return true
+  }
 }

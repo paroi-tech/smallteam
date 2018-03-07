@@ -24,7 +24,10 @@ module.exports = {
           }
         }
       },
-      { test: /\.monk$/, loader: 'monkberry-loader' }
+      {
+        test: /\.monk$/,
+        loader: "monkberry-loader"
+      }
     ]
   }
 }

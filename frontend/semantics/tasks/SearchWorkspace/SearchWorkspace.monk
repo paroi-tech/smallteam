@@ -2,5 +2,8 @@
   <div class="SearchWorkspace-searchDiv">
     <input type="text" placeholder="Search tasks" class="js-input SearchWorkspace-searchInput">
   </div>
-  <header class="SearchWorkspace-header">Search results</header>
+  <div class="SearchWorkspace-body">
+    <div class="SearchWorkspace-bodyLeft js-left"></div>
+    <div class="SearchWorkspace-bodyRight js-right"></div>
+  </div>
 </div>

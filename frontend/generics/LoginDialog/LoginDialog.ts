@@ -3,11 +3,13 @@ import { PublicDash, Dash } from "bkb"
 import { render } from "monkberry"
 import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
+import ErrorDialog from "../modal-dialogs/ErrorDialog/ErrorDialog"
+import WarningDialog from "../modal-dialogs/WarningDialog/WarningDialog"
 
 const template = require("./LoginDialog.monk")
 
 export default class LoginDialog {
-  readonly el: HTMLDialogElement
+  private readonly el: HTMLDialogElement
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private submitBtnEl: HTMLButtonElement
@@ -128,14 +130,13 @@ export default class LoginDialog {
       })
 
       if (!response.ok) {
-        alert("Error. Unable to get a response from server...")
+        await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
       } else {
         let result = await response.json()
-
         if (result.done)
           contributorId = result.contributorId as string
         else
-          alert("Wrong username or password.")
+          await this.dash.create(WarningDialog).show("Wrong username or password.")
       }
     } catch (err) {
       this.dash.app.log.warn(err)

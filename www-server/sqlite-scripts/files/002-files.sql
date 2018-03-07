@@ -53,6 +53,7 @@ create table media_ref (
   external_type varchar(50) not null, -- examples: 'contributorAvatar', 'task'
   external_id varchar(255) not null
 );
+
 create index external_type_id_idx on media_ref(external_type, external_id);
 
 create table file (
