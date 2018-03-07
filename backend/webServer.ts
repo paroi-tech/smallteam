@@ -6,12 +6,13 @@ import { Request, Response, Router, RequestHandler } from "express"
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
-import { routeFetch, routeExec, routeBatch, routeWhoUse, routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./api"
+import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
 import { routeChangePassword, routeResetPassword, routeChangeAvatar } from "./session"
 import config from "../isomorphic/config"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
+import { routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment } from "./uploadRoutes";
 
 const PORT = 3921
 

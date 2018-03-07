@@ -4,11 +4,12 @@ import { buildSelect, buildUpdate, buildDelete, buildInsert } from "./utils/sql9
 import { fileCn as cn } from "./utils/dbUtils"
 
 // --
-// -- Types declaration
+// -- Types - Extracted from the database
 // --
 
-type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
-type FileFilter = (req: Request, file: MulterFile, cb: ImageFilterCb) => void
+interface MetaValues {
+  [key: string]: string | number
+}
 
 interface ExternalRef {
   type: string
@@ -30,7 +31,12 @@ interface File {
   imType: string
   variantName?: string
   media: Media
+  meta: MetaValues
 }
+
+// --
+// -- Types - Used when downloading a file
+// --
 
 type DownloadedMedia = Pick<Media, "id" | "ts">
 
@@ -38,11 +44,21 @@ type DownloadedFile = Pick<File, "id" | "binData" | "weightB" | "imType"> & {
   media: DownloadedMedia
 }
 
+// --
+// -- Types - Used when querying
+// --
+
 type MediaInfo = Pick<Media, "id" | "ts" | "baseName" | "originalName">
 
 type FileInfo = Pick<File, "id" | "weightB" | "imType" | "variantName"> & {
   media: MediaInfo
   url: string
+  imageMeta?: ImageMeta
+}
+
+interface ImageMeta {
+  width: number
+  height: number
 }
 
 type QueryResult = FileInfo[]
@@ -57,38 +73,41 @@ interface Query {
 
 
 
-interface FileMeta {
-  fileId: string
-  code: string
-  value: number | string
-}
+// type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
+// type FileFilter = (req: Request, file: MulterFile, cb: ImageFilterCb) => void
 
-type ImageDimension = {
-  width: number
-  height: number
-}
+// interface FileMeta {
+//   fileId: string
+//   code: string
+//   value: number | string
+// }
 
-export type MainMetaCode = "contributorAvatar" | "task"
+// type ImageDimension = {
+//   width: number
+//   height: number
+// }
+
+// export type MainMetaCode = "contributorAvatar" | "task"
 
 export type MulterFile = Express.Multer.File
 
-export type __FileInfo = {
-  id: string
-  name: string
-  mimeType: string
-  weight: number
-  uploaderId: string
-}
+// export type __FileInfo = {
+//   id: string
+//   name: string
+//   mimeType: string
+//   weight: number
+//   uploaderId: string
+// }
 
-export type FileObject = {
-  info: __FileInfo
-  buffer: any
-}
+// export type FileObject = {
+//   info: __FileInfo
+//   buffer: any
+// }
 
-let dimensions = [
-  { width: 32, height: 32 },
-  { width: 96, height: 96 }
-]
+// let dimensions = [
+//   { width: 32, height: 32 },
+//   { width: 96, height: 96 }
+// ]
 
 // --
 // -- Public functions
