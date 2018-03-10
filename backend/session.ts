@@ -4,7 +4,6 @@ import { cn } from "./utils/dbUtils"
 import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
-import { storeFile, fetchRelatedFiles, checkImageType, MulterFile, fetchRelatedFilesInfo, updateFile, MainMetaCode } from "./uploadEngine"
 import { tokenMaxValidity } from "./mail"
 
 declare type PasswordUpdateInfo = {
@@ -129,23 +128,6 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   return {
     done: true
   }
-}
-
-export async function routeChangeAvatar(req: Request, res: Response) {
-  if (!req.file)
-    throw new Error("No avatar provided")
-  if (!checkImageType(req.file))
-    throw new Error("Only PNG, JPEG and GIF files are allowed.")
-
-  let f = req.file
-  let sessionData: SessionData = req.session as any
-  let contributorId = sessionData.contributorId
-  let arr = await fetchRelatedFilesInfo("contributorAvatar", contributorId)
-
-  if (arr.length !== 0)
-    return await updateFile(f, arr[0].id, contributorId)
-  else
-    return await storeFile(f, "contributorAvatar", contributorId, contributorId)
 }
 
 // --

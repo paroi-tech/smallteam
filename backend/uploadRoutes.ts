@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { SessionData } from "./backendContext/context";
-import { fetchFileById, checkAttachmentType, storeFile, fetchSingleRelatedFileInfo, deleteFile } from "./uploadEngine";
+import { fetchFileById, checkAttachmentType, storeFile, fetchSingleRelatedFileInfo, deleteFile, checkImageType, fetchRelatedFilesInfo, updateFile } from "./uploadEngine";
 
 export async function routeGetFile(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData || !req || ! res)
@@ -68,4 +68,21 @@ export async function routeDeleteTaskAttachment(data: any, sessionData?: Session
     return await deleteFile(req.params.fId)
   else
     return { done: false }
+}
+
+export async function routeChangeAvatar(req: Request, res: Response) {
+  if (!req.file)
+    throw new Error("No avatar provided")
+  if (!checkImageType(req.file))
+    throw new Error("Only PNG, JPEG and GIF files are allowed.")
+
+  let f = req.file
+  let sessionData: SessionData = req.session as any
+  let contributorId = sessionData.contributorId
+  let arr = await fetchRelatedFilesInfo("contributorAvatar", contributorId)
+
+  if (arr.length !== 0)
+    return await updateFile(f, arr[0].id, contributorId)
+  else
+    return await storeFile(f, "contributorAvatar", contributorId, contributorId)
 }

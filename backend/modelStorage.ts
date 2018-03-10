@@ -10,7 +10,6 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/queryTaskLogEntry"
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
-import { fetchFileById, checkAttachmentType, storeFile, fetchSingleRelatedFileInfo, deleteFile } from "./uploadEngine"
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)

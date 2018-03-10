@@ -121,12 +121,11 @@ export function checkImageType(f: MulterFile): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png)$/) !== null
 }
 
-export async function storeMedia(f: MulterFile, extType: string, extId: string, ownerId: string, baseName?: string) {
-  let result = {
-    done: false
-  }
-
-}
+// async function storeMedia(f: MulterFile, extType: string, extId: string, ownerId: string, baseName?: string) {
+//   let result = {
+//     done: false
+//   }
+// }
 
 export async function storeFile(f: MulterFile, metaCode: MainMetaCode, metaVal: string, uploaderId: string) {
   let result = {
@@ -268,27 +267,27 @@ export async function fetchSingleRelatedFileInfo(metaCode: MainMetaCode, metaVal
   return fetchFileInfo(fId)
 }
 
-export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
-  let arr = await fetchRelatedFilesInfo(metaCode, metaVal)
-  let result = [] as FileObject[]
+// export async function fetchRelatedFiles(metaCode: MainMetaCode, metaVal: string) {
+//   let arr = await fetchRelatedFilesInfo(metaCode, metaVal)
+//   let result = [] as FileObject[]
 
-  for (let info of arr) {
-    let sql = buildSelect()
-      .select("bin_data")
-      .from("file")
-      .where("file_id", "=", info.id)
-    let rs = await cn.all(sql.toSql())
+//   for (let info of arr) {
+//     let sql = buildSelect()
+//       .select("bin_data")
+//       .from("file")
+//       .where("file_id", "=", info.id)
+//     let rs = await cn.all(sql.toSql())
 
-    if (rs.length !== 0) {
-      result.push({
-        info,
-        buffer: rs[0]["bin_data"]
-      })
-    }
-  }
+//     if (rs.length !== 0) {
+//       result.push({
+//         info,
+//         buffer: rs[0]["bin_data"]
+//       })
+//     }
+//   }
 
-  return result
-}
+//   return result
+// }
 
 export async function fetchFileById(fId: string): Promise<FileObject | undefined> {
   let sql = buildSelect()
