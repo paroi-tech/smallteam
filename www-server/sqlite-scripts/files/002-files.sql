@@ -45,8 +45,11 @@ create table media (
   media_id integer not null primary key autoincrement,
   ts timestamp not null default current_timestamp,
   base_name varchar(255),
-  orig_name varchar(255)
+  orig_name varchar(255),
+  owner_id varchar(255)
 );
+
+create index media_owner_id_idx on media(owner_id);
 
 create table media_ref (
   media_id bigint not null primary key references media(media_id),
@@ -54,7 +57,7 @@ create table media_ref (
   external_id varchar(255) not null
 );
 
-create index external_type_id_idx on media_ref(external_type, external_id);
+create index media_ref_external_idx on media_ref(external_type, external_id);
 
 create table file (
   file_id integer not null primary key autoincrement,
@@ -86,6 +89,7 @@ create table file_meta_int (
 drop table if exists file_meta_int;
 drop table if exists file_meta_str;
 drop table if exists file;
-drop index if exists external_type_id_idx;
+drop index if exists media_ref_external_idx;
 drop table if exists media_ref;
+drop index if exists media_owner_id_idx;
 drop table if exists media;

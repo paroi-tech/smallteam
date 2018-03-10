@@ -54,7 +54,9 @@ export async function routeAddTaskAttachment(req: Request, res: Response) {
   let contributorId = sessionData.contributorId
   let taskId = req.params.taskId
 
-  return await storeFile(f, "task", taskId, contributorId)
+  return {
+    done: await storeFile(f, "task", taskId, contributorId)
+  }
 }
 
 export async function routeDeleteTaskAttachment(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
@@ -83,6 +85,7 @@ export async function routeChangeAvatar(req: Request, res: Response) {
 
   if (arr.length !== 0)
     return await updateFile(f, arr[0].id, contributorId)
-  else
-    return await storeFile(f, "contributorAvatar", contributorId, contributorId)
+  return {
+    done: await storeFile(f, "contributorAvatar", contributorId, contributorId)
+  }
 }

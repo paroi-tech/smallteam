@@ -83,7 +83,7 @@ async function doCreateConnection(pool: Pool, transactionDb?: Database): Promise
   } else
     transactionDepth = 0
 
-  thisObj.beginTransaction = async (force?: boolean) => {
+  thisObj.beginTransaction = async (force = false) => {
     if (closed)
       throw new Error(`Invalid call to "beginTransaction", the connection is closed`)
     if (!force && transactionDepth > 0) {
