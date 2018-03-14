@@ -147,7 +147,7 @@ function removeMailChallenge(token: string) {
     .deleteFrom("mail_challenge")
     .where("token", "=", token)
 
-  return cn.run(sql.toSql())
+  return cn.exec(sql.toSql())
 }
 
 async function getContributorById(id: string) {
@@ -192,7 +192,7 @@ async function updateContributorPassword(contributorId: string, password: string
               .update("contributor")
               .set({ "password": passwordHash })
               .where("contributor_id", "=", contributorId)
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   return true
 }

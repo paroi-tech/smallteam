@@ -8,7 +8,7 @@
   "files.associations": {
     "*.monk": "html"
   },
-  "git.autofetch": false,
+  // "git.autofetch": false,
   "typescript.tsdk": "./node_modules/typescript/lib",
   "search.exclude": {
     "**/*.map": true,

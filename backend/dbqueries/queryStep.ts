@@ -1,5 +1,4 @@
 import * as path from "path"
-import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import stepMeta, { StepFragment, StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
@@ -79,8 +78,8 @@ export async function createStep(context: BackendContext, newFrag: StepCreateFra
   let sql = buildInsert()
     .insertInto("step")
     .values(toSqlValues(newFrag, stepMeta.create))
-  let ps = await cn.run(sql.toSql()),
-    stepId = ps.lastID
+  let res = await cn.exec(sql.toSql()),
+    stepId = res.insertedId
 
   context.loader.addFragment({
     type: "Step",
@@ -121,7 +120,7 @@ export async function updateStep(context: BackendContext, updFrag: StepUpdateFra
     markAs: "updated"
   })
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }
 
 // --
@@ -133,7 +132,7 @@ export async function deleteStep(context: BackendContext, frag: StepIdFragment) 
     .deleteFrom("step")
     .where("step_id", int(frag.id))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Step", frag.id, "deleted")
 }
@@ -173,7 +172,7 @@ async function updateOrderNum(stepId: number, orderNum: number) {
       "order_num": orderNum
     })
     .where("step_id", stepId)
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }
 
 async function loadOrderNums(): Promise<Map<number, number>> {

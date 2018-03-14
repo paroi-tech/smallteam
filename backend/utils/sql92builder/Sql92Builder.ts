@@ -1,5 +1,3 @@
-// import { Database } from "sqlite"
-
 export type PrimitiveValue = string | number | boolean
 export type SqlFn = "current_timestamp" | "current_date" | "current_time"
 export type VanillaValue = { "vanilla": SqlFn | string }

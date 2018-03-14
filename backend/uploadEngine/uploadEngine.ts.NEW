@@ -2,7 +2,9 @@ import { Request, Response } from "express"
 import * as multer from "multer"
 import { buildSelect, buildUpdate, buildDelete, buildInsert } from "../utils/sql92builder/Sql92Builder"
 import { fileCn as cn } from "../utils/dbUtils"
-import { fileBaseName } from "./utils";
+import { fileBaseName } from "./utils"
+import * as sql from "sql-bricks"
+import { insertInto } from "sql-bricks"
 
 // --
 // -- Base Types
@@ -98,6 +100,19 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
     if (transaction.inTransaction)
       await transaction.rollback()
   }
+}
+
+type InsertMedia = Pick<Media, "baseName" | "originalName" | "ownerId" | "externalRef">
+
+
+
+async function insertMedia(media: InsertMedia): Promise<string> {
+  sql.insertInto("media").values({
+    "base_name": media.baseName,
+    "orig_name": media.originalName,
+    "owner_id": media.ownerId
+  }).toParams({placeholder: '?%d'})
+
 }
 
 // --
@@ -243,7 +258,7 @@ async function findMediaByExternalRef(externalRef: ExternalRef): string[] {
 //   try {
 //     let sql = "UPDATE file SET bin_data=$data WHERE file_id=$fId"
 
-//     await cn.run(sql, {
+//     await cn.exec(sql, {
 //       $fId: fId,
 //       $data: f.buffer
 //     })
@@ -370,7 +385,7 @@ async function findMediaByExternalRef(externalRef: ExternalRef): string[] {
 
 //   try {
 //     let sql = "insert into file(bin_data) values($data)"
-//     let ps = await cn.run(sql, {
+//     let ps = await cn.exec(sql, {
 //       $data: f.buffer
 //     })
 //     let fId = ps.lastID.toString()
@@ -457,7 +472,7 @@ async function findMediaByExternalRef(externalRef: ExternalRef): string[] {
 
 // async function addMetaInt(fId: string, code: string, val: number) {
 //   let sql = "INSERT OR REPLACE INTO meta_int VALUES($fId, $code, $val)"
-//   await cn.run(sql, {
+//   await cn.exec(sql, {
 //     $fId: fId,
 //     $code: code,
 //     $val: val
@@ -466,7 +481,7 @@ async function findMediaByExternalRef(externalRef: ExternalRef): string[] {
 
 // async function addMetaStr(fId: string, code: string, val: string) {
 //   let sql = "INSERT OR REPLACE INTO meta_str VALUES($fId, $code, $val)"
-//   await cn.run(sql, {
+//   await cn.exec(sql, {
 //     $fId: fId,
 //     $code: code,
 //     $val: val
@@ -475,21 +490,21 @@ async function findMediaByExternalRef(externalRef: ExternalRef): string[] {
 
 // async function removeFile(fId: string) {
 //   let sql = "DELETE FROM file WHERE file_id = $fId"
-//   await cn.run(sql, {
+//   await cn.exec(sql, {
 //     $fId: fId
 //   })
 // }
 
 // async function removeAllMetaStr(fId: string) {
 //   let sql = "DELETE FROM meta_str WHERE file_id = $fId"
-//   await cn.run(sql, {
+//   await cn.exec(sql, {
 //     $fId: fId
 //   })
 // }
 
 // async function removeAllMetaInt(fId: string) {
 //   let sql = "DELETE FROM meta_int WHERE file_id = $fId"
-//   await cn.run(sql, {
+//   await cn.exec(sql, {
 //     $fId: fId
 //   })
 // }

@@ -62,8 +62,8 @@ export async function createComment(context: BackendContext, newFrag: CommentCre
   let sql = buildInsert()
     .insertInto("comment")
     .values(values)
-  let ps = await cn.run(sql.toSql()),
-    commentId = ps.lastID
+  let res = await cn.exec(sql.toSql()),
+    commentId = res.insertedId
 
   context.loader.addFragment({
     type: "Comment",
@@ -90,7 +90,7 @@ export async function updateComment(context: BackendContext, updFrag: CommentUpd
     .update("comment")
     .set(values)
     .where("comment_id", commentId)
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.addFragment({
     type: "Comment",
@@ -111,7 +111,7 @@ export async function deleteComment(context: BackendContext, frag: CommentIdFrag
     .deleteFrom("comment")
     .where("comment_id", int(frag.id))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
 }
