@@ -29,6 +29,16 @@ export let fileCn!: DatabaseConnection
 //   execSqlBricks(sqlBricks)
 // }
 
+declare module "mycn" {
+  export interface DatabaseConnection {
+    prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
+    execSqlBricks(sqlBricks): Promise<ExecResult>
+    allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
+    singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
+    singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
+  }
+}
+
 export async function initConnection() {
   cn = await createDatabaseConnection(
     sqlite3ConnectionProvider({ fileName: mainDbConf.path }),
@@ -62,22 +72,26 @@ export async function initConnection() {
         await cn.exec("PRAGMA foreign_keys = ON")
       },
       modifyDatabaseConnection: cn => {
-        // cn.execSqlBricks = sqlBricks => {
-        //   let params = sqlBricks.toParams({ placeholder: '?%d' })
-        //   return cn.exec(params.text, params.values)
-        // }
-        // cn.allSqlBricks = sqlBricks => {
-        //   let params = sqlBricks.toParams({ placeholder: '?%d' })
-        //   return cn.all(params.text, params.values)
-        // }
-        // cn.singleRowSqlBricks = sqlBricks => {
-        //   let params = sqlBricks.toParams({ placeholder: '?%d' })
-        //   return cn.singleRow(params.text, params.values)
-        // }
-        // cn.singleValueSqlBricks = sqlBricks => {
-        //   let params = sqlBricks.toParams({ placeholder: '?%d' })
-        //   return cn.singleValue(params.text, params.values)
-        // }
+        cn.prepareSqlBricks = sqlBricks => {
+          let params = sqlBricks.toParams({ placeholder: '?%d' })
+          return cn.prepare(params.text, params.values)
+        }
+        cn.execSqlBricks = sqlBricks => {
+          let params = sqlBricks.toParams({ placeholder: '?%d' })
+          return cn.exec(params.text, params.values)
+        }
+        cn.allSqlBricks = sqlBricks => {
+          let params = sqlBricks.toParams({ placeholder: '?%d' })
+          return cn.all(params.text, params.values)
+        }
+        cn.singleRowSqlBricks = sqlBricks => {
+          let params = sqlBricks.toParams({ placeholder: '?%d' })
+          return cn.singleRow(params.text, params.values)
+        }
+        cn.singleValueSqlBricks = sqlBricks => {
+          let params = sqlBricks.toParams({ placeholder: '?%d' })
+          return cn.singleValue(params.text, params.values)
+        }
         return cn
       },
       poolOptions: {
@@ -97,14 +111,6 @@ export async function initConnection() {
   //   logError: console.log
   // })
 }
-
-// async function runSqlBricks(sqlBricks) {
-//   let params = sqlBricks.toParams({ placeholder: '?%d' })
-//   // console.log(params)
-//   let cn = await getConnection()
-//   cn.exec(params.text, params.values)
-// }
-
 
 export function toIntList(strList: (string | number)[]): number[] {
   return strList.map(val => typeof val === "number" ? val : parseInt(val, 10))
