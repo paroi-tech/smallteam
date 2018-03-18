@@ -54,7 +54,7 @@ export async function storeFile(f: File, metaCode: MainMetaCode, metaVal: string
     let res = await cn.exec(sql, {
       $data: f.buffer
     })
-    let fId = res.insertedId.toString()
+    let fId = res.getInsertedId()
 
     await addMetaStr(fId, metaCode, metaVal)
     await addMetaStr(fId, "uploader", uploaderId)

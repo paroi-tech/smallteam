@@ -99,7 +99,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
     .values(toSqlValues(newFrag, contributorMeta.create))
     .values({ "password": passwordHash })
   let res = await cn.exec(sql.toSql())
-  let contributorId = res.insertedId
+  let contributorId = res.getInsertedId()
 
   sendActivationMail(contributorId.toString(), newFrag.email).then(async result => {
     if (!result.done || !result.token)
@@ -108,7 +108,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
     let sql = buildInsert()
       .insertInto("mail_challenge")
       .values({
-        "contributor_id": contributorId,
+        "contributor_id": parseInt(contributorId, 10),
         "token": result.token
       })
 
@@ -121,7 +121,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
 
   context.loader.addFragment({
     type: "Contributor",
-    id: contributorId.toString(),
+    id: contributorId,
     asResult: "fragment",
     markAs: "created"
   })

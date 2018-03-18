@@ -79,11 +79,11 @@ export async function createFlag(context: BackendContext, newFrag: FlagCreateFra
     .insertInto("flag")
     .values(toSqlValues(newFrag, flagMeta.create))
   let res = await cn.exec(sql.toSql()),
-    flagId = res.insertedId
+    flagId = res.getInsertedId()
 
   context.loader.addFragment({
     type: "Flag",
-    id: flagId.toString(),
+    id: flagId,
     asResult: "fragment",
     markAs: "created"
   })

@@ -79,11 +79,11 @@ export async function createStep(context: BackendContext, newFrag: StepCreateFra
     .insertInto("step")
     .values(toSqlValues(newFrag, stepMeta.create))
   let res = await cn.exec(sql.toSql()),
-    stepId = res.insertedId
+    stepId = res.getInsertedId()
 
   context.loader.addFragment({
     type: "Step",
-    id: stepId.toString(),
+    id: stepId,
     asResult: "fragment",
     markAs: "created"
   })

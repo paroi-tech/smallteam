@@ -254,7 +254,7 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
     .insertInto("task")
     .values(values)
   let res = await cn.exec(sql.toSql()),
-    taskId = res.insertedId
+    taskId = res.getInsertedId()
 
   // Task as child
   let parentTaskId = int(newFrag.parentTaskId),
@@ -288,7 +288,7 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
 
   context.loader.addFragment({
     type: "Task",
-    id: taskId.toString(),
+    id: taskId,
     asResult: "fragment",
     markAs: "created"
   })
