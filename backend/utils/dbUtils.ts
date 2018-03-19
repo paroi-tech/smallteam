@@ -42,11 +42,11 @@ declare module "mycn" {
 }
 
 export async function initConnection() {
-  cn = await newSqliteCn(mainDbConf.path)
-  fileCn = await newSqliteCn(fileDbConf.path)
+  cn = await newSqliteCn(mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
+  fileCn = await newSqliteCn(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "uploadengine.sql"))
 }
 
-async function newSqliteCn(fileName: string) {
+async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
   let cn = await createDatabaseConnection({
     provider: sqlite3ConnectionProvider({ fileName }),
@@ -82,10 +82,8 @@ async function newSqliteCn(fileName: string) {
       logError: console.log
     }
   })
-  if (isNewDb) {
-    let f = path.join(__dirname, "..", "db-scripts", "trademonitoring.sql")
-    await cn.execScript(await readFile(f, "utf8"))
-  }
+  if (isNewDb && newDbScriptFileName)
+    await cn.execScript(await readFile(newDbScriptFileName, "utf8"))
   return cn
 }
 
