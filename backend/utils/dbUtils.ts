@@ -22,17 +22,13 @@ export const fileDbConf = (function () {
   }
 })()
 
-export let cn!: DatabaseConnection
-export let fileCn!: DatabaseConnection
-
-// interface DatabaseConnection {
-//   execSqlBricks(sqlBricks)
-// }
+export let cn!: DatabaseConnection<string>
+export let fileCn!: DatabaseConnection<string>
 
 declare module "mycn" {
-  export interface DatabaseConnection {
+  export interface DatabaseConnection<INSERT_ID extends string | number = any> {
     prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
-    execSqlBricks(sqlBricks): Promise<ExecResult>
+    execSqlBricks(sqlBricks): Promise<ExecResult<INSERT_ID>>
     allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
     singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
     singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
@@ -43,29 +39,19 @@ export async function initConnection() {
   cn = await createDatabaseConnection({
     provider: sqlite3ConnectionProvider({ fileName: mainDbConf.path }),
     init: async cn => {
+      await cn.exec("PRAGMA busy_timeout = 500")
       await cn.exec("PRAGMA foreign_keys = ON")
     },
+    insertedIdType: "string",
     poolOptions: {
       logError: console.log
     }
   })
 
-  // cn = await sqliteConnection(
-  //   async () => {
-  //     let db = await open(mainDbConf.path)
-  //     await db.run("PRAGMA foreign_keys = ON")
-  //     await db.migrate({
-  //       migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts/main")
-  //     })
-  //     return db
-  //   }, {
-  //     logError: console.log
-  //   }
-  // )
-
   fileCn = await createDatabaseConnection({
     provider: sqlite3ConnectionProvider({ fileName: fileDbConf.path }),
     init: async cn => {
+      await cn.exec("PRAGMA busy_timeout = 500")
       await cn.exec("PRAGMA foreign_keys = ON")
     },
     modifyDatabaseConnection: cn => {
@@ -91,21 +77,11 @@ export async function initConnection() {
       }
       return cn
     },
+    insertedIdType: "string",
     poolOptions: {
       logError: console.log
     }
   })
-
-  // fileCn = await sqliteConnection(async () => {
-  //   let db = await open(fileDbConf.path)
-  //   await db.run("PRAGMA foreign_keys = ON")
-  //   await db.migrate({
-  //     migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts/files")
-  //   })
-  //   return db
-  // }, {
-  //   logError: console.log
-  // })
 }
 
 export function toIntList(strList: (string | number)[]): number[] {
