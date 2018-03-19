@@ -56,7 +56,7 @@ create table media (
 create index media_owner_id_idx on media(owner_id);
 
 create table media_ref (
-  media_id bigint not null primary key references media(media_id),
+  media_id bigint not null primary key references media(media_id) on delete cascade,
   external_type varchar(50) not null, -- examples: 'contributorAvatar', 'task'
   external_id varchar(255) not null
 );
@@ -73,14 +73,14 @@ create table file (
 );
 
 create table file_meta_str (
-  file_id bigint not null references file(file_id),
+  file_id bigint not null references file(file_id) on delete cascade,
   code varchar(50) not null,
   val varchar(255) not null,
   primary key (file_id, code)
 );
 
 create table file_meta_int (
-  file_id bigint not null references file(file_id),
+  file_id bigint not null references file(file_id) on delete cascade,
   code varchar(50) not null, -- examples: 'width', 'height'
   val bigint not null,
   primary key (file_id, code)
