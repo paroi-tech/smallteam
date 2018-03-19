@@ -1,6 +1,12 @@
 import * as path from "path"
 import { createDatabaseConnection, DatabaseConnection } from "mycn"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
+import { fileExists, readFile } from "./fsUtils"
+
+
+// import * as fs from "fs"
+// import { promisify } from "util";
+// const readFile = promisify(fs.readFile)
 
 export const mainDbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
@@ -36,20 +42,14 @@ declare module "mycn" {
 }
 
 export async function initConnection() {
-  cn = await createDatabaseConnection({
-    provider: sqlite3ConnectionProvider({ fileName: mainDbConf.path }),
-    init: async cn => {
-      await cn.exec("PRAGMA busy_timeout = 500")
-      await cn.exec("PRAGMA foreign_keys = ON")
-    },
-    insertedIdType: "string",
-    poolOptions: {
-      logError: console.log
-    }
-  })
+  cn = await newSqliteCn(mainDbConf.path)
+  fileCn = await newSqliteCn(fileDbConf.path)
+}
 
-  fileCn = await createDatabaseConnection({
-    provider: sqlite3ConnectionProvider({ fileName: fileDbConf.path }),
+async function newSqliteCn(fileName: string) {
+  const isNewDb = !await fileExists(fileName)
+  let cn = await createDatabaseConnection({
+    provider: sqlite3ConnectionProvider({ fileName }),
     init: async cn => {
       await cn.exec("PRAGMA busy_timeout = 500")
       await cn.exec("PRAGMA foreign_keys = ON")
@@ -82,6 +82,11 @@ export async function initConnection() {
       logError: console.log
     }
   })
+  if (isNewDb) {
+    let f = path.join(__dirname, "..", "db-scripts", "trademonitoring.sql")
+    await cn.execScript(await readFile(f, "utf8"))
+  }
+  return cn
 }
 
 export function toIntList(strList: (string | number)[]): number[] {

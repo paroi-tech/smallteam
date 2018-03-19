@@ -56,7 +56,6 @@ function toCommentFragment(row): CommentFragment {
 // --
 
 export async function createComment(context: BackendContext, newFrag: CommentCreateFragment) {
-  // Comment
   let values = toSqlValues(newFrag, commentMeta.create)!
   values["written_by"] = int(context.sessionData.contributorId)
   let sql = buildInsert()
