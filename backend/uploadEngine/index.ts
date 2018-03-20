@@ -1,9 +1,10 @@
 import { Request, Response } from "express"
 import * as multer from "multer"
-import { buildSelect, buildUpdate, buildDelete, buildInsert } from "../utils/sql92builder/Sql92Builder"
+import * as sql from "sql-bricks"
+import * as sharp from "sharp"
+// import { buildSelect, buildUpdate, buildDelete, buildInsert } from "../utils/sql92builder/Sql92Builder"
 import { fileCn as cn, fileCn } from "../utils/dbUtils"
 import { fileBaseName } from "./utils"
-import * as sql from "sql-bricks"
 import { insertInto } from "sql-bricks"
 
 // --
@@ -176,8 +177,24 @@ async function insertFile(file: InsertFile): Promise<string> {
   return fileId
 }
 
+function isValidImage(imType: string) {
+  // Sharp cannot work on type "image/gif"
+  return ["image/png", "image/jpeg", "image/webp"].includes(imType)
+}
+
 async function getFileMetaValues(f: MulterFile): Promise<MetaValues> {
-  // TODO: mime type is image => find width and height
+  if (!isValidImage(f.mimetype))
+    return {}
+  try {
+    let metadata = await sharp(f.buffer).metadata()
+    let result = {}
+    result["width"] = metadata.width
+    result["height"] = metadata.height
+    return result
+  } catch (err) {
+    console.log(`Cannot process the image (type ${f.mimetype}): ${err.message}`)
+    return {}
+  }
 }
 
 // --
@@ -189,7 +206,16 @@ export interface MediaFilter {
 }
 
 export async function removeMedia(mediaId: string): Promise<void> {
-  // TODO:
+  await fileCn.execSqlBricks(
+    sql.deleteFrom("file").where({
+      "media_id": mediaId
+    })
+  )
+  await fileCn.execSqlBricks(
+    sql.deleteFrom("media").where({
+      "media_id": mediaId
+    })
+  )
 }
 
 export async function removeMedias(filter: MediaFilter): Promise<void> {
@@ -208,8 +234,25 @@ type FileData = Pick<File, "id" | "binData" | "weightB" | "imType"> & {
   media: FileDataMedia
 }
 
-export async function getFileData(fileId: string): FileData | undefined {
-  // TODO:
+export async function getFileData(fileId: string): Promise<FileData | undefined> {
+  let row = await fileCn.singleRow(
+    sql.select("f.bin_data, f.weight_b, f.im_type, m.media_id, m.ts")
+      .from("file f")
+      .innerJoin("media m").using("media_id")
+      .where("f.file_id", fileId)
+  )
+  if (!row)
+    return
+  return {
+    id: fileId,
+    weightB: row["weight_b"],
+    imType: row["im_type"],
+    media: {
+      id: row["media_id"],
+      ts: row["ts"]
+    },
+    binData: row["bin_data"]
+  }
 }
 
 // --
@@ -235,18 +278,94 @@ export interface Query {
 }
 
 export async function fetchListOfFileInfo(query: Query): Promise<FileInfo[]> {
-  let sql = buildSelect()
-    .select("f.file_id")
-    .from("file f")
-    .innerJoin("media_ref r", "using", "media_id")
-    .where("f.variant_name", query.variantName)
-    .andWhere("r.external_type", query.externalRef.type)
-    .andWhere("r.external_id", query.externalRef.id)
-  let rs = await cn.all(sql.toSql())
-  let result = []
-  for (let row of rs)
-    result.push(await fetchFileInfo(row["file_id"]))
+  let rows = await fileCn.all(
+    sql.select("f.file_id")
+      .from("file f")
+      .innerJoin("media_ref r").using("media_id")
+      .where({
+        "f.variant_name": query.variantName,
+        "r.external_type": query.externalRef.type,
+        "r.external_id": query.externalRef.id
+      })
+  )
+  let result: FileInfo[] = []
+  for (let row of rows)
+    result.push(await fetchFileInfo(row["file_id"].toString()))
   return result
+}
+
+async function fetchFileInfo(fileId: string): Promise<FileInfo> {
+  let row = await fileCn.singleRow(
+    sql.select("f.weight_b, f.im_type, f.variant_name, m.media_id, m.ts, m.base_name, m.orig_name")
+      .from("file f")
+      .innerJoin("media m").using("media_id")
+      .where("f.file_id", fileId)
+  )
+  if (!row)
+    throw new Error(`Unknown file ID: ${fileId}`)
+  let fileExt = toFileExtension(row["im_type"], row["orig_name"]) || ""
+  return {
+    id: fileId,
+    weightB: row["weight_b"],
+    imType: row["im_type"],
+    variantName: row["variant_name"],
+    media: {
+      id: row["media_id"],
+      ts: row["ts"],
+      baseName: row["base_name"],
+      originalName: row["orig_name"]
+    },
+    url: `/get-file/${fileId}/${row["base_name"]}-${row["variant_name"]}${fileExt}`,
+    imageMeta: await fetchImageMeta(fileId)
+  }
+}
+
+async function fetchImageMeta(fileId: string): Promise<ImageMeta | undefined> {
+  let values = await fetchFileMeta(fileId)
+  if ("width" in values && "height" in values)
+    return values as any
+}
+
+async function fetchFileMeta(fileId: string): Promise<MetaValues> {
+  let values: MetaValues = {}
+
+  // Fetch from 'file_meta_str'
+  let rows = await fileCn.all(
+    sql.select("code, val")
+      .from("file_meta_str")
+      .where("file_id", fileId)
+  )
+  for (let row of rows)
+    values[row["code"]] = row["val"]
+
+  // Fetch from 'file_meta_int'
+  rows = await fileCn.all(
+    sql.select("code, val")
+      .from("file_meta_int")
+      .where("file_id", fileId)
+  )
+  for (let row of rows)
+    values[row["code"]] = row["val"]
+
+  return values
+}
+
+/**
+ * https://developer.mozilla.org/en-US/docs/Web/HTTP/Basics_of_HTTP/MIME_types
+ */
+function toFileExtension(imType: string, originalName?: string): string | undefined {
+  let [type, subType] = imType.split("/")
+  if (subType.length >= 2 && subType.length <= 4)
+    return `.${subType}`
+  if (imType === "text/plain")
+    return ".txt"
+  if (imType === "text/javascript")
+    return ".js"
+  if (originalName) {
+    let dotIndex = originalName.lastIndexOf(".")
+    if (dotIndex !== -1)
+      return originalName.substr(dotIndex)
+  }
 }
 
 // --
@@ -256,8 +375,16 @@ export async function fetchListOfFileInfo(query: Query): Promise<FileInfo[]> {
 /**
  * @returns the list of media identifiers attached to the `externalRef`. Can be empty.
  */
-async function findMediaByExternalRef(externalRef: ExternalRef): string[] {
-  // TODO:
+async function findMediaByExternalRef(externalRef: ExternalRef): Promise<string[]> {
+  let rows = await fileCn.all(
+    sql.select("media_id")
+      .from("media_ref")
+      .where({
+        "external_type": externalRef.type,
+        "external_id": externalRef.id
+      })
+  )
+  return rows.map(row => row.media_id)
 }
 
 
