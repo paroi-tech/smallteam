@@ -7,7 +7,6 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
-import { fetchRelatedFilesInfo } from "../uploadEngine"
 import { getSingleFileInfoFragment } from "./queryFileInfo"
 
 export const bcryptSaltRounds = 10

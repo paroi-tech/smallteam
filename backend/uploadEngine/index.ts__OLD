@@ -22,7 +22,7 @@ export type File = Express.Multer.File
 export type FileInfo = {
   id: string
   name: string
-  mimeType: string
+  imType: string
   weight: number
   uploaderId: string
 }
@@ -160,7 +160,7 @@ export async function fetchFileInfo(fId: string) {
     else if (meta.code === "weight")
       info.weight = meta.value as number
     else if (meta.code === "mime")
-      info.mimeType = meta.value as string
+      info.imType = meta.value as string
     else if (meta.code == "uploader")
       info.uploaderId = meta.value as string
   }

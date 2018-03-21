@@ -1,16 +1,36 @@
 import { FragmentMeta } from "./index"
 import { pickFragmentMeta } from "./metaHelpers"
 
+// export interface FileInfoFragment {
+//   readonly id: string
+//   name: string
+//   imType: string
+//   weight: number
+//   url: string
+//   uploaderId: string
+// }
+
 export interface FileInfoFragment {
   readonly id: string
-  name: string
-  mimeType: string
-  weight: number
+  weightB: number
+  imType: string
+  variantName?: string
+  media: {
+    id: string
+    ts: string
+    baseName?: string
+    originalName?: string
+    ownerId?: string
+  }
   url: string
-  uploaderId: string
+  imageMeta?: {
+    width: number
+    height: number
+  }
 }
 
-const meta: FragmentMeta = {
+
+const meta: FragmentMeta = { // FIXME: New data structure
   type: "FileInfo",
   variant: "read",
   fields: {
@@ -21,7 +41,7 @@ const meta: FragmentMeta = {
     name: {
       dataType: "string"
     },
-    mimeType: {
+    imType: {
       dataType: "string"
     },
     weight: {
