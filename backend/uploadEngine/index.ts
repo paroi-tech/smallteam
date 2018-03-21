@@ -2,7 +2,7 @@ import { Request, Response } from "express"
 import * as multer from "multer"
 import * as sql from "sql-bricks"
 import * as sharp from "sharp"
-import { fileCn as cn, fileCn } from "../utils/dbUtils"
+import { fileCn } from "../utils/dbUtils"
 import { fileBaseName } from "./utils"
 import { insertInto } from "sql-bricks"
 
@@ -24,7 +24,7 @@ interface Media {
   externalRef?: ExternalRef
 }
 
-interface File {
+interface Variant {
   id: string
   binData: Buffer
   weightB: number
@@ -59,7 +59,7 @@ export interface StoreMediaParameters {
 }
 
 export async function storeMedia(params: StoreMediaParameters): Promise<void> {
-  let transaction = await cn.beginTransaction()
+  let transCn = await fileCn.beginTransaction()
 
   try {
     let mediaId: string | undefined
@@ -77,7 +77,7 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
         externalRef: params.externalRef
       })
     } else {
-      await clearMediaFiles(mediaId)
+      await clearMediaVariants(mediaId)
       await updateMedia({
         baseName: fileBaseName(params.file.originalname),
         originalName: params.file.originalname,
@@ -85,7 +85,7 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
       }, mediaId)
     }
 
-    await insertFile({
+    await insertVariant({
       mediaId,
       binData: params.file.buffer,
       weightB: params.file.size,
@@ -94,10 +94,10 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
       meta: await getFileMetaValues(params.file)
     })
 
-    await transaction.commit()
+    await transCn.commit()
   } finally {
-    if (transaction.inTransaction)
-      await transaction.rollback()
+    if (transCn.inTransaction)
+      await transCn.rollback()
   }
 }
 
@@ -123,9 +123,9 @@ async function insertMedia(media: InsertMedia): Promise<string> {
   return mediaId
 }
 
-async function clearMediaFiles(mediaId: string) {
+async function clearMediaVariants(mediaId: string) {
   await fileCn.execSqlBricks(
-    sql.deleteFrom("file").where({
+    sql.deleteFrom("variant").where({
       "media_id": mediaId
     })
   )
@@ -147,38 +147,38 @@ async function updateMedia(media: UpdateMedia, mediaId: string) {
   )
 }
 
-type InsertFile = Pick<File, "binData" | "weightB" | "imType" | "variantName" | "meta"> & {
+type InsertVariant = Pick<Variant, "binData" | "weightB" | "imType" | "variantName" | "meta"> & {
   "mediaId": string
 }
 
-async function insertFile(file: InsertFile): Promise<string> {
-  let fileId = (await fileCn.execSqlBricks(
-    sql.insertInto("file").values({
-      "media_id": file.mediaId,
-      "bin_data": file.binData.buffer,
-      "weight_b": file.weightB,
-      "im_type": file.imType,
-      "variant_name": file.variantName
+async function insertVariant(variant: InsertVariant): Promise<string> {
+  let variantId = (await fileCn.execSqlBricks(
+    sql.insertInto("variant").values({
+      "media_id": variant.mediaId,
+      "bin_data": variant.binData.buffer,
+      "weight_b": variant.weightB,
+      "im_type": variant.imType,
+      "variant_name": variant.variantName
     })
   )).getInsertedId()
-  if (file.meta) {
-    for (let code of Object.keys(file.meta)) {
-      let val = file.meta[code]
+  if (variant.meta) {
+    for (let code of Object.keys(variant.meta)) {
+      let val = variant.meta[code]
       await fileCn.execSqlBricks(
         sql.insertInto(typeof val === "number" ? "file_meta_int" : "file_meta_str").values({
-          "file_id": fileId,
+          "variant_id": variantId,
           "code": code,
           "val": val
         })
       )
     }
   }
-  return fileId
+  return variantId
 }
 
 function isValidImage(imType: string) {
   // Sharp cannot work on type "image/gif"
-  return ["image/png", "image/jpeg", "image/webp"].includes(imType)
+  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
 }
 
 async function getFileMetaValues(f: MulterFile): Promise<MetaValues> {
@@ -200,21 +200,21 @@ async function getFileMetaValues(f: MulterFile): Promise<MetaValues> {
 // -- Remove medias
 // --
 
-export type MediaOrFileId = {
+export type MediaOrVariantId = {
   mediaId: string
 } | {
-    fileId: string
+    variantId: string
   }
 
-export async function removeMedia(id: MediaOrFileId): Promise<boolean> {
+export async function removeMedia(id: MediaOrVariantId): Promise<boolean> {
   let mediaId: string
   if ("mediaId" in id)
     mediaId = id.mediaId
   else {
     let foundMediaId = await fileCn.singleValue(
       sql.select("media_id")
-        .from("file")
-        .where("file_id", id.fileId)
+        .from("variant")
+        .where("variant_id", id.variantId)
     )
     if (foundMediaId === undefined)
       return false
@@ -222,7 +222,7 @@ export async function removeMedia(id: MediaOrFileId): Promise<boolean> {
   }
 
   await fileCn.execSqlBricks(
-    sql.deleteFrom("file").where("media_id", mediaId)
+    sql.deleteFrom("variant").where("media_id", mediaId)
   )
   let result = await fileCn.execSqlBricks(
     sql.deleteFrom("media").where("media_id", mediaId)
@@ -247,22 +247,22 @@ export async function removeMedias(filter: MediaFilter): Promise<number> {
 }
 
 // --
-// -- Fetch file data
+// -- Fetch variant data
 // --
 
 type FileDataMedia = Pick<Media, "id" | "ts">
 
-type FileData = Pick<File, "id" | "binData" | "weightB" | "imType"> & {
+type FileData = Pick<Variant, "id" | "binData" | "weightB" | "imType"> & {
   media: FileDataMedia
   name: string
 }
 
-export async function getFileData(fileId: string): Promise<FileData | undefined> {
+export async function getFileData(variantId: string): Promise<FileData | undefined> {
   let row = await fileCn.singleRow(
-    sql.select("f.bin_data, f.weight_b, f.im_type, f.variant_name, m.media_id, m.ts, m.orig_name, m.base_name")
-      .from("file f")
+    sql.select("v.bin_data, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.orig_name, m.base_name")
+      .from("variant v")
       .innerJoin("media m").using("media_id")
-      .where("f.file_id", fileId)
+      .where("v.variant_id", variantId)
   )
   if (!row)
     return
@@ -273,7 +273,7 @@ export async function getFileData(fileId: string): Promise<FileData | undefined>
     variantName: row["variant_name"]
   })
   return {
-    id: fileId,
+    id: variantId,
     weightB: row["weight_b"],
     imType: row["im_type"],
     media: {
@@ -286,12 +286,12 @@ export async function getFileData(fileId: string): Promise<FileData | undefined>
 }
 
 // --
-// -- Fetch file info
+// -- Fetch variant info
 // --
 
 export type MediaInfo = Pick<Media, "id" | "ts" | "baseName" | "originalName" | "ownerId">
 
-export type FileInfo = Pick<File, "id" | "weightB" | "imType" | "variantName"> & {
+export type VariantInfo = Pick<Variant, "id" | "weightB" | "imType" | "variantName"> & {
   media: MediaInfo
   name: string
   url: string
@@ -308,30 +308,30 @@ export interface Query {
   variantName: string | null
 }
 
-export async function fetchListOfFileInfo(query: Query): Promise<FileInfo[]> {
+export async function fetchListOfVariantInfo(query: Query): Promise<VariantInfo[]> {
   let rows = await fileCn.all(
-    sqlSelectFileInfo()
+    sqlSelectVariantInfo()
       .innerJoin("media_ref r").using("media_id")
       .where({
-        "f.variant_name": query.variantName,
+        "v.variant_name": query.variantName,
         "r.external_type": query.externalRef.type,
         "r.external_id": query.externalRef.id
       })
   )
-  let result: FileInfo[] = []
+  let result: VariantInfo[] = []
   for (let row of rows)
-    result.push(await toFileInfo(row))
+    result.push(await toVariantInfo(row))
   return result
 }
 
-function sqlSelectFileInfo() {
-  return sql.select("f.file_id, f.weight_b, f.im_type, f.variant_name, m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id")
-    .from("file f")
+function sqlSelectVariantInfo() {
+  return sql.select("v.variant_id, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id")
+    .from("variant v")
     .innerJoin("media m").using("media_id")
 }
 
-async function toFileInfo(row: any[]): Promise<FileInfo> {
-  let fileId = row["file_id"].toString()
+async function toVariantInfo(row: any[]): Promise<VariantInfo> {
+  let variantId = row["variant_id"].toString()
   let name = fileName({
     imType: row["im_type"],
     originalName: row["orig_name"],
@@ -339,7 +339,7 @@ async function toFileInfo(row: any[]): Promise<FileInfo> {
     variantName: row["variant_name"]
   })
   return {
-    id: fileId,
+    id: variantId,
     weightB: row["weight_b"],
     imType: row["im_type"],
     variantName: row["variant_name"],
@@ -351,25 +351,25 @@ async function toFileInfo(row: any[]): Promise<FileInfo> {
       ownerId: row["owner_id"]
     },
     name,
-    url: `/get-file/${fileId}/${name}`,
-    imageMeta: await fetchImageMeta(fileId)
+    url: `/get-file/${variantId}/${name}`,
+    imageMeta: await fetchImageMeta(variantId)
   }
 }
 
-async function fetchImageMeta(fileId: string): Promise<ImageMeta | undefined> {
-  let values = await fetchFileMeta(fileId)
+async function fetchImageMeta(variantId: string): Promise<ImageMeta | undefined> {
+  let values = await fetchFileMeta(variantId)
   if ("width" in values && "height" in values)
     return values as any
 }
 
-async function fetchFileMeta(fileId: string): Promise<MetaValues> {
+async function fetchFileMeta(variantId: string): Promise<MetaValues> {
   let values: MetaValues = {}
 
   // Fetch from 'file_meta_str'
   let rows = await fileCn.all(
     sql.select("code, val")
       .from("file_meta_str")
-      .where("file_id", fileId)
+      .where("variant_id", variantId)
   )
   for (let row of rows)
     values[row["code"]] = row["val"]
@@ -378,7 +378,7 @@ async function fetchFileMeta(fileId: string): Promise<MetaValues> {
   rows = await fileCn.all(
     sql.select("code, val")
       .from("file_meta_int")
-      .where("file_id", fileId)
+      .where("variant_id", variantId)
   )
   for (let row of rows)
     values[row["code"]] = row["val"]

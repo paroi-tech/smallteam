@@ -1,8 +1,8 @@
 /**
-Example of an uploaded file 'DSC00034.JPG' as an avatar for the contributor 'Albert':
+Example of an uploaded variant 'DSC00034.JPG' as an avatar for the contributor 'Albert':
   - The media 'baseName' is : 'albert'
-  - We store for example 3 files:
-    - albert.jpg 2.5MB (the original file)
+  - We store for example 3 variants:
+    - albert.jpg 2.5MB (the original variant)
     - albert-800x600.jpg 300KB
     - albert-80x80.jpg 20KB
 
@@ -15,9 +15,9 @@ media:
   references:
     avatarContributorId: '123'
 
-file:
+variant:
   required fields:
-    file_id
+    variant_id
     bin_data
     weight_b: 312000
     mime: 'image/jpeg'
@@ -27,17 +27,16 @@ file:
     height: 600
 
 
-URL: /get-file/{file.fileId}/{media.baseName}-{file.altName}.{extension}
+URL: /get-variant/{variant.variantId}/{media.baseName}-{variant.altName}.{extension}
   Notice:
-    - file.altName is optional
+    - variant.altName is optional
     - the extension ('jpeg', 'png', etc.) is not stored but evaluated from the mime type
 */
 
 -- Drop tables
 
-drop table if exists file_meta_int;
-drop table if exists file_meta_str;
-drop table if exists file;
+drop table if exists variant_img;
+drop table if exists variant;
 drop index if exists media_ref_external_idx;
 drop table if exists media_ref;
 drop index if exists media_owner_id_idx;
@@ -63,25 +62,18 @@ create table media_ref (
 
 create index media_ref_external_idx on media_ref(external_type, external_id);
 
-create table file (
-  file_id integer not null primary key autoincrement,
+create table variant (
+  variant_id integer not null primary key autoincrement,
   media_id bigint not null references media(media_id),
-  bin_data blob not null,
   weight_b integer not null,
   im_type varchar(255) not null,
-  variant_name varchar(255) -- examples: '800x600', '80x80'
+  variant_name varchar(255), -- examples: '800x600', '80x80'
+  bin_data blob not null
 );
 
-create table file_meta_str (
-  file_id bigint not null references file(file_id) on delete cascade,
-  code varchar(50) not null,
-  val varchar(255) not null,
-  primary key (file_id, code)
-);
-
-create table file_meta_int (
-  file_id bigint not null references file(file_id) on delete cascade,
-  code varchar(50) not null, -- examples: 'width', 'height'
-  val bigint not null,
-  primary key (file_id, code)
+create table variant_img (
+  variant_id bigint not null references variant(variant_id) on delete cascade,
+  width integer not null,
+  height integer not null,
+  dpi integer
 );

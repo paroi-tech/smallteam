@@ -1,12 +1,12 @@
 import { BackendContext } from "../backendContext/context"
-import { fetchListOfFileInfo } from "../uploadEngine"
+import { fetchListOfVariantInfo } from "../uploadEngine"
 import { FileInfoFragment } from "../../isomorphic/meta/FileInfo"
 import config from "../../isomorphic/config"
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
 export async function getFileInfoFragments(type: MainMetaCode, id: string): Promise<FileInfoFragment[]> {
-  return await fetchListOfFileInfo({
+  return await fetchListOfVariantInfo({
     externalRef: { type, id },
     variantName: null
   })
