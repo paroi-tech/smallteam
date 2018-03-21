@@ -1,6 +1,6 @@
 import { Request, Response } from "express"
 import { SessionData } from "./backendContext/context";
-import { getFileData, storeMedia, removeMedias, removeMedia } from "./uploadEngine";
+import { getVariantData, storeMedia, removeMedias, removeMedia } from "./uploadEngine";
 
 export async function routeGetFile(_: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData || !req || !res)
@@ -15,7 +15,7 @@ export async function routeDownloadFile(_: any, sessionData?: SessionData, req?:
 }
 
 async function returnFile(fileId: string, res: Response, asDownload = false) {
-  let fileData = await getFileData(fileId)
+  let fileData = await getVariantData(fileId)
   if (fileData) {
     res.type(fileData.imType)
     res.set("Content-Length", fileData.weightB.toString())

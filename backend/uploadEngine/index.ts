@@ -30,12 +30,14 @@ interface Variant {
   weightB: number
   imType: string
   variantName?: string
-  meta?: MetaValues
   media: Media
+  img?: Image
 }
 
-interface MetaValues {
-  [key: string]: string | number
+interface Image {
+  width: number
+  height: number
+  dpi?: number
 }
 
 // URL: /get-file/{file.id}/{media.baseName}-{file.variantName}.{extension}
@@ -90,8 +92,8 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
       binData: params.file.buffer,
       weightB: params.file.size,
       imType: params.file.mimetype,
-      // variantName: string,
-      meta: await getFileMetaValues(params.file)
+      variantName: undefined,
+      img: await getImageMeta(params.file)
     })
 
     await transCn.commit()
@@ -147,7 +149,7 @@ async function updateMedia(media: UpdateMedia, mediaId: string) {
   )
 }
 
-type InsertVariant = Pick<Variant, "binData" | "weightB" | "imType" | "variantName" | "meta"> & {
+type InsertVariant = Pick<Variant, "binData" | "weightB" | "imType" | "variantName" | "img"> & {
   "mediaId": string
 }
 
@@ -161,17 +163,15 @@ async function insertVariant(variant: InsertVariant): Promise<string> {
       "variant_name": variant.variantName
     })
   )).getInsertedId()
-  if (variant.meta) {
-    for (let code of Object.keys(variant.meta)) {
-      let val = variant.meta[code]
-      await fileCn.execSqlBricks(
-        sql.insertInto(typeof val === "number" ? "file_meta_int" : "file_meta_str").values({
-          "variant_id": variantId,
-          "code": code,
-          "val": val
-        })
-      )
-    }
+  if (variant.img) {
+    await fileCn.execSqlBricks(
+      sql.insertInto("variant_img").values({
+        "variant_id": variantId,
+        "width": variant.img.width,
+        "height": variant.img.height,
+        "dpi": variant.img.dpi
+      })
+    )
   }
   return variantId
 }
@@ -181,18 +181,20 @@ function isValidImage(imType: string) {
   return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
 }
 
-async function getFileMetaValues(f: MulterFile): Promise<MetaValues> {
+async function getImageMeta(f: MulterFile): Promise<Image | undefined> {
   if (!isValidImage(f.mimetype))
-    return {}
+    return
   try {
     let metadata = await sharp(f.buffer).metadata()
-    let result = {}
-    result["width"] = metadata.width
-    result["height"] = metadata.height
-    return result
+    if (metadata.width && metadata.height) {
+      return {
+        width: metadata.width,
+        height: metadata.height,
+        dpi: metadata.density
+      }
+    }
   } catch (err) {
     console.log(`Cannot process the image (type ${f.mimetype}): ${err.message}`)
-    return {}
   }
 }
 
@@ -250,14 +252,14 @@ export async function removeMedias(filter: MediaFilter): Promise<number> {
 // -- Fetch variant data
 // --
 
-type FileDataMedia = Pick<Media, "id" | "ts">
+type VDMedia = Pick<Media, "id" | "ts">
 
-type FileData = Pick<Variant, "id" | "binData" | "weightB" | "imType"> & {
-  media: FileDataMedia
+type VariantData = Pick<Variant, "id" | "binData" | "weightB" | "imType"> & {
+  media: VDMedia
   name: string
 }
 
-export async function getFileData(variantId: string): Promise<FileData | undefined> {
+export async function getVariantData(variantId: string): Promise<VariantData | undefined> {
   let row = await fileCn.singleRow(
     sql.select("v.bin_data, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.orig_name, m.base_name")
       .from("variant v")
@@ -291,16 +293,10 @@ export async function getFileData(variantId: string): Promise<FileData | undefin
 
 export type MediaInfo = Pick<Media, "id" | "ts" | "baseName" | "originalName" | "ownerId">
 
-export type VariantInfo = Pick<Variant, "id" | "weightB" | "imType" | "variantName"> & {
+export type VariantInfo = Pick<Variant, "id" | "weightB" | "imType" | "variantName" | "img"> & {
   media: MediaInfo
   name: string
   url: string
-  imageMeta?: ImageMeta
-}
-
-export interface ImageMeta {
-  width: number
-  height: number
 }
 
 export interface Query {
@@ -320,17 +316,19 @@ export async function fetchListOfVariantInfo(query: Query): Promise<VariantInfo[
   )
   let result: VariantInfo[] = []
   for (let row of rows)
-    result.push(await toVariantInfo(row))
+    result.push(toVariantInfo(row))
   return result
 }
 
 function sqlSelectVariantInfo() {
-  return sql.select("v.variant_id, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id")
+  return sql.select("v.variant_id, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.base_name, m.orig_name," +
+    " m.owner_id, i.width, i.height, i.dpi")
     .from("variant v")
     .innerJoin("media m").using("media_id")
+    .leftJoin("variant_img i").using("variant_id")
 }
 
-async function toVariantInfo(row: any[]): Promise<VariantInfo> {
+function toVariantInfo(row: any[]): VariantInfo {
   let variantId = row["variant_id"].toString()
   let name = fileName({
     imType: row["im_type"],
@@ -338,6 +336,11 @@ async function toVariantInfo(row: any[]): Promise<VariantInfo> {
     baseName: row["base_name"],
     variantName: row["variant_name"]
   })
+  let img = !row["width"] || !row["height"] ? undefined : {
+    width: row["width"],
+    height: row["height"],
+    dpi: row["dpi"]
+  }
   return {
     id: variantId,
     weightB: row["weight_b"],
@@ -352,39 +355,39 @@ async function toVariantInfo(row: any[]): Promise<VariantInfo> {
     },
     name,
     url: `/get-file/${variantId}/${name}`,
-    imageMeta: await fetchImageMeta(variantId)
+    img
   }
 }
 
-async function fetchImageMeta(variantId: string): Promise<ImageMeta | undefined> {
-  let values = await fetchFileMeta(variantId)
-  if ("width" in values && "height" in values)
-    return values as any
-}
+// async function fetchImageMeta(variantId: string): Promise<ImageMeta | undefined> {
+//   let values = await fetchFileMeta(variantId)
+//   if ("width" in values && "height" in values)
+//     return values as any
+// }
 
-async function fetchFileMeta(variantId: string): Promise<MetaValues> {
-  let values: MetaValues = {}
+// async function fetchFileMeta(variantId: string): Promise<MetaValues> {
+//   let values: MetaValues = {}
 
-  // Fetch from 'file_meta_str'
-  let rows = await fileCn.all(
-    sql.select("code, val")
-      .from("file_meta_str")
-      .where("variant_id", variantId)
-  )
-  for (let row of rows)
-    values[row["code"]] = row["val"]
+//   // Fetch from 'file_meta_str'
+//   let rows = await fileCn.all(
+//     sql.select("code, val")
+//       .from("file_meta_str")
+//       .where("variant_id", variantId)
+//   )
+//   for (let row of rows)
+//     values[row["code"]] = row["val"]
 
-  // Fetch from 'file_meta_int'
-  rows = await fileCn.all(
-    sql.select("code, val")
-      .from("file_meta_int")
-      .where("variant_id", variantId)
-  )
-  for (let row of rows)
-    values[row["code"]] = row["val"]
+//   // Fetch from 'file_meta_int'
+//   rows = await fileCn.all(
+//     sql.select("code, val")
+//       .from("file_meta_int")
+//       .where("variant_id", variantId)
+//   )
+//   for (let row of rows)
+//     values[row["code"]] = row["val"]
 
-  return values
-}
+//   return values
+// }
 
 interface FileNameOptions {
   imType: string
