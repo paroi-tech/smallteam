@@ -30,7 +30,7 @@ export default class AppFrame {
   readonly viewer: WorkspaceViewer
 
   private model: Model
-  private sidebar: Sidebar
+  private sidebar!: Sidebar
 
   constructor(private dash: Dash<App>) {
     this.model = dash.app.model

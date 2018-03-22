@@ -23,8 +23,19 @@ export default class TaskBoard {
   constructor(private dash: Dash<App>, readonly rootTask: TaskModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
-    this.createChildComponents()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.leftEl = this.el.querySelector(".js-left") as HTMLElement
+    this.rightEl = this.el.querySelector(".js-right") as HTMLElement
+
+    this.taskForm = this.dash.create(TaskForm)
+    this.rightEl.appendChild(this.taskForm.el)
+
+    let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
+    this.leftEl.appendChild(rootTaskStepSwitcher.el)
+    this.createStepSwitchersForChildren(this.rootTask)
+
     this.listenToChildren()
     this.listenToModel()
   }
@@ -35,25 +46,6 @@ export default class TaskBoard {
 
   public show() {
     this.el.style.display = "block"
-  }
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.leftEl = el.querySelector(".js-left") as HTMLElement
-    this.rightEl = el.querySelector(".js-right") as HTMLElement
-
-    return el
-  }
-
-  private createChildComponents() {
-    this.taskForm = this.dash.create(TaskForm)
-    this.rightEl.appendChild(this.taskForm.el)
-
-    let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
-    this.leftEl.appendChild(rootTaskStepSwitcher.el)
-    this.createStepSwitchersForChildren(this.rootTask)
   }
 
   private listenToChildren() {

@@ -180,16 +180,16 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   //private onAsyncErrCb: (err: any) => void
 
   private isStarted = false
-  private isRoot: boolean
-  private rootBaseUrl: string
-  private rootQSStack: string[]
+  private isRoot!: boolean
+  private rootBaseUrl!: string
+  private rootQSStack!: string[]
 
-  private withHistory: boolean
-  private parent: ParentRouter
+  private withHistory!: boolean
+  private parent!: ParentRouter
   private children: ChildRouter[] = []
 
   private routes: Route[] = []
-  private unknownActivator: ERRouteActivator
+  private unknownActivator!: ERRouteActivator
   private listeners = {}
   private errListeners = {}
   private onNavRmListeners = {}

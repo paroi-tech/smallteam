@@ -13,9 +13,7 @@
     "alwaysStrict": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
-    "strictNullChecks": true,
-    "strictFunctionTypes": true,
-    "strictPropertyInitialization": false
+    "strict": true,
   },
   "exclude": [
     "../node_modules"

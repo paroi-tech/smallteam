@@ -27,7 +27,18 @@ export default class TaskAttachmentManager {
   constructor(private dash: Dash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.listEl = this.el.querySelector("ul") as HTMLElement
+    this.formEl = this.el.querySelector("form") as HTMLFormElement
+    this.inputEl = this.el.querySelector(".js-input") as HTMLInputElement
+    this.uploadButtonEl = this.el.querySelector(".js-upload-button") as HTMLButtonElement
+    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
+    this.formEl.onsubmit = (ev) => {
+      ev.preventDefault()
+      this.onFormSubmit()
+    }
   }
 
   public reset() {
@@ -47,24 +58,6 @@ export default class TaskAttachmentManager {
       return
     for (let f of task.attachedMedias)
       this.addMedia(f)
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.listEl = el.querySelector("ul") as HTMLElement
-    this.formEl = el.querySelector("form") as HTMLFormElement
-    this.inputEl = el.querySelector(".js-input") as HTMLInputElement
-    this.uploadButtonEl = el.querySelector(".js-upload-button") as HTMLButtonElement
-    this.spinnerEl = el.querySelector(".js-spinner") as HTMLElement
-
-    this.formEl.onsubmit = (ev) => {
-      ev.preventDefault()
-      this.onFormSubmit()
-    }
-
-    return el
   }
 
   private async onFormSubmit() {

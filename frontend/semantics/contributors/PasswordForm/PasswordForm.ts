@@ -35,6 +35,7 @@ export default class PasswordForm {
 
   constructor(private dash: Dash<App>, private contributor: ContributorModel) {
     this.model = this.dash.app.model
+    this.log = this.dash.app.log
 
     this.view = render(template, document.createElement("div"), { directives })
     this.el = this.view.nodes[0] as HTMLElement

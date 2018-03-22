@@ -38,22 +38,14 @@ export default class TaskComment {
     this.log = this.dash.app.log
     this.contributorId = this.dash.app.model.session.contributor.id
 
-    this.el = this.createView()
-    this.converter = new Converter()
-    this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
-
-    this.listenToModel()
-  }
-
-  private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
 
-    let el = this.view.nodes[0] as HTMLElement
-    this.editButtonEl = el.querySelector(".js-edit") as HTMLButtonElement
-    this.cancelButtonEl = el.querySelector(".js-cancel") as HTMLButtonElement
-    this.deleteButtonEl = el.querySelector(".js-delete") as HTMLButtonElement
-    this.textareaEl = el.querySelector("textarea") as HTMLTextAreaElement
-    this.contentEl = el.querySelector(".js-content") as HTMLElement
+    this.el = this.view.nodes[0] as HTMLElement
+    this.editButtonEl = this.el.querySelector(".js-edit") as HTMLButtonElement
+    this.cancelButtonEl = this.el.querySelector(".js-cancel") as HTMLButtonElement
+    this.deleteButtonEl = this.el.querySelector(".js-delete") as HTMLButtonElement
+    this.textareaEl = this.el.querySelector("textarea") as HTMLTextAreaElement
+    this.contentEl = this.el.querySelector(".js-content") as HTMLElement
 
     this.editButtonEl.textContent = editText
     this.editButtonEl.addEventListener("click", ev => this.onBtnEditClick())
@@ -69,7 +61,10 @@ export default class TaskComment {
 
     this.updateView()
 
-    return el
+    this.converter = new Converter()
+    this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
+
+    this.listenToModel()
   }
 
   private updateView() {

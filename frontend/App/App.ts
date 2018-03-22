@@ -21,7 +21,7 @@ import WarningDialog from "../generics/modal-dialogs/WarningDialog/WarningDialog
 
 export default class App {
   readonly log: Log
-  private _model: Model
+  private _model!: Model
   private appFrame?: AppFrame
 
   constructor(private dash: ApplicationDash<App>) {

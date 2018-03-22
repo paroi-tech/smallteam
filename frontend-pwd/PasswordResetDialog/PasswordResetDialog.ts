@@ -17,32 +17,27 @@ export default class LoginDialog {
   private view: MonkberryView
 
   constructor(private dash: Dash, private contributorId: string, private token: string) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+
+    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
+    this.passwordConfirmEl = this.el.querySelector(".js-confirm") as HTMLInputElement
+    this.submitBtnEl = this.el.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
+    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
+
+    this.el.addEventListener("keyup", ev => {
+      if ((ev as KeyboardEvent).key === "Enter")
+        this.submitBtnEl.click()
+    })
+    document.body.appendChild(this.el)
+
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
   public open() {
     this.el.showModal()
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-    let el = this.view.nodes[0] as HTMLDialogElement
-
-    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
-    this.passwordConfirmEl = el.querySelector(".js-confirm") as HTMLInputElement
-    this.submitBtnEl = el.querySelector(".js-submit-btn") as HTMLButtonElement
-    this.spinnerEl = el.querySelector(".js-spinner") as HTMLElement
-    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
-
-    el.addEventListener("keyup", ev => {
-      if ((ev as KeyboardEvent).key === "Enter")
-        this.submitBtnEl.click()
-    })
-    document.body.appendChild(el)
-
-    return el
   }
 
   private async onSubmit() {

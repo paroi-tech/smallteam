@@ -43,7 +43,22 @@ export default class ContributorSelector {
       this.dialog.show()
     })
 
-    this.createChildComponents()
+    this.boxList = this.dash.create(BoxList, {
+      id: "",
+      name: "Affected contributors",
+      group: undefined,
+      sort: true,
+      inline: true
+    })
+    this.boxListContainerEl.appendChild(this.boxList.el)
+
+    this.dialog = this.dash.create(ContributorDialog)
+    this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed").onEvent(ev => {
+      let arr = this.dialog.selectedContributors()
+      this.boxList.clear()
+      arr.forEach(c => this.addBoxFor(c))
+    })
+
     this.listenToModel()
   }
 
@@ -99,24 +114,6 @@ export default class ContributorSelector {
   // --
   // -- Utilities
   // --
-
-  private createChildComponents() {
-    this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Affected contributors",
-      group: undefined,
-      sort: true,
-      inline: true
-    })
-    this.boxListContainerEl.appendChild(this.boxList.el)
-
-    this.dialog = this.dash.create(ContributorDialog)
-    this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed").onEvent(ev => {
-      let arr = this.dialog.selectedContributors()
-      this.boxList.clear()
-      arr.forEach(c => this.addBoxFor(c))
-    })
-  }
 
   private addBoxFor(contributor: ContributorModel) {
     let box = this.dash.create(ContributorBox, contributor)

@@ -24,7 +24,15 @@ export default class TaskLogDialog {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.closeButtonEl = this.el.querySelector(".js-close") as HTMLButtonElement
+    this.closeButtonEl.addEventListener("click", ev => this.hide())
+    this.loadIndicatorEl = this.el.querySelector(".js-loader") as HTMLElement
+    this.tableEl = this.el.querySelector(".js-table") as HTMLTableElement
+    document.body.appendChild(this.el)
 
     this.dash.listenTo(this.model, "createTaskLogEntry").onData(data => {
       let entry = data.model as TaskLogEntryModel
@@ -54,19 +62,6 @@ export default class TaskLogDialog {
 
   public hide() {
     this.el.close()
-  }
-
-  private createView(): HTMLDialogElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-    this.closeButtonEl = el.querySelector(".js-close") as HTMLButtonElement
-    this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.loadIndicatorEl = el.querySelector(".js-loader") as HTMLElement
-    this.tableEl = el.querySelector(".js-table") as HTMLTableElement
-    document.body.appendChild(el)
-
-    return el
   }
 
   private addEntry(entry: TaskLogEntryModel) {

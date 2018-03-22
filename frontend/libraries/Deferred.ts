@@ -1,8 +1,8 @@
 export default class Deferred<T> {
   public readonly promise: Promise<T>
 
-  private resolveCb: (result: T) => void
-  private rejectCb: (err: any) => void
+  private resolveCb!: (result: T) => void
+  private rejectCb!: (err: any) => void
 
   constructor() {
     this.promise = new Promise((resolve, reject) => {

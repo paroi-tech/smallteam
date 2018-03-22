@@ -22,6 +22,7 @@ export default class SearchWorkspace implements Workspace {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
+
     this.view = render(template, document.createElement("div"))
     this.el = this.view.nodes[0] as HTMLElement
     this.inputEl = this.el.querySelector(".js-input") as HTMLInputElement

@@ -29,6 +29,9 @@ export default class ContributorHome implements Workspace {
   private log: Log
 
   constructor(private dash: Dash<App>, private contributor: ContributorModel) {
+    this.model = this.dash.app.model
+    this.log = this.dash.app.log
+
     this.view = render(template, document.createElement("div"))
     this.el = this.view.nodes[0] as HTMLElement
     this.formContainerEl = this.el.querySelector(".js-form-container") as HTMLElement

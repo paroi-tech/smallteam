@@ -21,8 +21,8 @@ export default function createBkbDirectives(log: Log, makers: ComponentMakers, d
 
 function createDirective(log: Log, maker: (el: HTMLElement, value?: string) => Comp, directiveName: string, dash: Dash) {
   return class {
-    private comp: Comp | null
-    private el: HTMLElement | null
+    private comp!: Comp | null
+    private el!: HTMLElement | null
 
     bind(node) {
       this.el = node

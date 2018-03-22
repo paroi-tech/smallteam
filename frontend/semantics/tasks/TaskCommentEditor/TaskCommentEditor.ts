@@ -26,7 +26,20 @@ export default class TaskCommentEditor {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+
+    this.el = this.view.nodes[0] as HTMLElement
+    this.listEl = this.el.querySelector(".js-ul") as HTMLElement
+    this.textAreaEl = this.el.querySelector("textarea") as HTMLTextAreaElement
+    this.submitBtnEl = this.el.querySelector(".js-submit") as HTMLButtonElement
+    this.submitBtnSpanEl = this.el.querySelector(".js-spinner") as HTMLElement
+
+    this.submitBtnEl.addEventListener("click", ev => {
+      if (this.currentTask)
+        this.onSubmit()
+    })
+
     this.listenToModel()
   }
 
@@ -48,23 +61,6 @@ export default class TaskCommentEditor {
     if (!task)
       return
     this.loadComments()
-  }
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.listEl = el.querySelector(".js-ul") as HTMLElement
-    this.textAreaEl = el.querySelector("textarea") as HTMLTextAreaElement
-    this.submitBtnEl = el.querySelector(".js-submit") as HTMLButtonElement
-    this.submitBtnSpanEl = el.querySelector(".js-spinner") as HTMLElement
-
-    this.submitBtnEl.addEventListener("click", ev => {
-      if (this.currentTask)
-        this.onSubmit()
-    })
-
-    return el
   }
 
   private listenToModel() {

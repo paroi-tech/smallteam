@@ -1,5 +1,9 @@
+$themeColor:  #5584ff;
+$lightColor:  #e9efff;
+$bodyBgColor: #eee;
+
 body {
-	background-color: #EEE;
+	background-color: $bodyBgColor;
   font-family: Lato, Roboto, Cantarell, sans-serif;
 }
 
@@ -29,4 +33,10 @@ body {
 .BgDark1 {
   background-color: #051837;
   color: #fff;
+}
+
+.StdBtn {
+  background-color: royalblue;
+  color: white;
+  padding: 8px 10px;
 }

@@ -37,8 +37,55 @@ export default class TaskForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
-    this.createChildComponents()
+
+    this.view = MonkBerry.render(template, document.createElement("div"))
+
+    this.el = this.view.nodes[0] as HTMLDivElement
+    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
+    this.labelEl = this.el.querySelector(".js-task-label") as HTMLInputElement
+    this.descriptionEl = this.el.querySelector(".js-task-description") as HTMLTextAreaElement
+    this.submitSpinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
+    this.deleteSpinnerEl = this.el.querySelector(".js-delete-spinner") as HTMLElement
+    this.flagContainerEl = this.el.querySelector(".js-fselector-container") as HTMLElement
+    this.contributorContainerEl = this.el.querySelector(".js-cselector-container") as HTMLElement
+    this.commentContainerEl = this.el.querySelector(".js-comment-container") as HTMLElement
+    this.attachmentContainerEl = this.el.querySelector(".js-attachment-container") as HTMLElement
+
+    let submitBtn = this.el.querySelector(".js-submit-button") as HTMLButtonElement
+    submitBtn.addEventListener("click", ev => this.updateTask())
+
+    let showPanelBtn = this.el.querySelector(".js-btn-panel") as HTMLButtonElement
+    showPanelBtn.addEventListener("click", ev => {
+      if (this.currentTask)
+        this.dash.emit("showStepSwitcher", this.currentTask)
+    })
+
+    let showLogBtn = this.el.querySelector(".js-btn-log") as HTMLButtonElement
+    showLogBtn.addEventListener("click", ev => {
+      if (this.currentTask)
+        this.logDialog.show()
+    })
+
+    let deleteBtn = this.el.querySelector(".js-btn-delete") as HTMLButtonElement
+    deleteBtn.addEventListener("click", ev => {
+      if (this.currentTask)
+        this.deleteTask()
+    })
+
+    this.flagSelector = this.dash.create(FlagSelector)
+    this.flagContainerEl.appendChild(this.flagSelector.el)
+
+    this.contributorSelector = this.dash.create(ContributorSelector)
+    this.contributorContainerEl.appendChild(this.contributorSelector.el)
+
+    this.commentEditor = this.dash.create(TaskCommentEditor)
+    this.commentContainerEl.appendChild(this.commentEditor.el)
+
+    this.logDialog = this.dash.create(TaskLogDialog)
+
+    this.attachmentMgr = this.dash.create(TaskAttachmentManager)
+    this.attachmentContainerEl.appendChild(this.attachmentMgr.el)
+
     this.listenToModel()
   }
 
@@ -56,6 +103,7 @@ export default class TaskForm {
       description: "",
       label: ""
     })
+    this.descriptionEl.value = ""
     this.flagSelector.task = undefined
     this.contributorSelector.task = undefined
     this.commentEditor.task = undefined
@@ -83,6 +131,7 @@ export default class TaskForm {
       description: task.description || "",
       label: task.label
     })
+    this.descriptionEl.value = task.description || ""
     this.show()
     this.flagSelector.task = task
     this.contributorSelector.task = task
@@ -94,60 +143,6 @@ export default class TaskForm {
   // --
   // -- Utilities
   // --
-
-  private createView() {
-    this.view = MonkBerry.render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDivElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.labelEl = el.querySelector(".js-task-label") as HTMLInputElement
-    this.descriptionEl = el.querySelector(".js-task-description") as HTMLTextAreaElement
-    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
-    this.deleteSpinnerEl = el.querySelector(".js-delete-spinner") as HTMLElement
-    this.flagContainerEl = el.querySelector(".js-fselector-container") as HTMLElement
-    this.contributorContainerEl = el.querySelector(".js-cselector-container") as HTMLElement
-    this.commentContainerEl = el.querySelector(".js-comment-container") as HTMLElement
-    this.attachmentContainerEl = el.querySelector(".js-attachment-container") as HTMLElement
-
-    let submitBtn = el.querySelector(".js-submit-button") as HTMLButtonElement
-    submitBtn.addEventListener("click", ev => this.updateTask())
-
-    let showPanelBtn = el.querySelector(".js-btn-panel") as HTMLButtonElement
-    showPanelBtn.addEventListener("click", ev => {
-      if (this.currentTask)
-        this.dash.emit("showStepSwitcher", this.currentTask)
-    })
-
-    let showLogBtn = el.querySelector(".js-btn-log") as HTMLButtonElement
-    showLogBtn.addEventListener("click", ev => {
-      if (this.currentTask)
-        this.logDialog.show()
-    })
-
-    let deleteBtn = el.querySelector(".js-btn-delete") as HTMLButtonElement
-    deleteBtn.addEventListener("click", ev => {
-      if (this.currentTask)
-        this.deleteTask()
-    })
-
-    return el
-  }
-
-  private createChildComponents() {
-    this.flagSelector = this.dash.create(FlagSelector)
-    this.flagContainerEl.appendChild(this.flagSelector.el)
-
-    this.contributorSelector = this.dash.create(ContributorSelector)
-    this.contributorContainerEl.appendChild(this.contributorSelector.el)
-
-    this.commentEditor = this.dash.create(TaskCommentEditor)
-    this.commentContainerEl.appendChild(this.commentEditor.el)
-
-    this.logDialog = this.dash.create(TaskLogDialog)
-
-    this.attachmentMgr = this.dash.create(TaskAttachmentManager)
-    this.attachmentContainerEl.appendChild(this.attachmentMgr.el)
-  }
 
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {

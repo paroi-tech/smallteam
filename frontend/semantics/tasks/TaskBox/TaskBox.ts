@@ -34,7 +34,16 @@ export default class TaskBox implements Box {
    */
   constructor(private dash: Dash<App>, readonly task: TaskModel) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.spanEl = this.el.querySelector(".js-span") as HTMLElement
+    this.spanEl.textContent = this.task.label
+    this.flagContainerEl = this.el.querySelector(".js-container-left") as HTMLElement
+    this.contributorContainerEl = this.el.querySelector(".js-container-right") as HTMLElement
+    this.counterContainerEl = this.el.querySelector(".js-container-center") as HTMLElement
+    this.commentCounterEl = this.el.querySelector(".js-counter") as HTMLElement
+
     this.addTaskFlags()
     this.commentCounterEl.textContent = (this.task.commentCount || 0).toString()
     this.addContributorFlags()
@@ -51,20 +60,6 @@ export default class TaskBox implements Box {
       this.el.classList.add("focus")
     else
       this.el.classList.remove("focus")
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.spanEl = el.querySelector(".js-span") as HTMLElement
-    this.spanEl.textContent = this.task.label
-    this.flagContainerEl = el.querySelector(".js-container-left") as HTMLElement
-    this.contributorContainerEl = el.querySelector(".js-container-right") as HTMLElement
-    this.counterContainerEl = el.querySelector(".js-container-center") as HTMLElement
-    this.commentCounterEl = el.querySelector(".js-counter") as HTMLElement
-
-    return el
   }
 
   private addContributorFlags() {

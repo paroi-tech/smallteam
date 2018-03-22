@@ -39,7 +39,16 @@ export default class StepForm {
     this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
     this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
 
-    this.createChildComponents()
+    this.dropdownMenu = this.dash.create(DropdownMenu, {
+        btnEl: createCustomMenuBtnEl()
+      } as DropdownMenuOptions
+    )
+    this.dropdownMenu.entries.createNavBtn({
+      label: "Delete step",
+      onClick: () => this.deleteCurrentStep()
+    })
+    this.menuContainerEl.appendChild(this.dropdownMenu.btnEl)
+
     this.listenToForm()
     this.listenToModel()
   }
@@ -67,18 +76,6 @@ export default class StepForm {
   // --
   // -- Initialization functions
   // --
-
-  private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl()
-      } as DropdownMenuOptions
-    )
-    this.dropdownMenu.entries.createNavBtn({
-      label: "Delete step",
-      onClick: () => this.deleteCurrentStep()
-    })
-    this.menuContainerEl.appendChild(this.dropdownMenu.btnEl)
-  }
 
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {

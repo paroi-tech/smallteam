@@ -22,8 +22,20 @@
     transition-property: opacity;
     transition-timing-function: linear;
   }
-}
 
-.AddTaskPane {
-  padding: 5px;
+  &-addTaskPane {
+    align-content: stretch;
+    display: flex;
+    justify-content: space-between;
+    margin-top: 5px;
+  }
+
+  &-input {
+    @extend .InlineText;
+    padding: 3px;
+  }
+
+  &-addButton {
+    @extend .StdBtn;
+  }
 }

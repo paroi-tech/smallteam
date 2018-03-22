@@ -14,18 +14,14 @@ export default class TaskFlag {
 
   constructor(private dash: Dash<App>, readonly flag: FlagModel) {
     this.model = this.dash.app.model
-    this.el = this.createView()
-    this.listenToModel()
-  }
 
-  private createView() {
     this.view = render(template, document.createElement("div"))
 
-    let el = this.view.nodes[0] as HTMLElement
-    el.title = this.flag.label
-    el.style.color = this.flag.color
+    this.el = this.view.nodes[0] as HTMLElement
+    this.el.title = this.flag.label
+    this.el.style.color = this.flag.color
 
-    return el
+    this.listenToModel()
   }
 
   private listenToModel() {

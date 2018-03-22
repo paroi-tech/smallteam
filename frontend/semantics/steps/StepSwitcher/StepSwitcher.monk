@@ -16,9 +16,9 @@
 
   <div class="StepSwitcher-foldableContent js-foldable">
     <div class="AutoColumns js-boxlist-container"></div>
-    <div class="AddTaskPane js-add-task-pane">
-      <label>Task name <input class="js-task-name" type="text" minlength="20"></label>
-      <button type="button" class="js-add-task-button">
+    <div class="StepSwitcher-addTaskPane js-add-task-pane">
+      <input class="StepSwitcher-input InlineText js-task-name" type="text" maxlength="20" placeholder="Task name">
+      <button type="button" class="StepSwitcher-addButton js-add-task-button">
         Add task
         <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
       </button>

@@ -16,7 +16,7 @@
 
     <div class="js-cselector-container"></div>
 
-    <button type="button" class="js-submit-button">
+    <button type="button" class="StdBtn js-submit-button">
       Submit
       <span class="js-submit-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
     </button>
