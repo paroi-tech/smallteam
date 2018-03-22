@@ -21,7 +21,11 @@ export default class FlagSelector {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.listEl = this.el.querySelector("ul") as HTMLElement
+
     this.model.global.flags.forEach(flag => this.addItemFor(flag))
     this.listenToModel()
   }
@@ -79,15 +83,6 @@ export default class FlagSelector {
       if (checkBox)
         checkBox.checked = true
     }
-  }
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-
-    this.listEl = el.querySelector("ul") as HTMLElement
-    return el
   }
 
   private addItemFor(flag: FlagModel) {

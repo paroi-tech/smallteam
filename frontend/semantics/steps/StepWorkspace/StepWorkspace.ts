@@ -34,30 +34,34 @@ export default class StepWorkspace implements Workspace {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
-    this.createChildComponents()
-    this.fillBoxList()
-    this.listenToChildComponents()
-    this.listenToModel()
-  }
 
-  private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
-    this.formContainerEl = el.querySelector(".js-edit-form-container") as HTMLElement
-    this.addBtnEl = el.querySelector(".js-add-form-btn") as HTMLButtonElement
-    this.spinnerEl = el.querySelector(".fa-spinner") as HTMLElement
-    this.nameEl = el.querySelector(".js-input") as HTMLInputElement
-
+    this.el = this.view.nodes[0] as HTMLElement
+    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
+    this.formContainerEl = this.el.querySelector(".js-edit-form-container") as HTMLElement
+    this.addBtnEl = this.el.querySelector(".js-add-form-btn") as HTMLButtonElement
+    this.spinnerEl = this.el.querySelector(".fa-spinner") as HTMLElement
+    this.nameEl = this.el.querySelector(".js-input") as HTMLInputElement
     this.nameEl.onkeyup = ev => {
       if (ev.key === "Enter")
         this.addBtnEl.click()
     }
     this.addBtnEl.onclick = (ev) => this.onAdd()
 
-    return el
+    this.boxList = this.dash.create(BoxList, {
+      id: "",
+      name: "Steps",
+      group: undefined,
+      sort: true
+    })
+    this.boxListContainerEl.appendChild(this.boxList.el)
+
+    this.form = this.dash.create(StepForm)
+    this.formContainerEl.appendChild(this.form.el)
+
+    this.fillBoxList()
+    this.listenToChildComponents()
+    this.listenToModel()
   }
 
   private listenToChildComponents() {
@@ -80,19 +84,6 @@ export default class StepWorkspace implements Workspace {
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {
       this.boxList.removeBox(data.id as string)
     })
-  }
-
-  private createChildComponents() {
-    this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Steps",
-      group: undefined,
-      sort: true
-    })
-    this.boxListContainerEl.appendChild(this.boxList.el)
-
-    this.form = this.dash.create(StepForm)
-    this.formContainerEl.appendChild(this.form.el)
   }
 
   private onAdd() {

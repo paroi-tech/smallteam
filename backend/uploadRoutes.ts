@@ -70,13 +70,12 @@ export async function routeChangeAvatar(req: Request, res: Response) {
     throw new Error("Only PNG, JPEG, GIF and WebP files are allowed.")
 
   let sessionData: SessionData = req.session as any
-console.log(">>>>>>", req.params)
   return {
     done: await storeMedia({
       file: req.file,
       externalRef: {
         type: "contributorAvatar",
-        id: getHttpParameter(req, "contributorId")
+        id: getMulterParameter(req, "contributorId")
       },
       ownerId: sessionData.contributorId,
       overwrite: true
@@ -88,5 +87,12 @@ function getHttpParameter(req: Request, paramName: string): string {
   let param = req.params[paramName]
   if (param === undefined)
     throw new Error(`Missing HTTP parameter: ${paramName}`)
+  return param
+}
+
+function getMulterParameter(req: Request, paramName: string): string {
+  let param = req.body[paramName]
+  if (param === undefined)
+    throw new Error(`Missing Multer parameter: ${paramName}`)
   return param
 }

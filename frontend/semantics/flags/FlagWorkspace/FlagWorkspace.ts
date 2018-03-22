@@ -34,21 +34,34 @@ export default class FlagWorkspace implements Workspace {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
-    this.createChildComponents()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
+    this.formContainerEl = this.el.querySelector(".js-form-container") as HTMLElement
+
+    this.boxList = this.dash.create(BoxList, {
+      id: "",
+      name: "Flags",
+      group: undefined,
+      sort: true
+    })
+    this.boxListContainerEl.appendChild(this.boxList.el)
+    this.form = this.dash.create(FlagForm)
+    this.formContainerEl.appendChild(this.form.el)
+    this.menu = this.dash.create(DropdownMenu, {
+        btnEl: createCustomMenuBtnEl(),
+        align: "left"
+      } as DropdownMenuOptions
+    )
+    this.menu.entries.createNavBtn({
+      label: "Add new flag",
+      onClick: () => this.form.switchToCreationMode()
+    })
+
     this.fillBoxList()
     this.listenToChildComponents()
     this.listenToModel()
-  }
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
-    this.formContainerEl = el.querySelector(".js-form-container") as HTMLElement
-
-    return el
   }
 
   private listenToChildComponents() {
@@ -63,29 +76,6 @@ export default class FlagWorkspace implements Workspace {
       this.boxList.addBox(box)
     })
     this.dash.listenTo<UpdateModelEvent>(this.model, "deleteFlag").onData(d => this.boxList.removeBox(d.id as string))
-  }
-
-  private createChildComponents() {
-    this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Flags",
-      group: undefined,
-      sort: true
-    })
-    this.boxListContainerEl.appendChild(this.boxList.el)
-
-    this.form = this.dash.create(FlagForm)
-    this.formContainerEl.appendChild(this.form.el)
-
-    this.menu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl(),
-        align: "left"
-      } as DropdownMenuOptions
-    )
-    this.menu.entries.createNavBtn({
-      label: "Add new flag",
-      onClick: () => this.form.switchToCreationMode()
-    })
   }
 
   private scheduleFlagReordering(ev: BoxListEvent) {

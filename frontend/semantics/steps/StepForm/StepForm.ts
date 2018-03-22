@@ -28,7 +28,17 @@ export default class StepForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDivElement
+    this.menuContainerEl = this.el.querySelector(".js-menu-container") as HTMLElement
+    this.fieldContainerEl = this.el.querySelector(".js-field-container") as HTMLElement
+    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
+    this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
+    this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
+    this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
+
     this.createChildComponents()
     this.listenToForm()
     this.listenToModel()
@@ -57,21 +67,6 @@ export default class StepForm {
   // --
   // -- Initialization functions
   // --
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDivElement
-    this.menuContainerEl = el.querySelector(".js-menu-container") as HTMLElement
-    this.fieldContainerEl = el.querySelector(".js-field-container") as HTMLElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
-    this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
-    this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
-    this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
-
-    return el
-  }
 
   private createChildComponents() {
     this.dropdownMenu = this.dash.create(DropdownMenu, {

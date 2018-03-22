@@ -16,7 +16,14 @@ export default class FlagBox implements Box {
 
   constructor(private dash: Dash<App>, readonly flag: FlagModel) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.colorEl = this.el.querySelector(".js-box-color") as HTMLElement
+    this.colorEl.style.color = this.flag.color
+    this.el.onclick = ev => this.dash.emit("flagBoxSelected", this.flag)
+    this.view.update(this.flag)
+
     this.listenToModel()
   }
 
@@ -29,19 +36,6 @@ export default class FlagBox implements Box {
 
   get id(): string {
     return this.flag.id
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.colorEl = el.querySelector(".js-box-color") as HTMLElement
-    this.colorEl.style.color = this.flag.color
-    el.onclick = ev => this.dash.emit("flagBoxSelected", this.flag)
-
-    this.view.update(this.flag)
-
-    return el
   }
 
   private listenToModel() {

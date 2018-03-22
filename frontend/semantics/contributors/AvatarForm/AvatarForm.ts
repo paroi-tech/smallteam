@@ -13,7 +13,6 @@ export default class AvatarForm {
   private buttonEl: HTMLButtonElement
   private spinnerEl: HTMLElement
   private formEl: HTMLFormElement
-  private contributorIdEl: HTMLInputElement
 
   private model: Model
   private log: Log
@@ -29,7 +28,6 @@ export default class AvatarForm {
     this.buttonEl = this.formEl.querySelector("button") as HTMLButtonElement
     this.inputEl = this.formEl.querySelector(".js-input") as HTMLInputElement
     this.spinnerEl = this.buttonEl.querySelector(".js-spinner") as HTMLElement
-    this.contributorIdEl = this.formEl.querySelector(".js-contributorId") as HTMLInputElement
     this.formEl.onsubmit = (ev) => {
       ev.preventDefault()
       this.onSubmit()
@@ -48,8 +46,9 @@ export default class AvatarForm {
   }
 
   private async doUpload() {
-    this.contributorIdEl.value = this.contributor.id
     let fd = new FormData(this.formEl)
+
+    fd.append("contributorId", this.contributor.id)
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/change-avatar`, {
         method: "post",

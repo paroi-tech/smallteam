@@ -40,7 +40,16 @@ export default class FlagForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"), { directives })
+    this.el = this.view.nodes[0] as HTMLElement
+    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
+    this.labelEl = this.el.querySelector(".js-label") as HTMLInputElement
+    this.colorEl = this.el.querySelector(".js-color") as HTMLInputElement
+    this.orderNumEl = this.el.querySelector(".js-order-num") as HTMLInputElement
+    this.spinnerEl = this.el.querySelector(".fa-spinner") as HTMLElement
+    this.view.update(this.state)
+
     this.listenToModel()
   }
 
@@ -74,20 +83,6 @@ export default class FlagForm {
   // --
   // -- Utilities
   // --
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"), { directives })
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.labelEl = el.querySelector(".js-label") as HTMLInputElement
-    this.colorEl = el.querySelector(".js-color") as HTMLInputElement
-    this.orderNumEl = el.querySelector(".js-order-num") as HTMLInputElement
-    this.spinnerEl = el.querySelector(".fa-spinner") as HTMLElement
-    this.view.update(this.state)
-
-    return el
-  }
 
   private updateView() {
     if (!this.currentFlag)

@@ -22,7 +22,53 @@ export default class ProjectWorkspace implements Workspace {
   constructor(private dash: Dash<App>, readonly project: ProjectModel) {
     this.model = this.dash.app.model
     this.log = this.dash.log
-    this.createChildComponents()
+
+    this.dropdownMenu = this.dash.create(DropdownMenu, {
+        btnEl: createCustomMenuBtnEl(),
+        align: "right"
+      } as DropdownMenuOptions
+    )
+    this.dropdownMenu.entries.createNavBtn(
+      {
+        label: "Edit project",
+        onClick: () => {
+          if (this.ctrl) {
+            this.ctrl.setContentEl(this.form.el)
+            this.ctrl.setTitle(`Edit: ${this.project.name}`)
+          }
+        }
+      },
+      {
+        label: "Show taskboard",
+        onClick: () => {
+          if (this.ctrl) {
+            this.ctrl.setContentEl(this.taskBoard.el)
+            this.ctrl.setTitle(this.project.name)
+          }
+        }
+      },
+      {
+        label: "Delete project",
+        onClick: () => this.deleteProject()
+      },
+      {
+        label: "Show on hold tasks",
+        onClick: () => {
+          console.log("Show on hold tasks not implemented…")
+        }
+      },
+      {
+        label: "Show archived tasks",
+        onClick: () => {
+          console.log("Show archived tasks not implemented…")
+        }
+      }
+    )
+
+    this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
+    this.form = this.dash.create(ProjectForm)
+    this.form.project = this.project
+
     this.listenToModel()
   }
 

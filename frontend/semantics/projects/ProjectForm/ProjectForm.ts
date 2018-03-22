@@ -48,7 +48,15 @@ export default class ProjectForm implements Workspace {
   constructor(private dash: Dash<App>, private reusable = false) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"), { directives })
+    this.el = this.view.nodes[0] as HTMLDivElement
+    this.codeEl = this.el.querySelector(".js-code") as HTMLInputElement
+    this.nameEl = this.el.querySelector(".js-name") as HTMLInputElement
+    this.descriptionEl = this.el.querySelector(".js-description") as HTMLTextAreaElement
+    this.spinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
+    this.view.update(this.state)
+
     this.menu = this.createDropdownMenu()
     this.stepMultiSelect = this.createStepMultiSelect()
     this.listenToForm()
@@ -148,20 +156,6 @@ export default class ProjectForm implements Workspace {
     ms.setAllItems(this.model.global.steps)
 
     return ms
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"), { directives })
-
-    let el = this.view.nodes[0] as HTMLDivElement
-    this.codeEl = el.querySelector(".js-code") as HTMLInputElement
-    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
-    this.descriptionEl = el.querySelector(".js-description") as HTMLTextAreaElement
-    this.spinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
-
-    this.view.update(this.state)
-
-    return el
   }
 
   private async listenToForm() {

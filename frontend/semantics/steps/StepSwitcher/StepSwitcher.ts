@@ -50,7 +50,37 @@ export default class StepSwitcher {
     this.model = dash.app.model
     this.log = this.dash.app.log
     this.project = this.parentTask.project
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.taskNameEl = this.el.querySelector(".js-task-name")  as HTMLInputElement
+    this.addTaskBtnEl = this.el.querySelector(".js-add-task-button") as HTMLButtonElement
+    this.addTaskSpinnerEl = this.el.querySelector(".js-add-task-button .fa-spinner") as HTMLElement
+    this.busyIndicatorEl = this.el.querySelector(".js-indicator") as HTMLElement
+    this.foldableEl = this.el.querySelector(".js-foldable") as HTMLElement
+    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
+    this.addTaskPane = this.el.querySelector(".js-add-task-pane") as HTMLElement
+    this.toggleBtnEl = this.el.querySelector(".js-toggle-btn") as HTMLButtonElement
+    this.toggleBtnSpanEl = this.toggleBtnEl.querySelector("span") as HTMLElement
+    this.closeBtnEl = this.el.querySelector(".js-close-btn") as HTMLButtonElement
+    this.toggleBtnSpanEl.textContent = caretUp
+    this.closeBtnEl.textContent = times
+    this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
+    this.taskNameEl.onkeyup = (ev => {
+      if (ev.key === "Enter")
+        this.addTaskBtnEl.click()
+    })
+    // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
+    let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
+    let titleEl = this.el.querySelector(".js-title") as HTMLElement
+    titleEl.textContent = title
+    this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
+    this.closeBtnEl.addEventListener("click", ev => {
+      // We can't hide the rootTask StepSwitcher or tasks with children.
+      if (this.parentTask.id !== this.project.rootTaskId && (!this.parentTask.children || this.parentTask.children.length === 0))
+        this.setVisible(false)
+    })
+
     this.createBoxLists()
     this.fillBoxLists()
     this.listenToModel()
@@ -88,45 +118,6 @@ export default class StepSwitcher {
     this.foldableEl.style.opacity = "0.4"
     if (showBusyIcon)
       this.showBusyIcon()
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.taskNameEl = el.querySelector(".js-task-name")  as HTMLInputElement
-    this.addTaskBtnEl = el.querySelector(".js-add-task-button") as HTMLButtonElement
-    this.addTaskSpinnerEl = el.querySelector(".js-add-task-button .fa-spinner") as HTMLElement
-    this.busyIndicatorEl = el.querySelector(".js-indicator") as HTMLElement
-    this.foldableEl = el.querySelector(".js-foldable") as HTMLElement
-    this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
-    this.addTaskPane = el.querySelector(".js-add-task-pane") as HTMLElement
-    this.toggleBtnEl = el.querySelector(".js-toggle-btn") as HTMLButtonElement
-    this.toggleBtnSpanEl = this.toggleBtnEl.querySelector("span") as HTMLElement
-    this.closeBtnEl = el.querySelector(".js-close-btn") as HTMLButtonElement
-
-    this.toggleBtnSpanEl.textContent = caretUp
-    this.closeBtnEl.textContent = times
-
-    this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
-    this.taskNameEl.onkeyup = (ev => {
-      if (ev.key === "Enter")
-        this.addTaskBtnEl.click()
-    })
-
-    // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
-    let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
-    let titleEl = el.querySelector(".js-title") as HTMLElement
-    titleEl.textContent = title
-
-    this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
-    this.closeBtnEl.addEventListener("click", ev => {
-      // We can't hide the rootTask StepSwitcher or tasks with children.
-      if (this.parentTask.id !== this.project.rootTaskId && (!this.parentTask.children || this.parentTask.children.length === 0))
-        this.setVisible(false)
-    })
-
-    return el
   }
 
   private toggleFoldableContent() {
