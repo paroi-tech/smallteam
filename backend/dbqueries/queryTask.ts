@@ -1,5 +1,4 @@
 import * as path from "path"
-import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import taskMeta from "../../isomorphic/meta/Task"
 import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskSearchFragment } from "../../isomorphic/meta/Task"
@@ -254,8 +253,8 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
   let sql = buildInsert()
     .insertInto("task")
     .values(values)
-  let ps = await cn.run(sql.toSql()),
-    taskId = ps.lastID
+  let res = await cn.exec(sql.toSql()),
+    taskId = res.getInsertedId()
 
   // Task as child
   let parentTaskId = int(newFrag.parentTaskId),
@@ -268,7 +267,7 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
       "parent_task_id": parentTaskId,
       "order_num": orderNum
     })
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   // Description
   if (newFrag.description) {
@@ -278,7 +277,7 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
         "task_id": taskId,
         "description": newFrag.description
       })
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   }
 
   if (newFrag.affectedToIds)
@@ -289,7 +288,7 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
 
   context.loader.addFragment({
     type: "Task",
-    id: taskId.toString(),
+    id: taskId,
     asResult: "fragment",
     markAs: "created"
   })
@@ -328,7 +327,7 @@ export async function updateTask(context: BackendContext, updFrag: TaskUpdateFra
       .set(values)
       .where("task_id", taskId)
 
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   }
 
   if (updFrag.description !== undefined)
@@ -372,7 +371,7 @@ export async function deleteTask(context: BackendContext, frag: TaskIdFragment) 
     .deleteFrom("task")
     .where("task_id", int(frag.id))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
 }
@@ -421,7 +420,7 @@ async function updateChildOrderNum(taskId: number, parentId: number, orderNum: n
       "parent_task_id": parentId
     })
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }
 
 async function loadChildOrderNums(parentId: number): Promise<Map<number, number>> {
@@ -454,7 +453,7 @@ async function insertTaskAffectedToContributors(taskId: number | string, contrib
         "order_num": ++orderNum
       })
 
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   }
 }
 
@@ -463,7 +462,7 @@ async function updateTaskAffectedToContributors(taskId: number | string, contrib
     .deleteFrom("task_affected_to")
     .where("task_id", int(taskId))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
   await insertTaskAffectedToContributors(taskId, contributorIds)
 }
 
@@ -476,7 +475,7 @@ async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
         "flag_id": int(flagId)
       })
 
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   }
 }
 
@@ -485,7 +484,7 @@ async function updateTaskFlags(taskId: number | string, flagIds: string[]) {
     .deleteFrom("task_flag")
     .where("task_id", int(taskId))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
   await insertTaskFlags(taskId, flagIds)
 }
 
@@ -499,7 +498,7 @@ export async function updateTaskDescription(taskId: number, description: string 
       .deleteFrom("task_description")
       .where("task_id", taskId)
 
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   } else {
     let sql = buildUpdate()
       .update("task_description")
@@ -507,9 +506,9 @@ export async function updateTaskDescription(taskId: number, description: string 
         description: description
       })
       .where("task_id", taskId)
-    let st = await cn.run(sql.toSql())
+    let res = await cn.exec(sql.toSql())
 
-    if (st.changes === 0) {
+    if (res.affectedRows === 0) {
       let sql = buildInsert()
         .insertInto("task_description")
         .values({
@@ -517,7 +516,7 @@ export async function updateTaskDescription(taskId: number, description: string 
           task_id: taskId
         })
 
-      await cn.run(sql.toSql())
+      await cn.exec(sql.toSql())
     }
   }
 }
@@ -527,13 +526,13 @@ async function findTaskCode(projectId: string): Promise<string> {
   let code = await cn.singleValue(buildSelect().select("p.code").from("project p").where("project_id", projectId).toSql())
 
   // Update the sequence
-  let ps: /* sqlite.Statement */ any | undefined,
+  let res: /* sqlite.Statement */ any | undefined,
       tries = 0,
       prevSeqVal: number
 
   do {
     if (tries++ >= 10)
-      throw new Error(`Cannot get a new sequence value for project "${projectId}, (last changes: ${ps!.changes})"`)
+      throw new Error(`Cannot get a new sequence value for project "${projectId}, (last changes: ${res!.affectedRows})"`)
 
     // Select previous task_seq
     let sql = buildSelect()
@@ -555,8 +554,8 @@ async function findTaskCode(projectId: string): Promise<string> {
       .where("project_id", projectId)
       .andWhere("task_seq", prevSeqVal)
 
-    ps = await cn.run(upd.toSql())
-  } while (ps.changes !== 1)
+    res = await cn.exec(upd.toSql())
+  } while (res.affectedRows !== 1)
 
   return `${code}-${prevSeqVal + 1}`
 }

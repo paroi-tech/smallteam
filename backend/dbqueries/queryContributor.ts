@@ -1,5 +1,4 @@
 import * as path from "path"
-import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
@@ -99,8 +98,8 @@ export async function createContributor(context: BackendContext, newFrag: Contri
     .insertInto("contributor")
     .values(toSqlValues(newFrag, contributorMeta.create))
     .values({ "password": passwordHash })
-  let ps = await cn.run(sql.toSql())
-  let contributorId = ps.lastID
+  let res = await cn.exec(sql.toSql())
+  let contributorId = res.getInsertedId()
 
   sendActivationMail(contributorId.toString(), newFrag.email).then(async result => {
     if (!result.done || !result.token)
@@ -109,12 +108,12 @@ export async function createContributor(context: BackendContext, newFrag: Contri
     let sql = buildInsert()
       .insertInto("mail_challenge")
       .values({
-        "contributor_id": contributorId,
+        "contributor_id": parseInt(contributorId, 10),
         "token": result.token
       })
 
     try {
-      await cn.run(sql.toSql())
+      await cn.exec(sql.toSql())
     } catch (err) {
       console.log("Unable to save email challenge in database", err)
     }
@@ -122,7 +121,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
 
   context.loader.addFragment({
     type: "Contributor",
-    id: contributorId.toString(),
+    id: contributorId,
     asResult: "fragment",
     markAs: "created"
   })
@@ -150,7 +149,7 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
     markAs: "updated"
   })
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }
 
 // --
@@ -162,7 +161,7 @@ export async function deleteContributor(context: BackendContext, frag: Contribut
     .deleteFrom("contributor")
     .where("contributor_id", int(frag.id))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
 }
@@ -207,7 +206,7 @@ async function updateAffectedOrderNum(contributorId: number, taskId: number, ord
       "contributor_id": contributorId,
       "task_id": taskId
     })
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }
 
 async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number>> {

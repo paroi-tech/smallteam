@@ -1,5 +1,4 @@
 import * as path from "path"
-//import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
@@ -7,7 +6,7 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 import { WhoUseItem } from "../../isomorphic/transfers";
-import { Connection, InTransactionConnection } from "../utils/sqlite-with-transactions";
+import { DatabaseConnection } from "mycn";
 
 // --
 // -- Read
@@ -162,8 +161,8 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "code": newFrag.code,
         "task_seq": 0
       })
-    let ps = await transCn.run(sql.toSql()),
-      projectId = ps.lastID
+    let res = await transCn.exec(sql.toSql()),
+      projectId = parseInt(res.getInsertedId(), 10)
 
     // Step "Not Started"
     sql = buildInsert()
@@ -172,7 +171,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "project_id": projectId,
         "step_id": 1
       })
-    ps = await transCn.run(sql.toSql())
+    res = await transCn.exec(sql.toSql())
 
     // Step "Archived"
     sql = buildInsert()
@@ -181,7 +180,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "project_id": projectId,
         "step_id": 2
       })
-    await transCn.run(sql.toSql())
+    await transCn.exec(sql.toSql())
 
     // Task
     sql = buildInsert()
@@ -193,8 +192,8 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "created_by": int(context.sessionData.contributorId),
         "label": newFrag.name
       })
-    ps = await transCn.run(sql.toSql())
-    let taskId = ps.lastID
+    res = await transCn.exec(sql.toSql())
+    let taskId = parseInt(res.getInsertedId(), 10)
 
     // Mark as root task
     sql = buildInsert()
@@ -203,7 +202,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "project_id": projectId,
         "task_id": taskId
       })
-    await transCn.run(sql.toSql())
+    await transCn.exec(sql.toSql())
 
     // Description
     if (newFrag.description) {
@@ -213,7 +212,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
           "task_id": taskId,
           "description": newFrag.description
         })
-      await transCn.run(sql.toSql())
+      await transCn.exec(sql.toSql())
     }
 
     await insertProjectSteps(transCn, taskId, newFrag.stepIds)
@@ -252,7 +251,7 @@ export async function updateProject(context: BackendContext, updFrag: ProjectUpd
         .update("project")
         .set(valuesToUpd)
         .where(toSqlValues(updFrag, projectMeta.update, "onlyId"))
-      await transCn.run(sql.toSql())
+      await transCn.exec(sql.toSql())
     }
 
     if (updFrag.name !== undefined || updFrag.description !== undefined) {
@@ -269,7 +268,7 @@ export async function updateProject(context: BackendContext, updFrag: ProjectUpd
         .where("task_id", taskId)
       if (updFrag.name !== undefined)
         sql.set({ label: updFrag.name })
-      await transCn.run(sql.toSql())
+      await transCn.exec(sql.toSql())
       context.loader.modelUpdate.addFragment("Task", taskId.toString())
     }
 
@@ -320,17 +319,17 @@ export async function deleteProject(context: BackendContext, frag: ProjectIdFrag
 
     let taskId = await cn.singleValue(buildSelect().select("task_id").from("root_task").where("project_id", dbId).toSql())
 
-    await cn.run(buildDelete()
+    await cn.exec(buildDelete()
       .deleteFrom("root_task")
       .where("project_id", dbId)
       .toSql())
 
-    await cn.run(buildDelete()
+    await cn.exec(buildDelete()
       .deleteFrom("task")
       .where("task_id", taskId)
       .toSql())
 
-    await cn.run(buildDelete()
+    await cn.exec(buildDelete()
       .deleteFrom("project")
       .where("project_id", dbId)
       .toSql())
@@ -348,7 +347,7 @@ export async function deleteProject(context: BackendContext, frag: ProjectIdFrag
 // -- Dependencies
 // --
 
-async function insertProjectSteps(cn: InTransactionConnection, projectId: number | string, stepIds: string[]) {
+async function insertProjectSteps(cn: DatabaseConnection, projectId: number | string, stepIds: string[]) {
   for (let stepId of stepIds) {
     let sql = buildInsert()
       .insertInto("project_step")
@@ -356,11 +355,11 @@ async function insertProjectSteps(cn: InTransactionConnection, projectId: number
         "project_id": int(projectId),
         "step_id": int(stepId)
       })
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   }
 }
 
-async function updateProjectSteps(cn: InTransactionConnection, projectId: number | string, stepIds: string[]) {
+async function updateProjectSteps(cn: DatabaseConnection, projectId: number | string, stepIds: string[]) {
   let rs = await cn.all(buildSelect()
     .select("ps.step_id")
     .from("project_step ps")
@@ -379,7 +378,7 @@ async function updateProjectSteps(cn: InTransactionConnection, projectId: number
       .deleteFrom("project_step")
       .where("project_id", int(projectId))
       .andWhere("step_id", "in", toIntList(toDelete))
-    await cn.run(sql.toSql())
+    await cn.exec(sql.toSql())
   }
   await insertProjectSteps(cn, projectId, toAdd)
 }

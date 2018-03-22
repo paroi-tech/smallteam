@@ -14,7 +14,7 @@ export type FragmentOptions = {
 
 export default class CargoLoader {
   private responses: ResponseLoader[] = []
-  private ended: boolean
+  private ended = false
 
   public readonly modelUpdate = new ModelUpdateLoader()
 

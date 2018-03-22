@@ -56,18 +56,17 @@ function toCommentFragment(row): CommentFragment {
 // --
 
 export async function createComment(context: BackendContext, newFrag: CommentCreateFragment) {
-  // Comment
   let values = toSqlValues(newFrag, commentMeta.create)!
   values["written_by"] = int(context.sessionData.contributorId)
   let sql = buildInsert()
     .insertInto("comment")
     .values(values)
-  let ps = await cn.run(sql.toSql()),
-    commentId = ps.lastID
+  let res = await cn.exec(sql.toSql()),
+    commentId = res.getInsertedId()
 
   context.loader.addFragment({
     type: "Comment",
-    id: commentId.toString(),
+    id: commentId,
     asResult: "fragment",
     markAs: "created"
   })
@@ -90,7 +89,7 @@ export async function updateComment(context: BackendContext, updFrag: CommentUpd
     .update("comment")
     .set(values)
     .where("comment_id", commentId)
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.addFragment({
     type: "Comment",
@@ -111,7 +110,7 @@ export async function deleteComment(context: BackendContext, frag: CommentIdFrag
     .deleteFrom("comment")
     .where("comment_id", int(frag.id))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
 }

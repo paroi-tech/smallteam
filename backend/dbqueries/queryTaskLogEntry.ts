@@ -62,5 +62,5 @@ export async function logStepChange(context: BackendContext, taskId: string, ste
       "step_id": int(stepId),
       "contributor_id": int(context.sessionData.contributorId)
     })
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }

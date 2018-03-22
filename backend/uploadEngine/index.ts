@@ -1,12 +1,11 @@
 import { Request, Response } from "express"
 import * as multer from "multer"
-import { buildSelect, buildUpdate, buildDelete, buildInsert } from "./utils/sql92builder/Sql92Builder"
-import { fileCn as cn } from "./utils/dbUtils"
+import { buildSelect, buildUpdate, buildDelete, buildInsert } from "../utils/sql92builder/Sql92Builder"
+import { fileCn as cn } from "../utils/dbUtils"
 
 // --
 // -- Types declaration
 // --
-
 type ImageFilterCb = (err: Error | null, acceptFile: boolean) => void
 type FileFilter = (req: Request, file: File, cb: ImageFilterCb) => void
 
@@ -36,7 +35,6 @@ export type FileObject = {
 // --
 // -- Public functions
 // --
-
 export function checkAttachmentType(f: File): boolean {
   return f.originalname.match(/\.(jpg|jpeg|png|gif|png|pdf)$/) !== null
 }
@@ -53,10 +51,10 @@ export async function storeFile(f: File, metaCode: MainMetaCode, metaVal: string
 
   try {
     let sql = "INSERT INTO file(bin_data) VALUES($data)"
-    let ps = await cn.run(sql, {
+    let res = await cn.exec(sql, {
       $data: f.buffer
     })
-    let fId = ps.lastID.toString()
+    let fId = res.getInsertedId()
 
     await addMetaStr(fId, metaCode, metaVal)
     await addMetaStr(fId, "uploader", uploaderId)
@@ -83,7 +81,7 @@ export async function updateFile(f: File, fId: string, uploaderId: string) {
   try {
     let sql = "UPDATE file SET bin_data=$data WHERE file_id=$fId"
 
-    await cn.run(sql, {
+    await cn.exec(sql, {
       $fId: fId,
       $data: f.buffer
     })
@@ -228,7 +226,6 @@ export async function fetchFileById(fId: string): Promise<FileObject | undefined
 // --
 // -- Utility functions
 // --
-
 async function getAllMeta(fId: string): Promise<FileMeta[]> {
   let metaInt = await getAllMetaInt(fId)
   let metaStr = await getAllMetaStr(fId)
@@ -258,7 +255,7 @@ async function getAllMetaStr(fId: string): Promise<FileMeta[]> {
 
 async function addMetaInt(fId: string, code: string, val: number) {
   let sql = "INSERT OR REPLACE INTO meta_int VALUES($fId, $code, $val)"
-  await cn.run(sql, {
+  await cn.exec(sql, {
     $fId: fId,
     $code: code,
     $val: val
@@ -267,7 +264,7 @@ async function addMetaInt(fId: string, code: string, val: number) {
 
 async function addMetaStr(fId: string, code: string, val: string) {
   let sql = "INSERT OR REPLACE INTO meta_str VALUES($fId, $code, $val)"
-  await cn.run(sql, {
+  await cn.exec(sql, {
     $fId: fId,
     $code: code,
     $val: val
@@ -276,21 +273,21 @@ async function addMetaStr(fId: string, code: string, val: string) {
 
 async function removeFile(fId: string) {
   let sql = "DELETE FROM file WHERE file_id = $fId"
-  await cn.run(sql, {
+  await cn.exec(sql, {
     $fId: fId
   })
 }
 
 async function removeAllMetaStr(fId: string) {
   let sql = "DELETE FROM meta_str WHERE file_id = $fId"
-  await cn.run(sql, {
+  await cn.exec(sql, {
     $fId: fId
   })
 }
 
 async function removeAllMetaInt(fId: string) {
   let sql = "DELETE FROM meta_int WHERE file_id = $fId"
-  await cn.run(sql, {
+  await cn.exec(sql, {
     $fId: fId
   })
 }

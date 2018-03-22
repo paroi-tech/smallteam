@@ -1,5 +1,4 @@
 import * as path from "path"
-import * as sqlite from "sqlite"
 import { BackendContext } from "../backendContext/context"
 import flagMeta, { FlagFragment, FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
@@ -79,12 +78,12 @@ export async function createFlag(context: BackendContext, newFrag: FlagCreateFra
   let sql = buildInsert()
     .insertInto("flag")
     .values(toSqlValues(newFrag, flagMeta.create))
-  let ps = await cn.run(sql.toSql()),
-    flagId = ps.lastID
+  let res = await cn.exec(sql.toSql()),
+    flagId = res.getInsertedId()
 
   context.loader.addFragment({
     type: "Flag",
-    id: flagId.toString(),
+    id: flagId,
     asResult: "fragment",
     markAs: "created"
   })
@@ -114,7 +113,7 @@ export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFra
     .set(values)
     .where("flag_id", flagId)
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.addFragment({
     type: "Flag",
@@ -133,7 +132,7 @@ export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) 
     .deleteFrom("flag")
     .where("flag_id", int(frag.id))
 
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
 }
@@ -173,7 +172,7 @@ async function updateOrderNum(flagId: number, orderNum: number) {
       "order_num": orderNum
     })
     .where("flag_id", flagId)
-  await cn.run(sql.toSql())
+  await cn.exec(sql.toSql())
 }
 
 async function loadOrderNums(): Promise<Map<number, number>> {

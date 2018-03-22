@@ -1,10 +1,16 @@
 import * as path from "path"
-import { open } from "sqlite"
-import { sqliteConnection, Connection } from "./sqlite-with-transactions"
+import { createDatabaseConnection, DatabaseConnection } from "mycn"
+import { sqlite3ConnectionProvider } from "mycn-sqlite3"
+import { fileExists, readFile } from "./fsUtils"
+
+
+// import * as fs from "fs"
+// import { promisify } from "util";
+// const readFile = promisify(fs.readFile)
 
 export const mainDbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
-      file = "ourdb.sqlite"
+    file = "ourdb.sqlite"
   return {
     dir,
     file,
@@ -12,9 +18,9 @@ export const mainDbConf = (function () {
   }
 })()
 
-export const fileDbConf = (function() {
+export const fileDbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
-      file = "files.sqlite"
+    file = "files.sqlite"
   return {
     dir,
     file,
@@ -22,31 +28,63 @@ export const fileDbConf = (function() {
   }
 })()
 
-export let cn: Connection
-export let fileCn: Connection
+export let cn!: DatabaseConnection<string>
+export let fileCn!: DatabaseConnection<string>
+
+declare module "mycn" {
+  export interface DatabaseConnection<INSERT_ID extends string | number = any> {
+    prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
+    execSqlBricks(sqlBricks): Promise<ExecResult<INSERT_ID>>
+    allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
+    singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
+    singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
+  }
+}
 
 export async function initConnection() {
-  cn = await sqliteConnection(async () => {
-    let db = await open(mainDbConf.path)
-    await db.run("PRAGMA foreign_keys = ON")
-    await db.migrate({
-      migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts/main")
-    })
-    return db
-  }, {
-    logError: console.log
-  })
+  cn = await newSqliteCn(mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
+  fileCn = await newSqliteCn(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "uploadengine.sql"))
+}
 
-  fileCn = await sqliteConnection(async () => {
-    let db = await open(fileDbConf.path)
-    await db.run("PRAGMA foreign_keys = ON")
-    await db.migrate({
-      migrationsPath: path.join(__dirname, "..", "..", "sqlite-scripts/files")
-    })
-    return db
-  }, {
-    logError: console.log
+async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
+  const isNewDb = !await fileExists(fileName)
+  let cn = await createDatabaseConnection({
+    provider: sqlite3ConnectionProvider({ fileName }),
+    init: async cn => {
+      await cn.exec("PRAGMA busy_timeout = 500")
+      await cn.exec("PRAGMA foreign_keys = ON")
+    },
+    modifyDatabaseConnection: cn => {
+      cn.prepareSqlBricks = sqlBricks => {
+        let params = sqlBricks.toParams({ placeholder: '?%d' })
+        return cn.prepare(params.text, params.values)
+      }
+      cn.execSqlBricks = sqlBricks => {
+        let params = sqlBricks.toParams({ placeholder: '?%d' })
+        return cn.exec(params.text, params.values)
+      }
+      cn.allSqlBricks = sqlBricks => {
+        let params = sqlBricks.toParams({ placeholder: '?%d' })
+        return cn.all(params.text, params.values)
+      }
+      cn.singleRowSqlBricks = sqlBricks => {
+        let params = sqlBricks.toParams({ placeholder: '?%d' })
+        return cn.singleRow(params.text, params.values)
+      }
+      cn.singleValueSqlBricks = sqlBricks => {
+        let params = sqlBricks.toParams({ placeholder: '?%d' })
+        return cn.singleValue(params.text, params.values)
+      }
+      return cn
+    },
+    insertedIdType: "string",
+    poolOptions: {
+      logError: console.log
+    }
   })
+  if (isNewDb && newDbScriptFileName)
+    await cn.execScript(await readFile(newDbScriptFileName, "utf8"))
+  return cn
 }
 
 export function toIntList(strList: (string | number)[]): number[] {

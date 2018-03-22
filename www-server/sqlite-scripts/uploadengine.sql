@@ -1,13 +1,4 @@
---
--- Project SmallTeam, File Database
---
-
---
--- Up
---
-
-/*
-
+/**
 Example of an uploaded file 'DSC00034.JPG' as an avatar for the contributor 'Albert':
   - The media 'baseName' is : 'albert'
   - We store for example 3 files:
@@ -40,22 +31,37 @@ URL: /get-file/{file.fileId}/{media.baseName}-{file.altName}.{extension}
   Notice:
     - file.altName is optional
     - the extension ('jpeg', 'png', etc.) is not stored but evaluated from the mime type
-
 */
+
+-- Drop tables
+
+drop table if exists file_meta_int;
+drop table if exists file_meta_str;
+drop table if exists file;
+drop index if exists media_ref_external_idx;
+drop table if exists media_ref;
+drop index if exists media_owner_id_idx;
+drop table if exists media;
+
+-- Create tables
 
 create table media (
   media_id integer not null primary key autoincrement,
   ts timestamp not null default current_timestamp,
   base_name varchar(255),
-  orig_name varchar(255)
+  orig_name varchar(255),
+  owner_id varchar(255)
 );
+
+create index media_owner_id_idx on media(owner_id);
 
 create table media_ref (
   media_id bigint not null primary key references media(media_id),
   external_type varchar(50) not null, -- examples: 'contributorAvatar', 'task'
-  external_id varchar(255) not null,
-  index (external_type, external_id) -- TODO: syntaxe a verifier!
+  external_id varchar(255) not null
 );
+
+create index media_ref_external_idx on media_ref(external_type, external_id);
 
 create table file (
   file_id integer not null primary key autoincrement,
@@ -79,11 +85,3 @@ create table file_meta_int (
   val bigint not null,
   primary key (file_id, code)
 );
-
---
--- Down
---
-
-drop table if exists file;
-drop table if exists meta_int;
-drop table if exists meta_str;

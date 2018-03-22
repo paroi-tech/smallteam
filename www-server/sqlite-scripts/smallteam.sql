@@ -1,10 +1,21 @@
---
--- Project SmallTeam
---
+-- Drop tables
 
---
--- Up
---
+drop table if exists mail_challenge;
+drop table if exists comment;
+drop table if exists task_flag;
+drop table if exists flag;
+drop table if exists root_task;
+drop table if exists task_log;
+drop table if exists task_affected_to;
+drop table if exists task_description;
+drop table if exists task_child;
+drop table if exists task;
+drop table if exists project_step;
+drop table if exists project;
+drop table if exists step;
+drop table if exists contributor;
+
+-- Create tables
 
 create table contributor (
     contributor_id integer not null primary key autoincrement,
@@ -112,21 +123,3 @@ insert into step (label) values ('Archived');
 
 -- Fake data
 insert into contributor (name, login, email, role, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', 'admin', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');
-
---
--- Down
---
-
-drop table if exists comment;
-drop table if exists task_flag;
-drop table if exists flag;
-drop table if exists root_task;
-drop table if exists task_log;
-drop table if exists task_affected_to;
-drop table if exists task_description;
-drop table if exists task_child;
-drop table if exists task;
-drop table if exists step;
-drop table if exists project;
-drop table if exists step_type;
-drop table if exists contributor;
