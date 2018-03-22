@@ -20,7 +20,7 @@ async function returnFile(variantId: string, res: Response, asDownload = false) 
     res.type(fileData.imType)
     res.set("Content-Length", fileData.weightB.toString())
     if (asDownload)
-      res.set("Content-Disposition", `attachment;filename=${fileData.name}`)
+      res.set("Content-Disposition", `attachment;filename=${fileData.fileName}`)
     res.write(fileData.binData)
   } else {
     res.status(404)
@@ -76,7 +76,7 @@ console.log(">>>>>>", req.params, req.file)
       file: req.file,
       externalRef: {
         type: "contributorAvatar",
-        id: getHttpParameter(req, "contributorId")
+        id: "1" || getHttpParameter(req, "contributorId")
       },
       ownerId: sessionData.contributorId,
       overwrite: true
