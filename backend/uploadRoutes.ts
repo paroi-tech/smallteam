@@ -70,7 +70,7 @@ export async function routeChangeAvatar(req: Request, res: Response) {
     throw new Error("Only PNG, JPEG, GIF and WebP files are allowed.")
 
   let sessionData: SessionData = req.session as any
-console.log(">>>>>>", req.params)
+console.log(">>>>>>", req.params, req.file)
   return {
     done: await storeMedia({
       file: req.file,

@@ -157,10 +157,10 @@ async function insertVariant(variant: InsertVariant): Promise<string> {
   let variantId = (await fileCn.execSqlBricks(
     sql.insertInto("variant").values({
       "media_id": variant.mediaId,
-      "bin_data": variant.binData.buffer,
       "weight_b": variant.weightB,
       "im_type": variant.imType,
-      "code": variant.code
+      "code": variant.code,
+      "bin_data": variant.binData
     })
   )).getInsertedId()
   if (variant.img) {

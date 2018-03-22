@@ -62,7 +62,7 @@ export default class AppFrame {
   private createWorkspaces(viewer: WorkspaceViewer) {
     viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
     viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
-    viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors",this.dash.create(ContributorWorkspace))
+    viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
     viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
@@ -216,8 +216,8 @@ export default class AppFrame {
 }
 
 function updateSessionBtn(menuBtn: NavBtn, contributor: ContributorModel) {
-  console.log(">> update btn", contributor.avatar)
   menuBtn.setLabel(contributor.name);
-  let url = contributor.avatar && contributor.avatar.getVariant("orig")
-  menuBtn.innerEl!.style.backgroundImage = contributor.avatar ? `url(${url})` : null
+  let variant = contributor.avatar && contributor.avatar.getVariant("orig")
+  console.log(">> update btn", contributor.avatar, variant)
+  menuBtn.innerEl!.style.backgroundImage = contributor.avatar ? `url(${variant ? variant.url : undefined})` : null
 }
