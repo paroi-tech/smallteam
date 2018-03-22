@@ -15,7 +15,26 @@ export default class PromptDialog {
   private currDfd: Deferred<string> | undefined
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.el.addEventListener("cancel", ev => {
+      ev.preventDefault()
+      this.close("")
+    })
+    this.el.addEventListener("keydown", ev => {
+      if (ev.key === "Enter" && this.inputEl.value !== "")
+        this.close(this.inputEl.value)
+    })
+    this.msgEl = this.el.querySelector(".js-message") as HTMLElement
+    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
+    this.inputEl = this.el.querySelector(".js-input") as HTMLInputElement
+
+    let okBtn = this.el.querySelector(".js-ok-button") as HTMLButtonElement
+    let cancelBtn = this.el.querySelector(".js-cancel-button") as HTMLButtonElement
+    let closeItem = this.el.querySelector(".js-close") as HTMLElement
+    okBtn.addEventListener("click", ev => this.inputEl.value !== "" && this.close(this.inputEl.value))
+    cancelBtn.addEventListener("click", ev => this.close(""))
+    closeItem.addEventListener("click", ev => this.close(""))
   }
 
   public show(msg: string, title = "Prompt"): Promise<string> {
@@ -26,35 +45,6 @@ export default class PromptDialog {
     this.el.showModal()
 
     return this.currDfd.promise
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-    el.addEventListener("cancel", ev => {
-      ev.preventDefault()
-      this.close("")
-    })
-    el.addEventListener("keydown", ev => {
-      if (ev.key === "Enter" && this.inputEl.value !== "")
-        this.close(this.inputEl.value)
-    })
-
-    this.msgEl = el.querySelector(".js-message") as HTMLElement
-    this.titleEl = el.querySelector(".js-title") as HTMLElement
-    this.inputEl = el.querySelector(".js-input") as HTMLInputElement
-
-    let okBtn = el.querySelector(".js-ok-button") as HTMLButtonElement
-    okBtn.addEventListener("click", ev => this.inputEl.value !== "" && this.close(this.inputEl.value))
-
-    let cancelBtn = el.querySelector(".js-cancel-button") as HTMLButtonElement
-    cancelBtn.addEventListener("click", ev => this.close(""))
-
-    let closeItem = el.querySelector(".js-close") as HTMLElement
-    closeItem.addEventListener("click", ev => this.close(""))
-
-    return el
   }
 
   private close(s: string) {

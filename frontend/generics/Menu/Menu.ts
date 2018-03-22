@@ -28,7 +28,10 @@ export class Menu {
   private view: MonkberryView
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
+    this.ul = this.el.querySelector("ul") as HTMLElement
   }
 
   public addItem(item: MenuItem) {
@@ -89,19 +92,5 @@ export class Menu {
       let btn = arr[1] as HTMLButtonElement
       btn.disabled = false
     }
-  }
-
-  // --
-  // -- Utilities
-  // --
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.ul = el.querySelector("ul") as HTMLElement
-
-    return el
   }
 }

@@ -20,7 +20,26 @@ export default class LoginDialog {
   private curDfd: Deferred<SessionData> | undefined
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.nameEl = this.el.querySelector(".js-username") as HTMLInputElement
+    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
+    this.submitBtnEl =this. el.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
+    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
+
+    this.el.addEventListener("keyup", ev => {
+      if (ev.key === "Enter")
+        this.submitBtnEl.click()
+    })
+    this.el.addEventListener("close", () => {
+      if (this.curDfd) {
+        this.curDfd.reject(new Error("Fail to connect"))
+        this.curDfd = undefined
+      }
+    })
+
+    document.body.appendChild(this.el)
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
@@ -30,33 +49,6 @@ export default class LoginDialog {
     this.curDfd = new Deferred()
 
     return this.curDfd.promise
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-    let el = this.view.nodes[0] as HTMLDialogElement
-
-    this.nameEl = el.querySelector(".js-username") as HTMLInputElement
-    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
-    this.submitBtnEl = el.querySelector(".js-submit-btn") as HTMLButtonElement
-    this.spinnerEl = el.querySelector(".js-spinner") as HTMLElement
-    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
-
-    el.addEventListener("keyup", ev => {
-      if (ev.key === "Enter")
-        this.submitBtnEl.click()
-    })
-
-    el.addEventListener("close", () => {
-      if (this.curDfd) {
-        this.curDfd.reject(new Error("Fail to connect"))
-        this.curDfd = undefined
-      }
-    })
-
-    document.body.appendChild(el)
-
-    return el
   }
 
   private removeWarning() {
@@ -97,7 +89,6 @@ export default class LoginDialog {
       this.nameEl.style.borderColor = "red"
       this.nameEl.focus()
       this.el.style.pointerEvents = "auto"
-
       return false
     }
 
@@ -105,7 +96,6 @@ export default class LoginDialog {
       this.passwordEl.style.borderColor = "red"
       this.passwordEl.focus()
       this.el.style.pointerEvents = "auto"
-
       return false
     }
 

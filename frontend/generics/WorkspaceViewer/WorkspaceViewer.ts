@@ -43,7 +43,11 @@ export default class WorkspaceViewer {
   readonly router: EasyRouter
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
+    this.el = document.createElement("div")
+    this.view = render(template, this.el)
+    this.h1El = this.el.querySelector(".js-h1") as HTMLElement
+    this.customMenuPlaceEl = this.el.querySelector(".js-customMenu") as HTMLElement
+    this.bodyEl = this.el.querySelector(".js-body") as HTMLElement
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)
@@ -148,16 +152,5 @@ export default class WorkspaceViewer {
       }
     }
     return obj
-  }
-
-  private createView() {
-    let el = document.createElement("div")
-    this.view = render(template, el)
-
-    this.h1El = el.querySelector(".js-h1") as HTMLElement
-    this.customMenuPlaceEl = el.querySelector(".js-customMenu") as HTMLElement
-    this.bodyEl = el.querySelector(".js-body") as HTMLElement
-
-    return el
   }
 }

@@ -14,7 +14,20 @@ export default class WarningDialog {
   private currDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.el.addEventListener("cancel", ev => {
+      ev.preventDefault()
+      this.close()
+    })
+    this.el.addEventListener("keydown", ev => ev.key === "Enter" && this.close())
+    this.msgEl = this.el.querySelector(".js-message") as HTMLElement
+    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
+
+    let btn = this.el.querySelector(".js-button") as HTMLButtonElement
+    let closeItem = this.el.querySelector(".js-close") as HTMLElement
+    btn.addEventListener("click", ev => this.close())
+    closeItem.addEventListener("click", ev => this.close())
   }
 
   public show(msg: string, title = "Warning"): Promise<boolean> {
@@ -25,26 +38,6 @@ export default class WarningDialog {
     this.el.showModal()
 
     return this.currDfd.promise
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-    el.addEventListener("cancel", ev => {
-      ev.preventDefault()
-      this.close()
-    })
-    el.addEventListener("keydown", ev => ev.key === "Enter" && this.close())
-
-    this.msgEl = el.querySelector(".js-message") as HTMLElement
-    this.titleEl = el.querySelector(".js-title") as HTMLElement
-    let btn = el.querySelector(".js-button") as HTMLButtonElement
-    btn.addEventListener("click", ev => this.close())
-    let closeItem = el.querySelector(".js-close") as HTMLElement
-    closeItem.addEventListener("click", ev => this.close())
-
-    return el
   }
 
   private close() {

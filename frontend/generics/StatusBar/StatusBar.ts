@@ -7,13 +7,7 @@ export default class StatusBar {
   readonly el: HTMLElement
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
-  }
-
-  private createView() {
-    let view = render(template, document.createElement("div"))
-    let el = view.nodes[0] as HTMLButtonElement
-    return el
+    this.el = render(template, document.createElement("div")).nodes[0] as HTMLButtonElement
   }
 
   public addItem(el: HTMLElement) {

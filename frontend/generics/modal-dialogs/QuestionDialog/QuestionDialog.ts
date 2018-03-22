@@ -14,7 +14,22 @@ export default class QuestionDialog {
   private currDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.el.addEventListener("cancel", ev => {
+      ev.preventDefault()
+      this.close(false)
+    })
+    this.el.addEventListener("keydown", ev => ev.key === "Enter" && this.close(true))
+    this.msgEl = this.el.querySelector(".js-message") as HTMLElement
+    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
+
+    let okBtn = this.el.querySelector(".js-ok-button") as HTMLButtonElement
+    let cancelBtn = this.el.querySelector(".js-cancel-button") as HTMLButtonElement
+    let closeItem = this.el.querySelector(".js-close") as HTMLElement
+    okBtn.addEventListener("click", ev => this.close(true))
+    cancelBtn.addEventListener("click", ev => this.close(false))
+    closeItem.addEventListener("click", ev => this.close(false))
   }
 
   public show(msg: string, title = "Error"): Promise<boolean> {
@@ -25,31 +40,6 @@ export default class QuestionDialog {
     this.el.showModal()
 
     return this.currDfd.promise
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-    el.addEventListener("cancel", ev => {
-      ev.preventDefault()
-      this.close(false)
-    })
-    el.addEventListener("keydown", ev => ev.key === "Enter" && this.close(true))
-
-    this.msgEl = el.querySelector(".js-message") as HTMLElement
-    this.titleEl = el.querySelector(".js-title") as HTMLElement
-
-    let okBtn = el.querySelector(".js-ok-button") as HTMLButtonElement
-    okBtn.addEventListener("click", ev => this.close(true))
-
-    let cancelBtn = el.querySelector(".js-cancel-button") as HTMLButtonElement
-    cancelBtn.addEventListener("click", ev => this.close(false))
-
-    let closeItem = el.querySelector(".js-close") as HTMLElement
-    closeItem.addEventListener("click", ev => this.close(false))
-
-    return el
   }
 
   private close(b: boolean) {

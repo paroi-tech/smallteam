@@ -32,8 +32,29 @@ export default class ContributorWorkspace implements Workspace {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createHtmlElements()
-    this.createChildComponents()
+
+    let view = render(template, document.createElement("div"))
+    this.el = view.nodes[0] as HTMLElement
+    this.boxListContainerEl = this.el.querySelector(".js-list") as HTMLElement
+    this.formContainerEl = this.el.querySelector(".js-form") as HTMLElement
+
+    this.form = this.dash.create(ContributorForm)
+    this.formContainerEl.appendChild(this.form.el)
+    this.boxList = this.dash.create(BoxList, {
+      id: "contributorBoxList",
+      name: "Contributors",
+      sort: false
+    })
+    this.boxListContainerEl.appendChild(this.boxList.el)
+    this.menu = this.dash.create(DropdownMenu, {
+        btnEl: createCustomMenuBtnEl()
+      } as DropdownMenuOptions
+    )
+    this.menu.entries.createNavBtn({
+      label: "Add contributor",
+      onClick: () => this.form.reset()
+    })
+
     this.listenToModel()
     this.listenToChildren()
     this.fillBoxList()
@@ -55,37 +76,8 @@ export default class ContributorWorkspace implements Workspace {
       .setTitle("Contributors")
   }
 
-  public deactivate() {}
+  public deactivate() {
 
-  private createHtmlElements(): HTMLElement {
-    let view = render(template, document.createElement("div"))
-    let el = view.nodes[0] as HTMLElement
-
-    this.boxListContainerEl = el.querySelector(".js-list") as HTMLElement
-    this.formContainerEl = el.querySelector(".js-form") as HTMLElement
-
-    return el
-  }
-
-  private createChildComponents() {
-    this.form = this.dash.create(ContributorForm)
-    this.formContainerEl.appendChild(this.form.el)
-
-    let params = {
-      id: "contributorBoxList",
-      name: "Contributors",
-      sort: false
-    }
-    this.boxList = this.dash.create(BoxList, params)
-    this.boxListContainerEl.appendChild(this.boxList.el)
-
-    this.menu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl()
-    } as DropdownMenuOptions)
-    this.menu.entries.createNavBtn({
-      label: "Add contributor",
-      onClick: () => this.form.reset()
-    })
   }
 
   private listenToModel() {

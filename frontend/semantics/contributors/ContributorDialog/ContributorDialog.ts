@@ -18,7 +18,18 @@ export default class ContributorDialog {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.buttonEl = this.el.querySelector(".js-button") as HTMLButtonElement
+    this.selectorContainerEl = this.el.querySelector(".js-selector-container") as HTMLElement
+    // By default, pressing the ESC key close the dialog. We have to prevent that.
+    this.el.addEventListener("cancel", ev => ev.preventDefault())
+    this.buttonEl.addEventListener("click", ev => {
+      this.el.close()
+      this.dash.emit("contributorSelectionDialogClosed")
+    })
+
     this.selector = this.createMultiSelect()
   }
 
@@ -33,23 +44,6 @@ export default class ContributorDialog {
 
   public selectedContributors() {
     return this.selector.getSelected()
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-    this.buttonEl = el.querySelector(".js-button") as HTMLButtonElement
-    this.selectorContainerEl = el.querySelector(".js-selector-container") as HTMLElement
-
-    // By default, pressing the ESC key close the dialog. We have to prevent that.
-    el.addEventListener("cancel", ev => ev.preventDefault())
-    this.buttonEl.addEventListener("click", ev => {
-      el.close()
-      this.dash.emit("contributorSelectionDialogClosed")
-    })
-
-    return el
   }
 
   private createMultiSelect() {

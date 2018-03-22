@@ -35,21 +35,15 @@ export default class PasswordForm {
 
   constructor(private dash: Dash<App>, private contributor: ContributorModel) {
     this.model = this.dash.app.model
-    this.el = this.createView()
-  }
 
-  private createView(): HTMLElement {
     this.view = render(template, document.createElement("div"), { directives })
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
-    this.newPasswordEl = el.querySelector(".js-new-password") as HTMLInputElement
-    this.passwordConfirmEl = el.querySelector(".js-password-confirm") as HTMLInputElement
-    this.submitSpinnerEl = el.querySelector(".fa-spinner") as HTMLElement
+    this.el = this.view.nodes[0] as HTMLElement
+    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
+    this.newPasswordEl = this.el.querySelector(".js-new-password") as HTMLInputElement
+    this.passwordConfirmEl = this.el.querySelector(".js-password-confirm") as HTMLInputElement
+    this.submitSpinnerEl = this.el.querySelector(".fa-spinner") as HTMLElement
 
     this.view.update(this.state)
-
-    return el
   }
 
   private async onSubmit() {
