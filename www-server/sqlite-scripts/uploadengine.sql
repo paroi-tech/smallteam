@@ -65,10 +65,11 @@ create index media_ref_external_idx on media_ref(external_type, external_id);
 create table variant (
   variant_id integer not null primary key autoincrement,
   media_id bigint not null references media(media_id),
+  code varchar(255) not null, -- examples: 'orig', '800x600', '80x80'
   weight_b integer not null,
   im_type varchar(255) not null,
-  variant_name varchar(255), -- examples: '800x600', '80x80'
-  bin_data blob not null
+  bin_data blob not null,
+  unique (media_id, code)
 );
 
 create table variant_img (

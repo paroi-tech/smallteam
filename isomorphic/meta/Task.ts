@@ -1,6 +1,6 @@
 import { FragmentMeta } from "./index"
 import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta, SearchPick, searchPickFragmentMeta } from "./metaHelpers"
-import { FileInfoFragment } from "./FileInfo"
+import { MediaVariantFragment } from "./FileInfo"
 
 export interface TaskFragment {
   readonly id: string
@@ -18,7 +18,7 @@ export interface TaskFragment {
   flagIds?: string[]
   readonly commentCount?: number
   attachedFileIds?: string[]
-  attachedFileInfo?: FileInfoFragment[]
+  attachedFileInfo?: MediaVariantFragment[]
 }
 
 const meta: FragmentMeta = {

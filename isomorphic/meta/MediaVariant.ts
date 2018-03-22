@@ -10,54 +10,59 @@ import { pickFragmentMeta } from "./metaHelpers"
 //   uploaderId: string
 // }
 
-export interface FileInfoFragment {
+export interface MediaVariantFragment {
   readonly id: string
   weightB: number
   imType: string
   variantName?: string
-  media: {
-    id: string
-    ts: string
-    baseName?: string
-    originalName?: string
-    ownerId?: string
-  }
   url: string
-  imageMeta?: {
-    width: number
-    height: number
-  }
+  imgWidth?: number
+  imgHeight?: number
+  imgDpi?: number
 }
 
 
-const meta: FragmentMeta = { // FIXME: New data structure
-  type: "FileInfo",
+const meta: FragmentMeta = {
+  type: "MediaVariant",
   variant: "read",
   fields: {
     id: {
       dataType: "string",
       id: true
     },
-    name: {
+    mediaId: {
       dataType: "string"
+    },
+    weightB: {
+      dataType: "number"
     },
     imType: {
       dataType: "string"
     },
-    weight: {
-      dataType: "number"
+    variantName: {
+      dataType: "string",
+      optional: true
     },
     url: {
       dataType: "string"
     },
-    uploaderId: {
-      dataType: "string"
+    imgWidth: {
+      dataType: "number",
+      optional: true
+    },
+    imgHeight: {
+      dataType: "number",
+      optional: true
+    },
+    imgDpi: {
+      dataType: "number",
+      optional: true
     }
   },
-  orderFieldName: "name"
+  orderFieldName: "variantName"
 }
 
-export type FileInfoIdFragment = Pick<FileInfoFragment, "id">
+export type MediaVariantIdFragment = Pick<MediaVariantFragment, "id">
 
 export default {
   read: meta,

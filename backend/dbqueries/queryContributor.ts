@@ -7,7 +7,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
-import { getSingleFileInfoFragment } from "./queryFileInfo"
+import { getSingleMediaVariantFragment } from "./queryFileInfo"
 
 export const bcryptSaltRounds = 10
 
@@ -50,7 +50,7 @@ async function toContributorFragment(context: BackendContext, row): Promise<Cont
 }
 
 async function addAvatar(context: BackendContext, frag: ContributorFragment) {
-  let info = await getSingleFileInfoFragment("contributorAvatar", frag.id)
+  let info = await getSingleMediaVariantFragment("contributorAvatar", frag.id)
   if (!info)
     return
   frag.avatarId = info.id

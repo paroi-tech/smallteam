@@ -7,7 +7,7 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
-import { getFileInfoFragments } from "./queryFileInfo"
+import { getMediaVariantInfoFragments } from "./queryFileInfo"
 
 // --
 // -- Read
@@ -123,7 +123,7 @@ async function toTaskFragment(context: BackendContext, row): Promise<TaskFragmen
 }
 
 async function addAttachedFiles(context: BackendContext, frag: TaskFragment) {
-  let infos = await getFileInfoFragments("task", frag.id)
+  let infos = await getMediaVariantInfoFragments("task", frag.id)
 
   if (infos.length === 0)
     return

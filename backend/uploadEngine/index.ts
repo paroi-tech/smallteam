@@ -15,7 +15,7 @@ export interface ExternalRef {
   id: string
 }
 
-interface Media {
+interface MediaDef {
   id: string
   ts: string
   baseName?: string
@@ -24,23 +24,23 @@ interface Media {
   externalRef?: ExternalRef
 }
 
-interface Variant {
+interface VariantDef {
   id: string
-  binData: Buffer
-  weightB: number
+  media: MediaDef
+  code?: string
   imType: string
-  variantName?: string
-  media: Media
-  img?: Image
+  weightB: number
+  img?: ImageDef
+  binData: Buffer
 }
 
-interface Image {
+interface ImageDef {
   width: number
   height: number
   dpi?: number
 }
 
-// URL: /get-file/{file.id}/{media.baseName}-{file.variantName}.{extension}
+// URL: /get-file/{file.id}/{media.baseName}-{variant.code}.{extension}
 
 // --
 // -- Store a media
@@ -92,7 +92,7 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
       binData: params.file.buffer,
       weightB: params.file.size,
       imType: params.file.mimetype,
-      variantName: undefined,
+      code: undefined,
       img: await getImageMeta(params.file)
     })
 
@@ -103,7 +103,7 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
   }
 }
 
-type InsertMedia = Pick<Media, "baseName" | "originalName" | "ownerId" | "externalRef">
+type InsertMedia = Pick<MediaDef, "baseName" | "originalName" | "ownerId" | "externalRef">
 
 async function insertMedia(media: InsertMedia): Promise<string> {
   let mediaId = (await fileCn.execSqlBricks(
@@ -133,7 +133,7 @@ async function clearMediaVariants(mediaId: string) {
   )
 }
 
-type UpdateMedia = Pick<Media, "baseName" | "originalName" | "ownerId">
+type UpdateMedia = Pick<MediaDef, "baseName" | "originalName" | "ownerId">
 
 async function updateMedia(media: UpdateMedia, mediaId: string) {
   await fileCn.execSqlBricks(
@@ -149,7 +149,7 @@ async function updateMedia(media: UpdateMedia, mediaId: string) {
   )
 }
 
-type InsertVariant = Pick<Variant, "binData" | "weightB" | "imType" | "variantName" | "img"> & {
+type InsertVariant = Pick<VariantDef, "code" | "imType" | "weightB" | "img" | "binData"> & {
   "mediaId": string
 }
 
@@ -160,7 +160,7 @@ async function insertVariant(variant: InsertVariant): Promise<string> {
       "bin_data": variant.binData.buffer,
       "weight_b": variant.weightB,
       "im_type": variant.imType,
-      "variant_name": variant.variantName
+      "code": variant.code
     })
   )).getInsertedId()
   if (variant.img) {
@@ -181,7 +181,7 @@ function isValidImage(imType: string) {
   return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
 }
 
-async function getImageMeta(f: MulterFile): Promise<Image | undefined> {
+async function getImageMeta(f: MulterFile): Promise<ImageDef | undefined> {
   if (!isValidImage(f.mimetype))
     return
   try {
@@ -252,27 +252,27 @@ export async function removeMedias(filter: MediaFilter): Promise<number> {
 // -- Fetch variant data
 // --
 
-type VDMedia = Pick<Media, "id" | "ts">
+type VDMedia = Pick<MediaDef, "id" | "ts">
 
-type VariantData = Pick<Variant, "id" | "binData" | "weightB" | "imType"> & {
+type VariantData = Pick<VariantDef, "id" | "binData" | "weightB" | "imType"> & {
   media: VDMedia
   name: string
 }
 
 export async function getVariantData(variantId: string): Promise<VariantData | undefined> {
   let row = await fileCn.singleRow(
-    sql.select("v.bin_data, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.orig_name, m.base_name")
+    sql.select("v.bin_data, v.weight_b, v.im_type, v.code, m.media_id, m.ts, m.orig_name, m.base_name")
       .from("variant v")
       .innerJoin("media m").using("media_id")
       .where("v.variant_id", variantId)
   )
   if (!row)
     return
-  let name = fileName({
+  let name = getFileName({
     imType: row["im_type"],
     originalName: row["orig_name"],
     baseName: row["base_name"],
-    variantName: row["variant_name"]
+    code: row["code"]
   })
   return {
     id: variantId,
@@ -288,53 +288,83 @@ export async function getVariantData(variantId: string): Promise<VariantData | u
 }
 
 // --
-// -- Fetch variant info
+// -- Fetch Media & Variant
 // --
 
-export type MediaInfo = Pick<Media, "id" | "ts" | "baseName" | "originalName" | "ownerId">
+export type Media = Pick<MediaDef, "id" | "ts" | "baseName" | "originalName" | "ownerId"> & {
+  variants: Variants
+}
 
-export type VariantInfo = Pick<Variant, "id" | "weightB" | "imType" | "variantName" | "img"> & {
-  media: MediaInfo
-  name: string
+export interface Variants {
+  [code: string]: Variant
+}
+
+export type Variant = Pick<VariantDef, "id" | "code" | "imType" | "weightB" | "img"> & {
+  fileName: string
   url: string
 }
 
-export interface Query {
-  externalRef: ExternalRef
-  variantName: string | null
+export interface MediaQuery {
+  externalRef?: ExternalRef
 }
 
-export async function fetchListOfVariantInfo(query: Query): Promise<VariantInfo[]> {
+export async function fetchMedias(query: MediaQuery): Promise<Media[]> {
+  if (!query.externalRef)
+    return []
   let rows = await fileCn.all(
-    sqlSelectVariantInfo()
+    sqlSelectMedia()
       .innerJoin("media_ref r").using("media_id")
       .where({
-        "v.variant_name": query.variantName,
         "r.external_type": query.externalRef.type,
         "r.external_id": query.externalRef.id
       })
   )
-  let result: VariantInfo[] = []
-  for (let row of rows)
-    result.push(toVariantInfo(row))
+  let result: Media[] = []
+  for (let row of rows) {
+    let id = row["media_id"].toString()
+    result.push({
+      id,
+      ts: row["ts"],
+      baseName: row["base_name"],
+      originalName: row["orig_name"],
+      ownerId: row["owner_id"],
+      variants: await fetchVariantsOf(id)
+    })
+  }
   return result
 }
 
-function sqlSelectVariantInfo() {
-  return sql.select("v.variant_id, v.weight_b, v.im_type, v.variant_name, m.media_id, m.ts, m.base_name, m.orig_name," +
-    " m.owner_id, i.width, i.height, i.dpi")
+function sqlSelectMedia() {
+  return sql.select("m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id")
+    .from("media m")
+}
+
+async function fetchVariantsOf(mediaId: string): Promise<Variants> {
+  let rows = await fileCn.all(
+    sqlSelectVariant()
+      .where("v.media_id", mediaId)
+  )
+  let result: Variants = {}
+  for (let row of rows) {
+    let code = row["code"]
+    result[code] = toVariant(row)
+  }
+  return result
+}
+
+function sqlSelectVariant() {
+  return sql.select("v.variant_id, v.weight_b, v.im_type, v.code, i.width, i.height, i.dpi")
     .from("variant v")
-    .innerJoin("media m").using("media_id")
     .leftJoin("variant_img i").using("variant_id")
 }
 
-function toVariantInfo(row: any[]): VariantInfo {
-  let variantId = row["variant_id"].toString()
-  let name = fileName({
+function toVariant(row: any[]): Variant {
+  let id = row["variant_id"].toString()
+  let fileName = getFileName({
     imType: row["im_type"],
     originalName: row["orig_name"],
     baseName: row["base_name"],
-    variantName: row["variant_name"]
+    code: row["code"]
   })
   let img = !row["width"] || !row["height"] ? undefined : {
     width: row["width"],
@@ -342,63 +372,26 @@ function toVariantInfo(row: any[]): VariantInfo {
     dpi: row["dpi"]
   }
   return {
-    id: variantId,
+    id,
     weightB: row["weight_b"],
     imType: row["im_type"],
-    variantName: row["variant_name"],
-    media: {
-      id: row["media_id"].toString(),
-      ts: row["ts"],
-      baseName: row["base_name"],
-      originalName: row["orig_name"],
-      ownerId: row["owner_id"]
-    },
-    name,
-    url: `/get-file/${variantId}/${name}`,
+    code: row["code"],
+    fileName,
+    url: `/get-file/${id}/${fileName}`,
     img
   }
 }
 
-// async function fetchImageMeta(variantId: string): Promise<ImageMeta | undefined> {
-//   let values = await fetchFileMeta(variantId)
-//   if ("width" in values && "height" in values)
-//     return values as any
-// }
-
-// async function fetchFileMeta(variantId: string): Promise<MetaValues> {
-//   let values: MetaValues = {}
-
-//   // Fetch from 'file_meta_str'
-//   let rows = await fileCn.all(
-//     sql.select("code, val")
-//       .from("file_meta_str")
-//       .where("variant_id", variantId)
-//   )
-//   for (let row of rows)
-//     values[row["code"]] = row["val"]
-
-//   // Fetch from 'file_meta_int'
-//   rows = await fileCn.all(
-//     sql.select("code, val")
-//       .from("file_meta_int")
-//       .where("variant_id", variantId)
-//   )
-//   for (let row of rows)
-//     values[row["code"]] = row["val"]
-
-//   return values
-// }
-
 interface FileNameOptions {
   imType: string
   baseName?: string
-  variantName?: string
+  code?: string
   originalName?: string
 }
 
-function fileName(options: FileNameOptions) {
+function getFileName(options: FileNameOptions) {
   let fileExt = toFileExtension(options.imType, options.originalName) || ""
-  let n = [options.baseName, options.variantName].filter(tok => tok !== undefined).join("-")
+  let n = [options.baseName, options.code].filter(tok => tok !== undefined).join("-")
   if (!n)
     n = options.originalName || "unamed"
   return `${n}${fileExt}`
