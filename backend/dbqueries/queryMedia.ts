@@ -1,15 +1,39 @@
 import { BackendContext } from "../backendContext/context"
-import { fetchVariants, Variant } from "../uploadEngine"
+import { findMedias, Variant, Media, findSingleMedia } from "../uploadEngine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
-export async function getMediaVariantInfoFragments(type: MainMetaCode, id: string): Promise<MediaVariantFragment[]> {
-  let infos = await fetchVariants({
-    externalRef: { type, id },
-    variantName: null
+export async function fetchMedias(context: BackendContext, type: MainMetaCode, id: string): Promise<string[]> {
+  let medias = await findMedias({
+    externalRef: { type, id }
   })
+  let { mediaFragments, variantFragments } = toMediaAndVariantFragments(medias)
+
+  for (let frag of mediaFragments)
+    context.loader.addFragment({ type: "Media", frag })
+  for (let frag of variantFragments)
+    context.loader.addFragment({ type: "MediaVariant", frag })
+
+  return mediaFragments.map(frag => frag.id)
+}
+
+export async function fetchSingleMedia(context: BackendContext, type: MainMetaCode, id: string): Promise<string | undefined> {
+  let media = await findSingleMedia({
+    externalRef: { type, id }
+  })
+  if (!media)
+    return
+
+  let { mediaFragments, variantFragments } = toMediaAndVariantFragments([media])
+
+  for (let frag of mediaFragments)
+    context.loader.addFragment({ type: "Media", frag })
+  for (let frag of variantFragments)
+    context.loader.addFragment({ type: "MediaVariant", frag })
+
+  return media.id
 }
 
 interface MediaAndVariantFragments {
@@ -17,40 +41,40 @@ interface MediaAndVariantFragments {
   variantFragments: MediaVariantFragment[]
 }
 
-function toMediaVariantInfoFragments(infos: Variant[]): MediaAndVariantFragments {
+function toMediaAndVariantFragments(medias: Media[]): MediaAndVariantFragments {
+  let mediaFragments: MediaFragment[] = []
   let variantFragments: MediaVariantFragment[] = []
-  let mediaFragments = new Map<string, MediaFragment>()
-  for (let info of infos) {
-    variantFragments.push({
-      id: info.id,
-      weightB: info.weightB,
-      imType: info.imType,
-      variantName: info.variantName,
-      url: info.url,
-      imgWidth: info.img ? info.img.width : undefined,
-      imgHeight: info.img ? info.img.height : undefined,
-      imgDpi: info.img ? info.img.dpi : undefined
-    })
-    mediaFragments.set(info.media.id, info.media)
+  for (let media of medias) {
+    mediaFragments.push(toMediaFragment(media))
+    for (let variantCode of Object.keys(media.variants))
+      variantFragments.push(toMediaVariantFragment(media.variants[variantCode], media.id))
   }
   return {
-    mediaFragments: Array.from(mediaFragments.values()),
+    mediaFragments,
     variantFragments
   }
 }
 
-export async function getSingleMediaVariantFragment(type: MainMetaCode, id: string): Promise<MediaVariantFragment | undefined> {
-  let infos = await getMediaVariantInfoFragments(type, id)
-  return infos.length === 0 ? undefined : infos[0]
+function toMediaFragment(media: Media): MediaFragment {
+  return {
+    id: media.id,
+    ts: media.ts,
+    baseName: media.baseName,
+    originalName: media.originalName,
+    ownerId: media.ownerId
+  }
 }
 
-async function addAvatar(context: BackendContext, frag: ContributorFragment) {
-  let info = await getSingleMediaVariantFragment("contributorAvatar", frag.id)
-  if (!info)
-    return
-  frag.avatarId = info.id
-  context.loader.addFragment({
-    type: "FileInfo",
-    frag: info,
-  })
+function toMediaVariantFragment(variant: Variant, mediaId: string): MediaVariantFragment {
+  return {
+    id: variant.id,
+    mediaId,
+    code: variant.code,
+    weightB: variant.weightB,
+    imType: variant.imType,
+    url: variant.url,
+    imgWidth: variant.img ? variant.img.width : undefined,
+    imgHeight: variant.img ? variant.img.height : undefined,
+    imgDpi: variant.img ? variant.img.dpi : undefined
+  }
 }

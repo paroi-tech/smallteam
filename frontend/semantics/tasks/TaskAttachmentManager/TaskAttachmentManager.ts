@@ -121,14 +121,14 @@ export default class TaskAttachmentManager {
     this.listEl.appendChild(el)
   }
 
-  private async removeTaskAttachment(fId: string) {
+  private async removeTaskAttachment(variantId: string) {
     if (!this.currentTask)
       return false
     let taskId = this.currentTask.id
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/delete-attachment/${taskId}/${fId}`, {
+      let response = await fetch(`${config.urlPrefix}/api/delete-attachment/${taskId}/${variantId}`, {
         method: "post",
         credentials: "same-origin",
         headers: {

@@ -1,20 +1,12 @@
 import { FragmentMeta } from "./index"
 import { pickFragmentMeta } from "./metaHelpers"
 
-// export interface FileInfoFragment {
-//   readonly id: string
-//   name: string
-//   imType: string
-//   weight: number
-//   url: string
-//   uploaderId: string
-// }
-
 export interface MediaVariantFragment {
   readonly id: string
+  mediaId: string
+  code: string
   weightB: number
   imType: string
-  variantName?: string
   url: string
   imgWidth?: number
   imgHeight?: number
@@ -33,15 +25,14 @@ const meta: FragmentMeta = {
     mediaId: {
       dataType: "string"
     },
+    code: {
+      dataType: "string"
+    },
     weightB: {
       dataType: "number"
     },
     imType: {
       dataType: "string"
-    },
-    variantName: {
-      dataType: "string",
-      optional: true
     },
     url: {
       dataType: "string"
@@ -59,7 +50,7 @@ const meta: FragmentMeta = {
       optional: true
     }
   },
-  orderFieldName: "variantName"
+  orderFieldName: "imgWidth"
 }
 
 export type MediaVariantIdFragment = Pick<MediaVariantFragment, "id">

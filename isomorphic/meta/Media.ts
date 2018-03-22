@@ -9,7 +9,6 @@ export interface MediaFragment {
   ownerId?: string
 }
 
-
 const meta: FragmentMeta = {
   type: "Media",
   variant: "read",

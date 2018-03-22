@@ -90,11 +90,11 @@ export function registerTask(engine: ModelEngine) {
         } as TaskLogEntrySearchFragment)
       },
       get attachedFiles() {
-        let fileIds = getFrag().attachedFileIds
-        if (!fileIds)
+        let mediaIds = getFrag().attachedMediaIds
+        if (!mediaIds)
           return undefined
-        let list = fileIds.map(fileId => engine.getModel("FileInfo", fileId))
-        return toCollection(list, "FileInfo")
+        let list = mediaIds.map(mediaId => engine.getModel("Media", mediaId))
+        return toCollection(list, "Media")
       }
     } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)

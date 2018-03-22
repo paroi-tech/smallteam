@@ -7,7 +7,7 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
-import { getMediaVariantInfoFragments } from "./queryFileInfo"
+import { fetchMedias } from "./queryMedia";
 
 // --
 // -- Read
@@ -118,25 +118,11 @@ async function toTaskFragment(context: BackendContext, row): Promise<TaskFragmen
   if (row["flagIds"])
     frag.flagIds = row["flagIds"].map(id => id.toString())
 
-  await addAttachedFiles(context, frag)
+  let mediaIdList = await fetchMedias(context, "task", frag.id)
+  if (mediaIdList.length > 0)
+    frag.attachedMediaIds = mediaIdList
+
   return frag
-}
-
-async function addAttachedFiles(context: BackendContext, frag: TaskFragment) {
-  let infos = await getMediaVariantInfoFragments("task", frag.id)
-
-  if (infos.length === 0)
-    return
-
-  frag.attachedFileIds = infos.map(info => info.id)
-  frag.attachedFileInfo = infos
-
-  for (let info of infos) {
-    context.loader.addFragment({
-      type: "FileInfo",
-      frag: info,
-    })
-  }
 }
 
 // --

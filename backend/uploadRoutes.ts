@@ -1,21 +1,21 @@
 import { Request, Response } from "express"
 import { SessionData } from "./backendContext/context";
-import { getVariantData, storeMedia, removeMedias, removeMedia } from "./uploadEngine";
+import { getFileData, storeMedia, removeMedias, removeMedia } from "./uploadEngine";
 
 export async function routeGetFile(_: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData || !req || !res)
     throw new Error("Required parameter missing in route callback")
-  returnFile(getHttpParameter(req, "fId"), res)
+  returnFile(getHttpParameter(req, "variantId"), res)
 }
 
 export async function routeDownloadFile(_: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData || !req || !res)
     throw new Error("Required parameter missing in route callback")
-  returnFile(getHttpParameter(req, "fId"), res, true)
+  returnFile(getHttpParameter(req, "variantId"), res, true)
 }
 
-async function returnFile(fileId: string, res: Response, asDownload = false) {
-  let fileData = await getVariantData(fileId)
+async function returnFile(variantId: string, res: Response, asDownload = false) {
+  let fileData = await getFileData(variantId)
   if (fileData) {
     res.type(fileData.imType)
     res.set("Content-Length", fileData.weightB.toString())
@@ -53,7 +53,7 @@ export async function routeDeleteTaskAttachment(data: any, sessionData?: Session
 
   return {
     done: await removeMedia({
-      fileId: getHttpParameter(req, "fId")
+      variantId: getHttpParameter(req, "variantId")
     })
   }
 }

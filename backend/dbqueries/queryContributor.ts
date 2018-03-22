@@ -7,7 +7,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
-import { getSingleMediaVariantFragment } from "./queryFileInfo"
+import { fetchSingleMedia } from "./queryMedia"
 
 export const bcryptSaltRounds = 10
 
@@ -39,25 +39,16 @@ export async function fetchContributors(context: BackendContext) {
 
 async function toContributorFragment(context: BackendContext, row): Promise<ContributorFragment> {
   let frag: ContributorFragment = {
-    id:    row["contributor_id"].toString(),
-    name:  row["name"],
+    id: row["contributor_id"].toString(),
+    name: row["name"],
     login: row["login"],
     email: row["email"],
     role: row["role"]
   }
-  await addAvatar(context, frag)
+  let mediaId = await fetchSingleMedia(context, "contributorAvatar", frag.id)
+  if (mediaId !== undefined)
+    frag.avatarId = mediaId
   return frag
-}
-
-async function addAvatar(context: BackendContext, frag: ContributorFragment) {
-  let info = await getSingleMediaVariantFragment("contributorAvatar", frag.id)
-  if (!info)
-    return
-  frag.avatarId = info.id
-  context.loader.addFragment({
-    type: "FileInfo",
-    frag: info,
-  })
 }
 
 function selectFromContributor() {

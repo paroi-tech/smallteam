@@ -5,7 +5,8 @@ import projectMetaVariants from "./Project"
 import stepMetaVariants from "./Step"
 import taskMetaVariants from "./Task"
 import taskLogEntryMetaVariants from "./TaskLogEntry"
-import fileInfoMetaVariants from "./FileInfo"
+import mediaMetaVariants from "./Media"
+import mediaMetaVariantVariants from "./MediaVariant"
 import { Type, Identifier } from "../Cargo"
 
 export let types: ReadonlyArray<Type> = Object.freeze([
@@ -49,7 +50,8 @@ let allMeta: { [type: string]: MetaVariants } = {
   Step: stepMetaVariants,
   Task: taskMetaVariants,
   TaskLogEntry: taskLogEntryMetaVariants,
-  FileInfo: fileInfoMetaVariants,
+  Media: mediaMetaVariants,
+  MediaVariant: mediaMetaVariantVariants
 }
 
 export function getFragmentMeta(type: Type, variant: TypeVariant = "read"): FragmentMeta {

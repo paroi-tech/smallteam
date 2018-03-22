@@ -27,7 +27,7 @@ interface MediaDef {
 interface VariantDef {
   id: string
   media: MediaDef
-  code?: string
+  code: string
   imType: string
   weightB: number
   img?: ImageDef
@@ -89,11 +89,11 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
 
     await insertVariant({
       mediaId,
-      binData: params.file.buffer,
+      code: "orig",
       weightB: params.file.size,
       imType: params.file.mimetype,
-      code: undefined,
-      img: await getImageMeta(params.file)
+      img: await getImageMeta(params.file),
+      binData: params.file.buffer
     })
 
     await transCn.commit()
@@ -252,14 +252,14 @@ export async function removeMedias(filter: MediaFilter): Promise<number> {
 // -- Fetch variant data
 // --
 
-type VDMedia = Pick<MediaDef, "id" | "ts">
+export type VDMedia = Pick<MediaDef, "id" | "ts">
 
-type VariantData = Pick<VariantDef, "id" | "binData" | "weightB" | "imType"> & {
+export type VariantData = Pick<VariantDef, "id" | "binData" | "weightB" | "imType"> & {
   media: VDMedia
   name: string
 }
 
-export async function getVariantData(variantId: string): Promise<VariantData | undefined> {
+export async function getFileData(variantId: string): Promise<VariantData | undefined> {
   let row = await fileCn.singleRow(
     sql.select("v.bin_data, v.weight_b, v.im_type, v.code, m.media_id, m.ts, m.orig_name, m.base_name")
       .from("variant v")
@@ -288,7 +288,7 @@ export async function getVariantData(variantId: string): Promise<VariantData | u
 }
 
 // --
-// -- Fetch Media & Variant
+// -- Find Media & Variant
 // --
 
 export type Media = Pick<MediaDef, "id" | "ts" | "baseName" | "originalName" | "ownerId"> & {
@@ -308,7 +308,7 @@ export interface MediaQuery {
   externalRef?: ExternalRef
 }
 
-export async function fetchMedias(query: MediaQuery): Promise<Media[]> {
+export async function findMedias(query: MediaQuery): Promise<Media[]> {
   if (!query.externalRef)
     return []
   let rows = await fileCn.all(
@@ -332,6 +332,11 @@ export async function fetchMedias(query: MediaQuery): Promise<Media[]> {
     })
   }
   return result
+}
+
+export async function findSingleMedia(query: MediaQuery): Promise<Media | undefined> {
+  let medias = await findMedias(query)
+  return medias.length === 1 ? medias[0] : undefined
 }
 
 function sqlSelectMedia() {
