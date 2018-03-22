@@ -59,7 +59,7 @@ export interface StoreMediaParameters {
   overwrite?: boolean
 }
 
-export async function storeMedia(params: StoreMediaParameters): Promise<void> {
+export async function storeMedia(params: StoreMediaParameters): Promise<string> {
   let transCn = await fileCn.beginTransaction()
 
   try {
@@ -96,6 +96,7 @@ export async function storeMedia(params: StoreMediaParameters): Promise<void> {
     })
 
     await transCn.commit()
+    return mediaId
   } finally {
     if (transCn.inTransaction)
       await transCn.rollback()

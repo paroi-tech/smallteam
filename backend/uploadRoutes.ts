@@ -70,16 +70,19 @@ export async function routeChangeAvatar(req: Request, res: Response) {
     throw new Error("Only PNG, JPEG, GIF and WebP files are allowed.")
 
   let sessionData: SessionData = req.session as any
+
+  await storeMedia({
+    file: req.file,
+    externalRef: {
+      type: "contributorAvatar",
+      id: getMulterParameter(req, "contributorId")
+    },
+    ownerId: sessionData.contributorId,
+    overwrite: true
+  })
+
   return {
-    done: await storeMedia({
-      file: req.file,
-      externalRef: {
-        type: "contributorAvatar",
-        id: getMulterParameter(req, "contributorId")
-      },
-      ownerId: sessionData.contributorId,
-      overwrite: true
-    })
+    done: true
   }
 }
 
