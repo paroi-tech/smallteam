@@ -2,6 +2,7 @@
   <header class="AvatarForm-header">Change your profile picture (PNG, JPEG or GIF)</header>
   <form action="" method="post" enctype="multipart/form-data">
     <input name="avatar" type="file" class="AvatarForm-input js-input" accept="image/png, image/jpeg, image/gif">
+    <input name="contributorId" type="hidden" class="js-contributorId">
     <button type="Submit">
       Submit
       <span class="fa fa-spin fa-spinner fa-1x js-spinner" style="display: none"></span>

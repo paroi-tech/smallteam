@@ -36,7 +36,7 @@ const meta: FragmentMeta = {
   orderFieldName: "ts"
 }
 
-export type FileInfoIdFragment = Pick<MediaFragment, "id">
+export type MediaIdFragment = Pick<MediaFragment, "id">
 
 export default {
   read: meta,

@@ -3,7 +3,7 @@ import App from "../../../App/App"
 import { render } from "monkberry"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
-import { FileInfoModel } from "../../../AppModel/Models/FileInfoModel"
+import { MediaModel } from "../../../AppModel/Models/MediaModel"
 import config from "../../../../isomorphic/config"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
@@ -43,10 +43,10 @@ export default class TaskAttachmentManager {
   set task(task: TaskModel | undefined) {
     this.reset()
     this.currentTask = task
-    if (!task || !task.attachedFiles)
+    if (!task || !task.attachedMedias)
       return
-    for (let f of task.attachedFiles)
-      this.addFile(f)
+    for (let f of task.attachedMedias)
+      this.addMedia(f)
   }
 
   private createView() {
@@ -101,23 +101,23 @@ export default class TaskAttachmentManager {
     }
   }
 
-  private addFile(f: FileInfoModel) {
+  private addMedia(media: MediaModel) {
     let view = render(itemTemplate, document.createElement("div"))
     let el = view.nodes[0] as HTMLElement
 
     let downloadBtn = el.querySelector(".js-download-button") as HTMLButtonElement
     downloadBtn.addEventListener("click", (ev) => {
-      window.open(`${config.urlPrefix}/download-file/${f.id}`)
+      window.open(`${config.urlPrefix}/download-file/${media.id}`)
     })
 
     let deleteBtn = el.querySelector(".js-remove-button") as HTMLButtonElement
     deleteBtn.addEventListener("click", ev => {
       let contributorId = this.model.session.contributor.id
-      if (f.uploaderId === contributorId && this.removeTaskAttachment(f.id))
+      if (media.ownerId === contributorId && this.removeTaskAttachment(media.id))
         this.listEl.removeChild(el)
     })
 
-    view.update({ name: f.name })
+    view.update({ name: media.baseName })
     this.listEl.appendChild(el)
   }
 

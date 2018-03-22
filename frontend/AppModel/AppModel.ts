@@ -8,7 +8,8 @@ import { registerTask } from "./Models/TaskModel"
 import { StepCreateFragment, StepUpdateFragment, StepFragment } from "../../isomorphic/meta/Step"
 import { registerStep, StepModel } from "./Models/StepModel"
 import { registerFlag } from "./Models/FlagModel"
-import { registerFileInfo } from "./Models/FileInfoModel"
+import { registerMedia } from "./Models/MediaModel"
+import { registerMediaVariant } from "./Models/MediaVariantModel"
 import { ComponentEvent, Transmitter, Dash } from "bkb"
 import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
 import App from "../App/App"
@@ -51,7 +52,8 @@ export default class ModelComp implements Model {
     registerProject(this.engine)
     registerTask(this.engine)
     registerStep(this.engine)
-    registerFileInfo(this.engine)
+    registerMedia(this.engine)
+    registerMediaVariant(this.engine)
     this.global = createGlobal(this.dash, this.engine)
     this.session = createSession(this.global, sessionData.contributorId)
   }

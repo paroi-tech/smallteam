@@ -37,7 +37,7 @@ export default class ContributorHome implements Workspace {
 
     this.form = this.dash.create(ContributorForm)
     this.passwordForm = this.dash.create(PasswordForm, this.contributor)
-    this.avatarForm = this.dash.create(AvatarForm)
+    this.avatarForm = this.dash.create(AvatarForm, contributor)
 
     this.formContainerEl.appendChild(this.form.el)
     this.form.contributor = this.contributor

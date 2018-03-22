@@ -11,7 +11,7 @@ import { TaskLogEntrySearchFragment } from "../../../isomorphic/meta/TaskLogEntr
 import { Type } from "../../../isomorphic/Cargo"
 import { WhoUseItem } from "../../../isomorphic/transfers"
 import { StepModel } from "./StepModel"
-import { FileInfoModel } from "./FileInfoModel"
+import { MediaModel } from "./MediaModel"
 
 export interface TaskUpdateTools {
   processing: boolean
@@ -34,7 +34,7 @@ export interface TaskModel extends TaskFragment {
   readonly flags?: Collection<FlagModel, string>
   getComments(): Promise<Collection<CommentModel, string>>
   getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
-  readonly attachedFiles?: Collection<FileInfoModel, string>
+  readonly attachedMedias?: Collection<MediaModel, string>
 }
 
 export function registerTask(engine: ModelEngine) {
@@ -89,7 +89,7 @@ export function registerTask(engine: ModelEngine) {
           taskId: getFrag().id
         } as TaskLogEntrySearchFragment)
       },
-      get attachedFiles() {
+      get attachedMedias() {
         let mediaIds = getFrag().attachedMediaIds
         if (!mediaIds)
           return undefined

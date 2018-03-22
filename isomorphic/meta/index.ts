@@ -10,7 +10,7 @@ import mediaMetaVariantVariants from "./MediaVariant"
 import { Type, Identifier } from "../Cargo"
 
 export let types: ReadonlyArray<Type> = Object.freeze([
-  "Comment", "Contributor", "Flag", "Project", "Step", "Task", "TaskLogEntry", "FileInfo"
+  "Comment", "Contributor", "Flag", "Project", "Step", "Task", "TaskLogEntry", "Media", "MediaVariant"
   ]) as any
 
 export type TypeVariant = "read" | "create" | "update" | "id" | "fetch"

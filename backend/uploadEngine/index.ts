@@ -213,7 +213,7 @@ export async function removeMedia(id: MediaOrVariantId): Promise<boolean> {
   if ("mediaId" in id)
     mediaId = id.mediaId
   else {
-    let foundMediaId = await fileCn.singleValue(
+    let foundMediaId = await fileCn.singleValueSqlBricks(
       sql.select("media_id")
         .from("variant")
         .where("variant_id", id.variantId)
@@ -260,7 +260,7 @@ export type VariantData = Pick<VariantDef, "id" | "binData" | "weightB" | "imTyp
 }
 
 export async function getFileData(variantId: string): Promise<VariantData | undefined> {
-  let row = await fileCn.singleRow(
+  let row = await fileCn.singleRowSqlBricks(
     sql.select("v.bin_data, v.weight_b, v.im_type, v.code, m.media_id, m.ts, m.orig_name, m.base_name")
       .from("variant v")
       .innerJoin("media m").using("media_id")
@@ -311,7 +311,7 @@ export interface MediaQuery {
 export async function findMedias(query: MediaQuery): Promise<Media[]> {
   if (!query.externalRef)
     return []
-  let rows = await fileCn.all(
+  let rows = await fileCn.allSqlBricks(
     sqlSelectMedia()
       .innerJoin("media_ref r").using("media_id")
       .where({
@@ -345,7 +345,7 @@ function sqlSelectMedia() {
 }
 
 async function fetchVariantsOf(mediaId: string): Promise<Variants> {
-  let rows = await fileCn.all(
+  let rows = await fileCn.allSqlBricks(
     sqlSelectVariant()
       .where("v.media_id", mediaId)
   )
@@ -428,7 +428,7 @@ function toFileExtension(imType: string, originalName?: string): string | undefi
  * @returns the list of media identifiers attached to the `externalRef`. Can be empty.
  */
 async function findMediaByExternalRef(externalRef: ExternalRef): Promise<string[]> {
-  let rows = await fileCn.all(
+  let rows = await fileCn.allSqlBricks(
     sql.select("media_id")
       .from("media_ref")
       .where({
