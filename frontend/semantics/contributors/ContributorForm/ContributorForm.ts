@@ -48,7 +48,19 @@ export default class ContributorForm {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"), { directives })
+    this.el = this.view.nodes[0] as HTMLElement
+    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
+    this.nameEl = this.el.querySelector(".js-name") as HTMLInputElement
+    this.loginEl = this.el.querySelector(".js-login") as HTMLInputElement
+    this.emailEl = this.el.querySelector(".js-email") as HTMLInputElement
+    this.roleEl = this.el.querySelector(".js-role") as HTMLSelectElement
+    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
+    this.passwordConfirmEl = this.el.querySelector(".js-password-2") as HTMLInputElement
+    this.submitSpinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
+    this.view.update(this.state)
+
     this.listenToModel()
     if (this.dash.app.model.session.contributor.role === "admin") {
       this.passwordEl.disabled = false
@@ -105,24 +117,6 @@ export default class ContributorForm {
   // --
   // -- Initialization functions
   // --
-
-  private createView() {
-    this.view = render(template, document.createElement("div"), { directives })
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-    this.nameEl = el.querySelector(".js-name") as HTMLInputElement
-    this.loginEl = el.querySelector(".js-login") as HTMLInputElement
-    this.emailEl = el.querySelector(".js-email") as HTMLInputElement
-    this.roleEl = el.querySelector(".js-role") as HTMLSelectElement
-    this.passwordEl = el.querySelector(".js-password") as HTMLInputElement
-    this.passwordConfirmEl = el.querySelector(".js-password-2") as HTMLInputElement
-    this.submitSpinnerEl = el.querySelector(".js-submit-spinner") as HTMLElement
-
-    this.view.update(this.state)
-
-    return el
-  }
 
   private listenToModel() {
     this.dash.listenTo<ContributorModel>(this.model, "updateContributor").onData(

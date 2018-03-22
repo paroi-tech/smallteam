@@ -14,18 +14,13 @@ export default class ContributorFlag {
 
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.contentEl = this.el.querySelector(".js-content") as HTMLElement
+
     this.update()
     this.listenToModel()
-  }
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.contentEl = el.querySelector(".js-content") as HTMLElement
-
-    return el
   }
 
   private listenToModel() {

@@ -16,7 +16,8 @@ export default class HomeWorkspace implements Workspace {
 
   constructor(private dash: Dash) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
   }
 
   public activate(ctrl: ViewerController) {
@@ -25,13 +26,7 @@ export default class HomeWorkspace implements Workspace {
       .setTitle("Home")
   }
 
-  public deactivate() {}
+  public deactivate() {
 
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-
-    return el
   }
 }

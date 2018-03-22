@@ -23,7 +23,7 @@ export class DropdownMenu {
   private isVisible = false
 
   constructor(private dash: Dash, private options: DropdownMenuOptions) {
-    this.el = this.createView()
+    this.el = render(template, document.createElement("div")).nodes[0] as HTMLElement
     this.btnEl = options.btnEl
     this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
 
@@ -54,10 +54,6 @@ export class DropdownMenu {
 
   public disable() {
     this.btnEl.style.pointerEvents = "none"
-  }
-
-  private createView() {
-    return render(template, document.createElement("div")).nodes[0] as HTMLElement
   }
 
   private show() {

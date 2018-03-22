@@ -21,24 +21,17 @@ export default class AvatarForm {
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.el = this.createView()
-  }
 
-  private createView() {
     this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.formEl = el.querySelector("form") as HTMLFormElement
+    this.el = this.view.nodes[0] as HTMLElement
+    this.formEl = this.el.querySelector("form") as HTMLFormElement
     this.buttonEl = this.formEl.querySelector("button") as HTMLButtonElement
     this.inputEl = this.formEl.querySelector(".js-input") as HTMLInputElement
     this.spinnerEl = this.buttonEl.querySelector(".js-spinner") as HTMLElement
-
     this.formEl.onsubmit = (ev) => {
       ev.preventDefault()
       this.onSubmit()
     }
-
-    return el
   }
 
   private async onSubmit() {

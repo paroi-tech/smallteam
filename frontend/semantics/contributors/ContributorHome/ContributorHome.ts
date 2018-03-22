@@ -29,7 +29,11 @@ export default class ContributorHome implements Workspace {
   private log: Log
 
   constructor(private dash: Dash<App>, private contributor: ContributorModel) {
-    this.el = this.createView()
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.formContainerEl = this.el.querySelector(".js-form-container") as HTMLElement
+    this.passwdFormContainerEl = this.el.querySelector(".js-password-form-container") as HTMLElement
+    this.avatarFormContainer = this.el.querySelector(".js-avatar-form-container") as HTMLElement
 
     this.form = this.dash.create(ContributorForm)
     this.passwordForm = this.dash.create(PasswordForm, this.contributor)
@@ -41,20 +45,11 @@ export default class ContributorHome implements Workspace {
     this.avatarFormContainer.appendChild(this.avatarForm.el)
   }
 
-  activate(ctrl: ViewerController): void {
+  public activate(ctrl: ViewerController): void {
     ctrl.setTitle("Personal space").setContentEl(this.el)
   }
 
-  deactivate(): void {}
+  public deactivate(): void {
 
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.formContainerEl = el.querySelector(".js-form-container") as HTMLElement
-    this.passwdFormContainerEl = el.querySelector(".js-password-form-container") as HTMLElement
-    this.avatarFormContainer = el.querySelector(".js-avatar-form-container") as HTMLElement
-
-    return el
   }
 }

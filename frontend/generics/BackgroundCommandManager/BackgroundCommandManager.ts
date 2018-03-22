@@ -10,7 +10,6 @@ const templateMenuBtn = require("./MenuBtn.monk")
 export default class BackgroundCommandManager {
   readonly el: HTMLDialogElement
   readonly buttonEl: HTMLButtonElement
-
   private tableEl: HTMLTableElement
   private closeButtonEl: HTMLButtonElement
 
@@ -22,8 +21,14 @@ export default class BackgroundCommandManager {
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.bgCmdManager = this.dash.app.model.bgManager
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLDialogElement
+    this.closeButtonEl = this.el.querySelector(".js-close-button") as HTMLButtonElement
+    this.closeButtonEl.addEventListener("click", ev => this.hide())
+    this.tableEl = this.el.querySelector(".js-table") as HTMLTableElement
     this.buttonEl = this.createHtmlMenuButtonElement()
+
     this.listenToModel()
   }
 
@@ -50,19 +55,6 @@ export default class BackgroundCommandManager {
     })
 
     return btnEl
-  }
-
-  private createView(): HTMLDialogElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLDialogElement
-
-    this.closeButtonEl = el.querySelector(".js-close-button") as HTMLButtonElement
-    this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.tableEl = el.querySelector(".js-table") as HTMLTableElement
-    document.body.appendChild(el)
-
-    return el
   }
 
   // --

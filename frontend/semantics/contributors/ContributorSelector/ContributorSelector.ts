@@ -28,7 +28,21 @@ export default class ContributorSelector {
 
   constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
+    this.buttonEl = this.el.querySelector(".js-button") as HTMLButtonElement
+    this.buttonEl.addEventListener("click", ev => {
+      if (!this.currentTask) {
+        console.log("no shit...")
+        return
+      }
+      this.dialog.selectContributors(this.currentTask.affectedTo || [])
+      document.body.appendChild(this.dialog.el)
+      this.dialog.show()
+    })
+
     this.createChildComponents()
     this.listenToModel()
   }
@@ -85,26 +99,6 @@ export default class ContributorSelector {
   // --
   // -- Utilities
   // --
-
-  private createView(): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.boxListContainerEl = el.querySelector(".js-boxlist-container") as HTMLElement
-    this.buttonEl = el.querySelector(".js-button") as HTMLButtonElement
-
-    this.buttonEl.addEventListener("click", ev => {
-      if (!this.currentTask) {
-        console.log("no shit...")
-        return
-      }
-      this.dialog.selectContributors(this.currentTask.affectedTo || [])
-      document.body.appendChild(this.dialog.el)
-      this.dialog.show()
-    })
-
-    return el
-  }
 
   private createChildComponents() {
     this.boxList = this.dash.create(BoxList, {

@@ -14,7 +14,12 @@ export default class ContributorBox implements Box {
 
   constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
-    this.el = this.createView()
+
+    this.view = render(template, document.createElement("div"))
+    this.view.update(this.contributor)
+    this.el = this.view.nodes[0] as HTMLElement
+    this.el.onclick = ev => this.dash.emit("contributorBoxSelected", this.contributor)
+
     this.listenToModel()
   }
 
@@ -32,16 +37,6 @@ export default class ContributorBox implements Box {
   // --
   // -- Utilities
   // --
-
-  private createView() {
-    this.view = render(template, document.createElement("div"))
-    this.view.update(this.contributor)
-
-    let el = this.view.nodes[0] as HTMLElement
-    el.onclick = ev => this.dash.emit("contributorBoxSelected", this.contributor)
-
-    return el
-  }
 
   private listenToModel() {
     this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(data => {

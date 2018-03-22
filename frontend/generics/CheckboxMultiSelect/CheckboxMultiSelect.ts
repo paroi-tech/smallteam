@@ -28,7 +28,11 @@ export default class CheckboxMultiSelect<M> {
   private items = new Map<M, Item<M>>()
 
   constructor(private dash: Dash, title: string, private createComponentForItem: CreateComponentForItem<M>) {
-    this.el = this.createView(title)
+    this.view = render(template, document.createElement("div"))
+    this.view.update({ title })
+    this.el = this.view.nodes[0] as HTMLElement
+    this.olEl = this.el.querySelector(".js-ol") as HTMLElement
+    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
   }
 
   public setAllItems(dataList: M[]) {
@@ -68,18 +72,6 @@ export default class CheckboxMultiSelect<M> {
   // --
   // -- Utilities
   // --
-
-  private createView(title: string): HTMLElement {
-    this.view = render(template, document.createElement("div"))
-    this.view.update({ title })
-
-    let el = this.view.nodes[0] as HTMLElement
-
-    this.olEl = el.querySelector(".js-ol") as HTMLElement
-    this.fieldsetEl = el.querySelector("fieldset") as HTMLFieldSetElement
-
-    return el
-  }
 
   private createItem(data: M) {
     let view = render(liTemplate, document.createElement("div"))

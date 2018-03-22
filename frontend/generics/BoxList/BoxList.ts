@@ -82,9 +82,16 @@ export default class BoxList<T extends Box> {
   private boxes = new Map<string, HTMLElement>()
 
   constructor(private dash: Dash, private params: BoxListParams) {
-    this.el = this.createView()
+    this.view = render(boxListTemplate, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
+    this.ul = this.el.querySelector("ul") as HTMLElement
+    this.busyIndicatorEl = this.el.querySelector(".js-busy-icon") as HTMLElement
+    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
+    if (this.params.inline)
+      this.el.classList.add("InlineBoxList")
+
     this.setTitle(this.params.name)
-    this.makeSortable()
+    this.sortable = this.makeSortable()
   }
 
   public addBox(box: T) {
@@ -199,20 +206,6 @@ export default class BoxList<T extends Box> {
   // -- Utilities
   // --
 
-  private createView() {
-    this.view = render(boxListTemplate, document.createElement("div"))
-
-    let el = this.view.nodes[0] as HTMLElement
-    this.ul = el.querySelector("ul") as HTMLElement
-    this.busyIndicatorEl = el.querySelector(".js-busy-icon") as HTMLElement
-    this.titleEl = el.querySelector(".js-title") as HTMLElement
-
-    if (this.params.inline)
-      el.classList.add("InlineBoxList")
-
-    return el
-  }
-
   private createCloseItem(): HTMLElement {
     let view = render(closeTemplate, document.createElement("div"))
     let el = view.nodes[0] as HTMLElement
@@ -224,7 +217,7 @@ export default class BoxList<T extends Box> {
    * Make the boxList sortable by creating a Sortable object.
    */
   private makeSortable() {
-    this.sortable = Sortable.create(this.ul, {
+    return Sortable.create(this.ul, {
       // For InlineBoxList, we do not need a handle.
       handle: this.params.inline ? undefined : ".js-handle",
 
