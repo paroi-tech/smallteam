@@ -67,8 +67,8 @@ export function startWebServer() {
   declareRoute(router, "/api/batch", routeBatch, "post", false, false)
   declareRoute(router, "/api/who-use", routeWhoUse, "post", false, false)
 
-  declareRoute(router, "/get-file/:variantId", routeGetFile, "get", false, true)
-  declareRoute(router, "/download-file/:variantId", routeDownloadFile, "get", false, true)
+  declareRoute(router, "/get-file/:variantId/:fileName", routeGetFile, "get", false, true)
+  declareRoute(router, "/download-file/:variantId/:fileName", routeDownloadFile, "get", false, true)
   declareRoute(router, "/api/delete-attachment/:taskId/:variantId", routeDeleteTaskAttachment, "post", false, true)
 
   declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
