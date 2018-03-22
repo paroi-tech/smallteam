@@ -4,7 +4,6 @@ import * as sql from "sql-bricks"
 import * as sharp from "sharp"
 import { fileCn } from "../utils/dbUtils"
 import { fileBaseName } from "./utils"
-import { insertInto } from "sql-bricks"
 
 // --
 // -- Base Types
@@ -157,10 +156,10 @@ async function insertVariant(variant: InsertVariant): Promise<string> {
   let variantId = (await fileCn.execSqlBricks(
     sql.insertInto("variant").values({
       "media_id": variant.mediaId,
-      "bin_data": variant.binData.buffer,
       "weight_b": variant.weightB,
       "im_type": variant.imType,
-      "code": variant.code
+      "code": variant.code,
+      "bin_data": variant.binData
     })
   )).getInsertedId()
   if (variant.img) {
@@ -256,7 +255,7 @@ export type VDMedia = Pick<MediaDef, "id" | "ts">
 
 export type VariantData = Pick<VariantDef, "id" | "binData" | "weightB" | "imType"> & {
   media: VDMedia
-  name: string
+  fileName: string
 }
 
 export async function getFileData(variantId: string): Promise<VariantData | undefined> {
@@ -268,11 +267,11 @@ export async function getFileData(variantId: string): Promise<VariantData | unde
   )
   if (!row)
     return
-  let name = getFileName({
+  let fileName = getFileName({
     imType: row["im_type"],
+    code: row["code"],
     originalName: row["orig_name"],
-    baseName: row["base_name"],
-    code: row["code"]
+    baseName: row["base_name"]
   })
   return {
     id: variantId,
@@ -282,7 +281,7 @@ export async function getFileData(variantId: string): Promise<VariantData | unde
       id: row["media_id"],
       ts: row["ts"]
     },
-    name,
+    fileName,
     binData: row["bin_data"]
   }
 }
@@ -301,7 +300,7 @@ export interface Variants {
 
 export type Variant = Pick<VariantDef, "id" | "code" | "imType" | "weightB" | "img"> & {
   fileName: string
-  url: string
+  // url: string
 }
 
 export interface MediaQuery {
@@ -328,7 +327,7 @@ export async function findMedias(query: MediaQuery): Promise<Media[]> {
       baseName: row["base_name"],
       originalName: row["orig_name"],
       ownerId: row["owner_id"],
-      variants: await fetchVariantsOf(id)
+      variants: await fetchVariantsOf(id, row["base_name"], row["orig_name"])
     })
   }
   return result
@@ -344,7 +343,7 @@ function sqlSelectMedia() {
     .from("media m")
 }
 
-async function fetchVariantsOf(mediaId: string): Promise<Variants> {
+async function fetchVariantsOf(mediaId: string, baseName?: string, originalName?: string): Promise<Variants> {
   let rows = await fileCn.allSqlBricks(
     sqlSelectVariant()
       .where("v.media_id", mediaId)
@@ -352,7 +351,7 @@ async function fetchVariantsOf(mediaId: string): Promise<Variants> {
   let result: Variants = {}
   for (let row of rows) {
     let code = row["code"]
-    result[code] = toVariant(row)
+    result[code] = toVariant(row, baseName, originalName)
   }
   return result
 }
@@ -363,13 +362,13 @@ function sqlSelectVariant() {
     .leftJoin("variant_img i").using("variant_id")
 }
 
-function toVariant(row: any[]): Variant {
+function toVariant(row: any[], baseName?: string, originalName?: string): Variant {
   let id = row["variant_id"].toString()
   let fileName = getFileName({
     imType: row["im_type"],
-    originalName: row["orig_name"],
-    baseName: row["base_name"],
-    code: row["code"]
+    code: row["code"],
+    originalName,
+    baseName
   })
   let img = !row["width"] || !row["height"] ? undefined : {
     width: row["width"],
@@ -382,15 +381,15 @@ function toVariant(row: any[]): Variant {
     imType: row["im_type"],
     code: row["code"],
     fileName,
-    url: `/get-file/${id}/${fileName}`,
+    // url: `/get-file/${id}/${fileName}`,
     img
   }
 }
 
 interface FileNameOptions {
   imType: string
-  baseName?: string
   code?: string
+  baseName?: string
   originalName?: string
 }
 
@@ -399,6 +398,7 @@ function getFileName(options: FileNameOptions) {
   let n = [options.baseName, options.code].filter(tok => tok !== undefined).join("-")
   if (!n)
     n = options.originalName || "unamed"
+console.log(".................. >>> getFileName", `${n}${fileExt}`, options)
   return `${n}${fileExt}`
 }
 

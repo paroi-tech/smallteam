@@ -2,6 +2,7 @@ import { BackendContext } from "../backendContext/context"
 import { findMedias, Variant, Media, findSingleMedia } from "../uploadEngine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
+import config from "../../isomorphic/config";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
@@ -72,7 +73,7 @@ function toMediaVariantFragment(variant: Variant, mediaId: string): MediaVariant
     code: variant.code,
     weightB: variant.weightB,
     imType: variant.imType,
-    url: variant.url,
+    url: `${config.urlPrefix}/get-file/${variant.id}/${variant.fileName}`, // variant.url
     imgWidth: variant.img ? variant.img.width : undefined,
     imgHeight: variant.img ? variant.img.height : undefined,
     imgDpi: variant.img ? variant.img.dpi : undefined

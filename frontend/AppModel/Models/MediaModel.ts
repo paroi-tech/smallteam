@@ -13,7 +13,7 @@ export function registerMedia(engine: ModelEngine) {
     let model = {
       get variants() {
         return engine.getModels({
-          type: "Media",
+          type: "MediaVariant",
           index: "mediaId",
           key: {
             mediaId: getFrag().id
@@ -23,7 +23,7 @@ export function registerMedia(engine: ModelEngine) {
       },
       getVariant(code: string) {
         let variants = this.variants as Collection<MediaVariantModel, string>
-        let found = variants.filter(variant => variant.code === code)
+        let found = variants.find(variant => variant.code === code)
         if (found)
           return found
         if (variants.length >= 1)
