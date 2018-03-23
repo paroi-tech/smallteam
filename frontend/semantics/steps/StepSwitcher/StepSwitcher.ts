@@ -59,7 +59,7 @@ export default class StepSwitcher {
     this.busyIndicatorEl = this.el.querySelector(".js-indicator") as HTMLElement
     this.foldableEl = this.el.querySelector(".js-foldable") as HTMLElement
     this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
-    this.addTaskPane = this.el.querySelector(".js-add-task-pane") as HTMLElement
+    this.addTaskPane = this.el.querySelector(".js-bottom") as HTMLElement
     this.toggleBtnEl = this.el.querySelector(".js-toggle-btn") as HTMLButtonElement
     this.toggleBtnSpanEl = this.toggleBtnEl.querySelector("span") as HTMLElement
     this.closeBtnEl = this.el.querySelector(".js-close-btn") as HTMLButtonElement

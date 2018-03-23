@@ -1,8 +1,7 @@
 .StepSwitcher {
-  &-title {
+  &-header {
+    @extend .BlockTitle;
     align-items: baseline;
-    border-top-left-radius: 3px;
-    border-top-right-radius: 3px;
     display: flex;
     flex-direction: row;
     justify-content: space-between;
@@ -11,8 +10,9 @@
 
   &-toggleButton, &-closeButton {
     padding: 5px;
+    border-radius: 50%;
     &:focus, &:hover {
-      background-color: rgba(255, 255, 255, 0.42);
+      color: rgba(255, 200, 170, 0.42);
       outline: none;
     }
   }
@@ -23,10 +23,10 @@
     transition-timing-function: linear;
   }
 
-  &-addTaskPane {
+  &-bottom {
     align-content: stretch;
     display: flex;
-    justify-content: space-between;
+    justify-content: flex-start;
     margin-top: 5px;
   }
 

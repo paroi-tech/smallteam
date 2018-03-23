@@ -1,10 +1,12 @@
 <div class="TaskBox">
-  <span class="js-span"></span>
-  <div class="TaskFlagContainer">
-    <div class="TaskFlagContainer-left js-container-left"></div>
-    <div class="TaskFlagContainer-center js-container-center">
+  <div class="TaskBox-top">
+    <span class="js-span"></span>
+  </div>
+  <div class="TaskBox-bottom">
+    <div class="TaskBox-bottomLeft js-container-left"></div>
+    <div class="TaskBox-bottomCenter js-container-center">
       <span class="TaskCommentCounter js-counter" title="Number of comments"></span>
     </div>
-    <div class="TaskFlagContainer-right js-container-right"></div>
+    <div class="TaskBox-bottomRight js-container-right"></div>
   </div>
 </div>

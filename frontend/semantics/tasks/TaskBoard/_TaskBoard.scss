@@ -8,6 +8,10 @@
   &-left {
     grid-area: 1 / 1 / span 1 / span 8;
     overflow-y: scroll;
+
+    > .StepSwitcher {
+      margin-bottom: 10px;
+    }
   }
 
   &-right {

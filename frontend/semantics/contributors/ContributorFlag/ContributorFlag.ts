@@ -7,7 +7,6 @@ const template = require("./ContributorFlag.monk")
 
 export default class ContributorFlag {
   readonly el: HTMLElement
-  private contentEl: HTMLElement
 
   private view: MonkberryView
   private model: Model
@@ -17,7 +16,6 @@ export default class ContributorFlag {
 
     this.view = render(template, document.createElement("div"))
     this.el = this.view.nodes[0] as HTMLElement
-    this.contentEl = this.el.querySelector(".js-content") as HTMLElement
 
     this.update()
     this.listenToModel()
@@ -32,7 +30,7 @@ export default class ContributorFlag {
   }
 
   private update() {
-    this.contentEl.textContent = this.contributor.login.charAt(0).toLocaleUpperCase()
+    this.el.textContent = this.contributor.login.charAt(0).toLocaleUpperCase()
     this.el.title = this.contributor.name
   }
 }

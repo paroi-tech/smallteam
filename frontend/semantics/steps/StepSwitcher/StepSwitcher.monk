@@ -1,5 +1,5 @@
 <section class="StepSwitcher">
-  <div class="StepSwitcher-title BlockTitle">
+  <header class="StepSwitcher-header">
     <span class="js-title"></span>&nbsp;
     <div>
       <button class="js-toggle-btn StepSwitcher-toggleButton" title="Fold/Unfold">
@@ -12,12 +12,13 @@
       </button>
       <span class="js-indicator fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
     </div>
-  </div>
+  </header>
 
   <div class="StepSwitcher-foldableContent js-foldable">
     <div class="AutoColumns js-boxlist-container"></div>
-    <div class="StepSwitcher-addTaskPane js-add-task-pane">
+    <div class="StepSwitcher-bottom js-bottom">
       <input class="StepSwitcher-input InlineText js-task-name" type="text" maxlength="20" placeholder="Task name">
+      <pre>&nbsp;</pre>
       <button type="button" class="StepSwitcher-addButton js-add-task-button">
         Add task
         <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>

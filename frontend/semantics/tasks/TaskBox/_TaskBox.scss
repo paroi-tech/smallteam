@@ -1,43 +1,55 @@
 .TaskBox {
+  background-color: $lightColor;
   min-width: 150px;
-}
 
-.TaskFlagContainer {
-  align-items: baseline;
-  display: flex;
-  flex-direction: row;
-  justify-content: space-between;
-
-  &-left {
-    align-items: baseline;
-    display: flex;
-    justify-content: flex-start;
-    width: 40%;
+  &-top {
+    border-bottom: 1px solid #fff;
+    padding: 5px;
   }
 
-  &-center {
+  &-bottom {
     align-items: baseline;
     display: flex;
-    justify-content: center;
-    width: 20px;
-  }
+    flex-direction: row;
+    justify-content: space-between;
+    padding: 5px;
 
-  &-right {
-    align-items: baseline;
-    display: flex;
-    justify-content: flex-end;
-    width: 40%;
+    &Left {
+      align-items: baseline;
+      display: flex;
+      flex-grow: 1;
+      justify-content: flex-start;
+      width: 40%;
+    }
+
+    &Center {
+      align-items: baseline;
+      display: flex;
+      flex-grow: 1;
+      justify-content: center;
+      width: 20px;
+    }
+
+    &Right {
+      align-items: baseline;
+      display: flex;
+      flex-grow: 1;
+      justify-content: flex-end;
+      width: 40%;
+      > .ContributorFlag {
+        margin-left: 2px;
+      }
+    }
   }
 }
 
 .TaskCommentCounter {
-  background-color: orchid;
+  background-color: #000;
   border-radius: 2px;
-  color: white;
+  color: #fff;
   font-family: monospace;
   font-weight: bold;
-  padding: 4px;
+  padding: 3px;
   text-align: center;
   vertical-align: middle;
 }
-

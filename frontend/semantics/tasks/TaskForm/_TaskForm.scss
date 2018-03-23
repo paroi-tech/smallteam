@@ -1,5 +1,7 @@
 .TaskForm {
   &-header {
     @extend .BlockTitle;
+    background-color: $lightColor;
+    color: #000;
   }
 }

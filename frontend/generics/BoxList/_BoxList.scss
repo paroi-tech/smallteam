@@ -1,14 +1,19 @@
 .BoxList {
   &-header {
     align-items: baseline;
+    color: #000;
+    border-bottom: 1px solid $themeColor;
     display: flex;
     flex-direction: row;
+    font-weight: bold;
     justify-content: space-between;
+    padding: 8px 0px 5px;
   }
 
   &-ul {
-    background-color: darkgray;
-    padding-bottom: 10px;
+    min-height: 50px;
+    /* We add a bottom padding so that elements can easily be dragged at the end of the BoxList. */
+    padding-bottom: 50px;
   }
 
   &-li {
@@ -33,7 +38,7 @@
 
 .BoxListHandle {
   align-items: center;
-  background-color: aliceblue;
+  background-color: #808080;
   border-radius: 2px;
   bottom: 5px;
   color: #494545;

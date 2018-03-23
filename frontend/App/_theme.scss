@@ -8,9 +8,8 @@ body {
 }
 
 .BlockTitle {
-  background-color: #205081;
+  background-color:$themeColor;
   color: white;
-  font-weight: bold;
   padding: 8px 5px;
   vertical-align: middle;
 }
@@ -36,7 +35,7 @@ body {
 }
 
 .StdBtn {
-  background-color: royalblue;
+  background-color: $themeColor;
   color: white;
   padding: 8px 10px;
 }
