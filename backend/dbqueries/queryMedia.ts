@@ -1,5 +1,5 @@
 import { BackendContext } from "../backendContext/context"
-import { findMedias, Variant, Media, findSingleMedia } from "../uploadEngine"
+import { findMedias, Variant, Media, findMedia } from "../uploadEngine/mediaStorage"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 import config from "../../isomorphic/config";
@@ -21,7 +21,7 @@ export async function fetchMedias(context: BackendContext, type: MainMetaCode, i
 }
 
 export async function fetchSingleMedia(context: BackendContext, type: MainMetaCode, id: string): Promise<string | undefined> {
-  let media = await findSingleMedia({
+  let media = await findMedia({
     externalRef: { type, id }
   })
   if (!media)

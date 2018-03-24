@@ -177,7 +177,6 @@ async function insertVariant(variant: InsertVariant): Promise<string> {
 }
 
 function isValidImage(imType: string) {
-  // Sharp cannot work on type "image/gif"
   return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
 }
 
@@ -202,11 +201,7 @@ async function getImageMeta(f: MulterFile): Promise<ImageDef | undefined> {
 // -- Remove medias
 // --
 
-export type MediaOrVariantId = {
-  mediaId: string
-} | {
-    variantId: string
-  }
+export type MediaOrVariantId = { mediaId: string } | { variantId: string }
 
 export async function removeMedia(id: MediaOrVariantId): Promise<boolean> {
   let mediaId: string
@@ -304,9 +299,9 @@ export type Variant = Pick<VariantDef, "id" | "code" | "imType" | "weightB" | "i
   // url: string
 }
 
-export interface MediaQuery {
-  externalRef?: ExternalRef
-}
+export type MediaQuery = {
+  externalRef: ExternalRef
+} | MediaOrVariantId
 
 export async function findMedias(query: MediaQuery): Promise<Media[]> {
   if (!query.externalRef)
@@ -334,7 +329,7 @@ export async function findMedias(query: MediaQuery): Promise<Media[]> {
   return result
 }
 
-export async function findSingleMedia(query: MediaQuery): Promise<Media | undefined> {
+export async function findMedia(query: MediaQuery): Promise<Media | undefined> {
   let medias = await findMedias(query)
   return medias.length === 1 ? medias[0] : undefined
 }
@@ -399,7 +394,7 @@ function getFileName(options: FileNameOptions) {
   let n = [options.baseName, options.code].filter(tok => tok !== undefined).join("-")
   if (!n)
     n = options.originalName || "unamed"
-console.log(".................. >>> getFileName", `${n}${fileExt}`, options)
+  console.log(".................. >>> getFileName", `${n}${fileExt}`, options)
   return `${n}${fileExt}`
 }
 
@@ -418,6 +413,40 @@ function toFileExtension(imType: string, originalName?: string): string | undefi
     let dotIndex = originalName.lastIndexOf(".")
     if (dotIndex !== -1)
       return originalName.substr(dotIndex)
+  }
+}
+
+// --
+// -- Find MediaRef
+// --
+
+export interface MediaRef {
+  externalRef?: ExternalRef
+  ownerId?: string
+}
+
+export async function findMediaRef(id: MediaOrVariantId): Promise<MediaRef | undefined> {
+  let sb = sql.select("m.owner_id, r.external_type, r.external_id")
+    .from("media m")
+    .leftJoin("media_ref r").using("media_id")
+  if ("mediaId" in id)
+    sb = sb.where("m.media_id", id.mediaId)
+  else {
+    sb = sb.innerJoin("variant v").using("media_id")
+      .where("v.variant_id", id.variantId)
+  }
+  let row = await fileCn.singleRowSqlBricks(sb)
+
+  if (!row)
+    return
+
+  let externalRef = !row["external_type"] || !row["external_id"] ? undefined : {
+    type: row["external_type"],
+    id: row["external_id"]
+  }
+  return {
+    externalRef,
+    ownerId: row["owner_id"]
   }
 }
 
