@@ -59,7 +59,12 @@ export interface StoreMediaParameters {
   overwrite?: boolean
 }
 
-export async function storeMedia(params: StoreMediaParameters): Promise<string> {
+export interface NewMedia {
+  mediaId: string
+  overwritten: boolean
+}
+
+export async function storeMedia(params: StoreMediaParameters): Promise<NewMedia> {
   let transCn = await fileCn.beginTransaction()
 
   try {
@@ -69,6 +74,8 @@ export async function storeMedia(params: StoreMediaParameters): Promise<string> 
       if (found.length >= 1)
         mediaId = found[0]
     }
+
+    let overwritten = mediaId !== undefined
 
     if (mediaId === undefined) {
       mediaId = await insertMedia({
@@ -96,7 +103,7 @@ export async function storeMedia(params: StoreMediaParameters): Promise<string> 
     })
 
     await transCn.commit()
-    return mediaId
+    return { mediaId, overwritten }
   } finally {
     if (transCn.inTransaction)
       await transCn.rollback()
@@ -286,7 +293,7 @@ export async function getFileData(variantId: string): Promise<VariantData | unde
 // -- Find Media & Variant
 // --
 
-export type Media = Pick<MediaDef, "id" | "ts" | "baseName" | "originalName" | "ownerId"> & {
+export type Media = Pick<MediaDef, "id" | "ts" | "baseName" | "originalName" | "ownerId" | "externalRef"> & {
   variants: Variants
 }
 
@@ -304,25 +311,35 @@ export type MediaQuery = {
 } | MediaOrVariantId
 
 export async function findMedias(query: MediaQuery): Promise<Media[]> {
-  if (!query.externalRef)
-    return []
-  let rows = await fileCn.allSqlBricks(
-    sqlSelectMedia()
-      .innerJoin("media_ref r").using("media_id")
+  let sb = sqlSelectMedia()
+  if ("mediaId" in query)
+    sb = sb.where("m.media_id", query.mediaId)
+  else if ("variantId" in query){
+    sb = sb.innerJoin("variant v").using("media_id")
+      .where("v.variant_id", query.variantId)
+  } else if ("externalRef" in query) {
+    sb = sb.innerJoin("media_ref r").using("media_id")
       .where({
         "r.external_type": query.externalRef.type,
         "r.external_id": query.externalRef.id
       })
-  )
+  } else
+    return []
+  let rows = await fileCn.allSqlBricks(sb)
   let result: Media[] = []
   for (let row of rows) {
     let id = row["media_id"].toString()
+    let externalRef = !row["external_type"] || !row["external_id"] ? undefined : {
+      type: row["external_type"],
+      id: row["external_id"]
+    }
     result.push({
       id,
       ts: row["ts"],
       baseName: row["base_name"],
       originalName: row["orig_name"],
       ownerId: row["owner_id"],
+      externalRef,
       variants: await fetchVariantsOf(id, row["base_name"], row["orig_name"])
     })
   }
@@ -335,8 +352,9 @@ export async function findMedia(query: MediaQuery): Promise<Media | undefined> {
 }
 
 function sqlSelectMedia() {
-  return sql.select("m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id")
+  return sql.select("m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id, r.external_type, r.external_id")
     .from("media m")
+    .innerJoin("media_ref r").using("media_id")
 }
 
 async function fetchVariantsOf(mediaId: string, baseName?: string, originalName?: string): Promise<Variants> {

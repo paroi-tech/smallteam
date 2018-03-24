@@ -9,12 +9,6 @@ let upload = multer({
   }
 })
 
-
-// {
-//   type: "contributorAvatar",
-//   id: contributorId
-// }
-
 export interface CanUpload {
   canUpload: boolean
   ownerId: string | undefined
@@ -31,17 +25,9 @@ export interface StorageContext {
 }
 
 export function declareRoutes(router: Router, validator: StorageContext) {
-
   router.post("/medias", makeUploadRouteHandler(validator))
   router.get("/medias/:year/:variantId/*", makeGetRouteHandler(validator))
   router.delete("/medias/:year/:variantId/*", makeDeleteRouteHandler(validator))
-
-  // declareRoute(router, "/get-file/:variantId/:fileName", routeGetFile, "get", false, true)
-  // // declareRoute(router, "/download-file/:variantId/:fileName", routeDownloadFile, "get", false, true)
-  // declareRoute(router, "/api/delete-attachment/:taskId/:variantId", routeDeleteTaskAttachment, "post", false, true)
-
-  // declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
-  // declareUploadRoute(router, "/api/add-task-attachment/:taskId", upload.single("attachment"), routeAddTaskAttachment)
 }
 
 function makeUploadRouteHandler(context: StorageContext) {
@@ -129,8 +115,8 @@ function makeDeleteRouteHandler(context: StorageContext) {
         return write400(res, err.message)
       }
       // Validate the access
-      let media = await findMedia({ variantId }) // FIXME: Add externalRef in Media
-      if (!media || !await context.canDelete(media))
+      let media = await findMedia({ variantId })
+      if (!media || !await context.canDelete({ externalRef: media.externalRef, ownerId: media.ownerId }))
         return write404(res)
       // Delete the file
       await removeMedia({ variantId })
@@ -174,6 +160,21 @@ function write404(res: Response) {
   res.send("404 Not Found")
   res.end()
 }
+
+
+
+//   type: "contributorAvatar",
+//   id: contributorId
+
+// type: "task",
+// id: taskId
+
+// declareRoute(router, "/get-file/:variantId/:fileName", routeGetFile, "get", false, true)
+// // declareRoute(router, "/download-file/:variantId/:fileName", routeDownloadFile, "get", false, true)
+// declareRoute(router, "/api/delete-attachment/:taskId/:variantId", routeDeleteTaskAttachment, "post", false, true)
+
+// declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
+// declareUploadRoute(router, "/api/add-task-attachment/:taskId", upload.single("attachment"), routeAddTaskAttachment)
 
 // function declareRoute(r: Router, path: string, cb: RouteCb, method: RouteMethod, isPublic: boolean, standalone: boolean) {
 //   r[method](path, function (req, res) {
