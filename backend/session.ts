@@ -6,7 +6,7 @@ import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
 import { tokenMaxValidity } from "./mail"
 
-declare type PasswordUpdateInfo = {
+interface PasswordUpdateInfo {
   contributorId: string
   createTs: number
   token: string
@@ -128,6 +128,17 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   return {
     done: true
   }
+}
+
+export interface Connected {
+  contributorId: string
+  role: string
+}
+
+export async function checkSession(req: Request): Promise<Connected | undefined> {
+  if (!req.session || req.session.contributorId === undefined)
+    return false
+
 }
 
 // --

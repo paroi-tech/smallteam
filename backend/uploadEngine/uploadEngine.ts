@@ -1,39 +1,50 @@
 import { Request, Response, Router, RequestHandler } from "express"
 import * as multer from "multer"
-import { getFileData, storeMedia, removeMedias, removeMedia, ExternalRef, findMediaRef, MediaRef, findMedia, Media } from "./mediaStorage";
-
-let upload = multer({
-  storage: multer.memoryStorage(),
-  limits: {
-    fileSize: 1024 * 1024 * 20 // 20 MB
-  }
-})
+import { getFileData, storeMedia, removeMedias, removeMedia, ExternalRef, findMediaRef, MediaRef, findMedia, Media, Variant, MulterFile } from "./mediaStorage";
 
 export interface CanUpload {
   canUpload: boolean
-  ownerId: string | undefined
+  /**
+   * A valid HTTP code
+   */
+  errorCode?: number
+  errorMsg?: string
+  ownerId?: string
 }
 
 export interface StorageContext {
-  canUpload(externalRef: ExternalRef, overwrite: boolean): Promise<CanUpload>
-  makeJsonResponseForUpload(mediaId: string, overwritten: boolean): Promise<object>
+  canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile): Promise<CanUpload> | CanUpload
+  makeJsonResponseForUpload(mediaId: string, overwritten: boolean): Promise<object> | object
 
-  canRead(mediaRef: MediaRef): Promise<boolean>
+  canRead(req: Request, mediaRef: MediaRef): Promise<boolean> | boolean
 
-  canDelete(mediaRef: MediaRef): Promise<boolean>
-  makeJsonResponseForDelete(deletedMedia: Media): Promise<object>
+  canDelete(req: Request, mediaRef: MediaRef): Promise<boolean> | boolean
+  makeJsonResponseForDelete(deletedMedia: Media): Promise<object> | object
 }
 
-export function declareRoutes(router: Router, validator: StorageContext) {
-  router.post("/medias", makeUploadRouteHandler(validator))
-  router.get("/medias/:year/:variantId/*", makeGetRouteHandler(validator))
-  router.delete("/medias/:year/:variantId/*", makeDeleteRouteHandler(validator))
+export function declareMediaRoutes(router: Router, context: StorageContext) {
+  let upload = multer({
+    storage: multer.memoryStorage(),
+    limits: {
+      fileSize: 1024 * 1024 * 20 // 20 MB
+    }
+  })
+  router.post("/medias", upload.single("f"), makeUploadRouteHandler(context))
+  router.get("/medias/:year/:variantId/:fileName", makeGetRouteHandler(context))
+  router.delete("/medias/:year/:variantId/:fileName", makeDeleteRouteHandler(context))
+}
+
+export function getFileUrl(media: Media, variant: Variant, urlPrefix = "") {
+  let year = new Date(media.ts).getFullYear()
+  return `${urlPrefix}/medias/${year}/${variant.id}/${variant.fileName}`
 }
 
 function makeUploadRouteHandler(context: StorageContext) {
   return async function (req: Request, res: Response) {
     try {
-      // Get the meta
+      // Check the parameters
+      if (!req.file)
+        return writeError(res, 400, "Missing file")
       let externalRef: ExternalRef
       let overwrite: boolean
       try {
@@ -44,15 +55,12 @@ function makeUploadRouteHandler(context: StorageContext) {
         }
         overwrite = !!getUploadMetaValue(meta, ["overwrite"], "boolean", true)
       } catch (err) {
-        write400(res, err.message)
-        return
+        return writeError(res, 400, err.message)
       }
       // Validate the access
-      let { canUpload, ownerId } = await context.canUpload(externalRef, overwrite)
-      if (!canUpload) {
-        write403(res)
-        return
-      }
+      let { canUpload, ownerId, errorCode, errorMsg } = await context.canUpload(externalRef, overwrite, req.file)
+      if (!canUpload)
+        return writeError(res, errorCode || 403, errorMsg)
       // Store the media
       let { mediaId, overwritten } = await storeMedia({
         file: req.file,
@@ -60,9 +68,9 @@ function makeUploadRouteHandler(context: StorageContext) {
         ownerId: ownerId,
         overwrite
       })
-      writeServerResponse(res, 200, await context.makeJsonResponseForUpload(mediaId, overwritten))
+      writeJsonResponse(res, 200, await context.makeJsonResponseForUpload(mediaId, overwritten))
     } catch (err) {
-      writeServerResponseError(res, err)
+      writeServerError(res, err)
     }
   }
 }
@@ -70,21 +78,21 @@ function makeUploadRouteHandler(context: StorageContext) {
 function makeGetRouteHandler(context: StorageContext) {
   return async function (req: Request, res: Response) {
     try {
-      // Get the meta
+      // Check the parameters
       let variantId: string
       try {
         variantId = getRouteParameter(req, "variantId")
       } catch (err) {
-        return write400(res, err.message)
+        return writeError(res, 400, err.message)
       }
       // Validate the access
       let mediaRef = await findMediaRef({ variantId })
       if (!mediaRef || !await context.canRead(mediaRef))
-        return write404(res)
+        return writeError(res, 404)
       // Serve the file
       returnFile(variantId, res, !!req.query.download)
     } catch (err) {
-      writeServerResponseError(res, err)
+      writeServerError(res, err)
     }
   }
 }
@@ -107,22 +115,22 @@ async function returnFile(variantId: string, res: Response, asDownload = false) 
 function makeDeleteRouteHandler(context: StorageContext) {
   return async function (req: Request, res: Response) {
     try {
-      // Get the meta
+      // Check the parameters
       let variantId: string
       try {
         variantId = getRouteParameter(req, "variantId")
       } catch (err) {
-        return write400(res, err.message)
+        return writeError(res, 400, err.message)
       }
       // Validate the access
       let media = await findMedia({ variantId })
       if (!media || !await context.canDelete({ externalRef: media.externalRef, ownerId: media.ownerId }))
-        return write404(res)
+        return writeError(res, 404)
       // Delete the file
       await removeMedia({ variantId })
-      writeServerResponse(res, 200, await context.makeJsonResponseForDelete(media))
+      writeJsonResponse(res, 200, await context.makeJsonResponseForDelete(media))
     } catch (err) {
-      writeServerResponseError(res, err)
+      writeServerError(res, err)
     }
   }
 }
@@ -131,34 +139,72 @@ function makeDeleteRouteHandler(context: StorageContext) {
 // -- Utils
 // --
 
-function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
-  writeServerResponse(res, 500, `Error: ${err.message}\nRequest: ${reqBody}`)
-  console.log("[ERR]", err, err.stack, reqBody)
-}
-
-function writeServerResponse(res: Response, httpCode: number, data) {
+function writeJsonResponse(res: Response, httpCode: number, data) {
   res.setHeader("Content-Type", "application/json")
   res.status(httpCode)
   res.send(JSON.stringify(data))
   res.end()
 }
 
-function write400(res: Response, message?: string) {
-  res.status(400)
-  res.send(`400 Bad Request${message ? `\n${message}` : ""}`)
+function writeServerError(res: Response, err: Error, reqBody?: string) {
+  console.log("[ERR]", err, err.stack, reqBody)
+  writeError(res, 500, `Error: ${err.message}\nRequest: ${reqBody}`)
+}
+
+function writeError(res: Response, httpCode: number, message?: string) {
+  res.status(httpCode)
+  res.send(message || httpErrorMessage(httpCode))
   res.end()
 }
 
-function write403(res: Response) {
-  res.status(403)
-  res.send("403 Forbidden")
-  res.end()
+function httpErrorMessage(httpCode: number) {
+  switch (httpCode) {
+    case 400:
+      return "400 Bad Request"
+    case 403:
+      return "403 Forbidden"
+    case 404:
+      return "404 Not Found"
+    case 500:
+      return "500 Internal Server Error"
+    default:
+      return `Error ${httpCode}`
+  }
 }
 
-function write404(res: Response) {
-  res.status(404)
-  res.send("404 Not Found")
-  res.end()
+function getRouteParameter(req: Request, paramName: string, allowEmpty = false): string {
+  let val = req.params[paramName]
+  if (val === undefined)
+    throw new Error(`Missing HTTP parameter: ${paramName}`)
+  if (!allowEmpty && val === "")
+    throw new Error(`Empty HTTP parameter: ${paramName}`)
+  return val
+}
+
+function getUploadMetaValue<T = any>(meta, keys: string[], checkType: string, optional = false): T {
+  let cur = meta
+  for (let key of keys) {
+    if (!cur)
+      throw new Error(`Missing meta value for "${keys.join(".")}" in: ${JSON.stringify(meta)}`)
+    cur = cur[key]
+  }
+  if (cur !== undefined) {
+    if (!optional)
+      throw new Error(`Missing meta value for "${keys.join(".")}" in: ${JSON.stringify(meta)}`)
+  } else if (typeof cur !== checkType)
+    throw new Error(`Invalid ${checkType} meta value for "${keys.join(".")}": ${typeof cur}`)
+  return cur
+}
+
+function getMulterParameterAsJson(req: Request, paramName: string): any {
+  let param = req.body[paramName]
+  if (param === undefined)
+    throw new Error(`Missing form parameter: ${paramName}`)
+  try {
+    return JSON.parse(param)
+  } catch (err) {
+    throw new Error(`Invalid JSON for form parameter: ${paramName}: ${err.message}`)
+  }
 }
 
 
@@ -276,42 +322,3 @@ function write404(res: Response) {
 //     })
 //   }
 // }
-
-function isImage(imType: string) {
-  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
-}
-
-function getRouteParameter(req: Request, paramName: string, allowEmpty = false): string {
-  let val = req.params[paramName]
-  if (val === undefined)
-    throw new Error(`Missing HTTP parameter: ${paramName}`)
-  if (!allowEmpty && val === "")
-    throw new Error(`Empty HTTP parameter: ${paramName}`)
-  return val
-}
-
-function getUploadMetaValue<T = any>(meta, keys: string[], checkType: string, optional = false): T {
-  let cur = meta
-  for (let key of keys) {
-    if (!cur)
-      throw new Error(`Missing meta value for "${keys.join(".")}" in: ${JSON.stringify(meta)}`)
-    cur = cur[key]
-  }
-  if (cur !== undefined) {
-    if (!optional)
-      throw new Error(`Missing meta value for "${keys.join(".")}" in: ${JSON.stringify(meta)}`)
-  } else if (typeof cur !== checkType)
-    throw new Error(`Invalid ${checkType} meta value for "${keys.join(".")}": ${typeof cur}`)
-  return cur
-}
-
-function getMulterParameterAsJson(req: Request, paramName: string): any {
-  let param = req.body[paramName]
-  if (param === undefined)
-    throw new Error(`Missing form parameter: ${paramName}`)
-  try {
-    return JSON.parse(param)
-  } catch (err) {
-    throw new Error(`Invalid JSON for form parameter: ${paramName}: ${err.message}`)
-  }
-}

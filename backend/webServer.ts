@@ -15,6 +15,8 @@ import { SessionData } from "./backendContext/context"
 import { mainDbConf } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { removeExpiredTokens } from "./mail"
+import { declareMediaRoutes } from "./uploadEngine/uploadEngine";
+import { stStorageContext } from "./stStorageContext";
 
 const PORT = 3921
 
@@ -59,6 +61,8 @@ export function startWebServer() {
   router.post("/api/exec", makeRouteHandler(routeExec, false))
   router.post("/api/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/who-use", makeRouteHandler(routeWhoUse, false))
+
+  declareMediaRoutes(router, stStorageContext)
 
   // declareRoute(router, "/get-file/:variantId/:fileName", routeGetFile, "get", false, true)
   // declareRoute(router, "/download-file/:variantId/:fileName", routeDownloadFile, "get", false, true)

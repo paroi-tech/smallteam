@@ -3,6 +3,7 @@ import { findMedias, Variant, Media, findMedia } from "../uploadEngine/mediaStor
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 import config from "../../isomorphic/config";
+import { getFileUrl } from "../uploadEngine/uploadEngine";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
@@ -48,7 +49,7 @@ function toMediaAndVariantFragments(medias: Media[]): MediaAndVariantFragments {
   for (let media of medias) {
     mediaFragments.push(toMediaFragment(media))
     for (let variantCode of Object.keys(media.variants))
-      variantFragments.push(toMediaVariantFragment(media.variants[variantCode], media.id))
+      variantFragments.push(toMediaVariantFragment(media.variants[variantCode], media))
   }
   return {
     mediaFragments,
@@ -66,14 +67,14 @@ function toMediaFragment(media: Media): MediaFragment {
   }
 }
 
-function toMediaVariantFragment(variant: Variant, mediaId: string): MediaVariantFragment {
+function toMediaVariantFragment(variant: Variant, media: Media): MediaVariantFragment {
   return {
     id: variant.id,
-    mediaId,
+    mediaId: media.id,
     code: variant.code,
     weightB: variant.weightB,
     imType: variant.imType,
-    url: `${config.urlPrefix}/get-file/${variant.id}/${variant.fileName}`, // variant.url
+    url: getFileUrl(media, variant, config.urlPrefix),
     imgWidth: variant.img ? variant.img.width : undefined,
     imgHeight: variant.img ? variant.img.height : undefined,
     imgDpi: variant.img ? variant.img.dpi : undefined
