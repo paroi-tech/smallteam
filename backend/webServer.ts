@@ -83,34 +83,29 @@ function wait(delayMs: number): Promise<void> {
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
-  return function (req, res) {
+  return async function (req, res) {
     if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
       // console.log("404>>", req.session)
       write404(res)
       return
     }
-
-    let body = ""
-    req.on("data", data => body += data)
-    req.on("end", () => {
-      processJsonRequest(req, res, body, cb)
-    })
-  }
-}
-
-async function processJsonRequest(req: Request, res: Response, body: string, cb: RouteCb) {
-  try {
-    let reqData = JSON.parse(body)
     // await wait(500) // TODO: Remove this line before to release!
-    writeServerResponse(res, 200, await cb(reqData, req.session as any, req, res))
-  } catch (err) {
-    writeServerResponseError(res, err, body)
+    let body: string | undefined
+    try {
+      body = await waitForRequestBody(req)
+      writeServerResponse(res, 200, await cb(JSON.parse(body), req.session as any, req, res))
+    } catch (err) {
+      writeServerResponseError(res, err, body)
+    }
   }
 }
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
-  writeServerResponse(res, 500, `Error: ${err.message}\nRequest: ${reqBody}`)
   console.log("[ERR]", err, err.stack, reqBody)
+  writeServerResponse(res, 500, {
+    error: err.message,
+    request: reqBody
+  })
 }
 
 function writeServerResponse(res: Response, httpCode: number, data) {
@@ -124,4 +119,17 @@ function write404(res: Response) {
   res.status(404)
   res.send("404 Not Found")
   res.end()
+}
+
+function waitForRequestBody(req: Request): Promise<string> {
+  return new Promise<string>((resolve, reject) => {
+    let body: string[] = []
+    req.on("data", chunk => body.push(typeof chunk === "string" ? chunk : chunk.toString()))
+    req.on("error", err => {
+      reject(err)
+    })
+    req.on("end", () => {
+      resolve(body.join(""))
+    })
+  })
 }

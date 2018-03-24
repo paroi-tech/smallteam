@@ -119,7 +119,7 @@ function makeDeleteRouteHandler(context: StorageContext) {
       // Check the parameters
       let mediaId: string
       try {
-        let options = await waitRequestBodyAsJson(req)
+        let options = await waitForRequestBodyAsJson(req)
         mediaId = getUploadMetaValue(options, ["mediaId"], "string")
       } catch (err) {
         return writeError(res, 400, err.message)
@@ -137,7 +137,7 @@ function makeDeleteRouteHandler(context: StorageContext) {
   }
 }
 
-async function waitRequestBodyAsJson(req: Request): Promise<any> {
+async function waitForRequestBodyAsJson(req: Request): Promise<any> {
   let result = await new Promise<string>((resolve, reject) => {
     let body: string[] = []
     req.on("data", chunk => body.push(typeof chunk === "string" ? chunk : chunk.toString()))
