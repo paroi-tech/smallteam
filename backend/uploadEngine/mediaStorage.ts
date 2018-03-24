@@ -314,15 +314,14 @@ export async function findMedias(query: MediaQuery): Promise<Media[]> {
   let sb = sqlSelectMedia()
   if ("mediaId" in query)
     sb = sb.where("m.media_id", query.mediaId)
-  else if ("variantId" in query){
+  else if ("variantId" in query) {
     sb = sb.innerJoin("variant v").using("media_id")
       .where("v.variant_id", query.variantId)
   } else if ("externalRef" in query) {
-    sb = sb.innerJoin("media_ref r").using("media_id")
-      .where({
-        "r.external_type": query.externalRef.type,
-        "r.external_id": query.externalRef.id
-      })
+    sb = sb.where({
+      "r.external_type": query.externalRef.type,
+      "r.external_id": query.externalRef.id
+    })
   } else
     return []
   let rows = await fileCn.allSqlBricks(sb)

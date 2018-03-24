@@ -1,7 +1,7 @@
 import * as http from "http"
 import * as path from "path"
 import * as express from "express"
-import { Request, Response, Router, RequestHandler } from "express"
+import { Request, Response, Router } from "express"
 
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
@@ -63,13 +63,6 @@ export function startWebServer() {
   router.post("/api/who-use", makeRouteHandler(routeWhoUse, false))
 
   declareMediaRoutes(router, stStorageContext)
-
-  // declareRoute(router, "/get-file/:variantId/:fileName", routeGetFile, "get", false, true)
-  // declareRoute(router, "/download-file/:variantId/:fileName", routeDownloadFile, "get", false, true)
-  // declareRoute(router, "/api/delete-attachment/:taskId/:variantId", routeDeleteTaskAttachment, "post", false, true)
-
-  // declareUploadRoute(router, "/api/session/change-avatar", upload.single("avatar"), routeChangeAvatar)
-  // declareUploadRoute(router, "/api/add-task-attachment/:taskId", upload.single("attachment"), routeAddTaskAttachment)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 

@@ -7,7 +7,7 @@
   </header>
   <ul class="TaskAttachementManager-ul"></ul>
   <form action="" method="post" enctype="multipart/form-data">
-    <input name="attachment" type="file" class="js-input">
+    <input name="f" type="file" class="js-input">
     <button class="TaskAttachmentManager-uploadButton js-upload-button" type="submit">
       <span class="fa fa-upload fa-1x js-spinner"></span> &nbsp; Send file
     </button>

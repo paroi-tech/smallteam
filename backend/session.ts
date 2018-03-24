@@ -132,13 +132,14 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
 
 export interface Connected {
   contributorId: string
-  role: string
 }
 
-export async function checkSession(req: Request): Promise<Connected | undefined> {
-  if (!req.session || req.session.contributorId === undefined)
-    return false
-
+export function checkSession(req: Request): Connected | undefined {
+  if (req.session && req.session.contributorId) {
+    return {
+      contributorId: req.session.contributorId
+    }
+  }
 }
 
 // --

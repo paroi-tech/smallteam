@@ -46,11 +46,18 @@ export default class AvatarForm {
   }
 
   private async doUpload() {
-    let fd = new FormData(this.formEl)
+    let meta = {
+      ref: {
+        type: "contributorAvatar",
+        id: this.contributor.id
+      },
+      overwrite: true
+    }
 
-    fd.append("contributorId", this.contributor.id)
+    let fd = new FormData(this.formEl)
+    fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/change-avatar`, {
+      let response = await fetch(`${config.urlPrefix}/medias`, {
         method: "post",
         credentials: "same-origin",
         body: fd

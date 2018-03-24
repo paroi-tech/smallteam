@@ -64,16 +64,23 @@ export default class TaskAttachmentManager {
     if (!this.inputEl.files || this.inputEl.files.length === 0)
       return
     this.showSpinner()
-    let fd = new FormData(this.formEl)
-    await this.doUpload(fd)
+    await this.doUpload()
     this.hideSpinner()
   }
 
-  private async doUpload(fd: FormData) {
+  private async doUpload() {
     if (!this.currentTask)
       return
+    let meta = {
+      ref: {
+        type: "task",
+        id: this.currentTask.id
+      }
+    }
+    let fd = new FormData(this.formEl)
+    fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${config.urlPrefix}/api/add-task-attachment/${this.currentTask.id}`, {
+      let response = await fetch(`${config.urlPrefix}/medias`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -100,7 +107,9 @@ export default class TaskAttachmentManager {
 
     let downloadBtn = el.querySelector(".js-download-button") as HTMLButtonElement
     downloadBtn.addEventListener("click", (ev) => {
-      window.open(`${config.urlPrefix}/download-file/${media.id}`)
+      let orig = media.getVariant("orig")
+      if (orig)
+        window.open(`${orig.url}?download=1`)
     })
 
     let deleteBtn = el.querySelector(".js-remove-button") as HTMLButtonElement
@@ -114,20 +123,21 @@ export default class TaskAttachmentManager {
     this.listEl.appendChild(el)
   }
 
-  private async removeTaskAttachment(variantId: string) {
+  private async removeTaskAttachment(mediaId: string) {
     if (!this.currentTask)
       return false
-    let taskId = this.currentTask.id
+
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/delete-attachment/${taskId}/${variantId}`, {
-        method: "post",
+      let response = await fetch(`${config.urlPrefix}/medias`, {
+        method: "delete",
         credentials: "same-origin",
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json"
-        }
+        },
+        body: JSON.stringify({ mediaId })
       })
 
       if (!response.ok)

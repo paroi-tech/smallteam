@@ -30,13 +30,13 @@ export function declareMediaRoutes(router: Router, context: StorageContext) {
     }
   })
   router.post("/medias", upload.single("f"), makeUploadRouteHandler(context))
+  router.delete("/medias", makeDeleteRouteHandler(context))
   router.get("/medias/:year/:variantId/:fileName", makeGetRouteHandler(context))
-  router.delete("/medias/:year/:variantId/:fileName", makeDeleteRouteHandler(context))
 }
 
 export function getFileUrl(media: Media, variant: Variant, urlPrefix = "") {
   let year = new Date(media.ts).getFullYear()
-  return `${urlPrefix}/medias/${year}/${variant.id}/${variant.fileName}`
+  return `${urlPrefix}/medias/${year}/${variant.id}/${encodeURIComponent(variant.fileName)}`
 }
 
 function makeUploadRouteHandler(context: StorageContext) {
@@ -58,7 +58,7 @@ function makeUploadRouteHandler(context: StorageContext) {
         return writeError(res, 400, err.message)
       }
       // Validate the access
-      let { canUpload, ownerId, errorCode, errorMsg } = await context.canUpload(externalRef, overwrite, req.file)
+      let { canUpload, ownerId, errorCode, errorMsg } = await context.canUpload(req, externalRef, overwrite, req.file)
       if (!canUpload)
         return writeError(res, errorCode || 403, errorMsg)
       // Store the media
@@ -87,7 +87,7 @@ function makeGetRouteHandler(context: StorageContext) {
       }
       // Validate the access
       let mediaRef = await findMediaRef({ variantId })
-      if (!mediaRef || !await context.canRead(mediaRef))
+      if (!mediaRef || !await context.canRead(req, mediaRef))
         return writeError(res, 404)
       // Serve the file
       returnFile(variantId, res, !!req.query.download)
@@ -115,24 +115,40 @@ async function returnFile(variantId: string, res: Response, asDownload = false) 
 function makeDeleteRouteHandler(context: StorageContext) {
   return async function (req: Request, res: Response) {
     try {
+
       // Check the parameters
-      let variantId: string
+      let mediaId: string
       try {
-        variantId = getRouteParameter(req, "variantId")
+        let options = await waitRequestBodyAsJson(req)
+        mediaId = getUploadMetaValue(options, ["mediaId"], "string")
       } catch (err) {
         return writeError(res, 400, err.message)
       }
       // Validate the access
-      let media = await findMedia({ variantId })
-      if (!media || !await context.canDelete({ externalRef: media.externalRef, ownerId: media.ownerId }))
+      let media = await findMedia({ mediaId })
+      if (!media || !await context.canDelete(req, { externalRef: media.externalRef, ownerId: media.ownerId }))
         return writeError(res, 404)
       // Delete the file
-      await removeMedia({ variantId })
+      await removeMedia({ mediaId })
       writeJsonResponse(res, 200, await context.makeJsonResponseForDelete(media))
     } catch (err) {
       writeServerError(res, err)
     }
   }
+}
+
+async function waitRequestBodyAsJson(req: Request): Promise<any> {
+  let result = await new Promise<string>((resolve, reject) => {
+    let body: string[] = []
+    req.on("data", chunk => body.push(typeof chunk === "string" ? chunk : chunk.toString()))
+    req.on("error", err => {
+      reject(err)
+    })
+    req.on("end", () => {
+      resolve(body.join(""))
+    })
+  })
+  return JSON.parse(result)
 }
 
 // --
@@ -188,7 +204,7 @@ function getUploadMetaValue<T = any>(meta, keys: string[], checkType: string, op
       throw new Error(`Missing meta value for "${keys.join(".")}" in: ${JSON.stringify(meta)}`)
     cur = cur[key]
   }
-  if (cur !== undefined) {
+  if (cur === undefined) {
     if (!optional)
       throw new Error(`Missing meta value for "${keys.join(".")}" in: ${JSON.stringify(meta)}`)
   } else if (typeof cur !== checkType)

@@ -10,12 +10,19 @@ import { checkSession } from "./session";
 // id: taskId
 
 export const stStorageContext: StorageContext = {
-  async canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile): Promise<CanUpload> {
-    let connected = await checkSession(req)
+  canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
+    let connected = checkSession(req)
     if (!connected) {
       return {
         canUpload: false,
         errorCode: 403 // Forbidden
+      }
+    }
+    if (!["contributorAvatar", "task"].includes(externalRef.type)) {
+      return {
+        canUpload: false,
+        errorCode: 400, // Bad Request
+        errorMsg: `Invalid externalRef.type: ${externalRef.type}`
       }
     }
     if (externalRef.type === "contributorAvatar" && !isImage(file.mimetype)) {
@@ -25,26 +32,33 @@ export const stStorageContext: StorageContext = {
         errorMsg: "Only PNG, JPEG, GIF and WebP files are allowed."
       }
     }
+    // TODO: Check the existence of `externalRef.id` in the database
     return {
       canUpload: true,
       ownerId: connected.contributorId
     }
   },
 
-  async makeJsonResponseForUpload(mediaId: string, overwritten: boolean): Promise<object> {
-
+  makeJsonResponseForUpload(mediaId: string, overwritten: boolean) {
+    // TODO: Here, implement a modelStorage response in order to update the frontend model
+    return {
+      done: true
+    }
   },
 
-  async canRead(req: Request, mediaRef: MediaRef): Promise<boolean> {
-    return !!await checkSession(req)
+  canRead(req: Request, mediaRef: MediaRef) {
+    return !!checkSession(req)
   },
 
-  async canDelete(req: Request, mediaRef: MediaRef): Promise<boolean> {
-    return !!await checkSession(req)
+  canDelete(req: Request, mediaRef: MediaRef) {
+    return !!checkSession(req)
   },
 
-  async makeJsonResponseForDelete(deletedMedia: Media): Promise<object> {
-
+  makeJsonResponseForDelete(deletedMedia: Media) {
+    // TODO: Here, implement a modelStorage response in order to clear the frontend model
+    return {
+      done: true
+    }
   }
 }
 
