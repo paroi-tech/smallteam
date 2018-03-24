@@ -2,6 +2,12 @@ I used this file to record ideas and things that I think useful. I don't have In
 the time, so I can't use JIRA.
 
 # Thomas
+- Upload engine & co:
+  - Comments TODO in stStorageContext.ts
+  - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
+  - Fill the AppModel with the response of the upload engine
+  - Remove the dependent medias on delete tasks, contributors
+  - Implement multi-files upload
 - WebSocket:
   - Accept to open only for connected users
 - In the Model:
