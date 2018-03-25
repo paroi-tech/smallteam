@@ -1,13 +1,11 @@
-import { StorageContext, CanUpload } from "./uploadEngine/uploadEngine";
-import { ExternalRef, MediaRef, Media, MulterFile } from "./uploadEngine/mediaStorage";
 import { Request } from "express"
-import { checkSession } from "./session";
-
-//   type: "contributorAvatar",
-//   id: contributorId
-
-// type: "task",
-// id: taskId
+import { StorageContext, CanUpload } from "./uploadEngine/uploadEngine"
+import { ExternalRef, MediaRef, Media, MulterFile, findMedia } from "./uploadEngine/mediaStorage"
+import { SessionData, BackendContext, CargoLoader } from "./backendContext/context"
+import { checkSession } from "./session"
+import { MediaFragment } from "../isomorphic/meta/Media";
+import { putMediasToCargoLoader } from "./dbqueries/queryMedia";
+import { ModelUpdate } from "../isomorphic/Cargo";
 
 export const stStorageContext: StorageContext = {
   canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
@@ -39,10 +37,17 @@ export const stStorageContext: StorageContext = {
     }
   },
 
-  makeJsonResponseForUpload(mediaId: string, overwritten: boolean) {
-    // TODO: Here, implement a modelStorage response in order to update the frontend model
+  async makeJsonResponseForUpload(req: Request, mediaId: string, overwritten: boolean) {
+    let media = await findMedia({ mediaId })
+    let modelUpd: ModelUpdate | undefined
+    if (media) {
+      let loader = new CargoLoader()
+      putMediasToCargoLoader(loader, [media], overwritten ? "updated" : "created")
+      modelUpd = loader.modelUpdate.toModelUpdate()
+    }
     return {
-      done: true
+      done: true,
+      modelUpd
     }
   },
 
@@ -54,10 +59,16 @@ export const stStorageContext: StorageContext = {
     return !!checkSession(req)
   },
 
-  makeJsonResponseForDelete(deletedMedia: Media) {
-    // TODO: Here, implement a modelStorage response in order to clear the frontend model
+  makeJsonResponseForDelete(req: Request, deletedMedia: Media) {
+    let loader = new CargoLoader()
+    for (let variantCode of Object.keys(deletedMedia.variants))
+      loader.modelUpdate.markFragmentAs("MediaVariant", deletedMedia.variants[variantCode].id, "deleted")
+    loader.modelUpdate.markFragmentAs("Media", deletedMedia.id, "deleted")
+
+    let modelUpd = loader.modelUpdate.toModelUpdate()
     return {
-      done: true
+      done: true,
+      modelUpd
     }
   }
 }

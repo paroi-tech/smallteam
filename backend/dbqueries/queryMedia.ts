@@ -4,6 +4,8 @@ import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 import config from "../../isomorphic/config";
 import { getFileUrl } from "../uploadEngine/uploadEngine";
+import { ChangedType } from "../backendContext/ModelUpdateLoader";
+import CargoLoader from "../backendContext/CargoLoader";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
@@ -11,31 +13,31 @@ export async function fetchMedias(context: BackendContext, type: MainMetaCode, i
   let medias = await findMedias({
     externalRef: { type, id }
   })
-  let { mediaFragments, variantFragments } = toMediaAndVariantFragments(medias)
-
-  for (let frag of mediaFragments)
-    context.loader.addFragment({ type: "Media", frag })
-  for (let frag of variantFragments)
-    context.loader.addFragment({ type: "MediaVariant", frag })
-
-  return mediaFragments.map(frag => frag.id)
+  return putMediasToCargoLoader(context.loader, medias)
 }
 
 export async function fetchSingleMedia(context: BackendContext, type: MainMetaCode, id: string): Promise<string | undefined> {
   let media = await findMedia({
     externalRef: { type, id }
   })
-  if (!media)
-    return
+  if (media) {
+    putMediasToCargoLoader(context.loader, [media])
+    return media.id
+  }
+}
 
-  let { mediaFragments, variantFragments } = toMediaAndVariantFragments([media])
+export function putMediasToCargoLoader(loader: CargoLoader, medias: Media[], markAs?: ChangedType): string[] {
+  let { mediaFragments, variantFragments } = toMediaAndVariantFragments(medias)
 
-  for (let frag of mediaFragments)
-    context.loader.addFragment({ type: "Media", frag })
+  for (let frag of mediaFragments) {
+    loader.addFragment({ type: "Media", frag })
+    if (markAs)
+      loader.modelUpdate.markFragmentAs("Media", frag.id, markAs)
+  }
   for (let frag of variantFragments)
-    context.loader.addFragment({ type: "MediaVariant", frag })
+    loader.addFragment({ type: "MediaVariant", frag })
 
-  return media.id
+  return mediaFragments.map(frag => frag.id)
 }
 
 interface MediaAndVariantFragments {
@@ -63,7 +65,9 @@ function toMediaFragment(media: Media): MediaFragment {
     ts: media.ts,
     baseName: media.baseName,
     originalName: media.originalName,
-    ownerId: media.ownerId
+    ownerId: media.ownerId,
+    externalType: media.externalRef ? media.externalRef.type : undefined,
+    externalId: media.externalRef ? media.externalRef.id : undefined
   }
 }
 

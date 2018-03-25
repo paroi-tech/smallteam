@@ -7,6 +7,8 @@ export interface MediaFragment {
   baseName?: string
   originalName?: string
   ownerId?: string
+  externalType?: string
+  externalId?: string
 }
 
 const meta: FragmentMeta = {
@@ -29,6 +31,14 @@ const meta: FragmentMeta = {
       optional: true
     },
     ownerId: {
+      dataType: "string",
+      optional: true
+    },
+    externalType: {
+      dataType: "string",
+      optional: true
+    },
+    externalId: {
       dataType: "string",
       optional: true
     }

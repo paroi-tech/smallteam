@@ -107,7 +107,7 @@ export function registerTask(engine: ModelEngine) {
     return model as any
   })
 
-  engine.registerDependency("reorder", "Flag", function (props: OrderProperties) {
+  engine.registerDependency("reorder", "Flag", (props: OrderProperties) => {
     return {
       type: "Task" as Type,
       idList: engine.getAllModels<TaskModel>("Task").filter(task => !!task.flagIds).map(task => task.id)

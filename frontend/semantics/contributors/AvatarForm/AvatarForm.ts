@@ -69,6 +69,8 @@ export default class AvatarForm {
       }
 
       let result = await response.json()
+      if (result.modelUpd)
+        this.model.processModelUpdate(result.modelUpd)
       if (result.done)
         this.log.info("Avatar successfully updloaded.")
       else

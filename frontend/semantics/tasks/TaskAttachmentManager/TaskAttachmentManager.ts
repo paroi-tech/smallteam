@@ -92,6 +92,8 @@ export default class TaskAttachmentManager {
       }
 
       let result = await response.json()
+      if (result.modelUpd)
+        this.model.processModelUpdate(result.modelUpd)
       if (result.done)
         this.log.info("File successfully updloaded.")
       else
@@ -144,6 +146,8 @@ export default class TaskAttachmentManager {
         this.log.error("Unable to get a response from server...")
       else {
         let data = await response.json()
+        if (data.modelUpd)
+          this.model.processModelUpdate(data.modelUpd)
         if (data.done) {
           this.log.info("Attachment successfully removed")
           result = true

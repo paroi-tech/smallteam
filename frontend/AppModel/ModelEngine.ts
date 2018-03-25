@@ -103,11 +103,17 @@ interface Batch {
   deferred: Deferred<BatchCargo>
 }
 
+export type Trigger = (cmd: CommandType, id: string) => void
+
 export default class ModelEngine {
   readonly bgManager: GenericBgCommandManager
 
   private store = makeHKMap<Type, TypeStorage>()
   private dependencies = new Map<string, GetDependencies[]>()
+  private triggers = {
+    before: new Map<Type, Trigger[]>(),
+    after: new Map<Type, Trigger[]>()
+  }
   private batch: Batch | null = null
   private processing = new Set<string>()
 
@@ -134,6 +140,20 @@ export default class ModelEngine {
     if (!list)
       this.dependencies.set(depKey, list = [])
     list.push(getDependencies)
+  }
+
+  public registerTriggerBefore(type: Type, trigger: Trigger) {
+    let list = this.triggers.before.get(type)
+    if (!list)
+      this.triggers.before.set(type, list = [])
+    list.push(trigger)
+  }
+
+  public registerTriggerAfter(type: Type, trigger: Trigger) {
+    let list = this.triggers.after.get(type)
+    if (!list)
+      this.triggers.after.set(type, list = [])
+    list.push(trigger)
   }
 
   public startBatchRecord(httpMethod?: HttpMethod) {
@@ -390,11 +410,11 @@ export default class ModelEngine {
   }
 
   private deleteFromStore(deleted: Changed) {
-    for (let type in deleted) {
-      if (!deleted.hasOwnProperty(type))
+    for (let [type, list] of Object.entries(deleted)) {
+      if (!list)
         continue
       let storage = this.getTypeStorage(type as Type)
-      for (let id of deleted[type]) {
+      for (let id of list) {
         let entity = storage.entities.get(id)
         if (entity) {
           storage.entities.delete(id)
@@ -406,7 +426,37 @@ export default class ModelEngine {
     }
   }
 
-  private emitEvents(changed: Changed, cmd: CommandType) {
+  /**
+   * Called by triggers. Remove dependencies from the store. No effect on the backend.
+   */
+  public removeFrontendModels(query: ModelsQuery) {
+    let identifiers = this.findIdentifiersFromIndex(query)
+    if (identifiers) {
+      this.deleteFromStore({
+        [query.type]: identifiers
+      })
+    }
+  }
+
+  private execTriggers(triggerType: "before" | "after", cmd: CommandType, changed: Changed) {
+    let map = this.triggers[triggerType]
+    for (let [type, list] of Object.entries(changed)) {
+      if (!list)
+        continue
+      let triggers = map.get(type as Type)
+      if (triggers) {
+        for (let trigger of triggers) {
+          for (let id of list)
+            trigger(cmd, id as string)
+        }
+      }
+    }
+  }
+
+  /**
+   * Can be called by triggers.
+   */
+  public emitEvents(changed: Changed, cmd: CommandType) {
     const that = this
     for (let [type, idList] of Object.entries<any>(changed)) {
       let storage = this.getTypeStorage(type as Type)
@@ -484,7 +534,18 @@ export default class ModelEngine {
       throw new Error(`Result type "${resultType}" doesn't match with cargo: ${JSON.stringify(cargo)}`)
   }
 
-  private processModelUpdate(modelUpd: ModelUpdate) {
+  private processModelUpdateTriggers(triggerType: "before" | "after", modelUpd: ModelUpdate) {
+    if (modelUpd.deleted)
+      this.execTriggers(triggerType, "delete", modelUpd.deleted)
+    if (modelUpd.updated)
+      this.execTriggers(triggerType, "update", modelUpd.updated)
+    if (modelUpd.created)
+      this.execTriggers(triggerType, "create", modelUpd.created)
+  }
+
+  public processModelUpdate(modelUpd: ModelUpdate) {
+    this.processModelUpdateTriggers("before", modelUpd)
+
     if (modelUpd.fragments)
       this.updateStore(modelUpd.fragments)
     if (modelUpd.partial)
@@ -499,6 +560,8 @@ export default class ModelEngine {
       this.emitEvents(modelUpd.created, "create")
     if (modelUpd.reordered)
       this.emitEventReordered(modelUpd.reordered)
+
+    this.processModelUpdateTriggers("after", modelUpd)
   }
 
   private httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {

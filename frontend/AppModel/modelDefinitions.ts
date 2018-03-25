@@ -1,4 +1,4 @@
-import { Type, Identifier } from "../../isomorphic/Cargo"
+import { Type, Identifier, ModelUpdate } from "../../isomorphic/Cargo"
 import { ContributorCreateFragment, ContributorUpdateFragment, ContributorSearchFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { ContributorModel } from "./Models/ContributorModel"
 import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, ProjectSearchFragment } from "../../isomorphic/meta/Project"
@@ -85,6 +85,7 @@ export interface Session {
 
 export interface Model extends ModelCommandMethods {
   createCommandBatch(): CommandBatch
+  processModelUpdate(modelUpd: ModelUpdate)
   readonly global: GlobalModels
   readonly session: Session
   readonly bgManager: BgCommandManager

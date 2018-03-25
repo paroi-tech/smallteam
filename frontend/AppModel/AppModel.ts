@@ -1,4 +1,4 @@
-import { Type, Identifier } from "../../isomorphic/Cargo"
+import { Type, Identifier, ModelUpdate } from "../../isomorphic/Cargo"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../isomorphic/meta/Contributor"
 import { registerContributor } from "./Models/ContributorModel"
 import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
@@ -80,6 +80,10 @@ export default class ModelComp implements Model {
 
   public createCommandBatch(): CommandBatch {
     return new GenericCommandBatch(this.engine)
+  }
+
+  public processModelUpdate(modelUpd: ModelUpdate) {
+    this.engine.processModelUpdate(modelUpd)
   }
 }
 

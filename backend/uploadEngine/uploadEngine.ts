@@ -14,12 +14,12 @@ export interface CanUpload {
 
 export interface StorageContext {
   canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile): Promise<CanUpload> | CanUpload
-  makeJsonResponseForUpload(mediaId: string, overwritten: boolean): Promise<object> | object
+  makeJsonResponseForUpload(req: Request, mediaId: string, overwritten: boolean): Promise<object> | object
 
   canRead(req: Request, mediaRef: MediaRef): Promise<boolean> | boolean
 
   canDelete(req: Request, mediaRef: MediaRef): Promise<boolean> | boolean
-  makeJsonResponseForDelete(deletedMedia: Media): Promise<object> | object
+  makeJsonResponseForDelete(req: Request, deletedMedia: Media): Promise<object> | object
 }
 
 export function declareMediaRoutes(router: Router, context: StorageContext) {
@@ -68,7 +68,7 @@ function makeUploadRouteHandler(context: StorageContext) {
         ownerId: ownerId,
         overwrite
       })
-      writeJsonResponse(res, 200, await context.makeJsonResponseForUpload(mediaId, overwritten))
+      writeJsonResponse(res, 200, await context.makeJsonResponseForUpload(req, mediaId, overwritten))
     } catch (err) {
       writeServerError(res, err)
     }
@@ -130,7 +130,7 @@ function makeDeleteRouteHandler(context: StorageContext) {
         return writeError(res, 404)
       // Delete the file
       await removeMedia({ mediaId })
-      writeJsonResponse(res, 200, await context.makeJsonResponseForDelete(media))
+      writeJsonResponse(res, 200, await context.makeJsonResponseForDelete(req, media))
     } catch (err) {
       writeServerError(res, err)
     }

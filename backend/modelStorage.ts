@@ -11,11 +11,18 @@ import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./dbqueries/query
 import { BackendContext, SessionData, CargoLoader } from "./backendContext/context"
 import { Request, Response } from "express"
 
+// export function createBackendContext(): BackendContext {
+//   let context: BackendContext = {
+//     sessionData,
+//     loader: new CargoLoader()
+//   }
+// }
+
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("Required sessionData missing in route callback")
 
-  let context = {
+  let context: BackendContext = {
     sessionData,
     loader: new CargoLoader()
   }
@@ -27,7 +34,7 @@ export async function routeExec(data, sessionData?: SessionData): Promise<Cargo>
   if (!sessionData)
     throw new Error("Required sessionData missing in route callback")
 
-  let context = {
+  let context: BackendContext = {
     sessionData,
     loader: new CargoLoader()
   }
@@ -40,7 +47,7 @@ export async function routeBatch(list: any[], sessionData?: SessionData): Promis
   if (!sessionData)
     throw new Error("Required sessionData missing in route callback")
 
-  let context = {
+  let context: BackendContext = {
     sessionData,
     loader: new CargoLoader(true)
   }

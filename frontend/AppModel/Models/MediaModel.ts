@@ -1,5 +1,5 @@
 import { MediaFragment, MediaIdFragment } from "../../../isomorphic/meta/Media"
-import ModelEngine, { appendGettersToModel } from "../ModelEngine"
+import ModelEngine, { appendGettersToModel, CommandType } from "../ModelEngine"
 import { MediaVariantModel } from "./MediaVariantModel";
 import { Collection } from "../modelDefinitions";
 
@@ -32,5 +32,39 @@ export function registerMedia(engine: ModelEngine) {
     }
     appendGettersToModel(model, "Media", getFrag)
     return model as any
+  })
+
+  engine.registerTriggerBefore("Media", (cmd, id) => {
+    if (cmd !== "delete" && cmd !== "update")
+      return
+    engine.removeFrontendModels({
+      type: "MediaVariant",
+      index: "mediaId",
+      key: {
+        mediaId: id
+      }
+    })
+  })
+
+  engine.registerTriggerAfter("Media", (cmd, id) => {
+    if (cmd === "delete")
+      return // FIXME: Find a solution to emit events on dependencies when a media is deleted
+    let media = engine.getModel<MediaModel>("Media", id)
+    if (media.externalType === undefined || media.externalId === undefined)
+      return
+    switch (media.externalType) {
+      case "contributorAvatar":
+        engine.emitEvents({
+          Contributor: [media.externalId]
+        }, "update")
+        break;
+      case "task":
+        engine.emitEvents({
+          Task: [media.externalId]
+        }, "update")
+        break;
+      default:
+        console.log(`[WARNING] Unknown media externalType: ${media.externalType}`)
+    }
   })
 }

@@ -83,7 +83,7 @@ function wait(delayMs: number): Promise<void> {
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
-  return async function (req, res) {
+  return async function (req: Request, res: Response) {
     if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
       // console.log("404>>", req.session)
       write404(res)
