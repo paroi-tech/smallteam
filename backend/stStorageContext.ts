@@ -2,20 +2,21 @@ import { Request } from "express"
 import { StorageContext, CanUpload } from "./uploadEngine/uploadEngine"
 import { ExternalRef, MediaRef, Media, MulterFile, findMedia } from "./uploadEngine/mediaStorage"
 import { SessionData, BackendContext, CargoLoader } from "./backendContext/context"
-import { checkSession } from "./session"
+import { getSessionData, hasSessionData } from "./session"
 import { MediaFragment } from "../isomorphic/meta/Media";
 import { putMediasToCargoLoader } from "./dbqueries/queryMedia";
-import { ModelUpdate } from "../isomorphic/Cargo";
+import { ModelUpdate, Type } from "../isomorphic/Cargo";
+import { completeCargo } from "./modelStorage";
 
 export const stStorageContext: StorageContext = {
   canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
-    let connected = checkSession(req)
-    if (!connected) {
+    if (!hasSessionData(req)) {
       return {
         canUpload: false,
         errorCode: 403 // Forbidden
       }
     }
+    let sessionData = getSessionData(req)
     if (!["contributorAvatar", "task"].includes(externalRef.type)) {
       return {
         canUpload: false,
@@ -33,7 +34,7 @@ export const stStorageContext: StorageContext = {
     // TODO: Check the existence of `externalRef.id` in the database
     return {
       canUpload: true,
-      ownerId: connected.contributorId
+      ownerId: sessionData.contributorId
     }
   },
 
@@ -42,7 +43,9 @@ export const stStorageContext: StorageContext = {
     let modelUpd: ModelUpdate | undefined
     if (media) {
       let loader = new CargoLoader()
+      loader.startResponse("none")
       putMediasToCargoLoader(loader, [media], overwritten ? "updated" : "created")
+      await markExternalTypeAsUpdate(req, media, loader)
       modelUpd = loader.modelUpdate.toModelUpdate()
     }
     return {
@@ -52,24 +55,48 @@ export const stStorageContext: StorageContext = {
   },
 
   canRead(req: Request, mediaRef: MediaRef) {
-    return !!checkSession(req)
+    return hasSessionData(req)
   },
 
   canDelete(req: Request, mediaRef: MediaRef) {
-    return !!checkSession(req)
+    return hasSessionData(req)
   },
 
-  makeJsonResponseForDelete(req: Request, deletedMedia: Media) {
+  async makeJsonResponseForDelete(req: Request, deletedMedia: Media) {
     let loader = new CargoLoader()
-    for (let variantCode of Object.keys(deletedMedia.variants))
-      loader.modelUpdate.markFragmentAs("MediaVariant", deletedMedia.variants[variantCode].id, "deleted")
+    // for (let variantCode of Object.keys(deletedMedia.variants))
+    //   loader.modelUpdate.markFragmentAs("MediaVariant", deletedMedia.variants[variantCode].id, "deleted")
     loader.modelUpdate.markFragmentAs("Media", deletedMedia.id, "deleted")
-
+    await markExternalTypeAsUpdate(req, deletedMedia, loader)
     let modelUpd = loader.modelUpdate.toModelUpdate()
     return {
       done: true,
       modelUpd
     }
+  }
+}
+
+async function markExternalTypeAsUpdate(req: Request, media: Media, loader: CargoLoader) {
+  if (media.externalRef) {
+    let context: BackendContext = {
+      sessionData: getSessionData(req),
+      loader
+    }
+    let updatedType = mediaExternalTypeToType(media.externalRef.type)
+    context.loader.modelUpdate.addFragment(updatedType, media.externalRef.id)
+    context.loader.modelUpdate.markFragmentAs(updatedType, media.externalRef.id, "updated")
+    await completeCargo(context)
+  }
+}
+
+function mediaExternalTypeToType(externalRefType: string): Type {
+  switch (externalRefType) {
+    case "contributorAvatar":
+      return "Contributor"
+    case "task":
+      return "Task"
+    default:
+      throw new Error(`Unknown media.externalRef.type: ${externalRefType}`)
   }
 }
 

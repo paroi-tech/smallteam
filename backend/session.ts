@@ -130,16 +130,16 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 }
 
-export interface Connected {
-  contributorId: string
+export function getSessionData(req: Request): SessionData {
+  if (!req.session || !req.session.contributorId)
+    throw new Error(`Missing session data`)
+  return {
+    contributorId: req.session.contributorId
+  }
 }
 
-export function checkSession(req: Request): Connected | undefined {
-  if (req.session && req.session.contributorId) {
-    return {
-      contributorId: req.session.contributorId
-    }
-  }
+export function hasSessionData(req: Request): boolean {
+  return req.session && req.session.contributorId ? true : false
 }
 
 // --

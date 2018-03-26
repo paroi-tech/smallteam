@@ -135,7 +135,7 @@ export default class ModelUpdateLoader {
     for (let [type, fragments] of this.fragmentsMap) {
       for (let [id, frag] of fragments) {
         if (frag === undefined)
-          throw new Error(`Invalid call to "toCargo()", the loader is not completed`)
+          throw new Error(`Invalid call to "toCargo()", the loader is not completed (missing ${type}, ${id})`)
         if (!modelUpd.fragments)
           modelUpd.fragments = {}
         if (!modelUpd.fragments[type])

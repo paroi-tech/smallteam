@@ -1,4 +1,4 @@
-import { Cargo, BatchCargo } from "../isomorphic/Cargo"
+import { Cargo, BatchCargo, Type } from "../isomorphic/Cargo"
 import { WhoUseItem } from "../isomorphic/transfers"
 import { fetchContributorsByIds, fetchContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor, whoUseContributor } from "./dbqueries/queryContributor"
 import { fetchProjects, createProject, fetchProjectsByIds, updateProject, deleteProject, whoUseProject } from "./dbqueries/queryProject"
@@ -198,8 +198,8 @@ async function executeCommandComment(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function completeCargo(context: BackendContext) {
-  const upd = context.loader.modelUpdate
+export async function completeCargo(context: BackendContext) {
+  let upd = context.loader.modelUpdate
   let count = 0
   while (!upd.isFragmentsComplete()) {
     if (++count > 100)

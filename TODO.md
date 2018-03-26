@@ -11,7 +11,7 @@ the time, so I can't use JIRA.
       => remove the triggerAfter on medias
 
   - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
-  - Remove the dependent medias on delete tasks, contributors
+  - Remove the dependent medias on delete tasks, contributors (backend & frontend)
   - Implement multi-files upload
 - WebSocket:
   - Accept to open only for connected users
@@ -19,15 +19,16 @@ the time, so I can't use JIRA.
   - Keep `global` lists up-to-date
   - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
-- Keep HKMap? (Identifier can be `string | number | string[]` ??)
-- Refactoring in the backend, one code for all the reordering
-- Rewrite EasyRouter
-  - rmChild (call from WorkspaceViewer.removeWorkspace)
-- isModified, getDiffToUpdate: should work with field type `string[]`
-- Model:
-  - `this.project.steps` etc. => store the array? or rename to `getSteps()` or cache as `global`
+- Refactoring in the backend: one code for all the reordering
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
-- In the ModelEngine, remove the `HKMap` for indexes => use `Map` with string keys. And use the following declarations:
+- Rewrite EasyRouter or find a better router
+  - rmChild (call from WorkspaceViewer.removeWorkspace)
+- Refactoring in the frontend model?
+  - Keep HKMap? (Identifier can be `string | number | string[]` ??)
+  - isModified, getDiffToUpdate: should work with field type `string[]`
+  - `this.project.steps` etc. => store the array? or rename to `getSteps()` or cache as `global`
+  - Remove the `HKMap` for indexes => use `Map` with string keys
+  - Use the following declarations:
 
       {
         type: "Task",
@@ -38,7 +39,7 @@ the time, so I can't use JIRA.
       {
         type: "Step",
         filteredIndex: {
-          entryKey: "orderNum<>null",
+          entryCode: "orderNum<>null",
           filter: step => step.orderNum !== null
         }
       }

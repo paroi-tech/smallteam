@@ -6,6 +6,7 @@ import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
 import config from "../../../../isomorphic/config";
 import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
+import { UpdateModelEvent } from "../../../AppModel/ModelEngine";
 
 const template = require("./ContributorForm.monk")
 
@@ -119,14 +120,14 @@ export default class ContributorForm {
   // --
 
   private listenToModel() {
-    this.dash.listenTo<ContributorModel>(this.model, "updateContributor").onData(
-      data => this.onContributorUpdate(data)
+    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(
+      data => this.onContributorUpdate(data.model)
     )
-    this.dash.listenTo<ContributorModel>(this.model, "endProcessingContributor").onData(
-      data => this.onEndProcessing(data)
+    this.dash.listenTo<UpdateModelEvent>(this.model, "endProcessingContributor").onData(
+      data => this.onEndProcessing(data.model)
     )
-    this.dash.listenTo<ContributorModel>(this.model, "processingContributor").onData(
-      data => this.onProcessing(data)
+    this.dash.listenTo<UpdateModelEvent>(this.model, "processingContributor").onData(
+      data => this.onProcessing(data.model)
     )
   }
 
@@ -178,6 +179,7 @@ export default class ContributorForm {
   private onContributorUpdate(contributor: ContributorModel) {
     if (!this.currentContributor || this.currentContributor.id !== contributor.id)
       return
+console.log("[DEBUG] onContributorUpdate", contributor)
     this.canClearForm = false
     this.state.frag = contributor.updateTools.toFragment("update") as any
     this.state.frag.password = ""
