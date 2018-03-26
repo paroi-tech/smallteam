@@ -12,11 +12,10 @@ import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
 import { routeChangePassword, routeSetPassword, routeResetPassword } from "./session"
 import { SessionData } from "./backendContext/context"
-import { mainDbConf } from "./utils/dbUtils"
+import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { removeExpiredTokens } from "./mail"
-import { declareMediaRoutes } from "./uploadEngine/uploadEngine";
-import { stStorageContext } from "./stStorageContext";
+import { createMediaEngine } from "./createMediaEngine";
 
 const PORT = 3921
 
@@ -62,7 +61,7 @@ export function startWebServer() {
   router.post("/api/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/who-use", makeRouteHandler(routeWhoUse, false))
 
-  declareMediaRoutes(router, stStorageContext)
+  mediaEngine.uploadEngine.declareRoutes(router, true)
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
@@ -78,8 +77,8 @@ export function startWebServer() {
   setInterval(removeExpiredTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
-function wait(delayMs: number): Promise<void> {
-  return new Promise<void>(resolve => setTimeout(resolve, delayMs))
+function wait(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {

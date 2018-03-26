@@ -2,7 +2,8 @@ import * as path from "path"
 import { createDatabaseConnection, DatabaseConnection } from "mycn"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 import { fileExists, readFile } from "./fsUtils"
-
+import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "./mycn-with-sqlbricks"
+import { MediaEngine, createMediaEngine } from "../createMediaEngine";
 
 // import * as fs from "fs"
 // import { promisify } from "util";
@@ -28,59 +29,33 @@ export const fileDbConf = (function () {
   }
 })()
 
-export let cn!: DatabaseConnection<string>
-export let fileCn!: DatabaseConnection<string>
-
-declare module "mycn" {
-  export interface DatabaseConnection<INSERT_ID extends string | number = any> {
-    prepareSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<PreparedStatement<ROW>>
-    execSqlBricks(sqlBricks): Promise<ExecResult<INSERT_ID>>
-    allSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW[]>
-    singleRowSqlBricks<ROW extends ResultRow = any>(sqlBricks): Promise<ROW | undefined>
-    singleValueSqlBricks<VAL = any>(sqlBricks): Promise<VAL | undefined | null>
-  }
-}
+export let cn!: DatabaseConnectionWithSqlBricks
 
 export async function initConnection() {
   cn = await newSqliteCn(mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
-  fileCn = await newSqliteCn(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "uploadengine.sql"))
+  // fileCn = await newSqliteCn(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "uploadengine.sql"))
 }
+
+export let mediaEngine!: MediaEngine
+
+export async function initMediaEngine() {
+  mediaEngine = await createMediaEngine(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "media-storage.sql"))
+}
+
 
 async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
-  let cn = await createDatabaseConnection({
+  let cn = await createDatabaseConnectionWithSqlBricks({
     provider: sqlite3ConnectionProvider({ fileName }),
     init: async cn => {
       await cn.exec("PRAGMA busy_timeout = 500")
       await cn.exec("PRAGMA foreign_keys = ON")
     },
-    modifyDatabaseConnection: cn => {
-      cn.prepareSqlBricks = sqlBricks => {
-        let params = sqlBricks.toParams({ placeholder: '?%d' })
-        return cn.prepare(params.text, params.values)
-      }
-      cn.execSqlBricks = sqlBricks => {
-        let params = sqlBricks.toParams({ placeholder: '?%d' })
-        return cn.exec(params.text, params.values)
-      }
-      cn.allSqlBricks = sqlBricks => {
-        let params = sqlBricks.toParams({ placeholder: '?%d' })
-        return cn.all(params.text, params.values)
-      }
-      cn.singleRowSqlBricks = sqlBricks => {
-        let params = sqlBricks.toParams({ placeholder: '?%d' })
-        return cn.singleRow(params.text, params.values)
-      }
-      cn.singleValueSqlBricks = sqlBricks => {
-        let params = sqlBricks.toParams({ placeholder: '?%d' })
-        return cn.singleValue(params.text, params.values)
-      }
-      return cn
-    },
-    insertedIdType: "string",
     poolOptions: {
       logError: console.log
     }
+  }, {
+    toParamsOptions: { placeholder: '?%d' }
   })
   if (isNewDb && newDbScriptFileName)
     await cn.execScript(await readFile(newDbScriptFileName, "utf8"))

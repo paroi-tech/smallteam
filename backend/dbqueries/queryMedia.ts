@@ -1,23 +1,23 @@
 import { BackendContext } from "../backendContext/context"
-import { findMedias, Variant, Media, findMedia } from "../uploadEngine/mediaStorage"
+import { Variant, Media } from "../mediaEngine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 import config from "../../isomorphic/config";
-import { getFileUrl } from "../uploadEngine/uploadEngine";
 import { ChangedType } from "../backendContext/ModelUpdateLoader";
 import CargoLoader from "../backendContext/CargoLoader";
+import { mediaEngine } from "../utils/dbUtils";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
 export async function fetchMedias(context: BackendContext, type: MainMetaCode, id: string): Promise<string[]> {
-  let medias = await findMedias({
+  let medias = await mediaEngine.storage.findMedias({
     externalRef: { type, id }
   })
   return putMediasToCargoLoader(context.loader, medias)
 }
 
 export async function fetchSingleMedia(context: BackendContext, type: MainMetaCode, id: string): Promise<string | undefined> {
-  let media = await findMedia({
+  let media = await mediaEngine.storage.findMedia({
     externalRef: { type, id }
   })
   if (media) {
@@ -78,7 +78,7 @@ function toMediaVariantFragment(variant: Variant, media: Media): MediaVariantFra
     code: variant.code,
     weightB: variant.weightB,
     imType: variant.imType,
-    url: getFileUrl(media, variant, config.urlPrefix),
+    url: mediaEngine.uploadEngine.getFileUrl(media, variant),
     imgWidth: variant.img ? variant.img.width : undefined,
     imgHeight: variant.img ? variant.img.height : undefined,
     imgDpi: variant.img ? variant.img.dpi : undefined

@@ -3,16 +3,10 @@ the time, so I can't use JIRA.
 
 # Thomas
 - Upload engine & co:
-  - Fill the AppModel with the response of the upload engine
-    - [CANCELED] No "attachedMedias" or "avatarMedia" in dependency fragments
-      => [CANCELED] make links on frontend using an index on externalType
-    - Update dependency fragments from the server side in `stStorageContext`
-      => including markAs "update"
-      => remove the triggerAfter on medias
-
   - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
   - Remove the dependent medias on delete tasks, contributors (backend & frontend)
   - Implement multi-files upload
+  - Implement several variants for images
 - WebSocket:
   - Accept to open only for connected users
 - In the Model:
@@ -186,6 +180,12 @@ the time, so I can't use JIRA.
 - Publish the package `sqlite-with-transactions` on GitHub and npm
 - Upload engine & co:
   - Comments TODO in stStorageContext.ts
+  - Fill the AppModel with the response of the upload engine
+    - [CANCELED] No "attachedMedias" or "avatarMedia" in dependency fragments
+      => [CANCELED] make links on frontend using an index on externalType
+    - Update dependency fragments from the server side in `stStorageContext`
+      => including markAs "update"
+      => remove the triggerAfter on medias
 
 # Thomas or Lionel - DONE
 
