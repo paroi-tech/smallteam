@@ -5,10 +5,6 @@ import { fileExists, readFile } from "./fsUtils"
 import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "./mycn-with-sqlbricks"
 import { MediaEngine, createMediaEngine } from "../createMediaEngine";
 
-// import * as fs from "fs"
-// import { promisify } from "util";
-// const readFile = promisify(fs.readFile)
-
 export const mainDbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
     file = "ourdb.sqlite"
@@ -41,7 +37,6 @@ export let mediaEngine!: MediaEngine
 export async function initMediaEngine() {
   mediaEngine = await createMediaEngine(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "media-storage.sql"))
 }
-
 
 async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)

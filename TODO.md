@@ -3,7 +3,6 @@ the time, so I can't use JIRA.
 
 # Thomas
 - Upload engine & co:
-  - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
   - Remove the dependent medias on delete tasks, contributors (backend & frontend)
   - Implement multi-files upload
   - Implement several variants for images
@@ -186,6 +185,7 @@ the time, so I can't use JIRA.
     - Update dependency fragments from the server side in `stStorageContext`
       => including markAs "update"
       => remove the triggerAfter on medias
+  - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
 
 # Thomas or Lionel - DONE
 
