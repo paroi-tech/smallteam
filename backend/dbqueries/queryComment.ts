@@ -62,7 +62,7 @@ export async function createComment(context: BackendContext, newFrag: CommentCre
     .insertInto("comment")
     .values(values)
   let res = await cn.exec(sql.toSql()),
-    commentId = res.getInsertedId()
+    commentId = res.getInsertedIdString()
 
   context.loader.addFragment({
     type: "Comment",

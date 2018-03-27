@@ -162,7 +162,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "task_seq": 0
       })
     let res = await transCn.exec(sql.toSql()),
-      projectId = parseInt(res.getInsertedId(), 10)
+      projectId = res.getInsertedIdNumber()
 
     // Step "Not Started"
     sql = buildInsert()
@@ -193,7 +193,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
         "label": newFrag.name
       })
     res = await transCn.exec(sql.toSql())
-    let taskId = parseInt(res.getInsertedId(), 10)
+    let taskId = res.getInsertedIdNumber()
 
     // Mark as root task
     sql = buildInsert()

@@ -59,7 +59,7 @@ async function insertMedia(cx: MediaStorageContext, media: InsertMedia): Promise
       "orig_name": media.originalName,
       "owner_id": media.ownerId
     })
-  )).getInsertedId()
+  )).getInsertedIdString()
   if (media.externalRef) {
     await cx.cn.execSqlBricks(
       sql.insertInto("media_ref").values({
@@ -74,9 +74,7 @@ async function insertMedia(cx: MediaStorageContext, media: InsertMedia): Promise
 
 async function clearMediaVariants(cx: MediaStorageContext, mediaId: string) {
   await cx.cn.execSqlBricks(
-    sql.deleteFrom("variant").where({
-      "media_id": mediaId
-    })
+    sql.deleteFrom("variant").where("media_id", mediaId)
   )
 }
 
@@ -90,9 +88,7 @@ async function updateMedia(cx: MediaStorageContext, media: UpdateMedia, mediaId:
         "orig_name": media.originalName,
         "owner_id": media.ownerId
       })
-      .where({
-        "media_id": mediaId
-      })
+      .where("media_id", mediaId)
   )
 }
 
@@ -109,7 +105,7 @@ async function insertVariant(cx: MediaStorageContext, variant: InsertVariant): P
       "code": variant.code,
       "bin_data": variant.binData
     })
-  )).getInsertedId()
+  )).getInsertedIdString()
   if (variant.img) {
     await cx.cn.execSqlBricks(
       sql.insertInto("variant_img").values({
