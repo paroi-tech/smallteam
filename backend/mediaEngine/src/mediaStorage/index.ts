@@ -1,13 +1,15 @@
 import { DatabaseConnectionWithSqlBricks } from "../../../utils/mycn-with-sqlbricks"
-import { StoreMediaParameters, NewMedia, MediaOrVariantId, MediaFilter, VariantData, MediaQuery, Media, MediaRef } from "./exported-definitions"
+import { StoreMediaParameters, NewMedia, MediaOrVariantId, MediaFilter, VariantData, MediaQuery, Media, MediaRef, ImageVariantsConfiguration } from "./exported-definitions"
 import { storeMedia } from "./storeMedia"
 import { removeMedia, removeMedias } from "./removeMedias"
 import { getFileData } from "./getFileData"
 import { findMedias, findMedia } from "./findMedias"
 import { findMediaRef } from "./findMediaRef"
+import { MediaStorageContext } from "./internal-definitions";
 
 export interface MediaStorageOptions {
   cn: DatabaseConnectionWithSqlBricks
+  imagesConf?: ImageVariantsConfiguration
 }
 
 export interface MediaStorage {
@@ -24,8 +26,9 @@ export interface MediaStorage {
 }
 
 export function createMediaStorage(options: MediaStorageOptions): MediaStorage {
-  let cx: MediaStorageOptions = {
-    cn: options.cn
+  let cx: MediaStorageContext = {
+    cn: options.cn,
+    imagesConf: options.imagesConf || {}
   }
   return {
     storeMedia: (params: StoreMediaParameters) => storeMedia(cx, params),
@@ -39,5 +42,3 @@ export function createMediaStorage(options: MediaStorageOptions): MediaStorage {
 }
 
 export * from "./exported-definitions"
-
-// URL: /get-file/{file.id}/{media.baseName}-{variant.code}.{extension}

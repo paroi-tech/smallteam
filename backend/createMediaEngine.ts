@@ -123,5 +123,5 @@ function mediaExternalTypeToType(externalRefType: string): Type {
 }
 
 function isImage(imType: string) {
-  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
+  return ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"].includes(imType)
 }

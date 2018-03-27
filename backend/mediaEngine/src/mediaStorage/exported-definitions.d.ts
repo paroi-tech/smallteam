@@ -14,11 +14,11 @@ interface VariantDef {
   code: string
   imType: string
   weightB: number
-  img?: ImageDef
+  img?: ImageMeta
   binData: Buffer
 }
 
-interface ImageDef {
+export interface ImageMeta {
   width: number
   height: number
   dpi?: number
@@ -32,6 +32,33 @@ export interface ExternalRef {
 }
 
 export type MediaOrVariantId = { mediaId: string } | { variantId: string }
+
+export interface ImageVariantConfiguration {
+  /**
+   * The variant code.
+   */
+  code: string
+  /**
+   * Optional, but if `height` is undefined, then `width` is required.
+   */
+  width?: number
+  /**
+   * Optional, but if `width` is undefined, then `height` is required.
+   */
+  height?: number
+  dpi?: number
+  /**
+   * Preserving aspect ratio, resize the image to the maximum `width` or `height` specified.
+   *
+   * The default value is `false` (crop).
+   */
+  embed?: boolean
+  imType?: string
+}
+
+export interface ImageVariantsConfiguration {
+  [externalType: string]: ImageVariantConfiguration[]
+}
 
 export interface StoreMediaParameters {
   file: MulterFile

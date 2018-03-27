@@ -1,8 +1,12 @@
 import * as sql from "sql-bricks"
 import * as sharp from "sharp"
 import { MediaStorageContext } from "./internal-definitions"
-import { StoreMediaParameters, NewMedia, MediaDef, VariantDef, MulterFile, ImageDef } from "./exported-definitions"
+import { StoreMediaParameters, NewMedia, MediaDef, VariantDef, MulterFile, ImageMeta } from "./exported-definitions"
 import { findMediaByExternalRef, fileBaseName } from "./common"
+import { ImageVariantConfiguration } from ".";
+
+const IMG_TYPES = ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"]
+const SHARP_OUTPUT_TYPES = ["image/png", "image/jpeg", "image/webp"]
 
 export async function storeMedia(cx: MediaStorageContext, params: StoreMediaParameters): Promise<NewMedia> {
   let transCn = await cx.cn.beginTransaction()
@@ -33,14 +37,21 @@ export async function storeMedia(cx: MediaStorageContext, params: StoreMediaPara
       }, mediaId)
     }
 
+    let imgMeta = await getImageMeta(params.file)
+
     await insertVariant(cx, {
       mediaId,
       code: "orig",
       weightB: params.file.size,
       imType: params.file.mimetype,
-      img: await getImageMeta(params.file),
+      img: imgMeta,
       binData: params.file.buffer
     })
+
+    if (imgMeta && params.externalRef && cx.imagesConf[params.externalRef.type]) {
+      for (let variantConf of cx.imagesConf[params.externalRef.type])
+        await resizeAndInsertVariant(cx, mediaId, variantConf, params.file, imgMeta)
+    }
 
     await transCn.commit()
     return { mediaId, overwritten }
@@ -120,10 +131,10 @@ async function insertVariant(cx: MediaStorageContext, variant: InsertVariant): P
 }
 
 function isValidImage(imType: string) {
-  return ["image/png", "image/jpeg", "image/webp", "image/gif"].includes(imType)
+  return IMG_TYPES.includes(imType)
 }
 
-async function getImageMeta(f: MulterFile): Promise<ImageDef | undefined> {
+async function getImageMeta(f: MulterFile): Promise<ImageMeta | undefined> {
   if (!isValidImage(f.mimetype))
     return
   try {
@@ -136,6 +147,69 @@ async function getImageMeta(f: MulterFile): Promise<ImageDef | undefined> {
       }
     }
   } catch (err) {
-    console.log(`Cannot process the image (type ${f.mimetype}): ${err.message}`)
+    console.log(`Cannot read the image meta (type ${f.mimetype}): ${err.message}`)
   }
+}
+
+async function resizeAndInsertVariant(cx: MediaStorageContext, mediaId: string, targetConf: ImageVariantConfiguration, f: MulterFile, fImgMeta: ImageMeta) {
+  let resize: SharpResize | undefined
+  let binData: Buffer
+  let imgMeta: ImageMeta
+  let imType = outputImageMimeType(f.mimetype, targetConf.imType)
+  try {
+    if (targetConf.embed)
+      resize = await resizeEmbedImage(targetConf, f, fImgMeta)
+    else
+      resize = await resizeCropImage(targetConf, f, fImgMeta)
+    if (!resize)
+      return
+    binData = await resize.sharpInst.toBuffer()
+  } catch (err) {
+    console.log(`Cannot resize (${targetConf.embed ? "embed" : "crop"}) the image (type ${f.mimetype}): ${err.message}`)
+    return
+  }
+
+  await insertVariant(cx, {
+    mediaId,
+    code: targetConf.code,
+    weightB: binData.byteLength,
+    imType: imType,
+    img: resize.imgMeta,
+    binData
+  })
+}
+
+interface SharpResize {
+  sharpInst: sharp.SharpInstance
+  imgMeta: ImageMeta
+}
+
+function resizeCropImage(targetConf: ImageVariantConfiguration, f: MulterFile, fImgMeta: ImageMeta): SharpResize {
+  if (targetConf.width !== undefined && targetConf.height !== undefined) {
+    if (targetConf.width === fImgMeta.width && targetConf.height === fImgMeta.height)
+      return
+    if (targetConf.width > fImgMeta.width || targetConf.height > fImgMeta.height)
+      return
+    return {
+
+    }
+
+
+  }
+
+
+
+
+
+
+
+    let metadata = await sharp(f.buffer).metadata()
+}
+
+function outputImageMimeType(origMimeType: string | undefined, queriedImType?: string) {
+  if (queriedImType && SHARP_OUTPUT_TYPES.includes(queriedImType))
+    return queriedImType
+  if (origMimeType && SHARP_OUTPUT_TYPES.includes(origMimeType))
+    return origMimeType
+  return "image/webp"
 }
