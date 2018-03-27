@@ -8,7 +8,6 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 
 import config from "../isomorphic/config"
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
-// import { routeGetFile, routeDownloadFile, routeAddTaskAttachment, routeDeleteTaskAttachment, routeChangeAvatar } from "./uploadRoutes"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
 import { routeChangePassword, routeSetPassword, routeResetPassword } from "./session"
 import { SessionData } from "./backendContext/context"

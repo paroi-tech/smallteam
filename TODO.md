@@ -3,7 +3,6 @@ the time, so I can't use JIRA.
 
 # Thomas
 - Upload engine & co:
-  - Remove the dependent medias on delete tasks, contributors (backend & frontend)
   - Implement multi-files upload
   - Implement several variants for images
 - WebSocket:
@@ -186,6 +185,7 @@ the time, so I can't use JIRA.
       => including markAs "update"
       => remove the triggerAfter on medias
   - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
+  - Remove the dependent medias on delete tasks, contributors (backend & frontend)
 
 # Thomas or Lionel - DONE
 

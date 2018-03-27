@@ -27,14 +27,14 @@ export async function removeMedia(cx: MediaStorageContext, id: MediaOrVariantId)
   return result.affectedRows === 1
 }
 
-/**
- * @returns (async) The number of deleted medias
- */
-export async function removeMedias(cx: MediaStorageContext, filter: MediaFilter): Promise<number> {
+  /**
+   * @returns The deleted media identifiers (async)
+   */
+export async function removeMedias(cx: MediaStorageContext, filter: MediaFilter): Promise<string[]> {
   if (!filter.externalRef)
-    return 0
+    return []
   let found = await findMediaByExternalRef(cx, filter.externalRef)
   for (let mediaId of found)
     await removeMedia(cx, { mediaId })
-  return found.length
+  return found
 }

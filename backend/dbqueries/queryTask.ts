@@ -7,7 +7,7 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
-import { fetchMedias } from "./queryMedia";
+import { fetchMedias, deleteMedias } from "./queryMedia";
 
 // --
 // -- Read
@@ -360,6 +360,8 @@ export async function deleteTask(context: BackendContext, frag: TaskIdFragment) 
   await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
+
+  deleteMedias(context, { type: "task", id: frag.id })
 }
 
 // --

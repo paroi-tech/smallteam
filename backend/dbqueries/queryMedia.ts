@@ -1,5 +1,5 @@
 import { BackendContext } from "../backendContext/context"
-import { Variant, Media } from "../mediaEngine"
+import { Variant, Media, ExternalRef } from "../mediaEngine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 import config from "../../isomorphic/config";
@@ -38,6 +38,12 @@ export function putMediasToCargoLoader(loader: CargoLoader, medias: Media[], mar
     loader.addFragment({ type: "MediaVariant", frag })
 
   return mediaFragments.map(frag => frag.id)
+}
+
+export async function deleteMedias(context: BackendContext, externalRef: ExternalRef) {
+  let idList = await mediaEngine.storage.removeMedias({ externalRef })
+  for (let mediaId of idList)
+    context.loader.modelUpdate.markFragmentAs("Media", mediaId, "deleted")
 }
 
 interface MediaAndVariantFragments {

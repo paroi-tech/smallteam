@@ -7,7 +7,7 @@ import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendActivationMail } from "../mail"
-import { fetchSingleMedia } from "./queryMedia"
+import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 
 export const bcryptSaltRounds = 10
 
@@ -154,6 +154,8 @@ export async function deleteContributor(context: BackendContext, frag: Contribut
   await cn.exec(sql.toSql())
 
   context.loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
+
+  deleteMedias(context, { type: "contributorAvatar", id: frag.id })
 }
 
 // --

@@ -13,7 +13,10 @@ export interface MediaStorageOptions {
 export interface MediaStorage {
   storeMedia(params: StoreMediaParameters): Promise<NewMedia>
   removeMedia(id: MediaOrVariantId): Promise<boolean>
-  removeMedias(filter: MediaFilter): Promise<number>
+  /**
+   * @returns The deleted media identifiers (async)
+   */
+  removeMedias(filter: MediaFilter): Promise<string[]>
   getFileData(variantId: string): Promise<VariantData | undefined>
   findMedias(query: MediaQuery): Promise<Media[]>
   findMedia(query: MediaQuery): Promise<Media | undefined>
