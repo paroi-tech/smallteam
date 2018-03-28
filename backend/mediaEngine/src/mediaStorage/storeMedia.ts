@@ -130,12 +130,12 @@ async function insertVariant(cx: MediaStorageContext, variant: InsertVariant): P
   return variantId
 }
 
-function isValidImage(imType: string) {
+export function isSupportedImage(imType: string) {
   return IMG_TYPES.includes(imType)
 }
 
 async function getImageMeta(f: MulterFile): Promise<ImageMeta | undefined> {
-  if (!isValidImage(f.mimetype))
+  if (!isSupportedImage(f.mimetype))
     return
   try {
     let metadata = await sharp(f.buffer).metadata()
@@ -152,58 +152,96 @@ async function getImageMeta(f: MulterFile): Promise<ImageMeta | undefined> {
 }
 
 async function resizeAndInsertVariant(cx: MediaStorageContext, mediaId: string, targetConf: ImageVariantConfiguration, f: MulterFile, fImgMeta: ImageMeta) {
-  let resize: SharpResize | undefined
-  let binData: Buffer
-  let imgMeta: ImageMeta
+  let sharpInst: sharp.SharpInstance | undefined
+  let sharpResult: {
+    data: Buffer
+    info: sharp.OutputInfo
+  }
   let imType = outputImageMimeType(f.mimetype, targetConf.imType)
   try {
-    if (targetConf.embed)
-      resize = await resizeEmbedImage(targetConf, f, fImgMeta)
+    if (targetConf.embed || targetConf.width === undefined || targetConf.height === undefined)
+      sharpInst = await resizeEmbedImage(targetConf, f, fImgMeta)
     else
-      resize = await resizeCropImage(targetConf, f, fImgMeta)
-    if (!resize)
+      sharpInst = await resizeCropImage(targetConf as CropImageSize, f, fImgMeta)
+    if (!sharpInst)
       return
-    binData = await resize.sharpInst.toBuffer()
+    sharpResult = await ((sharpInst
+      .toFormat(toOutputSharpFormat(imType)) as any)
+      .toBuffer({
+        resolveWithObject: true
+      }))
   } catch (err) {
-    console.log(`Cannot resize (${targetConf.embed ? "embed" : "crop"}) the image (type ${f.mimetype}): ${err.message}`)
+    console.log(`[WARN] Cannot resize (${targetConf.embed ? "embed" : "crop"}) the image (type "${f.mimetype}"): ${err.message}`)
     return
   }
 
   await insertVariant(cx, {
     mediaId,
     code: targetConf.code,
-    weightB: binData.byteLength,
-    imType: imType,
-    img: resize.imgMeta,
-    binData
+    weightB: sharpResult.info.size,
+    imType,
+    img: {
+      width: sharpResult.info.width,
+      height: sharpResult.info.height,
+    },
+    binData: sharpResult.data
   })
 }
 
-interface SharpResize {
-  sharpInst: sharp.SharpInstance
-  imgMeta: ImageMeta
+interface CropImageSize {
+  width: number
+  height: number
 }
 
-function resizeCropImage(targetConf: ImageVariantConfiguration, f: MulterFile, fImgMeta: ImageMeta): SharpResize {
-  if (targetConf.width !== undefined && targetConf.height !== undefined) {
-    if (targetConf.width === fImgMeta.width && targetConf.height === fImgMeta.height)
-      return
-    if (targetConf.width > fImgMeta.width || targetConf.height > fImgMeta.height)
-      return
-    return {
+function resizeCropImage(targetConf: CropImageSize, f: MulterFile, fImgMeta: ImageMeta): sharp.SharpInstance | undefined {
+  let targetW = targetConf.width
+  let targetH = targetConf.height
+  let sourceW = fImgMeta.width
+  let sourceH = fImgMeta.height
+  if (targetW > sourceW || targetH > sourceH || (targetW === sourceW && targetH === sourceH))
+    return
+  return sharp(f.buffer).resize(targetW, targetH)
+}
 
+function resizeEmbedImage(targetConf: ImageVariantConfiguration, f: MulterFile, fImgMeta: ImageMeta): sharp.SharpInstance | undefined {
+  let targetW = targetConf.width
+  let targetH = targetConf.height
+  let sourceW = fImgMeta.width
+  let sourceH = fImgMeta.height
+  if (targetW !== undefined && targetH !== undefined) {
+    if (targetW < sourceW) {
+      if (targetH >= sourceH)
+        return sharp(f.buffer).resize(targetW)
+      let targetRatio = targetW / targetH
+      let sourceRatio = sourceW / sourceH
+      if (targetRatio === sourceRatio)
+        return sharp(f.buffer).resize(targetW, targetH)
+      if (targetRatio < sourceRatio)
+        return sharp(f.buffer).resize(undefined, targetH)
+      return sharp(f.buffer).resize(targetW)
     }
-
-
+    if (targetH < sourceH)
+      return sharp(f.buffer).resize(undefined, targetH)
   }
 
+  if (targetW !== undefined && targetW < sourceW)
+    return sharp(f.buffer).resize(targetW)
 
+  if (targetH !== undefined && targetH < sourceH)
+    return sharp(f.buffer).resize(undefined, targetH)
+}
 
-
-
-
-
-    let metadata = await sharp(f.buffer).metadata()
+function toOutputSharpFormat(imType: string): string {
+  switch (imType) {
+    case "image/png":
+      return "png"
+    case "image/jpeg":
+      return "jpeg"
+    case "image/webp":
+      return "webp"
+    default:
+      throw new Error(`Invalid output image format: ${imType}`)
+  }
 }
 
 function outputImageMimeType(origMimeType: string | undefined, queriedImType?: string) {

@@ -6,7 +6,7 @@ import { putMediasToCargoLoader } from "./dbqueries/queryMedia"
 import { ModelUpdate, Type } from "../isomorphic/Cargo"
 import { completeCargo } from "./modelStorage"
 import config from "../isomorphic/config";
-import { createUploadEngine, ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, connectToSqlite, UploadEngine } from "./mediaEngine"
+import { createUploadEngine, ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, connectToSqlite, UploadEngine, isSupportedImage, ImageVariantsConfiguration } from "./mediaEngine"
 import { UploadEngineManager } from "./mediaEngine/src/uploadEngine/exported-definitions";
 
 export interface MediaEngine {
@@ -16,7 +16,8 @@ export interface MediaEngine {
 
 export async function createMediaEngine(sqliteFileName: string, newDbScriptFileName: string): Promise<MediaEngine> {
   let storage = createMediaStorage({
-    cn: await connectToSqlite(sqliteFileName, newDbScriptFileName)
+    cn: await connectToSqlite(sqliteFileName, newDbScriptFileName),
+    imagesConf: IMAGES_CONF
   })
   return {
     storage,
@@ -26,6 +27,32 @@ export async function createMediaEngine(sqliteFileName: string, newDbScriptFileN
       urlPrefix: config.urlPrefix
     })
   }
+}
+
+const IMAGES_CONF: ImageVariantsConfiguration = {
+  "contributorAvatar": [
+    {
+      code: "34x34",
+      width: 24,
+      height: 24,
+      imType: "image/png"
+    },
+    {
+      code: "200x200",
+      width: 200,
+      height: 200,
+      imType: "image/jpeg"
+    }
+  ],
+  "task": [
+    {
+      code: "200x200",
+      width: 200,
+      height: 100,
+      embed: true,
+      imType: "image/jpeg"
+    }
+  ]
 }
 
 function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
@@ -45,7 +72,7 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
           errorMsg: `Invalid externalRef.type: ${externalRef.type}`
         }
       }
-      if (externalRef.type === "contributorAvatar" && !isImage(file.mimetype)) {
+      if (externalRef.type === "contributorAvatar" && !isSupportedImage(file.mimetype)) {
         return {
           canUpload: false,
           errorCode: 400, // Bad Request
@@ -120,8 +147,4 @@ function mediaExternalTypeToType(externalRefType: string): Type {
     default:
       throw new Error(`Unknown media.externalRef.type: ${externalRefType}`)
   }
-}
-
-function isImage(imType: string) {
-  return ["image/png", "image/jpeg", "image/webp", "image/gif", "image/svg+xml"].includes(imType)
 }

@@ -42,3 +42,4 @@ export function createMediaStorage(options: MediaStorageOptions): MediaStorage {
 }
 
 export * from "./exported-definitions"
+export { isSupportedImage } from "./storeMedia"
