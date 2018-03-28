@@ -4,12 +4,12 @@ the time, so I can't use JIRA.
 # Thomas
 - Upload engine & co:
   - Implement multi-files upload
-  - Implement several variants for images
 - WebSocket:
+  - Synchronisation between several users
   - Accept to open only for connected users
+
+# Thomas - v2 - Not urgent
 - In the Model:
-  - Keep `global` lists up-to-date
-  - Remove `StepFragment.name` => call `step.stepType.name`
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Refactoring in the backend: one code for all the reordering
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
@@ -186,6 +186,10 @@ the time, so I can't use JIRA.
       => remove the triggerAfter on medias
   - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
   - Remove the dependent medias on delete tasks, contributors (backend & frontend)
+  - Implement several variants for images
+- In the Model:
+  - Keep `global` lists up-to-date
+  - [CANCELED] Remove `StepFragment.name` => call `step.stepType.name`
 
 # Thomas or Lionel - DONE
 
