@@ -217,7 +217,7 @@ export default class AppFrame {
 
 function updateSessionBtn(menuBtn: NavBtn, contributor: ContributorModel) {
   menuBtn.setLabel(contributor.name);
-  let variant = contributor.avatar && contributor.avatar.getVariant("orig")
+  let variant = contributor.avatar && contributor.avatar.getVariant("34x34")
   console.log(">> update btn", contributor.avatar, variant)
-  menuBtn.innerEl!.style.backgroundImage = contributor.avatar ? `url(${variant ? variant.url : undefined})` : null
+  menuBtn.innerEl!.style.backgroundImage = contributor.avatar ? `url("${variant ? variant.url : undefined}")` : null
 }

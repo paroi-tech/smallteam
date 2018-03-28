@@ -33,8 +33,8 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
   "contributorAvatar": [
     {
       code: "34x34",
-      width: 24,
-      height: 24,
+      width: 68,
+      height: 68,
       imType: "image/png"
     },
     {
