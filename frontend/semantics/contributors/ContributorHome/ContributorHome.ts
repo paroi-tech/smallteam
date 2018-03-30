@@ -8,6 +8,7 @@ import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/W
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { ChildEasyRouter } from "../../../libraries/EasyRouter"
 import config from "../../../../isomorphic/config"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./ContributorHome.monk")
 
@@ -28,7 +29,7 @@ export default class ContributorHome implements Workspace {
   private model: Model
   private log: Log
 
-  constructor(private dash: Dash<App>, private contributor: ContributorModel) {
+  constructor(private dash: OwnDash, private contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 

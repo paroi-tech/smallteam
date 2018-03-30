@@ -9,6 +9,7 @@ import BoxList from "../../../generics/BoxList/BoxList"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./ContributorWorkspace.monk")
 
@@ -29,7 +30,7 @@ export default class ContributorWorkspace implements Workspace {
 
   readonly childRouter: ChildEasyRouter
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -55,8 +56,17 @@ export default class ContributorWorkspace implements Workspace {
       onClick: () => this.form.reset()
     })
 
-    this.listenToModel()
-    this.listenToChildren()
+    this.dash.listenToModel("createContributor", data => {
+      let contributor = data.model as ContributorModel
+      let box = this.createBoxFor(contributor)
+
+      this.contributors.set(contributor.id, contributor)
+      this.boxList.addBox(box)
+    })
+    this.dash.listenTo<ContributorModel>("contributorBoxSelected", data => {
+      this.form.contributor = data
+    })
+
     this.fillBoxList()
 
     this.childRouter = createChildEasyRouter()
@@ -77,23 +87,6 @@ export default class ContributorWorkspace implements Workspace {
   }
 
   public deactivate() {
-
-  }
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createContributor").onData(data => {
-      let contributor = data.model as ContributorModel
-      let box = this.createBoxFor(contributor)
-
-      this.contributors.set(contributor.id, contributor)
-      this.boxList.addBox(box)
-    })
-  }
-
-  private listenToChildren() {
-    this.dash.listenToChildren<ContributorModel>("contributorBoxSelected").onData(data => {
-      this.form.contributor = data
-    })
   }
 
   private fillBoxList() {

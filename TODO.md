@@ -2,6 +2,7 @@ I used this file to record ideas and things that I think useful. I don't have In
 the time, so I can't use JIRA.
 
 # Thomas
+- CSS
 - Upload engine & co:
   - Implement multi-files upload
 - WebSocket:

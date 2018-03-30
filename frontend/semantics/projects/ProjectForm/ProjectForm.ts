@@ -11,6 +11,7 @@ import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import NavBtn from "../../../generics/NavBtn/NavBtn"
 import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./ProjectForm.monk")
 
@@ -45,7 +46,7 @@ export default class ProjectForm implements Workspace {
    */
   private generateCode = true
 
-  constructor(private dash: Dash<App>, private reusable = false) {
+  constructor(private dash: OwnDash, private reusable = false) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -61,14 +62,13 @@ export default class ProjectForm implements Workspace {
     this.stepMultiSelect = this.createStepMultiSelect()
     this.listenToForm()
 
-    let events = ["createStep", "updateStep", "deleteStep"]
-    this.dash.listenTo<UpdateModelEvent>(this.model, events).onEvent(ev => {
+    this.dash.listenToModel(["createStep", "updateStep", "deleteStep"], () => {
       this.stepMultiSelect.setAllItems(this.model.global.steps)
       if (this.currentProject)
         this.stepMultiSelect.selectItems(this.currentProject.steps)
     })
 
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep").onData(data => {
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => {
       this.stepMultiSelect.setAllItems(this.model.global.steps)
       if (this.currentProject)
         this.stepMultiSelect.selectItems(this.currentProject.steps)
@@ -150,7 +150,7 @@ export default class ProjectForm implements Workspace {
     ) as any
 
     this.el.appendChild(ms.el)
-    this.dash.listenTo<UpdateModelEvent>(this.model, ["changeStep", "reorderStep"]).onData(
+    this.dash.listenToModel(["changeStep", "reorderStep"],
       data => ms.setAllItems(this.model.global.steps)
     )
     ms.setAllItems(this.model.global.steps)

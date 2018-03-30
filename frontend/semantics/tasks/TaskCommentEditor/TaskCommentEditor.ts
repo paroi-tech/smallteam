@@ -5,6 +5,7 @@ import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment"
 import TaskComment from "../TaskComment/TaskComment"
 import { render } from "monkberry"
 import { removeAllChildren } from "../../../libraries/utils"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskCommentEditor.monk")
 
@@ -23,7 +24,7 @@ export default class TaskCommentEditor {
   private currentTask: TaskModel | undefined = undefined
   private log: Log
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -40,7 +41,24 @@ export default class TaskCommentEditor {
         this.onSubmit()
     })
 
-    this.listenToModel()
+    this.dash.listenToModel("createComment", data => {
+      if (!this.currentTask)
+        return
+      let comment = data.model as CommentModel
+      if (comment.taskId === this.currentTask.id)
+        this.addComment(comment)
+    })
+
+    this.dash.listenToModel("deleteComment", data => {
+      if (!this.currentTask)
+        return
+      let commentId = data.id as string
+      let li = this.listItems.get(commentId)
+      if (li) {
+        this.listEl.removeChild(li)
+        this.listItems.delete(commentId)
+      }
+    })
   }
 
   public addComment(comment: CommentModel) {
@@ -61,27 +79,6 @@ export default class TaskCommentEditor {
     if (!task)
       return
     this.loadComments()
-  }
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createComment").onData(data => {
-      if (!this.currentTask)
-        return
-      let comment = data.model as CommentModel
-      if (comment.taskId === this.currentTask.id)
-        this.addComment(comment)
-    })
-
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteComment").onData(data => {
-      if (!this.currentTask)
-        return
-      let commentId = data.id as string
-      let li = this.listItems.get(commentId)
-      if (li) {
-        this.listEl.removeChild(li)
-        this.listItems.delete(commentId)
-      }
-    })
   }
 
   private async onSubmit() {

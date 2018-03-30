@@ -4,6 +4,7 @@ import directives from "monkberry-directives"
 import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../isomorphic/meta/Flag"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./FlagForm.monk")
 
@@ -18,7 +19,7 @@ export default class FlagForm {
   private view: MonkberryView
   private state = {
     frag: {
-      label:  "",
+      label: "",
       color: "#000",
       orderNum: "",
     },
@@ -37,7 +38,7 @@ export default class FlagForm {
    */
   private canClearForm = false
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -50,7 +51,20 @@ export default class FlagForm {
     this.spinnerEl = this.el.querySelector(".fa-spinner") as HTMLElement
     this.view.update(this.state)
 
-    this.listenToModel()
+    this.dash.listenToModel("deleteFlag", data => {
+      let id = data.id as string
+      if (this.currentFlag && this.currentFlag.id === id)
+        this.reset()
+    })
+
+    this.dash.listenToModel("updateFlag", data => {
+      let id = data.id as string
+      if (this.currentFlag && this.currentFlag.id === id)
+        this.updateView()
+    })
+
+    this.dash.listenToModel<FlagModel>("endProcessingContributor", data => this.onEndProcessing(data))
+    this.dash.listenToModel<FlagModel>("processingContributor", data => this.onProcessing(data))
   }
 
   get flag(): FlagModel | undefined {
@@ -91,27 +105,6 @@ export default class FlagForm {
     this.state.frag.label = this.currentFlag.label
     this.state.frag.orderNum = (this.currentFlag.orderNum || "").toString()
     this.view.update(this.state)
-  }
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteFlag").onData(data => {
-      let id = data.id as string
-      if (this.currentFlag && this.currentFlag.id === id)
-        this.reset()
-    })
-
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateFlag").onData(data => {
-      let id = data.id as string
-      if (this.currentFlag && this.currentFlag.id === id)
-        this.updateView()
-    })
-
-    this.dash.listenTo<FlagModel>(this.model, "endProcessingContributor").onData(
-      data => this.onEndProcessing(data)
-    )
-    this.dash.listenTo<FlagModel>(this.model, "processingContributor").onData(
-      data => this.onProcessing(data)
-    )
   }
 
   // --

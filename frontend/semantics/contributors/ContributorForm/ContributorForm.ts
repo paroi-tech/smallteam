@@ -7,6 +7,7 @@ import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../.
 import config from "../../../../isomorphic/config";
 import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
 import { UpdateModelEvent } from "../../../AppModel/ModelEngine";
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./ContributorForm.monk")
 
@@ -26,7 +27,7 @@ export default class ContributorForm {
   private state = {
     frag: {
       login: "",
-      name:  "",
+      name: "",
       email: "",
       role: "",
       password: ""
@@ -46,7 +47,7 @@ export default class ContributorForm {
    */
   private canClearForm = false
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -62,7 +63,10 @@ export default class ContributorForm {
     this.submitSpinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
     this.view.update(this.state)
 
-    this.listenToModel()
+    this.dash.listenToModel("updateContributor", data => this.onContributorUpdate(data.model))
+    this.dash.listenToModel("endProcessingContributor", data => this.onEndProcessing(data.model))
+    this.dash.listenToModel("processingContributor", data => this.onProcessing(data.model))
+
     if (this.dash.app.model.session.contributor.role === "admin") {
       this.passwordEl.disabled = false
       this.passwordConfirmEl.disabled = false
@@ -72,7 +76,7 @@ export default class ContributorForm {
   public reset() {
     this.currentContributor = undefined
 
-    this.state.frag.name  = ""
+    this.state.frag.name = ""
     this.state.frag.login = ""
     this.state.frag.email = ""
     this.state.frag.role = ""
@@ -113,22 +117,6 @@ export default class ContributorForm {
 
   get contributor(): ContributorModel | undefined {
     return this.currentContributor
-  }
-
-  // --
-  // -- Initialization functions
-  // --
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateContributor").onData(
-      data => this.onContributorUpdate(data.model)
-    )
-    this.dash.listenTo<UpdateModelEvent>(this.model, "endProcessingContributor").onData(
-      data => this.onEndProcessing(data.model)
-    )
-    this.dash.listenTo<UpdateModelEvent>(this.model, "processingContributor").onData(
-      data => this.onProcessing(data.model)
-    )
   }
 
   // --
@@ -179,7 +167,7 @@ export default class ContributorForm {
   private onContributorUpdate(contributor: ContributorModel) {
     if (!this.currentContributor || this.currentContributor.id !== contributor.id)
       return
-console.log("[DEBUG] onContributorUpdate", contributor)
+    console.log("[DEBUG] onContributorUpdate", contributor)
     this.canClearForm = false
     this.state.frag = contributor.updateTools.toFragment("update") as any
     this.state.frag.password = ""
@@ -253,7 +241,7 @@ console.log("[DEBUG] onContributorUpdate", contributor)
 
   private checkUserInput() {
     let frag = {
-      name:  this.nameEl.value.trim(),
+      name: this.nameEl.value.trim(),
       login: this.loginEl.value.trim(),
       email: this.emailEl.value.trim(),
       role: this.roleEl.value

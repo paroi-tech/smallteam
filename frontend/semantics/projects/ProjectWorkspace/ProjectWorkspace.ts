@@ -8,6 +8,7 @@ import App from "../../../App/App"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
+import { OwnDash } from "../../../App/OwnDash";
 
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: DropdownMenu
@@ -19,7 +20,7 @@ export default class ProjectWorkspace implements Workspace {
 
   private ctrl: ViewerController | undefined
 
-  constructor(private dash: Dash<App>, readonly project: ProjectModel) {
+  constructor(private dash: OwnDash, readonly project: ProjectModel) {
     this.model = this.dash.app.model
     this.log = this.dash.log
 
@@ -68,8 +69,6 @@ export default class ProjectWorkspace implements Workspace {
     this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
     this.form = this.dash.create(ProjectForm)
     this.form.project = this.project
-
-    this.listenToModel()
   }
 
   public activate(ctrl: ViewerController) {
@@ -144,8 +143,5 @@ export default class ProjectWorkspace implements Workspace {
 
     this.form = this.dash.create(ProjectForm)
     this.form.project = this.project
-  }
-
-  private listenToModel() {
   }
 }

@@ -5,6 +5,7 @@ import BoxList from "../../../generics/BoxList/BoxList"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import ContributorDialog from "../ContributorDialog/ContributorDialog"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")
@@ -26,7 +27,7 @@ export default class ContributorSelector {
   private model: Model
   private currentTask: TaskModel | undefined
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -53,13 +54,16 @@ export default class ContributorSelector {
     this.boxListContainerEl.appendChild(this.boxList.el)
 
     this.dialog = this.dash.create(ContributorDialog)
-    this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed").onEvent(ev => {
+    this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed", () => {
       let arr = this.dialog.selectedContributors()
       this.boxList.clear()
       arr.forEach(c => this.addBoxFor(c))
     })
 
-    this.listenToModel()
+    this.dash.listenToModel("deleteContributor", data => {
+      let contributorId = data.id as string
+      this.boxList.removeBox(contributorId)
+    })
   }
 
   public reset() {
@@ -73,18 +77,6 @@ export default class ContributorSelector {
       return
     for (let c of this.currentTask.affectedTo)
       this.addBoxFor(c)
-  }
-
-  // --
-  // -- Event handlers
-  // --
-
-  private listenToModel() {
-    // Contributor deletion.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteContributor").onData(data => {
-      let contributorId = data.id as string
-      this.boxList.removeBox(contributorId)
-    })
   }
 
   // --

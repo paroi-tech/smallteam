@@ -6,6 +6,7 @@ import App from "../../../App/App"
 import config from "../../../../isomorphic/config"
 import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./PasswordForm.monk")
 
@@ -33,7 +34,7 @@ export default class PasswordForm {
     }
   }
 
-  constructor(private dash: Dash<App>, private contributor: ContributorModel) {
+  constructor(private dash: OwnDash, private contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 

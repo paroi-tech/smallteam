@@ -1,7 +1,7 @@
-import { ApplicationDash, Log, LogItem } from "bkb"
+import { ApplicationDash, Log, LogItem, EventName, EventCallback } from "bkb"
 import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
-import { UpdateModelEvent } from "../AppModel/ModelEngine"
+import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
 import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
 import LoginDialog from "../generics/LoginDialog/LoginDialog"
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
@@ -118,39 +118,47 @@ export default class App {
     }
   }
 
-  // public async restart() {}
-
   private async initModel(sessionData: SessionData) {
     this._model = this.dash.create(ModelComp, sessionData)
 
-    this.dash.onData("log", (data: LogItem) => {
+    this.dash.registerDashAugmentation(d => {
+      return {
+        listenToModel: (eventName: EventName, listener: EventCallback, thisArg?: any) => {
+          return d.listenTo(this._model, eventName, listener, thisArg)
+        }
+      }
+    })
+
+    this.dash.unattendedEvents.on("log", (data: LogItem) => {
       console.log(`[LOG] ${data.type} `, data.messages)
     })
 
-    this.dash.listenTo(this.model, "change").onData(data => {
-      if (data.orderedIds)
+    let modelDash = this.dash.getPublicDashOf(this.model)
+
+    modelDash.unattendedEvents.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
+      if ("orderedIds" in data)
         console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
         console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandAdded").onData(data => {
+    modelDash.unattendedEvents.on<BgCommand>("bgCommandAdded", data => {
       console.log(`[BG] Add: ${data.label}`)
     })
 
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandDone").onData(data => {
+    modelDash.unattendedEvents.on<BgCommand>("bgCommandDone", data => {
       console.log(`[BG] Done: ${data.label}`)
     })
 
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").onData(data => {
+    modelDash.unattendedEvents.on<BgCommand>("bgCommandError", data => {
       console.log(`[BG] Error: ${data.label}`, data.errorMessage)
     })
 
-    this.dash.listenTo<UpdateModelEvent>(this.model, "processing").onData(data => {
+    modelDash.unattendedEvents.on<UpdateModelEvent>("processing", data => {
       console.log(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
-    this.dash.listenTo<UpdateModelEvent>(this.model, "endProcessing").onData(data => {
+    modelDash.unattendedEvents.on<UpdateModelEvent>("endProcessing", data => {
       console.log(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 

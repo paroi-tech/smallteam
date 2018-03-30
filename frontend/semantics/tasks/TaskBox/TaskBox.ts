@@ -6,6 +6,7 @@ import { Box } from "../../../generics/BoxList/BoxList"
 import App from "../../../App/App"
 import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag"
 import { removeAllChildren } from "../../../libraries/utils"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskBox.monk")
 
@@ -32,7 +33,7 @@ export default class TaskBox implements Box {
    * @param dash - the current application dash
    * @param task - the task for which the box is created for
    */
-  constructor(private dash: Dash<App>, readonly task: TaskModel) {
+  constructor(private dash: OwnDash, readonly task: TaskModel) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -47,7 +48,28 @@ export default class TaskBox implements Box {
     this.addTaskFlags()
     this.commentCounterEl.textContent = (this.task.commentCount || 0).toString()
     this.addContributorFlags()
-    this.listenToModel()
+
+    // Task update.
+    this.dash.listenToModel("updateTask", data => {
+      let task = data.model as TaskModel
+      if (task.id === this.task.id) {
+        this.spanEl.textContent = task.label
+        // Update the flags.
+        removeAllChildren(this.flagContainerEl)
+        this.addTaskFlags()
+        removeAllChildren(this.contributorContainerEl)
+        this.addContributorFlags()
+      }
+    })
+
+    // Listen to flag reorder event.
+    this.dash.listenToModel<ReorderModelEvent>("reorder", data => {
+      if (data.type !== "Flag")
+        return
+      removeAllChildren(this.flagContainerEl)
+      this.addTaskFlags()
+    })
+
     this.el.addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))
   }
 
@@ -84,28 +106,5 @@ export default class TaskBox implements Box {
         this.flagContainerEl.appendChild(flagComp.el)
       }
     }
-  }
-
-  private listenToModel() {
-    // Task update.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
-      let task = data.model as TaskModel
-      if (task.id === this.task.id) {
-        this.spanEl.textContent = task.label
-        // Update the flags.
-        removeAllChildren(this.flagContainerEl)
-        this.addTaskFlags()
-        removeAllChildren(this.contributorContainerEl)
-        this.addContributorFlags()
-      }
-    })
-
-    // Listen to flag reorder event.
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorder").onData(data => {
-      if (data.type !== "Flag")
-        return
-      removeAllChildren(this.flagContainerEl)
-      this.addTaskFlags()
-    })
   }
 }

@@ -3,6 +3,7 @@ import { render } from "monkberry"
 import { Box } from "../../../generics/BoxList/BoxList";
 import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
 import App from "../../../App/App"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./FlagBox.monk")
 
@@ -14,7 +15,7 @@ export default class FlagBox implements Box {
   private model: Model
   private view: MonkberryView
 
-  constructor(private dash: Dash<App>, readonly flag: FlagModel) {
+  constructor(private dash: OwnDash, readonly flag: FlagModel) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -24,7 +25,13 @@ export default class FlagBox implements Box {
     this.el.onclick = ev => this.dash.emit("flagBoxSelected", this.flag)
     this.view.update(this.flag)
 
-    this.listenToModel()
+    this.dash.listenToModel("updateFlag", data => {
+      let flag = data.model as FlagModel
+      if (flag.id === this.flag.id) {
+        this.view.update(this.flag)
+        this.colorEl.style.color = this.flag.color
+      }
+    })
   }
 
   public setWithFocus(focus: boolean) {
@@ -36,15 +43,5 @@ export default class FlagBox implements Box {
 
   get id(): string {
     return this.flag.id
-  }
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateFlag").onData(data => {
-      let flag = data.model as FlagModel
-      if (flag.id === this.flag.id) {
-        this.view.update(this.flag)
-        this.colorEl.style.color = this.flag.color
-      }
-    })
   }
 }

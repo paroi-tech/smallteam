@@ -4,6 +4,7 @@ import App from "../../../App/App"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import config from "../../../../isomorphic/config"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./AvatarForm.monk")
 
@@ -18,7 +19,7 @@ export default class AvatarForm {
   private log: Log
   private view: MonkberryView
 
-  constructor(private dash: Dash<App>, readonly contributor: ContributorModel) {
+  constructor(private dash: OwnDash, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 

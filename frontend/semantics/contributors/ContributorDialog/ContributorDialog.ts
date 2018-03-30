@@ -4,6 +4,7 @@ import App from "../../../App/App"
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import { render } from "monkberry"
 import ContributorBox from "../ContributorBox/ContributorBox"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./ContributorDialog.monk")
 
@@ -16,7 +17,7 @@ export default class ContributorDialog {
   private selector: CheckboxMultiSelect<ContributorModel>
   private view: MonkberryView
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -55,9 +56,7 @@ export default class ContributorDialog {
     this.selectorContainerEl.appendChild(ms.el)
 
     let events = ["updateContributor", "createContributor", "deleteContributor"]
-    this.dash.listenTo<UpdateModelEvent>(this.model, events).onData(
-      data => ms.setAllItems(this.model.global.steps)
-    )
+    this.dash.listenToModel(events, data => ms.setAllItems(this.model.global.steps))
     ms.setAllItems(this.model.global.contributors)
 
     return ms

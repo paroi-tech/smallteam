@@ -9,7 +9,6 @@ import { StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../is
 import { StepModel, registerStep } from "./Models/StepModel"
 import { FlagModel, registerFlag } from "./Models/FlagModel"
 import ModelEngine, { CommandType } from "./ModelEngine"
-import { ComponentEvent, Transmitter } from "bkb"
 import { BgCommandManager, BgCommand } from "./BgCommandManager"
 import { FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
 import { CommentIdFragment, CommentCreateFragment, CommentUpdateFragment } from "../../isomorphic/meta/Comment"

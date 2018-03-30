@@ -2,6 +2,7 @@ import { Dash } from "bkb"
 import { render } from "monkberry"
 import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskFlag.monk")
 
@@ -12,7 +13,7 @@ export default class TaskFlag {
 
   private model: Model
 
-  constructor(private dash: Dash<App>, readonly flag: FlagModel) {
+  constructor(private dash: OwnDash, readonly flag: FlagModel) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -21,11 +22,7 @@ export default class TaskFlag {
     this.el.title = this.flag.label
     this.el.style.color = this.flag.color
 
-    this.listenToModel()
-  }
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateFlag").onData(data => {
+    this.dash.listenToModel("updateFlag", data => {
       let flag = data.model as FlagModel
       if (flag.id === this.flag.id)
         this.el.style.color = flag.color

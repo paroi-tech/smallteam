@@ -3,6 +3,7 @@ import { render } from "monkberry"
 import { BgCommandManager, BgCommand } from "../../AppModel/BgCommandManager"
 import { Model } from "../../AppModel/AppModel"
 import App from "../../App/App"
+import { OwnDash } from "../../App/OwnDash";
 
 const template = require("./BackgroundCommandManager.monk")
 const templateMenuBtn = require("./MenuBtn.monk")
@@ -18,7 +19,7 @@ export default class BackgroundCommandManager {
 
   private view: MonkberryView
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.bgCmdManager = this.dash.app.model.bgManager
 
@@ -29,7 +30,7 @@ export default class BackgroundCommandManager {
     this.tableEl = this.el.querySelector(".js-table") as HTMLTableElement
     this.buttonEl = this.createHtmlMenuButtonElement()
 
-    this.listenToModel()
+    this.dash.listenToModel<BgCommand>("bgCommandError", bgCmd => this.onBgCommandError(bgCmd))
   }
 
   public show() {
@@ -60,10 +61,6 @@ export default class BackgroundCommandManager {
   // --
   // -- Event handlers
   // --
-
-  private listenToModel() {
-    this.dash.listenTo<BgCommand>(this.model, "bgCommandError").onData(bgCmd => this.onBgCommandError(bgCmd))
-  }
 
   private onBgCommandError(cmd: BgCommand) {
     this.buttonEl.style.backgroundColor = "orange"

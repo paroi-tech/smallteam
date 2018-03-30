@@ -5,6 +5,7 @@ import App from "../../../App/App"
 import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment"
 import { removeAllChildren } from "../../../libraries/utils"
 import { Converter } from "showdown"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskComment.monk")
 
@@ -33,7 +34,7 @@ export default class TaskComment {
 
   private editMode = false
 
-  constructor(private dash: Dash<App>, readonly comment: CommentModel) {
+  constructor(private dash: OwnDash, readonly comment: CommentModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
     this.contributorId = this.dash.app.model.session.contributor.id
@@ -64,7 +65,13 @@ export default class TaskComment {
     this.converter = new Converter()
     this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
 
-    this.listenToModel()
+    this.dash.listenToModel("updateComment", data => {
+      let comment = data.model as CommentModel
+      if (this.comment.id !== comment.id)
+        return
+      this.updateView()
+      this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
+    })
   }
 
   private updateView() {
@@ -72,16 +79,6 @@ export default class TaskComment {
     let d = new Date(this.comment.updateTs)
     this.state.modificationDate = `${d.toLocaleDateString()}@${d.toLocaleTimeString()}`
     this.view.update(this.state)
-  }
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateComment").onData(data => {
-      let comment = data.model as CommentModel
-      if (this.comment.id !== comment.id)
-        return
-      this.updateView()
-      this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
-    })
   }
 
   private async onBtnEditClick() {

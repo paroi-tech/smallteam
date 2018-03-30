@@ -5,6 +5,7 @@ import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxLi
 import TaskBox from "../../tasks/TaskBox/TaskBox"
 import App from "../../../App/App"
 import { removeAllChildren } from "../../../libraries/utils"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./StepSwitcher.monk")
 
@@ -46,7 +47,7 @@ export default class StepSwitcher {
   // Map used to store TaskBoxes. The keys are the task IDs.
   private taskBoxes = new Map<string, TaskBox>()
 
-  constructor(private dash: Dash<App>, readonly parentTask: TaskModel) {
+  constructor(private dash: OwnDash, readonly parentTask: TaskModel) {
     this.model = dash.app.model
     this.log = this.dash.app.log
     this.project = this.parentTask.project
@@ -83,8 +84,80 @@ export default class StepSwitcher {
 
     this.createBoxLists()
     this.fillBoxLists()
-    this.listenToModel()
-    this.listenToChildren()
+
+    this.addModelListeners()
+    this.dash.listenTo<BoxEvent>("boxListItemAdded", data => this.onTaskBoxMove(data))
+    this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.onTaskReorder(data))
+  }
+
+  /**
+   * Listen to changes in the model.
+   * The following events are handled:
+   *  - Step update, in order to update the BoxList titles.
+   *  - Step reorder, to reorder the BoxLists.
+   *  - ProjectStep creation, to add a new BoxList.
+   *  - ProjectStep deletion, to remove the corresponding BoxList.
+   *  - Task creation, to create a taskBox for the new task.
+   *  - Task deletion, to remove TaskBox (if any).
+   */
+  private addModelListeners() {
+    // Step update event.
+    this.dash.listenToModel("updateStep", data => {
+      let step = data.model as StepModel
+      if (this.parentTask.project.allSteps.has(step.id)) {
+        let list = this.boxLists.get(step.id)
+        if (list)
+          list.setTitle(step.label)
+      }
+    })
+
+    // ProjectStep creation event.
+    this.dash.listenToModel("updateProject", data => {
+      if (data.id === this.project.id)
+        this.reset()
+    })
+
+    // Steps reorder event.
+    // An alternative solution to sort the content of an HTML element using `data-sort` attribute
+    // can be found at:
+    // https://stackoverflow.com/questions/7831712/jquery-sort-divs-by-innerhtml-of-children
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => {
+      this.reset()
+      // for (let id of data.orderedIds as string[]) {
+      //   let step = this.project.steps.get(id)
+      //   if (step) {
+      //     let list = this.boxLists.get(step.id)
+      //     if (list)
+      //       this.boxListContainerEl.appendChild(list.el)
+      //   }
+      // }
+    })
+
+    // Task creation event.
+    this.dash.listenToModel("createTask", data => {
+      let task = data.model as TaskModel
+      if (task.projectId !== this.project.id || task.parentTaskId !== this.parentTask.id)
+        return
+      let list = this.boxLists.get(task.curStepId)
+      if (list) {
+        let box = this.createTaskBoxFor(task)
+        list.addBox(box)
+      }
+    })
+
+    // Task deletion event.
+    // We check if the StepSwitcher contains a TaskBox related to the deleted task.
+    // If yes, we remove the TaskBox from the BoxList and from the StepSwitcher taskBoxMap.
+    this.dash.listenToModel("deleteTask", data => {
+      let taskId = data.id as string
+      let taskBox = this.taskBoxes.get(taskId)
+      if (!taskBox)
+        return
+      let boxList = [...this.boxLists.values()].find(b => b.hasBox(taskId))
+      if (boxList)
+        boxList.removeBox(taskId)
+      this.taskBoxes.delete(taskId)
+    })
   }
 
   public showBusyIcon() {
@@ -236,18 +309,6 @@ export default class StepSwitcher {
     this.taskNameEl.focus()
   }
 
-  private listenToChildren() {
-    // this.dash.listenToChildren<TaskModel>("taskBoxSelected").onData(data => {
-    //   this.log.info(`TaskBox ${data.id} selected in StepSwitcher ${this.parentTask.id}`)
-    // })
-    this.dash.listenToChildren<BoxEvent>("boxListItemAdded").onData(data => {
-      this.onTaskBoxMove(data)
-    })
-    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => {
-      this.onTaskReorder(data)
-    })
-  }
-
   private async onTaskReorder(ev: BoxListEvent) {
     let boxList = this.boxLists.get(ev.boxListId)
     if (!boxList)
@@ -273,76 +334,6 @@ export default class StepSwitcher {
         console.error(`Cannot restore order in list "${ev.boxListId}" in StepSwitcher "${this.parentTask.label}"`)
     }
     boxList.enable(true)
-  }
-
-  /**
-   * Listen to changes in the model.
-   * The following events are handled:
-   *  - Step update, in order to update the BoxList titles.
-   *  - Step reorder, to reorder the BoxLists.
-   *  - ProjectStep creation, to add a new BoxList.
-   *  - ProjectStep deletion, to remove the corresponding BoxList.
-   *  - Task creation, to create a taskBox for the new task.
-   *  - Task deletion, to remove TaskBox (if any).
-   */
-  private listenToModel() {
-    // Step update event.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateStep").onData(data => {
-      let step = data.model as StepModel
-      if (this.parentTask.project.allSteps.has(step.id)) {
-        let list = this.boxLists.get(step.id)
-        if (list)
-          list.setTitle(step.label)
-      }
-    })
-
-    // ProjectStep creation event.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateProject").onData(data => {
-      if (data.id === this.project.id)
-        this.reset()
-    })
-
-    // Steps reorder event.
-    // An alternative solution to sort the content of an HTML element using `data-sort` attribute
-    // can be found at:
-    // https://stackoverflow.com/questions/7831712/jquery-sort-divs-by-innerhtml-of-children
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep").onData(data => {
-      this.reset()
-      // for (let id of data.orderedIds as string[]) {
-      //   let step = this.project.steps.get(id)
-      //   if (step) {
-      //     let list = this.boxLists.get(step.id)
-      //     if (list)
-      //       this.boxListContainerEl.appendChild(list.el)
-      //   }
-      // }
-    })
-
-    // Task creation event.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createTask").onData(data => {
-      let task = data.model as TaskModel
-      if (task.projectId !== this.project.id || task.parentTaskId !== this.parentTask.id)
-        return
-      let list = this.boxLists.get(task.curStepId)
-      if (list) {
-        let box = this.createTaskBoxFor(task)
-        list.addBox(box)
-      }
-    })
-
-    // Task deletion event.
-    // We check if the StepSwitcher contains a TaskBox related to the deleted task.
-    // If yes, we remove the TaskBox from the BoxList and from the StepSwitcher taskBoxMap.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {
-      let taskId = data.id as string
-      let taskBox = this.taskBoxes.get(taskId)
-      if (!taskBox)
-        return
-      let boxList = [...this.boxLists.values()].find(b => b.hasBox(taskId))
-      if (boxList)
-        boxList.removeBox(taskId)
-      this.taskBoxes.delete(taskId)
-    })
   }
 
   /**

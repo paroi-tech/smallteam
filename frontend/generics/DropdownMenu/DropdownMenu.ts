@@ -32,7 +32,7 @@ export class DropdownMenu {
       this.el.classList.add(options.align || "right")
     this.btnEl.addEventListener("click", catchAndLog(() => this.toggle()))
 
-    dash.listenToChildren("click").onEvent(() => this.hide())
+    dash.listenTo("click", () => this.hide())
   }
 
   public toggle() {

@@ -6,6 +6,7 @@ import { Model, UpdateModelEvent, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./SearchWorkspace.monk")
 
@@ -20,7 +21,7 @@ export default class SearchWorkspace implements Workspace {
 
   private model: Model
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -39,6 +40,11 @@ export default class SearchWorkspace implements Workspace {
     let rightEl = this.el.querySelector(".js-right") as HTMLElement
     this.taskForm = this.dash.create(TaskForm)
     rightEl.appendChild(this.taskForm.el)
+
+    this.dash.listenTo("taskBoxSelected", task => {
+      this.taskForm.task = task
+      this.taskForm.show()
+    })
   }
 
   public activate(ctrl: ViewerController) {
@@ -68,10 +74,6 @@ export default class SearchWorkspace implements Workspace {
     for (let task of arr) {
       let box = this.dash.create(TaskBox, task)
       this.boxList.addBox(box)
-      this.dash.listenToChildren("taskBoxSelected").onData(task => {
-        this.taskForm.task = task
-        this.taskForm.show()
-      })
     }
   }
 }

@@ -3,6 +3,7 @@ import App from "../../../App/App"
 import { Model, TaskModel, UpdateModelEvent, TaskLogEntryModel } from "../../../AppModel/AppModel"
 import { render } from "monkberry"
 import { removeAllChildren } from "../../../libraries/utils"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskLogDialog.monk")
 
@@ -21,7 +22,7 @@ export default class TaskLogDialog {
   // Used to know if the logs for the current task need to loaded from model.
   private needReload = false
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -34,7 +35,7 @@ export default class TaskLogDialog {
     this.tableEl = this.el.querySelector(".js-table") as HTMLTableElement
     document.body.appendChild(this.el)
 
-    this.dash.listenTo(this.model, "createTaskLogEntry").onData(data => {
+    this.dash.listenTo(this.model, "createTaskLogEntry", data => {
       let entry = data.model as TaskLogEntryModel
       if (!this.currentTask || this.currentTask.id !== entry.taskId)
         return

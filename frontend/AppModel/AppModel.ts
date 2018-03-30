@@ -10,7 +10,7 @@ import { registerStep, StepModel } from "./Models/StepModel"
 import { registerFlag } from "./Models/FlagModel"
 import { registerMedia } from "./Models/MediaModel"
 import { registerMediaVariant } from "./Models/MediaVariantModel"
-import { ComponentEvent, Transmitter, Dash } from "bkb"
+import { ComponentEvent, Dash } from "bkb"
 import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
 import App from "../App/App"
 import { registerComment } from "./Models/CommentModel"
@@ -19,6 +19,7 @@ import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Model, CommandBatch, GlobalModels, Collection, Session, SessionData } from "./modelDefinitions"
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
 import GenericBgCommandManager from "./BgCommandManager"
+import { OwnDash } from "../App/OwnDash";
 
 export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
 export { Model, CommandBatch } from "./modelDefinitions"
@@ -42,7 +43,7 @@ export default class ModelComp implements Model {
   readonly global: GlobalModels
   readonly session: Session
 
-  constructor(private dash: Dash<App>, sessionData: SessionData) {
+  constructor(private dash: OwnDash, sessionData: SessionData) {
     this.engine = new ModelEngine(dash)
     this.bgManager = this.engine.bgManager
     registerContributor(this.engine)
@@ -87,7 +88,7 @@ export default class ModelComp implements Model {
   }
 }
 
-function createGlobal(dash: Dash<App>, engine: ModelEngine): GlobalModels {
+function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
   let batch = new GenericCommandBatch(engine)
   batch.fetch("Step")
   batch.fetch("Flag")
@@ -140,7 +141,7 @@ function createGlobal(dash: Dash<App>, engine: ModelEngine): GlobalModels {
         return coll
       }
     }
-    dash.listen(`change${options.type}`).onData(model => cache.delete(name))
+    dash.listenTo(`change${options.type}`, model => cache.delete(name))
   }
 
   let obj = {

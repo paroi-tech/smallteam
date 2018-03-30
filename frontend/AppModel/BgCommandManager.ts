@@ -1,4 +1,4 @@
-import { Dash, Transmitter } from "bkb"
+import { Dash } from "bkb"
 import Deferred from "../libraries/Deferred"
 
 export interface BgCommand<R = any> {

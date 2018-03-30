@@ -3,6 +3,7 @@ import { render } from "monkberry"
 import FlagBox from "../FlagBox/FlagBox"
 import { Model, TaskModel, FlagModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./FlagSelector.monk")
 const liTemplate = require("./li.monk")
@@ -19,7 +20,7 @@ export default class FlagSelector {
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
     this.view = render(template, document.createElement("div"))
@@ -27,7 +28,33 @@ export default class FlagSelector {
     this.listEl = this.el.querySelector("ul") as HTMLElement
 
     this.model.global.flags.forEach(flag => this.addItemFor(flag))
-    this.listenToModel()
+
+    // Listen to flag creation event.
+    this.dash.listenToModel("createFlag", data => {
+      this.addItemFor(data.model as FlagModel)
+    })
+
+    // Listen to flag deletion event in order to remove corresponding item from the selector.
+    // IMPORTANT: What happens to orderNums where a flag is deleted ?
+    this.dash.listenToModel("deleteFlag", data => {
+      let flagId = data.id as string
+      let li = this.items.get(flagId)
+      if (li)
+        this.listEl.removeChild(li)
+      this.checkBoxes.delete(flagId)
+    })
+
+    // Listen to flag reorder event.
+    this.dash.listenToModel<ReorderModelEvent>("reorder", data => {
+      if (data.type !== "Flag")
+        return
+      let flagIds = data.orderedIds as string[]
+      for (let flagId of flagIds) {
+        let el = this.items.get(flagId)
+        if (el)
+          this.listEl.appendChild(el)
+      }
+    })
   }
 
   get task(): TaskModel | undefined {
@@ -96,35 +123,5 @@ export default class FlagSelector {
     li.appendChild(box.el)
     this.listEl.appendChild(li)
   }
-
-  private listenToModel() {
-    // Listen to flag creation event.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createFlag").onData(data => {
-      this.addItemFor(data.model as FlagModel)
-    })
-
-    // Listen to flag deletion event in order to remove corresponding item from the selector.
-    // IMPORTANT: What happens to orderNums where a flag is deleted ?
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteFlag").onData(data => {
-      let flagId = data.id as string
-      let li = this.items.get(flagId)
-      if (li)
-        this.listEl.removeChild(li)
-      this.checkBoxes.delete(flagId)
-    })
-
-    // Listen to flag reorder event.
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorder").onData(data => {
-      if (data.type !== "Flag")
-        return
-      let flagIds = data.orderedIds as string[]
-      for (let flagId of flagIds) {
-        let el = this.items.get(flagId)
-        if (el)
-          this.listEl.appendChild(el)
-      }
-    })
-  }
-
 }
 

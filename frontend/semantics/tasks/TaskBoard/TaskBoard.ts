@@ -4,6 +4,7 @@ import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskBoard.monk")
 
@@ -20,7 +21,7 @@ export default class TaskBoard {
   private model: Model
   private log: Log
 
-  constructor(private dash: Dash<App>, readonly rootTask: TaskModel) {
+  constructor(private dash: OwnDash, readonly rootTask: TaskModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -36,31 +37,15 @@ export default class TaskBoard {
     this.leftEl.appendChild(rootTaskStepSwitcher.el)
     this.createStepSwitchersForChildren(this.rootTask)
 
-    this.listenToChildren()
-    this.listenToModel()
-  }
-
-  public hide() {
-    this.el.style.display = "none"
-  }
-
-  public show() {
-    this.el.style.display = "block"
-  }
-
-  private listenToChildren() {
-    this.dash.listenToChildren<TaskModel>("taskBoxSelected", { deep: true }).onData(task => this.taskForm.task = task)
-
-    this.dash.listenToChildren<TaskModel>("showStepSwitcher", { deep: true }).onData(task => {
+    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.task = task)
+    this.dash.listenTo<TaskModel>("showStepSwitcher", task => {
       if (task.id === this.rootTask.id) // The rootTask panel is always displayed.
         return
       this.showStepSwitcher(task)
     })
-  }
 
-  private listenToModel() {
     // Task deletion. We check if there is a StepSwitcher created for the task and remove it.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {
+    this.dash.listenToModel("deleteTask", data => {
       let taskId = data.id as string
       let panel = this.stepSwitcherMap.get(taskId)
 
@@ -69,6 +54,14 @@ export default class TaskBoard {
       this.leftEl.removeChild(panel.el)
       this.stepSwitcherMap.delete(taskId)
     })
+  }
+
+  public hide() {
+    this.el.style.display = "none"
+  }
+
+  public show() {
+    this.el.style.display = "block"
   }
 
   private createStepSwitcher(task: TaskModel): StepSwitcher {

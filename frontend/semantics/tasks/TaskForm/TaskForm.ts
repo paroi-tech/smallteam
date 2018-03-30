@@ -7,6 +7,7 @@ import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import App from "../../../App/App"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./TaskForm.monk")
 
@@ -34,7 +35,7 @@ export default class TaskForm {
   private logDialog: TaskLogDialog
   private attachmentMgr: TaskAttachmentManager
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -86,7 +87,20 @@ export default class TaskForm {
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.attachmentContainerEl.appendChild(this.attachmentMgr.el)
 
-    this.listenToModel()
+    this.dash.listenToModel("deleteTask", data => {
+      if (this.currentTask !== undefined && this.currentTask.id === data.id)
+        this.reset()
+    })
+
+    this.dash.listenToModel("updateTask", data => {
+      if (this.currentTask && this.currentTask.id === data.id) {
+        let state = {
+          description: this.currentTask.description || "",
+          label: this.currentTask.label
+        }
+        this.view.update(state)
+      }
+    })
   }
 
   public hide() {
@@ -143,23 +157,6 @@ export default class TaskForm {
   // --
   // -- Utilities
   // --
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteTask").onData(data => {
-      if (this.currentTask !== undefined && this.currentTask.id === data.id)
-        this.reset()
-    })
-
-    this.dash.listenTo<UpdateModelEvent>(this.model, "updateTask").onData(data => {
-      if (this.currentTask && this.currentTask.id === data.id) {
-        let state = {
-          description: this.currentTask.description || "",
-          label: this.currentTask.label
-        }
-        this.view.update(state)
-      }
-    })
-  }
 
   private async deleteTask() {
     if (!this.currentTask || (this.currentTask.children || []).length > 0)

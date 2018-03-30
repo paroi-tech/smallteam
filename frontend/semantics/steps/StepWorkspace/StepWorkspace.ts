@@ -7,6 +7,7 @@ import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList"
 import { Model, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { equal } from "../../../libraries/utils"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./StepWorkspace.monk")
 
@@ -31,7 +32,7 @@ export default class StepWorkspace implements Workspace {
    */
   private timer: any
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -60,30 +61,20 @@ export default class StepWorkspace implements Workspace {
     this.formContainerEl.appendChild(this.form.el)
 
     this.fillBoxList()
-    this.listenToChildComponents()
-    this.listenToModel()
-  }
 
-  private listenToChildComponents() {
-    this.dash.listenToChildren<StepModel>("stepBoxSelected").onData(step => {
+    this.dash.listenTo<StepModel>("stepBoxSelected", step => {
       this.form.step = step
     })
-    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => {
-      this.scheduleStepOrderUpdate(data)
-    })
-  }
+    this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleStepOrderUpdate(data))
 
-  private listenToModel() {
     // Step creation.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createStep").onData(data => {
+    this.dash.listenToModel("createStep", data => {
       let step = data.model as StepModel
       let box = this.dash.create(StepBox, step)
       this.boxList.addBox(box)
     })
     // Step deletion.
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {
-      this.boxList.removeBox(data.id as string)
-    })
+    this.dash.listenToModel("deleteStep", data => this.boxList.removeBox(data.id as string))
   }
 
   private onAdd() {

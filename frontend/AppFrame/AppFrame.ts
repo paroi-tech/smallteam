@@ -22,6 +22,7 @@ import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWork
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
 import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu"
 import { ContributorModel } from "../AppModel/Models/ContributorModel"
+import { OwnDash } from "../App/OwnDash"
 
 const template = require("./AppFrame.monk")
 
@@ -32,7 +33,7 @@ export default class AppFrame {
   private model: Model
   private sidebar!: Sidebar
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = dash.app.model
 
     let view = render(template, document.createElement("div"))
@@ -75,13 +76,8 @@ export default class AppFrame {
     for (let p of projects)
       this.addProject(viewer, p)
 
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createProject").onData(
-      data => this.addProject(viewer, data.model)
-    )
-
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteProject").onData(
-      data => viewer.removeWorkspace(`/prj-${data.id}`)
-    )
+    this.dash.listenToModel("createProject", data => this.addProject(viewer, data.model))
+    this.dash.listenToModel("deleteProject", data => viewer.removeWorkspace(`/prj-${data.id}`))
   }
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
@@ -170,7 +166,7 @@ export default class AppFrame {
 
     updateSessionBtn(menuBtn, this.dash.app.model.session.contributor)
 
-    this.dash.listenTo<UpdateModelEvent>(this.dash.app.model, "updateContributor").onData(evData => {
+    this.dash.listenToModel("updateContributor", evData => {
       if (evData.model === this.dash.app.model.session.contributor)
         updateSessionBtn(menuBtn, this.dash.app.model.session.contributor)
     })

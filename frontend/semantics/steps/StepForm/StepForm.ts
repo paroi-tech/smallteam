@@ -5,6 +5,7 @@ import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./StepForm.monk")
 
@@ -25,7 +26,7 @@ export default class StepForm {
   private model: Model
   private log: Log
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -40,8 +41,8 @@ export default class StepForm {
     this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
 
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl()
-      } as DropdownMenuOptions
+      btnEl: createCustomMenuBtnEl()
+    } as DropdownMenuOptions
     )
     this.dropdownMenu.entries.createNavBtn({
       label: "Delete step",
@@ -50,7 +51,13 @@ export default class StepForm {
     this.menuContainerEl.appendChild(this.dropdownMenu.btnEl)
 
     this.listenToForm()
-    this.listenToModel()
+
+    this.dash.listenToModel("deleteStep", data => {
+      if (this.currentStep && this.currentStep.id === data.id)
+        this.reset()
+    })
+    this.dash.listenTo<StepModel>(this.model, "endProcessingStep", data => this.onEndProcessing(data))
+    this.dash.listenTo<StepModel>(this.model, "processingStep", data => this.onProcessing(data))
   }
 
   public reset() {
@@ -76,21 +83,6 @@ export default class StepForm {
   // --
   // -- Initialization functions
   // --
-
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteStep").onData(data => {
-      if (this.currentStep && this.currentStep.id === data.id)
-        this.reset()
-    })
-
-    this.dash.listenTo<StepModel>(this.model, "endProcessingStep").onData(
-      data => this.onEndProcessing(data)
-    )
-
-    this.dash.listenTo<StepModel>(this.model, "processingStep").onData(
-      data => this.onProcessing(data)
-    )
-  }
 
   private onEndProcessing(step: StepModel) {
     if (!this.currentStep || this.currentStep.id !== step.id)

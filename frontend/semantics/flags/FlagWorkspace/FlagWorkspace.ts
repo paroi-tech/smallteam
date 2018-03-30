@@ -9,6 +9,7 @@ import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { equal } from "../../../libraries/utils"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
+import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./FlagWorkspace.monk")
 
@@ -31,7 +32,7 @@ export default class FlagWorkspace implements Workspace {
    */
   private timer: any
 
-  constructor(private dash: Dash<App>) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -60,22 +61,16 @@ export default class FlagWorkspace implements Workspace {
     })
 
     this.fillBoxList()
-    this.listenToChildComponents()
-    this.listenToModel()
-  }
 
-  private listenToChildComponents() {
-    this.dash.listenToChildren<FlagModel>("flagBoxSelected").onData(flag => this.form.flag = flag)
-    this.dash.listenToChildren<BoxListEvent>("boxListSortingUpdated").onData(data => this.scheduleFlagReordering(data))
-  }
+    this.dash.listenTo<FlagModel>("flagBoxSelected", flag => this.form.flag = flag)
+    this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleFlagReordering(data))
 
-  private listenToModel() {
-    this.dash.listenTo<UpdateModelEvent>(this.model, "createFlag").onData(data => {
+    this.dash.listenToModel("createFlag", data => {
       let flag = data.model as FlagModel
       let box = this.dash.create(FlagBox, flag)
       this.boxList.addBox(box)
     })
-    this.dash.listenTo<UpdateModelEvent>(this.model, "deleteFlag").onData(d => this.boxList.removeBox(d.id as string))
+    this.dash.listenToModel("deleteFlag", d => this.boxList.removeBox(d.id as string))
   }
 
   private scheduleFlagReordering(ev: BoxListEvent) {
