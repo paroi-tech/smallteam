@@ -1,3 +1,6 @@
+export function wait(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, ms))
+}
 
 export function toDebugStr(entry?: Map<any, any> | Set<any>) {
   return JSON.stringify(toDebugObj(entry), null, 2)

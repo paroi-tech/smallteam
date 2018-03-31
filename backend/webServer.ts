@@ -15,6 +15,7 @@ import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { removeExpiredTokens } from "./mail"
 import { createMediaEngine } from "./createMediaEngine";
+import { wait } from "../isomorphic/libraries/helpers";
 
 const PORT = 3921
 
@@ -74,10 +75,6 @@ export function startWebServer() {
 
   // Scheduled task to removed expired mail challenges.
   setInterval(removeExpiredTokens, 3600 * 24 * 1000 /* 1 day */)
-}
-
-function wait(ms: number): Promise<void> {
-  return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
