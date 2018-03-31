@@ -1,22 +1,13 @@
 .PromptDialog {
-  @extend .ModalDialog;
-
-  &-content {
-    @extend .ModalDialog-content;
-
-    &Left {
-      @extend .ModalDialog-contentLeft;
+  &-contentLeft {
       color: #708090;
-    }
+  }
 
-    &Right {
-      @extend .ModalDialog-contentRight;
-
+  &-contentRight {
       display: flex;
       flex-direction: column;
       justify-content: space-evenly;
       padding-right: 5px;
-    }
   }
 
   &-input {
@@ -24,13 +15,5 @@
     border: 1px solid #2f4f4f;
     padding: 3px;
     width: 100%;
-  }
-
-  &-header {
-    @extend .ModalDialog-header;
-  }
-
-  &-bottom {
-    @extend .ModalDialog-bottom;
   }
 }

@@ -1,25 +1,5 @@
 .InfoDialog {
-  @extend .ModalDialog;
-
-  &-content {
-    @extend .ModalDialog-content;
-
-    &Left {
-      @extend .ModalDialog-contentLeft;
-      color: #4169e1;
-    }
-
-    &Right {
-      @extend .ModalDialog-contentRight;
-    }
-  }
-
-  &-header {
-    @extend .ModalDialog-header;
-  }
-
-  &-bottom {
-    @extend .ModalDialog-bottom;
+  &-contentLeft {
+    color: #4169e1;
   }
 }
-

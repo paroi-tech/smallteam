@@ -1,24 +1,5 @@
 .QuestionDialog {
-  @extend .ModalDialog;
-
-  &-content {
-    @extend .ModalDialog-content;
-
-    &Left {
-      @extend .ModalDialog-contentLeft;
-      color: #0000ff;
-    }
-
-    &Right {
-      @extend .ModalDialog-contentRight;
-    }
-  }
-
-  &-header {
-    @extend .ModalDialog-header;
-  }
-
-  &-bottom {
-    @extend .ModalDialog-bottom;
+  &-contentLeft {
+    color: #0000ff;
   }
 }

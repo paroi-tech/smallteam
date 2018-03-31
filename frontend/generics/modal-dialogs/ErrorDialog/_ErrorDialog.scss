@@ -1,24 +1,5 @@
 .ErrorDialog {
-  @extend .ModalDialog;
-
-  &-content {
-    @extend .ModalDialog-content;
-
-    &Left {
-      @extend .ModalDialog-contentLeft;
-      color: #ff0000;
-    }
-
-    &Right {
-      @extend .ModalDialog-contentRight;
-    }
-  }
-
-  &-header {
-    @extend .ModalDialog-header;
-  }
-
-  &-bottom {
-    @extend .ModalDialog-bottom;
+  &-contentLeft {
+    color: #ff0000;
   }
 }

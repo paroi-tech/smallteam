@@ -1,17 +1,23 @@
-<dialog class="ErrorDialog">
-  <header class="ErrorDialog-header">
-    <div class="ErrorDialog-headerLeft"> <span class="js-title"></span> </div>
-    <div class="ErrorDialog-headerRight">
+<dialog class="ErrorDialog ModalDialog">
+  <header class="ModalDialog-header">
+    <div class="ModalDialog-headerLeft">
+      <span class="js-title"></span>
+    </div>
+    <div class="ModalDialog-headerRight">
         <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
     </div>
   </header>
 
-  <div class="ErrorDialog-content">
-    <div class="ErrorDialog-contentLeft"> <span class="fas fa-3x fa-exclamation-circle"></span> </div>
-    <div class="ErrorDialog-contentRight"> <p class="js-message"></p> </div>
+  <div class="ModalDialog-content">
+    <div class="ModalDialog-contentLeft ErrorDialog-contentLeft">
+      <span class="fas fa-3x fa-exclamation-circle"></span>
+    </div>
+    <div class="ModalDialog-contentRight">
+      <p class="js-message"></p>
+    </div>
   </div>
 
-  <div class="ErrorDialog-bottom">
+  <div class="ModalDialog-bottom">
       <button class="ModalDialogOkButton js-button">OK</button>
   </div>
 </dialog>

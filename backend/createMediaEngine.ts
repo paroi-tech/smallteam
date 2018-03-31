@@ -46,7 +46,7 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
   ],
   "task": [
     {
-      code: "200x200",
+      code: "200x100",
       width: 200,
       height: 100,
       embed: true,

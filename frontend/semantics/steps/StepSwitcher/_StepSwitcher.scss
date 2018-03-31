@@ -1,6 +1,5 @@
 .StepSwitcher {
   &-header {
-    @extend .BlockTitle;
     align-items: baseline;
     display: flex;
     flex-direction: row;
@@ -28,14 +27,5 @@
     display: flex;
     justify-content: flex-start;
     margin-top: 5px;
-  }
-
-  &-input {
-    @extend .InlineText;
-    padding: 3px;
-  }
-
-  &-addButton {
-    @extend .StdBtn;
   }
 }

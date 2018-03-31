@@ -1,17 +1,23 @@
-<dialog class="InfoDialog">
-  <header class="InfoDialog-header">
-    <div class="InfoDialog-headerLeft"> <span class="js-title"></span> </div>
-    <div class="InfoDialog-headerRight">
+<dialog class="ModalDialog InfoDialog">
+  <header class="ModalDialog-header">
+    <div class="ModalDialog-headerLeft">
+      <span class="js-title"></span>
+    </div>
+    <div class="ModalDialog-headerRight">
       <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
     </div>
   </header>
 
-  <div class="InfoDialog-content">
-    <div class="InfoDialog-contentLeft"> <span class="fas fa-3x fa-info-circle"></span> </div>
-    <div class="InfoDialog-contentRight"> <p class="js-message"></p> </div>
+  <div class="ModalDialog-content">
+    <div class="ModalDialog-contentLeft InfoDialog-contentLeft">
+      <span class="fas fa-3x fa-info-circle"></span>
+    </div>
+    <div class="ModalDialog-contentRight">
+      <p class="js-message"></p>
+    </div>
   </div>
 
-  <div class="InfoDialog-bottom">
+  <div class="ModalDialog-bottom">
     <button class="ModalDialogOkButton js-button">OK</button>
   </div>
 </dialog>

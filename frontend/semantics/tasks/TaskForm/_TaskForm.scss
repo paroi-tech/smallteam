@@ -1,7 +1,10 @@
 .TaskForm {
   &-header {
-    @extend .BlockTitle;
     background-color: $lightColor;
     color: #000;
+  }
+
+  &-taskNameInput, &-textarea {
+    width: 100%;
   }
 }

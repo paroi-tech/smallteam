@@ -1,17 +1,23 @@
-<dialog class="QuestionDialog">
-  <header class="QuestionDialog-header">
-    <div class="QuestionDialog-headerLeft"> <span class="js-title"></span> </div>
-    <div class="QuestionDialog-headerRight">
+<dialog class="ModalDialog QuestionDialog">
+  <header class="ModalDialog-header">
+    <div class="ModalDialog-headerLeft">
+      <span class="js-title"></span>
+    </div>
+    <div class="ModalDialog-headerRight">
         <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
     </div>
   </header>
 
-  <div class="QuestionDialog-content">
-    <div class="QuestionDialog-contentLeft"> <span class="fas fa-3x fa-question-circle"></span> </div>
-    <div class="QuestionDialog-contentRight"> <p class="js-message"></p> </div>
+  <div class="ModalDialog-content">
+    <div class="ModalDialog-contentLeft InfoDialog-contentLeft">
+      <span class="fas fa-3x fa-question-circle"></span>
+    </div>
+    <div class="ModalDialog-contentRight">
+      <p class="js-message"></p>
+    </div>
   </div>
 
-  <div class="QuestionDialog-bottom">
+  <div class="ModalDialog-bottom">
     <button class="ModalDialogCancelButton js-cancel-button">No</button>
     <pre>&nbsp;</pre>
     <button class="ModalDialogOkButton js-ok-button">Yes</button>
