@@ -19,7 +19,7 @@
 
       <button class="Form-action StdBtn withSpinner js-submitBtn" type="button">
         Submit
-        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x fa-fw js-spinner"></span>
+        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x js-spinner"></span>
       </button>
     </div>
 
