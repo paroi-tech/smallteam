@@ -36,7 +36,7 @@ export default class StepForm {
     this.fieldContainerEl = this.el.querySelector(".js-field-container") as HTMLElement
     this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
     this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
-    this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submitBtn") as HTMLButtonElement
     this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
     this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
 

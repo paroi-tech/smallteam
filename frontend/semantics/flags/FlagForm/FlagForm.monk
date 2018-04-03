@@ -18,7 +18,7 @@
     <div>
       <button type="button" class="js-cancel-btn">Cancel</button>
       &nbsp;
-      <button type="button" class="js-submit-btn" :onclick={{ ctrl.submit }}>
+      <button type="button" class="js-submitBtn" :onclick={{ ctrl.submit }}>
         Submit
         <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
       </button>

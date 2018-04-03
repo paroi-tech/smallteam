@@ -11,7 +11,7 @@
         <input type="text" class="js-name" required value="{{ name }}">
       </label>
       <div>
-        <button type="button" class="js-submit-btn" disabled>
+        <button type="button" class="js-submitBtn" disabled>
           <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
           Submit
         </button>

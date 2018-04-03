@@ -1,7 +1,4 @@
 .InlineText {
-	border: 1px solid gray;
-	padding: 3px;
-
 	em {
 		font-style: italic;
 	}
@@ -13,6 +10,19 @@
 	code {
 		font-family: Menlo, Monaco, Consolas, 'Ubuntu Mono', 'Courier New', monospace;
 	}
+
+  a {
+    &,
+    &:visited {
+      color: #5584ff;
+      text-decoration: none;
+    }
+    &:focus
+    &:hover {
+      color: #a1bcff;
+      text-decoration: underline;
+    }
+  }
 }
 
 .Text {

@@ -1,22 +1,28 @@
 <dialog class="js-form LoginDialog">
   <header class="LoginDialog-header"></header>
 
-  <main class="LoginDialog-main">
-    <h1 class="LoginDialog-h1">Login to your account</h1>
+  <main class="LoginDialog-box">
+    <h1 class="LoginDialog-h1 SimpleTitle">Login to your account</h1>
 
-    <span class="LoginDialog-spanLogin">
-      <input type="text" class="LoginDialog-input js-username" placeholder="Username">
-    </span>
+    <div class="Form">
+      <label class="Form-item TextField">
+        <span class="TextField-deco icon profile leftBlue">
+          <input class="TextField-input js-username" type="text" placeholder="Username">
+        </span>
+      </label>
 
-    <span class="LoginDialog-spanPassword">
-      <input type="password" class="LoginDialog-input js-password" placeholder="Password">
-    </span>
+      <label class="Form-item gap TextField">
+        <span class="TextField-deco icon lock leftBlue">
+          <input class="TextField-input js-password" type="password" placeholder="Password">
+        </span>
+      </label>
 
-    <button type="button" class="LoginDialog-button js-submit-btn">
-      Submit
-      <span class="fa fa-spinner fa-spin fa-1x fa-fw js-spinner" style="display: none"></span>
-    </button>
+      <button class="Form-action StdBtn withSpinner js-submitBtn" type="button">
+        Submit
+        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x fa-fw js-spinner"></span>
+      </button>
+    </div>
 
-    <p class="LoginDialog-p">Forgot your password? <a class="LoginDialog-a" href="#">Click here</a></p>
+    <p class="LoginDialog-p Text">Forgot your password? <a href="#TODO">Click here</a>.</p>
   </main>
 </dialog>

@@ -22,7 +22,7 @@ export default class LoginDialog {
 
     this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
     this.passwordConfirmEl = this.el.querySelector(".js-confirm") as HTMLInputElement
-    this.submitBtnEl = this.el.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.submitBtnEl = this.el.querySelector(".js-submitBtn") as HTMLButtonElement
     this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
     this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
 

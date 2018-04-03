@@ -24,7 +24,7 @@ export default class LoginDialog {
     this.el = this.view.nodes[0] as HTMLDialogElement
     this.nameEl = this.el.querySelector(".js-username") as HTMLInputElement
     this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
-    this.submitBtnEl =this. el.querySelector(".js-submit-btn") as HTMLButtonElement
+    this.submitBtnEl =this. el.querySelector(".js-submitBtn") as HTMLButtonElement
     this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
     this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
 
@@ -67,7 +67,7 @@ export default class LoginDialog {
     if (!this.checkUserInput(name, password))
       return
 
-    this.spinnerEl.style.display = "inline"
+    this.spinnerEl.style.display = "block"
 
     let contributorId = await this.tryToLogin(name, password)
 
