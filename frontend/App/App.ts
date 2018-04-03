@@ -1,4 +1,4 @@
-import { ApplicationDash, Log, LogItem, EventName, EventCallback } from "bkb"
+import { AppDash, Log, LogEvent, EventName, EventCallback } from "bkb"
 import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
@@ -24,8 +24,20 @@ export default class App {
   private _model!: Model
   private appFrame?: AppFrame
 
-  constructor(private dash: ApplicationDash<App>) {
+  constructor(private dash: AppDash<App>) {
     this.log = dash.log
+
+    this.dash.unattendedEvents.on("log", (data: LogEvent) => {
+      console.log(`[${data.level}]`, ...data.messages)
+    })
+
+    this.dash.registerDashAugmentation(d => {
+      return {
+        listenToModel: (eventName: EventName, listener: EventCallback, thisArg?: any) => {
+          return d.listenTo(this._model, eventName, listener, thisArg)
+        }
+      }
+    })
   }
 
   public async alert(msg: string) {
@@ -120,18 +132,6 @@ export default class App {
 
   private async initModel(sessionData: SessionData) {
     this._model = this.dash.create(ModelComp, sessionData)
-
-    this.dash.registerDashAugmentation(d => {
-      return {
-        listenToModel: (eventName: EventName, listener: EventCallback, thisArg?: any) => {
-          return d.listenTo(this._model, eventName, listener, thisArg)
-        }
-      }
-    })
-
-    this.dash.unattendedEvents.on("log", (data: LogItem) => {
-      console.log(`[LOG] ${data.type} `, data.messages)
-    })
 
     let modelDash = this.dash.getPublicDashOf(this.model)
 

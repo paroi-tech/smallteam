@@ -1,12 +1,15 @@
-import { ApplicationDash, Log, LogItem } from "bkb"
+import { AppDash, Log, LogEvent } from "bkb"
 import PasswordResetDialog from "../PasswordResetDialog/PasswordResetDialog"
 import config from "../../isomorphic/config"
 
 export default class App {
   readonly log: Log
 
-  constructor(private dash: ApplicationDash<App>, private uid: string, private token: string) {
+  constructor(private dash: AppDash<App>, private uid: string, private token: string) {
     this.log = dash.log
+    this.dash.unattendedEvents.on("log", (data: LogEvent) => {
+      console.log(`[${data.level}]`, ...data.messages)
+    })
   }
 
   public start() {
