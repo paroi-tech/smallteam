@@ -67,7 +67,7 @@ export default class LoginDialog {
     if (!this.checkUserInput(name, password))
       return
 
-    this.spinnerEl.style.display = "inline"
+    this.showSpinner()
 
     let contributorId = await this.tryToLogin(name, password)
 
@@ -80,8 +80,16 @@ export default class LoginDialog {
     } else
       this.nameEl.focus()
 
-    this.spinnerEl.style.display = "none"
+    this.hideSpinner()
     this.el.style.pointerEvents = "auto"
+  }
+
+  private showSpinner() {
+    this.spinnerEl.style.visibility = "visible"
+  }
+
+  private hideSpinner() {
+    this.spinnerEl.style.visibility = "hidden"
   }
 
   private checkUserInput(name: string, password: string) {

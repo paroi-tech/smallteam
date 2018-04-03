@@ -14,7 +14,9 @@
 
     <button type="button" class="LoginDialog-button js-submit-btn">
       Submit
-      <span class="fa fa-spinner fa-spin fa-1x fa-fw js-spinner" style="display: none"></span>
+      <span class="LoginDialog-buttonIcon js-spinner">
+        <i class="fas fa-spinner fa-spin fa-1x"></i>
+      </span>
     </button>
 
     <p class="LoginDialog-p">Forgot your password? <a class="LoginDialog-a" href="#">Click here</a></p>

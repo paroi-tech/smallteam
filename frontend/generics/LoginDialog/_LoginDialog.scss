@@ -23,7 +23,18 @@
     background-color: royalblue;
     display: block;
     color: white;
-    padding: 8px 15px;
+    padding: 8px 20px;
+    position: relative;
+  }
+
+  &-buttonIcon {
+    height: 15px;
+    margin-top: -7.5px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    visibility: hidden;
+    width: 15px;
   }
 
   &-h1 {
