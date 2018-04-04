@@ -38,6 +38,19 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- The application _frontend-registration_:
+  - SQL schema: the table `mail_challenge` is replaced by `reg_pwd`, create a new table `reg_new`
+  - Rename the application `frontend-pwd` to `frontend-registration`
+  - Implement the `NewContributorForm`
+- In the main frontend:
+  - In `LoginDialog`, the link "Forgot your password" opens a panel `PasswordReset`:
+    - The user entries his email address, the form insert a new token in `reg_pwd` and send an email
+  - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`
+    - The admin user entries email addresses (required) and names (optional), the form insert a new token in `reg_new` and send emails
+    - The panel show the list of awaiting invites, for each one there are two actions:
+      - remove
+      - resend the email
+
 - TaskAttachmentManager => remove attached files (test only since it is not supported by model)
 - Image library (sharp => https://github.com/lovell/sharp)
 - Show an animated loader on the background command button when there is something started

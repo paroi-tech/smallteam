@@ -3,10 +3,5 @@
   padding: 10px 0 10px 42px;
   &-code {
     font-size: $f13;
-    margin-right: 10px;
-    &::after {
-      margin-left: 10px;
-      content: "–";
-    }
   }
 }

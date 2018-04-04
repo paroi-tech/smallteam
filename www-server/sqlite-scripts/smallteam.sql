@@ -111,10 +111,21 @@ create table comment (
     update_ts timestamp not null default current_timestamp
 );
 
-create table mail_challenge (
-    challenge_id integer not null primary key autoincrement,
-    contributor_id bigint not null references contributor(contributor_id),
+-- Application: frontend-registration or frontend-entry
+
+-- mail_challenge
+create table reg_pwd (
+    reg_pwd_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
+    contributor_id bigint not null references contributor(contributor_id),
+    create_ts timestamp not null default current_timestamp
+);
+
+create table reg_new (
+    reg_new_id integer not null primary key autoincrement,
+    token varchar(255) not null unique,
+    user_email varchar(255),
+    user_name varchar(255),
     create_ts timestamp not null default current_timestamp
 );
 
