@@ -1,6 +1,16 @@
 .ProjectBtn {
+  color: #fff;
   cursor: pointer;
-  padding: 10px 0 10px 42px;
+  border-left: 6px solid transparent;
+  font-size: $f14;
+  padding: 11px 0 11px 37px;
+
+  &:focus,
+  &:hover {
+    background-color: #1c2e4b;
+    border-left-color: #5584ff;
+  }
+
   &-code {
     font-size: $f13;
   }

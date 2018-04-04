@@ -8,7 +8,7 @@
     display: grid;
     grid-template-columns: repeat(15, 1fr);
     grid-column-gap: 24px;
-    grid-template-rows: 60px auto 25px;
+    grid-template-rows: 59px auto 25px;
     height: 100%;
     margin: 0 auto;
     max-width: 1420px; // $c18
@@ -16,7 +16,6 @@
 
   &-top {
     grid-area: 1 / 1 / span 1 / span 15;
-    background-color: #e9efff;
   }
 
   &-bottom {
@@ -38,7 +37,7 @@
 }
 
 .NavBtn.icon22.notif::before {
-  background: url(sprite.png) no-repeat 1px -28px;
+  background: url(sprite.png) no-repeat -1px -28px;
 }
 
 .NavBtn.icon22.setting::before {

@@ -5,7 +5,7 @@ import { addCssClass, catchAndLog } from "../../libraries/utils";
 const template = require("./NavBtn.monk")
 const templateWithAlert = require("./NavBtn-withAlert.monk")
 const templateWithInner = require("./NavBtn-withInner.monk")
-const templateWrapper = require("./NavBtnWrapper.monk")
+const templateWrapper = require("./DdMenuWrapper.monk")
 
 export interface NavBtnIcon {
   position: "left" | "right"

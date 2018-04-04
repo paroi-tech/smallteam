@@ -1,4 +1,4 @@
-.NavBtnWrapper {
+.DdMenuWrapper {
   position: relative;
 }
 
@@ -19,25 +19,27 @@
       width: 22px;
     }
     &.left {
-      padding-left: 33px;
+      padding-left: 34px;
       &::before {
-        left: 11px;
+        left: 7px;
       }
     }
     &.right {
-      padding-right: 33px;
+      padding-right: 34px;
       &::before {
-        right: 11px;
+        right: 7px;
       }
     }
   }
 
   &.leftInner {
-    padding-left: 44px;
+    margin-left: 10px;
+    padding-left: 47px;
     position: relative;
   }
   &.rightInner {
-    padding-right: 44px;
+    margin-right: 5px;
+    padding-right: 47px;
     position: relative;
   }
   &-inner {

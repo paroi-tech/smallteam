@@ -4,14 +4,15 @@
   height: 100%;
 
   &-h1 {
-    background-color: #1c2e4b;
-    border-left: 6px solid #5584ff;
+    // color: #bbb;
+    font-size: $f14;
     height: 41px;
     line-height: 41px;
+    margin: 0 0 5px 4px;
     padding: 2px 0 0 38px;
     position: relative;
     &::before {
-      background: url(sprite.png) no-repeat -115px 0;
+      background: url(sprite.png) no-repeat -115px 2px;
       content: "";
       height: 18px;
       left: 7px;
@@ -19,5 +20,9 @@
       top: 13px;
       width: 26px;
     }
+  }
+
+  &-bottom {
+    height: 35px;
   }
 }
