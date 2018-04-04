@@ -51,6 +51,13 @@ the time, so I can't use JIRA.
       - remove
       - resend the email
 
+- Each DropDown menus must be displayed on an overlay. A click on the overlay closes the dropdown menu.
+- Merge `ContributorHome` and `ContributorForm`
+  - The admin can reset the password (via frontend-registration)
+  - The profile of the connected user allows to change the password but in a distinct `ChangePassword` form (on the same screen)
+- In `TaskBox`, display the true contributor's avatar (if exists)
+- In `TaskForm` and `ContributorForm`, show the uploaded files in an appropriate component `FileThumbnail`
+
 - TaskAttachmentManager => remove attached files (test only since it is not supported by model)
 - Image library (sharp => https://github.com/lovell/sharp)
 - Show an animated loader on the background command button when there is something started
