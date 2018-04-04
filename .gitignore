@@ -5,7 +5,7 @@ www-server/*
 !www-server/sqlite-scripts
 !www-server/www
 www-server/www/bundle.js*
-www-server/www/bundle-pwd.js*
+www-server/www/bundle-registration.js*
 www-server/www/smallteam.css*
 *.sqlite
 

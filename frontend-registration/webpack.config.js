@@ -4,7 +4,7 @@ module.exports = {
   entry: [ path.join(__dirname, "main.ts") ],
   output: {
     path: path.join(__dirname, "..", "www-server", "www"),
-    filename: "bundle-pwd.js"
+    filename: "bundle-registration.js"
   },
   devtool: "source-map",
   resolve: {

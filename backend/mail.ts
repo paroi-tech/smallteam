@@ -61,7 +61,7 @@ export async function sendActivationMail(contributorId: string, email: string): 
 
 export async function removeExpiredTokens() {
   try {
-    let s = "delete from mail_challenge where create_ts - current_timestamp > $duration"
+    let s = "delete from reg_pwd where create_ts - current_timestamp > $duration"
     await cn.exec(s, {
       $duration: tokenMaxValidity
     })

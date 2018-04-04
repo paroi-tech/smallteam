@@ -100,7 +100,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   let contributorId = data.contributorId as string
   let select = buildSelect()
     .select("*")
-    .from("mail_challenge")
+    .from("reg_pwd")
     .where("token", "=", token)
     .andWhere("contributor_id", "=", contributorId)
   let rs = await cn.all(select.toSql())
@@ -156,7 +156,7 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
 
 function removeMailChallenge(token: string) {
   let sql = buildDelete()
-    .deleteFrom("mail_challenge")
+    .deleteFrom("reg_pwd")
     .where("token", "=", token)
 
   return cn.exec(sql.toSql())

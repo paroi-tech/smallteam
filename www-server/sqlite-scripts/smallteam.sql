@@ -1,6 +1,7 @@
 -- Drop tables
 
-drop table if exists mail_challenge;
+drop table if exists reg_pwd;
+drop table if exists reg_new;
 drop table if exists comment;
 drop table if exists task_flag;
 drop table if exists flag;
@@ -112,8 +113,6 @@ create table comment (
 );
 
 -- Application: frontend-registration or frontend-entry
-
--- mail_challenge
 create table reg_pwd (
     reg_pwd_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
@@ -125,7 +124,7 @@ create table reg_new (
     reg_new_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
     user_email varchar(255),
-    user_name varchar(255),
+    username varchar(255),
     create_ts timestamp not null default current_timestamp
 );
 

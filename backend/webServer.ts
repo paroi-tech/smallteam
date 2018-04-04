@@ -14,8 +14,8 @@ import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { removeExpiredTokens } from "./mail"
-import { createMediaEngine } from "./createMediaEngine";
-import { wait } from "../isomorphic/libraries/helpers";
+import { createMediaEngine } from "./createMediaEngine"
+import { wait } from "../isomorphic/libraries/helpers"
 
 const PORT = 3921
 
@@ -50,7 +50,7 @@ export function startWebServer() {
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
-  router.post("/reset-passwd", makeRouteHandler(routeResetPassword, true))
+  router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
 
   router.post("/api/session/disconnect", makeRouteHandler(routeDisconnect, false))
   router.post("/api/session/change-password", makeRouteHandler(routeChangePassword, false))
