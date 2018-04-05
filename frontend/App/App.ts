@@ -28,7 +28,7 @@ export default class App {
   constructor(private dash: AppDash<App>) {
     this.log = dash.log
 
-    this.dash.unattendedEvents.on("log", (data: LogEvent) => {
+    this.dash.listenTo<LogEvent>("log", data => {
       console.log(`[${data.level}]`, ...data.messages)
     })
 
@@ -140,30 +140,30 @@ export default class App {
 
     let modelDash = this.dash.getPublicDashOf(this.model)
 
-    modelDash.unattendedEvents.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
+    modelDash.unmanagedListeners.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
       if ("orderedIds" in data)
         console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
         console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
-    modelDash.unattendedEvents.on<BgCommand>("bgCommandAdded", data => {
+    modelDash.unmanagedListeners.on<BgCommand>("bgCommandAdded", data => {
       console.log(`[BG] Add: ${data.label}`)
     })
 
-    modelDash.unattendedEvents.on<BgCommand>("bgCommandDone", data => {
+    modelDash.unmanagedListeners.on<BgCommand>("bgCommandDone", data => {
       console.log(`[BG] Done: ${data.label}`)
     })
 
-    modelDash.unattendedEvents.on<BgCommand>("bgCommandError", data => {
+    modelDash.unmanagedListeners.on<BgCommand>("bgCommandError", data => {
       console.log(`[BG] Error: ${data.label}`, data.errorMessage)
     })
 
-    modelDash.unattendedEvents.on<UpdateModelEvent>("processing", data => {
+    modelDash.unmanagedListeners.on<UpdateModelEvent>("processing", data => {
       console.log(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
-    modelDash.unattendedEvents.on<UpdateModelEvent>("endProcessing", data => {
+    modelDash.unmanagedListeners.on<UpdateModelEvent>("endProcessing", data => {
       console.log(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 

@@ -7,7 +7,7 @@ export default class App {
 
   constructor(private dash: AppDash<App>, private uid: string, private token: string) {
     this.log = dash.log
-    this.dash.unattendedEvents.on("log", (data: LogEvent) => {
+    this.dash.listenTo<LogEvent>("log", data => {
       console.log(`[${data.level}]`, ...data.messages)
     })
   }
