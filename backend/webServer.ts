@@ -73,18 +73,17 @@ export function startWebServer() {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })
 
-  // Scheduled task to removed expired mail challenges.
+  // Scheduled task to removed expired mail tokens.
   setInterval(removeExpiredTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
     if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
-      // console.log("404>>", req.session)
       write404(res)
       return
     }
-    // await wait(500) // TODO: Remove this line before to release!
+
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
