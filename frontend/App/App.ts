@@ -57,7 +57,7 @@ export default class App {
   }
 
   public async connect(): Promise<SessionData> {
-    // First, we try to recover session, if any...
+    // First, we try to recover session, if there is one active...
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/current`, {
         method: "post",
@@ -117,6 +117,10 @@ export default class App {
     } catch (err) {
       this.log.warn("Unable to disconnect user...")
     }
+  }
+
+  public async showPasswordResetDialog() {
+
   }
 
   public async start(sessionData: SessionData) {

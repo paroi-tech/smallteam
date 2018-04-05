@@ -14,6 +14,7 @@ export default class LoginDialog {
   private passwordEl: HTMLInputElement
   private submitBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
+  private resetPasswordEl: HTMLElement
 
   private view: MonkberryView
 
@@ -26,7 +27,9 @@ export default class LoginDialog {
     this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
     this.submitBtnEl =this. el.querySelector(".js-submitBtn") as HTMLButtonElement
     this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
+    this.resetPasswordEl = this.el.querySelector(".js-pwd-reset") as HTMLElement
     this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
+    this.resetPasswordEl.addEventListener("click", ev => this.onPasswordReset())
 
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
@@ -45,74 +48,68 @@ export default class LoginDialog {
   }
 
   public open(): Promise<SessionData> {
+    this.enable()
     this.el.showModal()
     this.curDfd = new Deferred()
-
     return this.curDfd.promise
   }
 
-  private removeWarning() {
+  private removeWarnings() {
     this.nameEl.style.borderColor = "gray"
     this.passwordEl.style.borderColor = "gray"
     this.el.style.pointerEvents = "none"
   }
 
   private async onSubmit() {
-    this.removeWarning()
-
-    let name = this.nameEl.value.trim()
-    let password = this.passwordEl.value
-    let start = false
-
-    if (!this.checkUserInput(name, password))
-      return
-
+    this.disable()
+    this.removeWarnings()
     this.showSpinner()
 
-    let contributorId = await this.tryToLogin(name, password)
+    let login = this.nameEl.value.trim()
+    let password = this.passwordEl.value
+    if (!this.checkUserInput(login, password)) {
+      this.enable()
+      return
+    }
 
-    if (contributorId) {
-      this.el.close()
-      if (this.curDfd) {
-        this.curDfd.resolve({ contributorId })
-        this.curDfd = undefined
-      }
-    } else
-      this.nameEl.focus()
-
+    let contributorId = await this.tryToLogin(login, password)
     this.hideSpinner()
-    this.el.style.pointerEvents = "auto"
+    if (contributorId && this.curDfd) {
+      this.el.close()
+      this.curDfd.resolve({ contributorId })
+      this.curDfd = undefined
+      return
+    }
+
+    this.enable()
+    this.nameEl.focus()
   }
 
-  private showSpinner() {
-    this.spinnerEl.style.display = "block"
+  private onPasswordReset() {
+    if (this.curDfd) {
+      this.el.close()
+      this.curDfd.resolve({ contributorId: "-1" })
+      this.curDfd = undefined
+    }
   }
 
-  private hideSpinner() {
-    this.spinnerEl.style.display = "none"
-  }
-
-  private checkUserInput(name: string, password: string) {
-    if (name.length < 4) {
+  private checkUserInput(login: string, password: string) {
+    if (login.length < 4) {
       this.nameEl.style.borderColor = "red"
       this.nameEl.focus()
-      this.el.style.pointerEvents = "auto"
       return false
     }
 
     if (password.length === 0) {
       this.passwordEl.style.borderColor = "red"
       this.passwordEl.focus()
-      this.el.style.pointerEvents = "auto"
       return false
     }
 
     return true
   }
 
-  private async tryToLogin(name: string, password: string): Promise<string | undefined> {
-    let contributorId: string | undefined = undefined
-
+  private async tryToLogin(login: string, password: string): Promise<string | undefined> {
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/connect`, {
         method: "post",
@@ -121,25 +118,40 @@ export default class LoginDialog {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({
-          login: name,
-          password
-        })
+        body: JSON.stringify({ login, password })
       })
 
       if (!response.ok) {
         await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
-      } else {
-        let result = await response.json()
-        if (result.done)
-          contributorId = result.contributorId as string
-        else
-          await this.dash.create(WarningDialog).show("Wrong username or password.")
+        return undefined
       }
+
+      let result = await response.json()
+      if (result.done) {
+        let contributorId = result.contributorId as string
+        return contributorId
+      }
+      await this.dash.create(WarningDialog).show("Wrong username or password.")
     } catch (err) {
       this.dash.app.log.warn(err)
     }
 
-    return contributorId
+    return undefined
+  }
+
+  private enable() {
+    this.el.style.pointerEvents = "auto"
+  }
+
+  private disable() {
+    this.el.style.pointerEvents = "none"
+  }
+
+  private showSpinner() {
+    this.spinnerEl.style.display = "block"
+  }
+
+  private hideSpinner() {
+    this.spinnerEl.style.display = "none"
   }
 }

@@ -45,7 +45,7 @@ export class DropdownMenu {
   /**
    * IMPORTANT:
    * The two following functions are temporary solutions used to disable the menu.
-   * We need them in StepForm when the ste displayed in the form is processed by the model
+   * We need them in StepForm when the step displayed in the form is processed by the model
    * and the form need to be locked.
    */
   public enable() {

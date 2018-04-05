@@ -23,6 +23,6 @@
       </button>
     </div>
 
-    <p class="LoginDialog-p Text">Forgot your password? <a href="#TODO">Click here</a>.</p>
+    <p class="LoginDialog-p Text">Forgot your password? <a href="#" class="js-pwd-reset">Click here</a>.</p>
   </main>
 </dialog>
