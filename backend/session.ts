@@ -130,6 +130,17 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 }
 
+export async function routeSendPasswordResetMail(data: any) {
+  if (!data || data.email)
+    throw new Error("Email is needed to send password reset token")
+
+
+
+  return {
+    done: true
+  }
+}
+
 export function getSessionData(req: Request): SessionData {
   if (!req.session || !req.session.contributorId)
     throw new Error(`Missing session data`)

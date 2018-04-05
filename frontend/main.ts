@@ -5,15 +5,14 @@ import { wsClientInit } from "./AppModel/ModelEngine/WsClient"
 async function startup() {
   try {
     let app = createApplication(App)
-    let sessionData = await app.connect()
-    let contributorId = parseInt(sessionData.contributorId)
-    if (contributorId == -1) {
-      // TODO: show password reset dialog
-      return
+    let value = await app.connect()
+    if (typeof value === "string") {
+      let sessionData = { contributorId: value }
+      wsClientInit()
+      await app.start(sessionData)
+    } else {
+      await app.showPasswordResetDialog()
     }
-
-    wsClientInit()
-    await app.start(sessionData)
   } catch (err) {
     console.log(err)
   }

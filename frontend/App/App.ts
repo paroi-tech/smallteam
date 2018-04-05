@@ -4,6 +4,7 @@ import { BgCommand } from "../AppModel/BgCommandManager"
 import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
 import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
 import LoginDialog from "../generics/LoginDialog/LoginDialog"
+import PasswordResetDialog from "../generics/PasswordResetDialog/PasswordResetDialog"
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
 import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
 import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
@@ -17,7 +18,7 @@ import config from "../../isomorphic/config"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 import AppFrame from "../AppFrame/AppFrame"
 import InfoDialog from "../generics/modal-dialogs/InfoDialog/InfoDialog"
-import WarningDialog from "../generics/modal-dialogs/WarningDialog/WarningDialog";
+import WarningDialog from "../generics/modal-dialogs/WarningDialog/WarningDialog"
 
 export default class App {
   readonly log: Log
@@ -56,7 +57,7 @@ export default class App {
     await this.appFrame.viewer.router.navigate(queryString)
   }
 
-  public async connect(): Promise<SessionData> {
+  public async connect(): Promise<string | number> {
     // First, we try to recover session, if there is one active...
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/current`, {
@@ -73,12 +74,8 @@ export default class App {
         this.log.warn("Unable to get a response from server while trying to recover session")
       else {
         let result = await response.json()
-
-        if (result.done) {
-          return {
-            contributorId: result.contributorId
-          }
-        }
+        if (result.done)
+          return result.contributorId as string
       }
     } catch (err) {
       this.log.warn(err)
@@ -86,7 +83,6 @@ export default class App {
 
     // Show login dialog if session recover failed.
     let dialog = this.dash.create(LoginDialog)
-
     return await dialog.open()
   }
 
@@ -120,7 +116,12 @@ export default class App {
   }
 
   public async showPasswordResetDialog() {
-
+    let dialog = this.dash.create(PasswordResetDialog)
+    try {
+      await dialog.open()
+    } catch (error) {
+      console.log(error)
+    }
   }
 
   public async start(sessionData: SessionData) {

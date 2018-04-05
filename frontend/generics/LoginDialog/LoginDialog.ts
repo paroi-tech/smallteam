@@ -18,7 +18,7 @@ export default class LoginDialog {
 
   private view: MonkberryView
 
-  private curDfd: Deferred<SessionData> | undefined
+  private curDfd: Deferred<string | number> | undefined
 
   constructor(private dash: Dash) {
     this.view = render(template, document.createElement("div"))
@@ -35,19 +35,13 @@ export default class LoginDialog {
       if (ev.key === "Enter")
         this.submitBtnEl.click()
     })
-    this.el.addEventListener("close", () => {
-      if (this.curDfd) {
-        this.curDfd.reject(new Error("Fail to connect"))
-        this.curDfd = undefined
-      }
-    })
 
     document.body.appendChild(this.el)
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
-  public open(): Promise<SessionData> {
+  public open(): Promise<string | number> {
     this.enable()
     this.el.showModal()
     this.curDfd = new Deferred()
@@ -76,7 +70,7 @@ export default class LoginDialog {
     this.hideSpinner()
     if (contributorId && this.curDfd) {
       this.el.close()
-      this.curDfd.resolve({ contributorId })
+      this.curDfd.resolve(contributorId)
       this.curDfd = undefined
       return
     }
@@ -88,7 +82,7 @@ export default class LoginDialog {
   private onPasswordReset() {
     if (this.curDfd) {
       this.el.close()
-      this.curDfd.resolve({ contributorId: "-1" })
+      this.curDfd.resolve(-1)
       this.curDfd = undefined
     }
   }
