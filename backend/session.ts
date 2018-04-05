@@ -139,11 +139,15 @@ export async function routeSendPasswordResetMail(data: any) {
   if (!data || data.email)
     throw new Error("Email is needed to send password reset token")
 
-  let row = getContributorByEmail(data.email)
-  if (!row) {
-    // TODO: Implement this today...
+  let contributor = getContributorByEmail(data.email)
+  if (!contributor) {
+    return {
+      done: false,
+      reason: "No contributor with the given email"
+    }
   }
 
+  // TODO: Implement this today...
   return {
     done: true
   }

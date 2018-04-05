@@ -22,7 +22,7 @@ create table contributor (
     contributor_id integer not null primary key autoincrement,
     name varchar(255) not null,
     login varchar(255) not null unique,
-    email varchar(255) not null,
+    email varchar(255) not null unique,
     role varchar(50) not null default 'contrib',
     password varchar(255) null default null
     -- avatar as file
