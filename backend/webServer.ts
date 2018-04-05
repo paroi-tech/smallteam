@@ -9,7 +9,7 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 import config from "../isomorphic/config"
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeSetPassword, routeResetPassword } from "./session"
+import { routeChangePassword, routeSetPassword, routeResetPassword, routeSendPasswordResetMail } from "./session"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -50,6 +50,7 @@ export function startWebServer() {
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
+  router.post("/api/session/send-password-reset-mail", makeRouteHandler(routeSendPasswordResetMail, true))
   router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
 
   router.post("/api/session/disconnect", makeRouteHandler(routeDisconnect, false))

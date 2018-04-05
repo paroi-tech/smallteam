@@ -1,15 +1,21 @@
 import { Request, Response } from "express"
 import { hash, compare } from "bcrypt"
 import { cn } from "./utils/dbUtils"
-import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql92Builder"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
 import { tokenMaxValidity } from "./mail"
+import { select, update, deleteFrom } from "sql-bricks"
 
 interface PasswordUpdateInfo {
   contributorId: string
   createTs: number
   token: string
+}
+
+interface ContributorInfo {
+  contributorId: string
+  password: string
+  role: string
 }
 
 // --
@@ -21,14 +27,12 @@ export async function routeConnect(data: any, sessionData?: SessionData, req?: R
     throw new Error("Required parameter missing in route callback")
 
   sessionData = req.session as any
-
-  let row = await getContributorByLogin(data.login)
-
-  if (row && await compare(data.password, row.password)) {
-    sessionData!.contributorId = row.id.toString()
+  let contributor = await getContributorByLogin(data.login)
+  if (contributor && await compare(data.password, contributor.password)) {
+    sessionData!.contributorId = contributor.contributorId
     return {
       done: true,
-      contributorId: row.id
+      contributorId: contributor.contributorId
     }
   }
 
@@ -55,66 +59,67 @@ export async function routeDisconnect(data: any, sessionData?: SessionData, req?
     throw new Error("Required parameter missing in route callback")
 
   let b = await destroySession(req)
-
   return {
     done: b
   }
 }
 
 export async function routeSetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let result = {
-    done: false
-  }
-
   if (!sessionData || !data || !data.contributorId || !data.password)
     throw new Error("Required parameter missing in route callback")
 
-  let row = await getContributorById(sessionData.contributorId as string)
-  if (!row || row.role !== "admin")
+  let contributor = await getContributorById(sessionData.contributorId as string)
+  if (!contributor || contributor.role !== "admin")
     throw new Error("Current user is not allowed to change passwords this way")
 
   await updateContributorPassword(data.contributorId, data.password)
-  result.done = true
-
-  return result
+  return {
+    done: true
+  }
 }
 
 export async function routeChangePassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let result = {
-    done: false
-  }
-
   if (!sessionData)
     throw new Error("Required parameter missing in route callback")
-  let row = await getContributorById(sessionData.contributorId as string)
-  if (row && await compare(data.currentPassword, row.password)) {
-    await updateContributorPassword(row.id, data.newPassword)
-    result.done = true
+
+  let contributor = await getContributorById(sessionData.contributorId as string)
+  if (contributor && await compare(data.currentPassword, contributor.password)) {
+    await updateContributorPassword(contributor.contributorId, data.newPassword)
+    return {
+      done: true
+    }
   }
 
-  return result
+  return {
+    done: false
+  }
 }
 
 export async function routeResetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let token = data.token as string
   let contributorId = data.contributorId as string
-  let select = buildSelect()
-    .select("*")
-    .from("reg_pwd")
-    .where("token", "=", token)
-    .andWhere("contributor_id", "=", contributorId)
-  let rs = await cn.all(select.toSql())
+  let query = select().from("reg_pwd").where("token", token).and("contributor_id", contributorId)
+  let row
 
-  if (rs.length === 0) {
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (error) {
+    return {
+      done: false,
+      reason: "More than one password reset token available for the contributor"
+    }
+  }
+
+  if (!row) {
     return {
       done: false,
       reason: "Token not found!"
     }
   }
 
-  let info = toPasswordUpdateInfo(rs[0])
+  let passwordInfo = toPasswordUpdateInfo(row)
   let currentTs = Date.now() / 1000
-  if (currentTs - info.createTs > tokenMaxValidity) {
+  if (currentTs - passwordInfo.createTs > tokenMaxValidity) {
     removeMailChallenge(token).catch(err => console.log(`Cannot remove expired mail token ${token}`, err))
     return {
       done: false,
@@ -134,7 +139,10 @@ export async function routeSendPasswordResetMail(data: any) {
   if (!data || data.email)
     throw new Error("Email is needed to send password reset token")
 
-
+  let row = getContributorByEmail(data.email)
+  if (!row) {
+    // TODO: Implement this today...
+  }
 
   return {
     done: true
@@ -165,57 +173,62 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   }
 }
 
-function removeMailChallenge(token: string) {
-  let sql = buildDelete()
-    .deleteFrom("reg_pwd")
-    .where("token", "=", token)
+function toContributorInfo(row): ContributorInfo {
+  return {
+    contributorId: row["contributor_id"].toString(),
+    password: row["password"].toString(),
+    role: row["role"]
+  }
+}
 
-  return cn.exec(sql.toSql())
+function removeMailChallenge(token: string) {
+  let query = deleteFrom("reg_pwd").where("token", token)
+  return cn.execSqlBricks(query)
 }
 
 async function getContributorById(id: string) {
-  let sql = buildSelect()
-    .select("contributor_id, password, role")
-    .from("contributor")
-    .where("contributor_id", "=", id)
-  let rs = await cn.all(sql.toSql())
+  let query = select(["contributor_id", "password", "role"]).from("contributor").where("contributor_id", id)
+  let row = undefined
 
-  if (rs.length === 1) {
-    return {
-      id: rs[0]["contributor_id"].toString(),
-      password: rs[0]["password"],
-      role: rs[0]["role"]
-    }
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
   }
 
-  return undefined
+  return row ? toContributorInfo(row) : undefined
 }
 
 async function getContributorByLogin(login: string) {
-  let sql = buildSelect()
-    .select("contributor_id, password, role")
-    .from("contributor")
-    .where("login", "=", login)
-  let rs = await cn.all(sql.toSql())
+  let query = select(["contributor_id", "password", "role"]).from("contributor").where("login", login)
+  let row
 
-  if (rs.length === 1) {
-    return {
-      id: rs[0]["contributor_id"].toString(),
-      password: rs[0]["password"].toString(),
-      role: rs[0]["role"]
-    }
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
   }
 
-  return undefined
+  return row ? toContributorInfo(row) : undefined
+}
+
+async function getContributorByEmail(email: string) {
+  let query = select(["contributor_id", "password", "role"]).from("contributor").where("email", email)
+  let row = undefined
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributorInfo(row) : undefined
 }
 
 async function updateContributorPassword(contributorId: string, password: string): Promise<boolean> {
   let passwordHash = await hash(password, bcryptSaltRounds)
-  let sql = buildUpdate()
-              .update("contributor")
-              .set({ "password": passwordHash })
-              .where("contributor_id", "=", contributorId)
-  await cn.exec(sql.toSql())
+  let query = update("contributor", { "password": passwordHash }).where("contributor_id", contributorId)
+  await cn.execSqlBricks(query)
 
   return true
 }
