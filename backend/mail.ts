@@ -7,11 +7,11 @@ import { buildSelect, buildUpdate, buildDelete } from "./utils/sql92builder/Sql9
 export const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 
 const account = {
-  user: "vutj6mmpseil725f@ethereal.email",
-  password: "xNGuRQs1yNmXK4vPJM"
+  user: "ulvmvwmr3qhn2wec@ethereal.email",
+  password: "xPzcufKPHhWTnkNRMe"
 }
 
-export async function sendMail(to: string, subject: string, text: string, html: string) {
+export async function sendMail(to: string, subject: string, text: string, html: string): Promise<{ done: boolean, error?: any }> {
   let result = {
     done: false,
     error: undefined
@@ -20,8 +20,8 @@ export async function sendMail(to: string, subject: string, text: string, html: 
   try {
     let transporter = await createTransport({
       host: "smtp.ethereal.email",
-      port: 465,
-      secure: true,
+      port: 587,
+      secure: false,
       auth: {
         user: account.user,
         pass: account.password
@@ -33,6 +33,7 @@ export async function sendMail(to: string, subject: string, text: string, html: 
     }
 
     let info = await transporter.sendMail(opts)
+    // TODO: Remove these two lines.
     console.log(`Mail sent: ${info.messageId}`)
     console.log(`Preview URL: ${getTestMessageUrl(info)}`)
 

@@ -124,7 +124,7 @@ create table reg_new (
     reg_new_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
     user_email varchar(255),
-    username varchar(255),
+    contributor_id bigint not null references contributor(contributor_id),
     create_ts timestamp not null default current_timestamp
 );
 

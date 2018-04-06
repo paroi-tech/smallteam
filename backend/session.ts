@@ -1,10 +1,13 @@
+import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { hash, compare } from "bcrypt"
 import { cn } from "./utils/dbUtils"
 import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./dbqueries/queryContributor"
 import { tokenMaxValidity } from "./mail"
-import { select, update, deleteFrom } from "sql-bricks"
+import { select, insert, update, deleteFrom } from "sql-bricks"
+import { sendMail } from "./mail"
+import config from "../isomorphic/config"
 
 interface PasswordUpdateInfo {
   contributorId: string
@@ -136,10 +139,10 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
 }
 
 export async function routeSendPasswordResetMail(data: any) {
-  if (!data || data.email)
+  if (!data || !data.email)
     throw new Error("Email is needed to send password reset token")
 
-  let contributor = getContributorByEmail(data.email)
+  let contributor = await getContributorByEmail(data.email)
   if (!contributor) {
     return {
       done: false,
@@ -147,9 +150,50 @@ export async function routeSendPasswordResetMail(data: any) {
     }
   }
 
-  // TODO: Implement this today...
+  generateAndSendPasswordResetToken(contributor.contributorId, data.email).then(result => {
+    if (!result.done) {
+      console.log("Password reset request has not been completely processed:", result.reason)
+    }
+  })
+
   return {
     done: true
+  }
+}
+
+async function generateAndSendPasswordResetToken(contributorId: string, address: string) {
+  let token = randomBytes(16).toString("hex")
+  let host = config.host
+  let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
+  let text = `We received a request to change your password.\nPlease follow this link ${url} if you made that request.`
+  let html = `We received a request to change your password.<br>Please click <a href="${url}">here</a> if you made that request.`
+
+  let result = await sendMail(address, "SmallTeam password reset", text, html)
+  if (!result.done) {
+    return {
+      done: false,
+      reason: result.error ? result.error.toString() : "Mail not sent"
+    }
+  }
+
+  let b = await storePasswordResetToken(token, contributorId)
+  return {
+    done: b,
+    reason: b ? "Unable to store token in database" : undefined
+  }
+}
+
+async function storePasswordResetToken(token: string, contributorId: string) {
+  let query = insert("reg_pwd", {
+    "contributor_id": contributorId,
+    "token": token
+  })
+
+  try {
+    await cn.execSqlBricks(query)
+    return true
+  } catch (error) {
+    return false
   }
 }
 

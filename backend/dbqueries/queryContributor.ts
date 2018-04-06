@@ -1,3 +1,4 @@
+import { randomBytes } from "crypto"
 import * as path from "path"
 import { BackendContext } from "../backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
@@ -9,7 +10,6 @@ import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendMail } from "../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 import { select, insert, update, deleteFrom } from "sql-bricks"
-import { randomBytes } from "crypto"
 import config from "../../isomorphic/config"
 
 export const bcryptSaltRounds = 10
@@ -102,24 +102,25 @@ export async function createContributor(context: BackendContext, newFrag: Contri
   })
 }
 
-async function generateAndSendActivationToken(contributorId: string, email: string) {
+async function generateAndSendActivationToken(contributorId: string, address: string) {
   let token = randomBytes(16).toString("hex")
-  let host = "http://localhost:3921"
+  let host = config.host
   let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
   let text = `SmallTeam registration\nPlease follow the link ${url} to activate your account.`
   let html = `<h3>SmallTeam registration</h3> <p>Please follow this <a href="${url}">link</a> to activate your account.</p>`
 
-  let result = await sendMail(email, "Account activation", text, html)
+  let result = await sendMail(address, "SmallTeam account activation", text, html)
   if (!result.done) {
     console.error("Unable to send account activation mail to user", result.error)
     return
   }
-  await storeAccountActivationToken(token, contributorId)
+  await storeAccountActivationToken(token, contributorId, address)
 }
 
-async function storeAccountActivationToken(token: string, contributorId: string) {
-  let query = insert("reg_pwd", {
+async function storeAccountActivationToken(token: string, contributorId: string, address: string) {
+  let query = insert("reg_new", {
     "contributor_id": contributorId,
+    "user_email": address,
     "token": token
   })
   await cn.execSqlBricks(query)
