@@ -99,6 +99,8 @@ export async function routeChangePassword(data: any, sessionData?: SessionData, 
 }
 
 export async function routeResetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  // FIXME: Check that a session is not active here... That can happens.
+  // FIXME: Check that there is data.contributorId and data.token...
   let token = data.token as string
   let contributorId = data.contributorId as string
   let query = select().from("reg_pwd").where("token", token).and("contributor_id", contributorId)
@@ -163,8 +165,10 @@ export async function routeSendPasswordResetMail(data: any) {
 
 async function generateAndSendPasswordResetToken(contributorId: string, address: string) {
   let token = randomBytes(16).toString("hex")
+  let encodedToken = encodeURIComponent(token)
   let host = config.host
-  let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
+  // FIXME: Add URL param for action to take: reset password or user registration.
+  let url  = `${host}${config.urlPrefix}/registration.html?action=passwordReset&token=${encodedToken}&uid=${contributorId}`
   let text = `We received a request to change your password.\nPlease follow this link ${url} if you made that request.`
   let html = `We received a request to change your password.<br>Please click <a href="${url}">here</a> if you made that request.`
 

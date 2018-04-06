@@ -51,6 +51,7 @@ export function startWebServer() {
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
   router.post("/api/session/send-password-reset-mail", makeRouteHandler(routeSendPasswordResetMail, true))
+  // TODO: Add route for new user account activation
   router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
 
   router.post("/api/session/disconnect", makeRouteHandler(routeDisconnect, false))
