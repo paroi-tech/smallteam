@@ -6,8 +6,11 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "../backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
-import { sendActivationMail } from "../mail"
+import { sendMail } from "../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
+import { select, insert, update, deleteFrom } from "sql-bricks"
+import { randomBytes } from "crypto"
+import config from "../../isomorphic/config"
 
 export const bcryptSaltRounds = 10
 
@@ -24,8 +27,7 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
 }
 
 export async function fetchContributors(context: BackendContext) {
-  let sql = selectFromContributor()
-    .orderBy("name")
+  let sql = selectFromContributor().orderBy("name")
   let rs = await cn.all(sql.toSql())
   for (let row of rs) {
     let frag = await toContributorFragment(context, row)
@@ -62,9 +64,9 @@ function selectFromContributor() {
 // --
 
 export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
-  let dbId = int(id),
-    result: WhoUseItem[] = [],
-    count: number
+  let dbId = int(id)
+  let result = [] as WhoUseItem[]
+  let count: number
 
   count = await cn.singleValue(buildSelect().select("count(1)").from("task").where("created_by", dbId).toSql())
   count += await cn.singleValue(buildSelect().select("count(1)").from("task_affected_to").where("contributor_id", dbId).toSql())
@@ -89,32 +91,38 @@ export async function createContributor(context: BackendContext, newFrag: Contri
     .values(toSqlValues(newFrag, contributorMeta.create))
     .values({ "password": passwordHash })
   let res = await cn.exec(sql.toSql())
-  let contributorId = res.getInsertedIdNumber()
+  let contributorId = res.getInsertedIdString()
 
-  sendActivationMail(contributorId.toString(), newFrag.email).then(async result => {
-    if (!result.done || !result.token)
-      return
-
-    let sql = buildInsert()
-      .insertInto("mail_challenge")
-      .values({
-        "contributor_id": contributorId,
-        "token": result.token
-      })
-
-    try {
-      await cn.exec(sql.toSql())
-    } catch (err) {
-      console.log("Unable to save email challenge in database", err)
-    }
-  })
-
+  generateAndSendActivationToken(contributorId, newFrag.email).catch(console.error)
   context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),
     asResult: "fragment",
     markAs: "created"
   })
+}
+
+async function generateAndSendActivationToken(contributorId: string, email: string) {
+  let token = randomBytes(16).toString("hex")
+  let host = "http://localhost:3921"
+  let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
+  let text = `SmallTeam registration\nPlease follow the link ${url} to activate your account.`
+  let html = `<h3>SmallTeam registration</h3> <p>Please follow this <a href="${url}">link</a> to activate your account.</p>`
+
+  let result = await sendMail(email, "Account activation", text, html)
+  if (!result.done) {
+    console.error("Unable to send account activation mail to user", result.error)
+    return
+  }
+  await storeAccountActivationToken(token, contributorId)
+}
+
+async function storeAccountActivationToken(token: string, contributorId: string) {
+  let query = insert("reg_pwd", {
+    "contributor_id": contributorId,
+    "token": token
+  })
+  await cn.execSqlBricks(query)
 }
 
 // --
@@ -212,4 +220,3 @@ async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number
     orderNums.set(row["contributor_id"], row["order_num"])
   return orderNums
 }
-

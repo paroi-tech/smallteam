@@ -11,55 +11,40 @@ const account = {
   password: "xNGuRQs1yNmXK4vPJM"
 }
 
-type MailResult = {
-  done: boolean
-  token?: string
-}
-
-export async function sendActivationMail(contributorId: string, email: string): Promise<MailResult> {
-  let host = "http://localhost:3921"
+export async function sendMail(to: string, subject: string, text: string, html: string) {
+  let result = {
+    done: false,
+    error: undefined
+  }
 
   try {
-    let token = randomBytes(16).toString("hex")
-
     let transporter = await createTransport({
       host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
+      port: 465,
+      secure: true,
       auth: {
         user: account.user,
         pass: account.password
       }
     })
 
-    let url = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
-    let mailOptions = {
-      from: "smallteambot@smallteam.bj",
-      to: email,
-      subject: "Account activation",
-      text: `Please follow the link ${url} to activate your account`,
-      html: `Please follow <a href="${url}">link</a> to activate your account`
+    let opts = {
+      from: "smallteambot@smallteam.bj", to, subject, text, html
     }
-    let info = await transporter.sendMail(mailOptions)
 
-    // TODO: Remove these lines.
-    console.log("Message sent: %s", info.messageId)
-    console.log("Preview URL: %s", getTestMessageUrl(info))
+    let info = await transporter.sendMail(opts)
+    console.log(`Mail sent: ${info.messageId}`)
+    console.log(`Preview URL: ${getTestMessageUrl(info)}`)
 
-    return {
-      done: true,
-      token
-    }
-  } catch (err) {
-    console.error("Error while sending email", err)
+    result.done = true
+  } catch (error) {
+    result.error = error
   }
 
-  return {
-    done: false
-  }
+  return result
 }
 
-export async function removeExpiredTokens() {
+export async function removeExpiredRegistrationTokens() {
   try {
     let s = "delete from reg_pwd where create_ts - current_timestamp > $duration"
     await cn.exec(s, {

@@ -13,7 +13,7 @@ import { routeChangePassword, routeSetPassword, routeResetPassword, routeSendPas
 import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
-import { removeExpiredTokens } from "./mail"
+import { removeExpiredRegistrationTokens } from "./mail"
 import { createMediaEngine } from "./createMediaEngine"
 import { wait } from "../isomorphic/libraries/helpers"
 
@@ -75,7 +75,7 @@ export function startWebServer() {
   })
 
   // Scheduled task to removed expired mail tokens.
-  setInterval(removeExpiredTokens, 3600 * 24 * 1000 /* 1 day */)
+  setInterval(removeExpiredRegistrationTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
