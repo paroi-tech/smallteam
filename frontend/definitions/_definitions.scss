@@ -1,3 +1,8 @@
+@mixin sprite($x, $y) {
+  background: url("sprite-2x.png") no-repeat $x $y;
+  background-size: 142px 106px;
+}
+
 $textColorDark1: #555;
 $themeColor:  #5584ff;
 $lightColor:  #e9efff;

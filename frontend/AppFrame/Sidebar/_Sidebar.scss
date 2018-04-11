@@ -12,7 +12,8 @@
     padding: 2px 0 0 38px;
     position: relative;
     &::before {
-      background: url(sprite.png) no-repeat -115px 2px;
+      // background: url(sprite.png) no-repeat -115px 2px;
+      @include sprite(-115px, 2px);
       content: "";
       height: 18px;
       left: 7px;

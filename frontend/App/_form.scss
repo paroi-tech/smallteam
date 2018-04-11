@@ -82,43 +82,17 @@ button, label, input, textarea {
 
   &-deco.icon::before {
     content: "";
-    height: 15px;
-    left: 8.5px;
-    margin-top: -7.5px;
+    height: 16px;
+    left: 8px;
+    margin-top: -8px;
     position: absolute;
     top: 50%;
-    width: 15px;
+    width: 16px;
   }
   &-deco.icon.profile::before {
-    background: url("./images/sprite-login.png") no-repeat -7px -117px;
+    @include sprite(-89px, -26px);
   }
   &-deco.icon.lock::before {
-    background: url("./images/sprite-login.png") no-repeat -7px -136px;
+    @include sprite(-89px, -2px);
   }
 }
-
-  // &-spanLogin, &-spanPassword {
-  //   border: 1px solid gray;
-  //   border-left: 3px solid royalblue;
-  //   display: block;
-  //   padding: 5px 5px 5px 20px;
-  //   position: relative;
-  //   width: 100%;
-  // }
-
-  // &-spanLogin::before, &-spanPassword::before {
-  //   content: "";
-  //   height: 15px;
-  //   left: 2px;
-  //   position: absolute;
-  //   top: 4px;
-  //   width: 15px;
-  // }
-
-  // &-spanLogin::before {
-  //   background: url("./images/sprite-login.png") no-repeat -7px -117px;
-  // }
-
-  // &-spanPassword::before {
-  //   background: url("./images/sprite-login.png") no-repeat -7px -136px;
-  // }
