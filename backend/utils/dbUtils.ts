@@ -1,8 +1,7 @@
 import * as path from "path"
-import { createDatabaseConnection, DatabaseConnection } from "mycn"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
+import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { fileExists, readFile } from "./fsUtils"
-import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "./mycn-with-sqlbricks"
 import { MediaEngine, createMediaEngine } from "../createMediaEngine";
 
 export const mainDbConf = (function () {
@@ -47,10 +46,10 @@ async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
       await cn.exec("PRAGMA foreign_keys = ON")
     },
     poolOptions: {
-      logError: console.log
+      logError: err => console.log(err)
     }
   }, {
-    toParamsOptions: { placeholder: '?%d' }
+    toParamsOptions: { placeholder: "?%d" }
   })
   if (isNewDb && newDbScriptFileName)
     await cn.execScript(await readFile(newDbScriptFileName, "utf8"))

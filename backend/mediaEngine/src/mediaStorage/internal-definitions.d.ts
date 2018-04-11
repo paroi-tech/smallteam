@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "../../../utils/mycn-with-sqlbricks"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { ImageVariantsConfiguration } from "./exported-definitions";
 
 export interface MediaStorageContext {

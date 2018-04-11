@@ -1,4 +1,4 @@
-import * as sql from "sql-bricks"
+import { select } from "sql-bricks"
 import { MediaStorageContext } from "./internal-definitions"
 import { MediaQuery, Media, Variants, Variant } from "./exported-definitions"
 import { getFileName } from "./common"
@@ -44,7 +44,7 @@ export async function findMedia(cx: MediaStorageContext, query: MediaQuery): Pro
 }
 
 function sqlSelectMedia() {
-  return sql.select("m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id, r.external_type, r.external_id")
+  return select("m.media_id, m.ts, m.base_name, m.orig_name, m.owner_id, r.external_type, r.external_id")
     .from("media m")
     .innerJoin("media_ref r").using("media_id")
 }
@@ -63,7 +63,7 @@ async function fetchVariantsOf(cx: MediaStorageContext, mediaId: string, baseNam
 }
 
 function sqlSelectVariant() {
-  return sql.select("v.variant_id, v.weight_b, v.im_type, v.code, i.width, i.height, i.dpi")
+  return select("v.variant_id, v.weight_b, v.im_type, v.code, i.width, i.height, i.dpi")
     .from("variant v")
     .leftJoin("variant_img i").using("variant_id")
 }

@@ -1,9 +1,9 @@
-import * as sql from "sql-bricks"
+import { select } from "sql-bricks"
 import { MediaOrVariantId, MediaRef } from "./exported-definitions"
 import { MediaStorageContext } from "./internal-definitions"
 
 export async function findMediaRef(cx: MediaStorageContext, id: MediaOrVariantId): Promise<MediaRef | undefined> {
-  let sb = sql.select("m.owner_id, r.external_type, r.external_id")
+  let sb = select("m.owner_id, r.external_type, r.external_id")
     .from("media m")
     .leftJoin("media_ref r").using("media_id")
   if ("mediaId" in id)

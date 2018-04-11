@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "../../../utils/mycn-with-sqlbricks"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { StoreMediaParameters, NewMedia, MediaOrVariantId, MediaFilter, VariantData, MediaQuery, Media, MediaRef, ImageVariantsConfiguration } from "./exported-definitions"
 import { storeMedia } from "./storeMedia"
 import { removeMedia, removeMedias } from "./removeMedias"

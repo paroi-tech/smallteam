@@ -38,6 +38,8 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- In the backend, replace our old SQL query builder by SqlBricks:
+  - Do not use `import * as sql from` but choose what you need: `import { select, insertInto, update, deleteFrom } from`
 - The application _frontend-registration_:
   - SQL schema: the table `mail_challenge` is replaced by `reg_pwd`, create a new table `reg_new`
   - Rename the application `frontend-pwd` to `frontend-registration`

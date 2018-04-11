@@ -1,4 +1,4 @@
-import * as sql from "sql-bricks"
+import { insertInto, update, deleteFrom } from "sql-bricks"
 import * as sharp from "sharp"
 import { MediaStorageContext } from "./internal-definitions"
 import { StoreMediaParameters, NewMedia, MediaDef, VariantDef, MulterFile, ImageMeta } from "./exported-definitions"
@@ -65,7 +65,7 @@ type InsertMedia = Pick<MediaDef, "baseName" | "originalName" | "ownerId" | "ext
 
 async function insertMedia(cx: MediaStorageContext, media: InsertMedia): Promise<string> {
   let mediaId = (await cx.cn.execSqlBricks(
-    sql.insertInto("media").values({
+    insertInto("media").values({
       "base_name": media.baseName,
       "orig_name": media.originalName,
       "owner_id": media.ownerId
@@ -73,7 +73,7 @@ async function insertMedia(cx: MediaStorageContext, media: InsertMedia): Promise
   )).getInsertedIdString()
   if (media.externalRef) {
     await cx.cn.execSqlBricks(
-      sql.insertInto("media_ref").values({
+      insertInto("media_ref").values({
         "media_id": mediaId,
         "external_type": media.externalRef.type,
         "external_id": media.externalRef.id
@@ -85,7 +85,7 @@ async function insertMedia(cx: MediaStorageContext, media: InsertMedia): Promise
 
 async function clearMediaVariants(cx: MediaStorageContext, mediaId: string) {
   await cx.cn.execSqlBricks(
-    sql.deleteFrom("variant").where("media_id", mediaId)
+    deleteFrom("variant").where("media_id", mediaId)
   )
 }
 
@@ -93,7 +93,7 @@ type UpdateMedia = Pick<MediaDef, "baseName" | "originalName" | "ownerId">
 
 async function updateMedia(cx: MediaStorageContext, media: UpdateMedia, mediaId: string) {
   await cx.cn.execSqlBricks(
-    sql.update("media")
+    update("media")
       .set({
         "base_name": media.baseName,
         "orig_name": media.originalName,
@@ -109,7 +109,7 @@ type InsertVariant = Pick<VariantDef, "code" | "imType" | "weightB" | "img" | "b
 
 async function insertVariant(cx: MediaStorageContext, variant: InsertVariant): Promise<string> {
   let variantId = (await cx.cn.execSqlBricks(
-    sql.insertInto("variant").values({
+    insertInto("variant").values({
       "media_id": variant.mediaId,
       "weight_b": variant.weightB,
       "im_type": variant.imType,
@@ -119,7 +119,7 @@ async function insertVariant(cx: MediaStorageContext, variant: InsertVariant): P
   )).getInsertedIdString()
   if (variant.img) {
     await cx.cn.execSqlBricks(
-      sql.insertInto("variant_img").values({
+      insertInto("variant_img").values({
         "variant_id": variantId,
         "width": variant.img.width,
         "height": variant.img.height,

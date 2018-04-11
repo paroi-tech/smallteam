@@ -1,5 +1,5 @@
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
-import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "../../utils/mycn-with-sqlbricks"
+import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import * as fs from "fs"
 import { promisify } from "util"
 const readFile = promisify(fs.readFile)
@@ -13,10 +13,10 @@ export async function connectToSqlite(fileName: string, newDbScriptFileName?: st
       await cn.exec("PRAGMA foreign_keys = ON")
     },
     poolOptions: {
-      logError: console.log
+      logError: err => console.log(err)
     }
   }, {
-    toParamsOptions: { placeholder: '?%d' }
+    toParamsOptions: { placeholder: "?%d" }
   })
   if (isNewDb && newDbScriptFileName)
     await cn.execScript(await readFile(newDbScriptFileName, "utf8"))

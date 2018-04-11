@@ -1,5 +1,5 @@
 import { basename } from "path"
-import * as sql from "sql-bricks"
+import { select } from "sql-bricks"
 import { MediaStorageContext } from "./internal-definitions"
 import { ExternalRef } from "./exported-definitions"
 
@@ -17,7 +17,7 @@ export function fileBaseName(path: string): string {
  */
 export async function findMediaByExternalRef(cx: MediaStorageContext, externalRef: ExternalRef): Promise<string[]> {
   let rows = await cx.cn.allSqlBricks(
-    sql.select("media_id")
+    select("media_id")
       .from("media_ref")
       .where({
         "external_type": externalRef.type,

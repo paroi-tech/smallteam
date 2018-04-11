@@ -1,4 +1,4 @@
-import * as sql from "sql-bricks"
+import { select, deleteFrom } from "sql-bricks"
 import { MediaOrVariantId, MediaFilter } from "./exported-definitions"
 import { MediaStorageContext } from "./internal-definitions"
 import { findMediaByExternalRef } from "./common"
@@ -9,7 +9,7 @@ export async function removeMedia(cx: MediaStorageContext, id: MediaOrVariantId)
     mediaId = id.mediaId
   else {
     let foundMediaId = await cx.cn.singleValueSqlBricks(
-      sql.select("media_id")
+      select("media_id")
         .from("variant")
         .where("variant_id", id.variantId)
     )
@@ -19,10 +19,10 @@ export async function removeMedia(cx: MediaStorageContext, id: MediaOrVariantId)
   }
 
   await cx.cn.execSqlBricks(
-    sql.deleteFrom("variant").where("media_id", mediaId)
+    deleteFrom("variant").where("media_id", mediaId)
   )
   let result = await cx.cn.execSqlBricks(
-    sql.deleteFrom("media").where("media_id", mediaId)
+    deleteFrom("media").where("media_id", mediaId)
   )
   return result.affectedRows === 1
 }

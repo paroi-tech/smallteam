@@ -1,11 +1,11 @@
-import * as sql from "sql-bricks"
+import { select } from "sql-bricks"
 import { MediaStorageContext } from "./internal-definitions"
 import { getFileName } from "./common"
 import { VariantData } from "./exported-definitions"
 
 export async function getFileData(cx: MediaStorageContext, variantId: string): Promise<VariantData | undefined> {
   let row = await cx.cn.singleRowSqlBricks(
-    sql.select("v.bin_data, v.weight_b, v.im_type, v.code, m.media_id, m.ts, m.orig_name, m.base_name")
+    select("v.bin_data, v.weight_b, v.im_type, v.code, m.media_id, m.ts, m.orig_name, m.base_name")
       .from("variant v")
       .innerJoin("media m").using("media_id")
       .where("v.variant_id", variantId)
