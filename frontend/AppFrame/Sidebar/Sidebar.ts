@@ -25,7 +25,8 @@ export default class Sidebar {
     let bottomEl = this.el.querySelector(".js-bottom") as HTMLElement
     let addBtn = dash.create(NavBtn, {
       label: "New project",
-      onClick: () => this.dash.app.navigate("/new-project")
+      onClick: () => this.dash.app.navigate("/new-project"),
+      cssClass: ["newProject", "ProjectBtn"]
     } as NavBtnOptions)
     bottomEl.appendChild(addBtn.el)
   }

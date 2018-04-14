@@ -38,15 +38,15 @@
 
 .NavBtn.icon22.notif::before {
   // background: url(sprite.png) no-repeat -1px -28px;
-  @include sprite(-1px, -28px);
+  @include bgSprite(-1px, -28px);
 }
 
 .NavBtn.icon22.setting::before {
   // background: url(sprite.png) no-repeat 0 -53px;
-  @include sprite(0, -53px);
+  @include bgSprite(0, -53px);
 }
 
 .NavBtn.icon22.step::before {
   // background: url(sprite.png) no-repeat -31px 1px;
-  @include sprite(-31px, 1px);
+  @include bgSprite(-31px, 1px);
 }

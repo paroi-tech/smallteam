@@ -90,9 +90,9 @@ button, label, input, textarea {
     width: 16px;
   }
   &-deco.icon.profile::before {
-    @include sprite(-89px, -26px);
+    @include bgSprite(-89px, -26px);
   }
   &-deco.icon.lock::before {
-    @include sprite(-89px, -2px);
+    @include bgSprite(-89px, -2px);
   }
 }

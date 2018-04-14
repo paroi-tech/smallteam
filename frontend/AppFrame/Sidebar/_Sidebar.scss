@@ -13,7 +13,7 @@
     position: relative;
     &::before {
       // background: url(sprite.png) no-repeat -115px 2px;
-      @include sprite(-115px, 2px);
+      @include bgSprite(-115px, 2px);
       content: "";
       height: 18px;
       left: 7px;
