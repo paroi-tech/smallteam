@@ -6,7 +6,7 @@
   &-wrapper {
     background-color: #F5F5F5;
     display: grid;
-    grid-template-columns: repeat(15, 1fr);
+    grid-template-columns: repeat(15, 1fr) 0;
     grid-column-gap: 24px;
     grid-template-rows: 59px auto 25px;
     height: 100%;
@@ -15,12 +15,12 @@
   }
 
   &-top {
-    grid-area: 1 / 1 / span 1 / span 15;
+    grid-area: 1 / 1 / span 1 / span 16;
   }
 
   &-bottom {
     background-color: #1c2e4b;
-    grid-area: 3 / 1 / span 1 / span 15;
+    grid-area: 3 / 1 / span 1 / span 16;
     overflow-y: auto;
   }
 
@@ -31,8 +31,8 @@
   &-content {
     grid-area: 2 / 4 / span 1 / span 12;
     min-height: 300px;
-    overflow-y: auto;
-    padding: $vGap2 0;
+    //overflow-y: auto;
+    padding: 13px 0;
   }
 }
 

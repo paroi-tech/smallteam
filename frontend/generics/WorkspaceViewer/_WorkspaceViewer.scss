@@ -1,16 +1,30 @@
 .WorkspaceViewer {
-  &-title {
-    margin-bottom: 30px;
+  // display: flex;
+  // flex-flow: column;
+  height: 100%;
+  position: relative;
+
+  // &-title {
+  //   margin-bottom: 30px;
+  // }
+  &-body {
+    bottom: 0;
+    flex: 1 100%;
+    position: absolute;
+    top: 42px;
+    width: 100%;
   }
 }
 
 .TitleBar {
   background-color: #e9efff;
+  font-size: $f14;
   line-height: 28px;
+  padding-left: 10px;
   position: relative;
   &-right {
     position: absolute;
-    right: 0;
+    right: 10px;
     top: 0;
   }
 }
