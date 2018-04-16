@@ -1,0 +1,42 @@
+<dialog>
+  <div class="Form">
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Name</span>
+      <input class="TextField-input leftBlue js-firstname" type="text" placeholder="First">
+      <input class="TextField-input leftBlue js-lastname" type="text" placeholder="Last">
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Choose your username</span>
+      <span class="TextField-deco leftBlue">
+        <input class="TextField-input js-username" type="text" placeholder="Username">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Create a password</span>
+      <span class="TextField-deco leftBlue">
+        <input class="TextField-input js-password" type="password" placeholder="Password">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Confirm your password</span>
+      <span class="TextField-deco leftBlue">
+        <input class="TextField-input js-confirm" type="password" placeholder="Password confirmation">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Your email address</span>
+      <span class="TextField-deco leftBlue">
+        <input class="TextField-input js-email" type="email" placeholder="Email">
+      </span>
+    </label>
+
+    <button class="Form-action StdBtn withSpinner js-submit-btn" type="button">
+      Submit
+      <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x js-spinner"></span>
+    </button>
+  </div>
+</dialog>

@@ -71,7 +71,7 @@ export default class App {
       })
 
       if (!response.ok)
-        this.log.warn("Unable to get a response from server while trying to recover session")
+        this.log.warn("Unable to get a response from server while trying to recover session.")
       else {
         let result = await response.json()
         if (result.done)
