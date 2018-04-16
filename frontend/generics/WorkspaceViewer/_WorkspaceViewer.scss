@@ -1,6 +1,18 @@
 .WorkspaceViewer {
-  &-title {
-    margin-bottom: 30px;
+  // display: flex;
+  // flex-flow: column;
+  height: 100%;
+  position: relative;
+
+  // &-title {
+  //   margin-bottom: 30px;
+  // }
+  &-body {
+    bottom: 0;
+    flex: 1 100%;
+    position: absolute;
+    top: 42px;
+    width: 100%;
   }
 }
 

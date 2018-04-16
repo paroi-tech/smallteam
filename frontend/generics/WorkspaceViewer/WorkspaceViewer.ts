@@ -43,8 +43,8 @@ export default class WorkspaceViewer {
   readonly router: EasyRouter
 
   constructor(private dash: Dash) {
-    this.el = document.createElement("div")
-    this.view = render(template, this.el)
+    this.view = render(template, document.createElement("div"))
+    this.el = this.view.nodes[0] as HTMLElement
     this.h1El = this.el.querySelector(".js-h1") as HTMLElement
     this.customMenuPlaceEl = this.el.querySelector(".js-customMenu") as HTMLElement
     this.bodyEl = this.el.querySelector(".js-body") as HTMLElement
