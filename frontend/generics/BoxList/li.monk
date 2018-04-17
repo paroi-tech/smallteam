@@ -1,3 +1,4 @@
-<li class="BoxList-li">
-  <span class="BoxListHandle js-handle"><i class="fas fa-arrows-alt"></i></span>
+<li class="BoxList-li MovableBox">
+  <span class="MovableBox-icon"></span>
+  <span class="MovableBox-content js-content"></span>
 </li>

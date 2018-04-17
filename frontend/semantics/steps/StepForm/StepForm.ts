@@ -1,11 +1,10 @@
-import { Dash, Log } from "bkb"
-import { render } from "monkberry"
-import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
-import { StepModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
-import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
-import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
+import { Log } from "bkb";
+import { render } from "monkberry";
 import { OwnDash } from "../../../App/OwnDash";
+import { Model, StepModel } from "../../../AppModel/AppModel";
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu";
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
+import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog";
 
 const template = require("./StepForm.monk")
 

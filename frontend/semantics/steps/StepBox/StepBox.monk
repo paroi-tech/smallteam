@@ -1,3 +1,4 @@
 <div class="StepBox">
-  <span class="js-span"></span>
+  <span class="StepBox-lbl js-span"></span>
+  <button class="RightOpenBtn" type="button">▶</button>
 </div>

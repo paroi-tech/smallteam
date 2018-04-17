@@ -1,6 +1,7 @@
 <div class="TaskBox">
   <div class="TaskBox-top">
     <span class="js-span"></span>
+    <button class="RightOpenBtn" type="button">▶</button>
   </div>
   <div class="TaskBox-bottom">
     <div class="TaskBox-bottomLeft js-container-left"></div>

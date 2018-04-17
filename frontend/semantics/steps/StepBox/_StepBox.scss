@@ -1,3 +1,13 @@
 .StepBox {
-  font-style: italic;
+  display: flex;
+  // flex-direction: column;
+  height: 30px;
+  // justify-content: center;
+  // text-align: center;
+  width: 160px;
+
+  &-lbl {
+    font-style: italic;
+    margin: auto;
+  }
 }

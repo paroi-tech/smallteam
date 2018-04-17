@@ -5,7 +5,7 @@ import { render } from "monkberry"
 import * as boxListTemplate from "./BoxList.monk"
 import * as liTemplate from "./li.monk"
 import * as inlineLiTemplate from "./InlineLi.monk"
-import * as closeTemplate from "./ItemRemove.monk"
+// import * as closeTemplate from "./ItemRemove.monk"
 
 /**
  * As BoxList is a template class, a BoxList instance parameter should implement this interface.
@@ -21,25 +21,26 @@ export interface Box {
  * BoxList constructor parameters grouped in an interface.
  */
 export interface BoxListParams {
-  // BoxList ID.
+  /** BoxList ID. */
   id: string
-  // The Sortable lib enables to create groups, so that we can move items (drag and drop) between lists
-  // that belong to the same group. This attribute represents the group of the Boxlist.
+  /**
+   * The Sortable lib enables to create groups, so that we can move items (drag and drop) between lists
+   * that belong to the same group. This attribute represents the group of the Boxlist.
+   */
   group: string | undefined
-  // Name of the BoxList.
+  /** Name of the BoxList. */
   name: string
-  // When an item is moved inside a list or between lists, this function is used to validate or cancel
-  // the move.
+  /** When an item is moved inside a list or between lists, this function is used to validate or cancel the move. */
   onMove?: (ev: BoxEvent) => boolean
-  // Object on which the 'onMove' function is called.
+  /** Object on which the 'onMove' function is called.*/
   obj?: any
-  // Is the BoxList disabled?
+  /** Is the BoxList disabled? */
   disabled?: boolean
-  // Add a remove button beside each element in the BoxList.
-  itemRemoveButton?: boolean
-  // Is this an InlineBoxlist?
+  // /** Add a remove button beside each element in the BoxList. */
+  // itemRemoveButton?: boolean
+  /** Is this an InlineBoxlist? */
   inline: boolean | undefined
-  // Can items be reordered within the BoxList?
+  /** Can items be reordered within the BoxList? */
   sort: boolean
 }
 
@@ -100,22 +101,28 @@ export default class BoxList<T extends Box> {
     let li = view.nodes[0] as HTMLLIElement
 
     li.setAttribute("data-id", box.id)
-    li.appendChild(box.el)
 
-    if (this.params.itemRemoveButton) {
-      let el = this.createCloseItem()
-      let span = el.querySelector("span") as HTMLElement
-
-      span.addEventListener("click", ev => {
-        this.dash.emit("boxListItemRemoveRequested", {
-          boxListId: this.params.id,
-          boxId: box.id
-        })
-      })
-      li.addEventListener("mouseover", ev => span.style.visibility = "visible")
-      li.addEventListener("mouseleave", ev => span.style.visibility = "hidden")
-      li.appendChild(el)
+    if (this.params.inline)
+      li.appendChild(box.el)
+    else {
+      let contentEl = li.querySelector(".js-content") as HTMLElement
+      contentEl.appendChild(box.el)
     }
+
+    // if (this.params.itemRemoveButton) {
+    //   let el = this.createCloseItem()
+    //   let span = el.querySelector("span") as HTMLElement
+
+    //   span.addEventListener("click", ev => {
+    //     this.dash.emit("boxListItemRemoveRequested", {
+    //       boxListId: this.params.id,
+    //       boxId: box.id
+    //     })
+    //   })
+    //   li.addEventListener("mouseover", ev => span.style.visibility = "visible")
+    //   li.addEventListener("mouseleave", ev => span.style.visibility = "hidden")
+    //   li.appendChild(el)
+    // }
 
     this.ul.appendChild(li)
     this.boxes.set(box.id, li)
@@ -206,12 +213,12 @@ export default class BoxList<T extends Box> {
   // -- Utilities
   // --
 
-  private createCloseItem(): HTMLElement {
-    let view = render(closeTemplate, document.createElement("div"))
-    let el = view.nodes[0] as HTMLElement
+  // private createCloseItem(): HTMLElement {
+  //   let view = render(closeTemplate, document.createElement("div"))
+  //   let el = view.nodes[0] as HTMLElement
 
-    return el
-  }
+  //   return el
+  // }
 
   /***
    * Make the boxList sortable by creating a Sortable object.
@@ -219,7 +226,8 @@ export default class BoxList<T extends Box> {
   private makeSortable() {
     return Sortable.create(this.ul, {
       // For InlineBoxList, we do not need a handle.
-      handle: this.params.inline ? undefined : ".js-handle",
+      //handle: this.params.inline ? undefined : ".js-handle",
+      filter: "button",
 
       group: this.params.group,
       sort: this.params.sort,
