@@ -41,7 +41,7 @@ export default class TaskForm {
 
     this.view = MonkBerry.render(template, document.createElement("div"))
 
-    this.el = this.view.nodes[0] as HTMLDivElement
+    this.el = this.view.nodes[0] as HTMLElement
     this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
     this.labelEl = this.el.querySelector(".js-task-label") as HTMLInputElement
     this.descriptionEl = this.el.querySelector(".js-task-description") as HTMLTextAreaElement
@@ -101,14 +101,16 @@ export default class TaskForm {
         this.view.update(state)
       }
     })
+
+    this.hide()
   }
 
   public hide() {
-    this.el.style.visibility = "hidden"
+    this.el.style.display = "none"
   }
 
   public show() {
-    this.el.style.visibility = "visible"
+    this.el.style.display = ""
   }
 
   public reset() {
