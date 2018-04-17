@@ -45,8 +45,6 @@ the time, so I can't use JIRA.
   - Rename the application `frontend-pwd` to `frontend-registration`
   - Implement the `NewContributorForm`
 - In the main frontend:
-  - In `LoginDialog`, the link "Forgot your password" opens a panel `PasswordReset`:
-    - The user entries his email address, the form insert a new token in `reg_pwd` and send an email
   - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`
     - The admin user entries email addresses (required) and names (optional), the form insert a new token in `reg_new` and send emails
     - The panel show the list of awaiting invites, for each one there are two actions:
@@ -82,6 +80,8 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- In `LoginDialog`, the link "Forgot your password" opens a panel `PasswordReset`:
+  - The user entries his email address, the form insert a new token in `reg_pwd` and send an email
 - Merge `ContributorHome` into `ContributorForm`
   - Allow to upload an avatar from the `ContributorForm`
   - Allow to change the password from the `ContributorForm`

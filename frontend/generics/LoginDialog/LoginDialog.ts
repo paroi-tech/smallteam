@@ -37,6 +37,7 @@ export default class LoginDialog {
     })
 
     document.body.appendChild(this.el)
+
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
