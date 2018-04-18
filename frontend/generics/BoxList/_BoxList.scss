@@ -46,10 +46,10 @@
     @include bgSprite(-90px, -55px);
     background-color: #ddd;
     border: 1px solid #ddd;
-    bottom: 0;
+    bottom: -1px;
     content: "";
     height: 9px;
-    left: 0;
+    left: -1px;
     position: absolute;
     width: 9px;
     // &::before {
