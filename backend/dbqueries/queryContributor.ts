@@ -11,8 +11,7 @@ import { sendMail } from "../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import config from "../../isomorphic/config"
-
-export const bcryptSaltRounds = 10
+import { bcryptSaltRounds, tokenSize } from "../backendConfig"
 
 export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
@@ -103,7 +102,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
 }
 
 async function generateAndSendActivationToken(contributorId: string, address: string) {
-  let token = randomBytes(16).toString("hex")
+  let token = randomBytes(tokenSize).toString("hex")
   let host = config.host
   let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
   let text = `SmallTeam registration\nPlease follow the link ${url} to activate your account.`

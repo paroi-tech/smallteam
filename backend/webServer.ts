@@ -75,7 +75,7 @@ export function startWebServer() {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })
 
-  // Scheduled task to removed expired mail tokens.
+  // Scheduled task to remove password reset tokens.
   setInterval(removeExpiredRegistrationTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 

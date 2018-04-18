@@ -1,4 +1,3 @@
-import { randomBytes } from "crypto"
 import { cn } from "./utils/dbUtils"
 import config from "../isomorphic/config"
 import { createTransport, getTestMessageUrl } from "nodemailer"
@@ -44,10 +43,18 @@ export async function sendMail(to: string, subject: string, text: string, html: 
   return result
 }
 
+export function validateEmail(email: string): boolean {
+  // Email validation regex found @:
+  // https://developer.mozilla.org/en-US/docs/Web/HTML/Element/input/email#Validation
+  let pattern = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+  return pattern.test(email)
+}
+
 export async function removeExpiredRegistrationTokens() {
   try {
-    let s = "delete from reg_pwd where create_ts - current_timestamp > $duration"
-    await cn.exec(s, { $duration: tokenMaxValidity })
+    await cn.exec("delete from reg_pwd where create_ts - current_timestamp > $duration", {
+      $duration: tokenMaxValidity
+    })
   } catch (err) {
     console.log("Error while removing expired account activation tokens", err)
   }
