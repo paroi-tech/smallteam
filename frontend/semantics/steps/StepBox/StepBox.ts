@@ -1,9 +1,7 @@
-import { Dash } from "bkb"
-import { render } from "monkberry"
-import { Box } from "../../../generics/BoxList/BoxList"
-import { StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
+import { render } from "monkberry";
 import { OwnDash } from "../../../App/OwnDash";
+import { StepModel } from "../../../AppModel/AppModel";
+import { Box } from "../../../generics/BoxList/BoxList";
 
 const template = require("./StepBox.monk")
 

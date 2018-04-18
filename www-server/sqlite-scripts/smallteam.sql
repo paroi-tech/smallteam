@@ -117,6 +117,7 @@ create table reg_pwd (
     reg_pwd_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
     contributor_id bigint not null references contributor(contributor_id),
+    expire_ts timestamp not null,
     create_ts timestamp not null default current_timestamp
 );
 
@@ -124,7 +125,8 @@ create table reg_new (
     reg_new_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
     user_email varchar(255),
-    contributor_id bigint not null references contributor(contributor_id),
+    user_name varchar(255),
+    expire_ts timestamp not null,
     create_ts timestamp not null default current_timestamp
 );
 
