@@ -1,10 +1,10 @@
 import { Dash } from "bkb"
 import * as Sortable from "sortablejs"
-import { render } from "monkberry"
 
 import * as boxListTemplate from "./BoxList.monk"
 import * as liTemplate from "./li.monk"
 import * as inlineLiTemplate from "./InlineLi.monk"
+import { render } from "../../libraries/lt-monkberry";
 // import * as closeTemplate from "./ItemRemove.monk"
 
 /**
@@ -72,22 +72,21 @@ export interface BoxListEvent extends BoxEvent {
  */
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
-  private ul: HTMLElement
+  private ulEl: HTMLElement
   private busyIndicatorEl: HTMLElement
   private titleEl: HTMLElement
   private sortable: Sortable
-
-  private view: MonkberryView
 
   // Map storing boxes of the list.
   private boxes = new Map<string, HTMLElement>()
 
   constructor(private dash: Dash, private params: BoxListParams) {
-    this.view = render(boxListTemplate, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.ul = this.el.querySelector("ul") as HTMLElement
-    this.busyIndicatorEl = this.el.querySelector(".js-busy-icon") as HTMLElement
-    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
+    let view = render(boxListTemplate, document.createElement("div"))
+    this.el = view.rootEl()
+
+    this.ulEl = view.ref("ul")
+    this.busyIndicatorEl = view.ref("busyIcon")
+    this.titleEl = view.ref("title")
     if (this.params.inline)
       this.el.classList.add("InlineBoxList")
 
@@ -97,17 +96,15 @@ export default class BoxList<T extends Box> {
 
   public addBox(box: T) {
     let tpl = this.params.inline ? inlineLiTemplate : liTemplate
-    let view = render(tpl, document.createElement("div"))
-    let li = view.nodes[0] as HTMLLIElement
+    let view = render(tpl)
+    let li: HTMLElement = view.rootEl()
 
     li.setAttribute("data-id", box.id)
 
     if (this.params.inline)
       li.appendChild(box.el)
-    else {
-      let contentEl = li.querySelector(".js-content") as HTMLElement
-      contentEl.appendChild(box.el)
-    }
+    else
+      view.ref("content").appendChild(box.el)
 
     // if (this.params.itemRemoveButton) {
     //   let el = this.createCloseItem()
@@ -124,7 +121,7 @@ export default class BoxList<T extends Box> {
     //   li.appendChild(el)
     // }
 
-    this.ul.appendChild(li)
+    this.ulEl.appendChild(li)
     this.boxes.set(box.id, li)
   }
 
@@ -135,7 +132,7 @@ export default class BoxList<T extends Box> {
   public removeBox(boxId: string) {
     let li = this.boxes.get(boxId)
     if (li) {
-      this.ul.removeChild(li)
+      this.ulEl.removeChild(li)
       this.boxes.delete(boxId)
     }
   }
@@ -224,7 +221,7 @@ export default class BoxList<T extends Box> {
    * Make the boxList sortable by creating a Sortable object.
    */
   private makeSortable() {
-    return Sortable.create(this.ul, {
+    return Sortable.create(this.ulEl, {
       // For InlineBoxList, we do not need a handle.
       //handle: this.params.inline ? undefined : ".js-handle",
       filter: "button",

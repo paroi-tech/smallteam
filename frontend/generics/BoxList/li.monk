@@ -1,4 +1,4 @@
 <li class="BoxList-li MovableBox">
   <span class="MovableBox-icon"></span>
-  <span class="MovableBox-content js-content"></span>
+  <span class="MovableBox-content" :ref="content"></span>
 </li>

@@ -1,5 +1,4 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import App from "../App/App"
 import HeaderBar from "../generics/HeaderBar/HeaderBar"
 import StatusBar from "../generics/StatusBar/StatusBar"
@@ -23,11 +22,12 @@ import BackgroundCommandManager from "../generics/BackgroundCommandManager/Backg
 import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu"
 import { ContributorModel } from "../AppModel/Models/ContributorModel"
 import { OwnDash } from "../App/OwnDash"
+import { render } from "../libraries/lt-monkberry";
 
 const template = require("./AppFrame.monk")
 
 export default class AppFrame {
-  readonly el: HTMLElement
+  readonly el: Element
   readonly viewer: WorkspaceViewer
 
   private model: Model
@@ -36,21 +36,17 @@ export default class AppFrame {
   constructor(private dash: OwnDash) {
     this.model = dash.app.model
 
-    let view = render(template, document.createElement("div"))
-    this.el = view.nodes[0] as HTMLButtonElement
+    let view = render(template, {
+      placeholders: {
+        top: () => this.createHeaderBar().el,
+        bottom: () => this.createStatusBar().el,
+        side: () => this.createSidebar().el,
+      }
+    })
 
-    let topEl = this.el.querySelector(".js-top") as HTMLElement
-    topEl.appendChild(this.createHeaderBar().el)
-
-    let bottomEl = this.el.querySelector(".js-bottom") as HTMLElement
-    bottomEl.appendChild(this.createStatusBar().el)
-
-    let sideEl = this.el.querySelector(".js-side") as HTMLElement
-    sideEl.appendChild(this.createSidebar().el)
-
+    this.el = view.rootEl()
     this.viewer = this.createWorkspaceViewer()
-    let contentEl = this.el.querySelector(".js-content") as HTMLElement
-    contentEl.appendChild(this.viewer.el)
+    view.ref("content").appendChild(this.viewer.el)
   }
 
   private createWorkspaceViewer() {

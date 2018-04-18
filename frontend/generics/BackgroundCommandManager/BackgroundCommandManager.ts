@@ -1,33 +1,31 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import { BgCommandManager, BgCommand } from "../../AppModel/BgCommandManager"
 import { Model } from "../../AppModel/AppModel"
 import App from "../../App/App"
 import { OwnDash } from "../../App/OwnDash";
+import { render } from "../../libraries/lt-monkberry";
 
 const template = require("./BackgroundCommandManager.monk")
 const templateMenuBtn = require("./MenuBtn.monk")
 
 export default class BackgroundCommandManager {
-  readonly el: HTMLDialogElement
+  private el: HTMLDialogElement
   readonly buttonEl: HTMLButtonElement
   private tableEl: HTMLTableElement
-  private closeButtonEl: HTMLButtonElement
 
   private bgCmdManager: BgCommandManager
   private model: Model
-
-  private view: MonkberryView
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.bgCmdManager = this.dash.app.model.bgManager
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDialogElement
-    this.closeButtonEl = this.el.querySelector(".js-close-button") as HTMLButtonElement
-    this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.tableEl = this.el.querySelector(".js-table") as HTMLTableElement
+    let view = render(template)
+    this.el = view.rootEl()
+    document.body.appendChild(this.el)
+
+    view.ref("closeBtn").addEventListener("click", ev => this.hide())
+    this.tableEl = view.ref("table")
     this.buttonEl = this.createHtmlMenuButtonElement()
 
     this.dash.listenToModel<BgCommand>("bgCommandError", bgCmd => this.onBgCommandError(bgCmd))
@@ -47,8 +45,8 @@ export default class BackgroundCommandManager {
   // --
 
   private createHtmlMenuButtonElement(): HTMLButtonElement {
-    let view = render(templateMenuBtn, document.createElement("div"))
-    let btnEl = this.view.nodes[0] as HTMLButtonElement
+    let view = render(templateMenuBtn)
+    let btnEl = view.rootEl() as HTMLButtonElement
 
     btnEl.addEventListener("click", ev => {
       btnEl.style.backgroundColor = "transparent"

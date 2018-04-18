@@ -24,7 +24,7 @@ module.exports = {
         test: /\.monk$/,
         exclude: /node_modules/,
         use: {
-          loader: path.resolve('./mkloader.js')
+          loader: "monkberry-loader"
         }
       }
     ]

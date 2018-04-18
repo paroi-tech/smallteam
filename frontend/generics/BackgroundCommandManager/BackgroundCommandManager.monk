@@ -1,11 +1,11 @@
 <dialog class="BgCommandManager">
   <header class="BgCommandManager-header">
-      <button class="BgCommandManager-closeButton js-close-button" title="Close">
+      <button class="BgCommandManager-closeButton" title="Close" :ref="closeBtn">
         <span class="fa fa-1x fa-times"></span>
       </button>
   </header>
 
-  <table class="BgCommandManager-table js-table">
+  <table class="BgCommandManager-table" :ref="table">
     <caption>Background Tasks</caption>
     <thead>
       <tr>
