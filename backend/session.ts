@@ -3,11 +3,12 @@ import { Request, Response } from "express"
 import { hash, compare } from "bcrypt"
 import { cn } from "./utils/dbUtils"
 import { SessionData } from "./backendContext/context"
-import { bcryptSaltRounds } from "./dbqueries/queryContributor"
+import { bcryptSaltRounds } from "./backendConfig"
 import { tokenMaxValidity } from "./mail"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import { sendMail } from "./mail"
 import config from "../isomorphic/config"
+import { tokenSize } from "./backendConfig"
 
 interface PasswordUpdateInfo {
   contributorId: string
@@ -125,7 +126,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   let passwordInfo = toPasswordUpdateInfo(row)
   let currentTs = Date.now() / 1000
   if (currentTs - passwordInfo.createTs > tokenMaxValidity) {
-    removeMailChallenge(token).catch(err => console.log(`Cannot remove expired mail token ${token}`, err))
+    removePasswordToken(token).catch(err => console.log(`Cannot remove expired mail token ${token}`, err))
     return {
       done: false,
       reason: "Token expired!"
@@ -133,7 +134,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 
   await updateContributorPassword(data.contributorId, data.password)
-  removeMailChallenge(token).catch(err => console.log(`Cannot remove used mail token ${token}`, err))
+  removePasswordToken(token).catch(err => console.log(`Cannot remove used mail token ${token}`, err))
 
   return {
     done: true
@@ -164,7 +165,7 @@ export async function routeSendPasswordResetMail(data: any) {
 }
 
 async function generateAndSendPasswordResetToken(contributorId: string, address: string) {
-  let token = randomBytes(16).toString("hex")
+  let token = randomBytes(tokenSize).toString("hex")
   let encodedToken = encodeURIComponent(token)
   let host = config.host
   // FIXME: Add URL param for action to take: reset password or user registration.
@@ -217,6 +218,45 @@ export function hasSessionData(req: Request): boolean {
 // -- Utilily functions
 // --
 
+export async function getContributorById(id: string) {
+  let query = select(["contributor_id", "password", "role"]).from("contributor").where("contributor_id", id)
+  let row = undefined
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributorInfo(row) : undefined
+}
+
+export async function getContributorByLogin(login: string) {
+  let query = select(["contributor_id", "password", "role"]).from("contributor").where("login", login)
+  let row
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributorInfo(row) : undefined
+}
+
+export async function getContributorByEmail(email: string) {
+  let query = select(["contributor_id", "password", "role"]).from("contributor").where("email", email)
+  let row = undefined
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributorInfo(row) : undefined
+}
+
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   return {
     contributorId: row["contributor_id"].toString(),
@@ -233,48 +273,9 @@ function toContributorInfo(row): ContributorInfo {
   }
 }
 
-function removeMailChallenge(token: string) {
+function removePasswordToken(token: string) {
   let query = deleteFrom("reg_pwd").where("token", token)
   return cn.execSqlBricks(query)
-}
-
-async function getContributorById(id: string) {
-  let query = select(["contributor_id", "password", "role"]).from("contributor").where("contributor_id", id)
-  let row = undefined
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (err) {
-    console.log(err)
-  }
-
-  return row ? toContributorInfo(row) : undefined
-}
-
-async function getContributorByLogin(login: string) {
-  let query = select(["contributor_id", "password", "role"]).from("contributor").where("login", login)
-  let row
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (err) {
-    console.log(err)
-  }
-
-  return row ? toContributorInfo(row) : undefined
-}
-
-async function getContributorByEmail(email: string) {
-  let query = select(["contributor_id", "password", "role"]).from("contributor").where("email", email)
-  let row = undefined
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (err) {
-    console.log(err)
-  }
-
-  return row ? toContributorInfo(row) : undefined
 }
 
 async function updateContributorPassword(contributorId: string, password: string): Promise<boolean> {
