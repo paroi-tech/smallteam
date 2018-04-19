@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import NavMenu from "../NavMenu/NavMenu";
+import { render } from "../../libraries/lt-monkberry";
 
 const template = require("./HeaderBar.monk")
 
@@ -11,10 +11,10 @@ export default class HeaderBar {
   private teamNameEl: HTMLElement
 
   constructor(private dash: Dash) {
-    let view = render(template, document.createElement("div"))
-    this.el = view.nodes[0] as HTMLLIElement
+    let view = render(template)
+    this.el = view.rootEl()
 
-    this.teamNameEl =  this.el.querySelector(".js-teamName") as HTMLElement
+    this.teamNameEl =  view.ref("teamName")
 
     this.entries = dash.create(NavMenu)
     this.el.appendChild(this.entries.el)
