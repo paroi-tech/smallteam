@@ -1,6 +1,4 @@
 import { PublicDash, Dash, Log } from "bkb"
-import { render } from "monkberry"
-import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
@@ -8,6 +6,7 @@ import config from "../../../../isomorphic/config";
 import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
 import { UpdateModelEvent } from "../../../AppModel/ModelEngine";
 import { OwnDash } from "../../../App/OwnDash";
+import { render, LtMonkberryView } from "../../../libraries/lt-monkberry";
 
 const template = require("./ContributorForm.monk")
 
@@ -23,18 +22,13 @@ export default class ContributorForm {
   private passwordConfirmEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
 
-  private view: MonkberryView
+  private view: LtMonkberryView
   private state = {
-    frag: {
-      login: "",
-      name: "",
-      email: "",
-      role: "",
-      password: ""
-    },
-    ctrl: {
-      submit: () => this.onSubmit()
-    }
+    login: "",
+    name: "",
+    email: "",
+    role: "",
+    password: ""
   }
 
   private model: Model
@@ -51,16 +45,18 @@ export default class ContributorForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"), { directives })
-    this.el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
-    this.nameEl = this.el.querySelector(".js-name") as HTMLInputElement
-    this.loginEl = this.el.querySelector(".js-login") as HTMLInputElement
-    this.emailEl = this.el.querySelector(".js-email") as HTMLInputElement
-    this.roleEl = this.el.querySelector(".js-role") as HTMLSelectElement
-    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
-    this.passwordConfirmEl = this.el.querySelector(".js-password-2") as HTMLInputElement
-    this.submitSpinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.fieldsetEl = this.view.ref("fieldset")
+    this.nameEl = this.view.ref("name")
+    this.loginEl = this.view.ref("login")
+    this.emailEl = this.view.ref("email")
+    this.roleEl = this.view.ref("role")
+    this.passwordEl = this.view.ref("password")
+    this.passwordConfirmEl = this.view.ref("password2")
+    this.submitSpinnerEl = this.view.ref("submitSpinner")
+    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+
     this.view.update(this.state)
 
     this.dash.listenToModel("updateContributor", data => this.onContributorUpdate(data.model))
@@ -76,11 +72,11 @@ export default class ContributorForm {
   public reset() {
     this.currentContributor = undefined
 
-    this.state.frag.name = ""
-    this.state.frag.login = ""
-    this.state.frag.email = ""
-    this.state.frag.role = ""
-    this.state.frag.password = ""
+    this.state.name = ""
+    this.state.login = ""
+    this.state.email = ""
+    this.state.role = ""
+    this.state.password = ""
     this.view.update(this.state)
 
     this.unlockForm()
@@ -91,7 +87,7 @@ export default class ContributorForm {
   // -- Accessors
   // --
 
-  set contributor(contributor: ContributorModel | undefined) {
+  setContributor(contributor: ContributorModel | undefined) {
     if (!contributor) {
       this.canClearForm = false
       this.reset()
@@ -104,10 +100,10 @@ export default class ContributorForm {
     this.passwordConfirmEl.disabled = b
 
     this.currentContributor = contributor
-    this.state.frag = contributor.updateTools.toFragment("update") as any
-    this.state.frag.password = ""
+    this.state = contributor.updateTools.toFragment("update") as any
+    this.state.password = ""
     this.view.update(this.state)
-    this.roleEl.value = this.state.frag.role
+    this.roleEl.value = this.state.role
 
     if (contributor.updateTools.processing)
       this.lockForm()
@@ -169,10 +165,10 @@ export default class ContributorForm {
       return
     console.log("[DEBUG] onContributorUpdate", contributor)
     this.canClearForm = false
-    this.state.frag = contributor.updateTools.toFragment("update") as any
-    this.state.frag.password = ""
+    this.state = contributor.updateTools.toFragment("update") as any
+    this.state.password = ""
     this.view.update(this.state)
-    this.roleEl.value = this.state.frag.role
+    this.roleEl.value = this.state.role
   }
 
   // --

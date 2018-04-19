@@ -1,4 +1,4 @@
 <section class="ContributorWorkspace">
-  <div class="js-list"></div>
-  <div class="js-form"></div>
+  <div :ref="list"></div>
+  <div :ref="form"></div>
 </section>

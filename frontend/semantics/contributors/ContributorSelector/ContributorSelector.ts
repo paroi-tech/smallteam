@@ -1,11 +1,11 @@
 import { Dash } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
-import { render } from "monkberry"
 import BoxList from "../../../generics/BoxList/BoxList"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import ContributorDialog from "../ContributorDialog/ContributorDialog"
 import { OwnDash } from "../../../App/OwnDash";
+import { render } from "../../../libraries/lt-monkberry";
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")
@@ -16,11 +16,6 @@ const itemTemplate = require("./label.monk")
  */
 export default class ContributorSelector {
   readonly el: HTMLElement
-  private boxListContainerEl: HTMLElement
-  private buttonEl: HTMLButtonElement
-
-  private view: MonkberryView
-
   private boxList: BoxList<ContributorBox>
   private dialog: ContributorDialog
 
@@ -30,11 +25,10 @@ export default class ContributorSelector {
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
-    this.buttonEl = this.el.querySelector(".js-button") as HTMLButtonElement
-    this.buttonEl.addEventListener("click", ev => {
+    let view = render(template)
+    this.el = view.rootEl()
+
+    view.ref("btn").addEventListener("click", ev => {
       if (!this.currentTask) {
         console.log("no shit...")
         return
@@ -51,7 +45,7 @@ export default class ContributorSelector {
       sort: true,
       inline: true
     })
-    this.boxListContainerEl.appendChild(this.boxList.el)
+    view.ref("boxlistPh").appendChild(this.boxList.el)
 
     this.dialog = this.dash.create(ContributorDialog)
     this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed", () => {

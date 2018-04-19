@@ -2,7 +2,6 @@ import App from "../../../App/App"
 import { Dash, Log } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import ContributorForm from "../ContributorForm/ContributorForm"
-import { render } from "monkberry"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import BoxList from "../../../generics/BoxList/BoxList"
@@ -10,13 +9,12 @@ import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMen
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
 import { OwnDash } from "../../../App/OwnDash";
+import { render } from "../../../libraries/lt-monkberry";
 
 const template = require("./ContributorWorkspace.monk")
 
 export default class ContributorWorkspace implements Workspace {
   readonly el: HTMLElement
-  private boxListContainerEl: HTMLElement
-  private formContainerEl: HTMLElement
 
   private boxList: BoxList<ContributorBox>
   private form: ContributorForm
@@ -34,23 +32,20 @@ export default class ContributorWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template, document.createElement("div"))
-    this.el = view.nodes[0] as HTMLElement
-    this.boxListContainerEl = this.el.querySelector(".js-list") as HTMLElement
-    this.formContainerEl = this.el.querySelector(".js-form") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
 
     this.form = this.dash.create(ContributorForm)
-    this.formContainerEl.appendChild(this.form.el)
+    view.ref("form").appendChild(this.form.el)
     this.boxList = this.dash.create(BoxList, {
       id: "contributorBoxList",
       name: "Contributors",
       sort: false
     })
-    this.boxListContainerEl.appendChild(this.boxList.el)
+    view.ref("list").appendChild(this.boxList.el)
     this.menu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl()
-      } as DropdownMenuOptions
-    )
+      btnEl: createCustomMenuBtnEl()
+    })
     this.menu.entries.createNavBtn({
       label: "Add contributor",
       onClick: () => this.form.reset()
@@ -64,7 +59,7 @@ export default class ContributorWorkspace implements Workspace {
       this.boxList.addBox(box)
     })
     this.dash.listenTo<ContributorModel>("contributorBoxSelected", data => {
-      this.form.contributor = data
+      this.form.setContributor(data)
     })
 
     this.fillBoxList()
@@ -74,7 +69,7 @@ export default class ContributorWorkspace implements Workspace {
     this.childRouter.map({
       route: "my-profile",
       activate: (query: ERQuery) => {
-        this.form.contributor = this.model.session.contributor
+        this.form.setContributor(this.model.session.contributor)
       },
       title: "My Profile"
     })

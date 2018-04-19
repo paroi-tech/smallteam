@@ -2,9 +2,9 @@ import { Dash } from "bkb"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
-import { render } from "monkberry"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import { OwnDash } from "../../../App/OwnDash";
+import { render } from "../../../libraries/lt-monkberry";
 
 const template = require("./ContributorDialog.monk")
 
@@ -15,15 +15,14 @@ export default class ContributorDialog {
 
   private model: Model
   private selector: CheckboxMultiSelect<ContributorModel>
-  private view: MonkberryView
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDialogElement
-    this.buttonEl = this.el.querySelector(".js-button") as HTMLButtonElement
-    this.selectorContainerEl = this.el.querySelector(".js-selector-container") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.buttonEl = view.ref("button")
+    this.selectorContainerEl = view.ref("selectorContainer")
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
     this.buttonEl.addEventListener("click", ev => {

@@ -1,22 +1,20 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import App from "../../../App/App"
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash";
+import { render } from "../../../libraries/lt-monkberry";
 
 const template = require("./ContributorFlag.monk")
 
 export default class ContributorFlag {
   readonly el: HTMLElement
 
-  private view: MonkberryView
   private model: Model
 
   constructor(private dash: OwnDash, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
+    this.el = render(template).rootEl()
 
     this.update()
 

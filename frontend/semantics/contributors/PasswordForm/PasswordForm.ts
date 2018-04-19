@@ -1,49 +1,45 @@
 import { PublicDash, Dash, Log } from "bkb"
-import { render } from "monkberry"
-import directives from "monkberry-directives"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import config from "../../../../isomorphic/config"
 import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 import { OwnDash } from "../../../App/OwnDash";
+import { render, LtMonkberryView } from "../../../libraries/lt-monkberry";
 
 const template = require("./PasswordForm.monk")
 
 export default class PasswordForm {
   readonly el: HTMLElement
-  private passwordEl: HTMLInputElement
-  private newPasswordEl: HTMLInputElement
-  private passwordConfirmEl: HTMLInputElement
-  private submitSpinnerEl: HTMLElement
+  private prevPwdEl: HTMLInputElement
+  private newPwdEl: HTMLInputElement
+  private newPwd2El: HTMLInputElement
+  private spinnerEl: HTMLElement
 
-  private view: MonkberryView
+  private view: LtMonkberryView
 
   private log: Log
   private model: Model
 
   private state = {
-    ctrl: {
-      submit: () => this.onSubmit(),
-      cancel: () => this.onCancel()
-    },
-    frag: {
-      password: "",
-      newPassword: "",
-      passwordConfirm: ""
-    }
+    prevPwd: "",
+    newPwd: "",
+    newPwd2: ""
   }
 
   constructor(private dash: OwnDash, private contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"), { directives })
-    this.el = this.view.nodes[0] as HTMLElement
-    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
-    this.newPasswordEl = this.el.querySelector(".js-new-password") as HTMLInputElement
-    this.passwordConfirmEl = this.el.querySelector(".js-password-confirm") as HTMLInputElement
-    this.submitSpinnerEl = this.el.querySelector(".fa-spinner") as HTMLElement
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.prevPwdEl = this.view.ref("prevPwd")
+    this.newPwdEl = this.view.ref("newPwd")
+    this.newPwd2El = this.view.ref("newPwd2")
+    this.spinnerEl = this.view.ref("spinner")
+
+    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    this.view.ref("cancelBtn").addEventListener("click", () => this.onCancel())
 
     this.view.update(this.state)
   }
@@ -52,28 +48,28 @@ export default class PasswordForm {
     if (!this.checkUserInput())
       return
     this.showSpinner()
-    await this.doPasswordUpdate(this.passwordEl.value, this.newPasswordEl.value)
+    await this.doPasswordUpdate(this.prevPwdEl.value, this.newPwdEl.value)
     this.hideSpinner()
   }
 
   private async checkUserInput() {
     let d = this.dash.create(InfoDialog)
 
-    if (this.passwordEl.value.length === 0) {
+    if (this.prevPwdEl.value.length === 0) {
       await d.show("Please enter your current password")
-      this.passwordEl.focus()
+      this.prevPwdEl.focus()
       return false
     }
 
-    if (this.newPasswordEl.value.length === 0) {
+    if (this.newPwdEl.value.length === 0) {
       await d.show("Please enter new password")
-      this.newPasswordEl.focus()
+      this.newPwdEl.focus()
       return false
     }
 
-    if (this.newPasswordEl.value !== this.passwordConfirmEl.value) {
+    if (this.newPwdEl.value !== this.newPwd2El.value) {
       await d.show("Passwords don't match")
-      this.passwordConfirmEl.focus()
+      this.newPwd2El.focus()
       return false
     }
 
@@ -120,17 +116,17 @@ export default class PasswordForm {
   }
 
   public showSpinner() {
-    this.submitSpinnerEl.style.display = "inline"
+    this.spinnerEl.style.display = "inline"
   }
 
   private hideSpinner() {
-    this.submitSpinnerEl.style.display = "none"
+    this.spinnerEl.style.display = "none"
   }
 
   private clearFields() {
-    this.state.frag.password = ""
-    this.state.frag.newPassword = ""
-    this.state.frag.passwordConfirm = ""
+    this.state.prevPwd = ""
+    this.state.newPwd = ""
+    this.state.newPwd2 = ""
     this.view.update(this.state)
   }
 }

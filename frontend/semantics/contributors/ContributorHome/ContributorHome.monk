@@ -1,6 +1,6 @@
 <div class="ContributorHome">
   <header class="ContributorHome-header">Here, you can edit your information</header>
-  <div class="js-form-container"></div>
-  <div class="js-password-form-container"></div>
-  <div class="js-avatar-form-container"></div>
+  <div :ref="formContainer"></div>
+  <div :ref="pwdArea"></div>
+  <div :ref="avatarArea"></div>
 </div>

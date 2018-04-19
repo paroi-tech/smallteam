@@ -1,10 +1,10 @@
 import { Dash, Log } from "bkb"
-import { render } from "monkberry"
 import App from "../../../App/App"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import config from "../../../../isomorphic/config"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 import { OwnDash } from "../../../App/OwnDash";
+import { render } from "../../../libraries/lt-monkberry";
 
 const template = require("./AvatarForm.monk")
 
@@ -17,22 +17,21 @@ export default class AvatarForm {
 
   private model: Model
   private log: Log
-  private view: MonkberryView
 
   constructor(private dash: OwnDash, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.formEl = this.el.querySelector("form") as HTMLFormElement
-    this.buttonEl = this.formEl.querySelector("button") as HTMLButtonElement
-    this.inputEl = this.formEl.querySelector(".js-input") as HTMLInputElement
-    this.spinnerEl = this.buttonEl.querySelector(".js-spinner") as HTMLElement
-    this.formEl.onsubmit = (ev) => {
+    let view = render(template)
+    this.el = view.rootEl()
+    this.formEl = view.ref("form")
+    this.buttonEl = view.ref("btn")
+    this.inputEl = view.ref("input")
+    this.spinnerEl = view.ref("spinner")
+    this.formEl.addEventListener("submit", ev => {
       ev.preventDefault()
       this.onSubmit()
-    }
+    })
   }
 
   private async onSubmit() {
