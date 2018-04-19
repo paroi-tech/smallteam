@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import { removeAllChildren } from "../../libraries/utils"
+import { render } from "../../libraries/lt-monkberry";
 
 const template = require("./CheckboxMultiSelect.monk")
 const liTemplate = require("./li.monk")
@@ -23,16 +23,14 @@ export default class CheckboxMultiSelect<M> {
   private olEl: HTMLElement
   private fieldsetEl: HTMLFieldSetElement
 
-  private view: MonkberryView
-
   private items = new Map<M, Item<M>>()
 
   constructor(private dash: Dash, title: string, private createComponentForItem: CreateComponentForItem<M>) {
-    this.view = render(template, document.createElement("div"))
-    this.view.update({ title })
-    this.el = this.view.nodes[0] as HTMLElement
-    this.olEl = this.el.querySelector(".js-ol") as HTMLElement
-    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
+    let view = render(template)
+    view.update({ title })
+    this.el = view.rootEl()
+    this.olEl = view.ref("ol")
+    this.fieldsetEl = view.ref("fieldset")
   }
 
   public setAllItems(dataList: M[]) {
@@ -74,11 +72,11 @@ export default class CheckboxMultiSelect<M> {
   // --
 
   private createItem(data: M) {
-    let view = render(liTemplate, document.createElement("div"))
-    let listItemEl = view.nodes[0] as HTMLLIElement
-    let checkboxEl = listItemEl.querySelector(".js-checkbox") as HTMLInputElement
+    let view = render(liTemplate)
+    let listItemEl = view.rootEl<HTMLElement>()
+    let checkboxEl = view.ref<HTMLInputElement>("checkbox")
     let comp = this.createComponentForItem(this.dash, data)
-    let item = { listItemEl, checkboxEl, data, comp }
+    let item: Item<M> = { listItemEl, checkboxEl, data, comp }
 
     listItemEl.appendChild(comp.el)
     this.olEl.appendChild(listItemEl)
@@ -93,6 +91,4 @@ export default class CheckboxMultiSelect<M> {
     this.dash.getPublicDashOf(item.comp).destroy()
     this.items.delete(item.data)
   }
-
-
 }

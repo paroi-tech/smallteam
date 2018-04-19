@@ -12,8 +12,8 @@ export interface LtMonkberryReferences {
 
 export interface LtMonkberryView extends MonkberryView {
   rootEl<T = Element>(): T
-  readonly references: LtMonkberryReferences
   ref<T = Element>(ref: string): T
+  readonly references: LtMonkberryReferences
 }
 
 /**

@@ -81,7 +81,7 @@ export default class BoxList<T extends Box> {
   private boxes = new Map<string, HTMLElement>()
 
   constructor(private dash: Dash, private params: BoxListParams) {
-    let view = render(boxListTemplate, document.createElement("div"))
+    let view = render(boxListTemplate)
     this.el = view.rootEl()
 
     this.ulEl = view.ref("ul")
@@ -211,8 +211,8 @@ export default class BoxList<T extends Box> {
   // --
 
   // private createCloseItem(): HTMLElement {
-  //   let view = render(closeTemplate, document.createElement("div"))
-  //   let el = view.nodes[0] as HTMLElement
+  //   let view = render(closeTemplate)
+  //   let el = view.rootEl()
 
   //   return el
   // }

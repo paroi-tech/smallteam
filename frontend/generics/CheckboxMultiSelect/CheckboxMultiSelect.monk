@@ -1,6 +1,6 @@
 <section class="CheckboxMultiSelect">
   <h1 class="CheckboxMultiSelect-h1">{{ title }}</h1>
-  <fieldset class="js-fieldset">
-    <ol class="CheckboxMultiSelect-ol js-ol"></ol>
+  <fieldset :ref="fieldset">
+    <ol class="CheckboxMultiSelect-ol" :ref="ol"></ol>
   </fieldset>
 </section>

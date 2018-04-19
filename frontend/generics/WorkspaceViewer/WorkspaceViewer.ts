@@ -1,8 +1,8 @@
 import config from "../../../isomorphic/config"
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { removeAllChildren } from "../../libraries/utils"
+import { render } from "../../libraries/lt-monkberry";
 
 const template = require("./WorkspaceViewer.monk")
 
@@ -34,8 +34,6 @@ export default class WorkspaceViewer {
   private symb404 = Symbol("404")
   private workspaces = new Map<string | Symbol, WorkspaceInfo>()
 
-  private view: MonkberryView
-
   private h1El: HTMLElement
   private customMenuPlaceEl: HTMLElement
   private bodyEl: HTMLElement
@@ -43,11 +41,11 @@ export default class WorkspaceViewer {
   readonly router: EasyRouter
 
   constructor(private dash: Dash) {
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.h1El = this.el.querySelector(".js-h1") as HTMLElement
-    this.customMenuPlaceEl = this.el.querySelector(".js-customMenu") as HTMLElement
-    this.bodyEl = this.el.querySelector(".js-body") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.h1El = view.ref("h1")
+    this.customMenuPlaceEl = view.ref("customMenu")
+    this.bodyEl = view.ref("body")
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(console.log)

@@ -1,11 +1,11 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import { MenuItem } from "../Menu/Menu"
 import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 import { catchAndLog } from "../../libraries/utils"
+import { render } from "../../libraries/lt-monkberry";
 
 const template = require("./DropdownMenu.monk")
-const liTemplate = require("./li.monk")
+// const liTemplate = require("./li.monk")
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement
@@ -23,7 +23,7 @@ export class DropdownMenu {
   private isVisible = false
 
   constructor(private dash: Dash, private options: DropdownMenuOptions) {
-    this.el = render(template, document.createElement("div")).nodes[0] as HTMLElement
+    this.el = render(template).rootEl()
     this.btnEl = options.btnEl
     this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
 
