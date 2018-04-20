@@ -63,7 +63,9 @@ export function startWebServer() {
   router.post("/api/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/who-use", makeRouteHandler(routeWhoUse, false))
 
-  mediaEngine.uploadEngine.declareRoutes(router, true)
+  mediaEngine.uploadEngine.declareRoutes(router, {
+    baseUrl: "/medias"
+  })
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 

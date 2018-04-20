@@ -29,7 +29,7 @@ export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, exe
     uploadEngine: createUploadEngine({
       manager: createUploadEngineManager(storage),
       storage,
-      urlPrefix: config.urlPrefix
+      baseUrl: `${config.urlPrefix}/medias`
     })
   }
 }
