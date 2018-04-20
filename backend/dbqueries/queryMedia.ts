@@ -1,5 +1,5 @@
 import { BackendContext } from "../backendContext/context"
-import { Variant, Media, ExternalRef } from "../mediaEngine"
+import { Variant, Media, ExternalRef } from "@fabtom/media-engine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media";
 import config from "../../isomorphic/config";

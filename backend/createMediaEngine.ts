@@ -6,17 +6,22 @@ import { putMediasToCargoLoader } from "./dbqueries/queryMedia"
 import { ModelUpdate, Type } from "../isomorphic/Cargo"
 import { completeCargo } from "./modelStorage"
 import config from "../isomorphic/config";
-import { createUploadEngine, ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, connectToSqlite, UploadEngine, isSupportedImage, ImageVariantsConfiguration } from "./mediaEngine"
-import { UploadEngineManager } from "./mediaEngine/src/uploadEngine/exported-definitions";
+import { ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, ImageVariantsConfiguration, isSupportedImage } from "@fabtom/media-engine"
+import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 
 export interface MediaEngine {
   storage: MediaStorage
   uploadEngine: UploadEngine
 }
 
-export async function createMediaEngine(sqliteFileName: string, newDbScriptFileName: string): Promise<MediaEngine> {
-  let storage = createMediaStorage({
-    cn: await connectToSqlite(sqliteFileName, newDbScriptFileName),
+export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, execDdl: boolean): Promise<MediaEngine> {
+  let storage = await createMediaStorage({
+    initDb: {
+      dbEngine: "sqlite",
+      execDdl
+    },
+    cn,
     imagesConf: IMAGES_CONF
   })
   return {

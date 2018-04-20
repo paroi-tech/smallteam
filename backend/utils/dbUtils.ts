@@ -28,16 +28,19 @@ export let cn!: DatabaseConnectionWithSqlBricks
 
 export async function initConnection() {
   cn = await newSqliteCn(mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
-  // fileCn = await newSqliteCn(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "uploadengine.sql"))
 }
 
 export let mediaEngine!: MediaEngine
 
 export async function initMediaEngine() {
-  mediaEngine = await createMediaEngine(fileDbConf.path, path.join(fileDbConf.dir, "sqlite-scripts", "media-storage.sql"))
+  let execDdl = !await fileExists(fileDbConf.path)
+  mediaEngine = await createMediaEngine(
+    await newSqliteCn(fileDbConf.path),
+    execDdl
+  )
 }
 
-async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
+export async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
   let cn = await createDatabaseConnectionWithSqlBricks({
     provider: sqlite3ConnectionProvider({ fileName }),
