@@ -5,7 +5,7 @@ import { OwnDash } from "../../App/OwnDash"
 import App from "../../App/App"
 import NavBtn, { NavBtnOptions } from "../../generics/NavBtn/NavBtn"
 import ProjectBtn, { ProjectBtnOptions } from "../../semantics/projects/ProjectBtn/ProjectBtn"
-import { render } from "../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./Sidebar.monk")
 

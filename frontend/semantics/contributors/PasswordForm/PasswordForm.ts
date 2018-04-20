@@ -5,7 +5,7 @@ import config from "../../../../isomorphic/config"
 import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
 import { OwnDash } from "../../../App/OwnDash";
-import { render, LtMonkberryView } from "../../../libraries/lt-monkberry";
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry";
 
 const template = require("./PasswordForm.monk")
 

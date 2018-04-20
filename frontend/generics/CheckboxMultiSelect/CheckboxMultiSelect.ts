@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import { removeAllChildren } from "../../libraries/utils"
-import { render } from "../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./CheckboxMultiSelect.monk")
 const liTemplate = require("./li.monk")

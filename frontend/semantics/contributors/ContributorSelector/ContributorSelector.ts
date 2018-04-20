@@ -5,7 +5,7 @@ import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../A
 import App from "../../../App/App"
 import ContributorDialog from "../ContributorDialog/ContributorDialog"
 import { OwnDash } from "../../../App/OwnDash";
-import { render } from "../../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")

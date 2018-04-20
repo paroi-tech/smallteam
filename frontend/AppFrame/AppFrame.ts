@@ -22,7 +22,7 @@ import BackgroundCommandManager from "../generics/BackgroundCommandManager/Backg
 import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu"
 import { ContributorModel } from "../AppModel/Models/ContributorModel"
 import { OwnDash } from "../App/OwnDash"
-import { render } from "../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./AppFrame.monk")
 

@@ -3,7 +3,7 @@ import App from "../../../App/App"
 import { Box } from "../../../generics/BoxList/BoxList"
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash";
-import { render } from "../../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./ContributorBox.monk")
 

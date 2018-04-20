@@ -8,7 +8,7 @@ import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/App
 import { ChildEasyRouter } from "../../../libraries/EasyRouter"
 import config from "../../../../isomorphic/config"
 import { OwnDash } from "../../../App/OwnDash";
-import { render } from "../../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./ContributorHome.monk")
 

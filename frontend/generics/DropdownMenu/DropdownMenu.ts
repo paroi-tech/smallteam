@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import { MenuItem } from "../Menu/Menu"
 import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 import { catchAndLog } from "../../libraries/utils"
-import { render } from "../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./DropdownMenu.monk")
 // const liTemplate = require("./li.monk")

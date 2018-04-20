@@ -6,7 +6,7 @@ import config from "../../../../isomorphic/config";
 import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
 import { UpdateModelEvent } from "../../../AppModel/ModelEngine";
 import { OwnDash } from "../../../App/OwnDash";
-import { render, LtMonkberryView } from "../../../libraries/lt-monkberry";
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry";
 
 const template = require("./ContributorForm.monk")
 

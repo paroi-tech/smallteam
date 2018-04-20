@@ -9,7 +9,7 @@ import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMen
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
 import { OwnDash } from "../../../App/OwnDash";
-import { render } from "../../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./ContributorWorkspace.monk")
 

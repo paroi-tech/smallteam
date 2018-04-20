@@ -1,11 +1,10 @@
 import { Dash } from "bkb"
 import * as Sortable from "sortablejs"
+import { render } from "@fabtom/lt-monkberry";
 
-import * as boxListTemplate from "./BoxList.monk"
-import * as liTemplate from "./li.monk"
-import * as inlineLiTemplate from "./InlineLi.monk"
-import { render } from "../../libraries/lt-monkberry";
-// import * as closeTemplate from "./ItemRemove.monk"
+const boxListTemplate = require("./BoxList.monk")
+const liTemplate = require("./li.monk")
+const inlineLiTemplate = require("./InlineLi.monk")
 
 /**
  * As BoxList is a template class, a BoxList instance parameter should implement this interface.

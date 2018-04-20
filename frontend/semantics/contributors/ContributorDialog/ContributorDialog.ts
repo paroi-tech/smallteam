@@ -4,7 +4,7 @@ import App from "../../../App/App"
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import { OwnDash } from "../../../App/OwnDash";
-import { render } from "../../../libraries/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./ContributorDialog.monk")
 
