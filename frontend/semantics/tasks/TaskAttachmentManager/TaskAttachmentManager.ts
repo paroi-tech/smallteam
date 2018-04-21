@@ -80,7 +80,7 @@ export default class TaskAttachmentManager {
     let fd = new FormData(this.formEl)
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${config.urlPrefix}/medias`, {
+      let response = await fetch(`${config.urlPrefix}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -132,8 +132,8 @@ export default class TaskAttachmentManager {
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/medias`, {
-        method: "delete",
+      let response = await fetch(`${config.urlPrefix}/medias/delete`, {
+        method: "post",
         credentials: "same-origin",
         headers: {
           "Accept": "application/json",

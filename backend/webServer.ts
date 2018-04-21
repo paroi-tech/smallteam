@@ -1,6 +1,6 @@
 import * as http from "http"
 import * as path from "path"
-import * as express from "express"
+const express = require("express")
 import { Request, Response, Router } from "express"
 
 const session = require("express-session")

@@ -57,7 +57,7 @@ export default class AvatarForm {
     let fd = new FormData(this.formEl)
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${config.urlPrefix}/medias`, {
+      let response = await fetch(`${config.urlPrefix}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd
