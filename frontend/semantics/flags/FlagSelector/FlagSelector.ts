@@ -45,9 +45,7 @@ export default class FlagSelector {
     })
 
     // Listen to flag reorder event.
-    this.dash.listenToModel<ReorderModelEvent>("reorder", data => {
-      if (data.type !== "Flag")
-        return
+    this.dash.listenToModel("reorderFlag", data => {
       let flagIds = data.orderedIds as string[]
       for (let flagId of flagIds) {
         let el = this.items.get(flagId)

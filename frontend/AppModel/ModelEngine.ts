@@ -40,14 +40,14 @@ export interface ReorderModelEvent {
   orderedIds: Identifier[]
 }
 
-export interface UpdateModelEvent {
+export interface UpdateModelEvent<M = any> {
   type: Type
   cmd: CommandType
   id: Identifier
   /**
    * Defined if the cmd is not 'delete'
    */
-  model?: any
+  model: M
 }
 //type ModelEvent = ReorderModelEvent | UpdateModelEvent
 

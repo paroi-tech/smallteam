@@ -1,13 +1,13 @@
 <div class="TaskBox">
   <div class="TaskBox-top">
-    <span class="js-span"></span>
-    <button class="RightOpenBtn" type="button">▶</button>
+    <span :ref="lbl"></span>
+    <button class="TaskBox-openBtn RightOpenBtn" type="button" :ref="openBtn">▶</button>
   </div>
-  <div class="TaskBox-bottom">
-    <div class="TaskBox-bottomLeft js-container-left"></div>
-    <div class="TaskBox-bottomCenter js-container-center">
-      <span class="TaskCommentCounter js-counter" title="Number of comments"></span>
+  <div class="TaskBox-bottom TaskBoxBottom">
+    <div class="TaskBoxBottom-col1" :ref="flags"></div>
+    <div class="TaskBoxBottom-col2">
+      <span class="TaskCommentCounter" title="Number of comments" :ref="comments"></span>
     </div>
-    <div class="TaskBox-bottomRight js-container-right"></div>
+    <div class="TaskBoxBottom-col3" :ref="users"></div>
   </div>
 </div>

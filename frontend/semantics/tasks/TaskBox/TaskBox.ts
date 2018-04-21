@@ -1,5 +1,4 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
 import TaskFlag from "../TaskFlag/TaskFlag"
 import { Model, TaskModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
@@ -7,6 +6,7 @@ import App from "../../../App/App"
 import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag"
 import { removeAllChildren } from "../../../libraries/utils"
 import { OwnDash } from "../../../App/OwnDash";
+import { render } from "@fabtom/lt-monkberry";
 
 const template = require("./TaskBox.monk")
 
@@ -18,13 +18,11 @@ const template = require("./TaskBox.monk")
  */
 export default class TaskBox implements Box {
   readonly el: HTMLElement
-  private spanEl: HTMLElement
-  private flagContainerEl: HTMLElement
-  private counterContainerEl: HTMLElement
-  private contributorContainerEl: HTMLElement
-  private commentCounterEl: HTMLElement
-
-  private view: MonkberryView
+  private flagsEl: HTMLElement
+  private usersEl: HTMLElement
+  // private spanEl: HTMLElement
+  // private counterContainerEl: HTMLElement
+  // private commentCounterEl: HTMLElement
 
   private model: Model
 
@@ -36,41 +34,36 @@ export default class TaskBox implements Box {
   constructor(private dash: OwnDash, readonly task: TaskModel) {
     this.model = this.dash.app.model
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.spanEl = this.el.querySelector(".js-span") as HTMLElement
-    this.spanEl.textContent = this.task.label
-    this.flagContainerEl = this.el.querySelector(".js-container-left") as HTMLElement
-    this.contributorContainerEl = this.el.querySelector(".js-container-right") as HTMLElement
-    this.counterContainerEl = this.el.querySelector(".js-container-center") as HTMLElement
-    this.commentCounterEl = this.el.querySelector(".js-counter") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
+    let labelEl = view.ref("lbl")
+    labelEl.textContent = this.task.label
 
-    this.addTaskFlags()
-    this.commentCounterEl.textContent = (this.task.commentCount || 0).toString()
+    this.usersEl = view.ref("users")
     this.addContributorFlags()
 
-    // Task update.
+    this.flagsEl = view.ref("flags")
+    this.addTaskFlags()
+
+    let commentsEl = view.ref("comments")
+    commentsEl.textContent = (this.task.commentCount || 0).toString()
+
     this.dash.listenToModel("updateTask", data => {
-      let task = data.model as TaskModel
-      if (task.id === this.task.id) {
-        this.spanEl.textContent = task.label
-        // Update the flags.
-        removeAllChildren(this.flagContainerEl)
+      if (data.model === this.task) {
+        labelEl.textContent = this.task.label
+        removeAllChildren(this.flagsEl)
         this.addTaskFlags()
-        removeAllChildren(this.contributorContainerEl)
+        removeAllChildren(this.usersEl)
         this.addContributorFlags()
       }
     })
 
-    // Listen to flag reorder event.
-    this.dash.listenToModel<ReorderModelEvent>("reorder", data => {
-      if (data.type !== "Flag")
-        return
-      removeAllChildren(this.flagContainerEl)
+    this.dash.listenToModel("reorderFlag", data => {
+      removeAllChildren(this.flagsEl)
       this.addTaskFlags()
     })
 
-    this.el.addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))
+    view.ref("openBtn").addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))
   }
 
   get id() {
@@ -91,7 +84,7 @@ export default class TaskBox implements Box {
       let contributor = this.model.global.contributors.get(contributorId)
       if (contributor) {
         let comp = this.dash.create(ContributorFlag, contributor)
-        this.contributorContainerEl.appendChild(comp.el)
+        this.usersEl.appendChild(comp.el)
       }
     }
   }
@@ -103,7 +96,7 @@ export default class TaskBox implements Box {
       let flag = this.model.global.flags.get(flagId)
       if (flag) {
         let flagComp = this.dash.create(TaskFlag, flag)
-        this.flagContainerEl.appendChild(flagComp.el)
+        this.flagsEl.appendChild(flagComp.el)
       }
     }
   }

@@ -63,8 +63,8 @@ export default class FlagForm {
         this.updateView()
     })
 
-    this.dash.listenToModel<FlagModel>("endProcessingContributor", data => this.onEndProcessing(data))
-    this.dash.listenToModel<FlagModel>("processingContributor", data => this.onProcessing(data))
+    this.dash.listenToModel("endProcessingContributor", data => this.onEndProcessing(data.model))
+    this.dash.listenToModel("processingContributor", data => this.onProcessing(data.model))
   }
 
   get flag(): FlagModel | undefined {
