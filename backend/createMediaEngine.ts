@@ -10,6 +10,8 @@ import { ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStor
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 
+export const MEDIAS_REL_URL = "/medias"
+
 export interface MediaEngine {
   storage: MediaStorage
   uploadEngine: UploadEngine
@@ -29,7 +31,7 @@ export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, exe
     uploadEngine: createUploadEngine({
       manager: createUploadEngineManager(storage),
       storage,
-      baseUrl: `${config.urlPrefix}/medias`
+      baseUrl: `${config.urlPrefix}${MEDIAS_REL_URL}`
     })
   }
 }

@@ -14,7 +14,7 @@ import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { removeExpiredRegistrationTokens } from "./mail"
-import { createMediaEngine } from "./createMediaEngine"
+import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { wait } from "../isomorphic/libraries/helpers"
 
 const PORT = 3921
@@ -64,7 +64,7 @@ export function startWebServer() {
   router.post("/api/who-use", makeRouteHandler(routeWhoUse, false))
 
   mediaEngine.uploadEngine.declareRoutes(router, {
-    baseUrl: "/medias"
+    baseUrl: MEDIAS_REL_URL
   })
 
   router.use(express.static(path.join(__dirname, "..", "www")))
