@@ -1,4 +1,4 @@
-<dialog class="js-form LoginDialog">
+<dialog class="LoginDialog">
   <header class="LoginDialog-header"></header>
 
   <main class="LoginDialog-box">

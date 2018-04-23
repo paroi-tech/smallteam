@@ -1,4 +1,4 @@
-<div class="js-container FlagWorkspace">
+<div class="FlagWorkspace">
   <div :ref="list"></div>
   <div :ref="form"></div>
 </div>

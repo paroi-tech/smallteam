@@ -104,9 +104,9 @@ export default class FlagSelector {
 
   private addItemFor(flag: FlagModel) {
     let box = this.dash.create(FlagBox, flag)
-    let view = render(liTemplate, document.createElement( "div"))
+    let view = render(liTemplate)
     let li = view.nodes[0] as HTMLLIElement
-    let checkBox = li.querySelector("input") as HTMLInputElement
+    let checkBox = view.ref("input") as HTMLInputElement
 
     this.items.set(flag.id, li)
     this.checkBoxes.set(flag.id, checkBox)

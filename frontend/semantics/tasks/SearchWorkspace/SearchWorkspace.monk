@@ -1,4 +1,4 @@
-<div class="js-container SearchWorkspace">
+<div class="SearchWorkspace">
   <div class="SearchWorkspace-searchDiv">
     <input type="text" placeholder="Search tasks" class="SearchWorkspace-searchInput" :ref="input">
   </div>

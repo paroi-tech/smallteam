@@ -102,18 +102,16 @@ export default class TaskAttachmentManager {
   }
 
   private addMedia(media: MediaModel) {
-    let view = render(itemTemplate, document.createElement("div"))
-    let el = view.nodes[0] as HTMLElement
+    let view = render(itemTemplate)
+    let el = view.rootEl()
 
-    let downloadBtn = el.querySelector(".js-download-button") as HTMLButtonElement
-    downloadBtn.addEventListener("click", (ev) => {
+    view.ref("download").addEventListener("click", (ev) => {
       let orig = media.getVariant("orig")
       if (orig)
         window.open(`${orig.url}?download=1`)
     })
 
-    let deleteBtn = el.querySelector(".js-remove-button") as HTMLButtonElement
-    deleteBtn.addEventListener("click", ev => {
+    view.ref("remove").addEventListener("click", ev => {
       let contributorId = this.model.session.contributor.id
       if (media.ownerId === contributorId && this.removeTaskAttachment(media.id))
         this.listEl.removeChild(el)

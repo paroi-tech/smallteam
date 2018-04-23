@@ -1,5 +1,5 @@
 import { Dash, Log } from "bkb"
-import * as MonkBerry from "monkberry"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
 import FlagSelector from "../../flags/FlagSelector/FlagSelector"
@@ -7,7 +7,7 @@ import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import App from "../../../App/App"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskForm.monk")
 
@@ -18,12 +18,8 @@ export default class TaskForm {
   private descriptionEl: HTMLTextAreaElement
   private submitSpinnerEl: HTMLElement
   private deleteSpinnerEl: HTMLElement
-  private flagContainerEl: HTMLElement
-  private commentContainerEl: HTMLElement
-  private contributorContainerEl: HTMLElement
-  private attachmentContainerEl: HTMLElement
 
-  private view: MonkberryView
+  private view: LtMonkberryView
 
   private currentTask: TaskModel | undefined
   private model: Model
@@ -39,59 +35,46 @@ export default class TaskForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = MonkBerry.render(template, document.createElement("div"))
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.fieldsetEl = this.view.ref("fieldset")
+    this.labelEl = this.view.ref("label")
+    this.descriptionEl = this.view.ref("description")
+    this.submitSpinnerEl = this.view.ref("submitSpinner")
+    this.deleteSpinnerEl = this.view.ref("deleteSpinner")
 
-    this.el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
-    this.labelEl = this.el.querySelector(".js-task-label") as HTMLInputElement
-    this.descriptionEl = this.el.querySelector(".js-task-description") as HTMLTextAreaElement
-    this.submitSpinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
-    this.deleteSpinnerEl = this.el.querySelector(".js-delete-spinner") as HTMLElement
-    this.flagContainerEl = this.el.querySelector(".js-fselector-container") as HTMLElement
-    this.contributorContainerEl = this.el.querySelector(".js-cselector-container") as HTMLElement
-    this.commentContainerEl = this.el.querySelector(".js-comment-container") as HTMLElement
-    this.attachmentContainerEl = this.el.querySelector(".js-attachment-container") as HTMLElement
-
-    let submitBtn = this.el.querySelector(".js-submit-button") as HTMLButtonElement
-    submitBtn.addEventListener("click", ev => this.updateTask())
-
-    let showPanelBtn = this.el.querySelector(".js-btn-panel") as HTMLButtonElement
-    showPanelBtn.addEventListener("click", ev => {
+    this.view.ref("submit").addEventListener("click", ev => this.updateTask())
+    this.view.ref("btnToggle").addEventListener("click", ev => {
       if (this.currentTask)
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
-
-    let showLogBtn = this.el.querySelector(".js-btn-log") as HTMLButtonElement
-    showLogBtn.addEventListener("click", ev => {
+    this.view.ref("btnLog").addEventListener("click", ev => {
       if (this.currentTask)
         this.logDialog.show()
     })
-
-    let deleteBtn = this.el.querySelector(".js-btn-delete") as HTMLButtonElement
-    deleteBtn.addEventListener("click", ev => {
+    this.view.ref("btnDelete").addEventListener("click", ev => {
       if (this.currentTask)
         this.deleteTask()
     })
 
     this.flagSelector = this.dash.create(FlagSelector)
-    this.flagContainerEl.appendChild(this.flagSelector.el)
+    this.view.ref("fselector").appendChild(this.flagSelector.el)
 
     this.contributorSelector = this.dash.create(ContributorSelector)
-    this.contributorContainerEl.appendChild(this.contributorSelector.el)
+    this.view.ref("cselector").appendChild(this.contributorSelector.el)
 
     this.commentEditor = this.dash.create(TaskCommentEditor)
-    this.commentContainerEl.appendChild(this.commentEditor.el)
+    this.view.ref("comment").appendChild(this.commentEditor.el)
 
     this.logDialog = this.dash.create(TaskLogDialog)
 
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
-    this.attachmentContainerEl.appendChild(this.attachmentMgr.el)
+    this.view.ref("attachment").appendChild(this.attachmentMgr.el)
 
     this.dash.listenToModel("deleteTask", data => {
       if (this.currentTask !== undefined && this.currentTask.id === data.id)
         this.reset()
     })
-
     this.dash.listenToModel("updateTask", data => {
       if (this.currentTask && this.currentTask.id === data.id) {
         let state = {
@@ -102,7 +85,7 @@ export default class TaskForm {
       }
     })
 
-    this.hide()
+    this.hide() // TaskForm is hidden by default.
   }
 
   public hide() {

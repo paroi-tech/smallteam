@@ -1,42 +1,42 @@
 <div class="TaskForm">
-  <fieldset>
+  <fieldset :ref="fieldset">
     <header class="TaskForm-header">Task Form</header>
 
     <label class="FormField">
       <span class="FormField-span">Name</span>
-      <input class="js-task-label InlineText TaskForm-taskNameInput" type="text" value="{{ label }}">
+      <input class="InlineText TaskForm-taskNameInput" type="text" value="{{ label }}" :ref="label">
     </label>
 
     <label class="FormField">
       <span class="FormField-span">Description</span>
-      <textarea class="js-task-description Text TaskForm-textarea" placeholder="Task description...">{{ description }}</textarea>
+      <textarea class="Text TaskForm-textarea" placeholder="Task description" :ref="description">
+        {{ description }}
+      </textarea>
     </label>
 
-    <div class="js-fselector-container"></div>
+    <div :ref="fselector"></div>
+    <div :ref="cselector"></div>
 
-    <div class="js-cselector-container"></div>
-
-    <button type="button" class="StdBtn js-submit-button">
+    <button type="button" class="StdBtn" :ref="submit">
       Submit
-      <span class="js-submit-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
+      <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="submitSpinner"></span>
     </button>
 
-    <div class="js-comment-container"></div>
-
-    <div class="js-attachment-container"></div>
+    <div :ref="comment"></div>
+    <div :ref="attachment"></div>
 
     <div>
-      <button class="js-btn-panel">Show/Hide as parent</button>
+      <button :ref="btnToggle">Show/Hide as parent</button>
     </div>
 
     <div>
-      <button class="js-btn-log">Show logs</button>
+      <button :ref="btnLog">Show logs</button>
     </div>
 
     <div>
-      <button class="js-btn-delete">
+      <button :ref="btnDelete">
         Delete task
-        <span class="js-delete-spinner fa fa-spinner fa-spin fa-1x fa-fw" style="display: none"></span>
+        <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
       </button>
     </div>
   </fieldset>

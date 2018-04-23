@@ -10,7 +10,7 @@
     <p>Loading logs</p>
   </div>
 
-  <table class="TaskLogDialog-table js-table">
+  <table class="TaskLogDialog-table" :ref="table">
     <caption>List of logs</caption>
       <thead>
         <tr>

@@ -6,11 +6,11 @@
 
   <ul class="TaskAttachementManager-ul" :ref="ul"></ul>
 
-  <form action="" method="post" enctype="multipart/form-data">
+  <form action="" method="post" enctype="multipart/form-data" :ref="form">
     <input name="f" type="file" :ref="input">
     <button class="TaskAttachmentManager-uploadButton" type="submit" :ref="upload">
       Send file
-      <span class="fa fa-upload fa-1x" :ref="btnSpinner"></span>
+      <span class="fa fa-upload fa-1x" :ref="spinner"></span>
     </button>
   </form>
 </div>
