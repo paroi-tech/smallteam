@@ -1,5 +1,5 @@
 <div class="FlagForm">
-  <fieldset>
+  <fieldset :ref="fieldset">
     <label class="FormField">
       <span class="FormField-span">Label</span>
       <input type="text" :ref="label" required value="{{ frag.label }}">
@@ -20,7 +20,7 @@
       &nbsp;
       <button type="button" :ref="submitBtn">
         Submit
-        <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none"></span>
+        <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none" :ref="spinner"></span>
       </button>
     </div>
   </fieldset>

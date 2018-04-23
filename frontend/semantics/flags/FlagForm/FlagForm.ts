@@ -42,10 +42,10 @@ export default class FlagForm {
     this.view = render(template)
     this.el = this.view.rootEl()
     this.fieldsetEl = this.view.ref("fieldset")
-    this.labelEl = this.view.ref(".js-label")
-    this.colorEl = this.view.ref(".js-color")
-    this.orderNumEl = this.view.ref(".js-order-num")
-    this.spinnerEl = this.view.ref(".fa-spinner")
+    this.labelEl = this.view.ref("label")
+    this.colorEl = this.view.ref("color")
+    this.orderNumEl = this.view.ref("orderNum")
+    this.spinnerEl = this.view.ref("spinner")
 
     this.view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
 
