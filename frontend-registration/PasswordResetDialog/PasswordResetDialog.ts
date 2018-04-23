@@ -1,6 +1,6 @@
 import config from "../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import InfoDialog from "../../frontend/generics/modal-dialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../frontend/generics/modal-dialogs/ErrorDialog/ErrorDialog"
 
@@ -8,35 +8,30 @@ const template = require("./PasswordResetDialog.monk")
 
 export default class LoginDialog {
   readonly el: HTMLDialogElement
-
   private passwordEl: HTMLInputElement
   private passwordConfirmEl: HTMLInputElement
-  private submitBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
 
-  private view: MonkberryView
-
   constructor(private dash: Dash, private contributorId: string, private token: string) {
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDialogElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.passwordEl = view.ref("password")
+    this.passwordConfirmEl = view.ref("confirm")
+    this.spinnerEl = view.ref("spinner")
 
-    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
-    this.passwordConfirmEl = this.el.querySelector(".js-confirm") as HTMLInputElement
-    this.submitBtnEl = this.el.querySelector(".js-submitBtn") as HTMLButtonElement
-    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
-    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
-
-    this.el.addEventListener("keyup", ev => {
-      if ((ev as KeyboardEvent).key === "Enter")
-        this.submitBtnEl.click()
+    let btnEl: HTMLButtonElement = view.ref("submitBtn")
+    btnEl.addEventListener("click", ev => this.onSubmit())
+    this.el.addEventListener("keyup", (ev: KeyboardEvent) => {
+      if (ev.key === "Enter")
+        btnEl.click()
     })
-    document.body.appendChild(this.el)
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
   public open() {
+    document.body.appendChild(this.el)
     this.el.showModal()
   }
 

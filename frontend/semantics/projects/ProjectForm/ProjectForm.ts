@@ -1,6 +1,5 @@
 import { PublicDash, Dash, Log } from "bkb"
-import { render } from "monkberry"
-import directives from "monkberry-directives"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
@@ -10,8 +9,8 @@ import StepBox from "../../steps/StepBox/StepBox"
 import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import NavBtn from "../../../generics/NavBtn/NavBtn"
-import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
-import { OwnDash } from "../../../App/OwnDash";
+import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog"
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./ProjectForm.monk")
 
@@ -25,14 +24,11 @@ export default class ProjectForm implements Workspace {
   private stepMultiSelect: CheckboxMultiSelect<StepModel>
   private menu: DropdownMenu
 
-  private view: MonkberryView
+  private view: LtMonkberryView
   private state = {
-    name: "",
-    code: "",
     // Monkberry does not work well with TextAreaElement, so we update manually the description field.
-    ctrl: {
-      submit: () => this.onSubmit()
-    }
+    name: "",
+    code: ""
   }
 
   private model: Model
@@ -50,13 +46,12 @@ export default class ProjectForm implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"), { directives })
-    this.el = this.view.nodes[0] as HTMLDivElement
-    this.codeEl = this.el.querySelector(".js-code") as HTMLInputElement
-    this.nameEl = this.el.querySelector(".js-name") as HTMLInputElement
-    this.descriptionEl = this.el.querySelector(".js-description") as HTMLTextAreaElement
-    this.spinnerEl = this.el.querySelector(".js-submit-spinner") as HTMLElement
-    this.view.update(this.state)
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.codeEl = this.view.ref("code")
+    this.nameEl = this.view.ref("name")
+    this.descriptionEl = this.view.ref("description")
+    this.spinnerEl = this.view.ref("spinner")
 
     this.menu = this.createDropdownMenu()
     this.stepMultiSelect = this.createStepMultiSelect()
@@ -67,7 +62,6 @@ export default class ProjectForm implements Workspace {
       if (this.currentProject)
         this.stepMultiSelect.selectItems(this.currentProject.steps)
     })
-
     this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => {
       this.stepMultiSelect.setAllItems(this.model.global.steps)
       if (this.currentProject)

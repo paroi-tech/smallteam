@@ -1,4 +1,4 @@
 <section class="FlagSelector">
   <h1 class="FlagSelector-h1">Flags</h1>
-  <ul class="FlagSelector-ul"></ul>
+  <ul class="FlagSelector-ul" :ref="ul"></ul>
 </section>

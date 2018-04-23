@@ -1,25 +1,25 @@
 <div class="ProjectForm">
-  <div class="js-title BlockTitle">Project form</div>
-  <div class="js-form">
+  <div :ref="title" class="BlockTitle">Project form</div>
+  <div :ref="form">
     <label class="FormField">
       <span class="FormField-span">Project Name</span>
-      <input type="text" class="js-name" value="{{ name }}">
+      <input type="text" :ref="name" value="{{ name }}">
     </label>
 
     <label class="FormField">
       <span class="FormField-span">Project Code</span>
-      <input type="text" class="js-code" value="{{ code }}">
+      <input type="text" :ref="code" value="{{ code }}">
     </label>
 
     <label class="FormField">
       <span class="FormField-span">Description</span>
-      <textarea class="js-description"></textarea>
+      <textarea :ref="description"></textarea>
     </label>
 
     <div>
-      <button type="button" :onclick={{ ctrl.submit }}>
+      <button type="button">
         Submit
-        <span class="fa fa-spinner fa-pulse fa-1x fa-fw js-submit-spinner" style="display: none"></span>
+        <span class="fa fa-spinner fa-pulse fa-1x fa-fw" :ref="spinner" style="display: none"></span>
       </button>
     </div>
   </div>

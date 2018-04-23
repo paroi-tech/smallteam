@@ -1,5 +1,5 @@
 import { Dash, Log } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import FlagForm from "../FlagForm/FlagForm"
 import FlagBox from "../FlagBox/FlagBox"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
@@ -9,14 +9,12 @@ import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { equal } from "../../../libraries/utils"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./FlagWorkspace.monk")
 
 export default class FlagWorkspace implements Workspace {
   readonly el: HTMLElement
-  private boxListContainerEl: HTMLElement
-  private formContainerEl: HTMLElement
 
   private boxList: BoxList<FlagBox>
   private form: FlagForm
@@ -24,8 +22,6 @@ export default class FlagWorkspace implements Workspace {
 
   private model: Model
   private log: Log
-
-  private view: MonkberryView
 
   /**
    * Timer used to schedule the commit of the changes in the BoxList to the model.
@@ -36,20 +32,21 @@ export default class FlagWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
-    this.formContainerEl = this.el.querySelector(".js-form-container") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
 
-    this.boxList = this.dash.create(BoxList, {
+    let options = {
       id: "",
       name: "Flags",
       group: undefined,
       sort: true
-    })
-    this.boxListContainerEl.appendChild(this.boxList.el)
+    }
+    this.boxList = this.dash.create(BoxList, options)
+    view.ref("listContainer").appendChild(this.boxList.el)
+
     this.form = this.dash.create(FlagForm)
-    this.formContainerEl.appendChild(this.form.el)
+    view.ref("formContainer").appendChild(this.form.el)
+
     this.menu = this.dash.create(DropdownMenu, {
         btnEl: createCustomMenuBtnEl(),
         align: "left"
@@ -61,16 +58,18 @@ export default class FlagWorkspace implements Workspace {
     })
 
     this.fillBoxList()
+    this.listenToModel()
+  }
 
+  private listenToModel() {
     this.dash.listenTo<FlagModel>("flagBoxSelected", flag => this.form.flag = flag)
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleFlagReordering(data))
-
+    this.dash.listenToModel("deleteFlag", data => this.boxList.removeBox(data.id as string))
     this.dash.listenToModel("createFlag", data => {
       let flag = data.model as FlagModel
       let box = this.dash.create(FlagBox, flag)
       this.boxList.addBox(box)
     })
-    this.dash.listenToModel("deleteFlag", d => this.boxList.removeBox(d.id as string))
   }
 
   private scheduleFlagReordering(ev: BoxListEvent) {
