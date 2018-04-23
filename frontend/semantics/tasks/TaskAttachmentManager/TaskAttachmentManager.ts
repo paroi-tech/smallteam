@@ -1,6 +1,6 @@
 import { Dash, Log } from "bkb"
 import App from "../../../App/App"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
@@ -15,26 +15,24 @@ export default class TaskAttachmentManager {
   private listEl: HTMLElement
   private formEl: HTMLFormElement
   private inputEl: HTMLInputElement
-  private uploadButtonEl: HTMLButtonElement
+  private uploadBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
 
   private model: Model
   private currentTask: TaskModel | undefined
   private log: Log
 
-  private view: MonkberryView
-
   constructor(private dash: Dash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.listEl = this.el.querySelector("ul") as HTMLElement
-    this.formEl = this.el.querySelector("form") as HTMLFormElement
-    this.inputEl = this.el.querySelector(".js-input") as HTMLInputElement
-    this.uploadButtonEl = this.el.querySelector(".js-upload-button") as HTMLButtonElement
-    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.listEl = view.ref("ul")
+    this.formEl = view.ref("form")
+    this.inputEl = view.ref("input")
+    this.uploadBtnEl = view.ref("upload")
+    this.spinnerEl = view.ref("spinner")
     this.formEl.onsubmit = (ev) => {
       ev.preventDefault()
       this.onFormSubmit()

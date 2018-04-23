@@ -1,25 +1,21 @@
-import { Log } from "bkb";
-import { render } from "monkberry";
-import { OwnDash } from "../../../App/OwnDash";
-import { Model, StepModel } from "../../../AppModel/AppModel";
-import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu";
-import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils";
-import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog";
+import { Log } from "bkb"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
+import { Model, StepModel } from "../../../AppModel/AppModel"
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
+import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 
 const template = require("./StepForm.monk")
 
 export default class StepForm {
   readonly el: HTMLElement
-  private menuContainerEl: HTMLElement
-  private fieldContainerEl: HTMLElement
   private fieldsetEl: HTMLFieldSetElement
   private nameEl: HTMLInputElement
-  private submitButtonEl: HTMLButtonElement
-  private cancelButtonEl: HTMLButtonElement
-  private submitButtonSpinnerEl: HTMLElement
+  private spinnerEl: HTMLElement
 
   private dropdownMenu: DropdownMenu
-  private view: MonkberryView
+  private view: LtMonkberryView
 
   private currentStep: StepModel | undefined
   private model: Model
@@ -29,27 +25,42 @@ export default class StepForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDivElement
-    this.menuContainerEl = this.el.querySelector(".js-menu-container") as HTMLElement
-    this.fieldContainerEl = this.el.querySelector(".js-field-container") as HTMLElement
-    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
-    this.nameEl = this.fieldContainerEl.querySelector(".js-name") as HTMLInputElement
-    this.submitButtonEl = this.fieldContainerEl.querySelector(".js-submitBtn") as HTMLButtonElement
-    this.submitButtonSpinnerEl = this.fieldContainerEl.querySelector(".fa-spinner") as HTMLElement
-    this.cancelButtonEl = this.fieldContainerEl.querySelector(".js-cancel-btn") as HTMLButtonElement
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.fieldsetEl = this.view.ref("fieldset")
+    this.nameEl = this.view.ref("name")
+    this.spinnerEl = this.view.ref("spinner")
 
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl()
-    } as DropdownMenuOptions
+        btnEl: createCustomMenuBtnEl()
+      } as DropdownMenuOptions
     )
     this.dropdownMenu.entries.createNavBtn({
       label: "Delete step",
       onClick: () => this.deleteCurrentStep()
     })
-    this.menuContainerEl.appendChild(this.dropdownMenu.btnEl)
+    this.view.ref("menu").appendChild(this.dropdownMenu.btnEl)
 
-    this.listenToForm()
+    let btnEl = this.view.ref("submitBtn") as HTMLButtonElement
+    btnEl.addEventListener("click", ev => {
+      let name = this.nameEl.value.trim()
+      if (name.length === 0) {
+        this.log.warn("The name of the step should contain more characters.")
+        return
+      }
+      this.updateStep(name)
+    })
+    this.view.ref("cancelBtn").addEventListener("click", ev => {
+      this.clearContent()
+      btnEl.setAttribute("disabled", "true")
+      if (this.currentStep)
+        this.updateView()
+    })
+    this.nameEl.addEventListener("keyup", ev => {
+      if (!btnEl.getAttribute("disabled") && ev.key === "Enter")
+        btnEl.click()
+    })
+    this.nameEl.addEventListener("input", ev => btnEl.removeAttribute("disabled"))
 
     this.dash.listenToModel("deleteStep", data => {
       if (this.currentStep && this.currentStep.id === data.id)
@@ -79,10 +90,6 @@ export default class StepForm {
       this.lockForm()
   }
 
-  // --
-  // -- Initialization functions
-  // --
-
   private onEndProcessing(step: StepModel) {
     if (!this.currentStep || this.currentStep.id !== step.id)
       return
@@ -94,33 +101,6 @@ export default class StepForm {
     if (!this.currentStep || this.currentStep.id !== step.id)
       return
     this.lockForm()
-  }
-
-  private listenToForm() {
-    this.submitButtonEl.addEventListener("click", ev => {
-      let name = this.nameEl.value.trim()
-      if (name.length === 0) {
-        this.log.warn("The name of the step should contain more characters...")
-        return
-      }
-      this.updateStep(name)
-    })
-
-    this.cancelButtonEl.addEventListener("click", ev => {
-      this.clearContent()
-      this.submitButtonEl.setAttribute("disabled", "true")
-      if (this.currentStep)
-        this.updateView()
-    })
-
-    // Validating the content of the name field triggers the submit button click event.
-    this.nameEl.addEventListener("keyup", ev => {
-      if (!this.submitButtonEl.getAttribute("disabled") && ev.key === "Enter")
-        this.submitButtonEl.click()
-    })
-
-    // Editing the value of the name field enables the submit button.
-    this.nameEl.addEventListener("input", ev => this.submitButtonEl.removeAttribute("disabled"))
   }
 
   // --
@@ -183,10 +163,10 @@ export default class StepForm {
   }
 
   private showSpinner() {
-    this.submitButtonSpinnerEl.style.display = "inline"
+    this.spinnerEl.style.display = "inline"
   }
 
   private hideSpinner() {
-    this.submitButtonSpinnerEl.style.display = "none"
+    this.spinnerEl.style.display = "none"
   }
 }

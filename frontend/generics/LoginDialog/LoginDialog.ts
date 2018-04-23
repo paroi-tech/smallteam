@@ -33,10 +33,11 @@ export default class LoginDialog {
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
+
+    document.body.appendChild(this.el)
   }
 
   public open(): Promise<string | number> {
-    document.body.appendChild(this.el)
     this.enable()
     this.el.showModal()
     this.curDfd = new Deferred()

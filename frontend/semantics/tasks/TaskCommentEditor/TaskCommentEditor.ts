@@ -3,20 +3,17 @@ import App from "../../../App/App"
 import { Model, TaskModel, UpdateModelEvent, CommentModel } from "../../../AppModel/AppModel"
 import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment"
 import TaskComment from "../TaskComment/TaskComment"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../libraries/utils"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskCommentEditor.monk")
 
 export default class TaskCommentEditor {
   readonly el: HTMLElement
   private listEl: HTMLElement
-  private textAreaEl: HTMLTextAreaElement
-  private submitBtnEl: HTMLButtonElement
-  private submitBtnSpanEl: HTMLElement
-
-  private view: MonkberryView
+  private textEl: HTMLTextAreaElement
+  private spinnerEl: HTMLElement
 
   private listItems = new Map<string, HTMLElement>()
 
@@ -28,15 +25,13 @@ export default class TaskCommentEditor {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
+    let view = render(template)
+    this.el = view.rootEl()
+    this.listEl = view.ref("ul")
+    this.textEl = view.ref("textarea")
+    this.spinnerEl = view.ref("spinner")
 
-    this.el = this.view.nodes[0] as HTMLElement
-    this.listEl = this.el.querySelector(".js-ul") as HTMLElement
-    this.textAreaEl = this.el.querySelector("textarea") as HTMLTextAreaElement
-    this.submitBtnEl = this.el.querySelector(".js-submit") as HTMLButtonElement
-    this.submitBtnSpanEl = this.el.querySelector(".js-spinner") as HTMLElement
-
-    this.submitBtnEl.addEventListener("click", ev => {
+    view.ref("submit").addEventListener("click", ev => {
       if (this.currentTask)
         this.onSubmit()
     })
@@ -53,9 +48,9 @@ export default class TaskCommentEditor {
       if (!this.currentTask)
         return
       let commentId = data.id as string
-      let li = this.listItems.get(commentId)
-      if (li) {
-        this.listEl.removeChild(li)
+      let item = this.listItems.get(commentId)
+      if (item) {
+        this.listEl.removeChild(item)
         this.listItems.delete(commentId)
       }
     })
@@ -85,7 +80,7 @@ export default class TaskCommentEditor {
     if (!this.currentTask)
       return
 
-    let text = this.textAreaEl.value.trim()
+    let text = this.textEl.value.trim()
     if (text.length === 0)
       return
 
@@ -96,7 +91,7 @@ export default class TaskCommentEditor {
 
     try {
       await this.model.exec("create", "Comment", frag)
-      this.textAreaEl.value = ""
+      this.textEl.value = ""
     } catch (err) {
       this.log.error("Unable to create new comment")
     }
@@ -115,7 +110,7 @@ export default class TaskCommentEditor {
   }
 
   private reset() {
-    this.textAreaEl.value = ""
+    this.textEl.value = ""
     removeAllChildren(this.listEl)
   }
 }

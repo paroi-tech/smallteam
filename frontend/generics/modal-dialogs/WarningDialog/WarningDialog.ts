@@ -27,13 +27,14 @@ export default class WarningDialog {
       if (ev.key === "Enter")
         this.close()
     })
+
+    document.body.appendChild(this.el)
   }
 
   public show(msg: string, title = "Warning"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
-    document.body.appendChild(this.el)
     this.el.showModal()
 
     return this.currDfd.promise

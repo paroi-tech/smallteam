@@ -1,5 +1,5 @@
 import { Dash, Log } from "bkb"
-import { render } from "monkberry"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model, TaskModel, UpdateModelEvent, CommentModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { CommentCreateFragment } from "../../../../isomorphic/meta/Comment"
@@ -20,7 +20,7 @@ export default class TaskComment {
   private textareaEl: HTMLTextAreaElement
   private contentEl: HTMLElement
 
-  private view: MonkberryView
+  private view: LtMonkberryView
   private state = {
     author: "",
     modificationDate: ""
@@ -39,14 +39,13 @@ export default class TaskComment {
     this.log = this.dash.app.log
     this.contributorId = this.dash.app.model.session.contributor.id
 
-    this.view = render(template, document.createElement("div"))
-
-    this.el = this.view.nodes[0] as HTMLElement
-    this.editButtonEl = this.el.querySelector(".js-edit") as HTMLButtonElement
-    this.cancelButtonEl = this.el.querySelector(".js-cancel") as HTMLButtonElement
-    this.deleteButtonEl = this.el.querySelector(".js-delete") as HTMLButtonElement
-    this.textareaEl = this.el.querySelector("textarea") as HTMLTextAreaElement
-    this.contentEl = this.el.querySelector(".js-content") as HTMLElement
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.editButtonEl = this.view.ref("edit")
+    this.cancelButtonEl = this.view.ref("cancel")
+    this.deleteButtonEl = this.view.ref("delete")
+    this.textareaEl = this.view.ref("textarea")
+    this.contentEl = this.view.ref("content")
 
     this.editButtonEl.textContent = editText
     this.editButtonEl.addEventListener("click", ev => this.onBtnEditClick())

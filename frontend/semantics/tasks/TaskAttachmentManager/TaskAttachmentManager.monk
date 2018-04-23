@@ -1,15 +1,16 @@
 <div class="TaskAttachmentManager">
   <header class="TaskAttachmentManager-header">
     <div class="TaskAttachmentManager-headerLeft">Attached files</div>
-    <div class="TaskAttachmentManager-headerRight">
-      <span class="fa fa-spin fa-spinner fa-1x js-spinner" style="display: none"></span>
-    </div>
+    <div class="TaskAttachmentManager-headerRight"></div>
   </header>
-  <ul class="TaskAttachementManager-ul"></ul>
+
+  <ul class="TaskAttachementManager-ul" :ref="ul"></ul>
+
   <form action="" method="post" enctype="multipart/form-data">
-    <input name="f" type="file" class="js-input">
-    <button class="TaskAttachmentManager-uploadButton js-upload-button" type="submit">
-      <span class="fa fa-upload fa-1x js-spinner"></span> &nbsp; Send file
+    <input name="f" type="file" :ref="input">
+    <button class="TaskAttachmentManager-uploadButton" type="submit" :ref="upload">
+      Send file
+      <span class="fa fa-upload fa-1x" :ref="btnSpinner"></span>
     </button>
   </form>
 </div>

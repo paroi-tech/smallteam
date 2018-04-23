@@ -33,13 +33,14 @@ export default class PromptDialog {
       if (ev.key === "Enter" && this.inputEl.value !== "")
         this.close(this.inputEl.value)
     })
+
+    document.body.appendChild(this.el)
   }
 
   public show(msg: string, title = "Prompt"): Promise<string> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
-    document.body.appendChild(this.el)
     this.el.showModal()
 
     return this.currDfd.promise

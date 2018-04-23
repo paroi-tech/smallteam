@@ -1,9 +1,9 @@
 <div class="js-container SearchWorkspace">
   <div class="SearchWorkspace-searchDiv">
-    <input type="text" placeholder="Search tasks" class="js-input SearchWorkspace-searchInput">
+    <input type="text" placeholder="Search tasks" class="SearchWorkspace-searchInput" :ref="input">
   </div>
   <div class="SearchWorkspace-body">
-    <div class="SearchWorkspace-bodyLeft js-left"></div>
-    <div class="SearchWorkspace-bodyRight js-right"></div>
+    <div class="SearchWorkspace-bodyLeft" :ref="left"></div>
+    <div class="SearchWorkspace-bodyRight" :ref="right"></div>
   </div>
 </div>

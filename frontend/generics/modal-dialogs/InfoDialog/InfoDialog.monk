@@ -18,6 +18,6 @@
   </div>
 
   <div class="ModalDialog-bottom">
-    <button class="ModalDialogOkButton" :ref="js-button">OK</button>
+    <button class="ModalDialogOkButton" :ref="button">OK</button>
   </div>
 </dialog>

@@ -24,14 +24,18 @@ export default class QuestionDialog {
       ev.preventDefault()
       this.close(false)
     })
-    this.el.addEventListener("keydown", ev => ev.key === "Enter" && this.close(true))
+    this.el.addEventListener("keydown", ev => {
+      if (ev.key === "Enter")
+      this.close(true)
+    })
+
+    document.body.appendChild(this.el)
   }
 
   public show(msg: string, title = "Error"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
-    document.body.appendChild(this.el)
     this.el.showModal()
 
     return this.currDfd.promise

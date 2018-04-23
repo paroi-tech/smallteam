@@ -19,7 +19,7 @@ export default class LoginDialog {
     let view = render(template)
     this.el = view.rootEl()
     this.emailEl = view.ref("email")
-    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
+    this.spinnerEl = view.ref("spinner")
 
     let btnEl: HTMLButtonElement = view.ref("submit")
     btnEl.addEventListener("click", ev => this.onSubmit())
@@ -31,10 +31,11 @@ export default class LoginDialog {
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
+
+    document.body.appendChild(this.el)
   }
 
   public open() {
-    document.body.appendChild(this.el)
     this.el.showModal()
     this.curDfd = new Deferred()
     return this.curDfd.promise

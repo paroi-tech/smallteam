@@ -4,7 +4,7 @@
       <span :ref="title"></span>
     </div>
     <div class="InfoDialog-headerRight">
-      <span class="fas fa-times-circle fa-1x ModalDialogCloseItem" :ref="js-close"></span>
+      <span class="fas fa-times-circle fa-1x ModalDialogCloseItem" :ref="close"></span>
     </div>
   </header>
 

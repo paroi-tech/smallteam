@@ -1,5 +1,5 @@
 import { Dash, Log } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import StepForm from "../StepForm/StepForm"
 import StepBox from "../StepBox/StepBox"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
@@ -11,15 +11,17 @@ import { OwnDash } from "../../../App/OwnDash";
 
 const template = require("./StepWorkspace.monk")
 
+const boxListOptions = {
+  id: "",
+  name: "Steps",
+  group: undefined,
+  sort: true
+}
+
 export default class StepWorkspace implements Workspace {
   readonly el: HTMLElement
-  private boxListContainerEl: HTMLElement
-  private formContainerEl: HTMLElement
-  private addBtnEl: HTMLButtonElement
   private nameEl: HTMLInputElement
   private spinnerEl: HTMLElement
-
-  private view: MonkberryView
 
   private boxList: BoxList<StepBox>
   private form: StepForm
@@ -36,30 +38,22 @@ export default class StepWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
-    this.formContainerEl = this.el.querySelector(".js-edit-form-container") as HTMLElement
-    this.addBtnEl = this.el.querySelector(".js-add-form-btn") as HTMLButtonElement
-    this.spinnerEl = this.el.querySelector(".fa-spinner") as HTMLElement
-    this.nameEl = this.el.querySelector(".js-input") as HTMLInputElement
-    this.nameEl.onkeyup = ev => {
+    let view = render(template)
+    this.el = view.rootEl()
+    this.nameEl = view.ref("input")
+    this.spinnerEl = view.ref("spinner")
+
+    let btnEl = view.ref("btn")as HTMLButtonElement
+    btnEl.addEventListener("click", ev => this.onAdd())
+    this.nameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
-        this.addBtnEl.click()
-    }
-    this.addBtnEl.onclick = (ev) => this.onAdd()
-
-    this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Steps",
-      group: undefined,
-      sort: true
+        btnEl.click()
     })
-    this.boxListContainerEl.appendChild(this.boxList.el)
 
+    this.boxList = this.dash.create(BoxList, boxListOptions)
+    view.ref("boxList").appendChild(this.boxList.el)
     this.form = this.dash.create(StepForm)
-    this.formContainerEl.appendChild(this.form.el)
-
+    view.ref("form").appendChild(this.boxList.el)
     this.fillBoxList()
 
     this.dash.listenTo<StepModel>("stepBoxSelected", step => {
@@ -67,13 +61,11 @@ export default class StepWorkspace implements Workspace {
     })
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleStepOrderUpdate(data))
 
-    // Step creation.
     this.dash.listenToModel("createStep", data => {
       let step = data.model as StepModel
       let box = this.dash.create(StepBox, step)
       this.boxList.addBox(box)
     })
-    // Step deletion.
     this.dash.listenToModel("deleteStep", data => this.boxList.removeBox(data.id as string))
   }
 
@@ -102,7 +94,7 @@ export default class StepWorkspace implements Workspace {
     try {
       let arr = await this.dash.app.model.reorder("Step", ids)
       if (!equal(arr, ids)) {
-        console.error("Sorry. Server rejected new order of steps...", arr, ids)
+        console.error("Sorry. Server rejected new order of steps.", arr, ids)
         this.boxList.sort(arr)
       }
     } catch (err) {

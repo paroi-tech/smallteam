@@ -1,4 +1,4 @@
 <div class="js-container FlagWorkspace">
-  <div :ref="listContainer"></div>
-  <div :ref="formContainer"></div>
+  <div :ref="list"></div>
+  <div :ref="form"></div>
 </div>

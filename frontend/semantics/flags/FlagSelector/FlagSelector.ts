@@ -25,12 +25,10 @@ export default class FlagSelector {
     this.el = view.rootEl()
     this.listEl = view.ref("ul")
 
-    this.model.global.flags.forEach(flag => this.addItemFor(flag))
-  }
+    for (let flag of this.model.global.flags)
+      this.addItemFor(flag)
 
-  private listenToModel() {
     this.dash.listenToModel("createFlag", data => this.addItemFor(data.model as FlagModel))
-
     // IMPORTANT: What happens to orderNums when a flag is deleted ?
     this.dash.listenToModel("deleteFlag", data => {
       let flagId = data.id as string
@@ -39,7 +37,6 @@ export default class FlagSelector {
         this.listEl.removeChild(li)
       this.checkBoxes.delete(flagId)
     })
-
     this.dash.listenToModel("reorderFlag", data => {
       let flagIds = data.orderedIds as string[]
       for (let flagId of flagIds) {
@@ -117,4 +114,3 @@ export default class FlagSelector {
     this.listEl.appendChild(li)
   }
 }
-

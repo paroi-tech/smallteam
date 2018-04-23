@@ -13,6 +13,13 @@ import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./FlagWorkspace.monk")
 
+const boxListOptions = {
+  id: "",
+  name: "Flags",
+  group: undefined,
+  sort: true
+}
+
 export default class FlagWorkspace implements Workspace {
   readonly el: HTMLElement
 
@@ -35,17 +42,11 @@ export default class FlagWorkspace implements Workspace {
     let view = render(template)
     this.el = view.rootEl()
 
-    let options = {
-      id: "",
-      name: "Flags",
-      group: undefined,
-      sort: true
-    }
-    this.boxList = this.dash.create(BoxList, options)
-    view.ref("listContainer").appendChild(this.boxList.el)
+    this.boxList = this.dash.create(BoxList, boxListOptions)
+    view.ref("list").appendChild(this.boxList.el)
 
     this.form = this.dash.create(FlagForm)
-    view.ref("formContainer").appendChild(this.form.el)
+    view.ref("form").appendChild(this.form.el)
 
     this.menu = this.dash.create(DropdownMenu, {
         btnEl: createCustomMenuBtnEl(),
@@ -58,10 +59,7 @@ export default class FlagWorkspace implements Workspace {
     })
 
     this.fillBoxList()
-    this.listenToModel()
-  }
 
-  private listenToModel() {
     this.dash.listenTo<FlagModel>("flagBoxSelected", flag => this.form.flag = flag)
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleFlagReordering(data))
     this.dash.listenToModel("deleteFlag", data => this.boxList.removeBox(data.id as string))

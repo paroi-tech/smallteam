@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import App from "../../../App/App"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import { Model, UpdateModelEvent, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
@@ -14,8 +14,6 @@ export default class SearchWorkspace implements Workspace {
   readonly el: HTMLElement
   private inputEl: HTMLInputElement
 
-  private view: MonkberryView
-
   private boxList: BoxList<TaskBox>
   private taskForm: TaskForm
 
@@ -24,22 +22,20 @@ export default class SearchWorkspace implements Workspace {
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.inputEl = this.el.querySelector(".js-input") as HTMLInputElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.inputEl = view.ref("input")
     this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
 
-    let leftEl = this.el.querySelector(".js-left") as HTMLElement
     this.boxList = this.dash.create(BoxList, {
       id: "",
       name: "Search results",
       sort: false
     })
-    leftEl.appendChild(this.boxList.el)
+    view.ref("left").appendChild(this.boxList.el)
 
-    let rightEl = this.el.querySelector(".js-right") as HTMLElement
     this.taskForm = this.dash.create(TaskForm)
-    rightEl.appendChild(this.taskForm.el)
+    view.ref("right").appendChild(this.taskForm.el)
 
     this.dash.listenTo("taskBoxSelected", task => {
       this.taskForm.task = task

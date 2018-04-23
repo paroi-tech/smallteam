@@ -1,19 +1,16 @@
 import { Dash, Log } from "bkb"
 import App from "../../../App/App"
 import { Model, TaskModel, UpdateModelEvent, TaskLogEntryModel } from "../../../AppModel/AppModel"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../libraries/utils"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskLogDialog.monk")
 
 export default class TaskLogDialog {
   readonly el: HTMLDialogElement
-  private closeButtonEl: HTMLButtonElement
   private tableEl: HTMLTableElement
   private loadIndicatorEl: HTMLElement
-
-  private view: MonkberryView
 
   private model: Model
   private currentTask: TaskModel | undefined
@@ -26,14 +23,11 @@ export default class TaskLogDialog {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-
-    this.el = this.view.nodes[0] as HTMLDialogElement
-    this.closeButtonEl = this.el.querySelector(".js-close") as HTMLButtonElement
-    this.closeButtonEl.addEventListener("click", ev => this.hide())
-    this.loadIndicatorEl = this.el.querySelector(".js-loader") as HTMLElement
-    this.tableEl = this.el.querySelector(".js-table") as HTMLTableElement
-    document.body.appendChild(this.el)
+    let view = render(template)
+    this.el = view.rootEl()
+    this.loadIndicatorEl = view.ref("loader")
+    this.tableEl = view.ref("table")
+    view.ref("close").addEventListener("click", ev => this.hide())
 
     this.dash.listenTo(this.model, "createTaskLogEntry", data => {
       let entry = data.model as TaskLogEntryModel
@@ -41,6 +35,11 @@ export default class TaskLogDialog {
         return
       this.addEntry(entry)
     })
+
+    // By default, pressing the ESC key close the dialog. We have to prevent that.
+    this.el.addEventListener("cancel", ev => ev.preventDefault())
+
+    document.body.appendChild(this.el)
   }
 
   get task(): TaskModel | undefined {

@@ -1,4 +1,4 @@
 <div class="TaskBoard">
-  <div class="TaskBoard-left js-left"></div>
-  <div class="TaskBoard-right js-right"></div>
+  <div class="TaskBoard-left" :ref="left"></div>
+  <div class="TaskBoard-right" :ref="right"></div>
 </div>

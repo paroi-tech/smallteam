@@ -1,11 +1,11 @@
 <dialog class="TaskLogDialog">
   <header class="TaskLogDialog-header">
-    <button class="TaskLogDialog-closeButton js-close" title="Close">
+    <button class="TaskLogDialog-closeButton" :ref="close" title="Close">
       <span class="fa fa-1x fa-times"></span>
     </button>
   </header>
 
-  <div class="TaskLogDialogLoader js-loader">
+  <div class="TaskLogDialogLoader" :ref="loader">
     <span class="fa fa-spin fa-spinner fa-1x"></span>
     <p>Loading logs</p>
   </div>

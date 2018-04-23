@@ -1,5 +1,5 @@
 import { Dash, Log } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
@@ -11,9 +11,6 @@ const template = require("./TaskBoard.monk")
 export default class TaskBoard {
   readonly el: HTMLElement
   private leftEl: HTMLElement
-  private rightEl: HTMLElement
-
-  private view: MonkberryView
 
   private taskForm: TaskForm
   private stepSwitcherMap = new Map<String, StepSwitcher>()
@@ -25,13 +22,12 @@ export default class TaskBoard {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.leftEl = this.el.querySelector(".js-left") as HTMLElement
-    this.rightEl = this.el.querySelector(".js-right") as HTMLElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.leftEl = view.ref("left")
 
     this.taskForm = this.dash.create(TaskForm)
-    this.rightEl.appendChild(this.taskForm.el)
+    view.ref("right").appendChild(this.taskForm.el)
 
     let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
     this.leftEl.appendChild(rootTaskStepSwitcher.el)
@@ -43,7 +39,6 @@ export default class TaskBoard {
         return
       this.showStepSwitcher(task)
     })
-
     // Task deletion. We check if there is a StepSwitcher created for the task and remove it.
     this.dash.listenToModel("deleteTask", data => {
       let taskId = data.id as string

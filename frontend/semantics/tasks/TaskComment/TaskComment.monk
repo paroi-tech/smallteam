@@ -1,24 +1,24 @@
 <div class="TaskComment">
 
   <div class="TaskComment-left">
-    <textarea class="TaskComment-textarea"></textarea>
+    <textarea class="TaskComment-textarea" :ref="textarea"></textarea>
     <div>
-        <span class="fa fa-user fa-1x"></span> &nbsp; {{ author }} &nbsp;
-        <span class="fa fa-pencil-square-o fa-1x"></span> &nbsp; {{ modificationDate }}
+      <span class="fa fa-user fa-1x"></span> &nbsp; {{ author }} &nbsp;
+      <span class="fa fa-pencil-square-o fa-1x"></span> &nbsp; {{ modificationDate }}
     </div>
-    <div class="TaskCommentContent js-content"></div>
+    <div class="TaskCommentContent" :ref="content"></div>
   </div>
 
   <div class="TaskComment-right">
-    <button class="TaskComment-editButton js-edit" title="Edit comment">
+    <button class="TaskComment-editButton" :ref="edit" title="Edit comment">
       <!-- The content of the button is set in the component code. -->
     </button>
 
-    <button class="TaskComment-cancelButton js-cancel" title="Undo changes">
+    <button class="TaskComment-cancelButton" :ref="cancel" title="Undo changes">
       <span class="fa fa-undo fa-1x"></span>
     </button>
 
-    <button class="TaskComment-deleteButton js-delete" title="Delete comment">
+    <button class="TaskComment-deleteButton" :ref="delete" title="Delete comment">
       <span class="fa fa-remove fa-1x"></span>
     </button>
   </div>

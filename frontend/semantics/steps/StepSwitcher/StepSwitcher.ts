@@ -1,5 +1,5 @@
 import { Dash, Log } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { Model, ProjectModel, TaskModel, StepModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
 import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
 import TaskBox from "../../tasks/TaskBox/TaskBox"
@@ -21,18 +21,13 @@ const times = "\u{00D7}"
  */
 export default class StepSwitcher {
   readonly el: HTMLElement
-  private taskNameEl: HTMLInputElement
-  private addTaskBtnEl: HTMLButtonElement
-  private addTaskSpinnerEl: HTMLElement
-  private busyIndicatorEl: HTMLElement
-  private foldableEl: HTMLElement
-  private toggleBtnEl: HTMLButtonElement
   private toggleBtnSpanEl: HTMLElement
-  private closeBtnEl: HTMLButtonElement
-  private boxListContainerEl: HTMLElement
-  private addTaskPane: HTMLElement
-
-  private view: MonkberryView
+  private foldableEl: HTMLElement
+  private blContainerEl: HTMLElement
+  private busyIndicatorEl: HTMLElement
+  private taskNameEl: HTMLInputElement
+  private spinnerEl: HTMLElement
+  private bottomEl: HTMLElement
 
   private model: Model
   private project: ProjectModel
@@ -52,35 +47,39 @@ export default class StepSwitcher {
     this.log = this.dash.app.log
     this.project = this.parentTask.project
 
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.taskNameEl = this.el.querySelector(".js-task-name")  as HTMLInputElement
-    this.addTaskBtnEl = this.el.querySelector(".js-add-task-button") as HTMLButtonElement
-    this.addTaskSpinnerEl = this.el.querySelector(".js-add-task-button .fa-spinner") as HTMLElement
-    this.busyIndicatorEl = this.el.querySelector(".js-indicator") as HTMLElement
-    this.foldableEl = this.el.querySelector(".js-foldable") as HTMLElement
-    this.boxListContainerEl = this.el.querySelector(".js-boxlist-container") as HTMLElement
-    this.addTaskPane = this.el.querySelector(".js-bottom") as HTMLElement
-    this.toggleBtnEl = this.el.querySelector(".js-toggle-btn") as HTMLButtonElement
-    this.toggleBtnSpanEl = this.toggleBtnEl.querySelector("span") as HTMLElement
-    this.closeBtnEl = this.el.querySelector(".js-close-btn") as HTMLButtonElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.foldableEl = view.ref("foldable")
+    this.blContainerEl = view.ref("boxList")
+    this.taskNameEl = view.ref("taskName")
+    this.toggleBtnSpanEl = view.ref("toggleSpan")
     this.toggleBtnSpanEl.textContent = caretUp
-    this.closeBtnEl.textContent = times
-    this.addTaskBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
-    this.taskNameEl.onkeyup = (ev => {
-      if (ev.key === "Enter")
-        this.addTaskBtnEl.click()
-    })
-    // If the task of this StepSwitcher is the project main task, the panel title is set to 'Main tasks'.
-    let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
-    let titleEl = this.el.querySelector(".js-title") as HTMLElement
-    titleEl.textContent = title
-    this.toggleBtnEl.addEventListener("click", ev => this.toggleFoldableContent())
-    this.closeBtnEl.addEventListener("click", ev => {
+    this.spinnerEl = view.ref("spinner")
+    this.busyIndicatorEl = view.ref("indicator")
+    this.bottomEl = view.ref("bottom")
+
+    let isRootTask = this.parentTask.id === this.project.rootTaskId
+
+    let closeBtnEl = view.ref("closeBtn")
+    closeBtnEl.textContent = times
+    closeBtnEl.addEventListener("click", ev => {
       // We can't hide the rootTask StepSwitcher or tasks with children.
-      if (this.parentTask.id !== this.project.rootTaskId && (!this.parentTask.children || this.parentTask.children.length === 0))
+      let hasChildren = this.parentTask.children && this.parentTask.children.length !== 0
+      if (!isRootTask && !hasChildren)
         this.setVisible(false)
     })
+
+    let addBtnEl = view.ref("addBtn") as HTMLButtonElement
+    addBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
+    this.taskNameEl.addEventListener("keyup", ev => {
+      if (ev.key === "Enter")
+        addBtnEl.click()
+    })
+    view.ref("toggleBtn").addEventListener("click", ev => this.toggleFoldableContent())
+
+    let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
+    let titleEl = view.ref("title") as HTMLElement
+    titleEl.textContent = title
 
     this.createBoxLists()
     this.fillBoxLists()
@@ -206,7 +205,7 @@ export default class StepSwitcher {
 
   private reset() {
     this.dash.children().forEach(child => this.dash.getPublicDashOf(child).destroy())
-    removeAllChildren(this.boxListContainerEl)
+    removeAllChildren(this.blContainerEl)
     this.createBoxLists()
     this.fillBoxLists()
   }
@@ -217,7 +216,7 @@ export default class StepSwitcher {
   private createBoxLists() {
     for (let step of this.project.steps) {
       let list = this.createBoxListFor(step)
-      this.boxListContainerEl.appendChild(list.el)
+      this.blContainerEl.appendChild(list.el)
     }
   }
 
@@ -300,12 +299,12 @@ export default class StepSwitcher {
       return
     }
 
-    this.addTaskPane.style.pointerEvents = "none"
-    this.addTaskSpinnerEl.style.display = "inline"
+    this.bottomEl.style.pointerEvents = "none"
+    this.spinnerEl.style.display = "inline"
     if (await this.createTask(name))
       this.taskNameEl.value = ""
-    this.addTaskSpinnerEl.style.display = "none"
-    this.addTaskPane.style.pointerEvents = "auto"
+    this.spinnerEl.style.display = "none"
+    this.bottomEl.style.pointerEvents = "auto"
     this.taskNameEl.focus()
   }
 
