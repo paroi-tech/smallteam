@@ -1,6 +1,6 @@
 import config from "../../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
 import ErrorDialog from "../modal-dialogs/ErrorDialog/ErrorDialog"
@@ -11,34 +11,30 @@ const template = require("./PasswordResetDialog.monk")
 export default class LoginDialog {
   private readonly el: HTMLDialogElement
   private emailEl: HTMLInputElement
-  private submitBtnEl: HTMLButtonElement
-  private cancelBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
-
-  private view: MonkberryView
 
   private curDfd: Deferred<any> | undefined
 
   constructor(private dash: Dash) {
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDialogElement
-    this.emailEl = this.el.querySelector(".js-email") as HTMLInputElement
-    this.submitBtnEl =this. el.querySelector(".js-submit") as HTMLButtonElement
-    this.cancelBtnEl =this. el.querySelector(".js-cancel") as HTMLButtonElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.emailEl = view.ref("email")
     this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
 
+    let btnEl: HTMLButtonElement = view.ref("submit")
+    btnEl.addEventListener("click", ev => this.onSubmit())
+    view.ref("cancel").addEventListener("click", ev => this.onCancel())
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
-        this.submitBtnEl.click()
+        btnEl.click()
     })
-    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
 
-    document.body.appendChild(this.el)
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
   public open() {
+    document.body.appendChild(this.el)
     this.el.showModal()
     this.curDfd = new Deferred()
     return this.curDfd.promise

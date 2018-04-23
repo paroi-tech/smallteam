@@ -61,7 +61,7 @@
     "@fabtom/lt-monkberry": "^0.2.1",
     "@types/express": "4.11.1",
     "@types/express-session": "1.15.8",
-    "@types/joi": "^13.0.7",
+    "@types/joi": "13.0.7",
     "@types/nodemailer": "4.6.0",
     "@types/showdown": "1.7.3",
     "@types/sql-bricks": "2.0.0",

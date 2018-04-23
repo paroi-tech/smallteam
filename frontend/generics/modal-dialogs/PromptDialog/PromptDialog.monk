@@ -1,10 +1,10 @@
 <dialog class="PromptDialog InfoDialog">
   <header class="InfoDialog-header">
     <div class="InfoDialog-headerLeft">
-      <span class="js-title"></span>
+      <span :ref="title"></span>
     </div>
     <div class="InfoDialog-headerRight">
-      <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
+      <span class="fas fa-times-circle fa-1x ModalDialogCloseItem" :ref="js-close"></span>
     </div>
   </header>
 
@@ -13,15 +13,15 @@
       <span class="fas fa-3x fa-edit"></span>
     </div>
     <div class="PromptDialog-contentRight">
-      <p class="js-message"></p>
+      <p :ref="message"></p>
       <pre><br></pre>
-      <input type="text" class="PromptDialog-input js-input">
+      <input type="text" class="PromptDialog-input" :ref="input">
     </div>
   </div>
 
   <div class="InfoDialog-bottom">
-    <button class="ModalDialogCancelButton js-cancel-button">Cancel</button>
+    <button class="ModalDialogCancelButton" :ref="cancelBtn">Cancel</button>
     <pre>&nbsp;</pre>
-    <button class="ModalDialogOkButton js-ok-button">OK</button>
+    <button class="ModalDialogOkButton" :ref="okBtn">OK</button>
   </div>
 </dialog>

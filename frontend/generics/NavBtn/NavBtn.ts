@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
-import { addCssClass, catchAndLog } from "../../libraries/utils";
+import { render } from "@fabtom/lt-monkberry"
+import { addCssClass, catchAndLog } from "../../libraries/utils"
 
 const template = require("./NavBtn.monk")
 const templateWithAlert = require("./NavBtn-withAlert.monk")
@@ -37,9 +37,8 @@ export default class NavBtn {
 
   constructor(private dash: Dash, private options: NavBtnOptions) {
     let tpl = options.canHaveAlert ? templateWithAlert : options.innerEl ? templateWithInner : template
-    let view = render(tpl, document.createElement("div"))
-    this.btnEl = view.nodes[0] as HTMLButtonElement
-
+    let view = render(tpl)
+    this.btnEl = view.rootEl()
     this.labelEl = tpl === template ? this.btnEl : this.btnEl.querySelector(".js-lbl") as HTMLElement
 
     if (options.label)
@@ -57,8 +56,8 @@ export default class NavBtn {
       this.btnEl.addEventListener("click", catchAndLog(options.onClick))
 
     if (options.withWrapper) {
-      let view = render(templateWrapper, document.createElement("div"))
-      this.el = view.nodes[0] as HTMLButtonElement
+      let view = render(templateWrapper)
+      this.el = view.rootEl()
       this.el.appendChild(this.btnEl)
     } else
       this.el = this.btnEl

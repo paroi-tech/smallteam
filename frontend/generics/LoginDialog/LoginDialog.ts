@@ -1,6 +1,6 @@
 import config from "../../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
 import ErrorDialog from "../modal-dialogs/ErrorDialog/ErrorDialog"
@@ -12,37 +12,31 @@ export default class LoginDialog {
   private readonly el: HTMLDialogElement
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
-  private submitBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
-  private resetPasswordEl: HTMLElement
-
-  private view: MonkberryView
 
   private curDfd: Deferred<string | number> | undefined
 
   constructor(private dash: Dash) {
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDialogElement
-    this.nameEl = this.el.querySelector(".js-username") as HTMLInputElement
-    this.passwordEl = this.el.querySelector(".js-password") as HTMLInputElement
-    this.submitBtnEl =this. el.querySelector(".js-submitBtn") as HTMLButtonElement
-    this.spinnerEl = this.el.querySelector(".js-spinner") as HTMLElement
-    this.resetPasswordEl = this.el.querySelector(".js-pwd-reset") as HTMLElement
-    this.submitBtnEl.addEventListener("click", ev => this.onSubmit())
-    this.resetPasswordEl.addEventListener("click", ev => this.onPasswordReset())
+    let view = render(template)
+    this.el = view.rootEl()
+    this.nameEl = view.ref("username")
+    this.passwordEl = view.ref("password") as HTMLInputElement
+    this.spinnerEl = view.ref("spinner") as HTMLElement
 
+    let btnEl: HTMLButtonElement = view.ref("submitBtn")
+    btnEl.addEventListener("click", ev => this.onSubmit())
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
-        this.submitBtnEl.click()
+        btnEl.click()
     })
-
-    document.body.appendChild(this.el)
+    view.ref("pwdReset").addEventListener("click", ev => this.onPasswordReset())
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
   public open(): Promise<string | number> {
+    document.body.appendChild(this.el)
     this.enable()
     this.el.showModal()
     this.curDfd = new Deferred()

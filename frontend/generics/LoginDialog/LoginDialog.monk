@@ -7,22 +7,20 @@
     <div class="Form">
       <label class="Form-item TextField">
         <span class="TextField-deco icon profile leftBlue">
-          <input class="TextField-input js-username" type="text" placeholder="Username">
+          <input class="TextField-input" :ref="username" type="text" placeholder="Username">
         </span>
       </label>
-
       <label class="Form-item gap TextField">
         <span class="TextField-deco icon lock leftBlue">
-          <input class="TextField-input js-password" type="password" placeholder="Password">
+          <input class="TextField-input" :ref="password" type="password" placeholder="Password">
         </span>
       </label>
-
-      <button class="Form-action StdBtn withSpinner js-submitBtn" type="button">
+      <button class="Form-action StdBtn withSpinner" :ref="submitBtn" type="button">
         Submit
-        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x js-spinner"></span>
+        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
       </button>
     </div>
 
-    <p class="LoginDialog-p Text">Forgot your password? <a href="#" class="js-pwd-reset">Click here</a>.</p>
+    <p class="LoginDialog-p Text">Forgot your password? <a href="#" :ref="pwdReset">Click here</a>.</p>
   </main>
 </dialog>

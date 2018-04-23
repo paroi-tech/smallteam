@@ -1,10 +1,10 @@
 <dialog class="ModalDialog InfoDialog">
   <header class="ModalDialog-header">
     <div class="ModalDialog-headerLeft">
-      <span class="js-title"></span>
+      <span :ref="title"></span>
     </div>
     <div class="ModalDialog-headerRight">
-      <span class="fas fa-times-circle fa-1x ModalDialogCloseItem js-close"></span>
+      <span class="fas fa-times-circle fa-1x ModalDialogCloseItem" :ref="close"></span>
     </div>
   </header>
 
@@ -13,11 +13,11 @@
       <span class="fas fa-3x fa-info-circle"></span>
     </div>
     <div class="ModalDialog-contentRight">
-      <p class="js-message"></p>
+      <p :ref="message"></p>
     </div>
   </div>
 
   <div class="ModalDialog-bottom">
-    <button class="ModalDialogOkButton js-button">OK</button>
+    <button class="ModalDialogOkButton" :ref="js-button">OK</button>
   </div>
 </dialog>

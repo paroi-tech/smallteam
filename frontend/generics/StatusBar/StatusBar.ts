@@ -1,5 +1,5 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./StatusBar.monk")
 
@@ -7,7 +7,7 @@ export default class StatusBar {
   readonly el: HTMLElement
 
   constructor(private dash: Dash) {
-    this.el = render(template, document.createElement("div")).nodes[0] as HTMLButtonElement
+    this.el = render(template).rootEl()
   }
 
   public addItem(el: HTMLElement) {

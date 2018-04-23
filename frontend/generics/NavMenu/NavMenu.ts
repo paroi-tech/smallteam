@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
-import NavBtn, { NavBtnOptions } from "../NavBtn/NavBtn";
-import { catchAndLog, addCssClass } from "../../libraries/utils";
+import { render } from "@fabtom/lt-monkberry"
+import NavBtn, { NavBtnOptions } from "../NavBtn/NavBtn"
+import { catchAndLog, addCssClass } from "../../libraries/utils"
 
 const template = require("./NavMenu.monk")
 const liTemplate = require("./li.monk")
@@ -26,8 +26,8 @@ export default class NavMenu {
   readonly el: HTMLUListElement
 
   constructor(private dash: Dash, private options: NavMenuOptions = {}) {
-    let view = render(template, document.createElement("div"))
-    this.el = view.nodes[0] as HTMLUListElement
+    let view = render(template)
+    this.el = view.rootEl()
     if (this.options.direction)
       this.el.classList.add(this.options.direction)
     addCssClass(this.el, this.options.cssClass)

@@ -1,5 +1,5 @@
 import { Dash } from "bkb"
-import { render } from "monkberry"
+import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../../libraries/Deferred"
 
 const template = require("./WarningDialog.monk")
@@ -9,25 +9,24 @@ export default class WarningDialog {
   private msgEl: HTMLElement
   private titleEl: HTMLElement
 
-  private view: MonkberryView
-
   private currDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash) {
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLDialogElement
+    let view = render(template)
+    this.el = view.rootEl()
+    this.msgEl = view.ref("message")
+    this.titleEl = view.ref("title")
+
+    view.ref("button").addEventListener("click", ev => this.close())
+    view.ref("close").addEventListener("click", ev => this.close())
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
       this.close()
     })
-    this.el.addEventListener("keydown", ev => ev.key === "Enter" && this.close())
-    this.msgEl = this.el.querySelector(".js-message") as HTMLElement
-    this.titleEl = this.el.querySelector(".js-title") as HTMLElement
-
-    let btn = this.el.querySelector(".js-button") as HTMLButtonElement
-    let closeItem = this.el.querySelector(".js-close") as HTMLElement
-    btn.addEventListener("click", ev => this.close())
-    closeItem.addEventListener("click", ev => this.close())
+    this.el.addEventListener("keydown", ev => {
+      if (ev.key === "Enter")
+        this.close()
+    })
   }
 
   public show(msg: string, title = "Warning"): Promise<boolean> {
