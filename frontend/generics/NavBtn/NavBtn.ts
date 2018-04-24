@@ -3,8 +3,8 @@ import { render } from "@fabtom/lt-monkberry"
 import { addCssClass, catchAndLog } from "../../libraries/utils"
 
 const template = require("./NavBtn.monk")
-const templateWithAlert = require("./NavBtn-withAlert.monk")
-const templateWithInner = require("./NavBtn-withInner.monk")
+// const templateWithAlert = require("./NavBtn-withAlert.monk")
+// const templateWithInner = require("./NavBtn-withInner.monk")
 const templateWrapper = require("./DdMenuWrapper.monk")
 
 export interface NavBtnIcon {
@@ -30,22 +30,24 @@ export interface NavBtnOptions {
 export default class NavBtn {
   readonly el: HTMLElement
   readonly btnEl: HTMLButtonElement
-  readonly innerEl?: HTMLSpanElement
+  readonly innerEl?: HTMLElement
 
   private labelEl: HTMLElement
   private alertEl?: HTMLElement
 
   constructor(private dash: Dash, private options: NavBtnOptions) {
-    let tpl = options.canHaveAlert ? templateWithAlert : options.innerEl ? templateWithInner : template
-    let view = render(tpl)
+    let altMode = options.canHaveAlert ? "alert" : options.innerEl ? "inner" : undefined
+    let view = render(template)
+    view.update({ altMode })
+
     this.btnEl = view.rootEl()
-    this.labelEl = tpl === template ? this.btnEl : this.btnEl.querySelector(".js-lbl") as HTMLElement
+    this.labelEl = altMode ?  view.ref("lbl") : this.btnEl
 
     if (options.label)
       this.setLabel(options.label)
 
     if (options.canHaveAlert)
-      this.alertEl = this.btnEl.querySelector(".js-alert") as HTMLElement
+      this.alertEl = view.ref("alert") as HTMLElement
 
     if (options.icon22)
       this.btnEl.classList.add("-icon22", `-${options.icon22.position}`, options.icon22.cssClass)
@@ -63,11 +65,11 @@ export default class NavBtn {
       this.el = this.btnEl
 
     if (options.innerEl) {
-      this.innerEl = this.btnEl.querySelector(".js-inner") as HTMLElement
-      this.innerEl.classList.add(options.innerEl.position)
+      this.innerEl = view.ref("inner")
+      this.innerEl!.classList.add(`-${options.innerEl.position}`)
       if (options.innerEl.cssClass)
-        this.innerEl.classList.add(options.innerEl.cssClass)
-      this.btnEl.classList.add(`${options.innerEl.position}Inner`)
+        this.innerEl!.classList.add(options.innerEl.cssClass)
+      this.btnEl.classList.add(`-${options.innerEl.position}Inner`)
     }
   }
 
