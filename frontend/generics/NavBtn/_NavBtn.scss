@@ -32,16 +32,16 @@
     }
   }
 
-  // &.-leftInner {
-  //   margin-left: 10px;
-  //   padding-left: 47px;
-  //   position: relative;
-  // }
-  // &.-rightInner {
-  //   margin-right: 5px;
-  //   padding-right: 47px;
-  //   position: relative;
-  // }
+  &.-leftInner {
+    margin-left: 10px;
+    padding-left: 47px;
+    position: relative;
+  }
+  &.-rightInner {
+    margin-right: 5px;
+    padding-right: 47px;
+    position: relative;
+  }
   &-inner {
     background: no-repeat 50% 50%;
     background-size: contain;

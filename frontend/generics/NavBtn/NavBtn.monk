@@ -1,1 +1,11 @@
-<button class="NavBtn NavBtn-lbl" type="button"></button>
+<button class="NavBtn NavBtn-lbl" type="button">
+  {% if altMode == "inner" %}
+  <span class="NavBtn-inner" :ref="inner"></span>
+  {% endif %}
+  {% if altMode == "inner" || altMode == "alert" %}
+  <span class="NavBtn-lbl" :ref="lbl"></span>
+  {% endif %}
+  {% if altMode == "alert" %}
+  <b class="NavBtn-alert" style="display: none" :ref="alert"></b>
+  {% endif %}
+</button>

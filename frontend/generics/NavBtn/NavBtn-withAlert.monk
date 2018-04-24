@@ -1,4 +1,0 @@
-<button class="NavBtn" type="button">
-  <span class="NavBtn-lbl js-lbl"></span>
-  <b class="NavBtn-alert js-alert" style="display: none"></b>
-</button>
