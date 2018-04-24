@@ -22,14 +22,10 @@ interface ContributorInfo {
   role: string
 }
 
-// --
-// -- Public functions
-// --
-
 export async function routeConnect(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!req)
     throw new Error("Required parameter missing in route callback")
-
+  // FIXME: Correct this.
   sessionData = req.session as any
   let contributor = await getContributorByLogin(data.login)
   if (contributor && await compare(data.password, contributor.password)) {
@@ -46,7 +42,10 @@ export async function routeConnect(data: any, sessionData?: SessionData, req?: R
 }
 
 export async function routeCurrentSession(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  if (req && req.session && req.session.contributorId && await getContributorById(req.session.contributorId)) {
+  if (!req || !req.session)
+    throw new Error("Required parameter missing in route callback")
+
+  if (hasSessionData(req)) {
     return {
       done: true,
       contributorId: req.session.contributorId
@@ -141,7 +140,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 }
 
-export async function routeSendPasswordResetMail(data: any) {
+export async function routePasswordResetMail(data: any) {
   if (!data || !data.email)
     throw new Error("Email is needed to send password reset token")
 
@@ -164,59 +163,19 @@ export async function routeSendPasswordResetMail(data: any) {
   }
 }
 
-async function generateAndSendPasswordResetToken(contributorId: string, address: string) {
-  let token = randomBytes(tokenSize).toString("hex")
-  let encodedToken = encodeURIComponent(token)
-  let host = config.host
-  // FIXME: Add URL param for action to take: reset password or user registration.
-  let url  = `${host}${config.urlPrefix}/registration.html?action=passwordReset&token=${encodedToken}&uid=${contributorId}`
-  let text = `We received a request to change your password.\nPlease follow this link ${url} if you made that request.`
-  let html = `We received a request to change your password.<br>Please click <a href="${url}">here</a> if you made that request.`
-
-  let result = await sendMail(address, "SmallTeam password reset", text, html)
-  if (!result.done) {
-    return {
-      done: false,
-      reason: result.error ? result.error.toString() : "Mail not sent"
-    }
-  }
-
-  let b = await storePasswordResetToken(token, contributorId)
-  return {
-    done: b,
-    reason: b ? "Unable to store token in database" : undefined
-  }
-}
-
-async function storePasswordResetToken(token: string, contributorId: string) {
-  let query = insert("reg_pwd", {
-    "contributor_id": contributorId,
-    "token": token
-  })
-
-  try {
-    await cn.execSqlBricks(query)
-    return true
-  } catch (error) {
-    return false
-  }
-}
-
 export function getSessionData(req: Request): SessionData {
-  if (!req.session || !req.session.contributorId)
-    throw new Error(`Missing session data`)
+  if (!hasSessionData(req))
+    throw new Error("Missing session data")
   return {
-    contributorId: req.session.contributorId
+    contributorId: req.session!.contributorId
   }
 }
 
 export function hasSessionData(req: Request): boolean {
-  return req.session && req.session.contributorId ? true : false
+  if (!req.session || !req.session.contributorId || typeof req.session.contributorId !== "string")
+    return false
+  return getContributorById(req.session.contributorId) !== undefined
 }
-
-// --
-// -- Utilily functions
-// --
 
 export async function getContributorById(id: string) {
   let query = select(["contributor_id", "password", "role"]).from("contributor").where("contributor_id", id)
@@ -255,6 +214,44 @@ export async function getContributorByEmail(email: string) {
   }
 
   return row ? toContributorInfo(row) : undefined
+}
+
+async function generateAndSendPasswordResetToken(contributorId: string, address: string) {
+  let token = randomBytes(tokenSize).toString("hex")
+  let encodedToken = encodeURIComponent(token)
+  let host = config.host
+  // FIXME: Add URL param for action to take: reset password or user registration.
+  let url  = `${host}${config.urlPrefix}/registration.html?action=passwordReset&token=${encodedToken}&uid=${contributorId}`
+  let text = `We received a request to change your password.\nPlease follow this link ${url} if you made that request.`
+  let html = `We received a request to change your password.<br>Please click <a href="${url}">here</a> if you made that request.`
+
+  let result = await sendMail(address, "SmallTeam password reset", text, html)
+  if (!result.done) {
+    return {
+      done: false,
+      reason: result.error ? result.error.toString() : "Mail not sent"
+    }
+  }
+
+  let b = await storePasswordResetToken(token, contributorId)
+  return {
+    done: b,
+    reason: b ? "Unable to store token in database" : undefined
+  }
+}
+
+async function storePasswordResetToken(token: string, contributorId: string) {
+  let query = insert("reg_pwd", {
+    "contributor_id": contributorId,
+    "token": token
+  })
+
+  try {
+    await cn.execSqlBricks(query)
+    return true
+  } catch (error) {
+    return false
+  }
 }
 
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {

@@ -1,15 +1,15 @@
 import * as http from "http"
 import * as path from "path"
-const express = require("express")
-import { Request, Response, Router } from "express"
 
+const express = require("express")
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
 import config from "../isomorphic/config"
+import { Request, Response, Router } from "express"
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
 import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeSetPassword, routeResetPassword, routeSendPasswordResetMail } from "./session"
+import { routeChangePassword, routeSetPassword, routeResetPassword, routePasswordResetMail, hasSessionData } from "./session"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -50,8 +50,7 @@ export function startWebServer() {
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
-  router.post("/api/session/send-password-reset-mail", makeRouteHandler(routeSendPasswordResetMail, true))
-  // TODO: Add route for new user account activation
+  router.post("/api/session/send-password-reset-mail", makeRouteHandler(routePasswordResetMail, true))
   router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
 
   router.post("/api/session/disconnect", makeRouteHandler(routeDisconnect, false))
@@ -83,7 +82,7 @@ export function startWebServer() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    if (!isPublic && (!req.session || req.session.contributorId === undefined)) {
+    if (!isPublic && !hasSessionData(req)) {
       write404(res)
       return
     }
