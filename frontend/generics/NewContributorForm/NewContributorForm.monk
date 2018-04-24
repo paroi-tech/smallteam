@@ -2,39 +2,39 @@
   <div class="Form">
     <label class="Form-item TextField">
       <span class="TextField-lbl">Name</span>
-      <input class="TextField-input leftBlue" :ref="firstname" type="text" placeholder="First">
-      <input class="TextField-input leftBlue" :ref="lastname" type="text" placeholder="Last">
+      <input class="TextField-input -leftBlue" :ref="firstname" type="text" placeholder="First">
+      <input class="TextField-input -leftBlue" :ref="lastname" type="text" placeholder="Last">
     </label>
 
     <label class="Form-item TextField">
       <span class="TextField-lbl">Choose your username</span>
-      <span class="TextField-deco leftBlue">
+      <span class="TextField-deco -leftBlue">
         <input class="TextField-input" :ref="username" type="text" placeholder="Username">
       </span>
     </label>
 
     <label class="Form-item TextField">
       <span class="TextField-lbl">Create a password</span>
-      <span class="TextField-deco leftBlue">
+      <span class="TextField-deco -leftBlue">
         <input class="TextField-input" :ref="password" type="password" placeholder="Password">
       </span>
     </label>
 
     <label class="Form-item TextField">
       <span class="TextField-lbl">Confirm your password</span>
-      <span class="TextField-deco leftBlue">
+      <span class="TextField-deco -leftBlue">
         <input class="TextField-input" :ref="confirm" type="password" placeholder="Password confirmation">
       </span>
     </label>
 
     <label class="Form-item TextField">
       <span class="TextField-lbl">Your email address</span>
-      <span class="TextField-deco leftBlue">
+      <span class="TextField-deco -leftBlue">
         <input class="TextField-input" :ref="email" type="email" placeholder="Email">
       </span>
     </label>
 
-    <button class="Form-action StdBtn withSpinner" :ref="submitBtn" type="button">
+    <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
       Submit
       <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
     </button>

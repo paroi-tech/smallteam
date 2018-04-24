@@ -4,16 +4,16 @@
   & > * {
     flex: 0 1 auto;
   }
-  &.column {
+  &.-column {
     flex-direction: column;
   }
-  &.columnReverse {
+  &.-columnReverse {
     flex-direction: column-reverse;
   }
-  &.rowReverse {
+  &.-rowReverse {
     flex-direction: row-reverse;
   }
-  & > .grow {
+  > .-grow {
     flex: 1;
   }
 }

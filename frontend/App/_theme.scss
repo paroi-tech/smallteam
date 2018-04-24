@@ -37,11 +37,11 @@ body {
   font-size: $f14;
   padding: 10px 19px 10px 17px;
 
-  &.withSpinner {
+  &.-withSpinner {
     padding-right: 24px;
     position: relative;
   }
-  &.withSpinner &-spinner {
+  &.-withSpinner &-spinner {
     display: none;
     margin-top: -7px;
     position: absolute;

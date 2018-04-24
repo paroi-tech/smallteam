@@ -6,16 +6,16 @@
 
     <div class="Form">
       <label class="Form-item TextField">
-        <span class="TextField-deco icon profile leftBlue">
+        <span class="TextField-deco -icon -profile -leftBlue">
           <input class="TextField-input" :ref="username" type="text" placeholder="Username">
         </span>
       </label>
-      <label class="Form-item gap TextField">
-        <span class="TextField-deco icon lock leftBlue">
+      <label class="Form-item -gap TextField">
+        <span class="TextField-deco -icon -lock -leftBlue">
           <input class="TextField-input" :ref="password" type="password" placeholder="Password">
         </span>
       </label>
-      <button class="Form-action StdBtn withSpinner" :ref="submitBtn" type="button">
+      <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
         Submit
         <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
       </button>

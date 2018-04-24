@@ -48,7 +48,7 @@ export default class NavBtn {
       this.alertEl = this.btnEl.querySelector(".js-alert") as HTMLElement
 
     if (options.icon22)
-      this.btnEl.classList.add("icon22", options.icon22.position, options.icon22.cssClass)
+      this.btnEl.classList.add("-icon22", `-${options.icon22.position}`, options.icon22.cssClass)
 
     addCssClass(this.btnEl, options.cssClass)
 

@@ -24,7 +24,7 @@ export default class Sidebar {
     view.ref("bottom").appendChild(dash.create(NavBtn, {
       label: "New project",
       onClick: () => this.dash.app.navigate("/new-project"),
-      cssClass: ["newProject", "ProjectBtn"]
+      cssClass: ["-newProject", "ProjectBtn"]
     } as NavBtnOptions).el)
   }
 

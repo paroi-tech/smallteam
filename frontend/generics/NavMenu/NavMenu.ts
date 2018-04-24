@@ -29,7 +29,7 @@ export default class NavMenu {
     let view = render(template)
     this.el = view.rootEl()
     if (this.options.direction)
-      this.el.classList.add(this.options.direction)
+      this.el.classList.add(`-${this.options.direction}`)
     addCssClass(this.el, this.options.cssClass)
     this.el.addEventListener("click", catchAndLog(() => this.dash.emit("click")))
   }

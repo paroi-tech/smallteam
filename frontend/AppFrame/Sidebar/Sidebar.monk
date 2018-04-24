@@ -1,5 +1,5 @@
-<section class="Sidebar FlexBar column">
-  <div class="grow">
+<section class="Sidebar FlexBar -column">
+  <div class="-grow">
     <h1 class="Sidebar-h1">Dashboard</h1>
     <div :ref="top"></div>
   </div>

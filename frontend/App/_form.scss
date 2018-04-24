@@ -22,14 +22,14 @@ button, label, input, textarea {
   &-item {
     margin-bottom: 9px;
 
-    &.gap {
+    &.-gap {
       margin-top: 14px;
     }
   }
 
-  &.spaced &-item {
-    margin-bottom: 18px;
-  }
+  // &.-spaced &-item {
+  //   margin-bottom: 18px;
+  // }
 
   &-action {
     margin-top: 11px;
@@ -62,25 +62,25 @@ button, label, input, textarea {
     display: block;
   }
 
-  &-deco.leftBlue {
+  &-deco.-leftBlue {
     border-left: 4px solid #5584ff;
   }
 
-  &-deco.leftBlue &-input {
+  &-deco.-leftBlue &-input {
     // padding-left: 5px;
     border-left: none;
     padding-left: 32px;
   }
 
-  &-deco.icon &-input {
+  &-deco.-icon &-input {
     padding-left: 32px;
   }
 
-  &-deco.icon {
+  &-deco.-icon {
     position: relative;
   }
 
-  &-deco.icon::before {
+  &-deco.-icon::before {
     content: "";
     height: 16px;
     left: 8px;
@@ -89,10 +89,10 @@ button, label, input, textarea {
     top: 50%;
     width: 16px;
   }
-  &-deco.icon.profile::before {
+  &-deco.-icon.-profile::before {
     @include bgSprite(-89px, -26px);
   }
-  &-deco.icon.lock::before {
+  &-deco.-icon.-lock::before {
     @include bgSprite(-89px, -2px);
   }
 }

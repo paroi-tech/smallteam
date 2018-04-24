@@ -8,7 +8,7 @@
   padding-left: 10px;
   padding-right: 10px;
 
-  &.icon22 {
+  &.-icon22 {
     position: relative;
     &::before {
       content: "";
@@ -18,13 +18,13 @@
       top: 50%;
       width: 22px;
     }
-    &.left {
+    &.-left {
       padding-left: 34px;
       &::before {
         left: 7px;
       }
     }
-    &.right {
+    &.-right {
       padding-right: 34px;
       &::before {
         right: 7px;
@@ -32,16 +32,16 @@
     }
   }
 
-  &.leftInner {
-    margin-left: 10px;
-    padding-left: 47px;
-    position: relative;
-  }
-  &.rightInner {
-    margin-right: 5px;
-    padding-right: 47px;
-    position: relative;
-  }
+  // &.-leftInner {
+  //   margin-left: 10px;
+  //   padding-left: 47px;
+  //   position: relative;
+  // }
+  // &.-rightInner {
+  //   margin-right: 5px;
+  //   padding-right: 47px;
+  //   position: relative;
+  // }
   &-inner {
     background: no-repeat 50% 50%;
     background-size: contain;
@@ -51,15 +51,15 @@
     position: absolute;
     top: 50%;
     width: 34px;
-    &.left {
+    &.-left {
       left: 5px;
     }
-    &.right {
+    &.-right {
       right: 5px;
     }
   }
 
-  &.newProject {
+  &.-newProject {
     padding-left: 58px;
     position: relative;
     width: 100%;

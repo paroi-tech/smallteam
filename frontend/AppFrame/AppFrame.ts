@@ -88,7 +88,7 @@ export default class AppFrame {
       label: "Notifications",
       icon22: {
         position: "right",
-        cssClass: "notif"
+        cssClass: "-notif"
       },
       canHaveAlert: true,
       onClick: ev => {
@@ -109,7 +109,7 @@ export default class AppFrame {
       label: "Settings",
       icon22: {
         position: "right",
-        cssClass: "setting"
+        cssClass: "-setting"
       },
       withWrapper: true
     } as NavBtnOptions)
@@ -127,7 +127,7 @@ export default class AppFrame {
         onClick: () => this.dash.app.navigate("/settings/steps"),
         icon22: {
           position: "left",
-          cssClass: "step"
+          cssClass: "-step"
         }
       },
       {
@@ -176,7 +176,7 @@ export default class AppFrame {
         onClick: () => this.dash.app.navigate("/settings/my-profile"),
         icon22: {
           position: "left",
-          cssClass: "profile"
+          cssClass: "-profile"
         }
       },
       {
@@ -184,7 +184,7 @@ export default class AppFrame {
         onClick: () => this.dash.app.disconnect(),
         icon22: {
           position: "left",
-          cssClass: "logout"
+          cssClass: "-logout"
         }
       },
     )
