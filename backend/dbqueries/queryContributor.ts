@@ -220,3 +220,62 @@ async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number
     orderNums.set(row["contributor_id"], row["order_num"])
   return orderNums
 }
+
+// --
+// -- Types and functions used by 'session.ts', 'invitation.ts' and 'mail.ts'
+// --
+
+interface Contributor {
+  id: string
+  role: string
+  login: string
+  password: string
+}
+
+export async function getContributorById(id: string) {
+  let query = select("contributor_id, login, password, role").from("contributor").where("contributor_id", id)
+  let row = undefined
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributor(row) : undefined
+}
+
+export async function getContributorByLogin(login: string) {
+  let query = select("contributor_id, login, password, role").from("contributor").where("login", login)
+  let row = undefined
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributor(row) : undefined
+}
+
+export async function getContributorByEmail(email: string) {
+  let query = select("contributor_id, login, password, role").from("contributor").where("email", email)
+  let row = undefined
+
+  try {
+    row = await cn.singleRowSqlBricks(query)
+  } catch (err) {
+    console.log(err)
+  }
+
+  return row ? toContributor(row) : undefined
+}
+
+function toContributor(row): Contributor {
+  return {
+    id: row["contributor_id"].toString(),
+    role: row["role"],
+    login: row["login"],
+    password: row["password"]
+  }
+}

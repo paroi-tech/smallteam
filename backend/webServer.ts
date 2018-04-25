@@ -8,8 +8,9 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 import config from "../isomorphic/config"
 import { Request, Response, Router } from "express"
 import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
-import { routeConnect, routeCurrentSession, routeDisconnect } from "./session"
-import { routeChangePassword, routeSetPassword, routeResetPassword, routePasswordResetMail, hasSessionData } from "./session"
+import { routeConnect, routeCurrentSession, routeEndSession } from "./session"
+import { routeChangePassword, routeSetPassword, routeResetPassword, hasSessionData } from "./session"
+import { routeSendPasswordEmail } from "./mail"
 import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -50,10 +51,10 @@ export function startWebServer() {
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
-  router.post("/api/session/send-password-reset-mail", makeRouteHandler(routePasswordResetMail, true))
+  router.post("/api/session/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))
   router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
 
-  router.post("/api/session/disconnect", makeRouteHandler(routeDisconnect, false))
+  router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
   router.post("/api/session/change-password", makeRouteHandler(routeChangePassword, false))
   router.post("/api/session/set-password", makeRouteHandler(routeSetPassword, false))
 
@@ -82,7 +83,7 @@ export function startWebServer() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    if (!isPublic && !hasSessionData(req)) {
+    if (!isPublic && !(await hasSessionData(req))) {
       write404(res)
       return
     }
