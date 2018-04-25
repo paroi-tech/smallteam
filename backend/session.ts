@@ -119,7 +119,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
 }
 
 export async function getSessionData(req: Request): Promise<SessionData> {
-  if (!hasSessionData(req))
+  if (!await hasSessionData(req))
     throw new Error("Missing session data")
   return {
     contributorId: req.session!.contributorId
@@ -176,7 +176,7 @@ function destroySession(req: Request): Promise<boolean> {
 }
 
 async function destroySessionIfAny(req) {
-  if (!req || !hasSessionData(req))
+  if (!req || !await hasSessionData(req))
     return
   destroySession(req)
 }

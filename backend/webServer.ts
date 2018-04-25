@@ -83,7 +83,7 @@ export function startWebServer() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    if (!isPublic && !(await hasSessionData(req))) {
+    if (!isPublic && !await hasSessionData(req)) {
       write404(res)
       return
     }
