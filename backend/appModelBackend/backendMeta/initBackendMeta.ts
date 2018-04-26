@@ -1,11 +1,11 @@
 import { addBackendFragmentMeta } from "./backendMetaStore"
-import projectMeta from "../../isomorphic/meta/Project"
-import taskMeta from "../../isomorphic/meta/Task"
-import stepMeta from "../../isomorphic/meta/Step"
-import taskLogEntryMeta from "../../isomorphic/meta/TaskLogEntry"
-import flagMeta from "../../isomorphic/meta/Flag"
-import commentMeta from "../../isomorphic/meta/Comment"
-import contributorMeta from "../../isomorphic/meta/Contributor"
+import projectMeta from "../../../isomorphic/meta/Project"
+import taskMeta from "../../../isomorphic/meta/Task"
+import stepMeta from "../../../isomorphic/meta/Step"
+import taskLogEntryMeta from "../../../isomorphic/meta/TaskLogEntry"
+import flagMeta from "../../../isomorphic/meta/Flag"
+import commentMeta from "../../../isomorphic/meta/Comment"
+import contributorMeta from "../../../isomorphic/meta/Contributor"
 
 addBackendFragmentMeta(
   projectMeta.read,

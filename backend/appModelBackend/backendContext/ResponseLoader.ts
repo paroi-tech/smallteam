@@ -1,4 +1,4 @@
-import { Cargo, Identifier, Result, Type, ResultType, CargoResponse } from "../../isomorphic/Cargo"
+import { Cargo, Identifier, Result, Type, ResultType, CargoResponse } from "../../../isomorphic/Cargo"
 
 export default class ResponseLoader {
   private displayError: string[] = []

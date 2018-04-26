@@ -1,9 +1,9 @@
 import * as path from "path"
-import { BackendContext } from "../backendContext/context"
+import { BackendContext } from "./backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
-import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 import { WhoUseItem } from "../../isomorphic/transfers";
 import { DatabaseConnection } from "mycn";

@@ -2,7 +2,6 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { hash, compare } from "bcrypt"
 import { cn } from "./utils/dbUtils"
-import { SessionData } from "./backendContext/context"
 import { bcryptSaltRounds } from "./backendConfig"
 import { tokenMaxValidity } from "./mail"
 import { select, insert, update, deleteFrom } from "sql-bricks"
@@ -10,6 +9,10 @@ import { sendMail } from "./mail"
 import config from "../isomorphic/config"
 import { tokenSize } from "./backendConfig"
 import { getContributorByLogin, getContributorById } from "./utils/userUtils"
+
+export interface SessionData {
+  contributorId: string
+}
 
 interface PasswordUpdateInfo {
   contributorId: string

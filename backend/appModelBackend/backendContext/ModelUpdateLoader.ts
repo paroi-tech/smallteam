@@ -1,6 +1,6 @@
-import { Identifier, Type, ModelUpdate } from "../../isomorphic/Cargo"
-import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
-import { toIdentifier } from "../../isomorphic/meta"
+import { Identifier, Type, ModelUpdate } from "../../../isomorphic/Cargo"
+import { makeHKMap, HKMap } from "../../../isomorphic/libraries/HKCollections"
+import { toIdentifier } from "../../../isomorphic/meta"
 
 export type ChangedType = "created" | "updated" | "deleted"
 

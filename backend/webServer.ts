@@ -7,11 +7,10 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 
 import config from "../isomorphic/config"
 import { Request, Response, Router } from "express"
-import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
-import { routeConnect, routeCurrentSession, routeEndSession } from "./session"
+import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./appModelBackend"
+import { routeConnect, routeCurrentSession, routeEndSession, SessionData } from "./session"
 import { routeChangePassword, routeSetPassword, routeResetPassword, hasSessionData } from "./session"
 import { routeSendPasswordEmail } from "./mail"
-import { SessionData } from "./backendContext/context"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { removeExpiredRegistrationTokens } from "./mail"

@@ -1,7 +1,7 @@
-import { BackendContext } from "../backendContext/context"
+import { BackendContext } from "./backendContext/context"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
-import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { toSqlValues } from "./backendMeta/backendMetaStore"
 import commentMeta, { CommentFragment, CommentCreateFragment, CommentIdFragment, CommentUpdateFragment, CommentSearchFragment } from "../../isomorphic/meta/Comment"
 
 // --
