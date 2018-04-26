@@ -2,9 +2,9 @@ import { randomBytes } from "crypto"
 import { cn } from "./utils/dbUtils"
 import config from "../isomorphic/config"
 import { createTransport, getTestMessageUrl } from "nodemailer"
-import { getContributorByEmail } from "./dbqueries/queryContributor"
 import { tokenSize } from "./backendConfig"
 import { insert } from "sql-bricks"
+import { getContributorByEmail } from "./utils/userUtils"
 
 export const tokenMaxValidity = 7 * 24 * 3600 // 7 days
 

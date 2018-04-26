@@ -9,7 +9,7 @@ import { select, insert, update, deleteFrom } from "sql-bricks"
 import { sendMail } from "./mail"
 import config from "../isomorphic/config"
 import { tokenSize } from "./backendConfig"
-import { getContributorByLogin, getContributorByEmail, getContributorById } from "./dbqueries/queryContributor"
+import { getContributorByLogin, getContributorById } from "./utils/userUtils"
 
 interface PasswordUpdateInfo {
   contributorId: string
