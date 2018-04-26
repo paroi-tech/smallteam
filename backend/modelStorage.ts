@@ -20,8 +20,7 @@ import { Request, Response } from "express"
 
 export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
-    throw new Error("Required sessionData missing in route callback")
-
+    throw new Error("SessionData missing in 'routeFetch'")
   let context: BackendContext = {
     sessionData,
     loader: new CargoLoader()
@@ -32,21 +31,18 @@ export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo
 
 export async function routeExec(data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
-    throw new Error("Required sessionData missing in route callback")
-
+    throw new Error("SessionData missing in 'routeExec'")
   let context: BackendContext = {
     sessionData,
     loader: new CargoLoader()
   }
   await executeCommand(context, data)
-
   return context.loader.toCargo()
 }
 
 export async function routeBatch(list: any[], sessionData?: SessionData): Promise<BatchCargo> {
   if (!sessionData)
-    throw new Error("Required sessionData missing in route callback")
-
+    throw new Error("SessionData missing in 'routeBatch'")
   let context: BackendContext = {
     sessionData,
     loader: new CargoLoader(true)
@@ -72,9 +68,6 @@ const whoUseCallbacks = {
 }
 
 export async function routeWhoUse(data, sessionData?: SessionData): Promise<object> {
-  if (!sessionData)
-    throw new Error("Required sessionData missing in route callback")
-
   let cb = whoUseCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid 'whoUser' type: "${data.type}"`)

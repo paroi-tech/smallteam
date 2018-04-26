@@ -64,14 +64,14 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
 
 function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
   return {
-    canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
-      if (!hasSessionData(req)) {
+    async canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
+      if (!await hasSessionData(req)) {
         return {
           canUpload: false,
           errorCode: 403 // Forbidden
         }
       }
-      let sessionData = getSessionData(req)
+      let sessionData = await getSessionData(req)
       if (!["contributorAvatar", "task"].includes(externalRef.type)) {
         return {
           canUpload: false,
@@ -109,12 +109,12 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
       }
     },
 
-    canRead(req: Request, mediaRef: MediaRef) {
-      return hasSessionData(req)
+    async canRead(req: Request, mediaRef: MediaRef) {
+      return await hasSessionData(req)
     },
 
-    canDelete(req: Request, mediaRef: MediaRef) {
-      return hasSessionData(req)
+    async canDelete(req: Request, mediaRef: MediaRef) {
+      return await hasSessionData(req)
     },
 
     async makeJsonResponseForDelete(req: Request, deletedMedia: Media) {
@@ -135,7 +135,7 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
 async function markExternalTypeAsUpdate(req: Request, media: Media, loader: CargoLoader) {
   if (media.externalRef) {
     let context: BackendContext = {
-      sessionData: getSessionData(req),
+      sessionData: await getSessionData(req),
       loader
     }
     let updatedType = mediaExternalTypeToType(media.externalRef.type)
