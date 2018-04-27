@@ -1,15 +1,13 @@
+import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
-import { hash, compare } from "bcrypt"
-import { cn } from "./utils/dbUtils"
-import { SessionData } from "./backendContext/context"
-import { bcryptSaltRounds } from "./backendConfig"
-import { tokenMaxValidity } from "./mail"
-import { select, insert, update, deleteFrom } from "sql-bricks"
-import { sendMail } from "./mail"
+import { deleteFrom, insert, select, update } from "sql-bricks"
 import config from "../isomorphic/config"
-import { tokenSize } from "./backendConfig"
-import { getContributorByLogin, getContributorByEmail, getContributorById } from "./dbqueries/queryContributor"
+import { bcryptSaltRounds, tokenSize } from "./backendConfig"
+import { SessionData } from "./backendContext/context"
+import { getContributorByEmail, getContributorById, getContributorByLogin } from "./dbqueries/queryContributor"
+import { sendMail, tokenMaxValidity } from "./mail"
+import { cn } from "./utils/dbUtils"
 
 interface PasswordUpdateInfo {
   contributorId: string
@@ -100,7 +98,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   await destroySessionIfAny(req)
 
   try {
-    let passwordInfo = await getPasswordUpdateInfo(data.token, data.contributorId)
+    let passwordInfo = await getPasswordUpdateObject(data.token, data.contributorId)
     let currentTs = Date.now() / 1000
     if (currentTs - passwordInfo.createTs > tokenMaxValidity)
       throw new Error("Token expired")
@@ -118,6 +116,39 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 }
 
+export async function routeSendPasswordEmail(data: any) {
+  if (!data || !data.email)
+    throw new Error("Email is needed to send password reset token")
+
+  let contributor = await getContributorByEmail(data.email)
+  if (!contributor) {
+    return {
+      done: false,
+      reason: "No contributor with the given email"
+    }
+  }
+
+  generateAndSendToken(contributor.id, data.email).then(result => {
+    if (!result.done) {
+      console.log("Password reset request has not been completely processed:", result.reason)
+    }
+  })
+
+  return {
+    done: true
+  }
+}
+
+export async function removeExpiredPasswordTokens() {
+  try {
+    await cn.exec("delete from reg_pwd where create_ts - current_timestamp > $duration", {
+      $duration: tokenMaxValidity
+    })
+  } catch (err) {
+    console.log("Error while removing expired account activation tokens", err)
+  }
+}
+
 export async function getSessionData(req: Request): Promise<SessionData> {
   if (!await hasSessionData(req))
     throw new Error("Missing session data")
@@ -132,7 +163,44 @@ export async function hasSessionData(req: Request) {
   return await getContributorById(req.session.contributorId) !== undefined
 }
 
-async function getPasswordUpdateInfo(token: string, contributorId: string) {
+async function generateAndSendToken(uid: string, address: string) {
+  let token = randomBytes(tokenSize).toString("hex")
+  let encodedToken = encodeURIComponent(token)
+  let host = `${config.host}${config.urlPrefix}`
+  let url  = `${host}/registration.html?action=passwdreset&token=${encodedToken}&uid=${uid}`
+  let text = `Please follow this link ${url} if you made a request to change your password.`
+  let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
+
+  let result = await sendMail(address, "SmallTeam password reset", text, html)
+  if (!result.done) {
+    return {
+      done: false,
+      reason: result.error ? result.error.toString() : "Mail not sent"
+    }
+  }
+
+  let b = await storePasswordToken(token, uid)
+  return {
+    done: b,
+    reason: b ? "Unable to store token in database" : undefined
+  }
+}
+
+async function storePasswordToken(token: string, contributorId: string) {
+  let query = insert("reg_pwd", {
+    "contributor_id": contributorId,
+    "token": token
+  })
+
+  try {
+    await cn.execSqlBricks(query)
+    return true
+  } catch (error) {
+    return false
+  }
+}
+
+async function getPasswordUpdateObject(token: string, contributorId: string) {
   let query = select().from("reg_pwd").where("token", token).and("contributor_id", contributorId)
   let row
 

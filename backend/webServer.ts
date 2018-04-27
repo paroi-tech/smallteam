@@ -1,22 +1,17 @@
+import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
+import config from "../isomorphic/config"
+import { SessionData } from "./backendContext/context"
+import { MEDIAS_REL_URL } from "./createMediaEngine"
+import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./modelStorage"
+import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import { mainDbConf, mediaEngine } from "./utils/dbUtils"
+import { wsEngineInit } from "./wsEngine"
 
 const express = require("express")
 const session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
-
-import config from "../isomorphic/config"
-import { Request, Response, Router } from "express"
-import { routeFetch, routeExec, routeBatch, routeWhoUse } from "./modelStorage"
-import { routeConnect, routeCurrentSession, routeEndSession } from "./session"
-import { routeChangePassword, routeSetPassword, routeResetPassword, hasSessionData } from "./session"
-import { routeSendPasswordEmail } from "./mail"
-import { SessionData } from "./backendContext/context"
-import { mainDbConf, mediaEngine } from "./utils/dbUtils"
-import { wsEngineInit } from "./wsEngine"
-import { removeExpiredRegistrationTokens } from "./mail"
-import { MEDIAS_REL_URL } from "./createMediaEngine"
-import { wait } from "../isomorphic/libraries/helpers"
 
 const PORT = 3921
 
@@ -51,12 +46,12 @@ export function startWebServer() {
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
+  router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
+
+  router.post("/api/session/set-password", makeRouteHandler(routeSetPassword, false))
+  router.post("/api/session/change-password", makeRouteHandler(routeChangePassword, false))
   router.post("/api/session/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))
   router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
-
-  router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
-  router.post("/api/session/change-password", makeRouteHandler(routeChangePassword, false))
-  router.post("/api/session/set-password", makeRouteHandler(routeSetPassword, false))
 
   router.post("/api/query", makeRouteHandler(routeFetch, false))
   router.post("/api/exec", makeRouteHandler(routeExec, false))
@@ -78,7 +73,7 @@ export function startWebServer() {
   })
 
   // Scheduled task to remove password reset tokens.
-  setInterval(removeExpiredRegistrationTokens, 3600 * 24 * 1000 /* 1 day */)
+  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
