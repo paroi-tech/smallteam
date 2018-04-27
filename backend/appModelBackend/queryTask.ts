@@ -1,10 +1,10 @@
 import * as path from "path"
-import { BackendContext } from "../backendContext/context"
+import { BackendContext } from "./backendContext/context"
 import taskMeta from "../../isomorphic/meta/Task"
 import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskSearchFragment } from "../../isomorphic/meta/Task"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
-import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { fetchMedias, deleteMedias } from "./queryMedia";

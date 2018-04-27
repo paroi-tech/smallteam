@@ -1,10 +1,7 @@
 import CargoLoader from "./CargoLoader"
+import { SessionData } from "../../session"
 
 export { CargoLoader }
-
-export interface SessionData {
-  contributorId: string
-}
 
 export interface BackendContext {
   readonly sessionData: SessionData

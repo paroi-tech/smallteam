@@ -1,10 +1,10 @@
 import { randomBytes } from "crypto"
 import * as path from "path"
-import { BackendContext } from "../backendContext/context"
+import { BackendContext } from "./backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
-import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { hash, compare } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendMail } from "../mail"
@@ -230,45 +230,6 @@ interface Contributor {
   role: string
   login: string
   password: string
-}
-
-export async function getContributorById(id: string) {
-  let query = select("contributor_id, login, password, role").from("contributor").where("contributor_id", id)
-  let row = undefined
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (err) {
-    console.log(err)
-  }
-
-  return row ? toContributor(row) : undefined
-}
-
-export async function getContributorByLogin(login: string) {
-  let query = select("contributor_id, login, password, role").from("contributor").where("login", login)
-  let row = undefined
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (err) {
-    console.log(err)
-  }
-
-  return row ? toContributor(row) : undefined
-}
-
-export async function getContributorByEmail(email: string) {
-  let query = select("contributor_id, login, password, role").from("contributor").where("email", email)
-  let row = undefined
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (err) {
-    console.log(err)
-  }
-
-  return row ? toContributor(row) : undefined
 }
 
 function toContributor(row): Contributor {

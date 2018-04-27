@@ -1,7 +1,7 @@
-import { Cargo, BatchCargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate, CargoResponse, Dependencies } from "../../isomorphic/Cargo"
+import { Cargo, BatchCargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate, CargoResponse, Dependencies } from "../../../isomorphic/Cargo"
 import ModelUpdateLoader, { ChangedType } from "./ModelUpdateLoader"
 import ResponseLoader from "./ResponseLoader"
-import { toIdentifier } from "../../isomorphic/meta"
+import { toIdentifier } from "../../../isomorphic/meta"
 
 export type FragmentOptions = {
   type: Type

@@ -4,10 +4,13 @@ import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import config from "../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "./backendConfig"
-import { SessionData } from "./backendContext/context"
-import { getContributorByEmail, getContributorById, getContributorByLogin } from "./dbqueries/queryContributor"
 import { sendMail, tokenMaxValidity } from "./mail"
 import { cn } from "./utils/dbUtils"
+import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
+
+export interface SessionData {
+  contributorId: string
+}
 
 interface PasswordUpdateInfo {
   contributorId: string

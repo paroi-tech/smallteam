@@ -31,7 +31,7 @@ export default class App {
       console.log(`[${data.level}]`, ...data.messages)
     })
 
-    this.dash.registerDashAugmentation(d => {
+    this.dash.addDashAugmentation(d => {
       return {
         listenToModel: (eventName: EventName, listener: EventCallback, thisArg?: any) => {
           return d.listenTo(this._model, eventName, listener, thisArg)

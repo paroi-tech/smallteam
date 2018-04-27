@@ -1,14 +1,15 @@
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { cn } from "./utils/dbUtils"
-import { SessionData } from "./backendContext/context"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import { sendMail, validateEmail } from "./mail"
-import { getContributorById } from "./session"
 import { tokenSize } from "./backendConfig"
+import { getContributorById } from "./utils/userUtils"
+import { SessionData } from "./session"
 
 export async function routeSendInvitation(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  if (!sessionData || !data || !data.email || typeof data.email !== "string" || (data.username && typeof data.username !== "string"))
+  if (!sessionData || !data || !data.email || typeof data.email !== "string" ||
+    (data.username && typeof data.username !== "string"))
     throw new Error("Required parameter missing in route callback")
 
   let contributor = await getContributorById(sessionData.contributorId)

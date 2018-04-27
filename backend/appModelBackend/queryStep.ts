@@ -1,9 +1,9 @@
 import * as path from "path"
-import { BackendContext } from "../backendContext/context"
+import { BackendContext } from "./backendContext/context"
 import stepMeta, { StepFragment, StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
-import { toSqlValues } from "../backendMeta/backendMetaStore"
+import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { WhoUseItem } from "../../isomorphic/transfers";
 
 // --
