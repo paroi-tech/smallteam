@@ -48,15 +48,15 @@ export function startWebServer() {
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
 
-  router.post("/api/session/set-password", makeRouteHandler(routeSetPassword, false))
-  router.post("/api/session/change-password", makeRouteHandler(routeChangePassword, false))
-  router.post("/api/session/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))
-  router.post("/reset-password", makeRouteHandler(routeResetPassword, true))
+  router.post("/api/registration/set-password", makeRouteHandler(routeSetPassword, false))
+  router.post("/api/registration/change-password", makeRouteHandler(routeChangePassword, false))
+  router.post("/api/registration/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))
+  router.post("/api/registration/reset-password", makeRouteHandler(routeResetPassword, true))
 
-  router.post("/api/query", makeRouteHandler(routeFetch, false))
-  router.post("/api/exec", makeRouteHandler(routeExec, false))
-  router.post("/api/batch", makeRouteHandler(routeBatch, false))
-  router.post("/api/who-use", makeRouteHandler(routeWhoUse, false))
+  router.post("/api/model/query", makeRouteHandler(routeFetch, false))
+  router.post("/api/model/exec", makeRouteHandler(routeExec, false))
+  router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
+  router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
   mediaEngine.uploadEngine.declareRoutes(router, {
     baseUrl: MEDIAS_REL_URL

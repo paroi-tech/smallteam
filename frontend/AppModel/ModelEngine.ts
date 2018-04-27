@@ -172,7 +172,7 @@ export default class ModelEngine {
     let batch = this.batch
     this.batch = null
     if (batch.list.length > 0)
-      await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, "/api/batch", batch.list))
+      await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, "/api/model/batch", batch.list))
   }
 
   public cancelBatchRecord(err?: any) {
@@ -249,7 +249,7 @@ export default class ModelEngine {
     if (orderedIds.idList.length === 0)
       return []
     let dependencies = this.getExecDependencies("reorder", type, orderedIds)
-    await this.httpSendAndUpdate("POST", "/api/exec", { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
+    await this.httpSendAndUpdate("POST", "/api/model/exec", { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
     return orderedIds.idList
       .map(id => ({ id, frag: this.getFragment({ id, type }) }))
       .sort((a, b) => a.frag[orderFieldName!] - b.frag[orderFieldName!])
@@ -264,7 +264,7 @@ export default class ModelEngine {
     let data: any = { cmd: "fetch", type }
     if (filters)
       data.filters = filters
-    let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/query", data, "fragments"),
+    let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/model/query", data, "fragments"),
       fragMeta = getFragmentMeta(type)
     return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, type))), type)
   }
@@ -617,7 +617,7 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.whoUse) {
     output.updateTools.whoUse = () => engine.bgManager.add((async () => {
-      let fetched = await httpSendJson("POST", "/who-use", {
+      let fetched = await httpSendJson("POST", "/api/model/who-use", {
         type,
         id: toIdentifier(getFrag(), type)
       })

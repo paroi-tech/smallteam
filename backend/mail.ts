@@ -23,15 +23,9 @@ export async function sendMail(to: string, subject: string, text: string, html: 
         pass: account.password
       }
     })
-
     let opts = {
-      from: "smallteambot@smallteam.bj",
-      to,
-      subject,
-      text,
-      html
+      from: "smallteambot@smallteam.bj", to, subject, text, html
     }
-
     let info = await transporter.sendMail(opts)
     result.done = true
   } catch (error) {

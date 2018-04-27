@@ -60,7 +60,7 @@ export default class LoginDialog {
 
   private async makeApiCall(address: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/send-password-reset-mail`, {
+      let response = await fetch(`${config.urlPrefix}/api/registration/send-password-reset-mail`, {
         method: "post",
         credentials: "same-origin",
         headers: {

@@ -75,7 +75,7 @@ export default class LoginDialog {
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/reset-password`, {
+      let response = await fetch(`${config.urlPrefix}/api/registration/reset-password`, {
         method: "post",
         credentials: "same-origin",
         headers: {

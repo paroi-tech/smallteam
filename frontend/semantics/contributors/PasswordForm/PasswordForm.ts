@@ -78,7 +78,7 @@ export default class PasswordForm {
 
   private async doPasswordUpdate(currentPassword: string, newPassword: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/change-password`, {
+      let response = await fetch(`${config.urlPrefix}/api/registration/change-password`, {
         method: "post",
         credentials: "same-origin",
         headers: {

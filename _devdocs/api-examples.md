@@ -1,12 +1,12 @@
 
-# http://localhost:3000/api/query
+# http://localhost:3000/api/model/query
 
 {
   "type": "Project",
   "filters": {"archived": false}
 }
 
-# http://localhost:3000/api/exec
+# http://localhost:3000/api/model/exec
 
 {
   "cmd": "create",
