@@ -117,16 +117,25 @@ export async function routeChangePassword(data: any, sessionData?: SessionData, 
   }
 }
 
+let resetPasswordDataSchema = Joi.object().keys({
+  token: Joi.string().required(),
+  password: Joi.string().required(),
+  contributorId: Joi.string().regex(numberRegex).required()
+})
+
 /** Used by a contributor to reset his password after he received a password reset email. */
 export async function routeResetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  await destroySessionIfAny(req)
+  if (!req)
+    throw new Error("'Request parameter missing in 'routeResetPassword'")
 
+  await destroySessionIfAny(req)
+  let cleanData = await Joi.validate(data, resetPasswordDataSchema)
   try {
-    let passwordInfo = await getPasswordUpdateObject(data.token, data.contributorId)
+    let passwordInfo = await getPasswordUpdateObject(cleanData.token, cleanData.contributorId)
     let currentTs = Date.now() / 1000
     if (currentTs - passwordInfo.createTs > tokenMaxValidity)
       throw new Error("Token expired")
-    await updateContributorPassword(data.contributorId, data.password)
+    await updateContributorPassword(cleanData.contributorId, cleanData.password)
     removePasswordToken(data.token).catch(err => console.log(`Cannot remove used mail token ${data.token}`, err))
   } catch (error) {
     return {
@@ -140,11 +149,13 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 }
 
-export async function routeSendPasswordEmail(data: any) {
-  if (!data || !data.email)
-    throw new Error("Email is needed to send password reset token")
+let sendPasswordEmailDataSchema = Joi.object().keys({
+  email: Joi.string().email().required()
+})
 
-  let contributor = await getContributorByEmail(data.email)
+export async function routeSendPasswordEmail(data: any) {
+  let cleanData = await Joi.validate(data, sendPasswordEmailDataSchema)
+  let contributor = await getContributorByEmail(cleanData.email)
   if (!contributor) {
     return {
       done: false,
