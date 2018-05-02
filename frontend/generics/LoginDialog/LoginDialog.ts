@@ -15,6 +15,7 @@ export default class LoginDialog {
   private spinnerEl: HTMLElement
 
   private curDfd: Deferred<string | number> | undefined
+  private enabled = true
 
   constructor(private dash: Dash) {
     let view = render(template)
@@ -26,7 +27,7 @@ export default class LoginDialog {
     let btnEl: HTMLButtonElement = view.ref("submitBtn")
     btnEl.addEventListener("click", ev => this.onSubmit())
     this.el.addEventListener("keyup", ev => {
-      if (ev.key === "Enter")
+      if (ev.key === "Enter" && this.enabled)
         btnEl.click()
     })
     view.ref("pwdReset").addEventListener("click", ev => this.onPasswordReset())
@@ -38,7 +39,6 @@ export default class LoginDialog {
   }
 
   public open(): Promise<string | number> {
-    this.enable()
     this.el.showModal()
     this.curDfd = new Deferred()
     return this.curDfd.promise
@@ -47,32 +47,24 @@ export default class LoginDialog {
   private removeWarnings() {
     this.nameEl.style.borderColor = "gray"
     this.passwordEl.style.borderColor = "gray"
-    this.el.style.pointerEvents = "none"
   }
 
   private async onSubmit() {
-    this.disable()
+    this.enabled = false
     this.removeWarnings()
     this.showSpinner()
-
     let login = this.nameEl.value.trim()
     let password = this.passwordEl.value
-    if (!this.checkUserInput(login, password)) {
-      this.enable()
-      return
+    if (this.checkUserInput(login, password)) {
+      let contributorId = await this.tryToLogin(login, password)
+      this.hideSpinner()
+      if (contributorId && this.curDfd) {
+        this.el.close()
+        this.curDfd.resolve(contributorId)
+        this.curDfd = undefined
+      }
     }
-
-    let contributorId = await this.tryToLogin(login, password)
-    this.hideSpinner()
-    if (contributorId && this.curDfd) {
-      this.el.close()
-      this.curDfd.resolve(contributorId)
-      this.curDfd = undefined
-      return
-    }
-
-    this.enable()
-    this.nameEl.focus()
+    this.enabled = true
   }
 
   private onPasswordReset() {
@@ -112,7 +104,7 @@ export default class LoginDialog {
       })
 
       if (!response.ok) {
-        await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
+        await this.handleRequestError(response)
         return undefined
       }
 
@@ -130,12 +122,14 @@ export default class LoginDialog {
     return undefined
   }
 
-  private enable() {
-    this.el.style.pointerEvents = "auto"
-  }
-
-  private disable() {
-    this.el.style.pointerEvents = "none"
+  private async handleRequestError(response: Response) {
+    if (response.status === 400) {
+      let data = await response.json()
+      await this.dash.create(WarningDialog).show(`Your request was not processed. ${data.error}`)
+    } else if (response.status === 500)
+      await this.dash.create(ErrorDialog).show("The server could not process your request.")
+    else
+      await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
   }
 
   private showSpinner() {

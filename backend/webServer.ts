@@ -8,6 +8,7 @@ import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBacken
 import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
+import { DataValidationError } from "./utils/joiUtils"
 
 const express = require("express")
 const session = require("express-session")
@@ -95,7 +96,8 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
   console.log("[ERR]", err, err.stack, reqBody)
-  writeServerResponse(res, 500, {
+  let statusCode = err instanceof DataValidationError ? 400 : 500
+  writeServerResponse(res, statusCode, {
     error: err.message,
     request: reqBody
   })

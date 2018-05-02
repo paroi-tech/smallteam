@@ -2,12 +2,13 @@ import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
+import Joi = require("joi")
 import config from "../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "./backendConfig"
 import { sendMail, tokenMaxValidity } from "./mail"
 import { cn } from "./utils/dbUtils"
 import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
-import Joi = require("joi")
+import validate from "./utils/joiUtils"
 
 export interface SessionData {
   contributorId: string
@@ -30,7 +31,7 @@ export async function routeConnect(data: any, sessionData?: SessionData, req?: R
   if (!req)
     throw new Error("Request object missing 'routeConnect'")
 
-  let cleanData = await Joi.validate(data, connectDataSchema)
+  let cleanData = await validate(data, connectDataSchema)
   let contributor = await getContributorByLogin(cleanData.login)
   if (contributor && await compare(cleanData.password, contributor.password)) {
     req.session!.contributorId = contributor.id
@@ -85,7 +86,7 @@ export async function routeSetPassword(data: any, sessionData?: SessionData, req
   if (!contributor || contributor.role !== "admin")
     throw new Error("You are not allowed to change passwords")
 
-  let cleanData = await Joi.validate(data, setPasswordDataSchema)
+  let cleanData = await validate(data, setPasswordDataSchema)
   await updateContributorPassword(cleanData.contributorId, cleanData.password)
 
   return {
@@ -103,7 +104,7 @@ export async function routeChangePassword(data: any, sessionData?: SessionData, 
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeChangePassword'")
 
-  let cleanData = await Joi.validate(data, changePasswordDataSchema)
+  let cleanData = await validate(data, changePasswordDataSchema)
   let contributor = await getContributorById(sessionData.contributorId)
   if (contributor && await compare(cleanData.currentPassword, contributor.password)) {
     await updateContributorPassword(contributor.id, cleanData.newPassword)
@@ -129,7 +130,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
     throw new Error("'Request parameter missing in 'routeResetPassword'")
 
   await destroySessionIfAny(req)
-  let cleanData = await Joi.validate(data, resetPasswordDataSchema)
+  let cleanData = await validate(data, resetPasswordDataSchema)
   try {
     let passwordInfo = await getPasswordUpdateObject(cleanData.token, cleanData.contributorId)
     let currentTs = Date.now() / 1000
@@ -154,7 +155,7 @@ let sendPasswordEmailDataSchema = Joi.object().keys({
 })
 
 export async function routeSendPasswordEmail(data: any) {
-  let cleanData = await Joi.validate(data, sendPasswordEmailDataSchema)
+  let cleanData = await validate(data, sendPasswordEmailDataSchema)
   let contributor = await getContributorByEmail(cleanData.email)
   if (!contributor) {
     return {

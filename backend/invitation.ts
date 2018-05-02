@@ -6,28 +6,21 @@ import { sendMail } from "./mail"
 import { tokenSize } from "./backendConfig"
 import { getContributorById } from "./utils/userUtils"
 import { SessionData } from "./session"
-import * as Joi from "joi"
+import Joi = require("joi")
+
+let sendInvitationDataSchema = Joi.object().keys({
+  username: Joi.string(),
+  email: Joi.string().email().required()
+})
 
 export async function routeSendInvitation(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeSendInvitation'")
   let contributor = await getContributorById(sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
-    throw new Error("User is not allowed to perform this task")
+    throw new Error("User is not allowed to send invitation mails")
 
-  let schema = Joi.object().keys({
-    username: Joi.string(),
-    email: Joi.string().email().required()
-  })
-  try {
-    await schema.validate(data)
-  } catch (error) {
-    return {
-      done: false,
-      reason: "Invalid email address"
-    }
-  }
-
+  let cleanDate = await Joi.validate(data, sendInvitationDataSchema)
   let token = randomBytes(tokenSize)
   let query = insert("reg_new", {
     email: data.email
