@@ -7,6 +7,7 @@ import { bcryptSaltRounds, tokenSize } from "./backendConfig"
 import { sendMail, tokenMaxValidity } from "./mail"
 import { cn } from "./utils/dbUtils"
 import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
+import Joi = require("joi")
 
 export interface SessionData {
   contributorId: string
@@ -18,12 +19,20 @@ interface PasswordUpdateInfo {
   token: string
 }
 
+let numberRegex = /^[1-9][0-9]*$/
+
+let connectDataSchema = Joi.object().keys({
+  login: Joi.string().trim().alphanum().min(4).max(32).required(),
+  password: Joi.string().min(4).required()
+})
+
 export async function routeConnect(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!req)
     throw new Error("Request object missing 'routeConnect'")
 
-  let contributor = await getContributorByLogin(data.login)
-  if (contributor && await compare(data.password, contributor.password)) {
+  let cleanData = await Joi.validate(data, connectDataSchema)
+  let contributor = await getContributorByLogin(cleanData.login)
+  if (contributor && await compare(cleanData.password, contributor.password)) {
     req.session!.contributorId = contributor.id
     return {
       done: true,
@@ -63,29 +72,41 @@ export async function routeEndSession(data: any, sessionData?: SessionData, req?
   }
 }
 
-/** Used by the admins to set the password of any cntributor. */
+let setPasswordDataSchema = Joi.object().keys({
+  contributorId: Joi.string().regex(numberRegex).required(),
+  password: Joi.string().min(4).required()
+})
+
+/** Used by the admins to set the password of any contributor. */
 export async function routeSetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeSetPassword'")
-
   let contributor = await getContributorById(sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
     throw new Error("You are not allowed to change passwords")
-  await updateContributorPassword(data.contributorId, data.password)
+
+  let cleanData = await Joi.validate(data, setPasswordDataSchema)
+  await updateContributorPassword(cleanData.contributorId, cleanData.password)
 
   return {
     done: true
   }
 }
 
+let changePasswordDataSchema = Joi.object().keys({
+  currentPassword: Joi.string().min(8).required(),
+  newPassword: Joi.string().min(8).required()
+})
+
 /** Used by a contributor to change his password. */
 export async function routeChangePassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeChangePassword'")
 
+  let cleanData = await Joi.validate(data, changePasswordDataSchema)
   let contributor = await getContributorById(sessionData.contributorId)
-  if (contributor && await compare(data.currentPassword, contributor.password)) {
-    await updateContributorPassword(contributor.id, data.newPassword)
+  if (contributor && await compare(cleanData.currentPassword, contributor.password)) {
+    await updateContributorPassword(contributor.id, cleanData.newPassword)
     return {
       done: true
     }

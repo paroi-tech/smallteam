@@ -137,7 +137,8 @@ export default class BoxList<T extends Box> {
   }
 
   public clear() {
-    Array.from(this.boxes.keys()).forEach(key => this.removeBox(key))
+    for (let key of Array.from(this.boxes.keys()))
+      this.removeBox(key)
   }
 
   public setTitle(title: string) {
