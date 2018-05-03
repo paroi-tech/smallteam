@@ -1,7 +1,5 @@
 import { createTransport } from "nodemailer"
 
-export const tokenMaxValidity = 7 * 24 * 3600 // 7 days
-
 const account = {
   user: "ulvmvwmr3qhn2wec@ethereal.email",
   password: "xPzcufKPHhWTnkNRMe"

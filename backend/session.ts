@@ -5,10 +5,13 @@ import { deleteFrom, insert, select, update } from "sql-bricks"
 import Joi = require("joi")
 import config from "../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "./backendConfig"
-import { sendMail, tokenMaxValidity } from "./mail"
+import { sendMail } from "./mail"
 import { cn } from "./utils/dbUtils"
 import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
 import validate from "./utils/joiUtils"
+import { AuthorizationError } from "./utils/serverUtils"
+
+const passwordResetTokenValidity = 3 * 24 * 3600 /* 3 days */
 
 export interface SessionData {
   contributorId: string
@@ -22,16 +25,38 @@ interface PasswordUpdateInfo {
 
 let numberRegex = /^[1-9][0-9]*$/
 
-let connectDataSchema = Joi.object().keys({
-  login: Joi.string().trim().alphanum().min(4).max(32).required(),
-  password: Joi.string().min(4).required()
-})
+let joiSchemata = {
+  routeConnect: Joi.object().keys({
+    login: Joi.string().trim().alphanum().min(4).max(32).required(),
+    password: Joi.string().min(4).required()
+  }),
+
+  routeSetPassword: Joi.object().keys({
+    contributorId: Joi.string().regex(numberRegex).required(),
+    password: Joi.string().min(4).required()
+  }),
+
+  routeChangePassword: Joi.object().keys({
+    currentPassword: Joi.string().min(8).required(),
+    newPassword: Joi.string().min(8).required()
+  }),
+
+  routeResetPassword: Joi.object().keys({
+    token: Joi.string().required(),
+    password: Joi.string().required(),
+    contributorId: Joi.string().regex(numberRegex).required()
+  }),
+
+  routeSendPasswordEmail: Joi.object().keys({
+    email: Joi.string().email().required()
+  })
+}
 
 export async function routeConnect(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!req)
     throw new Error("Request object missing 'routeConnect'")
 
-  let cleanData = await validate(data, connectDataSchema)
+  let cleanData = await validate(data, joiSchemata.routeConnect)
   let contributor = await getContributorByLogin(cleanData.login)
   if (contributor && await compare(cleanData.password, contributor.password)) {
     req.session!.contributorId = contributor.id
@@ -73,20 +98,15 @@ export async function routeEndSession(data: any, sessionData?: SessionData, req?
   }
 }
 
-let setPasswordDataSchema = Joi.object().keys({
-  contributorId: Joi.string().regex(numberRegex).required(),
-  password: Joi.string().min(4).required()
-})
-
 /** Used by the admins to set the password of any contributor. */
 export async function routeSetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeSetPassword'")
   let contributor = await getContributorById(sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
-    throw new Error("You are not allowed to change passwords")
+    throw new AuthorizationError("You are not allowed to change passwords")
 
-  let cleanData = await validate(data, setPasswordDataSchema)
+  let cleanData = await validate(data, joiSchemata.routeSetPassword)
   await updateContributorPassword(cleanData.contributorId, cleanData.password)
 
   return {
@@ -94,17 +114,12 @@ export async function routeSetPassword(data: any, sessionData?: SessionData, req
   }
 }
 
-let changePasswordDataSchema = Joi.object().keys({
-  currentPassword: Joi.string().min(8).required(),
-  newPassword: Joi.string().min(8).required()
-})
-
 /** Used by a contributor to change his password. */
 export async function routeChangePassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeChangePassword'")
 
-  let cleanData = await validate(data, changePasswordDataSchema)
+  let cleanData = await validate(data, joiSchemata.routeChangePassword)
   let contributor = await getContributorById(sessionData.contributorId)
   if (contributor && await compare(cleanData.currentPassword, contributor.password)) {
     await updateContributorPassword(contributor.id, cleanData.newPassword)
@@ -118,23 +133,17 @@ export async function routeChangePassword(data: any, sessionData?: SessionData, 
   }
 }
 
-let resetPasswordDataSchema = Joi.object().keys({
-  token: Joi.string().required(),
-  password: Joi.string().required(),
-  contributorId: Joi.string().regex(numberRegex).required()
-})
-
 /** Used by a contributor to reset his password after he received a password reset email. */
 export async function routeResetPassword(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!req)
     throw new Error("'Request parameter missing in 'routeResetPassword'")
 
   await destroySessionIfAny(req)
-  let cleanData = await validate(data, resetPasswordDataSchema)
+  let cleanData = await validate(data, joiSchemata.routeResetPassword)
   try {
     let passwordInfo = await getPasswordUpdateObject(cleanData.token, cleanData.contributorId)
-    let currentTs = Date.now() / 1000
-    if (currentTs - passwordInfo.createTs > tokenMaxValidity)
+    let currentTs = Math.floor(Date.now() / 1000)
+    if (currentTs - passwordInfo.createTs > passwordResetTokenValidity)
       throw new Error("Token expired")
     await updateContributorPassword(cleanData.contributorId, cleanData.password)
     removePasswordToken(data.token).catch(err => console.log(`Cannot remove used mail token ${data.token}`, err))
@@ -150,12 +159,8 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   }
 }
 
-let sendPasswordEmailDataSchema = Joi.object().keys({
-  email: Joi.string().email().required()
-})
-
 export async function routeSendPasswordEmail(data: any) {
-  let cleanData = await validate(data, sendPasswordEmailDataSchema)
+  let cleanData = await validate(data, joiSchemata.routeSendPasswordEmail)
   let contributor = await getContributorByEmail(cleanData.email)
   if (!contributor) {
     return {
@@ -164,22 +169,19 @@ export async function routeSendPasswordEmail(data: any) {
     }
   }
 
-  generateAndSendToken(contributor.id, data.email).then(result => {
-    if (!result.done) {
-      console.log("Password reset request has not been completely processed:", result.reason)
-    }
-  })
+  let token = randomBytes(tokenSize).toString("hex")
+  sendPasswordResetMail(token, contributor.id, data.email)
+    .then(result => storePasswordResetToken(result.token, result.contributorId))
+    .catch(err => console.log("All steps of sending password reset mail have not been processed.", err.message))
 
   return {
     done: true
   }
 }
 
-export async function removeExpiredPasswordTokens() {
+export async function removeExpiredPasswordResetTokens() {
   try {
-    await cn.exec("delete from reg_pwd where create_ts - current_timestamp > $duration", {
-      $duration: tokenMaxValidity
-    })
+    await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {
     console.log("Error while removing expired account activation tokens", err)
   }
@@ -199,41 +201,27 @@ export async function hasSessionData(req: Request) {
   return await getContributorById(req.session.contributorId) !== undefined
 }
 
-async function generateAndSendToken(uid: string, address: string) {
-  let token = randomBytes(tokenSize).toString("hex")
-  let encodedToken = encodeURIComponent(token)
+async function sendPasswordResetMail(token: string, contributorId: string, address: string) {
   let host = `${config.host}${config.urlPrefix}`
-  let url  = `${host}/registration.html?action=passwdreset&token=${encodedToken}&uid=${uid}`
+  let url  = `${host}/registration.html?action=passwordreset&token=${token}&uid=${contributorId}`
   let text = `Please follow this link ${url} if you made a request to change your password.`
   let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
 
   let result = await sendMail(address, "SmallTeam password reset", text, html)
-  if (!result.done) {
-    return {
-      done: false,
-      reason: result.error ? result.error.toString() : "Mail not sent"
-    }
-  }
-
-  let b = await storePasswordToken(token, uid)
-  return {
-    done: b,
-    reason: b ? "Unable to store token in database" : undefined
-  }
+  if (result.done)
+    return { token, contributorId }
+  throw new Error(`Could not send password reset mail. Error: ${result.error.message}`)
 }
 
-async function storePasswordToken(token: string, contributorId: string) {
+async function storePasswordResetToken(token: string, contributorId: string) {
+  let currentTs = Math.floor(Date.now() / 1000)
   let query = insert("reg_pwd", {
     "contributor_id": contributorId,
-    "token": token
+    "token": token,
+    "create_ts": currentTs,
+    "expire_ts": currentTs + passwordResetTokenValidity
   })
-
-  try {
-    await cn.execSqlBricks(query)
-    return true
-  } catch (error) {
-    return false
-  }
+  await cn.execSqlBricks(query)
 }
 
 async function getPasswordUpdateObject(token: string, contributorId: string) {

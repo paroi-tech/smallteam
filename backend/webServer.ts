@@ -5,10 +5,10 @@ import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
-import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import { hasSessionData, removeExpiredPasswordResetTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
-import { DataValidationError } from "./utils/joiUtils"
+import { ValidationError, AuthorizationError } from "./utils/serverUtils"
 
 const express = require("express")
 const session = require("express-session")
@@ -74,7 +74,7 @@ export function startWebServer() {
   })
 
   // Scheduled task to remove password reset tokens.
-  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000 /* 1 day */)
+  setInterval(removeExpiredPasswordResetTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
@@ -96,9 +96,10 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
   console.log("[ERR]", err, err.stack, reqBody)
-  let statusCode = err instanceof DataValidationError ? 400 : 500
+  let statusCode = err instanceof ValidationError ? 400 : ( err instanceof AuthorizationError ? 401 : 500)
   writeServerResponse(res, statusCode, {
-    error: err.message,
+    // We do not send details about server internal errors to frontend.
+    error: statusCode >= 500 && statusCode < 600 ? "Server Internal error" : err.message,
     request: reqBody
   })
 }

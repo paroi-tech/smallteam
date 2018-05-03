@@ -198,7 +198,7 @@ export default class ModelEngine {
     try {
       let resultFrag = await this.httpSendAndUpdate(
         "POST",
-        "/api/exec",
+        "/api/model/exec",
         { cmd, type, frag, dependencies },
         del ? "none" : "fragment"
       )

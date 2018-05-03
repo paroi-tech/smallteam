@@ -6,26 +6,15 @@ const boxListTemplate = require("./BoxList.monk")
 const liTemplate = require("./li.monk")
 const inlineLiTemplate = require("./InlineLi.monk")
 
-/**
- * As BoxList is a template class, a BoxList instance parameter should implement this interface.
- *
- * The `id` property is required so that the Sortable library can manage the items in a BoxList.
- */
 export interface Box {
   id: string
   el: HTMLElement
 }
 
-/**
- * BoxList constructor parameters grouped in an interface.
- */
 export interface BoxListParams {
   /** BoxList ID. */
   id: string
-  /**
-   * The Sortable lib enables to create groups, so that we can move items (drag and drop) between lists
-   * that belong to the same group. This attribute represents the group of the Boxlist.
-   */
+  /** Sortable enables to create groups, so that we can move items between lists that belong to the same group. */
   group: string | undefined
   /** Name of the BoxList. */
   name: string
@@ -35,28 +24,19 @@ export interface BoxListParams {
   obj?: any
   /** Is the BoxList disabled? */
   disabled?: boolean
-  // /** Add a remove button beside each element in the BoxList. */
-  // itemRemoveButton?: boolean
   /** Is this an InlineBoxlist? */
   inline: boolean | undefined
   /** Can items be reordered within the BoxList? */
   sort: boolean
 }
 
-/**
- * Object provided by the `boxListItemAdded` and `boxListItemRemoved` events.
- */
 export interface BoxEvent {
   boxListId: string
-  boxId: string // ID of the moved item
+  boxId: string
 }
 
-/**
- * Object provided by the `boxlistUpdated` event.
- */
 export interface BoxListEvent extends BoxEvent {
-  // Array of string that contains the IDs of the items in the BoxList. The order of the IDs is the same as
-  // the order of the items in the BoxList.
+  /** IDs of the BoxList items. The order of the IDs is the same as the order of the items in the BoxList. **/
   boxIds: string[]
 }
 
@@ -76,7 +56,6 @@ export default class BoxList<T extends Box> {
   private titleEl: HTMLElement
   private sortable: Sortable
 
-  // Map storing boxes of the list.
   private boxes = new Map<string, HTMLElement>()
 
   constructor(private dash: Dash, private params: BoxListParams) {
@@ -105,21 +84,6 @@ export default class BoxList<T extends Box> {
     else
       view.ref("content").appendChild(box.el)
 
-    // if (this.params.itemRemoveButton) {
-    //   let el = this.createCloseItem()
-    //   let span = el.querySelector("span") as HTMLElement
-
-    //   span.addEventListener("click", ev => {
-    //     this.dash.emit("boxListItemRemoveRequested", {
-    //       boxListId: this.params.id,
-    //       boxId: box.id
-    //     })
-    //   })
-    //   li.addEventListener("mouseover", ev => span.style.visibility = "visible")
-    //   li.addEventListener("mouseleave", ev => span.style.visibility = "hidden")
-    //   li.appendChild(el)
-    // }
-
     this.ulEl.appendChild(li)
     this.boxes.set(box.id, li)
   }
@@ -137,7 +101,7 @@ export default class BoxList<T extends Box> {
   }
 
   public clear() {
-    for (let key of Array.from(this.boxes.keys()))
+    for (let key of this.boxes.keys())
       this.removeBox(key)
   }
 
@@ -210,22 +174,9 @@ export default class BoxList<T extends Box> {
   // -- Utilities
   // --
 
-  // private createCloseItem(): HTMLElement {
-  //   let view = render(closeTemplate)
-  //   let el = view.rootEl()
-
-  //   return el
-  // }
-
-  /***
-   * Make the boxList sortable by creating a Sortable object.
-   */
   private makeSortable() {
     return Sortable.create(this.ulEl, {
-      // For InlineBoxList, we do not need a handle.
-      //handle: this.params.inline ? undefined : ".js-handle",
       filter: "button",
-
       group: this.params.group,
       sort: this.params.sort,
       disabled: this.params.disabled === undefined ? false : this.params.disabled,

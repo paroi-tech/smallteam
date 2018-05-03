@@ -124,7 +124,7 @@ create table reg_pwd (
 create table reg_new (
     reg_new_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
-    user_email varchar(255),
+    user_email varchar(255) not null,
     user_name varchar(255),
     expire_ts timestamp not null,
     create_ts timestamp not null default current_timestamp
