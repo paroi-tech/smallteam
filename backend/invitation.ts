@@ -2,9 +2,10 @@ import Joi = require("joi")
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { select, insert, update, deleteFrom } from "sql-bricks"
+import { hash } from "bcrypt"
 import { cn } from "./utils/dbUtils"
 import { sendMail } from "./mail"
-import { tokenSize } from "./backendConfig"
+import { tokenSize, bcryptSaltRounds } from "./backendConfig"
 import config from "../isomorphic/config"
 import { getContributorById, getContributorByLogin } from "./utils/userUtils"
 import { AuthorizationError } from "./utils/serverUtils"
@@ -26,6 +27,14 @@ let joiSchemata = {
   }),
 
   routeCancelInvitation: Joi.object().keys({
+    token: Joi.string().hex().required()
+  }),
+
+  routeRegister: Joi.object().keys({
+    name: Joi.string().trim().min(1).required(),
+    login: Joi.string().trim().min(4).required(),
+    password: Joi.string().min(8).required(),
+    email: Joi.string().email().required(),
     token: Joi.string().hex().required()
   })
 }
@@ -57,9 +66,7 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
-  let query = select("reg_new").where({ "token": cleanData.token })
-  let row = await cn.singleRowSqlBricks(query)
-  if (!row) {
+  if (!tokenExists(cleanData.token)) {
     return {
       done: false,
       reason: "Token not found"
@@ -86,15 +93,70 @@ export async function routeCancelInvitation(data: any, sessionData?: SessionData
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
   let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
-  let query = select("reg_new").where({ "token": cleanData.token })
-  // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
-  // why we don't handle the exception. If this ever happens, that means there was a problem with the database.
-  let row = await cn.singleRowSqlBricks(query)
-  if (row)
+  if (await tokenExists(cleanData.token))
     await removeInvitationToken(cleanData.token)
 
   return {
     done: true
+  }
+}
+
+export async function routeRegister(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  let cleanData = await validate(data, joiSchemata.routeRegister)
+  if (!await tokenExists(cleanData.token)) {
+    return {
+      done: false,
+      reason: "Token not found"
+    }
+  }
+
+  let passwordHash = await hash(cleanData.password, bcryptSaltRounds)
+  let query = insert("contributor", {
+    "name": cleanData.name,
+    "login": cleanData.login,
+    "email": cleanData.email,
+    password: passwordHash
+  })
+  let transaction = await cn.beginTransaction()
+
+  try {
+    let params = query.toParams({ placeholder: "?%d" })
+    await transaction.exec(params.text, params.values)
+    await removeInvitationToken(cleanData.token)
+    transaction.commit()
+  } finally {
+    if (transaction.inTransaction)
+      transaction.rollback()
+  }
+
+  return {
+    done: true
+  }
+}
+
+export async function routeGetPendingInvitations(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("SessionData missing in 'routeGetPendingInvitations'")
+  let contributor = await getContributorById(sessionData.contributorId)
+  if (!contributor || contributor.role !== "admin")
+    throw new AuthorizationError("You are not allowed to do this")
+
+  let arr = [] as any[]
+  let query = select().from("reg_new")
+  let result = await cn.allSqlBricks(query)
+
+  for (let row of result) {
+    arr.push({
+      id: row["reg_new_id"],
+      token: row["token"],
+      email: row["user_email"],
+      expiration: new Date(row["expire_ts"] * 1000)
+    })
+  }
+
+  return {
+    done: true,
+    data: arr
   }
 }
 
@@ -129,4 +191,12 @@ async function storeInvitation(token: string, email: string, validity: number, u
 async function removeInvitationToken(token: string) {
   let query = deleteFrom("reg_new").where({ token })
   await cn.execSqlBricks(query)
+}
+
+async function tokenExists(token: string) {
+  let query = select("reg_new").where({ token })
+  // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
+  // why we don't handle the exception. If this ever happens, that means there was a problem with the database.
+  let row = await cn.singleRowSqlBricks(query)
+  return row ? true : false
 }

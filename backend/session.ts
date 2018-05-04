@@ -179,7 +179,7 @@ export async function routeSendPasswordEmail(data: any) {
   }
 }
 
-export async function removeExpiredPasswordResetTokens() {
+export async function removeExpiredPasswordTokens() {
   try {
     await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {

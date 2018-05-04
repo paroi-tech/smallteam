@@ -5,7 +5,8 @@ import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
-import { hasSessionData, removeExpiredPasswordResetTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import { routeRegister } from "./invitation"
+import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError } from "./utils/serverUtils"
@@ -49,6 +50,7 @@ export function startWebServer() {
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
 
+  router.post("/api/registration/register", makeRouteHandler(routeRegister, true))
   router.post("/api/registration/set-password", makeRouteHandler(routeSetPassword, false))
   router.post("/api/registration/change-password", makeRouteHandler(routeChangePassword, false))
   router.post("/api/registration/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))
@@ -74,7 +76,7 @@ export function startWebServer() {
   })
 
   // Scheduled task to remove password reset tokens.
-  setInterval(removeExpiredPasswordResetTokens, 3600 * 24 * 1000 /* 1 day */)
+  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000 /* 1 day */)
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
