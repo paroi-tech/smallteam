@@ -5,7 +5,7 @@ import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
-import { routeRegister } from "./invitation"
+import { routeRegister, routeSendInvitation } from "./invitation"
 import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -51,6 +51,7 @@ export function startWebServer() {
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
 
   router.post("/api/registration/register", makeRouteHandler(routeRegister, true))
+  router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, true))
   router.post("/api/registration/set-password", makeRouteHandler(routeSetPassword, false))
   router.post("/api/registration/change-password", makeRouteHandler(routeChangePassword, false))
   router.post("/api/registration/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))

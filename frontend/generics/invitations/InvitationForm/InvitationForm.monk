@@ -1,0 +1,24 @@
+<div class="Form">
+  <label class="Form-item TextField">
+    <span class="TextField-lbl">Email</span>
+    <input class="TextField-input" :ref="email" type="text" placeholder="Email">
+  </label>
+
+  <label class="Form-item TextField">
+    <span class="TextField-lbl">Username</span>
+    <input class="TextField-input" :ref="username" type="text" placeholder="Username">
+  </label>
+
+  <label class="Form-item TextField">
+    <span class="TextField-lbl">Invitation validity</span>
+    <span class="TextField-deco">
+      <input class="TextField-input" :ref="validity" type="number" step="1" pattern="\d+" placeholder="Days">
+    </span>
+  </label>
+
+  <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+    Submit
+    <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
+  </button>
+</div>
+</dialog>

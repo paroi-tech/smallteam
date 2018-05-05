@@ -48,13 +48,18 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
 
   let cleanData = await Joi.validate(data, joiSchemata.routeSendInvitation)
   let token = randomBytes(tokenSize).toString("hex")
-  await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
+  let id = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email).catch(err => {
     console.log("All steps of sending invitation mail have not been processed.", err.message)
   })
 
   return {
-    done: true
+    done: true,
+    invitation: {
+      id,
+      email: cleanData.email,
+      username: cleanData.username
+    }
   }
 }
 
@@ -75,13 +80,18 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
 
   await removeInvitationToken(cleanData.token)
   let token = randomBytes(tokenSize).toString("hex")
-  await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
+  let id = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email).catch(err => {
     console.log("All steps of sending invitation mail have not been processed.", err.message)
   })
 
   return {
-    done: true
+    done: true,
+    invitation: {
+      id,
+      email: cleanData.email,
+      username: cleanData.username
+    }
   }
 }
 

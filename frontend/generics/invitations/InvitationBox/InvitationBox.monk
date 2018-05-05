@@ -1,0 +1,4 @@
+<div class="InvitationBox">
+  <span class="InvitationBox-lbl" :ref="span"></span>
+  <button class="RightOpenBtn" type="button">▶</button>
+</div>

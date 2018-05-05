@@ -1,14 +1,14 @@
-import config from "../../../isomorphic/config"
+import config from "../../../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
-import Deferred from "../../libraries/Deferred"
-import ErrorDialog from "../modal-dialogs/ErrorDialog/ErrorDialog"
-import WarningDialog from "../modal-dialogs/WarningDialog/WarningDialog"
+import { Model, ContributorModel, SessionData } from "../../../AppModel/AppModel"
+import Deferred from "../../../libraries/Deferred"
+import ErrorDialog from "../../modal-dialogs/ErrorDialog/ErrorDialog"
+import WarningDialog from "../../modal-dialogs/WarningDialog/WarningDialog"
 
-const template = require("./LoginDialog.monk")
+const template = require("./RegistrationForm.monk")
 
-export default class NewContributorForm {
+export default class RegistrationForm {
   private readonly el: HTMLDialogElement
   private firstnameEl: HTMLInputElement
   private lastnameEl: HTMLInputElement
