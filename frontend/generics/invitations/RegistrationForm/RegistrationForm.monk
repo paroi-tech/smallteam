@@ -2,8 +2,7 @@
   <div class="Form">
     <label class="Form-item TextField">
       <span class="TextField-lbl">Name</span>
-      <input class="TextField-input -leftBlue" :ref="firstname" type="text" placeholder="First">
-      <input class="TextField-input -leftBlue" :ref="lastname" type="text" placeholder="Last">
+      <input class="TextField-input -leftBlue" :ref="name" type="text" placeholder="Name">
     </label>
 
     <label class="Form-item TextField">

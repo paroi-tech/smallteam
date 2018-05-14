@@ -54,7 +54,7 @@ export default class LoginDialog {
     this.removeWarnings()
     this.showSpinner()
     let login = this.nameEl.value.trim()
-    let password = this.passwordEl.value
+    let password = this.passwordEl.value.trim()
     if (this.checkUserInput(login, password)) {
       let contributorId = await this.tryToLogin(login, password)
       this.hideSpinner()
@@ -82,7 +82,7 @@ export default class LoginDialog {
       return false
     }
 
-    if (password.length === 0) {
+    if (password.length < config.minPasswordLength) {
       this.passwordEl.style.borderColor = "red"
       this.passwordEl.focus()
       return false

@@ -61,7 +61,8 @@ export default class InvitationForm {
       return
     }
     this.clear()
-    this.dash.emit("createInvitation", data.invitation)
+    // FIXME: In future, this event will be received via websocket.
+    this.dash.emit("invitationSent", data.invitation)
   }
 
   private validate(username: string, email: string, validity: string) {

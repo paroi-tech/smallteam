@@ -33,7 +33,7 @@ let joiSchemata = {
   routeRegister: Joi.object().keys({
     name: Joi.string().trim().min(1).required(),
     login: Joi.string().trim().min(4).required(),
-    password: Joi.string().min(8).required(),
+    password: Joi.string().trim().min(config.minPasswordLength).required(),
     email: Joi.string().email().required(),
     token: Joi.string().hex().required()
   })

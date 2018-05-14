@@ -36,17 +36,17 @@ export default class LoginDialog {
   }
 
   private async onSubmit() {
-    let password = this.passwordEl.value
+    let password = this.passwordEl.value.trim()
 
-    if (password.length < 8 || password.length > 32) {
+    if (password.length < config.minPasswordLength) {
       await this.dash.create(InfoDialog).show(
-        "Password should have at least 8 characters and at most 32 characters."
+        `Password should have at least ${config.minPasswordLength} characters.`
       )
       this.passwordEl.focus()
       return
     }
 
-    if (this.passwordConfirmEl.value !== password) {
+    if (this.passwordConfirmEl.value.trim() !== password) {
       await this.dash.create(InfoDialog).show("Passwords do not match.")
       this.passwordConfirmEl.focus()
       return

@@ -4,8 +4,8 @@ import App from "../../../App/App"
 import config from "../../../../isomorphic/config"
 import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
-import { OwnDash } from "../../../App/OwnDash";
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry";
+import { OwnDash } from "../../../App/OwnDash"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 
 const template = require("./PasswordForm.monk")
 
@@ -45,10 +45,11 @@ export default class PasswordForm {
   }
 
   private async onSubmit() {
-    if (!this.checkUserInput())
+    let cleanData = await this.checkUserInput()
+    if (!cleanData)
       return
     this.showSpinner()
-    await this.doPasswordUpdate(this.prevPwdEl.value, this.newPwdEl.value)
+    await this.doPasswordUpdate(cleanData.prevPasswd, cleanData.newPasswd)
     this.hideSpinner()
   }
 
@@ -58,22 +59,36 @@ export default class PasswordForm {
     if (this.prevPwdEl.value.length === 0) {
       await d.show("Please enter your current password")
       this.prevPwdEl.focus()
-      return false
+      return undefined
+    }
+
+    let prevPasswd = this.prevPwdEl.value.trim()
+    if (prevPasswd.length < config.minPasswordLength) {
+      await d.show(`Passwords should have at least ${config.minPasswordLength} characters`)
+      this.prevPwdEl.focus()
+      return undefined
     }
 
     if (this.newPwdEl.value.length === 0) {
       await d.show("Please enter new password")
       this.newPwdEl.focus()
-      return false
+      return undefined
     }
 
-    if (this.newPwdEl.value !== this.newPwd2El.value) {
+    let newPasswd = this.newPwdEl.value.trim()
+    if (newPasswd.length < 8) {
+      await d.show(`Passwords should have at least ${config.minPasswordLength} characters`)
+      this.newPwdEl.focus()
+      return undefined
+    }
+
+    if (newPasswd !== this.newPwd2El.value.trim()) {
       await d.show("Passwords don't match")
       this.newPwd2El.focus()
-      return false
+      return undefined
     }
 
-    return true
+    return { prevPasswd, newPasswd }
   }
 
   private async doPasswordUpdate(currentPassword: string, newPassword: string) {

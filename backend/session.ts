@@ -27,23 +27,23 @@ let numberRegex = /^[1-9][0-9]*$/
 
 let joiSchemata = {
   routeConnect: Joi.object().keys({
-    login: Joi.string().trim().alphanum().min(4).max(32).required(),
-    password: Joi.string().min(4).required()
+    login: Joi.string().trim().alphanum().min(4).required(),
+    password: Joi.string().trim().min(config.minPasswordLength).required()
   }),
 
   routeSetPassword: Joi.object().keys({
     contributorId: Joi.string().regex(numberRegex).required(),
-    password: Joi.string().min(4).required()
+    password: Joi.string().trim().min(config.minPasswordLength).required()
   }),
 
   routeChangePassword: Joi.object().keys({
     currentPassword: Joi.string().min(8).required(),
-    newPassword: Joi.string().min(8).required()
+    newPassword: Joi.string().trim().min(config.minPasswordLength).required()
   }),
 
   routeResetPassword: Joi.object().keys({
     token: Joi.string().required(),
-    password: Joi.string().required(),
+    password: Joi.string().trim().min(config.minPasswordLength).required(),
     contributorId: Joi.string().regex(numberRegex).required()
   }),
 
