@@ -1,5 +1,5 @@
 import { Dash } from "bkb"
-import * as Sortable from "sortablejs"
+import Sortable = require("sortablejs")
 import { render } from "@fabtom/lt-monkberry";
 
 const boxListTemplate = require("./BoxList.monk")
@@ -210,7 +210,7 @@ export default class BoxList<T extends Box> {
       },
 
       // Event when an item is moved inside a list ot between lists.
-      onMove: (ev, originalEv) => {
+      onMove: ev => {
         if (this.params.obj && this.params.onMove) {
           return this.params.onMove.call(this.params.obj, {
             boxId: ev.dragged.dataset.id,
