@@ -44,5 +44,5 @@ export function addCssClass(el: HTMLElement, cssClass?: string | string[]) {
 
 export function validateEmail(email: string) {
   let rgx = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
-  return email.match(email) !== null
+  return email.match(rgx) !== null
 }

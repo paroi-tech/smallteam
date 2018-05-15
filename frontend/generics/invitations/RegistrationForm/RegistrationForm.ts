@@ -62,7 +62,7 @@ export default class RegistrationForm {
     }
 
     let login = this.usernameEl.value.trim()
-    if (login.length < 4 || login.match(/[^a-bA-B_0-9]/) != null) {
+    if (login.length < 4 || /[^a-zA-Z_0-9]/.test(login)) {
       await dialog.show("Please enter a username. It should have at least 4 characters and contain only letters and digits.")
       this.usernameEl.focus()
       return
@@ -76,13 +76,13 @@ export default class RegistrationForm {
     }
 
     if (this.confirmEl.value.trim() !== password) {
-      await dialog.show("Password do not match.")
+      await dialog.show("Passwords do not match.")
       this.confirmEl.focus()
       return
     }
 
-    let email = this.emailEl.value
-    if (!validateEmail(email)) {
+    let email = this.emailEl.value.trim()
+    if (email.length === 0 || !validateEmail(email)) {
       await dialog.show("Please enter a valid email address.")
       this.emailEl.focus()
       return
@@ -98,7 +98,7 @@ export default class RegistrationForm {
 
   private async register(name: string, login: string, password: string, email:string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/connect`, {
+      let response = await fetch(`${config.urlPrefix}/api/registration/register`, {
         method: "post",
         credentials: "same-origin",
         headers: {
@@ -107,7 +107,7 @@ export default class RegistrationForm {
         },
         body: JSON.stringify({ name, login, password, email, token: this.token })
       })
-      if (response.ok)
+      if (!response.ok)
         throw new Error("Our server did not process the request.")
 
       let answer = await response.json()

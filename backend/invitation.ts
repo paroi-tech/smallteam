@@ -204,7 +204,7 @@ async function removeInvitationToken(token: string) {
 }
 
 async function tokenExists(token: string) {
-  let query = select("reg_new").where({ token })
+  let query = select().from("reg_new").where({ token })
   // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
   // why we don't handle the exception. If this ever happens, that means there was a problem with the database.
   let row = await cn.singleRowSqlBricks(query)

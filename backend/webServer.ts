@@ -98,7 +98,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
 }
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
-  console.log("[ERR]", err, err.stack, reqBody)
+  console.log("[ERR]", err, err.stack, "Request body:", reqBody)
   let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 403 : 500)
   writeServerResponse(res, statusCode, {
     // We do not send details about server internal errors to frontend.
