@@ -14,7 +14,7 @@ export default class LoginDialog {
   private passwordEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private curDfd: Deferred<string | number> | undefined
+  private curDfd: Deferred<string> | undefined
   private enabled = true
 
   constructor(private dash: Dash) {
@@ -38,7 +38,7 @@ export default class LoginDialog {
     document.body.appendChild(this.el)
   }
 
-  public open(): Promise<string | number> {
+  public open(): Promise<string> {
     this.el.showModal()
     this.curDfd = new Deferred()
     return this.curDfd.promise
@@ -70,7 +70,7 @@ export default class LoginDialog {
   private onPasswordReset() {
     if (this.curDfd) {
       this.el.close()
-      this.curDfd.resolve(-1)
+      this.curDfd.resolve("resetPassword")
       this.curDfd = undefined
     }
   }

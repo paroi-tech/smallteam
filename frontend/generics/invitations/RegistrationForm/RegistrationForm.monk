@@ -33,9 +33,12 @@
       </span>
     </label>
 
-    <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
-      Submit
-      <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
-    </button>
+    <div>
+      <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+        Submit
+        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
+      </button>
+      <button class="StdBtn" :ref="cancelBtn" type="button">Cancel</button>
+    </div>
   </div>
 </dialog>

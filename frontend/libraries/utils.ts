@@ -41,3 +41,8 @@ export function addCssClass(el: HTMLElement, cssClass?: string | string[]) {
   cssClass = typeof cssClass === "string" ? [cssClass] : cssClass
   el.classList.add(...cssClass)
 }
+
+export function validateEmail(email: string) {
+  let rgx = /^[a-zA-Z0-9.!#$%&'*+\/=?^_`{|}~-]+@[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(?:\.[a-zA-Z0-9](?:[a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)*$/
+  return email.match(email) !== null
+}

@@ -1,5 +1,6 @@
 import { AppDash, Log, LogEvent } from "bkb"
 import PasswordResetDialog from "../PasswordResetDialog/PasswordResetDialog"
+import RegistrationForm from "../../frontend/generics/invitations/RegistrationForm/RegistrationForm"
 import config from "../../isomorphic/config"
 
 export default class App {
@@ -28,7 +29,12 @@ export default class App {
     dialog.open()
   }
 
-  private handleUserRegistration() {
-
+  private async handleUserRegistration() {
+    let dialog = this.dash.create(RegistrationForm, this.token)
+    let b = await dialog.open()
+    if (b) {
+      // Redirect user to login page.
+      window.location.href = `${config.urlPrefix}/index.html`
+    }
   }
 }

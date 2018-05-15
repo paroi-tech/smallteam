@@ -52,6 +52,7 @@ export default class ProjectForm implements Workspace {
     this.nameEl = this.view.ref("name")
     this.descriptionEl = this.view.ref("description")
     this.spinnerEl = this.view.ref("spinner")
+    this.view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
 
     this.menu = this.createDropdownMenu()
     this.stepMultiSelect = this.createStepMultiSelect()

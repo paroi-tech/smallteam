@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import Sortable = require("sortablejs")
-import { render } from "@fabtom/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry"
 
 const boxListTemplate = require("./BoxList.monk")
 const liTemplate = require("./li.monk")
