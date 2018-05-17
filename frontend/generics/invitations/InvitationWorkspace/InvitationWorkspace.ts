@@ -37,7 +37,9 @@ export default class InvitationWorkspace {
     view.ref("boxList").appendChild(this.boxList.el)
 
     this.fetchInvitations()
-    this.dash.listenTo("invitationSent", (data, ev) => this.addInvitation(data))
+    this.dash.listenTo("invitationSent", invitationId => this.addInvitation(invitationId))
+    this.dash.listenTo("resendInvitation", invitationId => this.resendInvitation(invitationId))
+    this.dash.listenTo("cancelInvitation", invitationId => this.cancelInvitation(invitationId))
   }
 
   public activate(ctrl: ViewerController) {
@@ -77,5 +79,13 @@ export default class InvitationWorkspace {
     this.map.set(invitation.id, invitation)
     let box = this.dash.create(InvitationBox, invitation)
     this.boxList.addBox(box)
+  }
+
+  private resendInvitation(invitationId: string) {
+
+  }
+
+  private cancelInvitation(invitationId: string) {
+
   }
 }

@@ -1,0 +1,16 @@
+.InvitationBox {
+  width: 180px;
+
+  &-bottom {
+    display: flex;
+    justify-content: flex-end;
+
+    > span {
+      margin: 4px;
+    }
+  }
+
+  &-lbl {
+    margin-left: 4px;
+  }
+}
