@@ -8,7 +8,7 @@ export default class StepBox implements Box {
   readonly el: HTMLElement
   private spanEl: HTMLElement
 
-  constructor(private dash: OwnDash, readonly invitation: any) {
+  constructor(private dash: OwnDash, readonly invitation: Invitation) {
     let view = render(template)
     this.el = view.rootEl()
     this.spanEl = view.ref("span")

@@ -1,15 +1,13 @@
-import config from "../../../../isomorphic/config"
-import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ContributorModel, SessionData } from "../../../AppModel/AppModel"
-import Deferred from "../../../libraries/Deferred"
+import { Dash } from "bkb"
+import config from "../../../../isomorphic/config"
 import ErrorDialog from "../../modal-dialogs/ErrorDialog/ErrorDialog"
 import WarningDialog from "../../modal-dialogs/WarningDialog/WarningDialog"
 
 const template = require("./InvitationForm.monk")
 
 export default class InvitationForm {
-  private readonly el: HTMLDialogElement
+  readonly el: HTMLElement
   private usernameEl: HTMLInputElement
   private emailEl: HTMLInputElement
   private validityEl: HTMLInputElement
@@ -22,6 +20,7 @@ export default class InvitationForm {
     this.emailEl = view.ref("email")
     this.validityEl = view.ref("validity")
     this.spinnerEl = view.ref("spinner")
+    view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
   }
 
   private async onSubmit() {
@@ -32,10 +31,10 @@ export default class InvitationForm {
       await this.dash.create(WarningDialog).show("Please check the values you type in the form.")
       return
     }
-    await this.doFetch(username, email, validity)
+    await this.doFetch(username || undefined, email, validity)
   }
 
-  private async doFetch(username: string, email: string, validity) {
+  private async doFetch(username: string | undefined, email: string, validity) {
     try {
       let response = await fetch(`${config.urlPrefix}/api/registration/send-invitation`, {
         method: "post",
@@ -66,7 +65,7 @@ export default class InvitationForm {
   }
 
   private validate(username: string, email: string, validity: string) {
-    if (username !== "" && (username.length < 4 || username.length > 32))
+    if (username !== "" && (username.length < 4 || username.length > 30))
       return false
     if (email === "")
       return false

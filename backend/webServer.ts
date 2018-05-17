@@ -5,7 +5,7 @@ import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
-import { routeRegister, routeSendInvitation } from "./invitation"
+import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
 import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -51,7 +51,11 @@ export function startWebServer() {
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
 
   router.post("/api/registration/register", makeRouteHandler(routeRegister, true))
-  router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, true))
+  router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, false))
+  router.post("/api/registration/resend-invitation", makeRouteHandler(routeResendInvitation, false))
+  router.post("/api/registration/cancel-invitation", makeRouteHandler(routeCancelInvitation, false))
+  router.post("/api/registration/fetch-invitations", makeRouteHandler(routeGetPendingInvitations, false))
+
   router.post("/api/registration/set-password", makeRouteHandler(routeSetPassword, false))
   router.post("/api/registration/change-password", makeRouteHandler(routeChangePassword, false))
   router.post("/api/registration/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))

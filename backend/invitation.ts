@@ -48,7 +48,7 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
 
   let cleanData = await Joi.validate(data, joiSchemata.routeSendInvitation)
   let token = randomBytes(tokenSize).toString("hex")
-  let id = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
+  let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email).catch(err => {
     console.log("All steps of sending invitation mail have not been processed.", err.message)
   })
@@ -56,9 +56,9 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
   return {
     done: true,
     invitation: {
-      id,
+      username: cleanData.username,
       email: cleanData.email,
-      username: cleanData.username
+      ...result
     }
   }
 }
@@ -80,7 +80,7 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
 
   await removeInvitationToken(cleanData.token)
   let token = randomBytes(tokenSize).toString("hex")
-  let id = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
+  let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email).catch(err => {
     console.log("All steps of sending invitation mail have not been processed.", err.message)
   })
@@ -88,9 +88,9 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
   return {
     done: true,
     invitation: {
-      id,
       email: cleanData.email,
-      username: cleanData.username
+      username: cleanData.username,
+      ...result
     }
   }
 }
@@ -155,18 +155,23 @@ export async function routeGetPendingInvitations(data: any, sessionData?: Sessio
   let query = select().from("reg_new")
   let result = await cn.allSqlBricks(query)
 
-  for (let row of result) {
-    arr.push({
-      id: row["reg_new_id"],
-      token: row["token"],
-      email: row["user_email"],
-      expiration: new Date(row["expire_ts"] * 1000)
-    })
-  }
+  for (let row of result)
+    arr.push(toInvitation(row))
 
   return {
     done: true,
     data: arr
+  }
+}
+
+function toInvitation(row) {
+  return {
+    id: row["reg_new_id"],
+    token: row["token"],
+    username: row["username"],
+    email: row["user_email"],
+    expirationTs: new Date(row["expire_ts"]),
+    creationTs: new Date(row["create_ts"])
   }
 }
 
@@ -183,19 +188,24 @@ async function sendInvitationMail(token: string, email: string) {
 }
 
 async function storeInvitation(token: string, email: string, validity: number, username?: string) {
-  let currentTs = Math.floor(Date.now() / 1000)
+  let currentTs = Math.floor(Date.now())
+  let expireTs = currentTs + validity * 24 * 3600 * 1000
   let query = insert("reg_new", {
     "user_email": email,
     "token": token,
     "create_ts": currentTs,
-    "expire_ts": currentTs + validity * 24 * 3600
+    "expire_ts": expireTs
   })
 
   if (username && !await getContributorByLogin(username))
     query.values({ "user_name": username })
   let result = await cn.execSqlBricks(query)
 
-  return result.getInsertedIdString()
+  return {
+    id: result.getInsertedIdString(),
+    creationTs: currentTs,
+    expirationTs: expireTs
+  }
 }
 
 async function removeInvitationToken(token: string) {
