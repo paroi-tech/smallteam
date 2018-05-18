@@ -37,7 +37,7 @@ export default class InvitationWorkspace {
     view.ref("boxList").appendChild(this.boxList.el)
 
     this.fetchInvitations()
-    this.dash.listenTo("invitationSent", invitationId => this.addInvitation(invitationId))
+    this.dash.listenTo("invitationSent", invitation => this.addInvitation(invitation))
     this.dash.listenTo("resendInvitation", invitationId => this.resendInvitation(invitationId))
     this.dash.listenTo("cancelInvitation", invitationId => this.cancelInvitation(invitationId))
   }
@@ -81,11 +81,92 @@ export default class InvitationWorkspace {
     this.boxList.addBox(box)
   }
 
-  private resendInvitation(invitationId: string) {
-
+  private removeInvitation(invitationId: string) {
+    this.map.delete(invitationId)
+    this.boxList.removeBox(invitationId)
   }
 
-  private cancelInvitation(invitationId: string) {
+  private async resendInvitation(invitationId: string) {
+    let invitation = this.map.get(invitationId)
+    if (!invitation) {
+      this.log.error(`Invitation with ID ${invitationId} not dound in InvitationWorkspace`)
+      return
+    }
 
+    console.log("to refresh", invitation)
+    let msByDay = 24 * 3600 * 1000
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/registration/resend-invitation`, {
+        method: "post",
+        credentials: "include",
+        headers: new Headers({
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify({
+          invitationId,
+          username: invitation.username || undefined,
+          email: invitation.email,
+          validity: Math.floor((invitation.expirationTs - invitation.creationTs) / msByDay)
+        })
+      })
+
+      if (!response.ok) {
+        let dialog = this.dash.create(ErrorDialog)
+        let logMsg = `Error while resending invitation. Response status: ${response.status} ${response.statusText}`
+        await dialog.show("Something went wrong. The server did not handle the request correctly.")
+        this.log.error(logMsg)
+        return
+      }
+
+      let obj = await response.json()
+      this.removeInvitation(invitation.id)
+      if (!obj.done) {
+        let dialog = this.dash.create(ErrorDialog)
+        await dialog.show("There is a problem with the invitation. Try to create a new one.")
+        return
+      }
+      this.addInvitation(obj.invitation)
+    } catch (error) {
+      let dialog = this.dash.create(ErrorDialog)
+      await dialog.show("Something went wrong. Network is not working properly.")
+      this.log.error(error)
+    }
+  }
+
+  private async cancelInvitation(invitationId: string) {
+    let invitation = this.map.get(invitationId)
+    if (!invitation) {
+      this.log.error(`Invitation with ID ${invitationId} not dound in InvitationWorkspace`)
+      return
+    }
+
+    try {
+      let response = await fetch(`${config.urlPrefix}/api/registration/cancel-invitation`, {
+        method: "post",
+        credentials: "include",
+        headers: new Headers({
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify({ invitationId })
+      })
+
+      if (!response.ok) {
+        let dialog = this.dash.create(ErrorDialog)
+        let logMsg = `Error while canceling invitation. Response status: ${response.status} ${response.statusText}`
+        await dialog.show("Something went wrong. The server did not handle the request correctly.")
+        this.log.error(logMsg)
+        return
+      }
+
+      let obj = await response.json()
+      if (obj.done)
+        this.removeInvitation(invitation.id)
+    } catch (error) {
+      let dialog = this.dash.create(ErrorDialog)
+      await dialog.show("Something went wrong. Network is not working properly.")
+      this.log.error(error)
+    }
   }
 }

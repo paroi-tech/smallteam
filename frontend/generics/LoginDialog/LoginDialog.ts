@@ -55,14 +55,18 @@ export default class LoginDialog {
     this.showSpinner()
     let login = this.nameEl.value.trim()
     let password = this.passwordEl.value.trim()
-    if (this.checkUserInput(login, password)) {
-      let contributorId = await this.tryToLogin(login, password)
+    if (!this.checkUserInput(login, password)) {
+      this.enabled = true
       this.hideSpinner()
-      if (contributorId && this.curDfd) {
-        this.el.close()
-        this.curDfd.resolve(contributorId)
-        this.curDfd = undefined
-      }
+      return
+    }
+
+    let contributorId = await this.tryToLogin(login, password)
+    this.hideSpinner()
+    if (contributorId && this.curDfd) {
+      this.el.close()
+      this.curDfd.resolve(contributorId)
+      this.curDfd = undefined
     }
     this.enabled = true
   }

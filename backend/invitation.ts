@@ -20,14 +20,14 @@ let joiSchemata = {
   }),
 
   routeResendInvitation: Joi.object().keys({
-    token: Joi.string().hex().required(),
+    invitationId: Joi.number().min(1).required(),
     email: Joi.string().email().required(),
     username: Joi.string().trim().min(4).optional(),
     validity: Joi.number().integer().min(1).max(30)
   }),
 
   routeCancelInvitation: Joi.object().keys({
-    token: Joi.string().hex().required()
+    invitationId: Joi.number().min(1).required()
   }),
 
   routeRegister: Joi.object().keys({
@@ -71,14 +71,14 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
-  if (!tokenExists(cleanData.token)) {
+  if (!invitationExists(cleanData.invitationId)) {
     return {
       done: false,
-      reason: "Token not found"
+      reason: "Invitation not found"
     }
   }
 
-  await removeInvitationToken(cleanData.token)
+  await removeInvitationWithId(cleanData.invitationId)
   let token = randomBytes(tokenSize).toString("hex")
   let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email).catch(err => {
@@ -103,8 +103,8 @@ export async function routeCancelInvitation(data: any, sessionData?: SessionData
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
   let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
-  if (await tokenExists(cleanData.token))
-    await removeInvitationToken(cleanData.token)
+  if (await invitationExists(cleanData.invitationId))
+    await removeInvitationWithId(cleanData.invitationId)
 
   return {
     done: true
@@ -132,7 +132,7 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
   try {
     let params = query.toParams({ placeholder: "?%d" })
     await transaction.exec(params.text, params.values)
-    await removeInvitationToken(cleanData.token)
+    await removeInvitationWithToken(cleanData.token)
     transaction.commit()
   } finally {
     if (transaction.inTransaction)
@@ -167,11 +167,10 @@ export async function routeGetPendingInvitations(data: any, sessionData?: Sessio
 function toInvitation(row) {
   return {
     id: row["reg_new_id"],
-    token: row["token"],
     username: row["username"],
     email: row["user_email"],
-    expirationTs: new Date(row["expire_ts"]),
-    creationTs: new Date(row["create_ts"])
+    expirationTs: row["expire_ts"],
+    creationTs: row["create_ts"]
   }
 }
 
@@ -208,7 +207,12 @@ async function storeInvitation(token: string, email: string, validity: number, u
   }
 }
 
-async function removeInvitationToken(token: string) {
+async function removeInvitationWithId(invitationId: string) {
+  let query = deleteFrom("reg_new").where({ "reg_new_id": invitationId })
+  await cn.execSqlBricks(query)
+}
+
+async function removeInvitationWithToken(token: string) {
   let query = deleteFrom("reg_new").where({ token })
   await cn.execSqlBricks(query)
 }
@@ -216,7 +220,13 @@ async function removeInvitationToken(token: string) {
 async function tokenExists(token: string) {
   let query = select().from("reg_new").where({ token })
   // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
-  // why we don't handle the exception. If this ever happens, that means there was a problem with the database.
+  // why we don't handle the exception. If this ever happens, that means there was a problem with the db and tokens.
+  let row = await cn.singleRowSqlBricks(query)
+  return row ? true : false
+}
+
+async function invitationExists(invitationId: string) {
+  let query = select().from("reg_new").where({ "reg_new_id": invitationId })
   let row = await cn.singleRowSqlBricks(query)
   return row ? true : false
 }

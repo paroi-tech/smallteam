@@ -47,6 +47,7 @@ export async function newSqliteCn(fileName: string, newDbScriptFileName?: string
     init: async cn => {
       await cn.exec("PRAGMA busy_timeout = 500")
       await cn.exec("PRAGMA foreign_keys = ON")
+      await cn.exec("PRAGMA journal_mode = WAL")
     },
     poolOptions: {
       logError: err => console.log(err)
