@@ -3,10 +3,17 @@ import PasswordResetDialog from "../PasswordResetDialog/PasswordResetDialog"
 import RegistrationForm from "../../frontend/generics/invitations/RegistrationForm/RegistrationForm"
 import config from "../../isomorphic/config"
 
+export interface AppParams {
+  action: string
+  token: string
+  contributorId?: string
+  username?: string
+}
+
 export default class App {
   readonly log: Log
 
-  constructor(private dash: AppDash<App>, private action: string, private token: string, private contributorId: string) {
+  constructor(private dash: AppDash<App>, private params: AppParams) {
     this.log = dash.log
     this.dash.listenTo<LogEvent>("log", data => {
       console.log(`[${data.level}]`, ...data.messages)
@@ -14,27 +21,25 @@ export default class App {
   }
 
   public start() {
-    if (this.action === "passwordreset")
+    if (this.params.action === "passwordreset")
       this.handlePasswordReset()
-    else if (this.action === "registration")
+    else if (this.params.action === "registration")
       this.handleUserRegistration()
     else
-      throw new Error(`Unknown action: ${this.action}`)
+      throw new Error(`Unknown action: ${this.params.action}`)
   }
 
   private handlePasswordReset() {
-    if (!this.contributorId)
+    if (!this.params.contributorId)
         throw new Error("User ID not provided")
-    let dialog = this.dash.create(PasswordResetDialog, this.contributorId, this.token)
+    let dialog = this.dash.create(PasswordResetDialog, this.params.contributorId, this.params.token)
     dialog.open()
   }
 
   private async handleUserRegistration() {
-    let dialog = this.dash.create(RegistrationForm, this.token)
-    let b = await dialog.open()
-    if (b) {
-      // Redirect user to login page.
+    let dialog = this.dash.create(RegistrationForm, this.params.token, this.params.username)
+    // In case of successful registration, we redirect user to login page.
+    if (await dialog.open())
       window.location.href = `${config.urlPrefix}/index.html`
-    }
   }
 }

@@ -21,7 +21,7 @@ export default class RegistrationForm {
 
   private curDfd: Deferred<boolean> | undefined
 
-  constructor(private dash: Dash, private token: string) {
+  constructor(private dash: Dash, private token: string, username?: string) {
     let view = render(template)
     this.el = view.rootEl()
     this.nameEl = view.ref("name")
@@ -39,6 +39,8 @@ export default class RegistrationForm {
         this.el.close()
       }
     })
+
+    this.usernameEl.value = username || ""
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())

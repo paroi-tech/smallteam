@@ -11,6 +11,7 @@ import { getContributorById, getContributorByLogin } from "./utils/userUtils"
 import { AuthorizationError } from "./utils/serverUtils"
 import { SessionData } from "./session"
 import validate from "./utils/joiUtils"
+import { URL } from "url"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({
@@ -49,8 +50,8 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
   let cleanData = await Joi.validate(data, joiSchemata.routeSendInvitation)
   let token = randomBytes(tokenSize).toString("hex")
   let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
-  sendInvitationMail(token, cleanData.email).catch(err => {
-    console.log("All steps of sending invitation mail have not been processed.", err.message)
+  sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
+    console.log("All steps of sending invitation mail have not been completed.", err.message)
   })
 
   return {
@@ -81,8 +82,8 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
   await removeInvitationWithId(cleanData.invitationId)
   let token = randomBytes(tokenSize).toString("hex")
   let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
-  sendInvitationMail(token, cleanData.email).catch(err => {
-    console.log("All steps of sending invitation mail have not been processed.", err.message)
+  sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
+    console.log("All steps of sending invitation mail have not been processed.***", err.message)
   })
 
   return {
@@ -174,11 +175,15 @@ function toInvitation(row) {
   }
 }
 
-async function sendInvitationMail(token: string, email: string) {
-  let host = `${config.host}${config.urlPrefix}`
-  let url  = `${host}/registration.html?action=registration&token=${token}`
-  let text = `Please follow this link ${url} to create your account.`
-  let html = `Please click <a href="${url}">here</a> to create your account.`
+async function sendInvitationMail(token: string, email: string, username?: string) {
+  let regUrl = new URL(`${config.host}${config.urlPrefix}/registration.html`)
+  regUrl.searchParams.append("action", "registration")
+  regUrl.searchParams.append("token", token)
+  if (username)
+    regUrl.searchParams.append("username", username)
+
+  let text = `Please follow this link ${regUrl} to create your account.`
+  let html = `Please click <a href="${regUrl.toString()}">here</a> to create your account.`
 
   let result = await sendMail(email, "SmallTeam password reset", text, html)
   if (result.done)

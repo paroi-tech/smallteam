@@ -1,6 +1,7 @@
 import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { Box } from "../../../generics/BoxList/BoxList"
+import { Invitation } from "../InvitationWorkspace/InvitationWorkspace"
 
 const template = require("./InvitationBox.monk")
 

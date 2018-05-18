@@ -10,6 +10,14 @@ import ErrorDialog from "../../modal-dialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./InvitationWorkspace.monk")
 
+export interface Invitation {
+  id: string
+  creationTs: number
+  expirationTs: number
+  email: string
+  username: string | undefined
+}
+
 export default class InvitationWorkspace {
   readonly el: HTMLElement
   private ctrl: ViewerController | undefined
