@@ -2,7 +2,7 @@ import * as path from "path"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { fileExists, readFile } from "./fsUtils"
-import { MediaEngine, createMediaEngine } from "../createMediaEngine";
+import { MediaEngine, createMediaEngine } from "../createMediaEngine"
 
 export const mainDbConf = (function () {
   let dir = path.join(__dirname, "..", ".."),
@@ -27,7 +27,7 @@ export const fileDbConf = (function () {
 export let cn!: DatabaseConnectionWithSqlBricks
 
 export async function initConnection() {
-  cn = await newSqliteCn(mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
+  cn = await newSqliteCn("[MAIN]", mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
 }
 
 export let mediaEngine!: MediaEngine
@@ -35,25 +35,32 @@ export let mediaEngine!: MediaEngine
 export async function initMediaEngine() {
   let execDdl = !await fileExists(fileDbConf.path)
   mediaEngine = await createMediaEngine(
-    await newSqliteCn(fileDbConf.path),
+    await newSqliteCn("[F]", fileDbConf.path),
     execDdl
   )
 }
 
-export async function newSqliteCn(fileName: string, newDbScriptFileName?: string) {
+async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
   let cn = await createDatabaseConnectionWithSqlBricks({
     provider: sqlite3ConnectionProvider({ fileName }),
     init: async cn => {
-      await cn.exec("PRAGMA busy_timeout = 500")
+      // console.log(debug, ">>> INIT")
+      await cn.exec("PRAGMA busy_timeout = 50")
       await cn.exec("PRAGMA foreign_keys = ON")
     },
     poolOptions: {
-      logError: err => console.log(err)
+      logError: err => console.log(err),
+      logMonitoring: m => console.log(debug, "[MONITORING]", m.event, m.id),
+      connectionTtl: 30
     }
   }, {
-    toParamsOptions: { placeholder: "?%d" }
+    toParamsOptions: { placeholder: "?%d" },
+    trace: (action, sqlBricks) => {
+      console.log("[SQL]", action, sqlBricks.toString())
+    }
   })
+  // console.log(debug, "CREATE ===>", cn)
   if (isNewDb && newDbScriptFileName)
     await cn.execScript(await readFile(newDbScriptFileName, "utf8"))
   return cn
