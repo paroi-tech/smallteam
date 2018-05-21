@@ -17,7 +17,7 @@
     </label>
 
     <div>
-      <button type="button">
+      <button type="button" :ref="submitBtn">
         Submit
         <span class="fa fa-spinner fa-pulse fa-1x fa-fw" :ref="spinner" style="display: none"></span>
       </button>

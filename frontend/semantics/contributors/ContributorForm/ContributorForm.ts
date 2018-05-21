@@ -2,11 +2,11 @@ import { PublicDash, Dash, Log } from "bkb"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
-import config from "../../../../isomorphic/config";
-import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog";
-import { UpdateModelEvent } from "../../../AppModel/ModelEngine";
-import { OwnDash } from "../../../App/OwnDash";
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry";
+import config from "../../../../isomorphic/config"
+import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog"
+import { UpdateModelEvent } from "../../../AppModel/ModelEngine"
+import { OwnDash } from "../../../App/OwnDash"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 
 const template = require("./ContributorForm.monk")
 
@@ -131,7 +131,13 @@ export default class ContributorForm {
 
     let user = this.model.session.contributor
     if (user.role === "admin" && this.passwordEl.value !== "") {
-      if (this.passwordEl.value !== this.passwordConfirmEl.value) {
+      let passwd = this.passwordEl.value.trim()
+      if (passwd.length < 8) {
+        await this.dash.create(WarningDialog).show("Passwords should contain at least 8 characters.")
+        this.passwordEl.focus()
+        return
+      }
+      if (this.passwordEl.value.trim() !== this.passwordConfirmEl.value) {
         await this.dash.create(WarningDialog).show("Passwords do not match.")
         this.passwordConfirmEl.focus()
         return

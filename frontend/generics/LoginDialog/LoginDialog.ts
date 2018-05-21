@@ -14,7 +14,7 @@ export default class LoginDialog {
   private passwordEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private curDfd: Deferred<string | number> | undefined
+  private curDfd: Deferred<string> | undefined
   private enabled = true
 
   constructor(private dash: Dash) {
@@ -38,7 +38,7 @@ export default class LoginDialog {
     document.body.appendChild(this.el)
   }
 
-  public open(): Promise<string | number> {
+  public open(): Promise<string> {
     this.el.showModal()
     this.curDfd = new Deferred()
     return this.curDfd.promise
@@ -54,15 +54,19 @@ export default class LoginDialog {
     this.removeWarnings()
     this.showSpinner()
     let login = this.nameEl.value.trim()
-    let password = this.passwordEl.value
-    if (this.checkUserInput(login, password)) {
-      let contributorId = await this.tryToLogin(login, password)
+    let password = this.passwordEl.value.trim()
+    if (!this.checkUserInput(login, password)) {
+      this.enabled = true
       this.hideSpinner()
-      if (contributorId && this.curDfd) {
-        this.el.close()
-        this.curDfd.resolve(contributorId)
-        this.curDfd = undefined
-      }
+      return
+    }
+
+    let contributorId = await this.tryToLogin(login, password)
+    this.hideSpinner()
+    if (contributorId && this.curDfd) {
+      this.el.close()
+      this.curDfd.resolve(contributorId)
+      this.curDfd = undefined
     }
     this.enabled = true
   }
@@ -70,7 +74,7 @@ export default class LoginDialog {
   private onPasswordReset() {
     if (this.curDfd) {
       this.el.close()
-      this.curDfd.resolve(-1)
+      this.curDfd.resolve("resetPassword")
       this.curDfd = undefined
     }
   }
@@ -82,7 +86,7 @@ export default class LoginDialog {
       return false
     }
 
-    if (password.length === 0) {
+    if (password.length < config.minPasswordLength) {
       this.passwordEl.style.borderColor = "red"
       this.passwordEl.focus()
       return false

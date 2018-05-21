@@ -5,7 +5,7 @@ import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
-import { routeRegister, routeSendInvitation } from "./invitation"
+import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
 import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { mainDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
@@ -51,7 +51,11 @@ export function startWebServer() {
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
 
   router.post("/api/registration/register", makeRouteHandler(routeRegister, true))
-  router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, true))
+  router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, false))
+  router.post("/api/registration/resend-invitation", makeRouteHandler(routeResendInvitation, false))
+  router.post("/api/registration/cancel-invitation", makeRouteHandler(routeCancelInvitation, false))
+  router.post("/api/registration/fetch-invitations", makeRouteHandler(routeGetPendingInvitations, false))
+
   router.post("/api/registration/set-password", makeRouteHandler(routeSetPassword, false))
   router.post("/api/registration/change-password", makeRouteHandler(routeChangePassword, false))
   router.post("/api/registration/send-password-reset-mail", makeRouteHandler(routeSendPasswordEmail, true))
@@ -98,8 +102,8 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
 }
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
-  console.log("[ERR]", err, err.stack, reqBody)
-  let statusCode = err instanceof ValidationError ? 400 : ( err instanceof AuthorizationError ? 401 : 500)
+  console.log("[ERR]", err, err.stack, "Request body:", reqBody)
+  let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 403 : 500)
   writeServerResponse(res, statusCode, {
     // We do not send details about server internal errors to frontend.
     error: statusCode >= 500 && statusCode < 600 ? "Server Internal error" : err.message,

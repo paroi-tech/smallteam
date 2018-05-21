@@ -134,4 +134,4 @@ insert into step (label) values ('On Hold');
 insert into step (label) values ('Archived');
 
 -- Fake data
-insert into contributor (name, login, email, role, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', 'admin', '$2a$10$4qYAXslT6ZKtg5YnoP/YK.vuxIIwLAbAtnzUZCaJoj8or97VEScR.');
+insert into contributor (name, login, email, role, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', 'admin', '$2b$10$9Tm/MQpiXv7hGI1bT3j6kezEH/KA90eCj5B7cdQmFWVTg54fNSJUm');

@@ -11,7 +11,7 @@ import { getContributorById, getContributorByLogin, getContributorByEmail } from
 import validate from "./utils/joiUtils"
 import { AuthorizationError } from "./utils/serverUtils"
 
-const passwordResetTokenValidity = 3 * 24 * 3600 /* 3 days */
+const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 
 export interface SessionData {
   contributorId: string
@@ -27,23 +27,23 @@ let numberRegex = /^[1-9][0-9]*$/
 
 let joiSchemata = {
   routeConnect: Joi.object().keys({
-    login: Joi.string().trim().alphanum().min(4).max(32).required(),
-    password: Joi.string().min(4).required()
+    login: Joi.string().trim().alphanum().min(4).required(),
+    password: Joi.string().trim().min(config.minPasswordLength).required()
   }),
 
   routeSetPassword: Joi.object().keys({
     contributorId: Joi.string().regex(numberRegex).required(),
-    password: Joi.string().min(4).required()
+    password: Joi.string().trim().min(config.minPasswordLength).required()
   }),
 
   routeChangePassword: Joi.object().keys({
     currentPassword: Joi.string().min(8).required(),
-    newPassword: Joi.string().min(8).required()
+    newPassword: Joi.string().trim().min(config.minPasswordLength).required()
   }),
 
   routeResetPassword: Joi.object().keys({
     token: Joi.string().required(),
-    password: Joi.string().required(),
+    password: Joi.string().trim().min(config.minPasswordLength).required(),
     contributorId: Joi.string().regex(numberRegex).required()
   }),
 
@@ -142,7 +142,7 @@ export async function routeResetPassword(data: any, sessionData?: SessionData, r
   let cleanData = await validate(data, joiSchemata.routeResetPassword)
   try {
     let passwordInfo = await getPasswordUpdateObject(cleanData.token, cleanData.contributorId)
-    let currentTs = Math.floor(Date.now() / 1000)
+    let currentTs = Math.floor(Date.now())
     if (currentTs - passwordInfo.createTs > passwordResetTokenValidity)
       throw new Error("Token expired")
     await updateContributorPassword(cleanData.contributorId, cleanData.password)
@@ -214,7 +214,7 @@ async function sendPasswordResetMail(token: string, contributorId: string, addre
 }
 
 async function storePasswordResetToken(token: string, contributorId: string) {
-  let currentTs = Math.floor(Date.now() / 1000)
+  let currentTs = Math.floor(Date.now())
   let query = insert("reg_pwd", {
     "contributor_id": contributorId,
     "token": token,

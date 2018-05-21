@@ -22,7 +22,8 @@ import BackgroundCommandManager from "../generics/BackgroundCommandManager/Backg
 import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu"
 import { ContributorModel } from "../AppModel/Models/ContributorModel"
 import { OwnDash } from "../App/OwnDash"
-import { render } from "@fabtom/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry"
+import InvitationWorkspace from "../generics/invitations/InvitationWorkspace/InvitationWorkspace"
 
 const template = require("./AppFrame.monk")
 
@@ -64,6 +65,8 @@ export default class AppFrame {
     viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
+    if (this.model.session.contributor.role === "admin")
+      viewer.addWorkspace("/settings/invitations", "dropdown", "Invite contributors", this.dash.create(InvitationWorkspace))
 
     let w = this.dash.create(ContributorHome, this.model.session.contributor)
     viewer.addHomeWorkspace("Personal space", w, "/settings/my-profile")
@@ -118,10 +121,6 @@ export default class AppFrame {
       btnEl: menuBtn.btnEl
     } as DropdownMenuOptions)
     ddMenu.entries.createNavBtn(
-      // {
-      //   label: "New project",
-      //   onClick: () => this.dash.app.navigate("/new-project")
-      // },
       {
         label: "Steps",
         onClick: () => this.dash.app.navigate("/settings/steps"),
@@ -143,6 +142,14 @@ export default class AppFrame {
         onClick: () => this.dash.app.navigate("/search")
       }
     )
+
+    if (this.model.session.contributor.role === "admin") {
+      ddMenu.entries.createNavBtn({
+        label: "Invitations",
+        onClick: () => this.dash.app.navigate("/settings/invitations")
+      })
+    }
+
     // viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
     // viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     // viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))

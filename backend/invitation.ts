@@ -11,6 +11,7 @@ import { getContributorById, getContributorByLogin } from "./utils/userUtils"
 import { AuthorizationError } from "./utils/serverUtils"
 import { SessionData } from "./session"
 import validate from "./utils/joiUtils"
+import { URL } from "url"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({
@@ -20,20 +21,20 @@ let joiSchemata = {
   }),
 
   routeResendInvitation: Joi.object().keys({
-    token: Joi.string().hex().required(),
+    invitationId: Joi.number().min(1).required(),
     email: Joi.string().email().required(),
     username: Joi.string().trim().min(4).optional(),
     validity: Joi.number().integer().min(1).max(30)
   }),
 
   routeCancelInvitation: Joi.object().keys({
-    token: Joi.string().hex().required()
+    invitationId: Joi.number().min(1).required()
   }),
 
   routeRegister: Joi.object().keys({
     name: Joi.string().trim().min(1).required(),
     login: Joi.string().trim().min(4).required(),
-    password: Joi.string().min(8).required(),
+    password: Joi.string().trim().min(config.minPasswordLength).required(),
     email: Joi.string().email().required(),
     token: Joi.string().hex().required()
   })
@@ -48,17 +49,17 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
 
   let cleanData = await Joi.validate(data, joiSchemata.routeSendInvitation)
   let token = randomBytes(tokenSize).toString("hex")
-  let id = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
-  sendInvitationMail(token, cleanData.email).catch(err => {
-    console.log("All steps of sending invitation mail have not been processed.", err.message)
+  let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
+  sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
+    console.log("All steps of sending invitation mail have not been completed.", err.message)
   })
 
   return {
     done: true,
     invitation: {
-      id,
+      username: cleanData.username,
       email: cleanData.email,
-      username: cleanData.username
+      ...result
     }
   }
 }
@@ -71,26 +72,26 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
-  if (!tokenExists(cleanData.token)) {
+  if (!invitationExists(cleanData.invitationId)) {
     return {
       done: false,
-      reason: "Token not found"
+      reason: "Invitation not found"
     }
   }
 
-  await removeInvitationToken(cleanData.token)
+  await removeInvitationWithId(cleanData.invitationId)
   let token = randomBytes(tokenSize).toString("hex")
-  let id = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
-  sendInvitationMail(token, cleanData.email).catch(err => {
-    console.log("All steps of sending invitation mail have not been processed.", err.message)
+  let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
+  sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
+    console.log("All steps of sending invitation mail have not been processed.***", err.message)
   })
 
   return {
     done: true,
     invitation: {
-      id,
       email: cleanData.email,
-      username: cleanData.username
+      username: cleanData.username,
+      ...result
     }
   }
 }
@@ -103,8 +104,8 @@ export async function routeCancelInvitation(data: any, sessionData?: SessionData
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
   let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
-  if (await tokenExists(cleanData.token))
-    await removeInvitationToken(cleanData.token)
+  if (await invitationExists(cleanData.invitationId))
+    await removeInvitationWithId(cleanData.invitationId)
 
   return {
     done: true
@@ -132,7 +133,7 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
   try {
     let params = query.toParams({ placeholder: "?%d" })
     await transaction.exec(params.text, params.values)
-    await removeInvitationToken(cleanData.token)
+    await removeInvitationWithToken(cleanData.token)
     transaction.commit()
   } finally {
     if (transaction.inTransaction)
@@ -155,14 +156,8 @@ export async function routeGetPendingInvitations(data: any, sessionData?: Sessio
   let query = select().from("reg_new")
   let result = await cn.allSqlBricks(query)
 
-  for (let row of result) {
-    arr.push({
-      id: row["reg_new_id"],
-      token: row["token"],
-      email: row["user_email"],
-      expiration: new Date(row["expire_ts"] * 1000)
-    })
-  }
+  for (let row of result)
+    arr.push(toInvitation(row))
 
   return {
     done: true,
@@ -170,11 +165,25 @@ export async function routeGetPendingInvitations(data: any, sessionData?: Sessio
   }
 }
 
-async function sendInvitationMail(token: string, email: string) {
-  let host = `${config.host}${config.urlPrefix}`
-  let url  = `${host}/registration.html?action=registration&token=${token}`
-  let text = `Please follow this link ${url} to create your account.`
-  let html = `Please click <a href="${url}">here</a> to create your account.`
+function toInvitation(row) {
+  return {
+    id: row["reg_new_id"],
+    username: row["username"],
+    email: row["user_email"],
+    expirationTs: row["expire_ts"],
+    creationTs: row["create_ts"]
+  }
+}
+
+async function sendInvitationMail(token: string, email: string, username?: string) {
+  let regUrl = new URL(`${config.host}${config.urlPrefix}/registration.html`)
+  regUrl.searchParams.append("action", "registration")
+  regUrl.searchParams.append("token", token)
+  if (username)
+    regUrl.searchParams.append("username", username)
+
+  let text = `Please follow this link ${regUrl} to create your account.`
+  let html = `Please click <a href="${regUrl.toString()}">here</a> to create your account.`
 
   let result = await sendMail(email, "SmallTeam password reset", text, html)
   if (result.done)
@@ -183,30 +192,46 @@ async function sendInvitationMail(token: string, email: string) {
 }
 
 async function storeInvitation(token: string, email: string, validity: number, username?: string) {
-  let currentTs = Math.floor(Date.now() / 1000)
+  let currentTs = Math.floor(Date.now())
+  let expireTs = currentTs + validity * 24 * 3600 * 1000
   let query = insert("reg_new", {
     "user_email": email,
     "token": token,
     "create_ts": currentTs,
-    "expire_ts": currentTs + validity * 24 * 3600
+    "expire_ts": expireTs
   })
 
   if (username && !await getContributorByLogin(username))
     query.values({ "user_name": username })
   let result = await cn.execSqlBricks(query)
 
-  return result.getInsertedIdString()
+  return {
+    id: result.getInsertedIdString(),
+    creationTs: currentTs,
+    expirationTs: expireTs
+  }
 }
 
-async function removeInvitationToken(token: string) {
+async function removeInvitationWithId(invitationId: string) {
+  let query = deleteFrom("reg_new").where({ "reg_new_id": invitationId })
+  await cn.execSqlBricks(query)
+}
+
+async function removeInvitationWithToken(token: string) {
   let query = deleteFrom("reg_new").where({ token })
   await cn.execSqlBricks(query)
 }
 
 async function tokenExists(token: string) {
-  let query = select("reg_new").where({ token })
+  let query = select().from("reg_new").where({ token })
   // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
-  // why we don't handle the exception. If this ever happens, that means there was a problem with the database.
+  // why we don't handle the exception. If this ever happens, that means there was a problem with the db and tokens.
+  let row = await cn.singleRowSqlBricks(query)
+  return row ? true : false
+}
+
+async function invitationExists(invitationId: string) {
+  let query = select().from("reg_new").where({ "reg_new_id": invitationId })
   let row = await cn.singleRowSqlBricks(query)
   return row ? true : false
 }

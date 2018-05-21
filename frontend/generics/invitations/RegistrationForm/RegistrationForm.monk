@@ -1,9 +1,10 @@
-<dialog>
+<dialog class="RegistrationForm">
   <div class="Form">
     <label class="Form-item TextField">
       <span class="TextField-lbl">Name</span>
-      <input class="TextField-input -leftBlue" :ref="firstname" type="text" placeholder="First">
-      <input class="TextField-input -leftBlue" :ref="lastname" type="text" placeholder="Last">
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="name" type="text" placeholder="Name">
+      </span>
     </label>
 
     <label class="Form-item TextField">
@@ -34,9 +35,13 @@
       </span>
     </label>
 
-    <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
-      Submit
-      <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
-    </button>
+    <div>
+      <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+        Submit
+        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
+      </button>
+      &nbsp;
+      <button class="StdBtn" :ref="cancelBtn" type="button">Cancel</button>
+    </div>
   </div>
 </dialog>

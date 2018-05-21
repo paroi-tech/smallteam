@@ -12,7 +12,7 @@
   <label class="Form-item TextField">
     <span class="TextField-lbl">Invitation validity</span>
     <span class="TextField-deco">
-      <input class="TextField-input" :ref="validity" type="number" step="1" pattern="\d+" placeholder="Days">
+      <input class="TextField-input" :ref="validity" type="number" step="1" min="1" max="30" pattern="\d+" placeholder="Days">
     </span>
   </label>
 
@@ -21,4 +21,3 @@
     <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
   </button>
 </div>
-</dialog>

@@ -1,4 +1,4 @@
-import { createTransport } from "nodemailer"
+import { createTransport, getTestMessageUrl } from "nodemailer"
 
 const account = {
   user: "ulvmvwmr3qhn2wec@ethereal.email",
@@ -26,6 +26,9 @@ export async function sendMail(to: string, subject: string, text: string, html: 
     }
     let info = await transporter.sendMail(opts)
     result.done = true
+    // FIXME: remove these lines before going in production.
+    console.log("Mail sent:", info.messageId);
+    console.log("Preview URL:", getTestMessageUrl(info));
   } catch (error) {
     result.error = error
   }

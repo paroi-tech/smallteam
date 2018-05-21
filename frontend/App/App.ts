@@ -56,7 +56,7 @@ export default class App {
     await this.appFrame.viewer.router.navigate(queryString)
   }
 
-  public async connect(): Promise<string | number> {
+  public async connect(): Promise<string> {
     // First, we try to recover session, if there is one active...
     try {
       let response = await fetch(`${config.urlPrefix}/api/session/current`, {
