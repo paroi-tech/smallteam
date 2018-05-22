@@ -6,8 +6,8 @@ import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
 import { Model, ProjectModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
-import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
-import ErrorDialog from "../../../generics/modal-dialogs/ErrorDialog/ErrorDialog"
+import InfoDialog from "../../../generics/modalDialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
 import { OwnDash } from "../../../App/OwnDash";
 
 export default class ProjectWorkspace implements Workspace {

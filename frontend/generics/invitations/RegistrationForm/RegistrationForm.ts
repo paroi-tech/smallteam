@@ -3,10 +3,10 @@ import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { Model, ContributorModel, SessionData } from "../../../AppModel/AppModel"
 import Deferred from "../../../libraries/Deferred"
-import ErrorDialog from "../../modal-dialogs/ErrorDialog/ErrorDialog"
-import WarningDialog from "../../modal-dialogs/WarningDialog/WarningDialog"
+import ErrorDialog from "../../modalDialogs/ErrorDialog/ErrorDialog"
+import WarningDialog from "../../modalDialogs/WarningDialog/WarningDialog"
 import { validateEmail } from "../../../libraries/utils"
-import InfoDialog from "../../modal-dialogs/InfoDialog/InfoDialog"
+import InfoDialog from "../../modalDialogs/InfoDialog/InfoDialog"
 
 const template = require("./RegistrationForm.monk")
 

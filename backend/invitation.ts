@@ -133,7 +133,6 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
   try {
     await transaction.execSqlBricks(query)
     await transaction.execSqlBricks(deleteFrom("reg_new").where({ token: cleanData.token }))
-    //await removeInvitationWithToken(cleanData.token)
     transaction.commit()
   } finally {
     if (transaction.inTransaction)
@@ -216,11 +215,6 @@ async function removeInvitationWithId(invitationId: string) {
   let query = deleteFrom("reg_new").where({ "reg_new_id": invitationId })
   await cn.execSqlBricks(query)
 }
-
-// async function removeInvitationWithToken(token: string) {
-//   let query = deleteFrom("reg_new").where({ token })
-//   await cn.execSqlBricks(query)
-// }
 
 async function tokenExists(token: string) {
   let query = select().from("reg_new").where({ token })
