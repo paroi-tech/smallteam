@@ -131,9 +131,9 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
   let transaction = await cn.beginTransaction()
 
   try {
-    let params = query.toParams({ placeholder: "?%d" })
-    await transaction.exec(params.text, params.values)
-    await removeInvitationWithToken(cleanData.token)
+    await transaction.execSqlBricks(query)
+    await transaction.execSqlBricks(deleteFrom("reg_new").where({ token: cleanData.token }))
+    //await removeInvitationWithToken(cleanData.token)
     transaction.commit()
   } finally {
     if (transaction.inTransaction)
@@ -217,10 +217,10 @@ async function removeInvitationWithId(invitationId: string) {
   await cn.execSqlBricks(query)
 }
 
-async function removeInvitationWithToken(token: string) {
-  let query = deleteFrom("reg_new").where({ token })
-  await cn.execSqlBricks(query)
-}
+// async function removeInvitationWithToken(token: string) {
+//   let query = deleteFrom("reg_new").where({ token })
+//   await cn.execSqlBricks(query)
+// }
 
 async function tokenExists(token: string) {
   let query = select().from("reg_new").where({ token })

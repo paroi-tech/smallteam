@@ -7,7 +7,7 @@ import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
 import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
-import { mainDbConf, mediaEngine } from "./utils/dbUtils"
+import { sessionDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError } from "./utils/serverUtils"
 
@@ -26,7 +26,7 @@ export function startWebServer() {
   let server = http.createServer(app)
 
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
-  let { dir, file } = mainDbConf
+  let { dir, file } = sessionDbConf
 
   app.use(session({
       secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",

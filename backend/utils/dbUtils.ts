@@ -24,6 +24,16 @@ export const fileDbConf = (function () {
   }
 })()
 
+export const sessionDbConf = (function () {
+  let dir = path.join(__dirname, "..", ".."),
+    file = "sessions.sqlite"
+  return {
+    dir,
+    file,
+    path: path.join(dir, file)
+  }
+})()
+
 export let cn!: DatabaseConnectionWithSqlBricks
 
 export async function initConnection() {
