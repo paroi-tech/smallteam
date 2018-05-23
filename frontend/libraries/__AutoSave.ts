@@ -1,22 +1,31 @@
 import { TaskFragment } from "../../isomorphic/meta/Task"
 import { wait } from "../../isomorphic/libraries/helpers"
 
-interface AutoSaveOptions<FRAG> {
-  showSpinner?(show: boolean): void
-  save(frag: FRAG): Promise<void>
-  reset(): void
-  deferMs?: number
+export interface AutoSaveOptions<FRAG> {
+  showSpinner?: (show: boolean) => void
+  save: (frag: FRAG) => Promise<void>
+  reset: () => void
+  delayMs?: number
+  maxDelayMs?: number
 }
 
 export class AutoSave<FRAG> {
   private values = new Map()
   private awaiting = false
   private nextSaveTs?: number
+  private opt: Required<AutoSaveOptions<FRAG>>
 
-  constructor(private options: AutoSaveOptions<FRAG>) {
+  constructor(options: AutoSaveOptions<FRAG>) {
+    this.opt = {
+      showSpinner: options.showSpinner || (() => {}),
+      save: options.save,
+      reset: options.reset,
+      delayMs: options.delayMs || 2000,
+      maxDelayMs: options.delayMs || 10000
+    }
   }
 
-  reinit(frag: FRAG) {
+  use(frag: FRAG) {
     this.values.clear()
     for (let [fieldName, value] of Object.entries(frag))
       this.values.set(fieldName, value)
@@ -24,7 +33,7 @@ export class AutoSave<FRAG> {
 
   setValue<FIELD extends keyof FRAG, VAL extends FRAG[FIELD]>(fieldName: FIELD, value: VAL) {
     this.values.set(fieldName, value)
-    this.deferSave(this.options.deferMs || 2000)
+    this.deferSave(this.opt.delayMs)
   }
 
   private deferSave(ms: number) {
@@ -50,15 +59,13 @@ export class AutoSave<FRAG> {
   }
 
   private async save() {
-    if (this.options.showSpinner)
-      this.options.showSpinner(true)
+    this.opt.showSpinner(true)
     try {
-      await this.options.save(this.toFragment())
+      await this.opt.save(this.toFragment())
     } catch (err) {
-      this.options.reset()
+      this.opt.reset()
     }
-    if (this.options.showSpinner)
-      this.options.showSpinner(false)
+    this.opt.showSpinner(false)
   }
 
   private toFragment(): FRAG {
