@@ -9,7 +9,7 @@ import StepBox from "../../steps/StepBox/StepBox"
 import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import NavBtn from "../../../generics/NavBtn/NavBtn"
-import WarningDialog from "../../../generics/modal-dialogs/WarningDialog/WarningDialog"
+import WarningDialog from "../../../generics/modalDialogs/WarningDialog/WarningDialog"
 import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./ProjectForm.monk")

@@ -4,7 +4,7 @@ import { OwnDash } from "../../../App/OwnDash"
 import { Model, StepModel } from "../../../AppModel/AppModel"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
-import InfoDialog from "../../../generics/modal-dialogs/InfoDialog/InfoDialog"
+import InfoDialog from "../../../generics/modalDialogs/InfoDialog/InfoDialog"
 
 const template = require("./StepForm.monk")
 

@@ -1,6 +1,7 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../modalDialogUtils"
 
 const template = require("./PromptDialog.monk")
 
@@ -19,12 +20,13 @@ export default class PromptDialog {
     this.titleEl = view.ref("title")
     this.inputEl = view.ref("input")
 
+    let closeCb = ev => this.close("")
+    view.ref("cancelBtn").addEventListener("click", closeCb)
+    view.ref("close").addEventListener("click",closeCb)
     view.ref("okBtn").addEventListener("click", ev => {
       if (this.inputEl.value !== "")
         this.close(this.inputEl.value)
     })
-    view.ref("cancelBtn").addEventListener("click", ev => this.close(""))
-    view.ref("close").addEventListener("click", ev => this.close(""))
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
       this.close("")
@@ -41,8 +43,8 @@ export default class PromptDialog {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
+    makeOutsideClickHandlerFor(this.el, () => this.close(""))
     this.el.showModal()
-
     return this.currDfd.promise
   }
 

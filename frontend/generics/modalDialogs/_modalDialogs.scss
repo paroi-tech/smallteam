@@ -1,6 +1,7 @@
 .ModalDialog {
-  background-color: wheat;
+  background-color: #fff;
   border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 4px;
   box-shadow: 0 3px 7px rgba(0, 0, 0, 0.3);
   margin: 50px auto 0px;
   width: 320px;
@@ -11,13 +12,13 @@
     left: 0;
     right: 0;
     top: 0;
-    background-color: rgba(0, 0, 0, 0.5);
+    background-color: rgba(0, 0, 0, 0.8);
   }
 
   &-header {
     align-items: baseline;
-    background-color: #d3d3d3;
     display: flex;
+    border-bottom: 1px solid rgba(34, 36, 38, 0.15);
     flex-direction: row;
     font-weight: bold;
     justify-content: space-between;
@@ -45,6 +46,7 @@
 
   &-bottom {
     align-items: center;
+    border-top: 1px solid rgba(34, 36, 38, 0.15);
     display: flex;
     flex-direction: row;
     justify-content: flex-end;
@@ -84,9 +86,9 @@
 }
 
 .ModalDialogCloseItem {
-  color: #ff0000;
+  color: #000;
 
   &:hover {
-    color: #8b0000;
+    color: darkgray;
   }
 }

@@ -1,10 +1,11 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../modalDialogUtils"
 
-const template = require("./WarningDialog.monk")
+const template = require("./InfoDialog.monk")
 
-export default class WarningDialog {
+export default class InfoDialog {
   private readonly el: HTMLDialogElement
   private msgEl: HTMLElement
   private titleEl: HTMLElement
@@ -17,8 +18,9 @@ export default class WarningDialog {
     this.msgEl = view.ref("message")
     this.titleEl = view.ref("title")
 
-    view.ref("button").addEventListener("click", ev => this.close())
-    view.ref("close").addEventListener("click", ev => this.close())
+    let closeCb = ev => this.close()
+    view.ref("button").addEventListener("click", closeCb)
+    view.ref("close").addEventListener("click", closeCb)
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
       this.close()
@@ -31,12 +33,12 @@ export default class WarningDialog {
     document.body.appendChild(this.el)
   }
 
-  public show(msg: string, title = "Warning"): Promise<boolean> {
+  public show(msg: string, title = "Information"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
+    makeOutsideClickHandlerFor(this.el, () => this.close())
     this.el.showModal()
-
     return this.currDfd.promise
   }
 

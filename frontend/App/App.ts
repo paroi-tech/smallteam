@@ -16,8 +16,8 @@ import Workspace404 from "../generics/Workspace404/Workspace404"
 import config from "../../isomorphic/config"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 import AppFrame from "../AppFrame/AppFrame"
-import InfoDialog from "../generics/modal-dialogs/InfoDialog/InfoDialog"
-import WarningDialog from "../generics/modal-dialogs/WarningDialog/WarningDialog"
+import InfoDialog from "../generics/modalDialogs/InfoDialog/InfoDialog"
+import WarningDialog from "../generics/modalDialogs/WarningDialog/WarningDialog"
 
 export default class App {
   readonly log: Log

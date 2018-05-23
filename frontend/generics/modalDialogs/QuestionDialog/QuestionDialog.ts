@@ -1,10 +1,11 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../modalDialogUtils"
 
-const template = require("./ErrorDialog.monk")
+const template = require("./QuestionDialog.monk")
 
-export default class ErrorDialog {
+export default class QuestionDialog {
   private readonly el: HTMLDialogElement
   private msgEl: HTMLElement
   private titleEl: HTMLElement
@@ -17,15 +18,17 @@ export default class ErrorDialog {
     this.msgEl = view.ref("message")
     this.titleEl = view.ref("title")
 
-    view.ref("button").addEventListener("click", ev => this.close())
-    view.ref("close").addEventListener("click", ev => this.close())
+    view.ref("okBtn").addEventListener("click", ev => this.close(true))
+    let closeCb = ev => this.close(false)
+    view.ref("cancelBtn").addEventListener("click", closeCb)
+    view.ref("close").addEventListener("click", closeCb)
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
-      this.close()
+      this.close(false)
     })
     this.el.addEventListener("keydown", ev => {
       if (ev.key === "Enter")
-        this.close()
+      this.close(true)
     })
 
     document.body.appendChild(this.el)
@@ -35,12 +38,12 @@ export default class ErrorDialog {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
+    makeOutsideClickHandlerFor(this.el, () => this.close(false))
     this.el.showModal()
-
     return this.currDfd.promise
   }
 
-  private close() {
+  private close(b: boolean) {
     if (this.currDfd)
       this.currDfd && this.currDfd.resolve(true)
     this.currDfd = undefined

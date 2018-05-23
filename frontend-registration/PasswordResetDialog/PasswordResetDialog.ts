@@ -1,8 +1,8 @@
 import config from "../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import InfoDialog from "../../frontend/generics/modal-dialogs/InfoDialog/InfoDialog"
-import ErrorDialog from "../../frontend/generics/modal-dialogs/ErrorDialog/ErrorDialog"
+import InfoDialog from "../../frontend/generics/modalDialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../frontend/generics/modalDialogs/ErrorDialog/ErrorDialog"
 
 const template = require("./PasswordResetDialog.monk")
 
