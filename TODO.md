@@ -40,17 +40,6 @@ the time, so I can't use JIRA.
 # Lionel
 - In the backend, replace our old SQL query builder by SqlBricks:
   - Do not use `import * as sql from` but choose what you need: `import { select, insertInto, update, deleteFrom } from`
-- The application _frontend-registration_:
-  - SQL schema: the table `mail_challenge` is replaced by `reg_pwd`, create a new table `reg_new`
-  - Rename the application `frontend-pwd` to `frontend-registration`
-  - Implement the `NewContributorForm`
-- In the main frontend:
-  - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`
-    - The admin user entries email addresses (required) and names (optional), the form insert a new token in `reg_new` and send emails
-    - The panel show the list of awaiting invites, for each one there are two actions:
-      - remove
-      - resend the email
-
 - Each DropDown menus must be displayed on an overlay. A click on the overlay closes the dropdown menu.
 - Merge `ContributorHome` and `ContributorForm`
   - The admin can reset the password (via frontend-registration)
@@ -80,6 +69,16 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- In the main frontend:
+  - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`
+    - The admin user entries email addresses (required) and names (optional), the form insert a new token in `reg_new` and send emails
+    - The panel show the list of awaiting invites, for each one there are two actions:
+      - remove
+      - resend the email
+- The application _frontend-registration_:
+  - SQL schema: the table `mail_challenge` is replaced by `reg_pwd`, create a new table `reg_new`
+  - Rename the application `frontend-pwd` to `frontend-registration`
+  - Implement the `NewContributorForm`
 - In `LoginDialog`, the link "Forgot your password" opens a panel `PasswordReset`:
   - The user entries his email address, the form insert a new token in `reg_pwd` and send an email
 - Merge `ContributorHome` into `ContributorForm`

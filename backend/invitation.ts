@@ -216,6 +216,11 @@ async function removeInvitationWithId(invitationId: string) {
   await cn.execSqlBricks(query)
 }
 
+async function removeInvitationWithToken(token: string) {
+  let query = deleteFrom("reg_new").where({ token })
+  await cn.execSqlBricks(query)
+}
+
 async function tokenExists(token: string) {
   let query = select().from("reg_new").where({ token })
   // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
