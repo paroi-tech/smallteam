@@ -48,7 +48,7 @@
     "monkberry-loader": "4.0.9",
     "mycn": "0.10.0",
     "mycn-sqlite3": "0.1.8",
-    "mycn-with-sql-bricks": "0.10.0",
+    "mycn-with-sql-bricks": "0.10.2",
     "nodemailer": "4.6.4",
     "showdown": "1.8.6",
     "sortablejs": "1.7.0",
