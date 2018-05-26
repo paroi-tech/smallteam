@@ -3,7 +3,6 @@
 // Note: when handling click on the dialog backdrop, the event target property corresponds to the dialog elt.
 export function makeOutsideClickHandlerFor(dialogEl: HTMLDialogElement, cb: () => void) {
   let clickHandler = (ev: MouseEvent) => {
-    console.log("click detected...")
     if (dialogEl.open && ev.target === dialogEl) {
       let rect = dialogEl.getBoundingClientRect()
       if (ev.clientX < rect.left || ev.clientX > rect.right || ev.clientY < rect.top || ev.clientY > rect.bottom)
@@ -12,7 +11,6 @@ export function makeOutsideClickHandlerFor(dialogEl: HTMLDialogElement, cb: () =
   }
   document.body.addEventListener("click", clickHandler)
   dialogEl.addEventListener("close", ev => {
-    console.log('removing listener')
     document.body.removeEventListener("click", clickHandler)
   })
 }
