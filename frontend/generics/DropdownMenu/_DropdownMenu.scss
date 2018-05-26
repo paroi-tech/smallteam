@@ -1,10 +1,26 @@
 .DropdownMenu {
+  // Note: To create an overlay, we use two properties: box-shadow and z-index.
+  // The idea was found at: https://tympanus.net/codrops/2013/11/07/css-overlay-techniques/
+  box-shadow: 0 0 0 9999px rgba(0, 0, 0, 0.6);
   min-width: 174px;
   position: absolute;
-  z-index: 1;
+  z-index: 10;
 
   &.-right {
     right: 0;
+  }
+
+  &.-left {
+    left: 0;
+  }
+
+  &::backdrop {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    top: 0;
+    background-color: rgba(255, 41, 255, 0.8);
   }
 }
 
