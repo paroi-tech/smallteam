@@ -3,13 +3,15 @@ import { MenuItem } from "../Menu/Menu"
 import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 import { catchAndLog } from "../../libraries/utils"
 import { render } from "@fabtom/lt-monkberry";
+import { log } from "util";
 
 const template = require("./DropdownMenu.monk")
 // const liTemplate = require("./li.monk")
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement
-  align?: "left" | "right" // Default value is "right".
+  /** Default value is "right" */
+  align?: "left" | "right"
   navMenuOptions?: NavMenuOptions
 }
 
@@ -26,12 +28,23 @@ export class DropdownMenu {
     this.el = render(template).rootEl()
     this.btnEl = options.btnEl
     this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
-
     this.el.appendChild(this.entries.el)
-    if (options.align !== "left")
-      this.el.classList.add(options.align || "right")
-    this.btnEl.addEventListener("click", catchAndLog(() => this.toggle()))
+    this.el.classList.add(options.align === "left" ? "-left" : "-right")
 
+    this.btnEl.addEventListener("click", catchAndLog(() => this.toggle()))
+    // Design requirement: menu should be closed when user clicks outside.
+    // TSC complains when we used a function to handle the focusout event like this:
+    // this.btnEl.addEventListener("focusout", (ev) => doSomething())
+    // So we end up with the following code. See the following discussion for more information:
+    // https://github.com/Microsoft/TypeScript/issues/1224
+    let thisObj = this
+    let handler = {
+      handleEvent: (ev) => {
+        if (thisObj.isVisible && !thisObj.el.contains(ev.relatedTarget as Node))
+        thisObj.hide()
+      }
+    }
+    this.btnEl.addEventListener("focusout", handler)
     dash.listenTo("click", () => this.hide())
   }
 

@@ -118,7 +118,8 @@ export default class AppFrame {
     } as NavBtnOptions)
 
     let ddMenu = this.dash.create(DropdownMenu, {
-      btnEl: menuBtn.btnEl
+      btnEl: menuBtn.btnEl,
+      align: "left"
     } as DropdownMenuOptions)
     ddMenu.entries.createNavBtn(
       {
@@ -175,7 +176,8 @@ export default class AppFrame {
     })
 
     let ddMenu = this.dash.create(DropdownMenu, {
-      btnEl: menuBtn.btnEl
+      btnEl: menuBtn.btnEl,
+      align: "right"
     } as DropdownMenuOptions)
     ddMenu.entries.createNavBtn(
       {
