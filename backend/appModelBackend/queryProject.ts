@@ -6,7 +6,7 @@ import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 import { WhoUseItem } from "../../isomorphic/transfers";
-import { TransactionConnectionWithSqlBricks } from "mycn-with-sql-bricks";
+import { TransactionConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks";
 
 // --
 // -- Read
@@ -347,7 +347,7 @@ export async function deleteProject(context: BackendContext, frag: ProjectIdFrag
 // -- Dependencies
 // --
 
-async function insertProjectSteps(cn: TransactionConnectionWithSqlBricks, projectId: number | string, stepIds: string[]) {
+async function insertProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: number | string, stepIds: string[]) {
   for (let stepId of stepIds) {
     let sql = buildInsert()
       .insertInto("project_step")
@@ -359,7 +359,7 @@ async function insertProjectSteps(cn: TransactionConnectionWithSqlBricks, projec
   }
 }
 
-async function updateProjectSteps(cn: TransactionConnectionWithSqlBricks, projectId: number | string, stepIds: string[]) {
+async function updateProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: number | string, stepIds: string[]) {
   let rs = await cn.all(buildSelect()
     .select("ps.step_id")
     .from("project_step ps")
