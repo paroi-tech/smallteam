@@ -68,7 +68,13 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
   }, {
     toParamsOptions: { placeholder: "?%d" },
     trace: (action, sqlBricks) => {
-      console.log("[SQL]", action, sqlBricks.toString())
+      let sql: string
+      try {
+        sql = sqlBricks.toString() // throws an error when a parameter is a Buffer
+      } catch {
+        sql = sqlBricks.toParams().text
+      }
+      console.log("[SQL]", action, sql)
     }
   })
   // console.log(debug, "CREATE ===>", cn)

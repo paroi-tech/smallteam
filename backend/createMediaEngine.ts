@@ -19,10 +19,7 @@ export interface MediaEngine {
 
 export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, execDdl: boolean): Promise<MediaEngine> {
   let storage = await createMediaStorage({
-    initDb: {
-      dbEngine: "sqlite",
-      execDdl
-    },
+    execInitScript: execDdl ? "sqlite" : undefined,
     cn,
     imagesConf: IMAGES_CONF
   })
