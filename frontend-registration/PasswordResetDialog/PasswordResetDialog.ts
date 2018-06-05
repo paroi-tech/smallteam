@@ -1,6 +1,7 @@
 import config from "../../isomorphic/config"
 import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
+import PasswordEdit from "../../frontend/generics/PasswordEdit/PasswordEdit"
 import InfoDialog from "../../frontend/generics/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../frontend/generics/modalDialogs/ErrorDialog/ErrorDialog"
 
@@ -8,22 +9,23 @@ const template = require("./PasswordResetDialog.monk")
 
 export default class LoginDialog {
   readonly el: HTMLDialogElement
-  private passwordEl: HTMLInputElement
-  private passwordConfirmEl: HTMLInputElement
   private spinnerEl: HTMLElement
+
+  private edit: PasswordEdit
 
   constructor(private dash: Dash, private contributorId: string, private token: string) {
     let view = render(template)
     this.el = view.rootEl()
-    this.passwordEl = view.ref("password")
-    this.passwordConfirmEl = view.ref("confirm")
     this.spinnerEl = view.ref("spinner")
+
+    this.edit = this.dash.create(PasswordEdit)
+    view.ref("container").appendChild(this.edit.el)
 
     let btnEl: HTMLButtonElement = view.ref("submitBtn")
     btnEl.addEventListener("click", ev => this.onSubmit())
     this.el.addEventListener("keyup", (ev: KeyboardEvent) => {
       if (ev.key === "Enter")
-        btnEl.click()
+        this.onSubmit()
     })
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
@@ -36,19 +38,17 @@ export default class LoginDialog {
   }
 
   private async onSubmit() {
-    let password = this.passwordEl.value.trim()
-
-    if (password.length < config.minPasswordLength) {
-      await this.dash.create(InfoDialog).show(
-        `Password should have at least ${config.minPasswordLength} characters.`
-      )
-      this.passwordEl.focus()
+    let password = this.edit.getPasswordIfMatch()
+    if (password === undefined) {
+      await this.dash.create(InfoDialog).show("Passwords do not match.")
+      this.edit.focus()
       return
     }
 
-    if (this.passwordConfirmEl.value.trim() !== password) {
-      await this.dash.create(InfoDialog).show("Passwords do not match.")
-      this.passwordConfirmEl.focus()
+    if (password.length < config.minPasswordLength) {
+      let msg = `Password should have at least ${config.minPasswordLength} characters.`
+      await this.dash.create(InfoDialog).show(msg)
+      this.edit.focus()
       return
     }
 

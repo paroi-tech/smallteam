@@ -12,7 +12,6 @@ const template = require("./ContributorForm.monk")
 
 export default class ContributorForm {
   readonly el: HTMLElement
-
   private fieldsetEl: HTMLFieldSetElement
   private loginEl: HTMLInputElement
   private nameEl: HTMLInputElement

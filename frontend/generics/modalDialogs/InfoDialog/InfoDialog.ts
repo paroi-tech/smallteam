@@ -26,8 +26,12 @@ export default class InfoDialog {
       this.close()
     })
     this.el.addEventListener("keydown", ev => {
-      if (ev.key === "Enter")
+      console.log("keydown event catched...")
+      if (ev.key === "Enter") {
+        console.log("enter key pressed...")
+        ev.stopPropagation()
         this.close()
+      }
     })
 
     document.body.appendChild(this.el)
@@ -44,7 +48,7 @@ export default class InfoDialog {
 
   private close() {
     if (this.currDfd)
-      this.currDfd && this.currDfd.resolve(true)
+      this.currDfd.resolve(true)
     this.currDfd = undefined
     this.el.close()
     document.body.removeChild(this.el)

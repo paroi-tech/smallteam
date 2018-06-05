@@ -10,6 +10,7 @@
   &-body {
     bottom: 0;
     flex: 1 100%;
+    overflow-y: scroll;
     position: absolute;
     top: 42px;
     width: 100%;

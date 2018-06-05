@@ -38,9 +38,10 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- Fix Bug in PasswordResetDialog that idsplay several modal when we press Enter key in InfoDialog
+- In ContributorForm, pass a boolean parameter than control is password inputs will be displayed or hidden.
 - In the backend, replace our old SQL query builder by SqlBricks:
   - Do not use `import * as sql from` but choose what you need: `import { select, insertInto, update, deleteFrom } from`
-- Each DropDown menus must be displayed on an overlay. A click on the overlay closes the dropdown menu.
 - Merge `ContributorHome` and `ContributorForm`
   - The admin can reset the password (via frontend-registration)
   - The profile of the connected user allows to change the password but in a distinct `ChangePassword` form (on the same screen)
@@ -69,6 +70,7 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- Each DropDown menus must be displayed on an overlay. A click on the overlay closes the dropdown menu.
 - In the main frontend:
   - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`
     - The admin user entries email addresses (required) and names (optional), the form insert a new token in `reg_new` and send emails

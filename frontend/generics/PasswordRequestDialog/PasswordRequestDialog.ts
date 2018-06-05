@@ -6,9 +6,9 @@ import Deferred from "../../libraries/Deferred"
 import ErrorDialog from "../modalDialogs/ErrorDialog/ErrorDialog"
 import InfoDialog from "../modalDialogs/InfoDialog/InfoDialog"
 
-const template = require("./PasswordResetDialog.monk")
+const template = require("./PasswordRequestDialog.monk")
 
-export default class LoginDialog {
+export default class PasswordRequestDialog {
   private readonly el: HTMLDialogElement
   private emailEl: HTMLInputElement
   private spinnerEl: HTMLElement

@@ -4,7 +4,7 @@ import { BgCommand } from "../AppModel/BgCommandManager"
 import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
 import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
 import LoginDialog from "../generics/LoginDialog/LoginDialog"
-import PasswordResetDialog from "../generics/PasswordResetDialog/PasswordResetDialog"
+import PasswordRequestDialog from "../generics/PasswordRequestDialog/PasswordRequestDialog"
 import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
 import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
 import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace"
@@ -115,7 +115,7 @@ export default class App {
   }
 
   public async showPasswordResetDialog() {
-    let dialog = this.dash.create(PasswordResetDialog)
+    let dialog = this.dash.create(PasswordRequestDialog)
     try {
       await dialog.open()
     } catch (error) {
