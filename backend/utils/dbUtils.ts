@@ -55,7 +55,6 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
   let cn = await createDatabaseConnectionWithSqlBricks({
     provider: sqlite3ConnectionProvider({ fileName }),
     init: async cn => {
-      // console.log(debug, ">>> INIT")
       await cn.exec("PRAGMA busy_timeout = 50")
       await cn.exec("PRAGMA foreign_keys = ON")
       await cn.exec("PRAGMA journal_mode = WAL")
@@ -70,14 +69,13 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
     trace: (action, sqlBricks) => {
       let sql: string
       try {
-        sql = sqlBricks.toString() // throws an error when a parameter is a Buffer
+        sql = sqlBricks.toString() // Throws an error when a parameter is a Buffer.
       } catch {
         sql = sqlBricks.toParams().text
       }
       console.log("[SQL]", action, sql)
     }
   })
-  // console.log(debug, "CREATE ===>", cn)
   if (isNewDb && newDbScriptFileName)
     await cn.execScript(await readFile(newDbScriptFileName, "utf8"))
   return cn

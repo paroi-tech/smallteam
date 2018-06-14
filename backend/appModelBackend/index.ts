@@ -120,7 +120,7 @@ async function executeCommand(context: BackendContext, data) {
 
 async function executeCommandContributor(context: BackendContext, data) {
   if (data.cmd === "create")
-    await createContributor(context, data.frag)
+    await createContributor(context, data.frag) // FIXME: remove this. Invitations have replaced it.
   else if (data.cmd === "update")
     await updateContributor(context, data.frag)
   else if (data.cmd === "delete")

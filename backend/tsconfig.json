@@ -5,12 +5,11 @@
     "lib": [
       "es2016",
       "es2017.object",
-      "dom" // FIXME: for jQuery but not required
+      "dom" // FIXME: for jQuery but not required.
     ],
     "moduleResolution": "node",
     "sourceMap": true,
     "strict": true,
-    //"suppressImplicitAnyIndexErrors": true,
     "noImplicitAny": false,
     "noImplicitThis": false,
     "outDir": "../www-server"
@@ -18,8 +17,4 @@
   "exclude": [
     "../node_modules"
   ]
-  // "include": [
-  //   "frontend/**/*",
-  //   "backend/**/*"
-  // ]
 }

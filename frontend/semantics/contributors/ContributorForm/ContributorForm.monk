@@ -1,46 +1,35 @@
 <section class="ContributorForm">
   <header class="ContributorForm-header" :ref="header">Contributor details</header>
-  <div :ref="form">
-    <fieldset :ref="fieldset">
-      <label class="FormField">
-        <span class="FormField-span">Name</span>
-        <input type="text" value="{{ name }}" :ref="name">
-      </label>
+  <fieldset :ref="fieldset">
+    <label class="FormField">
+      <span class="FormField-span">Name</span>
+      <input type="text" value="{{ name }}" :ref="name">
+    </label>
 
-      <label class="FormField">
-        <span class="FormField-span">Login</span>
-        <input type="text" value="{{ login }}" :ref="login">
-      </label>
+    <label class="FormField">
+      <span class="FormField-span">Login</span>
+      <input type="text" value="{{ login }}" :ref="login">
+    </label>
 
-      <label class="FormField">
-        <span class="FormField-span">Email</span>
-        <input type="email" value="{{ email }}" placeholder="john.doe@example.com" :ref="email">
-      </label>
+    <label class="FormField">
+      <span class="FormField-span">Email</span>
+      <input type="email" value="{{ email }}" placeholder="john.doe@example.com" :ref="email">
+    </label>
 
-      <label class="FormField">
-        <span class="FormField-span">Role</span>
-        <select :ref="role">
-          <option value="admin">Admin</option>
-          <option value="contrib" selected="selected">Contributor</option>
-        </select>
-      </label>
+    <label class="FormField">
+      <span class="FormField-span">Role</span>
+      <select :ref="role">
+        <option value="admin">Admin</option>
+        <option value="contrib" selected="selected">Contributor</option>
+      </select>
+    </label>
 
-      <label class="FormField">
-        <span class="FormField-span">Password</span>
-        <input type="password" value="{{ password }}" disabled :ref="password">
-      </label>
+    <div :ref="password"></div>
 
-      <label class="FormField">
-        <span class="FormField-span">Confirm password</span>
-        <input type="password" value="{{ password }}" disabled :ref="password2">
-      </label>
-
-      <div>
-        <button type="button" :ref="submitBtn">
-          Save changes
-          <span class="fa fa-spinner fa-pulse fa-1x" style="display: none" :ref="submitSpinner"></span>
-        </button>
-      </div>
-    </fieldset>
-  </div>
+    <div>
+      <button type="button" :ref="submitBtn">
+        Save changes <span class="fa fa-spinner fa-pulse fa-1x" style="display: none" :ref="submitSpinner"></span>
+      </button>
+    </div>
+  </fieldset>
 </section>

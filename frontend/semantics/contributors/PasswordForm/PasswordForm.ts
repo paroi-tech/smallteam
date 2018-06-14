@@ -1,6 +1,6 @@
 import { PublicDash, Dash, Log } from "bkb"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
+import PasswordEdit from "../../../generics/PasswordEdit/PasswordEdit"
 import config from "../../../../isomorphic/config"
 import InfoDialog from "../../../generics/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
@@ -11,37 +11,28 @@ const template = require("./PasswordForm.monk")
 
 export default class PasswordForm {
   readonly el: HTMLElement
-  private prevPwdEl: HTMLInputElement
-  private newPwdEl: HTMLInputElement
-  private newPwd2El: HTMLInputElement
+  private currentPasswordEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private view: LtMonkberryView
+  private passwordEdit: PasswordEdit
 
   private log: Log
   private model: Model
-
-  private state = {
-    prevPwd: "",
-    newPwd: "",
-    newPwd2: ""
-  }
 
   constructor(private dash: OwnDash, private contributor: ContributorModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template)
-    this.el = this.view.rootEl()
-    this.prevPwdEl = this.view.ref("prevPwd")
-    this.newPwdEl = this.view.ref("newPwd")
-    this.newPwd2El = this.view.ref("newPwd2")
-    this.spinnerEl = this.view.ref("spinner")
+    let view = render(template)
+    this.el = view.rootEl()
+    this.currentPasswordEl = view.ref("currentPassword")
+    this.spinnerEl = view.ref("spinner")
 
-    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
-    this.view.ref("cancelBtn").addEventListener("click", () => this.onCancel())
+    this.passwordEdit = this.dash.create(PasswordEdit)
+    view.ref("field").appendChild(this.passwordEdit.el)
 
-    this.view.update(this.state)
+    view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    view.ref("cancelBtn").addEventListener("click", () => this.onCancel())
   }
 
   private async onSubmit() {
@@ -49,46 +40,34 @@ export default class PasswordForm {
     if (!cleanData)
       return
     this.showSpinner()
-    await this.doPasswordUpdate(cleanData.prevPasswd, cleanData.newPasswd)
+    await this.doPasswordUpdate(cleanData.currentPassword, cleanData.newPassword)
     this.hideSpinner()
   }
 
   private async checkUserInput() {
     let d = this.dash.create(InfoDialog)
 
-    if (this.prevPwdEl.value.length === 0) {
-      await d.show("Please enter your current password")
-      this.prevPwdEl.focus()
+    let currentPassword = this.currentPasswordEl.value.trim()
+    if (currentPassword.length < config.minPasswordLength) {
+      await d.show("Please enter your current password.")
+      this.currentPasswordEl.focus()
       return undefined
     }
 
-    let prevPasswd = this.prevPwdEl.value.trim()
-    if (prevPasswd.length < config.minPasswordLength) {
+    let newPassword = this.passwordEdit.getPasswordIfMatch()
+    if (!newPassword) {
+      await d.show("Passwords do not match.")
+      this.passwordEdit.focus()
+      return undefined
+    }
+
+    if (newPassword.length < config.minPasswordLength) {
       await d.show(`Passwords should have at least ${config.minPasswordLength} characters`)
-      this.prevPwdEl.focus()
+      this.passwordEdit.focus()
       return undefined
     }
 
-    if (this.newPwdEl.value.length === 0) {
-      await d.show("Please enter new password")
-      this.newPwdEl.focus()
-      return undefined
-    }
-
-    let newPasswd = this.newPwdEl.value.trim()
-    if (newPasswd.length < 8) {
-      await d.show(`Passwords should have at least ${config.minPasswordLength} characters`)
-      this.newPwdEl.focus()
-      return undefined
-    }
-
-    if (newPasswd !== this.newPwd2El.value.trim()) {
-      await d.show("Passwords don't match")
-      this.newPwd2El.focus()
-      return undefined
-    }
-
-    return { prevPasswd, newPasswd }
+    return { currentPassword, newPassword }
   }
 
   private async doPasswordUpdate(currentPassword: string, newPassword: string) {
@@ -139,9 +118,7 @@ export default class PasswordForm {
   }
 
   private clearFields() {
-    this.state.prevPwd = ""
-    this.state.newPwd = ""
-    this.state.newPwd2 = ""
-    this.view.update(this.state)
+    this.currentPasswordEl.value = ""
+    this.passwordEdit.clear()
   }
 }

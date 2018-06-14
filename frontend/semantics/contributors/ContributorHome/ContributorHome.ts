@@ -19,7 +19,7 @@ export default class ContributorHome implements Workspace {
     let view = render(template)
     this.el = view.rootEl()
 
-    let form = this.dash.create(ContributorForm)
+    let form = this.dash.create(ContributorForm, false)
     form.setContributor(this.contributor)
 
     view.ref("formContainer").appendChild(form.el)

@@ -1,5 +1,3 @@
-import config from "../../../isomorphic/config"
-import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./PasswordEdit.monk")
@@ -20,6 +18,11 @@ export default class PasswordEdit {
     this.primaryEl.focus()
   }
 
+  clear() {
+    this.primaryEl.value = ""
+    this.confirmEl.value = ""
+  }
+
   passwordsMatch(): boolean {
     return this.confirmEl.value.trim() === this.primaryEl.value.trim()
   }
@@ -32,5 +35,9 @@ export default class PasswordEdit {
 
   getPassword(): string {
     return this.primaryEl.value.trim()
+  }
+
+  hasPassword() {
+    return this.getPassword() !== ""
   }
 }

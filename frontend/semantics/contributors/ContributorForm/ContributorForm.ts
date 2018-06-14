@@ -1,12 +1,11 @@
-import { PublicDash, Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
 import config from "../../../../isomorphic/config"
 import WarningDialog from "../../../generics/modalDialogs/WarningDialog/WarningDialog"
-import { UpdateModelEvent } from "../../../AppModel/ModelEngine"
 import { OwnDash } from "../../../App/OwnDash"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
+import PasswordEdit from "../../../generics/PasswordEdit/PasswordEdit"
 
 const template = require("./ContributorForm.monk")
 
@@ -17,17 +16,16 @@ export default class ContributorForm {
   private nameEl: HTMLInputElement
   private emailEl: HTMLInputElement
   private roleEl: HTMLSelectElement
-  private passwordEl: HTMLInputElement
-  private passwordConfirmEl: HTMLInputElement
   private submitSpinnerEl: HTMLElement
+
+  private passwordEdit: PasswordEdit
 
   private view: LtMonkberryView
   private state = {
     login: "",
     name: "",
     email: "",
-    role: "",
-    password: ""
+    role: ""
   }
 
   private model: Model
@@ -40,7 +38,7 @@ export default class ContributorForm {
    */
   private canClearForm = false
 
-  constructor(private dash: OwnDash) {
+  constructor(private dash: OwnDash, showPasswordFields = true) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -51,33 +49,24 @@ export default class ContributorForm {
     this.loginEl = this.view.ref("login")
     this.emailEl = this.view.ref("email")
     this.roleEl = this.view.ref("role")
-    this.passwordEl = this.view.ref("password")
-    this.passwordConfirmEl = this.view.ref("password2")
     this.submitSpinnerEl = this.view.ref("submitSpinner")
     this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+
+    this.passwordEdit = this.dash.create(PasswordEdit)
+    if (this.model.session.contributor.role === "admin" && showPasswordFields)
+      this.view.ref("password").appendChild(this.passwordEdit.el)
 
     this.view.update(this.state)
 
     this.dash.listenToModel("updateContributor", data => this.onContributorUpdate(data.model))
     this.dash.listenToModel("endProcessingContributor", data => this.onEndProcessing(data.model))
     this.dash.listenToModel("processingContributor", data => this.onProcessing(data.model))
-
-    if (this.dash.app.model.session.contributor.role === "admin") {
-      this.passwordEl.disabled = false
-      this.passwordConfirmEl.disabled = false
-    }
   }
 
   public reset() {
     this.currentContributor = undefined
-
-    this.state.name = ""
-    this.state.login = ""
-    this.state.email = ""
-    this.state.role = ""
-    this.state.password = ""
+    this.resetState()
     this.view.update(this.state)
-
     this.unlockForm()
     this.nameEl.focus()
   }
@@ -93,16 +82,11 @@ export default class ContributorForm {
       return
     }
 
-    let user = this.model.session.contributor
-    let b = user.role !== "admin"
-    this.passwordEl.disabled = b
-    this.passwordConfirmEl.disabled = b
-
     this.currentContributor = contributor
     this.state = contributor.updateTools.toFragment("update") as any
-    this.state.password = ""
     this.view.update(this.state)
     this.roleEl.value = this.state.role
+    this.passwordEdit.clear()
 
     if (contributor.updateTools.processing)
       this.lockForm()
@@ -129,21 +113,22 @@ export default class ContributorForm {
     }
 
     let user = this.model.session.contributor
-    if (user.role === "admin" && this.passwordEl.value !== "") {
-      let passwd = this.passwordEl.value.trim()
-      if (passwd.length < 8) {
-        await this.dash.create(WarningDialog).show("Passwords should contain at least 8 characters.")
-        this.passwordEl.focus()
-        return
-      }
-      if (this.passwordEl.value.trim() !== this.passwordConfirmEl.value) {
+    if (user.role === "admin" && this.passwordEdit.hasPassword()) {
+      if (!this.passwordEdit.passwordsMatch()) {
         await this.dash.create(WarningDialog).show("Passwords do not match.")
-        this.passwordConfirmEl.focus()
+        this.passwordEdit.focus()
         return
       }
-      this.updatePassword(this.currentContributor.id, this.currentContributor.login, this.passwordEl.value)
-      this.passwordEl.value = ""
-      this.passwordConfirmEl.value = ""
+
+      let password = this.passwordEdit.getPassword()
+      if (password.length < config.minPasswordLength) {
+        let msg = `Passwords should contain at least ${config.minPasswordLength} characters.`
+        await this.dash.create(WarningDialog).show(msg)
+        this.passwordEdit.focus()
+        return
+      }
+      this.updatePassword(this.currentContributor.id, this.currentContributor.login, password)
+      this.passwordEdit.clear()
     }
 
     let id = this.currentContributor.id
@@ -171,9 +156,9 @@ export default class ContributorForm {
     console.log("[DEBUG] onContributorUpdate", contributor)
     this.canClearForm = false
     this.state = contributor.updateTools.toFragment("update") as any
-    this.state.password = ""
     this.view.update(this.state)
     this.roleEl.value = this.state.role
+    this.passwordEdit.clear()
   }
 
   // --
@@ -273,6 +258,13 @@ export default class ContributorForm {
     }
 
     return frag
+  }
+
+  private resetState() {
+    this.state.login = ""
+    this.state.email = ""
+    this.state.name  = ""
+    this.state.role  = ""
   }
 
   private validateEmail(email: string): boolean {
