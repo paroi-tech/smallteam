@@ -26,7 +26,6 @@ export async function getContributorByLogin(login: string) {
   let row = undefined
 
   try {
-    // console.log("===>", cn)
     row = await cn.singleRowSqlBricks(query)
   } catch (err) {
     console.log(err)

@@ -1,11 +1,10 @@
 import { BackendContext } from "./backendContext/context"
 import { Variant, Media, ExternalRef } from "@fabtom/media-engine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
-import { MediaFragment } from "../../isomorphic/meta/Media";
-import config from "../../isomorphic/config";
-import { ChangedType } from "./backendContext/ModelUpdateLoader";
-import CargoLoader from "./backendContext/CargoLoader";
-import { mediaEngine } from "../utils/dbUtils";
+import { MediaFragment } from "../../isomorphic/meta/Media"
+import { ChangedType } from "./backendContext/ModelUpdateLoader"
+import CargoLoader from "./backendContext/CargoLoader"
+import { mediaEngine } from "../utils/dbUtils"
 
 export type MainMetaCode = "contributorAvatar" | "task"
 

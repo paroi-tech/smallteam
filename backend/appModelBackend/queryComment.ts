@@ -1,17 +1,16 @@
 import { BackendContext } from "./backendContext/context"
 import { cn, toIntList, int } from "../utils/dbUtils"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import commentMeta, { CommentFragment, CommentCreateFragment, CommentIdFragment, CommentUpdateFragment, CommentSearchFragment } from "../../isomorphic/meta/Comment"
+import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
 
 // --
 // -- Read
 // --
 
 export async function fetchComments(context: BackendContext, filters: CommentSearchFragment) {
-  let sql = selectFromComment()
-  sql.andWhere("c.task_id", int(filters.taskId))
-  let rs = await cn.all(sql.toSql())
+  let query = selectFromComment().where("task_id", int(filters.taskId))
+  let rs = await cn.allSqlBricks(query)
   for (let row of rs) {
     context.loader.addFragment({
       type: "Comment",
@@ -24,9 +23,8 @@ export async function fetchComments(context: BackendContext, filters: CommentSea
 export async function fetchCommentsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let sql = selectFromComment()
-    .where("c.comment_id", "in", toIntList(idList))
-  let rs = await cn.all(sql.toSql())
+  let query = selectFromComment().where(sqlIn("comment_id", toIntList(idList)))
+  let rs = await cn.allSqlBricks(query)
   for (let row of rs) {
     let data = toCommentFragment(row)
     context.loader.modelUpdate.addFragment("Comment", data.id, data)
@@ -34,10 +32,7 @@ export async function fetchCommentsByIds(context: BackendContext, idList: string
 }
 
 function selectFromComment() {
-  return buildSelect()
-    .select("c.comment_id, c.task_id, c.written_by, c.body, c.create_ts, c.update_ts")
-    .from("comment c")
-    .orderBy("c.create_ts")
+  return select("comment_id, task_id, written_by, body, create_ts, update_ts").from("comment").orderBy("create_ts")
 }
 
 function toCommentFragment(row): CommentFragment {
@@ -58,11 +53,9 @@ function toCommentFragment(row): CommentFragment {
 export async function createComment(context: BackendContext, newFrag: CommentCreateFragment) {
   let values = toSqlValues(newFrag, commentMeta.create)!
   values["written_by"] = int(context.sessionData.contributorId)
-  let sql = buildInsert()
-    .insertInto("comment")
-    .values(values)
-  let res = await cn.exec(sql.toSql()),
-    commentId = res.getInsertedIdString()
+  let sql = insert("comment", values)
+  let res = await cn.execSqlBricks(sql)
+  let commentId = res.getInsertedIdString()
 
   context.loader.addFragment({
     type: "Comment",
@@ -84,12 +77,8 @@ export async function updateComment(context: BackendContext, updFrag: CommentUpd
     return
 
   let commentId = int(updFrag.id)
-
-  let sql = buildUpdate()
-    .update("comment")
-    .set(values)
-    .where("comment_id", commentId)
-  await cn.exec(sql.toSql())
+  let sql = update("comment", values).where("comment_id", commentId)
+  await cn.execSqlBricks(sql)
 
   context.loader.addFragment({
     type: "Comment",
@@ -105,24 +94,14 @@ export async function updateComment(context: BackendContext, updFrag: CommentUpd
 
 export async function deleteComment(context: BackendContext, frag: CommentIdFragment) {
   await markTaskAsUpdatedFromComment(context, frag.id)
-
-  let sql = buildDelete()
-    .deleteFrom("comment")
-    .where("comment_id", int(frag.id))
-
-  await cn.exec(sql.toSql())
-
+  let sql = deleteFrom("comment").where("comment_id", int(frag.id))
+  await cn.execSqlBricks(sql)
   context.loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
 }
 
 async function markTaskAsUpdatedFromComment(context: BackendContext, commentId: string) {
-  let sql = buildSelect()
-    .select("task_id")
-    .from("comment")
-    .where("comment_id", int(commentId))
-
-  let rs = await cn.all(sql.toSql())
-
+  let sql = select("task_id").from("comment").where("comment_id", int(commentId))
+  let rs = await cn.allSqlBricks(sql)
   if (rs.length === 1) {
     let taskId = rs[0]["task_id"].toString()
     markTaskAsUpdated(context, taskId)

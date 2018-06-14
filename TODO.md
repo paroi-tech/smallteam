@@ -38,8 +38,10 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- queryContributor.ts => createContributor: fix default password problem. Set password to NULl and forbid connection
+  for user with no password.
 - Fix Bug in PasswordResetDialog that idsplay several modal when we press Enter key in InfoDialog
-- In ContributorForm, pass a boolean parameter than control is password inputs will be displayed or hidden.
+- In ContributorForm, pass a boolean parameter that controls is password inputs will be displayed or hidden.
 - In the backend, replace our old SQL query builder by SqlBricks:
   - Do not use `import * as sql from` but choose what you need: `import { select, insertInto, update, deleteFrom } from`
 - Merge `ContributorHome` and `ContributorForm`
@@ -47,9 +49,6 @@ the time, so I can't use JIRA.
   - The profile of the connected user allows to change the password but in a distinct `ChangePassword` form (on the same screen)
 - In `TaskBox`, display the true contributor's avatar (if exists)
 - In `TaskForm` and `ContributorForm`, show the uploaded files in an appropriate component `FileThumbnail`
-
-- TaskAttachmentManager => remove attached files (test only since it is not supported by model)
-- Image library (sharp => https://github.com/lovell/sharp)
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
@@ -70,6 +69,8 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- TaskAttachmentManager => remove attached files (test only since it is not supported by model)
+- Image library (sharp => https://github.com/lovell/sharp)
 - Each DropDown menus must be displayed on an overlay. A click on the overlay closes the dropdown menu.
 - In the main frontend:
   - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`

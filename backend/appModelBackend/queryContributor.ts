@@ -1,24 +1,22 @@
 import { randomBytes } from "crypto"
-import * as path from "path"
 import { BackendContext } from "./backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
-import { hash, compare } from "bcrypt"
+import { hash } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendMail } from "../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
-import { select, insert, update, deleteFrom } from "sql-bricks"
+import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
 import config from "../../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "../backendConfig"
+
 
 export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let sql = selectFromContributor()
-    .where("contributor_id", "in", toIntList(idList))
-  let rs = await cn.all(sql.toSql())
+  let sql = selectFromContributor().where(sqlIn("contributor_id", toIntList(idList)))
+  let rs = await cn.allSqlBricks(sql)
   for (let row of rs) {
     let data = await toContributorFragment(context, row)
     context.loader.modelUpdate.addFragment("Contributor", data.id, data)
@@ -27,7 +25,7 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
 
 export async function fetchContributors(context: BackendContext) {
   let sql = selectFromContributor().orderBy("name")
-  let rs = await cn.all(sql.toSql())
+  let rs = await cn.allSqlBricks(sql)
   for (let row of rs) {
     let frag = await toContributorFragment(context, row)
     context.loader.addFragment({
@@ -53,9 +51,7 @@ async function toContributorFragment(context: BackendContext, row): Promise<Cont
 }
 
 function selectFromContributor() {
-  return buildSelect()
-    .select("contributor_id, login, name, email, role")
-    .from("contributor")
+  return select("contributor_id, login, name, email, role").from("contributor")
 }
 
 // --
@@ -67,12 +63,12 @@ export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
   let result = [] as WhoUseItem[]
   let count: number
 
-  count = await cn.singleValue(buildSelect().select("count(1)").from("task").where("created_by", dbId).toSql())
-  count += await cn.singleValue(buildSelect().select("count(1)").from("task_affected_to").where("contributor_id", dbId).toSql())
+  count = await cn.singleValueSqlBricks(select("count(1)").from("task").where("created_by", dbId))
+  count += await cn.singleValueSqlBricks(select("count(1)").from("task_affected_to").where("contributor_id", dbId))
   if (count > 0)
     result.push({ type: "Task", count })
 
-  count = await cn.singleValue(buildSelect().select("count(1)").from("task_log").where("contributor_id", dbId).toSql())
+  count = await cn.singleValueSqlBricks(select("count(1)").from("task_log").where("contributor_id", dbId))
   if (count > 0)
     result.push({ type: "TaskLogEntry", count })
 
@@ -85,11 +81,8 @@ export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
 
 export async function createContributor(context: BackendContext, newFrag: ContributorCreateFragment) {
   let passwordHash = await hash("init", bcryptSaltRounds)
-  let sql = buildInsert()
-    .insertInto("contributor")
-    .values(toSqlValues(newFrag, contributorMeta.create))
-    .values({ "password": passwordHash })
-  let res = await cn.exec(sql.toSql())
+  let sql = insert("contributor", toSqlValues(newFrag, contributorMeta.create)).values({ "password": passwordHash })
+  let res = await cn.execSqlBricks(sql)
   let contributorId = res.getInsertedIdString()
 
   generateAndSendActivationToken(contributorId, newFrag.email).catch(console.error)
@@ -135,10 +128,7 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
   let values = toSqlValues(updFrag, contributorMeta.update, "exceptId")
   if (values === null)
     return
-  let sql = buildUpdate()
-    .update("contributor")
-    .set(values)
-    .where("contributor_id", contributorId) // FIXME: Update this after fixing bug with with toSqlValues
+  let sql = update("contributor", values).where("contributor_id", contributorId) // FIXME: Update this after fixing bug with with toSqlValues
 
   context.loader.addFragment({
     type: "Contributor",
@@ -147,7 +137,7 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
     markAs: "updated"
   })
 
-  await cn.exec(sql.toSql())
+  await cn.execSqlBricks(sql)
 }
 
 // --
@@ -155,14 +145,10 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
 // --
 
 export async function deleteContributor(context: BackendContext, frag: ContributorIdFragment) {
-  let sql = buildDelete()
-    .deleteFrom("contributor")
-    .where("contributor_id", int(frag.id))
+  let sql = deleteFrom("contributor").where("contributor_id", int(frag.id))
 
-  await cn.exec(sql.toSql())
-
+  await cn.execSqlBricks(sql)
   context.loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
-
   deleteMedias(context, { type: "contributorAvatar", id: frag.id })
 }
 
@@ -173,8 +159,8 @@ export async function deleteContributor(context: BackendContext, frag: Contribut
 export async function reorderAffectedContributors(context: BackendContext, idList: string[], taskIdStr: string) {
   let taskId = int(taskIdStr)
 
-  let oldNums = await loadAffectedOrderNums(taskId),
-    curNum = 0
+  let oldNums = await loadAffectedOrderNums(taskId)
+  let curNum = 0
   for (let idStr of idList) {
     let id = int(idStr),
       oldNum = oldNums.get(id)
@@ -197,46 +183,20 @@ export async function reorderAffectedContributors(context: BackendContext, idLis
 }
 
 async function updateAffectedOrderNum(contributorId: number, taskId: number, orderNum: number) {
-  let sql = buildUpdate()
-    .update("task_affected_to")
-    .set({
-      "order_num": orderNum
-    })
-    .where({
-      "contributor_id": contributorId,
-      "task_id": taskId
-    })
-  await cn.exec(sql.toSql())
+  let sql = update("task_affected_to", { "order_num": orderNum }).where({
+    "contributor_id": contributorId,
+    "task_id": taskId
+  })
+  await cn.execSqlBricks(sql)
 }
 
 async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number>> {
-  let sql = buildSelect()
-    .select("c.contributor_id, c.order_num")
-    .from("task_affected_to c")
-    .where("c.task_id", taskId)
-  let rs = await cn.all(sql.toSql()),
-    orderNums = new Map<number, number>()
+  let sql = select("contributor_id, order_num")
+              .from("task_affected_to")
+              .where("c.task_id", taskId)
+  let rs = await cn.allSqlBricks(sql)
+  let orderNums = new Map<number, number>()
   for (let row of rs)
     orderNums.set(row["contributor_id"], row["order_num"])
   return orderNums
-}
-
-// --
-// -- Types and functions used by 'session.ts', 'invitation.ts' and 'mail.ts'
-// --
-
-interface Contributor {
-  id: string
-  role: string
-  login: string
-  password: string
-}
-
-function toContributor(row): Contributor {
-  return {
-    id: row["contributor_id"].toString(),
-    role: row["role"],
-    login: row["login"],
-    password: row["password"]
-  }
 }

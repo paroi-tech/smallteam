@@ -1,10 +1,9 @@
-import * as path from "path"
 import { BackendContext } from "./backendContext/context"
 import flagMeta, { FlagFragment, FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
-import { WhoUseItem } from "../../isomorphic/transfers";
+import { WhoUseItem } from "../../isomorphic/transfers"
+import { select, insert, update, deleteFrom, in as sqlIn, isNotNull } from "sql-bricks"
 
 // --
 // -- Read
@@ -12,7 +11,7 @@ import { WhoUseItem } from "../../isomorphic/transfers";
 
 export async function fetchFlags(context: BackendContext) {
   let sql = selectFromFlag()
-  let rs = await cn.all(sql.toSql())
+  let rs = await cn.allSqlBricks(sql)
   for (let row of rs) {
     let frag = toFlagFragment(row)
     context.loader.addFragment({
@@ -27,8 +26,8 @@ export async function fetchFlagsByIds(context: BackendContext, idList: string[])
   if (idList.length === 0)
     return
   let sql = selectFromFlag()
-    .where("flag_id", "in", toIntList(idList))
-  let rs = await cn.all(sql.toSql())
+    .where(sqlIn("flag_id", toIntList(idList)))
+  let rs = await cn.allSqlBricks(sql)
   for (let row of rs) {
     let data = toFlagFragment(row)
     context.loader.modelUpdate.addFragment("Flag", data.id, data)
@@ -36,8 +35,7 @@ export async function fetchFlagsByIds(context: BackendContext, idList: string[])
 }
 
 function selectFromFlag() {
-  return buildSelect()
-    .select("flag_id, label, color, order_num")
+  return select("flag_id, label, color, order_num")
     .from("flag")
     .orderBy("order_num")
 }
@@ -56,11 +54,12 @@ function toFlagFragment(row): FlagFragment {
 // --
 
 export async function whoUseFlag(id: string): Promise<WhoUseItem[]> {
-  let dbId = int(id),
-    result: WhoUseItem[] = [],
-    count: number
+  let dbId = int(id)
+  let result = [] as WhoUseItem[]
+  let count = 0
 
-  count = await cn.singleValue(buildSelect().select("count(1)").from("task_flag").where("flag_id", dbId).toSql())
+  let sql = select("count(1)").from("task_flag").where("flag_id", dbId)
+  count = await cn.singleValueSqlBricks(sql)
   if (count > 0)
     result.push({ type: "Task", count })
 
@@ -75,11 +74,9 @@ export async function createFlag(context: BackendContext, newFrag: FlagCreateFra
   if (newFrag.orderNum === undefined)
     newFrag.orderNum = await getDefaultOrderNum()
 
-  let sql = buildInsert()
-    .insertInto("flag")
-    .values(toSqlValues(newFrag, flagMeta.create))
-  let res = await cn.exec(sql.toSql()),
-    flagId = res.getInsertedIdString()
+  let sql = insert("flag", toSqlValues(newFrag, flagMeta.create))
+  let res = await cn.execSqlBricks(sql)
+  let flagId = res.getInsertedIdString()
 
   context.loader.addFragment({
     type: "Flag",
@@ -90,11 +87,9 @@ export async function createFlag(context: BackendContext, newFrag: FlagCreateFra
 }
 
 async function getDefaultOrderNum() {
-  let sql = buildSelect()
-    .select("max(order_num) as max")
-    .from("flag")
-  let rs = await cn.all(sql.toSql())
-  return rs.length === 1 ? (rs[0]["max"] || 0) + 1 : 1
+  let sql = select("max(order_num)").from("flag")
+  let rs = await cn.allSqlBricks(sql)
+  return rs.length === 1 ? (rs[0][0] || 0) + 1 : 1
 }
 
 // --
@@ -108,12 +103,8 @@ export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFra
   if (values === null)
     return
 
-  let sql = buildUpdate()
-    .update("flag")
-    .set(values)
-    .where("flag_id", flagId)
-
-  await cn.exec(sql.toSql())
+  let sql = update("flag", values).where("flag_id", flagId)
+  await cn.execSqlBricks(sql)
 
   context.loader.addFragment({
     type: "Flag",
@@ -128,12 +119,8 @@ export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFra
 // --
 
 export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) {
-  let sql = buildDelete()
-    .deleteFrom("flag")
-    .where("flag_id", int(frag.id))
-
-  await cn.exec(sql.toSql())
-
+  let sql = deleteFrom("flag").where("flag_id", int(frag.id))
+  await cn.execSqlBricks(sql)
   context.loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
 }
 
@@ -166,22 +153,16 @@ export async function reorderFlags(context: BackendContext, idList: string[]) {
 }
 
 async function updateOrderNum(flagId: number, orderNum: number) {
-  let sql = buildUpdate()
-    .update("flag")
-    .set({
-      "order_num": orderNum
-    })
-    .where("flag_id", flagId)
-  await cn.exec(sql.toSql())
+  let sql = update("flag", { "order_num": orderNum }).where("flag_id", flagId)
+  await cn.execSqlBricks(sql)
 }
 
 async function loadOrderNums(): Promise<Map<number, number>> {
-  let sql = buildSelect()
-    .select("flag_id, order_num")
+  let sql = select("flag_id, order_num")
     .from("flag")
-    .where("order_num is not null")
-  let rs = await cn.all(sql.toSql()),
-    orderNums = new Map<number, number>()
+    .where(isNotNull("order_num"))
+  let rs = await cn.allSqlBricks(sql)
+  let orderNums = new Map<number, number>()
   for (let row of rs)
     orderNums.set(row["flag_id"], row["order_num"])
   return orderNums

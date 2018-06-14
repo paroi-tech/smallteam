@@ -5,8 +5,8 @@ import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql
 import { cn, toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
-import { WhoUseItem } from "../../isomorphic/transfers";
-import { TransactionConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks";
+import { WhoUseItem } from "../../isomorphic/transfers"
+import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 
 // --
 // -- Read

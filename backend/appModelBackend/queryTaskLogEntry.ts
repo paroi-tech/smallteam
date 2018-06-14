@@ -1,8 +1,7 @@
 import { BackendContext } from "./backendContext/context"
 import { cn, toIntList, int } from "../utils/dbUtils"
-import { buildSelect, buildInsert, buildUpdate, buildDelete } from "../utils/sql92builder/Sql92Builder"
-import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "../../isomorphic/meta/TaskLogEntry"
+import { select, insert, in as sqlIn } from "sql-bricks"
 
 // --
 // -- Read
@@ -10,9 +9,12 @@ import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "../../isomorph
 
 export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntrySearchFragment) {
   let sql = selectFromTaskLogEntry()
-    .andWhere("l.task_id", int(filters.taskId))
-    .orderBy("l.entry_ts desc")
-  let rs = await cn.all(sql.toSql())
+    .where("task_id", int(filters.taskId))
+    .orderBy("entry_ts")
+  // Rows should be ordered by 'entry_ts' in reversed order. But SqlBricks does not support ASC and DESC
+  // command on ORDER BY clause. So we reverse manually the rows.
+  let rs = await cn.allSqlBricks(sql)
+  rs.reverse()
   for (let row of rs) {
     context.loader.addFragment({
       type: "TaskLogEntry",
@@ -26,8 +28,8 @@ export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: 
   if (idList.length === 0)
     return
   let sql = selectFromTaskLogEntry()
-    .where("l.task_log_id", "in", toIntList(idList))
-  let rs = await cn.all(sql.toSql())
+    .where(sqlIn("task_log_id", toIntList(idList)))
+  let rs = await cn.allSqlBricks(sql)
   for (let row of rs) {
     let data = toTaskLogEntryFragment(row)
     context.loader.modelUpdate.addFragment("TaskLogEntry", data.id, data)
@@ -35,9 +37,7 @@ export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: 
 }
 
 function selectFromTaskLogEntry() {
-  return buildSelect()
-    .select("l.task_log_id, l.task_id, l.step_id, l.entry_ts, l.contributor_id")
-    .from("task_log l")
+  return select("task_log_id, task_id, step_id, entry_ts, contributor_id").from("task_log")
 }
 
 function toTaskLogEntryFragment(row): TaskLogEntryFragment {
@@ -55,12 +55,10 @@ function toTaskLogEntryFragment(row): TaskLogEntryFragment {
 // --
 
 export async function logStepChange(context: BackendContext, taskId: string, stepId: string) {
-  let sql = buildInsert()
-    .insertInto("task_log")
-    .values({
-      "task_id": int(taskId),
-      "step_id": int(stepId),
-      "contributor_id": int(context.sessionData.contributorId)
-    })
-  await cn.exec(sql.toSql())
+  let sql = insert("task_log", {
+    "task_id": int(taskId),
+    "step_id": int(stepId),
+    "contributor_id": int(context.sessionData.contributorId)
+  })
+  await cn.execSqlBricks(sql)
 }
