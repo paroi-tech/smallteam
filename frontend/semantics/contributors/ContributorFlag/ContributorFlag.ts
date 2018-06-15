@@ -13,11 +13,8 @@ export default class ContributorFlag {
 
   constructor(private dash: OwnDash, readonly contributor: ContributorModel) {
     this.model = this.dash.app.model
-
     this.el = render(template).rootEl()
-
     this.update()
-
     this.dash.listenToModel("updateContributor", data => {
       let contributor = data.model as ContributorModel
       if (contributor.id === this.contributor.id)
@@ -26,7 +23,12 @@ export default class ContributorFlag {
   }
 
   private update() {
-    this.el.textContent = this.contributor.login.charAt(0).toLocaleUpperCase()
-    this.el.title = this.contributor.name
+    let avatar = this.contributor.avatar
+    if (!avatar) {
+      this.el.textContent = this.contributor.login.charAt(0).toLocaleUpperCase()
+      this.el.title = this.contributor.name
+    } else {
+      console.log(avatar.variants)
+    }
   }
 }

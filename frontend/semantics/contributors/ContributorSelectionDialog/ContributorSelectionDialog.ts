@@ -1,17 +1,15 @@
 import { Dash } from "bkb"
-import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
+import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import ContributorBox from "../ContributorBox/ContributorBox"
-import { OwnDash } from "../../../App/OwnDash";
-import { render } from "@fabtom/lt-monkberry";
+import { OwnDash } from "../../../App/OwnDash"
+import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./ContributorDialog.monk")
+const template = require("./ContributorSelectionDialog.monk")
 
-export default class ContributorDialog {
+export default class ContributorSelectionDialog {
   readonly el: HTMLDialogElement
   private buttonEl: HTMLButtonElement
-  private selectorContainerEl: HTMLElement
 
   private model: Model
   private selector: CheckboxMultiSelect<ContributorModel>
@@ -22,7 +20,6 @@ export default class ContributorDialog {
     let view = render(template)
     this.el = view.rootEl()
     this.buttonEl = view.ref("button")
-    this.selectorContainerEl = view.ref("selectorContainer")
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
     this.buttonEl.addEventListener("click", ev => {
@@ -31,6 +28,7 @@ export default class ContributorDialog {
     })
 
     this.selector = this.createMultiSelect()
+    view.ref("selectorContainer").appendChild(this.selector.el)
   }
 
   public show() {
@@ -49,10 +47,9 @@ export default class ContributorDialog {
   private createMultiSelect() {
     let ms = this.dash.create(
       CheckboxMultiSelect,
-      "Steps",
+      "Contributors",
       (dash: Dash, contributor: ContributorModel) => dash.create(ContributorBox, contributor)
     ) as any
-    this.selectorContainerEl.appendChild(ms.el)
 
     let events = ["updateContributor", "createContributor", "deleteContributor"]
     this.dash.listenToModel(events, data => ms.setAllItems(this.model.global.steps))

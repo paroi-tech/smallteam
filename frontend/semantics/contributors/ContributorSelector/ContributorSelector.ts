@@ -3,9 +3,9 @@ import ContributorBox from "../ContributorBox/ContributorBox"
 import BoxList from "../../../generics/BoxList/BoxList"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
 import App from "../../../App/App"
-import ContributorDialog from "../ContributorDialog/ContributorDialog"
-import { OwnDash } from "../../../App/OwnDash";
-import { render } from "@fabtom/lt-monkberry";
+import ContributorSelectionDialog from "../ContributorSelectionDialog/ContributorSelectionDialog"
+import { OwnDash } from "../../../App/OwnDash"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./ContributorSelector.monk")
 const itemTemplate = require("./label.monk")
@@ -17,7 +17,7 @@ const itemTemplate = require("./label.monk")
 export default class ContributorSelector {
   readonly el: HTMLElement
   private boxList: BoxList<ContributorBox>
-  private dialog: ContributorDialog
+  private dialog: ContributorSelectionDialog
 
   private model: Model
   private currentTask: TaskModel | undefined
@@ -29,10 +29,8 @@ export default class ContributorSelector {
     this.el = view.rootEl()
 
     view.ref("btn").addEventListener("click", ev => {
-      if (!this.currentTask) {
-        console.log("no shit...")
+      if (!this.currentTask)
         return
-      }
       this.dialog.selectContributors(this.currentTask.affectedTo || [])
       document.body.appendChild(this.dialog.el)
       this.dialog.show()
@@ -45,9 +43,9 @@ export default class ContributorSelector {
       sort: true,
       inline: true
     })
-    view.ref("boxlistPh").appendChild(this.boxList.el)
+    view.ref("boxlist").appendChild(this.boxList.el)
 
-    this.dialog = this.dash.create(ContributorDialog)
+    this.dialog = this.dash.create(ContributorSelectionDialog)
     this.dash.listenTo(this.dialog, "contributorSelectionDialogClosed", () => {
       let arr = this.dialog.selectedContributors()
       this.boxList.clear()

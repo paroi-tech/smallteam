@@ -1,8 +1,7 @@
 <div class="ContributorSelector">
   <header class="ContributorSelector-header">Contributors</header>
-  <div :ref="boxlistPh"></div>
+  <div :ref="boxlist"></div>
   <button class="ContributorSelector-button" :ref="btn">
-    Select contributors
-    <span class="fa fa-eye fa-1x"></span>
+    Select contributors <span class="fa fa-eye fa-1x"></span>
   </button>
 </div>
