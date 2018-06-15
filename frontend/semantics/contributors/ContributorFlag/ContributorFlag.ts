@@ -1,8 +1,7 @@
-import { Dash } from "bkb"
-import App from "../../../App/App"
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash";
-import { render } from "@fabtom/lt-monkberry";
+import { OwnDash } from "../../../App/OwnDash"
+import { render } from "@fabtom/lt-monkberry"
+import config from "../../../../isomorphic/config"
 
 const template = require("./ContributorFlag.monk")
 
@@ -24,11 +23,13 @@ export default class ContributorFlag {
 
   private update() {
     let avatar = this.contributor.avatar
-    if (!avatar) {
+    if (!avatar || avatar.variants.length === 0) {
       this.el.textContent = this.contributor.login.charAt(0).toLocaleUpperCase()
       this.el.title = this.contributor.name
     } else {
-      console.log(avatar.variants)
+      console.log("url", avatar.variants[0].url)
+      this.el.style.backgroundImage = `url('http://localhost:3921${avatar.variants[0].url}')`
+      // this.el.style.backgroundColor = "transparent"
     }
   }
 }

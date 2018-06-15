@@ -1,11 +1,17 @@
 .ContributorFlag {
   background-color: $themeColor;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center;
   border-radius: 2px;
   color: #fff;
+  display: table-cell;
   font-family: monospace;
   font-style: normal;
   font-weight: bold;
-  padding: 3px;
+  height: 16px;
+  line-height: 50%;
   text-align: center;
   vertical-align: middle;
+  width: 16px;
 }
