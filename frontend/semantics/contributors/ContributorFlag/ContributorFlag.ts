@@ -23,13 +23,10 @@ export default class ContributorFlag {
 
   private update() {
     let avatar = this.contributor.avatar
-    if (!avatar || avatar.variants.length === 0) {
+    this.el.title = this.contributor.name
+    if (!avatar || avatar.variants.length === 0)
       this.el.textContent = this.contributor.login.charAt(0).toLocaleUpperCase()
-      this.el.title = this.contributor.name
-    } else {
-      console.log("url", avatar.variants[0].url)
-      this.el.style.backgroundImage = `url('http://localhost:3921${avatar.variants[0].url}')`
-      // this.el.style.backgroundColor = "transparent"
-    }
+    else
+      this.el.style.backgroundImage = `url(${avatar.variants[0].url})`
   }
 }

@@ -1,9 +1,8 @@
-import { Dash } from "bkb"
-import App from "../../../App/App"
 import { Box } from "../../../generics/BoxList/BoxList"
 import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import ContributorFlag from "../ContributorFlag/ContributorFlag"
 
 const template = require("./ContributorBox.monk")
 
@@ -19,6 +18,9 @@ export default class ContributorBox implements Box {
     view.update(this.contributor)
     this.el = view.rootEl()
     this.el.addEventListener("click", ev => this.dash.emit("contributorBoxSelected", this.contributor))
+
+    let flag = this.dash.create(ContributorFlag, this.contributor)
+    view.ref("avatar").appendChild(flag.el)
 
     this.dash.listenToModel("updateContributor", data => {
       let contributor = data.model as ContributorModel

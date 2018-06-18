@@ -1,8 +1,6 @@
-import { Dash } from "bkb"
 import ContributorBox from "../ContributorBox/ContributorBox"
 import BoxList from "../../../generics/BoxList/BoxList"
 import { Model, TaskModel, UpdateModelEvent, ContributorModel } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
 import ContributorSelectionDialog from "../ContributorSelectionDialog/ContributorSelectionDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
