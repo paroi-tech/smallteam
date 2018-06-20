@@ -13,7 +13,6 @@ export interface MediaVariantFragment {
   imgDpi?: number
 }
 
-
 const meta: FragmentMeta = {
   type: "MediaVariant",
   variant: "read",

@@ -1,6 +1,6 @@
 import { MediaVariantFragment, MediaVariantIdFragment } from "../../../isomorphic/meta/MediaVariant"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
-import { MediaModel } from "./MediaModel";
+import { MediaModel } from "./MediaModel"
 
 export interface MediaVariantModel extends MediaVariantFragment {
   media: MediaModel

@@ -83,7 +83,7 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
   let token = randomBytes(tokenSize).toString("hex")
   let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
-    console.log("All steps of sending invitation mail have not been processed.***", err.message)
+    console.log("All steps of sending invitation mail have not been processed.", err.message)
   })
 
   return {
