@@ -16,7 +16,6 @@ export function closestImageVariant(avatar: MediaModel, width: number, height: n
 }
 
 export function getMediaType(media: MediaModel) {
-  console.error("variants", media.variants)
   let imType = media.variants[0].imType
   let j = imType.indexOf("/")
 

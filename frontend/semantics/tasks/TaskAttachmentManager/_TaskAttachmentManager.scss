@@ -8,4 +8,10 @@
   &-uploadButton {
     display: block;
   }
+
+  li {
+    align-items: center;
+    display: flex;
+    vertical-align: baseline;
+  }
 }
