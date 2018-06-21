@@ -1,7 +1,7 @@
 import { MediaVariantModel } from "../AppModel/Models/MediaVariantModel"
 import { MediaModel } from "../AppModel/Models/MediaModel"
 
-export function findClosestVariant(avatar: MediaModel, width: number, height: number) {
+export function closestImageVariant(avatar: MediaModel, width: number, height: number) {
   let choice: MediaVariantModel | undefined = undefined
   let minDistance = 10 ** 9
   for (let variant of avatar.variants.filter(v => v.imgWidth && v.imgHeight)) {
@@ -11,24 +11,24 @@ export function findClosestVariant(avatar: MediaModel, width: number, height: nu
       minDistance = d
     }
   }
+
   return choice
 }
 
 export function getMediaType(media: MediaModel) {
+  console.error("variants", media.variants)
   let imType = media.variants[0].imType
-  let parts = imType.split("/")
-  return parts[0].toUpperCase()
+  let j = imType.indexOf("/")
+
+  return imType.substr(0, j)
 }
 
 export function getMediaSubtype(variant: MediaVariantModel) {
   // See https://en.wikipedia.org/wiki/Media_type for details about IM types format.
-  // The following regex matches a slash, a dot or a semi-colon.
-  let re = /\/|\.|;/
-  let parts = variant.imType.split(re)
-  if (parts.length < 2)
-    return parts[0]
-  else if (parts[1] === "vnd" || parts[1] === "prs" || parts[1] === "x")
-    return parts[2]
-  else
-    return parts[1]
+  let s = variant.imType.substr(variant.imType.indexOf("/") + 1)
+  let j = s.lastIndexOf(".")
+  let re = /\+|;/
+  let parts = s.substr(j + 1).split(re)
+
+  return parts[0]
 }

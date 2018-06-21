@@ -2,7 +2,7 @@ import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/App
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
-import { findClosestVariant } from "../../../libraries/mediaUtils"
+import { closestImageVariant } from "../../../libraries/mediaUtils"
 import { MediaVariantModel } from "../../../AppModel/Models/MediaVariantModel";
 
 const template = require("./ContributorFlag.monk")
@@ -34,6 +34,6 @@ export default class ContributorFlag {
   }
 
   private findBestVariant(avatar: MediaModel) {
-    return findClosestVariant(avatar, 48, 48)
+    return closestImageVariant(avatar, 48, 48)
   }
 }

@@ -6,6 +6,7 @@ import { removeAllChildren } from "../../../libraries/utils"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
 import config from "../../../../isomorphic/config"
 import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
+import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
 
 const template = require("./TaskAttachmentManager.monk")
 const itemTemplate = require("./item.monk")
@@ -105,6 +106,9 @@ export default class TaskAttachmentManager {
     let view = render(itemTemplate)
     let el = view.rootEl()
 
+    let thumbnail = this.dash.create(FileThumbnail, media, 24, 24)
+    view.ref("thumbnail").appendChild(thumbnail.el)
+
     view.ref("download").addEventListener("click", (ev) => {
       let orig = media.getVariant("orig")
       if (orig)
@@ -117,7 +121,7 @@ export default class TaskAttachmentManager {
         this.listEl.removeChild(el)
     })
 
-    view.update({ name: media.baseName })
+    view.update({ name: media.originalName || media.baseName })
     this.listEl.appendChild(el)
   }
 
