@@ -29,8 +29,8 @@ export default class FileThumbnail {
   constructor(private dash: Dash, private media: MediaModel, readonly width: number, readonly height: number) {
     let view = render(template)
     this.el = view.rootEl()
-    this.el.style.width = width.toString()
-    this.el.style.height = height.toString()
+    this.el.style.width = `${width}px`
+    this.el.style.height = `${height}px`
 
     this.chosenVariant = closestImageVariant(this.media, this.width, this.height) || this.media.variants[0]
     this.createThumbnail()
