@@ -1,6 +1,4 @@
-import { Dash } from "bkb"
-import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
+import { FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
@@ -11,12 +9,14 @@ export default class TaskFlag {
 
   constructor(private dash: OwnDash, readonly flag: FlagModel) {
     this.el = render(template).rootEl()
-    this.el.title = this.flag.label
-    this.el.style.backgroundColor = this.flag.color
+    this.el.dataset.tooltip = flag.label
+    this.el.style.backgroundColor = flag.color
 
     this.dash.listenToModel("updateFlag", data => {
-      if (data.model === this.flag)
+      if (data.model.id === this.flag.id) {
         this.el.style.color = this.flag.color
+        this.el.dataset.tooltip = this.flag.label
+      }
     })
   }
 }
