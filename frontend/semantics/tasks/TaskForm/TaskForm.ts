@@ -1,4 +1,4 @@
-import { Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
@@ -6,7 +6,6 @@ import FlagSelector from "../../flags/FlagSelector/FlagSelector"
 import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
-import App from "../../../App/App"
 import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskForm.monk")

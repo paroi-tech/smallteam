@@ -1,5 +1,5 @@
-import { Dash, Log } from "bkb"
-import App from "../../../App/App"
+import { OwnDash } from "../../../App/OwnDash"
+import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
@@ -9,7 +9,7 @@ import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
 import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
 
 const template = require("./TaskAttachmentManager.monk")
-const itemTemplate = require("./item.monk")
+const mediaTemplate = require("./media.monk")
 
 export default class TaskAttachmentManager {
   readonly el: HTMLElement
@@ -23,7 +23,7 @@ export default class TaskAttachmentManager {
   private currentTask: TaskModel | undefined
   private log: Log
 
-  constructor(private dash: Dash) {
+  constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -38,12 +38,11 @@ export default class TaskAttachmentManager {
       ev.preventDefault()
       this.onFormSubmit()
     }
-  }
 
-  public reset() {
-    this.currentTask = undefined
-    removeAllChildren(this.listEl)
-    this.inputEl.value = ""
+    this.dash.listenToModel("updateTask", task => {
+      if (this.task && this.task.id === task.id)
+        this.refreshMediaList()
+    })
   }
 
   get task(): TaskModel | undefined {
@@ -51,12 +50,58 @@ export default class TaskAttachmentManager {
   }
 
   set task(task: TaskModel | undefined) {
-    this.reset()
-    this.currentTask = task
-    if (!task || !task.attachedMedias)
+    if (!task)
+      this.reset
+    else {
+      this.currentTask = task
+      this.inputEl.value = ""
+      this.refreshMediaList()
+    }
+  }
+
+  public reset() {
+    this.currentTask = undefined
+    this.clearMediaList()
+    this.inputEl.value = ""
+  }
+
+  private refreshMediaList() {
+    this.clearMediaList()
+    this.listAttachedMedias()
+  }
+
+  private listAttachedMedias() {
+    if (!this.currentTask || !this.currentTask.attachedMedias)
       return
-    for (let f of task.attachedMedias)
-      this.addMedia(f)
+    for (let media of this.currentTask.attachedMedias)
+      this.displayMedia(media)
+  }
+
+  private clearMediaList() {
+    removeAllChildren(this.listEl)
+  }
+
+  private displayMedia(media: MediaModel) {
+    let view = render(mediaTemplate)
+    let el = view.rootEl()
+
+    let thumbnail = this.dash.create(FileThumbnail, media, 24, 24)
+    view.ref("thumbnail").appendChild(thumbnail.el)
+
+    view.ref("download").addEventListener("click", (ev) => {
+      let orig = media.getVariant("orig")
+      if (orig)
+        window.open(`${orig.url}?download=1`)
+    })
+
+    view.ref("remove").addEventListener("click", ev => {
+      let contributorId = this.model.session.contributor.id
+      if (media.ownerId === contributorId && this.removeTaskAttachment(media.id))
+        this.listEl.removeChild(el)
+    })
+
+    view.update({ name: media.originalName || media.baseName })
+    this.listEl.appendChild(el)
   }
 
   private async onFormSubmit() {
@@ -91,10 +136,14 @@ export default class TaskAttachmentManager {
       }
 
       let result = await response.json()
-      if (result.modelUpd)
+      if (result.modelUpd) {
         this.model.processModelUpdate(result.modelUpd)
+        console.log(result.modelUpd)
+        let media = result.modelUpd.fragments.Media[0] as MediaModel
+        let task = result.modelUpd.fragments.Task as TaskModel
+      }
       if (result.done)
-        this.log.info("File successfully updloaded.")
+        this.inputEl.value = ""
       else
         this.log.error("Error while uploading image.")
     } catch (err) {
@@ -102,28 +151,7 @@ export default class TaskAttachmentManager {
     }
   }
 
-  private addMedia(media: MediaModel) {
-    let view = render(itemTemplate)
-    let el = view.rootEl()
 
-    let thumbnail = this.dash.create(FileThumbnail, media, 24, 24)
-    view.ref("thumbnail").appendChild(thumbnail.el)
-
-    view.ref("download").addEventListener("click", (ev) => {
-      let orig = media.getVariant("orig")
-      if (orig)
-        window.open(`${orig.url}?download=1`)
-    })
-
-    view.ref("remove").addEventListener("click", ev => {
-      let contributorId = this.model.session.contributor.id
-      if (media.ownerId === contributorId && this.removeTaskAttachment(media.id))
-        this.listEl.removeChild(el)
-    })
-
-    view.update({ name: media.originalName || media.baseName })
-    this.listEl.appendChild(el)
-  }
 
   private async removeTaskAttachment(mediaId: string) {
     if (!this.currentTask)
@@ -135,25 +163,25 @@ export default class TaskAttachmentManager {
       let response = await fetch(`${config.urlPrefix}/medias/delete`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({ mediaId })
       })
 
-      if (!response.ok)
+      if (!response.ok) {
         this.log.error("Unable to get a response from server...")
-      else {
-        let data = await response.json()
-        if (data.modelUpd)
-          this.model.processModelUpdate(data.modelUpd)
-        if (data.done) {
-          this.log.info("Attachment successfully removed")
-          result = true
-        } else
-          this.log.warn("Attachment not deleted")
+        return false
       }
+
+      let data = await response.json()
+      if (data.modelUpd)
+        this.model.processModelUpdate(data.modelUpd)
+      if (data.done)
+        result = true
+      else
+        this.log.warn("Attachment not deleted")
     } catch (err) {
       this.log.warn(err)
     }
