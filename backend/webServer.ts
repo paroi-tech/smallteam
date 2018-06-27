@@ -103,10 +103,16 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
   console.log("[ERR]", err, err.stack, "Request body:", reqBody)
-  let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 403 : 500)
+  let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 404 : 500)
+  let errorMsg: string
+  if (statusCode >= 500 && statusCode < 600)
+    errorMsg = "Server internal error"
+  else if (statusCode === 404)
+    errorMsg = "Resource not found"
+  else
+    errorMsg = err.message
   writeServerResponse(res, statusCode, {
-    // We do not send details about server internal errors to frontend.
-    error: statusCode >= 500 && statusCode < 600 ? "Server Internal error" : err.message,
+    error: errorMsg,
     request: reqBody
   })
 }

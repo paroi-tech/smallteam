@@ -41,7 +41,6 @@ the time, so I can't use JIRA.
 - queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
 - Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
-- In `TaskForm` and `ContributorForm`, show the uploaded files in an appropriate component `FileThumbnail`
 - Show an animated loader on the background command button when there is something started
 - **ProjectForm**:
   - In the DropdownMenu button (`…`):
@@ -62,6 +61,7 @@ the time, so I can't use JIRA.
 - Multi-teams
 
 # Lionel - DONE
+- In `TaskForm` and `ContributorForm`, show the uploaded files in an appropriate component `FileThumbnail`
 - In `TaskBox`, display the true contributor's avatar (if exists)
 - In ContributorForm, pass a boolean parameter that controls is password inputs will be displayed or hidden.
 - In the backend, replace our old SQL query builder by SqlBricks:

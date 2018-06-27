@@ -1,10 +1,9 @@
-import { Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
 import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskBoard.monk")
 
@@ -108,15 +107,15 @@ export default class TaskBoard {
     }
 
     /**
-     * It is better to create the new StepSwitcher here, after that errors than can prevent
+     * It is better to create the new StepSwitcher here, after errors than can prevent
      * the insertion of the panel in the DOM are eliminated. That prevents two bugs:
      * 1. When we would want to display the panel again, we would find it in stepSwitcherMap, but
-     *    there is no corresponding HTML node in the DOM. So even if we try to display, th panel
-     *    nothing won't be displayed.
+     *    there is no corresponding HTML node in the DOM. So even if we try to display the panel
+     *    nothing will be displayed.
      * 2. What will happen if we want to display a child of the current task as StesPanel?
      *    In that case, the parent StepSwitcher would exist in the 'stepSwitcherMap', but not in the DOM,
-     *    which means that parent.nextSibling will be 'null' and the new node will be added at the end
-     *    of the Project, which is not its correct place.
+     *    which means that parent.nextSibling would be 'null' and the new node will be added at the end
+     *    of the TaskBoard, which is not its correct place.
      */
     stepSwitcher = this.createStepSwitcher(task)
 
