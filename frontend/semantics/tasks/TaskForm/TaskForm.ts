@@ -55,6 +55,12 @@ export default class TaskForm {
       if (this.currentTask)
         this.deleteTask()
     })
+    this.view.ref("btnArchive").addEventListener("click", ev => {
+      console.log("task is archived")
+    })
+    this.view.ref("btnOnHold").addEventListener("click", ev => {
+      console.log("task is put on hold")
+    })
 
     this.flagSelector = this.dash.create(FlagSelector)
     this.view.ref("fselector").appendChild(this.flagSelector.el)
