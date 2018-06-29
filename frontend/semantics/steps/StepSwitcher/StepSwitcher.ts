@@ -1,11 +1,10 @@
-import { Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ProjectModel, TaskModel, StepModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
+import { Model, ProjectModel, TaskModel, StepModel, ReorderModelEvent } from "../../../AppModel/AppModel"
 import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
 import TaskBox from "../../tasks/TaskBox/TaskBox"
-import App from "../../../App/App"
 import { removeAllChildren } from "../../../libraries/utils"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./StepSwitcher.monk")
 
@@ -44,13 +43,13 @@ export default class StepSwitcher {
 
   constructor(private dash: OwnDash, readonly parentTask: TaskModel) {
     this.model = dash.app.model
-    this.log = this.dash.app.log
-    this.project = this.parentTask.project
+    this.log = dash.app.log
+    this.project = parentTask.project
 
     let view = render(template)
     this.el = view.rootEl()
     this.foldableEl = view.ref("foldable")
-    this.blContainerEl = view.ref("boxList")
+    this.blContainerEl = view.ref("boxLists")
     this.taskNameEl = view.ref("taskName")
     this.toggleBtnSpanEl = view.ref("toggleSpan")
     this.toggleBtnSpanEl.textContent = caretUp
@@ -58,7 +57,7 @@ export default class StepSwitcher {
     this.busyIndicatorEl = view.ref("indicator")
     this.bottomEl = view.ref("bottom")
 
-    let isRootTask = this.parentTask.id === this.project.rootTaskId
+    let isRootTask = parentTask.id === this.project.rootTaskId
 
     let closeBtnEl = view.ref("closeBtn")
     closeBtnEl.textContent = times
@@ -77,7 +76,7 @@ export default class StepSwitcher {
     })
     view.ref("toggleBtn").addEventListener("click", ev => this.toggleFoldableContent())
 
-    let title = this.parentTask.id === this.project.rootTaskId ? "Main tasks": this.parentTask.label
+    let title = isRootTask ? "Main tasks": this.parentTask.label
     let titleEl = view.ref("title") as HTMLElement
     titleEl.textContent = title
 
@@ -98,6 +97,7 @@ export default class StepSwitcher {
    *  - ProjectStep deletion, to remove the corresponding BoxList.
    *  - Task creation, to create a taskBox for the new task.
    *  - Task deletion, to remove TaskBox (if any).
+   *  - Task update (step change) to remove the TaskBox.
    */
   private addModelListeners() {
     // Step update event.
@@ -142,6 +142,13 @@ export default class StepSwitcher {
         let box = this.createTaskBoxFor(task)
         list.addBox(box)
       }
+    })
+
+    // Task update event.
+    this.dash.listenToModel("updateTask", data => {
+      let task = data.model as TaskModel
+      let specialSteps = this.model.global.specialSteps
+      // TODO:
     })
 
     // Task deletion event.
@@ -210,9 +217,6 @@ export default class StepSwitcher {
     this.fillBoxLists()
   }
 
-  /**
-   * Create a BoxList for each of the project step.
-   */
   private createBoxLists() {
     for (let step of this.project.steps) {
       let list = this.createBoxListFor(step)
@@ -221,13 +225,13 @@ export default class StepSwitcher {
   }
 
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
-    let params = {
+    let options = {
       id: step.id,
       group: this.parentTask.code,
       name: step.label,
       sort: true
     }
-    let b = this.dash.create(BoxList, params)
+    let b = this.dash.create(BoxList, options)
     this.boxLists.set(step.id, b)
     return b
   }
@@ -241,31 +245,42 @@ export default class StepSwitcher {
 
   private async onTaskBoxMove(ev: BoxEvent) {
     let box = this.taskBoxes.get(ev.boxId)
-    let step = this.project.steps.find(step => step.id === ev.boxListId)
-
+    let step = this.project.steps.get(ev.boxListId)
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher`)
     if (!step)
       throw new Error(`Unable to find step with ID "${ev.boxListId}" in StepSwitcher`)
 
-    let task = box.task
     this.disable(true)
     try {
-      await this.model.exec("update", "Task", { id: box.task.id, curStepId: step.id })
+      await this.model.exec("update", "Task", {
+        id: box.task.id,
+        curStepId: step.id
+      })
     } catch(err) {
-      this.log.error(`Unable to update task "${box.task.id}" in StepSwitcher "${this.parentTask.label}"`)
-
-      // We bring back the TaskBox in its old BoxList.
-      let newList = this.boxLists.get(step.id)
-      let oldList = this.boxLists.get(box.task.currentStep.id)
-      if (!newList)
-        throw new Error(`Cannot find BoxList with ID "${step.id}" in StepSwitcher "${this.parentTask.label}"`)
-      if (!oldList)
-        throw new Error(`Cannot find BoxList with ID "${task.currentStep.id}" in StepSwitcher "${this.parentTask.label}"`)
-      newList.removeBox(box.task.id)
-      oldList.addBox(box)
+      let taskId = box.task.id
+      let label = this.parentTask.label
+      this.log.error(`Unable to update task "${taskId}" in StepSwitcher "${label}"`)
+      this.restoreTaskBoxPosition(box, step.id)
     }
     this.enable(true)
+  }
+
+  private restoreTaskBoxPosition(box: TaskBox, wrongBoxListId: string) {
+    let label = this.parentTask.label
+    let wrongList = this.boxLists.get(wrongBoxListId)
+    let rightListId = box.task.curStepId
+    let rightList = this.boxLists.get(box.task.currentStep.id)
+    if (!wrongList) {
+      this.log.error(`Cannot find BoxList with ID "${wrongBoxListId}" in StepSwitcher "${label}"`)
+      return
+    }
+    if (!rightList) {
+      this.log.error(`Cannot find BoxList with ID "${rightListId}" in StepSwitcher "${label}"`)
+      return
+    }
+    wrongList.removeBox(box.task.id)
+    rightList.addBox(box)
   }
 
   private fillBoxLists() {
@@ -274,10 +289,10 @@ export default class StepSwitcher {
     for (let task of this.parentTask.children) {
       if (task.currentStep.isSpecial)
         continue
-      let bl = this.boxLists.get(task.currentStep.id)
-      if (bl) {
+      let list = this.boxLists.get(task.currentStep.id)
+      if (list) {
         let box = this.createTaskBoxFor(task)
-        bl.addBox(box)
+        list.addBox(box)
       } else
         this.log.info(`Missing step "${task.currentStep.id}" in StepSwitcher`, this)
     }
@@ -309,37 +324,40 @@ export default class StepSwitcher {
   }
 
   private async onTaskReorder(ev: BoxListEvent) {
-    let boxList = this.boxLists.get(ev.boxListId)
-    if (!boxList)
-      throw new Error(`Unknown BoxList with ID ${ev.boxListId} in StepSwitcher ${this.parentTask.label}`)
+    let stepId = ev.boxListId
+    let label = this.parentTask.label
+    let boxList = this.boxLists.get(stepId)
+    if (!boxList) {
+      this.log.error(`Unknown BoxList with ID ${stepId} in StepSwitcher ${label}`)
+      return
+    }
+
     boxList.disable(true)
     try {
-      let result = await this.model.reorder("Task", ev.boxIds, "childOf", this.parentTask.id)
-      console.log(`Tasks successfully reordered in StepSwitcher "${this.parentTask.label}"`)
+      await this.model.reorder("Task", ev.boxIds, "childOf", this.parentTask.id)
     } catch (err) {
-      console.log(`Impossible to reorder tasks in StepSwitcher "${this.parentTask.label}"`)
-      // We restore the previous order of the elements in the BoxList.
-      // The following retrieve the child tasks which are in the concerned step.
-      let taskIds = this.parentTask.children!.reduce((result: string[], task: TaskModel) => {
-          if (task.currentStep.id === ev.boxListId)
-            result.push(task.id)
-          return result
-        }, []
-      )
-      let list = this.boxLists.get(ev.boxListId)
-      if (list)
-        list.sort(taskIds)
-      else
-        console.error(`Cannot restore order in list "${ev.boxListId}" in StepSwitcher "${this.parentTask.label}"`)
+      this.log.error(`Impossible to reorder tasks in StepSwitcher "${label}"`)
+      this.restoreBoxListOrder(stepId)
     }
     boxList.enable(true)
   }
 
-  /**
-   * Ask for the creation of a new task by the model.
-   *
-   * @param name - the name of a new task.
-   */
+  private restoreBoxListOrder(stepId: string) {
+    let label = this.parentTask.label
+    let list = this.boxLists.get(stepId)
+    if (!list) {
+      this.log.error(`Cannot restore order in list "${stepId}" in StepSwitcher "${label}"`)
+      return
+    }
+
+    let taskIds = [] as string[]
+    for (let task of (this.parentTask.children || [] as TaskModel[])) {
+      if (task.currentStep.id === stepId)
+        taskIds.push(task.id)
+    }
+    list.sort(taskIds)
+  }
+
   private async createTask(name: string): Promise<boolean> {
     try {
       let steps = this.project.steps

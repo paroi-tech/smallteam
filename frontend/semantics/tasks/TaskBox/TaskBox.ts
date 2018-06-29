@@ -1,12 +1,10 @@
-import { Dash } from "bkb"
 import TaskFlag from "../TaskFlag/TaskFlag"
-import { Model, TaskModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
+import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
-import App from "../../../App/App"
 import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag"
 import { removeAllChildren } from "../../../libraries/utils"
-import { OwnDash } from "../../../App/OwnDash";
-import { render } from "@fabtom/lt-monkberry";
+import { OwnDash } from "../../../App/OwnDash"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./TaskBox.monk")
 
@@ -20,9 +18,6 @@ export default class TaskBox implements Box {
   readonly el: HTMLElement
   private flagsEl: HTMLElement
   private usersEl: HTMLElement
-  // private spanEl: HTMLElement
-  // private counterContainerEl: HTMLElement
-  // private commentCounterEl: HTMLElement
 
   private model: Model
 

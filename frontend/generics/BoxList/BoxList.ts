@@ -11,22 +11,45 @@ export interface Box {
   el: HTMLElement
 }
 
-export interface BoxListParams {
-  /** BoxList ID. */
+export interface BoxListOptions {
+  /**
+   * BoxList ID.
+   */
   id: string
-  /** Sortable enables to create groups, so that we can move items between lists that belong to the same group. */
+
+  /**
+   * Sortable enables to create groups, so that we can move items between lists that belong to the same group.
+   */
   group: string | undefined
-  /** Name of the BoxList. */
+
+  /**
+   * Name of the BoxList.
+   */
   name: string
-  /** When an item is moved inside a list or between lists, this function is used to validate or cancel the move. */
+
+  /**
+   * When an item is moved inside a list or between lists, this function is used to validate or cancel the move.
+   */
   onMove?: (ev: BoxEvent) => boolean
-  /** Object on which the 'onMove' function is called.*/
+
+  /**
+   * Object on which the 'onMove' function is called.
+   */
   obj?: any
-  /** Is the BoxList disabled? */
+
+  /**
+   * Is the BoxList disabled?
+   */
   disabled?: boolean
-  /** Is this an InlineBoxlist? */
+
+  /**
+   * Is this an InlineBoxlist?
+   */
   inline: boolean | undefined
-  /** Can items be reordered within the BoxList? */
+
+  /**
+   * Can items be reordered within the BoxList?
+   */
   sort: boolean
 }
 
@@ -36,7 +59,10 @@ export interface BoxEvent {
 }
 
 export interface BoxListEvent extends BoxEvent {
-  /** IDs of the BoxList items. The order of the IDs is the same as the order of the items in the BoxList. **/
+  /**
+   * IDs of the BoxList items.
+   * The order of the IDs is the same as the order of the items in the BoxList.
+   */
   boxIds: string[]
 }
 
@@ -58,28 +84,28 @@ export default class BoxList<T extends Box> {
 
   private boxes = new Map<string, HTMLElement>()
 
-  constructor(private dash: Dash, private params: BoxListParams) {
+  constructor(private dash: Dash, private options: BoxListOptions) {
     let view = render(boxListTemplate)
     this.el = view.rootEl()
 
     this.ulEl = view.ref("ul")
     this.busyIndicatorEl = view.ref("busyIcon")
     this.titleEl = view.ref("title")
-    if (this.params.inline)
+    if (this.options.inline)
       this.el.classList.add("InlineBoxList")
 
-    this.setTitle(this.params.name)
+    this.setTitle(this.options.name)
     this.sortable = this.makeSortable()
   }
 
   public addBox(box: T) {
-    let tpl = this.params.inline ? inlineLiTemplate : liTemplate
+    let tpl = this.options.inline ? inlineLiTemplate : liTemplate
     let view = render(tpl)
     let li: HTMLElement = view.rootEl()
 
     li.setAttribute("data-id", box.id)
 
-    if (this.params.inline)
+    if (this.options.inline)
       li.appendChild(box.el)
     else
       view.ref("content").appendChild(box.el)
@@ -126,10 +152,10 @@ export default class BoxList<T extends Box> {
     return this.sortable.toArray()
   }
 
-  public enable(showBusyIcon: boolean = false) {
+  public enable(hideBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.el.style.opacity = "1.0"
-    if (showBusyIcon)
+    if (hideBusyIcon)
       this.hideBusyIcon()
   }
 
@@ -148,7 +174,7 @@ export default class BoxList<T extends Box> {
    * @param hideIcon - Indicate if the busy icon should be hidden
    */
   public enableSort(hideBusyIcon: boolean = false) {
-    if (this.params.sort && this.sortable.option("disabled")) {
+    if (this.options.sort && this.sortable.option("disabled")) {
       this.sortable.option("disabled", false)
       if (hideBusyIcon)
         this.hideBusyIcon()
@@ -163,7 +189,7 @@ export default class BoxList<T extends Box> {
    * @param showIcon - Indicate if the busy icon should be displayed
    */
   public disableSort(showBusyIcon: boolean = false) {
-    if (this.params.sort && !this.sortable.option("disabled")) {
+    if (this.options.sort && !this.sortable.option("disabled")) {
       this.sortable.option("disabled", true)
       if (showBusyIcon)
         this.showBusyIcon()
@@ -177,15 +203,15 @@ export default class BoxList<T extends Box> {
   private makeSortable() {
     return Sortable.create(this.ulEl, {
       filter: "button",
-      group: this.params.group,
-      sort: this.params.sort,
-      disabled: this.params.disabled === undefined ? false : this.params.disabled,
+      group: this.options.group,
+      sort: this.options.sort,
+      disabled: this.options.disabled === undefined ? false : this.options.disabled,
 
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
         this.boxes.set(ev.item.dataset.id, ev.item)
         this.dash.emit("boxListItemAdded", {
-          boxListId: this.params.id,
+          boxListId: this.options.id,
           boxId: ev.item.dataset.id
         })
       },
@@ -194,7 +220,7 @@ export default class BoxList<T extends Box> {
       onRemove: (ev) => {
         this.boxes.delete(ev.item.dataset.id)
         this.dash.emit("boxListItemRemoved", {
-          boxListId: this.params.id,
+          boxListId: this.options.id,
           boxId: ev.item.dataset.id
         })
       },
@@ -203,7 +229,7 @@ export default class BoxList<T extends Box> {
       onUpdate: (ev) => {
         let boxId = ev.item.dataset.id
         this.dash.emit("boxListSortingUpdated", {
-          boxListId: this.params.id,
+          boxListId: this.options.id,
           boxId: ev.item.dataset.id,
           boxIds: this.sortable.toArray()
         })
@@ -211,10 +237,10 @@ export default class BoxList<T extends Box> {
 
       // Event when an item is moved inside a list ot between lists.
       onMove: ev => {
-        if (this.params.obj && this.params.onMove) {
-          return this.params.onMove.call(this.params.obj, {
+        if (this.options.obj && this.options.onMove) {
+          return this.options.onMove.call(this.options.obj, {
             boxId: ev.dragged.dataset.id,
-            boxListId: this.params.id
+            boxListId: this.options.id
           })
         } else
           return true

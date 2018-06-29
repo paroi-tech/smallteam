@@ -15,7 +15,7 @@
   </header>
 
   <div class="StepSwitcher-foldableContent" :ref="foldable">
-    <div class="AutoColumns" :ref="boxList"></div>
+    <div class="AutoColumns" :ref="boxLists"></div>
     <div class="StepSwitcher-bottom" :ref="bottom">
       <input class="TextInput" type="text" maxlength="20" placeholder="Task name" :ref="taskName">
       <button type="button" class="StdBtn" :ref="addBtn">
