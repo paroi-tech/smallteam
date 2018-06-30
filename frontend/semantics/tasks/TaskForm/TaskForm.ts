@@ -164,29 +164,31 @@ export default class TaskForm {
 
   private async updateTask() {
     if (!this.currentTask)
-      return
-
+      return false
     let label = this.labelEl.value.trim()
     if (label.length < 4)
-      return
+      return false
 
     this.showSpinner()
+    let result = false
     try {
-      await this.model.exec("update", "Task", {
+      let frag = {
         id: this.currentTask.id,
         label: label.trim(),
         description: this.descriptionEl.value.trim() || "",
         flagIds: this.flagSelector.selectedFlagIds,
         affectedToIds: this.contributorSelector.selectedContributorIds
-      })
+      }
+      await this.model.exec("update", "Task", frag)
+      result = true
     } catch(err) {
       this.labelEl.value = this.currentTask.label
       this.descriptionEl.value = this.currentTask.description || ""
       this.flagSelector.refreshFlags()
       this.contributorSelector.refresh()
-      console.error(`Error while updating task ${this.currentTask}: ${err}`)
     }
     this.hideSpinner()
+    return result
   }
 
   private showSpinner() {

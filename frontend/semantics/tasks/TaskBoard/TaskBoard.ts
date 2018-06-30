@@ -2,7 +2,7 @@ import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
-import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskBoard.monk")
@@ -38,16 +38,29 @@ export default class TaskBoard {
         return
       this.showStepSwitcher(task)
     })
+
     // Task deletion. We check if there is a StepSwitcher created for the task and remove it.
     this.dash.listenToModel("deleteTask", data => {
       let taskId = data.id as string
-      let panel = this.stepSwitcherMap.get(taskId)
-
-      if (!panel)
-        return
-      this.leftEl.removeChild(panel.el)
-      this.stepSwitcherMap.delete(taskId)
+      this.removeStepSwitcherOf(taskId)
     })
+
+    // Task update event. We handle the case when a task is archived or put on hold.
+    this.dash.listenToModel("updateTask", data => {
+      let task = data.model as TaskModel
+      let specialSteps = this.model.global.specialSteps
+      if (!specialSteps.has(task.curStepId) || !this.rootTask.children || !this.rootTask.children.has(task.id))
+        return
+      this.removeLineageStepSwitchers(task)
+    })
+  }
+
+  private removeStepSwitcherOf(taskId: string) {
+    let stepSwitcher = this.stepSwitcherMap.get(taskId)
+    if (!stepSwitcher)
+      return
+    this.leftEl.removeChild(stepSwitcher.el)
+    this.stepSwitcherMap.delete(taskId)
   }
 
   public hide() {
@@ -76,6 +89,17 @@ export default class TaskBoard {
     })
   }
 
+  /**
+   * Remove of the StepSwitchers of a task and its children using depth-first search.
+   * @param task
+   */
+  private removeLineageStepSwitchers(task: TaskModel) {
+    let children = task.children || [] as TaskModel[]
+    for (let child of children)
+      this.removeLineageStepSwitchers(child)
+    this.removeStepSwitcherOf(task.id)
+  }
+
   private showStepSwitcher(task: TaskModel) {
     let stepSwitcher = this.stepSwitcherMap.get(task.id)
     if (stepSwitcher) {
@@ -97,7 +121,7 @@ export default class TaskBoard {
     // First we retrieve the index of the current task in its parent children array.
     let currentTaskIndex = parentTask.children.findIndex(t => t.id === task.id)
     if (currentTaskIndex < 0)
-      throw new Error(`Unable to find task in its parent children: task: ${task.label} parent: ${parentTask.label} `)
+      throw new Error(`Unable to find task in its parent children: task: ${task.label} parent: ${parentTask.label}`)
 
     let precedingStepSwitcher: StepSwitcher | undefined = undefined
     for (let t of parentTask.children.slice(0, currentTaskIndex)) {
@@ -112,13 +136,12 @@ export default class TaskBoard {
      * 1. When we would want to display the panel again, we would find it in stepSwitcherMap, but
      *    there is no corresponding HTML node in the DOM. So even if we try to display the panel
      *    nothing will be displayed.
-     * 2. What will happen if we want to display a child of the current task as StesPanel?
+     * 2. What will happen if we want to display a child of the current task in a StepSwitcher?
      *    In that case, the parent StepSwitcher would exist in the 'stepSwitcherMap', but not in the DOM,
      *    which means that parent.nextSibling would be 'null' and the new node will be added at the end
      *    of the TaskBoard, which is not its correct place.
      */
     stepSwitcher = this.createStepSwitcher(task)
-
     let parentNode = this.leftEl
     let referenceNode = precedingStepSwitcher ? precedingStepSwitcher.el : parentStepSwitcher.el
     parentNode.insertBefore(stepSwitcher.el, referenceNode.nextSibling)

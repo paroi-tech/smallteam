@@ -119,11 +119,12 @@ export default class BoxList<T extends Box> {
   }
 
   public removeBox(boxId: string) {
-    let li = this.boxes.get(boxId)
-    if (li) {
-      this.ulEl.removeChild(li)
-      this.boxes.delete(boxId)
-    }
+    let liElt = this.boxes.get(boxId)
+    if (!liElt)
+      return false
+    this.ulEl.removeChild(liElt)
+    this.boxes.delete(boxId)
+    return true
   }
 
   public clear() {
@@ -205,7 +206,7 @@ export default class BoxList<T extends Box> {
       filter: "button",
       group: this.options.group,
       sort: this.options.sort,
-      disabled: this.options.disabled === undefined ? false : this.options.disabled,
+      disabled: this.options.disabled ? true : false,
 
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
@@ -227,7 +228,6 @@ export default class BoxList<T extends Box> {
 
       // Changed sorting within list.
       onUpdate: (ev) => {
-        let boxId = ev.item.dataset.id
         this.dash.emit("boxListSortingUpdated", {
           boxListId: this.options.id,
           boxId: ev.item.dataset.id,
@@ -237,13 +237,12 @@ export default class BoxList<T extends Box> {
 
       // Event when an item is moved inside a list ot between lists.
       onMove: ev => {
-        if (this.options.obj && this.options.onMove) {
-          return this.options.onMove.call(this.options.obj, {
-            boxId: ev.dragged.dataset.id,
-            boxListId: this.options.id
-          })
-        } else
+        if (!this.options.obj || !this.options.onMove)
           return true
+        return this.options.onMove.call(this.options.obj, {
+          boxId: ev.dragged.dataset.id,
+          boxListId: this.options.id
+        })
       }
     })
   }

@@ -144,12 +144,21 @@ export default class StepSwitcher {
       }
     })
 
-    // Task update event.
+    // Task update event. We handle the case when a task is archived or put on hold.
     this.dash.listenToModel("updateTask", data => {
       let task = data.model as TaskModel
       let specialSteps = this.model.global.specialSteps
-      // TODO:
+      if (!specialSteps.has(task.curStepId) || !this.parentTask.children || !this.parentTask.children.has(task.id))
+        return
+      for (let list of this.boxLists.values()) {
+        // Since we don't know the stepId of the updated task, we have to remove from potentially all BoxLists.
+        if (list.removeBox(task.id))
+          break
+      }
+      this.taskBoxes.delete(task.id)
     })
+
+    // TODO: Handle event when task is removed from
 
     // Task deletion event.
     // We check if the StepSwitcher contains a TaskBox related to the deleted task.
