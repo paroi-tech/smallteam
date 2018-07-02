@@ -1,0 +1,4 @@
+<div class="ArchivedTaskBoard">
+  <div class="ArchivedTaskBoard-left" :ref="left"></div>
+  <div class="ArchivedTaskBoard-right" :ref="right"></div>
+</div>

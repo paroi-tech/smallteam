@@ -1,18 +1,21 @@
-import { Dash, Log } from "bkb"
+import { Log } from "bkb"
 import ProjectForm from "../ProjectForm/ProjectForm"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
+import OnHoldTaskBoard from "../../tasks/OnHoldTaskBoard/OnHoldTaskBoard"
 import { Model, ProjectModel } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import InfoDialog from "../../../generics/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
+import ArchivedTaskBoard from "../../tasks/ArchivedTaskBoard/ArchivedTaskBoard"
 
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: DropdownMenu
   private taskBoard: TaskBoard
+  private onHoldTaskBoard: OnHoldTaskBoard
+  private archivedTaskBoard: ArchivedTaskBoard
   private form: ProjectForm
 
   private model: Model
@@ -33,19 +36,19 @@ export default class ProjectWorkspace implements Workspace {
       {
         label: "Edit project",
         onClick: () => {
-          if (this.ctrl) {
-            this.ctrl.setContentEl(this.form.el)
-            this.ctrl.setTitle(`Edit: ${this.project.name}`)
-          }
+          if (!this.ctrl)
+            return
+          this.ctrl.setContentEl(this.form.el)
+          this.ctrl.setTitle(`Edit: ${this.project.name}`)
         }
       },
       {
         label: "Show taskboard",
         onClick: () => {
-          if (this.ctrl) {
-            this.ctrl.setContentEl(this.taskBoard.el)
-            this.ctrl.setTitle(this.project.name)
-          }
+          if (!this.ctrl)
+            return
+          this.ctrl.setContentEl(this.taskBoard.el)
+          this.ctrl.setTitle(this.project.name)
         }
       },
       {
@@ -55,18 +58,28 @@ export default class ProjectWorkspace implements Workspace {
       {
         label: "Show on hold tasks",
         onClick: () => {
-          console.log("Show on hold tasks not implemented…")
+          if (!this.ctrl)
+            return
+          this.onHoldTaskBoard.refresh()
+          this.ctrl.setContentEl(this.onHoldTaskBoard.el)
+          this.ctrl.setTitle(`${this.project.name}: on hold tasks`)
         }
       },
       {
         label: "Show archived tasks",
         onClick: () => {
-          console.log("Show archived tasks not implemented…")
+          if (!this.ctrl)
+            return
+          this.archivedTaskBoard.refresh()
+          this.ctrl.setContentEl(this.archivedTaskBoard.el)
+          this.ctrl.setTitle(`${this.project.name}: archived tasks`)
         }
       }
     )
 
     this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
+    this.onHoldTaskBoard = this.dash.create(OnHoldTaskBoard, this.project)
+    this.archivedTaskBoard = this.dash.create(ArchivedTaskBoard, this.project)
     this.form = this.dash.create(ProjectForm)
     this.form.project = this.project
   }
@@ -95,53 +108,5 @@ export default class ProjectWorkspace implements Workspace {
     } catch (error) {
       await this.dash.create(ErrorDialog).show("Unable to delete project. Try again later.")
     }
-  }
-
-  private createChildComponents() {
-    this.dropdownMenu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl(),
-      align: "right"
-    } as DropdownMenuOptions)
-    this.dropdownMenu.entries.createNavBtn(
-      {
-        label: "Edit project",
-        onClick: () => {
-          if (this.ctrl) {
-            this.ctrl.setContentEl(this.form.el)
-            this.ctrl.setTitle(`Edit: ${this.project.name}`)
-          }
-        }
-      },
-      {
-        label: "Show taskboard",
-        onClick: () => {
-          if (this.ctrl) {
-            this.ctrl.setContentEl(this.taskBoard.el)
-            this.ctrl.setTitle(this.project.name)
-          }
-        }
-      },
-      {
-        label: "Delete project",
-        onClick: () => this.deleteProject()
-      },
-      {
-        label: "Show on hold tasks",
-        onClick: () => {
-          console.log("Show on hold tasks not implemented…")
-        }
-      },
-      {
-        label: "Show archived tasks",
-        onClick: () => {
-          console.log("Show archived tasks not implemented…")
-        }
-      }
-    )
-
-    this.taskBoard = this.dash.create(TaskBoard, this.project.rootTask)
-
-    this.form = this.dash.create(ProjectForm)
-    this.form.project = this.project
   }
 }

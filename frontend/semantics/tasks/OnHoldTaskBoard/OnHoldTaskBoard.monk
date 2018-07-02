@@ -1,0 +1,4 @@
+<div class="OnHoldTaskBoard">
+  <div class="OnHoldTaskBoard-left" :ref="left"></div>
+  <div class="OnHoldTaskBoard-right" :ref="right"></div>
+</div>

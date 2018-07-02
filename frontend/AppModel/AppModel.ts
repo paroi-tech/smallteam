@@ -33,8 +33,8 @@ export { TaskLogEntryModel } from "./Models/TaskLogEntryModel"
 export { TaskModel } from "./Models/TaskModel"
 export { Session, SessionData }
 
-export const ARCHIVED_STEP_ID = 2
-export const ON_HOLD_STEP_ID = 1
+export const ARCHIVED_STEP_ID = "2"
+export const ON_HOLD_STEP_ID = "1"
 
 // --
 // -- Component ModelComp
