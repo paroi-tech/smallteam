@@ -1,7 +1,7 @@
 import { Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
-import { TaskModel, Model, UpdateModelEvent } from "../../../AppModel/AppModel"
+import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../AppModel/AppModel"
 import FlagSelector from "../../flags/FlagSelector/FlagSelector"
 import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
@@ -55,12 +55,8 @@ export default class TaskForm {
       if (this.currentTask)
         this.deleteTask()
     })
-    this.view.ref("btnArchive").addEventListener("click", ev => {
-      console.log("task is archived")
-    })
-    this.view.ref("btnOnHold").addEventListener("click", ev => {
-      console.log("task is put on hold")
-    })
+    this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
+    this.view.ref("btnOnHold").addEventListener("click", ev => this.putTaskOnHold())
 
     this.flagSelector = this.dash.create(FlagSelector)
     this.view.ref("fselector").appendChild(this.flagSelector.el)
@@ -76,21 +72,17 @@ export default class TaskForm {
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
 
-    this.dash.listenToModel("deleteTask", data => {
-      if (this.currentTask !== undefined && this.currentTask.id === data.id)
-        this.reset()
-    })
-    this.dash.listenToModel("updateTask", data => {
-      if (this.currentTask && this.currentTask.id === data.id) {
-        let state = {
-          description: this.currentTask.description || "",
-          label: this.currentTask.label
-        }
-        this.view.update(state)
-      }
-    })
-
+    this.listenToModel()
     this.hide() // TaskForm is hidden by default.
+  }
+
+  public reset() {
+    this.currentTask = undefined
+    this.view.update({
+      description: "",
+      label: ""
+    })
+    this.resetChildComponents()
   }
 
   public hide() {
@@ -101,13 +93,44 @@ export default class TaskForm {
     this.el.style.display = ""
   }
 
-  public reset() {
-    this.currentTask = undefined
+  get task(): TaskModel | undefined {
+    return this.currentTask
+  }
+
+  set task(task: TaskModel | undefined) {
+    this.reset()
+    if (!task)
+      return
+    this.currentTask = task
     this.view.update({
-      description: "",
-      label: ""
+      description: task.description || "",
+      label: task.label
     })
-    this.descriptionEl.value = ""
+    this.show()
+    this.setTaskInChildComponents(task)
+  }
+
+  private listenToModel() {
+    this.dash.listenToModel("deleteTask", data => {
+      if (this.currentTask !== undefined && this.currentTask.id === data.id)
+        this.reset()
+    })
+    this.dash.listenToModel("updateTask", data => {
+      if (!this.currentTask || this.currentTask.id !== data.id)
+        return
+      // We check if the task has been archived or put on hold.
+      if (this.currentTask.currentStep.isSpecial) {
+        this.reset()
+        return
+      }
+      this.view.update({
+        description: this.currentTask.description || "",
+        label: this.currentTask.label
+      })
+    })
+  }
+
+  private resetChildComponents() {
     this.flagSelector.task = undefined
     this.contributorSelector.task = undefined
     this.commentEditor.task = undefined
@@ -115,28 +138,7 @@ export default class TaskForm {
     this.attachmentMgr.task = undefined
   }
 
-  // --
-  // -- Accessors
-  // --
-
-  get task(): TaskModel | undefined {
-    return this.currentTask
-  }
-
-  set task(task: TaskModel | undefined) {
-    if (!task) {
-      this.reset()
-      this.hide()
-      return
-    }
-
-    this.currentTask = task
-    this.view.update({
-      description: task.description || "",
-      label: task.label
-    })
-    this.descriptionEl.value = task.description || ""
-    this.show()
+  private setTaskInChildComponents(task: TaskModel) {
     this.flagSelector.task = task
     this.contributorSelector.task = task
     this.commentEditor.task = task
@@ -144,19 +146,14 @@ export default class TaskForm {
     this.attachmentMgr.task = task
   }
 
-  // --
-  // -- Utilities
-  // --
-
   private async deleteTask() {
     if (!this.currentTask || (this.currentTask.children || []).length > 0)
       return
     if (!confirm("Do you really want to remove this task?"))
       return
     try {
+      // We handle task deletion event in another place.
       await this.model.exec("delete", "Task", { id: this.currentTask.id })
-      // IMPORTANT: We listen to deleteTask event from the model. So the form will
-      // be updated when the current task is deleted.
     } catch (error) {
       this.log.info("Unable to delete task", error)
     }
@@ -165,6 +162,7 @@ export default class TaskForm {
   private async updateTask() {
     if (!this.currentTask)
       return false
+
     let label = this.labelEl.value.trim()
     if (label.length < 4)
       return false
@@ -172,23 +170,65 @@ export default class TaskForm {
     this.showSpinner()
     let result = false
     try {
-      let frag = {
+      await this.model.exec("update", "Task", {
         id: this.currentTask.id,
         label: label.trim(),
         description: this.descriptionEl.value.trim() || "",
         flagIds: this.flagSelector.selectedFlagIds,
         affectedToIds: this.contributorSelector.selectedContributorIds
-      }
-      await this.model.exec("update", "Task", frag)
+      })
       result = true
     } catch(err) {
-      this.labelEl.value = this.currentTask.label
-      this.descriptionEl.value = this.currentTask.description || ""
-      this.flagSelector.refreshFlags()
-      this.contributorSelector.refresh()
+      this.refresh()
     }
     this.hideSpinner()
     return result
+  }
+
+  private refresh() {
+    if (!this.currentTask)
+      return
+    let description = this.currentTask.description || ""
+    this.view.update({
+      label: this.currentTask.label,
+      description
+    })
+    this.flagSelector.refreshFlags()
+    this.contributorSelector.refresh()
+  }
+
+  private async archiveTask() {
+    if (!this.currentTask)
+      return
+    this.showSpinner()
+    let result = false
+    try {
+      await this.model.exec("update", "Task", {
+        id: this.currentTask.id,
+        curStepId: ARCHIVED_STEP_ID
+      } as any)
+      result = true
+    } catch(err) {
+      this.log.error("Unable to archive task", err)
+    }
+    this.hideSpinner()
+  }
+
+  private async putTaskOnHold() {
+    if (!this.currentTask)
+      return
+    this.showSpinner()
+    let result = false
+    try {
+      await this.model.exec("update", "Task", {
+        id: this.currentTask.id,
+        curStepId: ON_HOLD_STEP_ID
+      } as any)
+      result = true
+    } catch(err) {
+      this.log.error("Unable to put task on hold", err)
+    }
+    this.hideSpinner()
   }
 
   private showSpinner() {

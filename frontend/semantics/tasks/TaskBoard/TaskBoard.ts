@@ -32,24 +32,37 @@ export default class TaskBoard {
     this.leftEl.appendChild(rootTaskStepSwitcher.el)
     this.createStepSwitchersForChildren(this.rootTask)
 
+    this.addDashListeners()
+    this.addModelListeners()
+  }
+
+  public hide() {
+    this.el.style.display = "none"
+  }
+
+  public show() {
+    this.el.style.display = "block"
+  }
+
+  private addDashListeners() {
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.task = task)
     this.dash.listenTo<TaskModel>("showStepSwitcher", task => {
       if (task.id === this.rootTask.id) // The rootTask panel is always displayed.
         return
       this.showStepSwitcher(task)
     })
+  }
 
+  private addModelListeners() {
     // Task deletion. We check if there is a StepSwitcher created for the task and remove it.
     this.dash.listenToModel("deleteTask", data => {
       let taskId = data.id as string
       this.removeStepSwitcherOf(taskId)
     })
-
     // Task update event. We handle the case when a task is archived or put on hold.
     this.dash.listenToModel("updateTask", data => {
       let task = data.model as TaskModel
-      let specialSteps = this.model.global.specialSteps
-      if (!specialSteps.has(task.curStepId) || !this.rootTask.children || !this.rootTask.children.has(task.id))
+      if (!task.currentStep.isSpecial || !this.rootTask.children || !this.rootTask.children.has(task.id))
         return
       this.removeLineageStepSwitchers(task)
     })
@@ -63,18 +76,9 @@ export default class TaskBoard {
     this.stepSwitcherMap.delete(taskId)
   }
 
-  public hide() {
-    this.el.style.display = "none"
-  }
-
-  public show() {
-    this.el.style.display = "block"
-  }
-
   private createStepSwitcher(task: TaskModel): StepSwitcher {
     let stepSwitcher = this.dash.create(StepSwitcher, task)
     this.stepSwitcherMap.set(task.id, stepSwitcher)
-
     return stepSwitcher
   }
 

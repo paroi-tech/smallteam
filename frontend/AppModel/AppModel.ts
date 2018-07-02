@@ -19,7 +19,7 @@ import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Model, CommandBatch, GlobalModels, Collection, Session, SessionData } from "./modelDefinitions"
 import { makeHKMap, HKMap } from "../../isomorphic/libraries/HKCollections"
 import GenericBgCommandManager from "./BgCommandManager"
-import { OwnDash } from "../App/OwnDash";
+import { OwnDash } from "../App/OwnDash"
 
 export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
 export { Model, CommandBatch } from "./modelDefinitions"
@@ -32,6 +32,9 @@ export { StepModel }
 export { TaskLogEntryModel } from "./Models/TaskLogEntryModel"
 export { TaskModel } from "./Models/TaskModel"
 export { Session, SessionData }
+
+export const ARCHIVED_STEP_ID = 2
+export const ON_HOLD_STEP_ID = 1
 
 // --
 // -- Component ModelComp

@@ -8,8 +8,7 @@
     </span>
 
     <label class="FormField">Description</label>
-    <textarea class="Text TaskForm-textarea" rows="4" placeholder="Task description" :ref="description">
-      {{ description }}
+    <textarea class="Text TaskForm-textarea" value="{{ description }}" rows="4" placeholder="Task description" :ref="description">
     </textarea>
 
     <div :ref="fselector"></div>
