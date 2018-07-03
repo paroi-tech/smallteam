@@ -11,6 +11,7 @@ const template = require("./OnHoldTaskBoard.monk")
 
 export default class OnHoldTaskBoard {
   readonly el: HTMLElement
+  private overlayEl: HTMLElement
 
   private model: Model
   private log: Log
@@ -24,6 +25,7 @@ export default class OnHoldTaskBoard {
 
     let view = render(template)
     this.el = view.rootEl()
+    this.overlayEl = view.ref("overlay")
 
     this.boxList = this.dash.create(BoxList, {
       id: "taskList",
@@ -39,10 +41,12 @@ export default class OnHoldTaskBoard {
   }
 
   public async refresh() {
+    this.showOverlay()
     this.boxList.clear()
     let tasks = await this.fetchTasks()
     if (tasks)
       this.displayTasks(tasks)
+    this.hideOverlay()
   }
 
   private displayTasks(tasks: TaskModel[]) {
@@ -65,5 +69,13 @@ export default class OnHoldTaskBoard {
       this.log.error("Cannot fetch on hold tasks for project", this.project.id)
     }
     return tasks
+  }
+
+  private showOverlay() {
+    this.overlayEl.style.display = "block"
+  }
+
+  private hideOverlay() {
+    this.overlayEl.style.display = "none"
   }
 }

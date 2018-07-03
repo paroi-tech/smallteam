@@ -22,7 +22,8 @@
     "_server:wait-then-watch": "run-s _server:wait server:watch",
     "_server:tsc-run": "run-s backend-tsc server:run",
     "watch": "run-p sass:watch webpack:watch webpack-reg:watch backend-tsc:watch _server:wait-then-watch",
-    "watch:light": "run-p sass:watch webpack:watch _server:tsc-run"
+    "watch:light": "run-p sass:watch webpack:watch _server:tsc-run",
+    "postwatch": "echo"
   },
   "repository": {
     "type": "git",

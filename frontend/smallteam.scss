@@ -18,6 +18,7 @@
 @import "generics/Menu/Menu";
 @import "generics/NavBtn/NavBtn";
 @import "generics/NavMenu/NavMenu";
+@import "generics/PasswordEdit/PasswordEdit";
 @import "generics/PasswordRequestDialog/PasswordRequestDialog";
 
 @import "generics/modalDialogs/modalDialogs";
@@ -63,6 +64,8 @@
 @import "semantics/tasks/TaskFlag/TaskFlag";
 @import "semantics/tasks/TaskForm/TaskForm";
 @import "semantics/tasks/TaskLogDialog/TaskLogDialog";
+@import "semantics/tasks/OnHoldTaskBoard/OnHoldTaskBoard";
+@import "semantics/tasks/ArchivedTaskBoard/ArchivedTaskBoard";
 
 @import "generics/invitations/RegistrationForm/RegistrationForm";
 @import "generics/invitations/InvitationWorkspace/InvitationWorkspace";
