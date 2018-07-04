@@ -11,8 +11,8 @@
     <textarea class="Text TaskForm-textarea" value="{{ description }}" rows="4" placeholder="Task description" :ref="description">
     </textarea>
 
-    <div :ref="fselector"></div>
-    <div :ref="cselector"></div>
+    <div :ref="flag"></div>
+    <div :ref="contributor"></div>
 
     <button type="button" class="StdBtn" :ref="submit">
       Submit <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="submitSpinner"></span>
@@ -28,10 +28,8 @@
     <div><button :ref="btnToggle">Show/Hide as parent</button></div>
     <div><button :ref="btnLog">Show logs</button></div>
 
-    <div>
-      <button :ref="btnDelete">
-        Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
-      </button>
-    </div>
+    <button :ref="btnDelete">
+      Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
+    </button>
   </fieldset>
 </div>

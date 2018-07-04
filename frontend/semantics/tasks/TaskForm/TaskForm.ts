@@ -17,6 +17,7 @@ export default class TaskForm {
   private descriptionEl: HTMLTextAreaElement
   private submitSpinnerEl: HTMLElement
   private deleteSpinnerEl: HTMLElement
+  private onHoldBtnEl: HTMLElement
 
   private view: LtMonkberryView
 
@@ -41,6 +42,15 @@ export default class TaskForm {
     this.descriptionEl = this.view.ref("description")
     this.submitSpinnerEl = this.view.ref("submitSpinner")
     this.deleteSpinnerEl = this.view.ref("deleteSpinner")
+    this.onHoldBtnEl = this.view.ref("btnOnHold")
+    this.onHoldBtnEl.addEventListener("click", ev => {
+      if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
+        return
+      if (this.currentTask.curStepId === ON_HOLD_STEP_ID)
+        this.reactivateTask()
+      else
+        this.putTaskOnHold()
+    })
 
     this.view.ref("submit").addEventListener("click", ev => this.updateTask())
     this.view.ref("btnToggle").addEventListener("click", ev => {
@@ -56,13 +66,12 @@ export default class TaskForm {
         this.deleteTask()
     })
     this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
-    this.view.ref("btnOnHold").addEventListener("click", ev => this.putTaskOnHold())
 
     this.flagSelector = this.dash.create(FlagSelector)
-    this.view.ref("fselector").appendChild(this.flagSelector.el)
+    this.view.ref("flag").appendChild(this.flagSelector.el)
 
     this.contributorSelector = this.dash.create(ContributorSelector)
-    this.view.ref("cselector").appendChild(this.contributorSelector.el)
+    this.view.ref("contributor").appendChild(this.contributorSelector.el)
 
     this.commentEditor = this.dash.create(TaskCommentEditor)
     this.view.ref("comment").appendChild(this.commentEditor.el)
@@ -82,6 +91,7 @@ export default class TaskForm {
       description: "",
       label: ""
     })
+    this.updateOnHoldBtnLabel()
     this.resetChildComponents()
   }
 
@@ -106,6 +116,7 @@ export default class TaskForm {
       description: task.description || "",
       label: task.label
     })
+    this.updateOnHoldBtnLabel()
     this.show()
     this.setTaskInChildComponents(task)
   }
@@ -118,15 +129,11 @@ export default class TaskForm {
     this.dash.listenToModel("updateTask", data => {
       if (!this.currentTask || this.currentTask.id !== data.id)
         return
-      // We check if the task has been archived or put on hold.
-      if (this.currentTask.currentStep.isSpecial) {
-        this.reset()
-        return
-      }
       this.view.update({
         description: this.currentTask.description || "",
         label: this.currentTask.label
       })
+      this.updateOnHoldBtnLabel()
     })
   }
 
@@ -160,8 +167,10 @@ export default class TaskForm {
   }
 
   private async updateTask() {
-    if (!this.currentTask)
+    if (!this.currentTask || this.currentTask.currentStep.isSpecial) {
+      console.log("Cannot update task which current step is special...")
       return false
+    }
 
     let label = this.labelEl.value.trim()
     if (label.length < 4)
@@ -193,13 +202,16 @@ export default class TaskForm {
       label: this.currentTask.label,
       description
     })
+    this.updateOnHoldBtnLabel()
     this.flagSelector.refreshFlags()
     this.contributorSelector.refresh()
   }
 
   private async archiveTask() {
-    if (!this.currentTask)
-      return
+    if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID) {
+      console.log("Cannot archive as task twice...")
+      return false
+    }
     this.showSpinner()
     let result = false
     try {
@@ -212,11 +224,16 @@ export default class TaskForm {
       this.log.error("Unable to archive task", err)
     }
     this.hideSpinner()
+    if (result)
+      this.reset()
+    return result
   }
 
   private async putTaskOnHold() {
-    if (!this.currentTask)
-      return
+    if (!this.currentTask || this.currentTask.currentStep.isSpecial) {
+      console.log("Cannot put on hold a task which current step is special...")
+      return false
+    }
     this.showSpinner()
     let result = false
     try {
@@ -229,6 +246,36 @@ export default class TaskForm {
       this.log.error("Unable to put task on hold", err)
     }
     this.hideSpinner()
+    if (result)
+      this.reset()
+    return result
+  }
+
+  private async reactivateTask() {
+    if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID) {
+      console.log("Cannot reactivate a task which is not on hold...")
+      return false
+    }
+    let stepIds = this.currentTask.project.stepIds
+    if (stepIds.length === 0){
+      console.log("Cannot activate a task which project has no step...")
+      return
+    }
+    this.showSpinner()
+    let result = false
+    try {
+      await this.model.exec("update", "Task", {
+        id: this.currentTask.id,
+        curStepId: stepIds[0]
+      } as any)
+      result = true
+    } catch(err) {
+      this.log.error("Unable to reactivate task", err)
+    }
+    this.hideSpinner()
+    if (result)
+      this.reset()
+    return result
   }
 
   private showSpinner() {
@@ -237,5 +284,12 @@ export default class TaskForm {
 
   private hideSpinner() {
     this.submitSpinnerEl.style.display = "none"
+  }
+
+  private updateOnHoldBtnLabel() {
+    if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID)
+      this.onHoldBtnEl.textContent = "Put on hold"
+    else
+      this.onHoldBtnEl.textContent = "Reactivate task"
   }
 }

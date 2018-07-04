@@ -2,7 +2,7 @@ import config from "../../../isomorphic/config"
 import { Dash } from "bkb"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { removeAllChildren } from "../../libraries/utils"
-import { render } from "@fabtom/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./WorkspaceViewer.monk")
 
