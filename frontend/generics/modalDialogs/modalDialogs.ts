@@ -1,6 +1,6 @@
 // Design requirement: if the user clicks outside a modal dialog, the dialog should be closed.
 // To detect click outside the dialog, we check if the coordinates of the mouse lie inside the dialog's rectangle.
-// Note: when handling click on the dialog backdrop, the event target property corresponds to the dialog elt.
+// Note: when we click on the dialog backdrop, the event target property corresponds to the dialog element.
 export function makeOutsideClickHandlerFor(dialogEl: HTMLDialogElement, cb: () => void) {
   let clickHandler = (ev: MouseEvent) => {
     if (dialogEl.open && ev.target === dialogEl) {
@@ -14,3 +14,9 @@ export function makeOutsideClickHandlerFor(dialogEl: HTMLDialogElement, cb: () =
     document.body.removeEventListener("click", clickHandler)
   })
 }
+
+export { default as ErrorDialog } from "./ErrorDialog/ErrorDialog"
+export { default as InfoDialog } from "./InfoDialog/InfoDialog"
+export { default as PromptDialog } from "./PromptDialog/PromptDialog"
+export { default as QuestionDialog } from "./QuestionDialog/QuestionDialog"
+export { default as WarningDialog } from "./WarningDialog/WarningDialog"

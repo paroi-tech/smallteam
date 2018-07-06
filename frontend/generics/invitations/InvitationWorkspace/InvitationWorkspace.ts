@@ -6,7 +6,7 @@ import { render } from "@fabtom/lt-monkberry"
 import BoxList from "../../BoxList/BoxList"
 import InvitationForm from "../InvitationForm/InvitationForm"
 import InvitationBox from "../InvitationBox/InvitationBox"
-import ErrorDialog from "../../modalDialogs/ErrorDialog/ErrorDialog"
+import { ErrorDialog } from "../../modalDialogs/modalDialogs"
 
 const template = require("./InvitationWorkspace.monk")
 

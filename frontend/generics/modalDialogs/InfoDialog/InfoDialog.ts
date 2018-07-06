@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../../libraries/Deferred"
-import { makeOutsideClickHandlerFor } from "../modalDialogUtils"
+import { makeOutsideClickHandlerFor } from "../modalDialogs"
 
 const template = require("./InfoDialog.monk")
 

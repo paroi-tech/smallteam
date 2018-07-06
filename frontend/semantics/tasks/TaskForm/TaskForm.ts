@@ -43,6 +43,7 @@ export default class TaskForm {
     this.submitSpinnerEl = this.view.ref("submitSpinner")
     this.deleteSpinnerEl = this.view.ref("deleteSpinner")
     this.onHoldBtnEl = this.view.ref("btnOnHold")
+
     this.onHoldBtnEl.addEventListener("click", ev => {
       if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
         return
@@ -51,7 +52,6 @@ export default class TaskForm {
       else
         this.putTaskOnHold()
     })
-
     this.view.ref("submit").addEventListener("click", ev => this.updateTask())
     this.view.ref("btnToggle").addEventListener("click", ev => {
       if (this.currentTask)
@@ -159,7 +159,6 @@ export default class TaskForm {
     if (!confirm("Do you really want to remove this task?"))
       return
     try {
-      // We handle task deletion event in another place.
       await this.model.exec("delete", "Task", { id: this.currentTask.id })
     } catch (error) {
       this.log.info("Unable to delete task", error)
@@ -168,13 +167,15 @@ export default class TaskForm {
 
   private async updateTask() {
     if (!this.currentTask || this.currentTask.currentStep.isSpecial) {
-      console.log("Cannot update task which current step is special...")
+      console.log("Cannot update task which current step is special.")
       return false
     }
 
     let label = this.labelEl.value.trim()
-    if (label.length < 4)
+    if (label.length < 4) {
+      this.log.info("Cannot update task with a label with less than 4 characters.")
       return false
+    }
 
     this.showSpinner()
     let result = false
@@ -194,6 +195,9 @@ export default class TaskForm {
     return result
   }
 
+  /**
+   * Never call the reset() method in this one.
+   */
   private refresh() {
     if (!this.currentTask)
       return

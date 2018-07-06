@@ -13,7 +13,7 @@
 
     <label class="FormField">
       <span class="FormField-span">Description</span>
-      <textarea :ref="description"></textarea>
+      <textarea :ref="description" value="{{ description }}"></textarea>
     </label>
 
     <div>

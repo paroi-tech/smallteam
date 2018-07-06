@@ -5,7 +5,7 @@ import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
 import config from "../../../../isomorphic/config"
-import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
+import { ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
 import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
 
 const template = require("./TaskAttachmentManager.monk")

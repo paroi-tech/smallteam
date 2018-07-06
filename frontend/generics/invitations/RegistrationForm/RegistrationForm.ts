@@ -1,12 +1,9 @@
 import config from "../../../../isomorphic/config"
-import { PublicDash, Dash } from "bkb"
+import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ContributorModel, SessionData } from "../../../AppModel/AppModel"
 import Deferred from "../../../libraries/Deferred"
-import ErrorDialog from "../../modalDialogs/ErrorDialog/ErrorDialog"
-import WarningDialog from "../../modalDialogs/WarningDialog/WarningDialog"
+import { ErrorDialog, InfoDialog, WarningDialog } from "../../modalDialogs/modalDialogs"
 import { validateEmail } from "../../../libraries/utils"
-import InfoDialog from "../../modalDialogs/InfoDialog/InfoDialog"
 
 const template = require("./RegistrationForm.monk")
 

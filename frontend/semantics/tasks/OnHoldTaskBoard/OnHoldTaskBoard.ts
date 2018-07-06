@@ -38,6 +38,11 @@ export default class OnHoldTaskBoard {
     view.ref("right").appendChild(this.taskForm.el)
 
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.task = task)
+    this.dash.listenToModel("updateTask", data => {
+      let task = data.model
+      if (task.projectId === this.project.id && task.curStepId === ON_HOLD_STEP_ID && !this.boxList.hasBox(task.id))
+        this.addTaskBox(task)
+    })
   }
 
   public async refresh() {
@@ -53,9 +58,13 @@ export default class OnHoldTaskBoard {
     for (let t of tasks) {
       if (t.id === t.project.rootTaskId)
         continue
-      let box = this.dash.create(TaskBox, t)
-      this.boxList.addBox(box)
+      this.addTaskBox(t)
     }
+  }
+
+  private addTaskBox(task: TaskModel){
+    let box = this.dash.create(TaskBox, task)
+    this.boxList.addBox(box)
   }
 
   private async fetchTasks() {

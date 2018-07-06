@@ -3,8 +3,7 @@ import { PublicDash, Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
-import ErrorDialog from "../modalDialogs/ErrorDialog/ErrorDialog"
-import WarningDialog from "../modalDialogs/WarningDialog/WarningDialog"
+import { ErrorDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 
 const template = require("./LoginDialog.monk")
 

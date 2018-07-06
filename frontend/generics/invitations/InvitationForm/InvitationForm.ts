@@ -1,8 +1,7 @@
 import { render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
 import config from "../../../../isomorphic/config"
-import ErrorDialog from "../../modalDialogs/ErrorDialog/ErrorDialog"
-import WarningDialog from "../../modalDialogs/WarningDialog/WarningDialog"
+import { ErrorDialog, WarningDialog } from "../../modalDialogs/modalDialogs"
 
 const template = require("./InvitationForm.monk")
 

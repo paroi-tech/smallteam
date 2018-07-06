@@ -1,11 +1,10 @@
-import { PublicDash, Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import PasswordEdit from "../../../generics/PasswordEdit/PasswordEdit"
 import config from "../../../../isomorphic/config"
-import InfoDialog from "../../../generics/modalDialogs/InfoDialog/InfoDialog"
-import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
+import { InfoDialog, ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./PasswordForm.monk")
 

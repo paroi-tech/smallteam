@@ -1,15 +1,13 @@
-import { PublicDash, Dash, Log } from "bkb"
+import { Dash, Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepBox from "../../steps/StepBox/StepBox"
 import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
-import NavBtn from "../../../generics/NavBtn/NavBtn"
-import WarningDialog from "../../../generics/modalDialogs/WarningDialog/WarningDialog"
+import { WarningDialog } from "../../../generics/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./ProjectForm.monk")
@@ -26,9 +24,9 @@ export default class ProjectForm implements Workspace {
 
   private view: LtMonkberryView
   private state = {
-    // Monkberry does not work well with TextAreaElement, so we update manually the description field.
+    code: "",
     name: "",
-    code: ""
+    description: ""
   }
 
   private model: Model
@@ -75,15 +73,15 @@ export default class ProjectForm implements Workspace {
       return
     this.state.code = this.currentProject.code
     this.state.name = this.currentProject.name
+    this.state.description = this.currentProject.description || ""
     this.view.update(this.state)
-    this.descriptionEl.value = this.currentProject.description ? this.currentProject.description : ""
   }
 
   public clearContent() {
     this.state.code = ""
     this.state.name = ""
+    this.state.description = ""
     this.view.update(this.state)
-    this.descriptionEl.value = ""
   }
 
   public hasProject(): boolean {

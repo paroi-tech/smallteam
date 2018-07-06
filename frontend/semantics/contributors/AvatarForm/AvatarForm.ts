@@ -1,8 +1,7 @@
 import { Dash, Log } from "bkb"
-import App from "../../../App/App"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import config from "../../../../isomorphic/config"
-import ErrorDialog from "../../../generics/modalDialogs/ErrorDialog/ErrorDialog"
+import { ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
