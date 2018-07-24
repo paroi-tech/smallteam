@@ -38,13 +38,15 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
-- queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
+- [] TaskFormTitle component
+- [] Create TaskLogDialog when needed
+- [] queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
-- Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
-- Show an animated loader on the background command button when there is something started
-- For each form:
-  - Disable the submit button until there are any changes
-  - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
+- [] Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
+- [] Show an animated loader on the background command button when there is something started
+- [] For each form:
+  - [] Disable the submit button until there are any changes
+  - [] Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
 
 # Not urgent
 - Add roles for users

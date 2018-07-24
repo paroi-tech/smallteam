@@ -1,6 +1,5 @@
-import { Dash, Log } from "bkb"
-import App from "../../../App/App"
-import { Model, TaskModel, UpdateModelEvent, TaskLogEntryModel } from "../../../AppModel/AppModel"
+import { Log } from "bkb"
+import { Model, TaskModel, TaskLogEntryModel } from "../../../AppModel/AppModel"
 import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
@@ -15,9 +14,6 @@ export default class TaskLogDialog {
   private model: Model
   private currentTask: TaskModel | undefined
   private log: Log
-
-  // Used to know if the logs for the current task need to loaded from model.
-  private needReload = false
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -38,8 +34,6 @@ export default class TaskLogDialog {
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
-
-    document.body.appendChild(this.el)
   }
 
   get task(): TaskModel | undefined {
@@ -48,20 +42,18 @@ export default class TaskLogDialog {
 
   set task(task: TaskModel | undefined) {
     this.currentTask = task
-    this.needReload = (task !== undefined)
     removeAllChildren(this.tableEl.tBodies[0])
+    this.loadTaskLogEntries()
   }
 
   public show() {
+    document.body.appendChild(this.el)
     this.el.showModal()
-    if (this.needReload)
-      this.loadTaskLogEntries()
-    else
-      this.loadIndicatorEl.style.display = "none"
   }
 
   public hide() {
     this.el.close()
+    document.body.removeChild(this.el)
   }
 
   private addEntry(entry: TaskLogEntryModel) {
@@ -78,7 +70,8 @@ export default class TaskLogDialog {
     this.loadIndicatorEl.style.display = "block"
     try {
       let entries = await this.currentTask.getLogEntries()
-      entries.forEach(entry => this.addEntry(entry))
+      for (let entry of entries)
+        this.addEntry(entry)
     } catch (err) {
       this.log.error(`Cannot get log entries for task ${this.currentTask.id}`)
     }

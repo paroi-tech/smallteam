@@ -28,7 +28,6 @@ export default class TaskForm {
   private commentEditor: TaskCommentEditor
   private flagSelector: FlagSelector
   private contributorSelector: ContributorSelector
-  private logDialog: TaskLogDialog
   private attachmentMgr: TaskAttachmentManager
 
   constructor(private dash: OwnDash) {
@@ -58,8 +57,11 @@ export default class TaskForm {
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
     this.view.ref("btnLog").addEventListener("click", ev => {
-      if (this.currentTask)
-        this.logDialog.show()
+      if (this.currentTask) {
+        let logDialog = this.dash.create(TaskLogDialog)
+        logDialog.task = this.task
+        logDialog.show()
+      }
     })
     this.view.ref("btnDelete").addEventListener("click", ev => {
       if (this.currentTask)
@@ -75,8 +77,6 @@ export default class TaskForm {
 
     this.commentEditor = this.dash.create(TaskCommentEditor)
     this.view.ref("comment").appendChild(this.commentEditor.el)
-
-    this.logDialog = this.dash.create(TaskLogDialog)
 
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
@@ -141,7 +141,6 @@ export default class TaskForm {
     this.flagSelector.task = undefined
     this.contributorSelector.task = undefined
     this.commentEditor.task = undefined
-    this.logDialog.task = undefined
     this.attachmentMgr.task = undefined
   }
 
@@ -149,7 +148,6 @@ export default class TaskForm {
     this.flagSelector.task = task
     this.contributorSelector.task = task
     this.commentEditor.task = task
-    this.logDialog.task = task
     this.attachmentMgr.task = task
   }
 
@@ -196,7 +194,7 @@ export default class TaskForm {
   }
 
   /**
-   * Never call the reset() method in this one.
+   * Never call the reset() method in this method.
    */
   private refresh() {
     if (!this.currentTask)
