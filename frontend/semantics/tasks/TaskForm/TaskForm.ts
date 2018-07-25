@@ -7,6 +7,7 @@ import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import { OwnDash } from "../../../App/OwnDash"
+import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
 
 const template = require("./TaskForm.monk")
 
@@ -29,6 +30,8 @@ export default class TaskForm {
   private flagSelector: FlagSelector
   private contributorSelector: ContributorSelector
   private attachmentMgr: TaskAttachmentManager
+  private logDialog: TaskLogDialog
+  private text: EditableTextField
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -57,11 +60,9 @@ export default class TaskForm {
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
     this.view.ref("btnLog").addEventListener("click", ev => {
-      if (this.currentTask) {
-        let logDialog = this.dash.create(TaskLogDialog)
-        logDialog.task = this.task
-        logDialog.show()
-      }
+      if (!this.currentTask)
+        return
+      this.logDialog.show()
     })
     this.view.ref("btnDelete").addEventListener("click", ev => {
       if (this.currentTask)
@@ -80,6 +81,11 @@ export default class TaskForm {
 
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
+
+    this.logDialog = this.dash.create(TaskLogDialog)
+
+    this.text = this.dash.create(EditableTextField)
+    this.el.appendChild(this.text.el)
 
     this.listenToModel()
     this.hide() // TaskForm is hidden by default.
@@ -142,6 +148,7 @@ export default class TaskForm {
     this.contributorSelector.task = undefined
     this.commentEditor.task = undefined
     this.attachmentMgr.task = undefined
+    this.logDialog.task = undefined
   }
 
   private setTaskInChildComponents(task: TaskModel) {
@@ -149,6 +156,7 @@ export default class TaskForm {
     this.contributorSelector.task = task
     this.commentEditor.task = task
     this.attachmentMgr.task = task
+    this.logDialog.task = task
   }
 
   private async deleteTask() {

@@ -1,0 +1,4 @@
+<div class="EditableTextField">
+  <input class="EditableTextField-input" type="text" disabled :ref="input">
+  <button class="EditableTextField-button" type="button" :ref="btn"></button>
+</div>
