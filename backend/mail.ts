@@ -5,10 +5,16 @@ const account = {
   password: "xPzcufKPHhWTnkNRMe"
 }
 
-export async function sendMail(to: string, subject: string, text: string, html: string) {
-  let result: any = {
-    done: false,
-    error: undefined
+const from = "smallteambot@smallteam.bj"
+
+type SendMailResult = {
+  done: boolean
+  errorMsg?: string
+}
+
+export async function sendMail(to: string, subject: string, text: string, html: string): Promise<SendMailResult> {
+  let result: SendMailResult = {
+    done: false
   }
 
   try {
@@ -21,16 +27,19 @@ export async function sendMail(to: string, subject: string, text: string, html: 
         pass: account.password
       }
     })
+
     let opts = {
-      from: "smallteambot@smallteam.bj", to, subject, text, html
+      from, to, subject, text, html
     }
+
     let info = await transporter.sendMail(opts)
     result.done = true
+
     // FIXME: remove these lines before going in production.
     console.log("Mail sent:", info.messageId);
     console.log("Preview URL:", getTestMessageUrl(info));
   } catch (error) {
-    result.error = error
+    result.errorMsg = error.message
   }
 
   return result

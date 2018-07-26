@@ -187,7 +187,7 @@ async function sendInvitationMail(token: string, email: string, username?: strin
   let result = await sendMail(email, "SmallTeam password reset", text, html)
   if (result.done)
     return true
-  throw new Error(`Could not send password reset mail. Error: ${result.error.message}`)
+  throw new Error(`Could not send password reset mail: ${result.errorMsg}`)
 }
 
 async function storeInvitation(token: string, email: string, validity: number, username?: string) {

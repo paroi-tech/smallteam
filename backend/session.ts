@@ -210,7 +210,7 @@ async function sendPasswordResetMail(token: string, contributorId: string, addre
   let result = await sendMail(address, "SmallTeam password reset", text, html)
   if (result.done)
     return { token, contributorId }
-  throw new Error(`Could not send password reset mail. Error: ${result.error.message}`)
+  throw new Error(`Could not send password reset mail: ${result.errorMsg}`)
 }
 
 async function storePasswordResetToken(token: string, contributorId: string) {
