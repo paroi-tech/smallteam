@@ -80,12 +80,29 @@ export function startWebServer() {
     console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
   })
 
-  // Scheduled task to remove password reset tokens.
-  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000 /* 1 day */)
+  // Scheduled task to remove password reset tokens each day.
+  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000)
+}
+
+function getSubdomain(req: Request) {
+  let subdomains = req.subdomains
+
+  if (subdomains.length === 0 || subdomains.length > 2)
+    return ""
+  else if (subdomains.length === 1)
+    return subdomains[0] === "www" ? "" : subdomains[0]
+  else if (subdomains[0] === "www")
+    return subdomains[1]
+    else if (subdomains[1] === "www")
+    return subdomains[0]
+  else
+    return ""
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
+    console.log("request received for subdomain", req.subdomains)
+
     if (!isPublic && !await hasSessionData(req)) {
       write404(res)
       return

@@ -334,20 +334,20 @@ export default class StepSwitcher {
   private async onTaskReorder(ev: BoxListEvent) {
     let stepId = ev.boxListId
     let label = this.parentTask.label
-    let boxList = this.boxLists.get(stepId)
-    if (!boxList) {
+    let list = this.boxLists.get(stepId)
+    if (!list) {
       this.log.error(`Unknown BoxList with ID ${stepId} in StepSwitcher ${label}`)
       return
     }
 
-    boxList.disable(true)
+    list.disable(true)
     try {
       await this.model.reorder("Task", ev.boxIds, "childOf", this.parentTask.id)
     } catch (err) {
       this.log.error(`Impossible to reorder tasks in StepSwitcher "${label}"`)
       this.restoreBoxListOrder(stepId)
     }
-    boxList.enable(true)
+    list.enable(true)
   }
 
   private restoreBoxListOrder(stepId: string) {

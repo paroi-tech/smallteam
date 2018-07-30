@@ -103,7 +103,7 @@ async function generateAndSendActivationToken(contributorId: string, address: st
 
   let result = await sendMail(address, "SmallTeam account activation", text, html)
   if (!result.done) {
-    console.error("Unable to send account activation mail to user", result.error)
+    console.error("Unable to send account activation mail to user", result.errorMsg)
     return
   }
   await storeAccountActivationToken(token, contributorId, address)

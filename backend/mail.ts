@@ -7,7 +7,7 @@ const account = {
 
 const from = "smallteambot@smallteam.bj"
 
-type SendMailResult = {
+interface SendMailResult {
   done: boolean
   errorMsg?: string
 }

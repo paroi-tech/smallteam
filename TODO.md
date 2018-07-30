@@ -38,6 +38,7 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- TaskBox order in BoxList (StepSwitcher)
 - queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
 - Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog

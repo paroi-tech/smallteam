@@ -9,7 +9,6 @@ import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorde
 import { fetchComments, createComment, updateComment, deleteComment, fetchCommentsByIds } from "./queryComment"
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./queryTaskLogEntry"
 import { BackendContext, CargoLoader } from "./backendContext/context"
-import { Request, Response } from "express"
 import { SessionData } from "../session"
 
 // export function createBackendContext(): BackendContext {
