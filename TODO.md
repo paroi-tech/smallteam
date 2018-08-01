@@ -2,12 +2,30 @@ I used this file to record ideas and things that I think useful. I don't have In
 the time, so I can't use JIRA.
 
 # DNS and proxy settings
+
 - https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension
 - https://en.wikipedia.org/wiki/Proxy_server
 - http://askubuntu.com/a/233224/88802
 - https://unix.stackexchange.com/questions/28941/what-dns-servers-am-i-using
 
+# August 2018
+
+- Update the definition for SqlBricks in DefinitelyTyped
+- Use systemd to run our Node application (using the user `committeam`!)
+- Add a SSL certificate - https://letsencrypt.org/
+- Check if [the warning here](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html) concerns us
+- Deploy automatically
+  - Create a detached `prod` branch in the Git repository, with a built version of our application
+  - Configure a hook on GitHub and write a script on the server (with a `npm install` without `devDependencies` and a `service restart`)
+  - Create a npm script to run locally on the `prod` branch:
+    - build
+    - commit
+    - Add a tag with the release version
+    - push
+- Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
+
 # Thomas
+
 - CSS
 - Upload engine & co:
   - Implement multi-files upload
@@ -16,6 +34,7 @@ the time, so I can't use JIRA.
   - Accept to open only for connected users
 
 # Thomas - v2 - Not urgent
+
 - In the Model:
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Refactoring in the backend: one code for all the reordering
