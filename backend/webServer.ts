@@ -101,8 +101,6 @@ function getSubdomain(req: Request) {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    console.log("request received", req.originalUrl, "domain:", req.hostname, "subdomains:", req.subdomains)
-
     if (!isPublic && !await hasSessionData(req)) {
       write404(res)
       return

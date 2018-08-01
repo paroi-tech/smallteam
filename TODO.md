@@ -3,6 +3,7 @@ the time, so I can't use JIRA.
 
 # DNS and proxy settings
 - https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension
+- https://webmasters.stackexchange.com/questions/76540/apache-wildcard-domains-restrict-number-of-subdomain-levels
 - https://en.wikipedia.org/wiki/Proxy_server
 - http://askubuntu.com/a/233224/88802
 - https://unix.stackexchange.com/questions/28941/what-dns-servers-am-i-using
@@ -44,6 +45,8 @@ the time, so I can't use JIRA.
       }
 
 # Lionel
+- Github notifications
+- Team creation
 - TaskBox order in BoxList (StepSwitcher)
 - queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
