@@ -10,6 +10,7 @@ import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, route
 import { sessionDbConf, mediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError } from "./utils/serverUtils"
+import { routeCreateTeam, routeCheckTeamCode } from "./team"
 
 const express = require("express")
 const session = require("express-session")
@@ -49,6 +50,9 @@ export function startWebServer() {
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
+
+  router.post("/api/team/create", makeRouteHandler(routeCreateTeam, true))
+  router.post("/api/team/check-team-id", makeRouteHandler(routeCheckTeamCode, true))
 
   router.post("/api/registration/register", makeRouteHandler(routeRegister, true))
   router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, false))

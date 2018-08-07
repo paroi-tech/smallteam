@@ -1,5 +1,6 @@
 export default {
   host: "http://localhost:3921",
-  urlPrefix: "/smallteam-f3s5lbp",
-  minPasswordLength: 8
+  urlPrefix: "",
+  minPasswordLength: 8,
+  maxTeamCodeLength: 16
 }

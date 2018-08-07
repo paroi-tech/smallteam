@@ -6,6 +6,7 @@ www-server/*
 !www-server/www
 www-server/www/bundle.js*
 www-server/www/bundle-registration.js*
+www-server/www/bundle-team.js*
 www-server/www/smallteam.css*
 *.sqlite
 

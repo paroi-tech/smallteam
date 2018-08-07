@@ -10,7 +10,7 @@ const template = require("./TeamCreationDialog.monk")
 export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement
   private teamNameEl: HTMLInputElement
-  private teamIdEl: HTMLInputElement
+  private teamCodeEl: HTMLInputElement
   private usernameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
@@ -23,7 +23,7 @@ export default class TeamCreationDialog {
     let view = render(template)
     this.el = view.rootEl()
     this.teamNameEl = view.ref("teamName")
-    this.teamIdEl = view.ref("teamId")
+    this.teamCodeEl = view.ref("teamCode")
     this.usernameEl = view.ref("username")
     this.passwordEl = view.ref("password")
     this.confirmEl = view.ref("confirm")
@@ -60,9 +60,9 @@ export default class TeamCreationDialog {
       return
     }
 
-    let teamId = this.teamIdEl.value.trim()
+    let teamCode = this.teamCodeEl.value.trim()
     let rgx = /[a-z0-9][a-z0-9-]*[a-z0-9]$/g
-    if (teamId.length === 0 || !rgx.test(teamId) || teamId === "www") {
+    if (teamCode.length === 0 || teamCode.length > config.maxTeamCodeLength || !rgx.test(teamCode) || teamCode === "www") {
       await dialog.show("Please enter a valid team name.")
       this.teamNameEl.focus()
       return
@@ -96,14 +96,14 @@ export default class TeamCreationDialog {
       return
     }
 
-    if (await this.register(teamName, username, password, email) && this.curDfd) {
+    if (await this.register(teamName, teamCode, username, password, email) && this.curDfd) {
       this.curDfd.resolve(true)
       this.curDfd = undefined
       this.el.close()
     }
   }
 
-  private async register(teamName: string, username: string, password: string, email:string) {
+  private async register(teamName: string, teamCode: string, username: string, password: string, email:string) {
     try {
       let response = await fetch(`${config.urlPrefix}/api/registration/register`, {
         method: "post",
@@ -112,7 +112,7 @@ export default class TeamCreationDialog {
           "Accept": "application/json",
           "Content-Type": "application/json"
         },
-        body: JSON.stringify({ teamName, username, password, email })
+        body: JSON.stringify({ teamName, teamCode, username, password, email })
       })
       if (!response.ok)
         throw new Error("Our server did not process the request.")

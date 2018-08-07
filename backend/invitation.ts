@@ -15,7 +15,7 @@ import { URL } from "url"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({
-    username: Joi.string().trim().min(4).optional(),
+    username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).optional(),
     email: Joi.string().email().required(),
     validity: Joi.number().integer().min(1).max(30)
   }),
@@ -23,7 +23,7 @@ let joiSchemata = {
   routeResendInvitation: Joi.object().keys({
     invitationId: Joi.number().min(1).required(),
     email: Joi.string().email().required(),
-    username: Joi.string().trim().min(4).optional(),
+    username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).optional(),
     validity: Joi.number().integer().min(1).max(30)
   }),
 
@@ -33,7 +33,7 @@ let joiSchemata = {
 
   routeRegister: Joi.object().keys({
     name: Joi.string().trim().min(1).required(),
-    login: Joi.string().trim().min(4).required(),
+    login: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).required(),
     password: Joi.string().trim().min(config.minPasswordLength).required(),
     email: Joi.string().email().required(),
     token: Joi.string().hex().required()
@@ -47,7 +47,7 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
   if (!contributor || contributor.role !== "admin")
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
-  let cleanData = await Joi.validate(data, joiSchemata.routeSendInvitation)
+  let cleanData = await validate(data, joiSchemata.routeSendInvitation)
   let token = randomBytes(tokenSize).toString("hex")
   let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
   sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
@@ -136,7 +136,7 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
     transaction.commit()
   } finally {
     if (transaction.inTransaction)
-      transaction.rollback()
+      await transaction.rollback()
   }
 
   return {
