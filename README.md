@@ -11,6 +11,29 @@
       - Boxlist (+)
     - TaskPanel (1)
 
+## Apache config to allow only one subdomain
+To restrict the use of foo.bar.sites.example.com you have to place another VirtualHost above the existing one:
+```
+<VirtualHost *:80>
+    Redirect permanent / http://smallteam.io/
+    ServerName www.smallteam.io
+    ServerAlias *.*.smallteam.io
+</VirtualHost>
+```
+
+And the main virtualhost:
+```
+<VirtualHost *:80>
+	ProxyPreserveHost On
+
+	ProxyPass / http://127.0.0.1:3921/
+	ProxyPassReverse / http://127.0.0.1:3921/
+
+	ServerName smallteam.io
+	ServerAlias *.smallteam.io
+</VirtualHost>
+```
+
 ## Creation of service on the server
 
 ### Steps

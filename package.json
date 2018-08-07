@@ -10,6 +10,8 @@
     "webpack:watch": "webpack --watch --config frontend/webpack.config.js",
     "webpack-reg": "webpack --config frontend-registration/webpack.config.js",
     "webpack-reg:watch": "webpack --watch --config frontend-registration/webpack.config.js",
+    "webpack-team": "webpack --config frontend-new-team/webpack.config.js",
+    "webpack-team:watch": "webpack --watch --config frontend-new-team/webpack.config.js",
     "_backend-rm": "rimraf www-server/backend www-server/isomorphic",
     "_backend-tsc": "tsc --project backend/",
     "_backend-tsc:watch": "tsc --watch --project backend/",
@@ -21,7 +23,7 @@
     "_server:wait": "just-wait -p \"www-server/backend/index.js\" -d 500",
     "_server:wait-then-watch": "run-s _server:wait server:watch",
     "_server:tsc-run": "run-s backend-tsc server:run",
-    "watch": "run-p sass:watch webpack:watch webpack-reg:watch backend-tsc:watch _server:wait-then-watch",
+    "watch": "run-p sass:watch webpack:watch webpack-reg:watch webpack-team:watch backend-tsc:watch _server:wait-then-watch",
     "watch:light": "run-p sass:watch webpack:watch _server:tsc-run",
     "postwatch": "echo"
   },

@@ -1,0 +1,47 @@
+<dialog class="TeamCreationDialog">
+  <div class="Form">
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Team name</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="teamName" type="text" placeholder="Name">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Username</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="username" type="text" placeholder="Username">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Create a password</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="password" type="password" placeholder="Password">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Confirm your password</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="confirm" type="password" placeholder="Password confirmation">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Your email address</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="email" type="email" placeholder="Email">
+      </span>
+    </label>
+
+    <div>
+      <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+        Submit
+        <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
+      </button>
+      &nbsp;
+      <button class="StdBtn" :ref="cancelBtn" type="button">Cancel</button>
+    </div>
+  </div>
+</dialog>
