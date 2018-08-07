@@ -10,6 +10,7 @@ const template = require("./TeamCreationDialog.monk")
 export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement
   private teamNameEl: HTMLInputElement
+  private teamIdEl: HTMLInputElement
   private usernameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
@@ -22,6 +23,7 @@ export default class TeamCreationDialog {
     let view = render(template)
     this.el = view.rootEl()
     this.teamNameEl = view.ref("teamName")
+    this.teamIdEl = view.ref("teamId")
     this.usernameEl = view.ref("username")
     this.passwordEl = view.ref("password")
     this.confirmEl = view.ref("confirm")
@@ -54,6 +56,14 @@ export default class TeamCreationDialog {
     let teamName = this.teamNameEl.value.trim()
     if (teamName.length === 0) {
       await dialog.show("Please enter a team name.")
+      this.teamNameEl.focus()
+      return
+    }
+
+    let teamId = this.teamIdEl.value.trim()
+    let rgx = /[a-z0-9][a-z0-9-]*[a-z0-9]$/g
+    if (teamId.length === 0 || !rgx.test(teamId) || teamId === "www") {
+      await dialog.show("Please enter a valid team name.")
       this.teamNameEl.focus()
       return
     }

@@ -9,7 +9,7 @@ module.exports = {
   entry: [ path.join(__dirname, "main.ts") ],
   output: {
     path: path.join(__dirname, "..", "www-server", "www"),
-    filename: "bundle-registration.js"
+    filename: "bundle-new-team.js"
   },
   module: {
     rules: [

@@ -8,6 +8,13 @@
     </label>
 
     <label class="Form-item TextField">
+      <span class="TextField-lbl">Team ID</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="teamId" type="text" placeholder="Name">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
       <span class="TextField-lbl">Username</span>
       <span class="TextField-deco -leftBlue">
         <input class="TextField-input" :ref="username" type="text" placeholder="Username">
