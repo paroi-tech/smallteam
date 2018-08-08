@@ -6,7 +6,7 @@ export default class App {
   readonly log: Log
   private teamDialog: TeamCreationDialog
 
-  constructor(private dash: AppDash<App>) {
+  constructor(private dash: AppDash<App>, private action: string, private token?: string) {
     this.log = dash.log
     this.teamDialog = this.dash.create(TeamCreationDialog)
     this.dash.listenTo<LogEvent>("log", data => {

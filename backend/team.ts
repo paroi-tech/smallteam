@@ -32,6 +32,7 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
   try {
     let teamId = await createTeam(tcn, cleanData)
     await storeTeamToken(tcn, data, teamId, token)
+    await sendTeamCreationMail(token, cleanData.email)
     tcn.commit()
     result.done = true
   } catch (error) {
@@ -46,14 +47,24 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
   return result
 }
 
-export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let cleanData = await validate(data, joiSchemata.routeCreateTeam)
-  let token = randomBytes(tokenSize).toString("hex")
+export async function routeActivateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
 
-  return {
-    done: true,
-    answer: false,
-    reason: "Not implemented yet"
+}
+
+export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  let cleanData = await validate(data, joiSchemata.routeCheckTeamCode)
+  let query = select().from("team").where("team_code", cleanData.teamCode)
+
+  try {
+    let rs = await cn.allSqlBricks(query)
+    return {
+      done: true,
+      answer: rs.length === 0
+    }
+  } catch (error) {
+    return {
+      done: false
+    }
   }
 }
 
@@ -83,4 +94,18 @@ async function storeTeamToken(cn: TransactionConnectionWithSqlBricks, data, team
   })
 
   await cn.execSqlBricks(query)
+}
+
+async function sendTeamCreationMail(token: string, email: string) {
+  let url = new URL(`${config.host}${config.urlPrefix}/team.html`)
+  url.searchParams.append("action", "activate")
+  url.searchParams.append("token", token)
+
+  let text = `Please follow this link ${url} to activate your team.`
+  let html = `Please click <a href="${url.toString()}">here</a> to activate your team.`
+  let result = await sendMail(email, "Team activation", text, html)
+
+  if (result.done)
+    return true
+  throw new Error(`Could not send team activation mail: ${result.errorMsg}`)
 }
