@@ -1,46 +1,62 @@
-import { createTransport, getTestMessageUrl } from "nodemailer"
+import { createTestAccount, createTransport, getTestMessageUrl } from "nodemailer"
+import { serverConfig } from "./backendConfig"
 
-const account = {
-  user: "ulvmvwmr3qhn2wec@ethereal.email",
-  password: "xPzcufKPHhWTnkNRMe"
-}
-
-const from = "smallteambot@smallteam.bj"
-
-interface SendMailResult {
+interface ActionResult {
   done: boolean
   errorMsg?: string
 }
 
-export async function sendMail(to: string, subject: string, text: string, html: string): Promise<SendMailResult> {
-  let result: SendMailResult = {
-    done: false
-  }
+async function getSettings() {
+  if (serverConfig.env === "prod")
+    return serverConfig.mail
 
   try {
-    let transporter = await createTransport({
-      host: "smtp.ethereal.email",
-      port: 587,
-      secure: false,
-      auth: {
-        user: account.user,
-        pass: account.password
-      }
-    })
-
-    let opts = {
-      from, to, subject, text, html
+    let testAccount = await createTestAccount()
+    return {
+      from: "smallteambot@smallteam.io",
+      user: testAccount.user,
+      password: testAccount.pass,
+      host: testAccount.smtp.host,
+      port: testAccount.smtp.port,
+      secure: testAccount.smtp.secure
     }
-
-    let info = await transporter.sendMail(opts)
-    result.done = true
-
-    // FIXME: remove these lines before going in production.
-    console.log("Mail sent:", info.messageId);
-    console.log("Preview URL:", getTestMessageUrl(info));
   } catch (error) {
-    result.errorMsg = error.message
+    return undefined
+  }
+}
+
+export async function sendMail(to: string, subject: string, text: string, html: string): Promise<ActionResult> {
+  let settings = await getSettings()
+  if (!settings) {
+    return {
+      done: false,
+      errorMsg: "Cannot retrieve mail account"
+    }
   }
 
-  return result
+  let rs: ActionResult = { done: false }
+  try {
+    let transporter = await createTransport({
+      host: settings.host,
+      port: settings.port,
+      secure: settings.secure,
+      auth: {
+        user: settings.user,
+        pass: settings.password
+      }
+    })
+    let info = await transporter.sendMail({
+      from: settings.from, to, subject, text, html
+    })
+
+    rs.done = true
+    if (serverConfig.env === "local") {
+      console.log("Mail sent:", info.messageId)
+      console.log("Preview URL:", getTestMessageUrl(info))
+    }
+  } catch (error) {
+    rs.errorMsg = error.message
+  }
+
+  return rs
 }

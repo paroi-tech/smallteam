@@ -1,0 +1,11 @@
+{
+  "env": "local",
+  "mail": {
+    "from": "",
+    "user": "",
+    "password": "",
+    "host": "",
+    "port": "587",
+    "secure": "true"
+  }
+}

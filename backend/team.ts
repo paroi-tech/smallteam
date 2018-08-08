@@ -8,6 +8,7 @@ import config from "../isomorphic/config"
 import validate from "./utils/joiUtils"
 import { cn } from "./utils/dbUtils"
 import { TransactionConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { sendMail } from "./mail"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
