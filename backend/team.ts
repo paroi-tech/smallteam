@@ -16,10 +16,13 @@ let joiSchemata = {
     teamCode: Joi.string().trim().min(1).max(config.maxTeamCodeLength).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
     username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }),
     password: Joi.string().trim().min(config.minPasswordLength).required(),
-    email: Joi.string().email().required()
+    email: Joi.string().trim().email().required()
   }),
   routeCheckTeamCode: Joi.object().keys({
     teamCode: Joi.string().trim().min(1).max(config.maxTeamCodeLength).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
+  }),
+  routeActivateTeam: Joi.object().keys({
+    token: Joi.string().trim().hex().length(tokenSize).required()
   })
 }
 
@@ -48,7 +51,17 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
 }
 
 export async function routeActivateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-
+  let cleanData = await validate(data, joiSchemata.routeActivateTeam)
+  let query = select().from("reg_team").where("token", cleanData.token)
+  let rs = await cn.allSqlBricks(query)
+  if (rs.length === 0) {
+    // TODO: return 404 status code instead of this answer?
+    return {
+      done: false,
+      reason: "Token not found!"
+    }
+  }
+  // TODO: create database for the team, insert new user and return a response.
 }
 
 export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {

@@ -113,6 +113,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
+      // TODO: route callback can return http status for response.
       writeServerResponse(res, 200, await cb(JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)

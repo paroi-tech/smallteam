@@ -36,7 +36,7 @@ let joiSchemata = {
     login: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).required(),
     password: Joi.string().trim().min(config.minPasswordLength).required(),
     email: Joi.string().email().required(),
-    token: Joi.string().hex().required()
+    token: Joi.string().hex().length(tokenSize).required()
   })
 }
 
@@ -73,6 +73,7 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
   if (!invitationExists(cleanData.invitationId)) {
+    // TODO: return 404 status code instead of this answer?
     return {
       done: false,
       reason: "Invitation not found"
@@ -115,6 +116,7 @@ export async function routeCancelInvitation(data: any, sessionData?: SessionData
 export async function routeRegister(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let cleanData = await validate(data, joiSchemata.routeRegister)
   if (!await tokenExists(cleanData.token)) {
+    // TODO: return 404 status code instead of this answer?
     return {
       done: false,
       reason: "Token not found"
