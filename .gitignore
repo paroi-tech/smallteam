@@ -10,4 +10,6 @@ www-server/www/bundle-team.js*
 www-server/www/smallteam.css*
 *.sqlite
 
+/config.json
+
 .ropeproject

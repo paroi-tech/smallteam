@@ -81,7 +81,7 @@ file `/etc/apache2/apache2.conf` or in vhost file (preferred). See `/etc/apache2
     Options Indexes FollowSymLinks
     AllowOverride None
     Require all granted
-#</Directory>
+</Directory>
 ```
 
 For more information, read:

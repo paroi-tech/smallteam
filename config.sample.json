@@ -1,0 +1,11 @@
+{
+  "env": "local",
+  "mail": {
+    "from": "committeambot",
+    "user": "tux",
+    "password": "secret",
+    "host": "smtp.example.com",
+    "port": "587",
+    "secure": "true"
+  }
+}
