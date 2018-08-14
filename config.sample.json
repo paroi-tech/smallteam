@@ -1,5 +1,6 @@
 {
   "env": "local",
+  "siteDir": "/path/to/site/data/folder",
   "mail": {
     "from": "committeambot",
     "user": "tux",

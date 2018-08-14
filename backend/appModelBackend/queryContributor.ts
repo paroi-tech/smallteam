@@ -1,7 +1,7 @@
 import { randomBytes } from "crypto"
 import { BackendContext } from "./backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
-import { cn, toIntList, int } from "../utils/dbUtils"
+import { toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { hash } from "bcrypt"
 import { WhoUseItem } from "../../isomorphic/transfers"
@@ -10,13 +10,15 @@ import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
 import config from "../../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "../backendConfig"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks";
 
+type DbCn = DatabaseConnectionWithSqlBricks
 
 export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
   if (idList.length === 0)
     return
   let sql = selectFromContributor().where(sqlIn("contributor_id", toIntList(idList)))
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
     let data = await toContributorFragment(context, row)
     context.loader.modelUpdate.addFragment("Contributor", data.id, data)
@@ -25,7 +27,7 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
 
 export async function fetchContributors(context: BackendContext) {
   let sql = selectFromContributor().orderBy("name")
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
     let frag = await toContributorFragment(context, row)
     context.loader.addFragment({
@@ -58,17 +60,17 @@ function selectFromContributor() {
 // -- Who use
 // --
 
-export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
+export async function whoUseContributor(context: BackendContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
   let result = [] as WhoUseItem[]
   let count: number
 
-  count = await cn.singleValueSqlBricks(select("count(1)").from("task").where("created_by", dbId))
-  count += await cn.singleValueSqlBricks(select("count(1)").from("task_affected_to").where("contributor_id", dbId))
+  count = await context.cn.singleValueSqlBricks(select("count(1)").from("task").where("created_by", dbId))
+  count += await context.cn.singleValueSqlBricks(select("count(1)").from("task_affected_to").where("contributor_id", dbId))
   if (count > 0)
     result.push({ type: "Task", count })
 
-  count = await cn.singleValueSqlBricks(select("count(1)").from("task_log").where("contributor_id", dbId))
+  count = await context.cn.singleValueSqlBricks(select("count(1)").from("task_log").where("contributor_id", dbId))
   if (count > 0)
     result.push({ type: "TaskLogEntry", count })
 
@@ -82,10 +84,10 @@ export async function whoUseContributor(id: string): Promise<WhoUseItem[]> {
 export async function createContributor(context: BackendContext, newFrag: ContributorCreateFragment) {
   let passwordHash = await hash("init", bcryptSaltRounds)
   let sql = insert("contributor", toSqlValues(newFrag, contributorMeta.create)).values({ "password": passwordHash })
-  let res = await cn.execSqlBricks(sql)
+  let res = await context.cn.execSqlBricks(sql)
   let contributorId = res.getInsertedIdString()
 
-  generateAndSendActivationToken(contributorId, newFrag.email).catch(console.error)
+  generateAndSendActivationToken(context.cn, contributorId, newFrag.email).catch(console.error)
   context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),
@@ -94,7 +96,7 @@ export async function createContributor(context: BackendContext, newFrag: Contri
   })
 }
 
-async function generateAndSendActivationToken(contributorId: string, address: string) {
+async function generateAndSendActivationToken(cn: DbCn, contributorId: string, address: string) {
   let token = randomBytes(tokenSize).toString("hex")
   let host = config.host
   let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
@@ -106,10 +108,10 @@ async function generateAndSendActivationToken(contributorId: string, address: st
     console.error("Unable to send account activation mail to user", result.errorMsg)
     return
   }
-  await storeAccountActivationToken(token, contributorId, address)
+  await storeAccountActivationToken(cn, token, contributorId, address)
 }
 
-async function storeAccountActivationToken(token: string, contributorId: string, address: string) {
+async function storeAccountActivationToken(cn: DbCn, token: string, contributorId: string, address: string) {
   let query = insert("reg_new", {
     "contributor_id": contributorId,
     "user_email": address,
@@ -137,7 +139,7 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
     markAs: "updated"
   })
 
-  await cn.execSqlBricks(sql)
+  await context.cn.execSqlBricks(sql)
 }
 
 // --
@@ -147,7 +149,7 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
 export async function deleteContributor(context: BackendContext, frag: ContributorIdFragment) {
   let sql = deleteFrom("contributor").where("contributor_id", int(frag.id))
 
-  await cn.execSqlBricks(sql)
+  await context.cn.execSqlBricks(sql)
   context.loader.modelUpdate.markFragmentAs("Contributor", frag.id, "deleted")
   deleteMedias(context, { type: "contributorAvatar", id: frag.id })
 }
@@ -159,13 +161,13 @@ export async function deleteContributor(context: BackendContext, frag: Contribut
 export async function reorderAffectedContributors(context: BackendContext, idList: string[], taskIdStr: string) {
   let taskId = int(taskIdStr)
 
-  let oldNums = await loadAffectedOrderNums(taskId)
+  let oldNums = await loadAffectedOrderNums(context.cn, taskId)
   let curNum = 0
   for (let idStr of idList) {
     let id = int(idStr),
       oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
-      await updateAffectedOrderNum(id, taskId, curNum)
+      await updateAffectedOrderNum(context.cn, id, taskId, curNum)
       context.loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
@@ -175,14 +177,14 @@ export async function reorderAffectedContributors(context: BackendContext, idLis
   for (let id of remaining) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
-      await updateAffectedOrderNum(id, taskId, curNum)
+      await updateAffectedOrderNum(context.cn, id, taskId, curNum)
       context.loader.modelUpdate.addPartial("Contributor", { id: id.toString(), "orderNum": curNum })
     }
   }
   context.loader.modelUpdate.markIdsAsReordered("Contributor", idList)
 }
 
-async function updateAffectedOrderNum(contributorId: number, taskId: number, orderNum: number) {
+async function updateAffectedOrderNum(cn: DbCn, contributorId: number, taskId: number, orderNum: number) {
   let sql = update("task_affected_to", { "order_num": orderNum }).where({
     "contributor_id": contributorId,
     "task_id": taskId
@@ -190,7 +192,7 @@ async function updateAffectedOrderNum(contributorId: number, taskId: number, ord
   await cn.execSqlBricks(sql)
 }
 
-async function loadAffectedOrderNums(taskId: number): Promise<Map<number, number>> {
+async function loadAffectedOrderNums(cn: DbCn, taskId: number): Promise<Map<number, number>> {
   let sql = select("contributor_id, order_num")
               .from("task_affected_to")
               .where("c.task_id", taskId)

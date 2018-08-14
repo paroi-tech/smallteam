@@ -4,7 +4,8 @@ export const bcryptSaltRounds = 10
 export const tokenSize = 16
 
 interface ServerConfig {
-  env: "prod" | "local",
+  env: "prod" | "local"
+  siteDir: string
   mail: {
     from: string
     user: string

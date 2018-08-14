@@ -8,6 +8,8 @@ import config from "../isomorphic/config"
 import { ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, ImageVariantsConfiguration, isSupportedImage } from "@fabtom/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { getCn, getMediaEngine } from "./utils/dbUtils";
+import { getSubdomain } from "./webServer";
 
 export const MEDIAS_REL_URL = "/medias"
 
@@ -130,7 +132,13 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
 
 async function markExternalTypeAsUpdate(req: Request, media: Media, loader: CargoLoader) {
   if (media.externalRef) {
+    let subdomain = await getSubdomain(req)
+    if (!subdomain)
+      throw new Error(`Cannot use a media engine outside a subdomain`)
     let context: BackendContext = {
+      subdomain,
+      cn: await getCn(subdomain),
+      mediaEngine: await getMediaEngine(subdomain),
       sessionData: await getSessionData(req),
       loader
     }

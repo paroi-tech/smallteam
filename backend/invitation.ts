@@ -3,7 +3,6 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import { hash } from "bcrypt"
-import { cn } from "./utils/dbUtils"
 import { sendMail } from "./mail"
 import { tokenSize, bcryptSaltRounds } from "./backendConfig"
 import config from "../isomorphic/config"
@@ -12,6 +11,10 @@ import { AuthorizationError } from "./utils/serverUtils"
 import { SessionData } from "./session"
 import validate from "./utils/joiUtils"
 import { URL } from "url"
+import { getCn } from "./utils/dbUtils"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+
+type DbCn = DatabaseConnectionWithSqlBricks
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({
@@ -40,17 +43,18 @@ let joiSchemata = {
   })
 }
 
-export async function routeSendInvitation(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeSendInvitation(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeSendInvitation'")
-  let contributor = await getContributorById(sessionData.contributorId)
+  let cn = await getCn(subdomain)
+  let contributor = await getContributorById(cn, sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeSendInvitation)
   let token = randomBytes(tokenSize).toString("hex")
-  let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
-  sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
+  let result = await storeInvitation(cn, token, cleanData.email, cleanData.validity, cleanData.username)
+  sendInvitationMail(cn, token, cleanData.email, cleanData.username).catch(err => {
     console.log("All steps of sending invitation mail have not been completed.", err.message)
   })
 
@@ -64,15 +68,17 @@ export async function routeSendInvitation(data: any, sessionData?: SessionData, 
   }
 }
 
-export async function routeResendInvitation(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeResendInvitation(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeResendInvitation'")
-  let contributor = await getContributorById(sessionData.contributorId)
+  let cn = await getCn(subdomain)
+  let contributor = await getContributorById(cn, sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
+
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
-  if (!invitationExists(cleanData.invitationId)) {
+  if (!invitationExists(cn, cleanData.invitationId)) {
     // TODO: return 404 status code instead of this answer?
     return {
       done: false,
@@ -80,10 +86,10 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
     }
   }
 
-  await removeInvitationWithId(cleanData.invitationId)
+  await removeInvitationWithId(cn, cleanData.invitationId)
   let token = randomBytes(tokenSize).toString("hex")
-  let result = await storeInvitation(token, cleanData.email, cleanData.validity, cleanData.username)
-  sendInvitationMail(token, cleanData.email, cleanData.username).catch(err => {
+  let result = await storeInvitation(cn, token, cleanData.email, cleanData.validity, cleanData.username)
+  sendInvitationMail(cn, token, cleanData.email, cleanData.username).catch(err => {
     console.log("All steps of sending invitation mail have not been processed.", err.message)
   })
 
@@ -97,25 +103,27 @@ export async function routeResendInvitation(data: any, sessionData?: SessionData
   }
 }
 
-export async function routeCancelInvitation(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCancelInvitation(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeCancelInvitation'")
-  let contributor = await getContributorById(sessionData.contributorId)
+  let cn = await getCn(subdomain)
+  let contributor = await getContributorById(cn, sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
   let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
-  if (await invitationExists(cleanData.invitationId))
-    await removeInvitationWithId(cleanData.invitationId)
+  if (await invitationExists(cn, cleanData.invitationId))
+    await removeInvitationWithId(cn, cleanData.invitationId)
 
   return {
     done: true
   }
 }
 
-export async function routeRegister(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeRegister(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeRegister)
-  if (!await tokenExists(cleanData.token)) {
+  if (!await tokenExists(cn, cleanData.token)) {
     // TODO: return 404 status code instead of this answer?
     return {
       done: false,
@@ -130,15 +138,16 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
     "email": cleanData.email,
     password: passwordHash
   })
-  let transaction = await cn.beginTransaction()
+
+  let tcn = await cn.beginTransaction()
 
   try {
-    await transaction.execSqlBricks(query)
-    await transaction.execSqlBricks(deleteFrom("reg_new").where({ token: cleanData.token }))
-    transaction.commit()
+    await tcn.execSqlBricks(query)
+    await tcn.execSqlBricks(deleteFrom("reg_new").where({ token: cleanData.token }))
+    tcn.commit()
   } finally {
-    if (transaction.inTransaction)
-      await transaction.rollback()
+    if (tcn.inTransaction)
+      await tcn.rollback()
   }
 
   return {
@@ -146,10 +155,11 @@ export async function routeRegister(data: any, sessionData?: SessionData, req?: 
   }
 }
 
-export async function routeGetPendingInvitations(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeGetPendingInvitations(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeGetPendingInvitations'")
-  let contributor = await getContributorById(sessionData.contributorId)
+  let cn = await getCn(subdomain)
+  let contributor = await getContributorById(cn, sessionData.contributorId)
   if (!contributor || contributor.role !== "admin")
     throw new AuthorizationError("You are not allowed to do this")
 
@@ -176,7 +186,7 @@ function toInvitation(row) {
   }
 }
 
-async function sendInvitationMail(token: string, email: string, username?: string) {
+async function sendInvitationMail(cn: DatabaseConnectionWithSqlBricks, token: string, email: string, username?: string) {
   let regUrl = new URL(`${config.host}${config.urlPrefix}/registration.html`)
   regUrl.searchParams.append("action", "registration")
   regUrl.searchParams.append("token", token)
@@ -192,7 +202,7 @@ async function sendInvitationMail(token: string, email: string, username?: strin
   throw new Error(`Could not send password reset mail: ${result.errorMsg}`)
 }
 
-async function storeInvitation(token: string, email: string, validity: number, username?: string) {
+async function storeInvitation(cn: DatabaseConnectionWithSqlBricks, token: string, email: string, validity: number, username?: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + validity * 24 * 3600 * 1000
   let query = insert("reg_new", {
@@ -202,7 +212,7 @@ async function storeInvitation(token: string, email: string, validity: number, u
     "expire_ts": expireTs
   })
 
-  if (username && !await getContributorByLogin(username))
+  if (username && !await getContributorByLogin(cn, username))
     query.values({ "user_name": username })
   let result = await cn.execSqlBricks(query)
 
@@ -213,17 +223,17 @@ async function storeInvitation(token: string, email: string, validity: number, u
   }
 }
 
-async function removeInvitationWithId(invitationId: string) {
+async function removeInvitationWithId(cn: DatabaseConnectionWithSqlBricks, invitationId: string) {
   let query = deleteFrom("reg_new").where({ "reg_new_id": invitationId })
   await cn.execSqlBricks(query)
 }
 
-async function removeInvitationWithToken(token: string) {
+async function removeInvitationWithToken(cn: DatabaseConnectionWithSqlBricks, token: string) {
   let query = deleteFrom("reg_new").where({ token })
   await cn.execSqlBricks(query)
 }
 
-async function tokenExists(token: string) {
+async function tokenExists(cn: DatabaseConnectionWithSqlBricks, token: string) {
   let query = select().from("reg_new").where({ token })
   // 'singleRowSqlBricks' throws an exception if the query returns more than one row. This should never happen, that's
   // why we don't handle the exception. If this ever happens, that means there was a problem with the db and tokens.
@@ -231,7 +241,7 @@ async function tokenExists(token: string) {
   return row ? true : false
 }
 
-async function invitationExists(invitationId: string) {
+async function invitationExists(cn: DatabaseConnectionWithSqlBricks, invitationId: string) {
   let query = select().from("reg_new").where({ "reg_new_id": invitationId })
   let row = await cn.singleRowSqlBricks(query)
   return row ? true : false

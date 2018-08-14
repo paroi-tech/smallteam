@@ -1,6 +1,5 @@
 import { startWebServer } from "./webServer"
 import { initServerConfig } from "./backendConfig"
-import { initConnection, initMediaEngine } from "./utils/dbUtils"
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)
@@ -14,8 +13,7 @@ process.on("unhandledRejection", err => {
 
 async function startup() {
   await initServerConfig()
-  await initConnection()
-  await initMediaEngine()
+  // await initConnection()
   startWebServer()
 }
 

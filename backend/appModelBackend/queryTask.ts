@@ -3,11 +3,14 @@ import taskMeta from "../../isomorphic/meta/Task"
 import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskSearchFragment } from "../../isomorphic/meta/Task"
 import { select, insertInto, update, deleteFrom, in as sqlIn, isNotNull, like, or } from "sql-bricks"
 import sqlVanilla = require("sql-bricks")
-import { cn, toIntList, int } from "../utils/dbUtils"
+import { toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { fetchMedias, deleteMedias } from "./queryMedia"
+import { DatabaseConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+
+type DbCn =DatabaseConnectionWithSqlBricks
 
 // --
 // -- Read
@@ -40,8 +43,8 @@ export async function fetchTasks(context: BackendContext, filters: TaskSearchFra
     ]))
   }
 
-  let rs = await cn.allSqlBricks(sql)
-  await addDependenciesTo(rs)
+  let rs = await context.cn.allSqlBricks(sql)
+  await addDependenciesTo(context.cn, rs)
   for (let row of rs) {
     let frag = await toTaskFragment(context, row)
     context.loader.addFragment({
@@ -61,9 +64,9 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
 
   sql.where(sqlIn("t.project_id", projectIdList))
 
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
 
-  await addDependenciesTo(rs)
+  await addDependenciesTo(context.cn, rs)
   for (let row of rs) {
     let frag = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", frag.id, frag)
@@ -76,9 +79,9 @@ export async function fetchTasksByIds(context: BackendContext, idList: string[])
 
   let sql = selectFromTask()
     .where(sqlIn("t.task_id", toIntList(idList)))
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
 
-  await addDependenciesTo(rs)
+  await addDependenciesTo(context.cn, rs)
   for (let row of rs) {
     let data = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", data.id, data)
@@ -129,12 +132,12 @@ async function toTaskFragment(context: BackendContext, row): Promise<TaskFragmen
 // -- Who use
 // --
 
-export async function whoUseTask(id: string): Promise<WhoUseItem[]> {
+export async function whoUseTask(context: BackendContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id),
     result: WhoUseItem[] = [],
     count: number
 
-  count = await cn.singleValueSqlBricks(select("count(1)")
+  count = await context.cn.singleValueSqlBricks(select("count(1)")
     .from("task_child")
     .where("parent_task_id", dbId)
   )
@@ -142,7 +145,7 @@ export async function whoUseTask(id: string): Promise<WhoUseItem[]> {
   if (count > 0)
     result.push({ type: "Task", count })
 
-  count = await cn.singleValueSqlBricks(select("count(1)").from("root_task").where("task_id", dbId))
+  count = await context.cn.singleValueSqlBricks(select("count(1)").from("root_task").where("task_id", dbId))
   if (count > 0)
     result.push({ type: "Project", count })
 
@@ -153,10 +156,10 @@ export async function whoUseTask(id: string): Promise<WhoUseItem[]> {
 // -- Add dependencies
 // --
 
-async function addDependenciesTo(taskRows: any[]) {
+async function addDependenciesTo(cn: DbCn, taskRows: any[]) {
   let taskIdList = taskRows.map(row => row["task_id"])
-  let contributorMap = await fetchAffectedToIdentifiers(taskIdList)
-  let flagMap = await fetchFlagIdentifiers(taskIdList)
+  let contributorMap = await fetchAffectedToIdentifiers(cn, taskIdList)
+  let flagMap = await fetchFlagIdentifiers(cn, taskIdList)
 
   for (let row of taskRows) {
     let contributorIds = contributorMap.get(row["task_id"])
@@ -169,7 +172,7 @@ async function addDependenciesTo(taskRows: any[]) {
   }
 }
 
-async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
+async function fetchAffectedToIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map<number, number[]>> {
   let sql = select("a.task_id, a.contributor_id")
     .from("task_affected_to a")
     .where(sqlIn("a.task_id", taskIdList))
@@ -191,7 +194,7 @@ async function fetchAffectedToIdentifiers(taskIdList: number[]): Promise<Map<num
   return map
 }
 
-async function fetchFlagIdentifiers(taskIdList: number[]): Promise<Map<number, number[]>> {
+async function fetchFlagIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map<number, number[]>> {
   let sql = select("tf.task_id, tf.flag_id")
     .from("task_flag tf")
     .innerJoin("flag f").on("tf.flag_id", "f.flag_id")
@@ -226,20 +229,20 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
     throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
 
   // Task
-  let projectId = await fetchProjectIdFromTask(newFrag.parentTaskId)
+  let projectId = await fetchProjectIdFromTask(context.cn, newFrag.parentTaskId)
   let values = toSqlValues(newFrag, taskMeta.create) || {}
 
   values["project_id"] = int(projectId)
-  values["code"] = await findTaskCode(projectId)
+  values["code"] = await findTaskCode(context.cn, projectId)
   values["created_by"] = int(context.sessionData.contributorId)
 
   let sql = insertInto("task").values(values)
-  let res = await cn.execSqlBricks(sql),
+  let res = await context.cn.execSqlBricks(sql),
     taskId = res.getInsertedIdString()
 
   // Task as child
   let parentTaskId = int(newFrag.parentTaskId),
-    orderNum = newFrag.orderNum === undefined ? await getDefaultOrderNum(parentTaskId) : newFrag.orderNum
+    orderNum = newFrag.orderNum === undefined ? await getDefaultOrderNum(context.cn, parentTaskId) : newFrag.orderNum
 
   sql = insertInto("task_child")
     .values({
@@ -247,7 +250,7 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
       "parent_task_id": parentTaskId,
       "order_num": orderNum
     })
-  await cn.execSqlBricks(sql)
+  await context.cn.execSqlBricks(sql)
 
   // Description
   if (newFrag.description) {
@@ -256,14 +259,14 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
         "task_id": taskId,
         "description": newFrag.description
       })
-    await cn.execSqlBricks(sql)
+    await context.cn.execSqlBricks(sql)
   }
 
   if (newFrag.affectedToIds)
-    insertTaskAffectedToContributors(taskId, newFrag.affectedToIds)
+    insertTaskAffectedToContributors(context.cn, taskId, newFrag.affectedToIds)
 
   if (newFrag.flagIds)
-    insertTaskFlags(taskId, newFrag.flagIds)
+    insertTaskFlags(context.cn, taskId, newFrag.flagIds)
 
   context.loader.addFragment({
     type: "Task",
@@ -273,13 +276,13 @@ export async function createTask(context: BackendContext, newFrag: TaskCreateFra
   })
 }
 
-async function fetchProjectIdFromTask(taskId: string): Promise<string> {
+async function fetchProjectIdFromTask(cn: DbCn, taskId: string): Promise<string> {
   let id = await cn.singleValueSqlBricks(select("project_id").from("task").where("task_id", taskId))
 
   return id.toString()
 }
 
-async function getDefaultOrderNum(parentTaskId: number) {
+async function getDefaultOrderNum(cn: DbCn, parentTaskId: number) {
   let sql = select("max(order_num) as max")
     .from("task_child")
     .where("parent_task_id", parentTaskId)
@@ -304,17 +307,17 @@ export async function updateTask(context: BackendContext, updFrag: TaskUpdateFra
       .set(values)
       .where("task_id", taskId)
 
-    await cn.execSqlBricks(sql)
+    await context.cn.execSqlBricks(sql)
   }
 
   if (updFrag.description !== undefined)
-    await updateTaskDescription(taskId, updFrag.description)
+    await updateTaskDescription(context.cn, taskId, updFrag.description)
 
   if (updFrag.affectedToIds)
-    await updateTaskAffectedToContributors(taskId, updFrag.affectedToIds)
+    await updateTaskAffectedToContributors(context.cn, taskId, updFrag.affectedToIds)
 
   if (updFrag.flagIds)
-    await updateTaskFlags(taskId, updFrag.flagIds)
+    await updateTaskFlags(context.cn, taskId, updFrag.flagIds)
 
   context.loader.addFragment({
     type: "Task",
@@ -329,7 +332,7 @@ async function hasStepChange(context: BackendContext, updFrag: TaskUpdateFragmen
     return false
 
   let sql = select("cur_step_id").from("task").where("task_id", int(updFrag.id))
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
 
   if (rs.length !== 1)
     return false
@@ -347,7 +350,7 @@ export async function deleteTask(context: BackendContext, frag: TaskIdFragment) 
   let sql = deleteFrom("task")
     .where("task_id", int(frag.id))
 
-  await cn.execSqlBricks(sql)
+  await context.cn.execSqlBricks(sql)
 
   context.loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
 
@@ -360,7 +363,7 @@ export async function deleteTask(context: BackendContext, frag: TaskIdFragment) 
 
 export async function reorderChildTasks(context: BackendContext, idList: string[], parentIdStr: string) {
   let parentId = int(parentIdStr)
-  let oldNums = await loadChildOrderNums(parentId),
+  let oldNums = await loadChildOrderNums(context.cn, parentId),
       curNum = 0
 
   for (let idStr of idList) {
@@ -368,7 +371,7 @@ export async function reorderChildTasks(context: BackendContext, idList: string[
         oldNum = oldNums.get(id)
 
     if (oldNum !== undefined && ++curNum !== oldNum) {
-      await updateChildOrderNum(id, parentId, curNum)
+      await updateChildOrderNum(context.cn, id, parentId, curNum)
       context.loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
     oldNums.delete(id)
@@ -380,14 +383,14 @@ export async function reorderChildTasks(context: BackendContext, idList: string[
   for (let id of remaining) {
     let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
-      await updateChildOrderNum(id, parentId, curNum)
+      await updateChildOrderNum(context.cn, id, parentId, curNum)
       context.loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
     }
   }
   context.loader.modelUpdate.markIdsAsReordered("Task", idList)
 }
 
-async function updateChildOrderNum(taskId: number, parentId: number, orderNum: number) {
+async function updateChildOrderNum(cn: DbCn, taskId: number, parentId: number, orderNum: number) {
   let sql = update("task_child")
     .set({
       "order_num": orderNum
@@ -400,7 +403,7 @@ async function updateChildOrderNum(taskId: number, parentId: number, orderNum: n
   await cn.execSqlBricks(sql)
 }
 
-async function loadChildOrderNums(parentId: number): Promise<Map<number, number>> {
+async function loadChildOrderNums(cn: DbCn, parentId: number): Promise<Map<number, number>> {
   let sql = select("c.task_id, c.order_num")
     .from("task_child c")
     .where("c.parent_task_id", parentId)
@@ -417,7 +420,7 @@ async function loadChildOrderNums(parentId: number): Promise<Map<number, number>
 // -- Dependencies
 // --
 
-async function insertTaskAffectedToContributors(taskId: number | string, contributorIds: string[]) {
+async function insertTaskAffectedToContributors(cn: DbCn, taskId: number | string, contributorIds: string[]) {
   let orderNum = 0
 
   for (let contributorId of contributorIds) {
@@ -432,15 +435,15 @@ async function insertTaskAffectedToContributors(taskId: number | string, contrib
   }
 }
 
-async function updateTaskAffectedToContributors(taskId: number | string, contributorIds: string[]) {
+async function updateTaskAffectedToContributors(cn: DbCn, taskId: number | string, contributorIds: string[]) {
   let sql = deleteFrom("task_affected_to")
     .where("task_id", int(taskId))
 
   await cn.execSqlBricks(sql)
-  await insertTaskAffectedToContributors(taskId, contributorIds)
+  await insertTaskAffectedToContributors(cn, taskId, contributorIds)
 }
 
-async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
+async function insertTaskFlags(cn: DbCn, taskId: number | string, flagIds: string[]) {
   for (let flagId of flagIds) {
     let sql = insertInto("task_flag")
       .values({
@@ -452,19 +455,19 @@ async function insertTaskFlags(taskId: number | string, flagIds: string[]) {
   }
 }
 
-async function updateTaskFlags(taskId: number | string, flagIds: string[]) {
+async function updateTaskFlags(cn: DbCn, taskId: number | string, flagIds: string[]) {
   let sql = deleteFrom("task_flag")
     .where("task_id", int(taskId))
 
   await cn.execSqlBricks(sql)
-  await insertTaskFlags(taskId, flagIds)
+  await insertTaskFlags(cn, taskId, flagIds)
 }
 
 // --
 // -- Tools
 // --
 
-export async function updateTaskDescription(taskId: number, description: string | null) {
+export async function updateTaskDescription(cn: QueryRunnerWithSqlBricks, taskId: number, description: string | null) {
   if (description === null) {
     let sql = deleteFrom("task_description")
       .where("task_id", taskId)
@@ -490,7 +493,7 @@ export async function updateTaskDescription(taskId: number, description: string 
   }
 }
 
-async function findTaskCode(projectId: string): Promise<string> {
+async function findTaskCode(cn: DbCn, projectId: string): Promise<string> {
   // Select project code
   let code = await cn.singleValueSqlBricks(select("p.code").from("project p").where("project_id", projectId))
 

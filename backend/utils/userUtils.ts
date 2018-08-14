@@ -1,5 +1,7 @@
 import { select } from "sql-bricks"
-import { cn } from "../utils/dbUtils"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+
+type DbCn = DatabaseConnectionWithSqlBricks
 
 interface RegContributor {
   id: string
@@ -8,7 +10,7 @@ interface RegContributor {
   password: string
 }
 
-export async function getContributorById(id: string): Promise<RegContributor | undefined> {
+export async function getContributorById(cn: DbCn, id: string): Promise<RegContributor | undefined> {
   let query = select("contributor_id, login, password, role").from("contributor").where("contributor_id", id)
   let row
 
@@ -21,7 +23,7 @@ export async function getContributorById(id: string): Promise<RegContributor | u
     return toContributor(row)
 }
 
-export async function getContributorByLogin(login: string) {
+export async function getContributorByLogin(cn: DatabaseConnectionWithSqlBricks, login: string) {
   let query = select("contributor_id, login, password, role").from("contributor").where("login", login)
   let row = undefined
 
@@ -34,7 +36,7 @@ export async function getContributorByLogin(login: string) {
   return row ? toContributor(row) : undefined
 }
 
-export async function getContributorByEmail(email: string) {
+export async function getContributorByEmail(cn: DatabaseConnectionWithSqlBricks, email: string) {
   let query = select("contributor_id, login, password, role").from("contributor").where("email", email)
   let row = undefined
 

@@ -10,6 +10,7 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./queryTaskLogEntry"
 import { BackendContext, CargoLoader } from "./backendContext/context"
 import { SessionData } from "../session"
+import { getCn, getMediaEngine } from "../utils/dbUtils";
 
 // export function createBackendContext(): BackendContext {
 //   let context: BackendContext = {
@@ -18,10 +19,13 @@ import { SessionData } from "../session"
 //   }
 // }
 
-export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo> {
+export async function routeFetch(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeFetch'")
   let context: BackendContext = {
+    subdomain,
+    cn: await getCn(subdomain),
+    mediaEngine: await getMediaEngine(subdomain),
     sessionData,
     loader: new CargoLoader()
   }
@@ -29,10 +33,13 @@ export async function routeFetch(data, sessionData?: SessionData): Promise<Cargo
   return context.loader.toCargo()
 }
 
-export async function routeExec(data, sessionData?: SessionData): Promise<Cargo> {
+export async function routeExec(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeExec'")
   let context: BackendContext = {
+    subdomain,
+    cn: await getCn(subdomain),
+    mediaEngine: await getMediaEngine(subdomain),
     sessionData,
     loader: new CargoLoader()
   }
@@ -40,10 +47,13 @@ export async function routeExec(data, sessionData?: SessionData): Promise<Cargo>
   return context.loader.toCargo()
 }
 
-export async function routeBatch(list: any[], sessionData?: SessionData): Promise<BatchCargo> {
+export async function routeBatch(subdomain: string, list: any[], sessionData?: SessionData): Promise<BatchCargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeBatch'")
   let context: BackendContext = {
+    subdomain,
+    cn: await getCn(subdomain),
+    mediaEngine: await getMediaEngine(subdomain),
     sessionData,
     loader: new CargoLoader(true)
   }
@@ -67,11 +77,20 @@ const whoUseCallbacks = {
   Step: whoUseStep
 }
 
-export async function routeWhoUse(data, sessionData?: SessionData): Promise<object> {
+export async function routeWhoUse(subdomain: string, data, sessionData?: SessionData): Promise<object> {
+  if (!sessionData)
+    throw new Error("SessionData missing in 'routeWhoUse'")
   let cb = whoUseCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid 'whoUser' type: "${data.type}"`)
-  let result: WhoUseItem[] | null = await cb(data.id)
+  let context: BackendContext = {
+    subdomain,
+    cn: await getCn(subdomain),
+    mediaEngine: await getMediaEngine(subdomain),
+    sessionData,
+    loader: new CargoLoader(true)
+  }
+  let result: WhoUseItem[] | null = await cb(context, data.id)
   return {
     done: true,
     result

@@ -1,5 +1,6 @@
 {
   "env": "local",
+  "siteDir": "/home/kofi/src/smallteam-data",
   "mail": {
     "from": "",
     "user": "",

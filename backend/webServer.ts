@@ -7,10 +7,12 @@ import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
 import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
-import { sessionDbConf, mediaEngine } from "./utils/dbUtils"
+import { sessionDbConf } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError } from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode } from "./team"
+import { fileExists } from "./utils/fsUtils";
+import { serverConfig } from "./backendConfig";
 
 const express = require("express")
 const session = require("express-session")
@@ -18,7 +20,8 @@ const makeSQLiteExpressStore = require("connect-sqlite3")
 
 const PORT = 3921
 
-type RouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
+type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
+type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type UploadRouteCb = (req: Request, res: Response) => Promise<any>
 type RouteMethod = "get" | "post"
 
@@ -47,12 +50,14 @@ export function startWebServer() {
 
   let router = Router()
 
+  router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
+  router.post("/api/team/check-team-id", makeMainSiteRouteHandler(routeCheckTeamCode))
+
+
+
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
   router.post("/api/session/disconnect", makeRouteHandler(routeEndSession, false))
-
-  router.post("/api/team/create", makeRouteHandler(routeCreateTeam, true))
-  router.post("/api/team/check-team-id", makeRouteHandler(routeCheckTeamCode, true))
 
   router.post("/api/registration/register", makeRouteHandler(routeRegister, true))
   router.post("/api/registration/send-invitation", makeRouteHandler(routeSendInvitation, false))
@@ -70,9 +75,9 @@ export function startWebServer() {
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
-  mediaEngine.uploadEngine.declareRoutes(router, {
-    baseUrl: MEDIAS_REL_URL
-  })
+  // mediaEngine.uploadEngine.declareRoutes(router, {
+  //   baseUrl: MEDIAS_REL_URL
+  // })
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
@@ -88,19 +93,15 @@ export function startWebServer() {
   setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000)
 }
 
-function getSubdomain(req: Request) {
-  let subdomains = req.subdomains
+export async function getSubdomain(req: Request) {
+  if (req.subdomains.length !== 1)
+    return undefined
 
-  if (subdomains.length === 0 || subdomains.length > 2)
-    return ""
-  else if (subdomains.length === 1)
-    return subdomains[0] === "www" ? "" : subdomains[0]
-  else if (subdomains[0] === "www")
-    return subdomains[1]
-    else if (subdomains[1] === "www")
-    return subdomains[0]
-  else
-    return ""
+  let p = path.join(serverConfig.siteDir, req.subdomains[0])
+  if (!await fileExists(p))
+    return undefined
+
+  return req.subdomains[0]
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
@@ -110,6 +111,29 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
       return
     }
 
+    let subdomain = await getSubdomain(req)
+    if (!subdomain) {
+      write404(res)
+      return
+    }
+
+    let body: string | undefined
+    try {
+      body = await waitForRequestBody(req)
+      // TODO: route callback can return http status for response.
+      writeServerResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
+    } catch (err) {
+      writeServerResponseError(res, err, body)
+    }
+  }
+}
+
+function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
+  return async function (req: Request, res: Response) {
+    if (await getSubdomain(req)) {
+      write404(res)
+      return
+    }
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)

@@ -3,11 +3,13 @@ import { BackendContext } from "./backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { select, insertInto, update, deleteFrom, in as sqlIn, isNotNull, like } from "sql-bricks"
 import sqlVanilla = require("sql-bricks")
-import { cn, toIntList, int } from "../utils/dbUtils"
+import { toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 import { WhoUseItem } from "../../isomorphic/transfers"
-import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { QueryRunnerWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+
+type DbCn = DatabaseConnectionWithSqlBricks
 
 // --
 // -- Read
@@ -25,8 +27,8 @@ export async function fetchProjects(context: BackendContext, filters: ProjectSea
     sql.where(like("d.description", `%${filters.description}%`))
   //   if (filters.search) {
   //     sql.where(like("d.description", `%${filters.description}%`)) // TODO: build search criterion
-  let rs = await cn.allSqlBricks(sql)
-  await addDependenciesTo(rs)
+  let rs = await context.cn.allSqlBricks(sql)
+  await addDependenciesTo(context.cn, rs)
   let projectIdList: number[] = []
   for (let row of rs) {
     let frag = toProjectFragment(row)
@@ -46,8 +48,8 @@ export async function fetchProjectsByIds(context: BackendContext, idList: string
     return
   let sql = selectFromProject()
     .where(sqlIn("p.project_id", toIntList(idList)))
-  let rs = await cn.allSqlBricks(sql)
-  await addDependenciesTo(rs)
+  let rs = await context.cn.allSqlBricks(sql)
+  await addDependenciesTo(context.cn, rs)
   for (let row of rs) {
     let frag = toProjectFragment(row)
     context.loader.modelUpdate.addFragment("Project", frag.id, frag)
@@ -81,17 +83,17 @@ function toProjectFragment(row): ProjectFragment {
 // -- Who use
 // --
 
-export async function whoUseProject(id: string): Promise<WhoUseItem[]> {
+export async function whoUseProject(context: BackendContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
-  let taskId = await cn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
-  return whoUseTask(taskId.toString())
+  let taskId = await context.cn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
+  return whoUseTask(context, taskId.toString())
 }
 
-export async function whoUseProjectStep(projectId: string, stepId: string): Promise<WhoUseItem[]> { // TODO: use this function
+export async function whoUseProjectStep(context: BackendContext, projectId: string, stepId: string): Promise<WhoUseItem[]> { // TODO: use this function
   let result: WhoUseItem[] = [],
     count: number
 
-  count = await cn.singleValueSqlBricks(
+  count = await context.cn.singleValueSqlBricks(
     select("count(1)")
     .from("task")
     .where({
@@ -108,13 +110,13 @@ export async function whoUseProjectStep(projectId: string, stepId: string): Prom
 // -- Add dependencies
 // --
 
-async function addDependenciesTo(projectRows: any[]) {
-  let stepMap = await fetchStepIdentifiers(projectRows.map(row => row["project_id"]))
+async function addDependenciesTo(cn: DbCn, projectRows: any[]) {
+  let stepMap = await fetchStepIdentifiers(cn, projectRows.map(row => row["project_id"]))
   for (let row of projectRows)
     row["stepIds"] = stepMap.get(row["project_id"]) || []
 }
 
-async function fetchStepIdentifiers(projectIdList: number[]): Promise<Map<number, number[]>> {
+async function fetchStepIdentifiers(cn: DatabaseConnectionWithSqlBricks, projectIdList: number[]): Promise<Map<number, number[]>> {
   let sql =
     select("pt.project_id, pt.step_id")
     .from("project_step pt")
@@ -143,7 +145,7 @@ async function fetchStepIdentifiers(projectIdList: number[]): Promise<Map<number
 // --
 
 export async function createProject(context: BackendContext, newFrag: ProjectCreateFragment) {
-  let transCn = await cn.beginTransaction()
+  let transCn = await context.cn.beginTransaction()
 
   try {
     // Project
@@ -224,14 +226,14 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
 // --
 
 export async function updateProject(context: BackendContext, updFrag: ProjectUpdateFragment) {
-  let transCn = await cn.beginTransaction()
+  let transCn = await context.cn.beginTransaction()
 
   try {
     let projectId = parseInt(updFrag.id, 10)
 
     let valuesToUpd = toSqlValues(updFrag, projectMeta.update, "exceptId")
     if (valuesToUpd) {
-      if (updFrag.code !== undefined && await hasTasks(projectId))
+      if (updFrag.code !== undefined && await hasTasks(context.cn, projectId))
         throw new Error(`Cannot update the project "${updFrag.id}" because it has tasks`)
       let sql = update("project")
         .set(valuesToUpd)
@@ -240,10 +242,10 @@ export async function updateProject(context: BackendContext, updFrag: ProjectUpd
     }
 
     if (updFrag.name !== undefined || updFrag.description !== undefined) {
-      let taskId = await getRootTaskId(projectId)
+      let taskId = await getRootTaskId(transCn, projectId)
 
       if (updFrag.description !== undefined)
-        await updateTaskDescription(taskId, updFrag.description)
+        await updateTaskDescription(transCn, taskId, updFrag.description)
 
       let sql = update("task")
         .set({
@@ -273,18 +275,18 @@ export async function updateProject(context: BackendContext, updFrag: ProjectUpd
   }
 }
 
-async function hasTasks(projectId: number) {
-  let count = await cn.singleValueSqlBricks(
+async function hasTasks(rn: QueryRunnerWithSqlBricks, projectId: number) {
+  let count = await rn.singleValueSqlBricks(
     select("count(task_id)").from("task").where("project_id", projectId)
   )
   return count > 0
 }
 
-async function getRootTaskId(projectId: number) {
+async function getRootTaskId(rn: QueryRunnerWithSqlBricks, projectId: number) {
   let sql = select("task_id")
     .from("root_task")
     .where("project_id", projectId)
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await rn.allSqlBricks(sql)
   if (rs.length !== 1)
     throw new Error(`Missing root task for the project "${projectId}"`)
   return rs[0]["task_id"]
@@ -295,15 +297,15 @@ async function getRootTaskId(projectId: number) {
 // --
 
 export async function deleteProject(context: BackendContext, frag: ProjectIdFragment) {
-  let transCn = await cn.beginTransaction()
+  let transCn = await context.cn.beginTransaction()
 
   try {
     let dbId = int(frag.id)
 
-    let taskId = await cn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
-    await cn.execSqlBricks(deleteFrom("root_task").where("project_id", dbId))
-    await cn.execSqlBricks(deleteFrom("task").where("task_id", taskId))
-    await cn.execSqlBricks(deleteFrom("project").where("project_id", dbId))
+    let taskId = await transCn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
+    await transCn.execSqlBricks(deleteFrom("root_task").where("project_id", dbId))
+    await transCn.execSqlBricks(deleteFrom("task").where("task_id", taskId))
+    await transCn.execSqlBricks(deleteFrom("project").where("project_id", dbId))
     await transCn.commit()
 
     context.loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")

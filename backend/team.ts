@@ -6,7 +6,6 @@ import { randomBytes } from "crypto"
 import { tokenSize } from "./backendConfig"
 import config from "../isomorphic/config"
 import validate from "./utils/joiUtils"
-import { cn } from "./utils/dbUtils"
 import { TransactionConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { sendMail } from "./mail"
 
@@ -31,54 +30,54 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
   let token = randomBytes(tokenSize).toString("hex")
   let result = { done: false }
 
-  let tcn = await cn.beginTransaction()
-  try {
-    let teamId = await createTeam(tcn, cleanData)
-    await storeTeamToken(tcn, data, teamId, token)
-    await sendTeamCreationMail(token, cleanData.email)
-    tcn.commit()
-    result.done = true
-  } catch (error) {
-      console.log("Error when creating team", error.message)
-  } finally {
-    if (tcn.inTransaction) {
-      await tcn.rollback()
-      result.done = false
-    }
-  }
+  // let tcn = await cn.beginTransaction()
+  // try {
+  //   let teamId = await createTeam(tcn, cleanData)
+  //   await storeTeamToken(tcn, data, teamId, token)
+  //   await sendTeamCreationMail(token, cleanData.email)
+  //   tcn.commit()
+  //   result.done = true
+  // } catch (error) {
+  //     console.log("Error when creating team", error.message)
+  // } finally {
+  //   if (tcn.inTransaction) {
+  //     await tcn.rollback()
+  //     result.done = false
+  //   }
+  // }
 
   return result
 }
 
 export async function routeActivateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let cleanData = await validate(data, joiSchemata.routeActivateTeam)
-  let query = select().from("reg_team").where("token", cleanData.token)
-  let rs = await cn.allSqlBricks(query)
-  if (rs.length === 0) {
-    // TODO: return 404 status code instead of this answer?
-    return {
-      done: false,
-      reason: "Token not found!"
-    }
-  }
+  // let cleanData = await validate(data, joiSchemata.routeActivateTeam)
+  // let query = select().from("reg_team").where("token", cleanData.token)
+  // let rs = await cn.allSqlBricks(query)
+  // if (rs.length === 0) {
+  //   // TODO: return 404 status code instead of this answer?
+  //   return {
+  //     done: false,
+  //     reason: "Token not found!"
+  //   }
+  // }
   // TODO: create database for the team, insert new user and return a response.
 }
 
 export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let cleanData = await validate(data, joiSchemata.routeCheckTeamCode)
-  let query = select().from("team").where("team_code", cleanData.teamCode)
+  // let cleanData = await validate(data, joiSchemata.routeCheckTeamCode)
+  // let query = select().from("team").where("team_code", cleanData.teamCode)
 
-  try {
-    let rs = await cn.allSqlBricks(query)
-    return {
-      done: true,
-      answer: rs.length === 0
-    }
-  } catch (error) {
-    return {
-      done: false
-    }
-  }
+  // try {
+  //   let rs = await cn.allSqlBricks(query)
+  //   return {
+  //     done: true,
+  //     answer: rs.length === 0
+  //   }
+  // } catch (error) {
+  //   return {
+  //     done: false
+  //   }
+  // }
 }
 
 async function createTeam(cn: TransactionConnectionWithSqlBricks, data) {
