@@ -112,6 +112,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
+      // TODO: routes could specify status in their result.
       writeServerResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)
@@ -144,6 +145,8 @@ function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
     errorMsg = "Server internal error"
   else if (statusCode === 404)
     errorMsg = "Resource not found"
+  else if (statusCode === 400)
+    errorMsg = "Bad request"
   else
     errorMsg = err.message
   writeServerResponse(res, statusCode, {
@@ -153,6 +156,7 @@ function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
 }
 
 function writeServerResponse(res: Response, httpCode: number, data) {
+  // TODO: check if data contain a 'statusCode' property and use it as status code.
   res.setHeader("Content-Type", "application/json")
   res.status(httpCode)
   res.send(JSON.stringify(data))
