@@ -35,6 +35,8 @@ the time, so I can't use JIRA.
   - Accept to open only for connected users
 
 # Lionel
+
+- Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
 - Github notifications
 - Team creation
 - TaskBox order in BoxList (StepSwitcher)

@@ -31,7 +31,7 @@ export function startWebServer() {
   app.use(session({
       secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",
       resave: false,
-      saveUninitialized: true,
+      saveUninitialized: false,
       store: new SQLiteExpressStore({
         table: "session",
         db: file,
