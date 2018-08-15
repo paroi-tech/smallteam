@@ -19,13 +19,13 @@ Source: https://www.tecmint.com/hide-nginx-server-version-in-linux/
 
 ```
 server {
-	listen 81;
-	listen [::]:81;
+	listen 80;
+	listen [::]:80;
 
-	server_name smallteam.io www.smallteam.io;
+	server_name commit.team *.commit.team;
 
 	location / {
-		root /home/kofi/src/smallteam/www-server/www;
+		root /home/commit.team/committeam/smallteam/www-server/www;
 		index index.html;
 		try_files $uri @express;
 	}
@@ -35,7 +35,6 @@ server {
 		proxy_set_header Host $host;
 	}
 }
-
 ```
 
 Sources

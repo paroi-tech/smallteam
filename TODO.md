@@ -24,6 +24,7 @@ the time, so I can't use JIRA.
     - Add a tag with the release version
     - push
 - Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
+- Upgrade to typescript 3
 
 # Thomas
 
