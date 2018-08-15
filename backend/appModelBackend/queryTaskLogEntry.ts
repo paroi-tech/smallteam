@@ -1,5 +1,5 @@
 import { BackendContext } from "./backendContext/context"
-import { cn, toIntList, int } from "../utils/dbUtils"
+import { toIntList, int } from "../utils/dbUtils"
 import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "../../isomorphic/meta/TaskLogEntry"
 import { select, insert, in as sqlIn } from "sql-bricks"
 
@@ -13,7 +13,7 @@ export async function fetchTaskLogEntries(context: BackendContext, filters: Task
     .orderBy("entry_ts")
   // Rows should be ordered by 'entry_ts' in reversed order. But SqlBricks does not support ASC and DESC
   // command on ORDER BY clause. So we reverse manually the rows.
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
   rs.reverse()
   for (let row of rs) {
     context.loader.addFragment({
@@ -29,7 +29,7 @@ export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: 
     return
   let sql = selectFromTaskLogEntry()
     .where(sqlIn("task_log_id", toIntList(idList)))
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
     let data = toTaskLogEntryFragment(row)
     context.loader.modelUpdate.addFragment("TaskLogEntry", data.id, data)
@@ -60,5 +60,5 @@ export async function logStepChange(context: BackendContext, taskId: string, ste
     "step_id": int(stepId),
     "contributor_id": int(context.sessionData.contributorId)
   })
-  await cn.execSqlBricks(sql)
+  await context.cn.execSqlBricks(sql)
 }

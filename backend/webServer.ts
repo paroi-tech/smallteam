@@ -3,16 +3,13 @@ import * as http from "http"
 import * as path from "path"
 import config from "../isomorphic/config"
 import { SessionData } from "./session"
-import { MEDIAS_REL_URL } from "./createMediaEngine"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
-import { hasSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import { hasSession, getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { sessionDbConf } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
-import { ValidationError, AuthorizationError } from "./utils/serverUtils"
+import { ValidationError, AuthorizationError, getSubdomain } from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode } from "./team"
-import { fileExists } from "./utils/fsUtils";
-import { serverConfig } from "./backendConfig";
 
 const express = require("express")
 const session = require("express-session")
@@ -22,7 +19,6 @@ const PORT = 3921
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
-type UploadRouteCb = (req: Request, res: Response) => Promise<any>
 type RouteMethod = "get" | "post"
 
 export function startWebServer() {
@@ -52,8 +48,6 @@ export function startWebServer() {
 
   router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
   router.post("/api/team/check-team-id", makeMainSiteRouteHandler(routeCheckTeamCode))
-
-
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
@@ -93,34 +87,31 @@ export function startWebServer() {
   setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000)
 }
 
-export async function getSubdomain(req: Request) {
-  if (req.subdomains.length !== 1)
-    return undefined
-
-  let p = path.join(serverConfig.siteDir, req.subdomains[0])
-  if (!await fileExists(p))
-    return undefined
-
-  return req.subdomains[0]
-}
-
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    if (!isPublic && !await hasSessionData(req)) {
-      write404(res)
-      return
-    }
-
     let subdomain = await getSubdomain(req)
+
     if (!subdomain) {
       write404(res)
       return
     }
 
+    if (!isPublic) {
+      try {
+        let sessionData = await getSessionData(req)
+        if (!sessionData || sessionData.subdomain !== subdomain) {
+          write404(res)
+          return
+        }
+      } catch (error) {
+        write404(res)
+        return
+      }
+    }
+
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
-      // TODO: route callback can return http status for response.
       writeServerResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)
@@ -134,10 +125,10 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
       write404(res)
       return
     }
+
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
-      // TODO: route callback can return http status for response.
       writeServerResponse(res, 200, await cb(JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)

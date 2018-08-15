@@ -4,29 +4,29 @@ import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media"
 import { ChangedType } from "./backendContext/ModelUpdateLoader"
 import CargoLoader from "./backendContext/CargoLoader"
-import { mediaEngine } from "../utils/dbUtils"
+import { MediaEngine } from "../createMediaEngine";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
 export async function fetchMedias(context: BackendContext, type: MainMetaCode, id: string): Promise<string[]> {
-  let medias = await mediaEngine.storage.findMedias({
+  let medias = await context.mediaEngine.storage.findMedias({
     externalRef: { type, id }
   })
-  return putMediasToCargoLoader(context.loader, medias)
+  return putMediasToCargoLoader(context.mediaEngine, context.loader, medias)
 }
 
 export async function fetchSingleMedia(context: BackendContext, type: MainMetaCode, id: string): Promise<string | undefined> {
-  let media = await mediaEngine.storage.findMedia({
+  let media = await context.mediaEngine.storage.findMedia({
     externalRef: { type, id }
   })
   if (media) {
-    putMediasToCargoLoader(context.loader, [media])
+    putMediasToCargoLoader(context.mediaEngine, context.loader, [media])
     return media.id
   }
 }
 
-export function putMediasToCargoLoader(loader: CargoLoader, medias: Media[], markAs?: ChangedType): string[] {
-  let { mediaFragments, variantFragments } = toMediaAndVariantFragments(medias)
+export function putMediasToCargoLoader(mediaEngine: MediaEngine, loader: CargoLoader, medias: Media[], markAs?: ChangedType): string[] {
+  let { mediaFragments, variantFragments } = toMediaAndVariantFragments(mediaEngine, medias)
 
   for (let frag of mediaFragments) {
     loader.addFragment({ type: "Media", frag })
@@ -40,7 +40,7 @@ export function putMediasToCargoLoader(loader: CargoLoader, medias: Media[], mar
 }
 
 export async function deleteMedias(context: BackendContext, externalRef: ExternalRef) {
-  let idList = await mediaEngine.storage.removeMedias({ externalRef })
+  let idList = await context.mediaEngine.storage.removeMedias({ externalRef })
   for (let mediaId of idList)
     context.loader.modelUpdate.markFragmentAs("Media", mediaId, "deleted")
 }
@@ -50,13 +50,13 @@ interface MediaAndVariantFragments {
   variantFragments: MediaVariantFragment[]
 }
 
-function toMediaAndVariantFragments(medias: Media[]): MediaAndVariantFragments {
+function toMediaAndVariantFragments(mediaEngine: MediaEngine, medias: Media[]): MediaAndVariantFragments {
   let mediaFragments: MediaFragment[] = []
   let variantFragments: MediaVariantFragment[] = []
   for (let media of medias) {
     mediaFragments.push(toMediaFragment(media))
     for (let variantCode of Object.keys(media.variants))
-      variantFragments.push(toMediaVariantFragment(media.variants[variantCode], media))
+      variantFragments.push(toMediaVariantFragment(mediaEngine, media.variants[variantCode], media))
   }
   return {
     mediaFragments,
@@ -76,7 +76,7 @@ function toMediaFragment(media: Media): MediaFragment {
   }
 }
 
-function toMediaVariantFragment(variant: Variant, media: Media): MediaVariantFragment {
+function toMediaVariantFragment(mediaEngine: MediaEngine, variant: Variant, media: Media): MediaVariantFragment {
   return {
     id: variant.id,
     mediaId: media.id,

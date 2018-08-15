@@ -1,6 +1,6 @@
 import { Request } from "express"
 import { BackendContext, CargoLoader } from "./appModelBackend/backendContext/context"
-import { getSessionData, hasSessionData } from "./session"
+import { getSessionData, hasSession } from "./session"
 import { putMediasToCargoLoader } from "./appModelBackend/queryMedia"
 import { ModelUpdate, Type } from "../isomorphic/Cargo"
 import { completeCargo } from "./appModelBackend"
@@ -8,8 +8,8 @@ import config from "../isomorphic/config"
 import { ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, ImageVariantsConfiguration, isSupportedImage } from "@fabtom/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
-import { getCn, getMediaEngine } from "./utils/dbUtils";
-import { getSubdomain } from "./webServer";
+import { getCn, getMediaEngine } from "./utils/dbUtils"
+import { getSubdomain } from "./utils/serverUtils"
 
 export const MEDIAS_REL_URL = "/medias"
 
@@ -63,7 +63,7 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
 function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
   return {
     async canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
-      if (!await hasSessionData(req)) {
+      if (!await hasSession(req)) {
         return {
           canUpload: false,
           errorCode: 403 // Forbidden
@@ -95,9 +95,13 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
       let media = await storage.findMedia({ mediaId })
       let modelUpd: ModelUpdate | undefined
       if (media) {
+        let subdomain = await getSubdomain(req)
+        if (!subdomain)
+          throw new Error(`Cannot use a media engine outside a subdomain`)
+        let mediaEngine = await getMediaEngine(subdomain)
         let loader = new CargoLoader()
         loader.startResponse("none")
-        putMediasToCargoLoader(loader, [media], overwritten ? "updated" : "created")
+        putMediasToCargoLoader(mediaEngine, loader, [media], overwritten ? "updated" : "created")
         await markExternalTypeAsUpdate(req, media, loader)
         modelUpd = loader.modelUpdate.toModelUpdate()
       }
@@ -108,11 +112,11 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
     },
 
     async canRead(req: Request, mediaRef: MediaRef) {
-      return await hasSessionData(req)
+      return await hasSession(req)
     },
 
     async canDelete(req: Request, mediaRef: MediaRef) {
-      return await hasSessionData(req)
+      return await hasSession(req)
     },
 
     async makeJsonResponseForDelete(req: Request, deletedMedia: Media) {

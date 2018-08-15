@@ -9,15 +9,15 @@ import { sendMail } from "./mail"
 import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
 import validate from "./utils/joiUtils"
 import { AuthorizationError } from "./utils/serverUtils"
-import { getCn } from "./utils/dbUtils";
-import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks";
-import { Data } from "ws";
-import { getSubdomain } from "./webServer";
+import { getCn } from "./utils/dbUtils"
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { getSubdomain } from "./utils/serverUtils"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 
 export interface SessionData {
   contributorId: string
+  subdomain: string
 }
 
 interface PasswordUpdateInfo {
@@ -62,8 +62,11 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeConnect)
   let contributor = await getContributorByLogin(cn, cleanData.login)
+
   if (contributor && await compare(cleanData.password, contributor.password)) {
     req.session!.contributorId = contributor.id
+    req.session!.subdomain = subdomain
+
     return {
       done: true,
       contributorId: contributor.id
@@ -79,7 +82,7 @@ export async function routeCurrentSession(subdomain: string, data: any, sessionD
   if (!req)
     throw new Error("Request object missing 'routeCurrentSession'")
 
-  if (await hasSessionData(req)) {
+  if (await hasSession(req) && req.session!.subdomain === subdomain) {
     return {
       done: true,
       contributorId: req.session!.contributorId
@@ -95,10 +98,8 @@ export async function routeEndSession(subdomain: string, data: any, sessionData?
   if (!req)
     throw new Error("Request object missing 'routeEndSession'")
 
-  let b = await destroySession(req)
-
   return {
-    done: b
+    done: await destroySession(req)
   }
 }
 
@@ -197,17 +198,24 @@ export async function removeExpiredPasswordTokens(cn: DatabaseConnectionWithSqlB
 }
 
 export async function getSessionData(req: Request): Promise<SessionData> {
-  if (!await hasSessionData(req))
+  if (!await hasSession(req))
     throw new Error("Missing session data")
   return {
-    contributorId: req.session!.contributorId
+    contributorId: req.session!.contributorId,
+    subdomain: req.session!.subdomain
   }
 }
 
-export async function hasSessionData(req: Request) {
+export async function hasSession(req: Request) {
   let subdomain = await getSubdomain(req)
-  if (!subdomain || !req.session || !req.session.contributorId || typeof req.session.contributorId !== "string")
+
+  if (!subdomain || !req.session || !req.session.contributorId || !req.session.subdomain)
     return false
+  if (typeof req.session.contributorId !== "string" || typeof req.session.subdomain !== "string")
+    return false
+  if (subdomain !== req.session.subdomain)
+    return false
+
   return await getContributorById(await getCn(subdomain), req.session.contributorId) !== undefined
 }
 
@@ -278,7 +286,7 @@ function destroySession(req: Request): Promise<boolean> {
 }
 
 async function destroySessionIfAny(req) {
-  if (!req || !await hasSessionData(req))
+  if (!req || !await hasSession(req))
     return
-  destroySession(req)
+  await destroySession(req)
 }

@@ -35,7 +35,6 @@ the time, so I can't use JIRA.
   - Accept to open only for connected users
 
 # Lionel
-
 - Github notifications
 - Team creation
 - TaskBox order in BoxList (StepSwitcher)
@@ -88,6 +87,12 @@ the time, so I can't use JIRA.
       }
 
 # Lionel - DONE
+
+- Define a `subdomain` property in `req.session` or `req.session.cookie` when user logins to add another
+  level of security.\
+  `express-session` uses only one database for all sessions (including subdomains) and I haven't find a way
+  to have a session database per subdomain. So it is possible that someone who is logged in subdomain 'A' accesses
+  subdomain 'B' by using the cookie from subdomain 'A'.
 - TaskFormTitle component
 - Create TaskLogDialog when needed
 - **ProjectForm**:
