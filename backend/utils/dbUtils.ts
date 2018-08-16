@@ -88,7 +88,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
 
 async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
-  let cn = await createDatabaseConnectionWithSqlBricks({
+  let cn = createDatabaseConnectionWithSqlBricks({
     provider: sqlite3ConnectionProvider({ fileName }),
     init: async cn => {
       await cn.exec("PRAGMA busy_timeout = 50")

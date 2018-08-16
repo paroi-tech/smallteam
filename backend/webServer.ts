@@ -5,7 +5,7 @@ import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
-import { hasSession, getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { sessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError, getSubdomain } from "./utils/serverUtils"
@@ -14,7 +14,7 @@ import { MEDIAS_BASE_URL } from "./createMediaEngine";
 import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload";
 
 const express = require("express")
-const session = require("express-session")
+import session = require("express-session")
 const makeSQLiteExpressStore = require("connect-sqlite3")
 
 const PORT = 3921
@@ -37,7 +37,7 @@ export function startWebServer() {
       store: new SQLiteExpressStore({
         table: "session",
         db: file,
-        dir: dir
+        dir
       }),
       cookie: {
         path: `${config.urlPrefix}/`,

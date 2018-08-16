@@ -1,0 +1,183 @@
+/**
+ * Connect - SQLite3
+ * Copyright(c) 2012 David Feinberg
+ * MIT Licensed
+ * forked from https://github.com/tnantoka/connect-sqlite
+ */
+
+import { EventEmitter } from "events"
+import { sqlite3ConnectionProvider } from "mycn-sqlite3"
+import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+
+/**
+ * One day in milliseconds.
+ */
+const ONE_DAY = 86400000
+
+export interface SQLiteStoreOptions {
+  table?: string
+  db?: string
+  dir?: string
+  concurrentDb?: boolean
+  /**
+   * Parameter `mode` for sqlite3.Database.
+   */
+  mode?: any
+}
+
+export default function (connect: any) {
+  const Store = connect.session ? connect.session.Store : connect.Store
+
+  class SQLiteStore extends Store {
+    private table: string
+    private cn: DatabaseConnectionWithSqlBricks
+    client = new EventEmitter()
+
+    /**
+     * Initialize SQLiteStore with the given options.
+     *
+     * @param   {Object}    options
+     * @api     public
+     */
+    constructor(options: SQLiteStoreOptions = {}) {
+      super(options)
+
+      this.table = options.table || "sessions"
+      let db = options.db || this.table
+      let dbPath = db.includes(":memory:") || db.includes("?mode=memory") ? db : `${options.dir || "."}/${db}`
+
+      this.cn = createDbConnection(dbPath, this.table)
+
+      // this.client.emit("connect")
+
+      async function cleanExpiredSessions() {
+        await this.cn.run(`DELETE FROM ${this.table} WHERE ? > expired`, [Date.now()])
+      }
+
+      cleanExpiredSessions()
+      setInterval(cleanExpiredSessions, ONE_DAY).unref()
+    }
+
+    /**
+     * Attempt to fetch session by the given sid.
+     */
+    get(sid: string, fn) {
+      this.cn.get("SELECT sess FROM " + this.table + " WHERE sid = ? AND ? <= expired", [sid, Date.now()],
+        function (err, row) {
+          if (err) fn(err)
+          if (!row) return fn()
+          fn(null, JSON.parse(row.sess))
+        }
+      )
+    }
+
+    /**
+     * Commit the given `sess` object associated with the given `sid`.
+     *
+     * @param   {String}    sid
+     * @param   {Session}   sess
+     * @param   {Function}  fn
+     * @api     public
+     */
+    set(sid, sess, fn) {
+      try {
+        let maxAge = sess.cookie.maxAge
+        let now = Date.now()
+        let expired = maxAge ? now + maxAge : now + ONE_DAY
+        sess = JSON.stringify(sess)
+
+        this.cn.all("INSERT OR REPLACE INTO " + this.table + " VALUES (?, ?, ?)",
+          [sid, expired, sess],
+          function (err, rows) {
+            if (fn) fn.apply(this, arguments)
+          }
+        )
+      } catch (e) {
+        if (fn) fn(e)
+      }
+    }
+
+    /**
+     * Destroy the session associated with the given `sid`.
+     *
+     * @param   {String}    sid
+     * @api     public
+     */
+    destroy(sid, fn) {
+      this.cn.run("DELETE FROM " + this.table + " WHERE sid = ?", [sid], fn)
+    }
+
+    /**
+     * Fetch number of sessions.
+     *
+     * @param   {Function}  fn
+     * @api     public
+     */
+    length(fn) {
+      this.cn.all("SELECT COUNT(*) AS count FROM " + this.table + "", function (err, rows) {
+        if (err) fn(err)
+        fn(null, rows[0].count)
+      })
+    }
+
+    /**
+     * Clear all sessions.
+     *
+     * @param   {Function}  fn
+     * @api     public
+     */
+    clear(fn) {
+      this.cn.exec("DELETE FROM " + this.table + "", function (err) {
+        if (err) fn(err)
+        fn(null, true)
+      })
+    }
+
+    /**
+     * Touch the given session object associated with the given session ID.
+     *
+     * @param   {string}    sid
+     * @param   {object}    session
+     * @param   {function}  fn
+     * @public
+     */
+    touch(sid, session, fn) {
+      if (session && session.cookie && session.cookie.expires) {
+        let cookieExpires = new Date(session.cookie.expires).getTime()
+        this.cn.run("UPDATE " + this.table + " SET expired=? WHERE sid = ? AND ? <= expired",
+          [cookieExpires, sid, Date.now()],
+          function (err) {
+            if (fn) {
+              if (err) fn(err)
+              fn(null, true)
+            }
+          }
+        )
+      } else {
+        fn(null, true)
+      }
+    }
+  }
+  return SQLiteStore
+}
+
+async function createDbConnection(dsn: string, table: string) {
+  let cn = createDatabaseConnectionWithSqlBricks(
+    {
+      provider: sqlite3ConnectionProvider({ fileName: dsn }),
+      init: async cn => {
+        await cn.exec("PRAGMA busy_timeout = 50")
+        await cn.exec("PRAGMA journal_mode = WAL")
+      },
+      poolOptions: {
+        logError: err => console.log(err),
+        connectionTtl: 30
+      }
+    },
+    {
+      toParamsOptions: { placeholder: "?%d" }
+    }
+  )
+  await cn.execScript(`CREATE TABLE IF NOT EXISTS ${table} (sid PRIMARY KEY, expired, sess)`)
+  return cn
+}
