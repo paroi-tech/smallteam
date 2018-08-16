@@ -11,7 +11,7 @@ import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { getCn, getMediaEngine } from "./utils/dbUtils"
 import { getSubdomain } from "./utils/serverUtils"
 
-export const MEDIAS_REL_URL = "/medias"
+export const MEDIAS_BASE_URL = "/medias"
 
 export interface MediaEngine {
   storage: MediaStorage
@@ -29,7 +29,7 @@ export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, exe
     uploadEngine: createUploadEngine({
       manager: createUploadEngineManager(storage),
       storage,
-      baseUrl: `${config.urlPrefix}${MEDIAS_REL_URL}`
+      baseUrl: `${config.urlPrefix}${MEDIAS_BASE_URL}`
     })
   }
 }

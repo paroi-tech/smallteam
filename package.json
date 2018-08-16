@@ -39,7 +39,7 @@
   },
   "homepage": "https://github.com/fabtom/smallteam#readme",
   "dependencies": {
-    "@fabtom/media-engine": "0.3.3",
+    "@fabtom/media-engine": "0.4.0",
     "bcrypt": "2.0.1",
     "connect-sqlite3": "0.9.11",
     "express": "4.16.3",

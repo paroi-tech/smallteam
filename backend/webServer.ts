@@ -6,10 +6,12 @@ import { SessionData } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
 import { hasSession, getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
-import { sessionDbConf } from "./utils/dbUtils"
+import { sessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError, getSubdomain } from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode } from "./team"
+import { MEDIAS_BASE_URL } from "./createMediaEngine";
+import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload";
 
 const express = require("express")
 const session = require("express-session")
@@ -19,7 +21,7 @@ const PORT = 3921
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
-type RouteMethod = "get" | "post"
+// type RouteMethod = "get" | "post"
 
 export function startWebServer() {
   let app = express()
@@ -69,9 +71,14 @@ export function startWebServer() {
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
-  // mediaEngine.uploadEngine.declareRoutes(router, {
-  //   baseUrl: MEDIAS_REL_URL
-  // })
+  declareRoutesMultiEngine(router, {
+    baseUrl: MEDIAS_BASE_URL
+  }, async (req: Request, res: Response) => {
+    let subdomain = await getSubdomain(req)
+    if (subdomain)
+      return (await getMediaEngine(subdomain)).uploadEngine
+    write404(res)
+  })
 
   router.use(express.static(path.join(__dirname, "..", "www")))
 
