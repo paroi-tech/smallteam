@@ -8,21 +8,14 @@ import { createStep, fetchStepsByIds, fetchSteps, updateStep, reorderSteps, dele
 import { fetchFlagsByIds, fetchFlags, createFlag, updateFlag, deleteFlag, reorderFlags, whoUseFlag } from "./queryFlag"
 import { fetchComments, createComment, updateComment, deleteComment, fetchCommentsByIds } from "./queryComment"
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./queryTaskLogEntry"
-import { BackendContext, CargoLoader } from "./backendContext/context"
+import { ModelContext, CargoLoader } from "./backendContext/context"
 import { SessionData } from "../session"
 import { getCn, getMediaEngine } from "../utils/dbUtils";
-
-// export function createBackendContext(): BackendContext {
-//   let context: BackendContext = {
-//     sessionData,
-//     loader: new CargoLoader()
-//   }
-// }
 
 export async function routeFetch(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeFetch'")
-  let context: BackendContext = {
+  let context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
@@ -36,7 +29,7 @@ export async function routeFetch(subdomain: string, data, sessionData?: SessionD
 export async function routeExec(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeExec'")
-  let context: BackendContext = {
+  let context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
@@ -50,7 +43,7 @@ export async function routeExec(subdomain: string, data, sessionData?: SessionDa
 export async function routeBatch(subdomain: string, list: any[], sessionData?: SessionData): Promise<BatchCargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeBatch'")
-  let context: BackendContext = {
+  let context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
@@ -83,7 +76,7 @@ export async function routeWhoUse(subdomain: string, data, sessionData?: Session
   let cb = whoUseCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid 'whoUser' type: "${data.type}"`)
-  let context: BackendContext = {
+  let context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
@@ -107,7 +100,7 @@ const fetchCallbacks = {
   TaskLogEntry: fetchTaskLogEntries
 }
 
-async function executeFetch(context: BackendContext, data) {
+async function executeFetch(context: ModelContext, data) {
   context.loader.startResponse("fragments")
   let cb = fetchCallbacks[data.type]
   if (!cb)
@@ -125,7 +118,7 @@ const commands = {
   Comment: executeCommandComment
 }
 
-async function executeCommand(context: BackendContext, data) {
+async function executeCommand(context: ModelContext, data) {
   context.loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
   if (data.dependencies)
     context.loader.addDependencies(data.dependencies)
@@ -136,7 +129,7 @@ async function executeCommand(context: BackendContext, data) {
   await completeCargo(context)
 }
 
-async function executeCommandContributor(context: BackendContext, data) {
+async function executeCommandContributor(context: ModelContext, data) {
   if (data.cmd === "create")
     await createContributor(context, data.frag) // FIXME: remove this. Invitations have replaced it.
   else if (data.cmd === "update")
@@ -149,7 +142,7 @@ async function executeCommandContributor(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandProject(context: BackendContext, data) {
+async function executeCommandProject(context: ModelContext, data) {
   if (data.cmd === "create")
     await createProject(context, data.frag)
   else if (data.cmd === "update")
@@ -160,7 +153,7 @@ async function executeCommandProject(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandStep(context: BackendContext, data) {
+async function executeCommandStep(context: ModelContext, data) {
   if (data.cmd === "create")
     await createStep(context, data.frag)
   else if (data.cmd === "update")
@@ -173,7 +166,7 @@ async function executeCommandStep(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandFlag(context: BackendContext, data) {
+async function executeCommandFlag(context: ModelContext, data) {
   if (data.cmd === "create")
     await createFlag(context, data.frag)
   else if (data.cmd === "update")
@@ -186,7 +179,7 @@ async function executeCommandFlag(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandTask(context: BackendContext, data) {
+async function executeCommandTask(context: ModelContext, data) {
   if (data.cmd === "create")
     await createTask(context, data.frag)
   else if (data.cmd === "update")
@@ -199,7 +192,7 @@ async function executeCommandTask(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-async function executeCommandComment(context: BackendContext, data) {
+async function executeCommandComment(context: ModelContext, data) {
   if (data.cmd === "create")
     await createComment(context, data.frag)
   else if (data.cmd === "update")
@@ -210,7 +203,7 @@ async function executeCommandComment(context: BackendContext, data) {
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
 
-export async function completeCargo(context: BackendContext) {
+export async function completeCargo(context: ModelContext) {
   let upd = context.loader.modelUpdate
   let count = 0
   while (!upd.isFragmentsComplete()) {

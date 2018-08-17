@@ -1,5 +1,5 @@
 import * as path from "path"
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { select, insertInto, update, deleteFrom, in as sqlIn, isNotNull, like } from "sql-bricks"
 import sqlVanilla = require("sql-bricks")
@@ -15,7 +15,7 @@ type DbCn = DatabaseConnectionWithSqlBricks
 // -- Read
 // --
 
-export async function fetchProjects(context: BackendContext, filters: ProjectSearchFragment) {
+export async function fetchProjects(context: ModelContext, filters: ProjectSearchFragment) {
   let sql = selectFromProject()
   if (filters.archived !== undefined)
     sql.where("p.archived", filters.archived)
@@ -43,7 +43,7 @@ export async function fetchProjects(context: BackendContext, filters: ProjectSea
   await fetchProjectTasks(context, projectIdList)
 }
 
-export async function fetchProjectsByIds(context: BackendContext, idList: string[]) {
+export async function fetchProjectsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
   let sql = selectFromProject()
@@ -83,13 +83,13 @@ function toProjectFragment(row): ProjectFragment {
 // -- Who use
 // --
 
-export async function whoUseProject(context: BackendContext, id: string): Promise<WhoUseItem[]> {
+export async function whoUseProject(context: ModelContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
   let taskId = await context.cn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
   return whoUseTask(context, taskId.toString())
 }
 
-export async function whoUseProjectStep(context: BackendContext, projectId: string, stepId: string): Promise<WhoUseItem[]> { // TODO: use this function
+export async function whoUseProjectStep(context: ModelContext, projectId: string, stepId: string): Promise<WhoUseItem[]> { // TODO: use this function
   let result: WhoUseItem[] = [],
     count: number
 
@@ -144,7 +144,7 @@ async function fetchStepIdentifiers(cn: DatabaseConnectionWithSqlBricks, project
 // -- Create
 // --
 
-export async function createProject(context: BackendContext, newFrag: ProjectCreateFragment) {
+export async function createProject(context: ModelContext, newFrag: ProjectCreateFragment) {
   let transCn = await context.cn.beginTransaction()
 
   try {
@@ -225,7 +225,7 @@ export async function createProject(context: BackendContext, newFrag: ProjectCre
 // -- Update
 // --
 
-export async function updateProject(context: BackendContext, updFrag: ProjectUpdateFragment) {
+export async function updateProject(context: ModelContext, updFrag: ProjectUpdateFragment) {
   let transCn = await context.cn.beginTransaction()
 
   try {
@@ -296,7 +296,7 @@ async function getRootTaskId(rn: QueryRunnerWithSqlBricks, projectId: number) {
 // -- Delete
 // --
 
-export async function deleteProject(context: BackendContext, frag: ProjectIdFragment) {
+export async function deleteProject(context: ModelContext, frag: ProjectIdFragment) {
   let transCn = await context.cn.beginTransaction()
 
   try {

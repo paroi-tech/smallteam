@@ -1,9 +1,9 @@
 import config from "../../../isomorphic/config"
-import { PublicDash, Dash } from "bkb"
+import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
 import { ErrorDialog, WarningDialog } from "../modalDialogs/modalDialogs"
+import App from "../../App/App";
 
 const template = require("./LoginDialog.monk")
 
@@ -16,7 +16,7 @@ export default class LoginDialog {
   private curDfd: Deferred<string> | undefined
   private enabled = true
 
-  constructor(private dash: Dash) {
+  constructor(private dash: Dash<App>) {
     let view = render(template)
     this.el = view.rootEl()
     this.nameEl = view.ref("username")
@@ -96,7 +96,7 @@ export default class LoginDialog {
 
   private async tryToLogin(login: string, password: string): Promise<string | undefined> {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/connect`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
         method: "post",
         credentials: "same-origin",
         headers: {

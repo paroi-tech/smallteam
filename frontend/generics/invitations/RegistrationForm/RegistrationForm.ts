@@ -18,7 +18,7 @@ export default class RegistrationForm {
 
   private curDfd: Deferred<boolean> | undefined
 
-  constructor(private dash: Dash, private token: string, username?: string) {
+  constructor(private dash: Dash<{ baseUrl: string }>, private token: string, username?: string) {
     let view = render(template)
     this.el = view.rootEl()
     this.nameEl = view.ref("name")
@@ -95,9 +95,9 @@ export default class RegistrationForm {
     }
   }
 
-  private async register(name: string, login: string, password: string, email:string) {
+  private async register(name: string, login: string, password: string, email: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/register`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/register`, {
         method: "post",
         credentials: "same-origin",
         headers: {

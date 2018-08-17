@@ -1,12 +1,8 @@
-import { Dash, Log } from "bkb"
-import App from "../../../App/App"
 import ContributorForm from "../ContributorForm/ContributorForm"
 import PasswordForm from "../PasswordForm/PasswordForm"
 import AvatarForm from "../AvatarForm/AvatarForm"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { Model, ContributorModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import { ChildEasyRouter } from "../../../libraries/EasyRouter"
-import config from "../../../../isomorphic/config"
+import { ContributorModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash";
 import { render } from "@fabtom/lt-monkberry";
 

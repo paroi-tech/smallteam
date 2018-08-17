@@ -1,5 +1,5 @@
 import * as path from "path"
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import stepMeta, { StepFragment, StepCreateFragment, StepUpdateFragment, StepIdFragment } from "../../isomorphic/meta/Step"
 import { toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
@@ -11,7 +11,7 @@ import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks";
 // -- Read
 // --
 
-export async function fetchSteps(context: BackendContext) {
+export async function fetchSteps(context: ModelContext) {
   let sql = selectFromStep()
   let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
@@ -24,7 +24,7 @@ export async function fetchSteps(context: BackendContext) {
   }
 }
 
-export async function fetchStepsByIds(context: BackendContext, idList: string[]) {
+export async function fetchStepsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
 
@@ -55,7 +55,7 @@ function toStepFragment(row): StepFragment {
 // -- Who use
 // --
 
-export async function whoUseStep(context: BackendContext, id: string): Promise<WhoUseItem[]> {
+export async function whoUseStep(context: ModelContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
   let result = [] as WhoUseItem[]
   let count = 0
@@ -71,7 +71,7 @@ export async function whoUseStep(context: BackendContext, id: string): Promise<W
 // -- Create
 // --
 
-export async function createStep(context: BackendContext, newFrag: StepCreateFragment) {
+export async function createStep(context: ModelContext, newFrag: StepCreateFragment) {
   if (newFrag.orderNum === undefined)
     newFrag.orderNum = await getDefaultOrderNum(context.cn)
 
@@ -97,7 +97,7 @@ async function getDefaultOrderNum(cn: DatabaseConnectionWithSqlBricks) {
 // -- Update
 // --
 
-export async function updateStep(context: BackendContext, updFrag: StepUpdateFragment) {
+export async function updateStep(context: ModelContext, updFrag: StepUpdateFragment) {
   let stepId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, stepMeta.update, "exceptId")
@@ -120,7 +120,7 @@ export async function updateStep(context: BackendContext, updFrag: StepUpdateFra
 // -- Delete
 // --
 
-export async function deleteStep(context: BackendContext, frag: StepIdFragment) {
+export async function deleteStep(context: ModelContext, frag: StepIdFragment) {
   let sql = deleteFrom("step").where("step_id", int(frag.id))
   await context.cn.execSqlBricks(sql)
   context.loader.modelUpdate.markFragmentAs("Step", frag.id, "deleted")
@@ -130,7 +130,7 @@ export async function deleteStep(context: BackendContext, frag: StepIdFragment) 
 // -- Reorder
 // --
 
-export async function reorderSteps(context: BackendContext, idList: string[]) {
+export async function reorderSteps(context: ModelContext, idList: string[]) {
   let oldNums = await loadOrderNums(context.cn),
     curNum = 0
   for (let idStr of idList) {

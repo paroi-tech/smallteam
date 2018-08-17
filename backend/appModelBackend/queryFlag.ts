@@ -1,4 +1,4 @@
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import flagMeta, { FlagFragment, FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../isomorphic/meta/Flag"
 import { toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
@@ -10,7 +10,7 @@ import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 // -- Read
 // --
 
-export async function fetchFlags(context: BackendContext) {
+export async function fetchFlags(context: ModelContext) {
   let sql = selectFromFlag()
   let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
@@ -23,7 +23,7 @@ export async function fetchFlags(context: BackendContext) {
   }
 }
 
-export async function fetchFlagsByIds(context: BackendContext, idList: string[]) {
+export async function fetchFlagsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
   let sql = selectFromFlag()
@@ -54,7 +54,7 @@ function toFlagFragment(row): FlagFragment {
 // -- Who use
 // --
 
-export async function whoUseFlag(context: BackendContext, id: string): Promise<WhoUseItem[]> {
+export async function whoUseFlag(context: ModelContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
   let result = [] as WhoUseItem[]
   let count = 0
@@ -71,7 +71,7 @@ export async function whoUseFlag(context: BackendContext, id: string): Promise<W
 // -- Create
 // --
 
-export async function createFlag(context: BackendContext, newFrag: FlagCreateFragment) {
+export async function createFlag(context: ModelContext, newFrag: FlagCreateFragment) {
   if (newFrag.orderNum === undefined)
     newFrag.orderNum = await getDefaultOrderNum(context.cn)
 
@@ -97,7 +97,7 @@ async function getDefaultOrderNum(cn: DatabaseConnectionWithSqlBricks) {
 // -- Update
 // --
 
-export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFragment) {
+export async function updateFlag(context: ModelContext, updFrag: FlagUpdateFragment) {
   let flagId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, flagMeta.update, "exceptId")
@@ -119,7 +119,7 @@ export async function updateFlag(context: BackendContext, updFrag: FlagUpdateFra
 // -- Delete
 // --
 
-export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) {
+export async function deleteFlag(context: ModelContext, frag: FlagIdFragment) {
   let sql = deleteFrom("flag").where("flag_id", int(frag.id))
   await context.cn.execSqlBricks(sql)
   context.loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
@@ -129,7 +129,7 @@ export async function deleteFlag(context: BackendContext, frag: FlagIdFragment) 
 // -- Reorder
 // --
 
-export async function reorderFlags(context: BackendContext, idList: string[]) {
+export async function reorderFlags(context: ModelContext, idList: string[]) {
   let oldNums = await loadOrderNums(context.cn),
     curNum = 0
   for (let idStr of idList) {

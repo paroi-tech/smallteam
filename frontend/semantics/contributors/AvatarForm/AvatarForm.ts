@@ -1,6 +1,5 @@
-import { Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
-import config from "../../../../isomorphic/config"
 import { ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
@@ -10,7 +9,6 @@ const template = require("./AvatarForm.monk")
 export default class AvatarForm {
   readonly el: HTMLElement
   private inputEl: HTMLInputElement
-  private buttonEl: HTMLButtonElement
   private spinnerEl: HTMLElement
   private formEl: HTMLFormElement
 
@@ -24,7 +22,6 @@ export default class AvatarForm {
     let view = render(template)
     this.el = view.rootEl()
     this.formEl = view.ref("form")
-    this.buttonEl = view.ref("btn")
     this.inputEl = view.ref("input")
     this.spinnerEl = view.ref("spinner")
     this.formEl.addEventListener("submit", ev => {
@@ -56,7 +53,7 @@ export default class AvatarForm {
     let fd = new FormData(this.formEl)
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${config.urlPrefix}/medias/upload`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd

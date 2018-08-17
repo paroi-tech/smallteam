@@ -1,7 +1,7 @@
 import { render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
-import config from "../../../../isomorphic/config"
 import { ErrorDialog, WarningDialog } from "../../modalDialogs/modalDialogs"
+import App from "../../../App/App"
 
 const template = require("./InvitationForm.monk")
 
@@ -12,7 +12,7 @@ export default class InvitationForm {
   private validityEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  constructor(private dash: Dash) {
+  constructor(private dash: Dash<App>) {
     let view = render(template)
     this.el = view.rootEl()
     this.usernameEl = view.ref("username")
@@ -35,7 +35,7 @@ export default class InvitationForm {
 
   private async doFetch(username: string | undefined, email: string, validity) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/send-invitation`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-invitation`, {
         method: "post",
         credentials: "same-origin",
         headers: {

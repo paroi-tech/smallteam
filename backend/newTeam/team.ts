@@ -11,6 +11,7 @@ import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { sendMail } from "../mail"
 import { teamDbCn, getCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
+import { getMainDomainUrl } from "../utils/serverUtils";
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
@@ -139,7 +140,7 @@ async function removeTeamToken(runner: QueryRunnerWithSqlBricks, token: string) 
 }
 
 async function sendTeamCreationMail(token: string, email: string) {
-  let url = `${config.host}${config.urlPrefix}/team.html?action=activate&token=${encodeURIComponent(token)}`
+  let url = `${getMainDomainUrl()}/team.html?action=activate&token=${encodeURIComponent(token)}`
   let text = `Please follow this link ${url} to activate your team.`
   let html = `Please click <a href="${url}">here</a> to activate your team.`
   let res = await sendMail(email, "Team activation", text, html)

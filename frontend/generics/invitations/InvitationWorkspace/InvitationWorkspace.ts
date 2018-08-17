@@ -1,12 +1,12 @@
-import config from "../../../../isomorphic/config"
 import { Dash, Log } from "bkb"
 import { Model } from "../../../AppModel/modelDefinitions"
-import { Workspace, ViewerController } from "../../WorkspaceViewer/WorkspaceViewer"
+import { ViewerController } from "../../WorkspaceViewer/WorkspaceViewer"
 import { render } from "@fabtom/lt-monkberry"
 import BoxList from "../../BoxList/BoxList"
 import InvitationForm from "../InvitationForm/InvitationForm"
 import InvitationBox from "../InvitationBox/InvitationBox"
 import { ErrorDialog } from "../../modalDialogs/modalDialogs"
+import App from "../../../App/App"
 
 const template = require("./InvitationWorkspace.monk")
 
@@ -29,7 +29,7 @@ export default class InvitationWorkspace {
 
   private map = new Map<string, Invitation>()
 
-  constructor(private dash: Dash) {
+  constructor(private dash: Dash<App>) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
@@ -60,7 +60,7 @@ export default class InvitationWorkspace {
 
   private async fetchInvitations() {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/fetch-invitations`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/fetch-invitations`, {
         method: "post",
         credentials: "include",
         headers: new Headers({
@@ -104,7 +104,7 @@ export default class InvitationWorkspace {
     console.log("to refresh", invitation)
     let msByDay = 24 * 3600 * 1000
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/resend-invitation`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/resend-invitation`, {
         method: "post",
         credentials: "include",
         headers: new Headers({
@@ -150,7 +150,7 @@ export default class InvitationWorkspace {
     }
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/cancel-invitation`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/cancel-invitation`, {
         method: "post",
         credentials: "include",
         headers: new Headers({

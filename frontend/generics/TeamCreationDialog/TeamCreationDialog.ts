@@ -4,6 +4,7 @@ import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../libraries/Deferred"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 import { validateEmail } from "../../libraries/utils"
+import App from "../../App/App";
 
 const template = require("./TeamCreationDialog.monk")
 
@@ -19,7 +20,7 @@ export default class TeamCreationDialog {
 
   private curDfd: Deferred<boolean> | undefined
 
-  constructor(private dash: Dash) {
+  constructor(private dash: Dash<{ baseUrl: string }>) {
     let view = render(template)
     this.el = view.rootEl()
     this.teamNameEl = view.ref("teamName")
@@ -103,9 +104,9 @@ export default class TeamCreationDialog {
     }
   }
 
-  private async register(teamName: string, teamCode: string, username: string, password: string, email:string) {
+  private async register(teamName: string, teamCode: string, username: string, password: string, email: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/register`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/register`, {
         method: "post",
         credentials: "same-origin",
         headers: {

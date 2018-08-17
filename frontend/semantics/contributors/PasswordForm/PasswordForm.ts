@@ -1,5 +1,5 @@
 import { Log } from "bkb"
-import { Model, ContributorModel } from "../../../AppModel/AppModel"
+import { ContributorModel } from "../../../AppModel/AppModel"
 import PasswordEdit from "../../../generics/PasswordEdit/PasswordEdit"
 import config from "../../../../isomorphic/config"
 import { InfoDialog, ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
@@ -16,10 +16,8 @@ export default class PasswordForm {
   private passwordEdit: PasswordEdit
 
   private log: Log
-  private model: Model
 
   constructor(private dash: OwnDash, private contributor: ContributorModel) {
-    this.model = this.dash.app.model
     this.log = this.dash.app.log
 
     let view = render(template)
@@ -71,7 +69,7 @@ export default class PasswordForm {
 
   private async doPasswordUpdate(currentPassword: string, newPassword: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/change-password`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/change-password`, {
         method: "post",
         credentials: "same-origin",
         headers: {

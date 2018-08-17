@@ -1,5 +1,5 @@
 import { randomBytes } from "crypto"
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import contributorMeta, { ContributorFragment, ContributorCreateFragment, ContributorUpdateFragment, ContributorIdFragment } from "../../isomorphic/meta/Contributor"
 import { toIntList, int } from "../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
@@ -8,13 +8,13 @@ import { WhoUseItem } from "../../isomorphic/transfers"
 import { sendMail } from "../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
-import config from "../../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "../backendConfig"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks";
+import { getTeamSiteUrl } from "../utils/serverUtils";
 
 type DbCn = DatabaseConnectionWithSqlBricks
 
-export async function fetchContributorsByIds(context: BackendContext, idList: string[]) {
+export async function fetchContributorsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
   let sql = selectFromContributor().where(sqlIn("contributor_id", toIntList(idList)))
@@ -25,7 +25,7 @@ export async function fetchContributorsByIds(context: BackendContext, idList: st
   }
 }
 
-export async function fetchContributors(context: BackendContext) {
+export async function fetchContributors(context: ModelContext) {
   let sql = selectFromContributor().orderBy("name")
   let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
@@ -38,7 +38,7 @@ export async function fetchContributors(context: BackendContext) {
   }
 }
 
-async function toContributorFragment(context: BackendContext, row): Promise<ContributorFragment> {
+async function toContributorFragment(context: ModelContext, row): Promise<ContributorFragment> {
   let frag: ContributorFragment = {
     id: row["contributor_id"].toString(),
     name: row["name"],
@@ -60,7 +60,7 @@ function selectFromContributor() {
 // -- Who use
 // --
 
-export async function whoUseContributor(context: BackendContext, id: string): Promise<WhoUseItem[]> {
+export async function whoUseContributor(context: ModelContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id)
   let result = [] as WhoUseItem[]
   let count: number
@@ -81,13 +81,13 @@ export async function whoUseContributor(context: BackendContext, id: string): Pr
 // -- Create
 // --
 
-export async function createContributor(context: BackendContext, newFrag: ContributorCreateFragment) {
+export async function createContributor(context: ModelContext, newFrag: ContributorCreateFragment) {
   let passwordHash = await hash("init", bcryptSaltRounds)
   let sql = insert("contributor", toSqlValues(newFrag, contributorMeta.create)).values({ "password": passwordHash })
   let res = await context.cn.execSqlBricks(sql)
   let contributorId = res.getInsertedIdString()
 
-  generateAndSendActivationToken(context.cn, contributorId, newFrag.email).catch(console.error)
+  generateAndSendActivationToken(context, contributorId, newFrag.email).catch(console.error)
   context.loader.addFragment({
     type: "Contributor",
     id: contributorId.toString(),
@@ -96,10 +96,9 @@ export async function createContributor(context: BackendContext, newFrag: Contri
   })
 }
 
-async function generateAndSendActivationToken(cn: DbCn, contributorId: string, address: string) {
+async function generateAndSendActivationToken(context: ModelContext, contributorId: string, address: string) {
   let token = randomBytes(tokenSize).toString("hex")
-  let host = config.host
-  let url  = `${host}${config.urlPrefix}/reset-password.html?token=${encodeURIComponent(token)}&uid=${contributorId}`
+  let url  = `${getTeamSiteUrl(context)}/reset-password?token=${encodeURIComponent(token)}&uid=${contributorId}`
   let text = `SmallTeam registration\nPlease follow the link ${url} to activate your account.`
   let html = `<h3>SmallTeam registration</h3> <p>Please follow this <a href="${url}">link</a> to activate your account.</p>`
 
@@ -108,23 +107,23 @@ async function generateAndSendActivationToken(cn: DbCn, contributorId: string, a
     console.error("Unable to send account activation mail to user", result.errorMsg)
     return
   }
-  await storeAccountActivationToken(cn, token, contributorId, address)
+  await storeAccountActivationToken(context, token, contributorId, address)
 }
 
-async function storeAccountActivationToken(cn: DbCn, token: string, contributorId: string, address: string) {
+async function storeAccountActivationToken(context: ModelContext, token: string, contributorId: string, address: string) {
   let query = insert("reg_new", {
     "contributor_id": contributorId,
     "user_email": address,
     "token": token
   })
-  await cn.execSqlBricks(query)
+  await context.cn.execSqlBricks(query)
 }
 
 // --
 // -- Update
 // --
 
-export async function updateContributor(context: BackendContext, updFrag: ContributorUpdateFragment) {
+export async function updateContributor(context: ModelContext, updFrag: ContributorUpdateFragment) {
   let contributorId = parseInt(updFrag.id, 10)
 
   let values = toSqlValues(updFrag, contributorMeta.update, "exceptId")
@@ -146,7 +145,7 @@ export async function updateContributor(context: BackendContext, updFrag: Contri
 // -- Delete
 // --
 
-export async function deleteContributor(context: BackendContext, frag: ContributorIdFragment) {
+export async function deleteContributor(context: ModelContext, frag: ContributorIdFragment) {
   let sql = deleteFrom("contributor").where("contributor_id", int(frag.id))
 
   await context.cn.execSqlBricks(sql)
@@ -158,7 +157,7 @@ export async function deleteContributor(context: BackendContext, frag: Contribut
 // -- Reorder affectedTo tasks
 // --
 
-export async function reorderAffectedContributors(context: BackendContext, idList: string[], taskIdStr: string) {
+export async function reorderAffectedContributors(context: ModelContext, idList: string[], taskIdStr: string) {
   let taskId = int(taskIdStr)
 
   let oldNums = await loadAffectedOrderNums(context.cn, taskId)

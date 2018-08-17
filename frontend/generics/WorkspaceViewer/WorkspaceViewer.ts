@@ -1,8 +1,8 @@
-import config from "../../../isomorphic/config"
 import { Dash } from "bkb"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { removeAllChildren } from "../../libraries/utils"
 import { render } from "@fabtom/lt-monkberry"
+import App from "../../App/App";
 
 const template = require("./WorkspaceViewer.monk")
 
@@ -40,7 +40,7 @@ export default class WorkspaceViewer {
 
   readonly router: EasyRouter
 
-  constructor(private dash: Dash) {
+  constructor(private dash: Dash<App>) {
     let view = render(template)
     this.el = view.rootEl()
     this.h1El = view.ref("h1")
@@ -53,7 +53,7 @@ export default class WorkspaceViewer {
 
   public start() {
     this.router.start({
-      baseUrl: config.urlPrefix + "/",
+      baseUrl: `${this.dash.app.baseUrl}/`,
       hashMode: true,
       // noHistory: false,
       firstQueryString: ""

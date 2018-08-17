@@ -1,9 +1,8 @@
-import config from "../../../isomorphic/config"
-import { PublicDash, Dash } from "bkb"
+import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ContributorModel, SessionData } from "../../AppModel/AppModel"
 import Deferred from "../../libraries/Deferred"
 import { ErrorDialog, InfoDialog } from "../modalDialogs//modalDialogs"
+import App from "../../App/App";
 
 const template = require("./PasswordRequestDialog.monk")
 
@@ -14,7 +13,7 @@ export default class PasswordRequestDialog {
 
   private curDfd: Deferred<any> | undefined
 
-  constructor(private dash: Dash) {
+  constructor(private dash: Dash<App>) {
     let view = render(template)
     this.el = view.rootEl()
     this.emailEl = view.ref("email")
@@ -59,7 +58,7 @@ export default class PasswordRequestDialog {
 
   private async makeApiCall(address: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/send-password-reset-mail`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-password-reset-mail`, {
         method: "post",
         credentials: "same-origin",
         headers: {

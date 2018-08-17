@@ -8,7 +8,7 @@ import { bcryptSaltRounds, tokenSize } from "./backendConfig"
 import { sendMail } from "./mail"
 import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
 import validate from "./utils/joiUtils"
-import { AuthorizationError } from "./utils/serverUtils"
+import { AuthorizationError, getTeamSiteUrl, BackendContext } from "./utils/serverUtils"
 import { getCn } from "./utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { getConfirmedSubdomain } from "./utils/serverUtils"
@@ -181,6 +181,7 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
 }
 
 export async function routeSendPasswordEmail(subdomain: string, data: any) {
+  let context = { subdomain }
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeSendPasswordEmail)
   let contributor = await getContributorByEmail(cn, cleanData.email)
@@ -199,7 +200,7 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   try {
     await storePasswordResetToken(tcn, token, contributor.id)
 
-    if (await sendPasswordResetMail(token, contributor.id, data.email)) {
+    if (await sendPasswordResetMail(context, token, contributor.id, data.email)) {
       await tcn.commit()
       answer.done = true
     }
@@ -242,9 +243,8 @@ export async function hasSession(req: Request) {
   return await getContributorById(await getCn(subdomain), req.session.contributorId) !== undefined
 }
 
-async function sendPasswordResetMail(token: string, contributorId: string, address: string) {
-  let host = `${config.host}${config.urlPrefix}`
-  let url = `${host}/registration?action=passwordreset&token=${token}&uid=${contributorId}`
+async function sendPasswordResetMail(context: BackendContext, token: string, contributorId: string, address: string) {
+  let url = `${getTeamSiteUrl(context)}/registration?action=passwordreset&token=${token}&uid=${contributorId}`
   let text = `Please follow this link ${url} if you made a request to change your password.`
   let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
   let res = await sendMail(address, "SmallTeam password reset", text, html)

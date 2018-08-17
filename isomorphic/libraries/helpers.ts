@@ -28,3 +28,13 @@ export function toDebugObj(entry?: Map<any, any> | Set<any>) {
     return list
   }
 }
+
+export function whyNewPasswordIsInvalid(password: string): string | undefined {
+  if (password.length < 8)
+    return "A password must have at least 8 characters"
+}
+
+export function whyTeamCodeIsInvalid(code: string): string | undefined {
+  if (code.length > 16)
+    return "A team code must have 16 characters maximum"
+}

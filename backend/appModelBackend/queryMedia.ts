@@ -1,4 +1,4 @@
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import { Variant, Media, ExternalRef } from "@fabtom/media-engine"
 import { MediaVariantFragment } from "../../isomorphic/meta/MediaVariant"
 import { MediaFragment } from "../../isomorphic/meta/Media"
@@ -8,14 +8,14 @@ import { MediaEngine } from "../createMediaEngine";
 
 export type MainMetaCode = "contributorAvatar" | "task"
 
-export async function fetchMedias(context: BackendContext, type: MainMetaCode, id: string): Promise<string[]> {
+export async function fetchMedias(context: ModelContext, type: MainMetaCode, id: string): Promise<string[]> {
   let medias = await context.mediaEngine.storage.findMedias({
     externalRef: { type, id }
   })
   return putMediasToCargoLoader(context.mediaEngine, context.loader, medias)
 }
 
-export async function fetchSingleMedia(context: BackendContext, type: MainMetaCode, id: string): Promise<string | undefined> {
+export async function fetchSingleMedia(context: ModelContext, type: MainMetaCode, id: string): Promise<string | undefined> {
   let media = await context.mediaEngine.storage.findMedia({
     externalRef: { type, id }
   })
@@ -39,7 +39,7 @@ export function putMediasToCargoLoader(mediaEngine: MediaEngine, loader: CargoLo
   return mediaFragments.map(frag => frag.id)
 }
 
-export async function deleteMedias(context: BackendContext, externalRef: ExternalRef) {
+export async function deleteMedias(context: ModelContext, externalRef: ExternalRef) {
   let idList = await context.mediaEngine.storage.removeMedias({ externalRef })
   for (let mediaId of idList)
     context.loader.modelUpdate.markFragmentAs("Media", mediaId, "deleted")

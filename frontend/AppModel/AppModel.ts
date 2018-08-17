@@ -47,7 +47,7 @@ export default class ModelComp implements Model {
   readonly session: Session
 
   constructor(private dash: OwnDash, sessionData: SessionData) {
-    this.engine = new ModelEngine(dash)
+    this.engine = new ModelEngine(dash, dash.app.baseUrl)
     this.bgManager = this.engine.bgManager
     registerContributor(this.engine)
     registerComment(this.engine)

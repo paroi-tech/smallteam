@@ -1,4 +1,4 @@
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import { toIntList, int } from "../utils/dbUtils"
 import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "../../isomorphic/meta/TaskLogEntry"
 import { select, insert, in as sqlIn } from "sql-bricks"
@@ -7,7 +7,7 @@ import { select, insert, in as sqlIn } from "sql-bricks"
 // -- Read
 // --
 
-export async function fetchTaskLogEntries(context: BackendContext, filters: TaskLogEntrySearchFragment) {
+export async function fetchTaskLogEntries(context: ModelContext, filters: TaskLogEntrySearchFragment) {
   let sql = selectFromTaskLogEntry()
     .where("task_id", int(filters.taskId))
     .orderBy("entry_ts")
@@ -24,7 +24,7 @@ export async function fetchTaskLogEntries(context: BackendContext, filters: Task
   }
 }
 
-export async function fetchTaskLogEntriesByIds(context: BackendContext, idList: string[]) {
+export async function fetchTaskLogEntriesByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
   let sql = selectFromTaskLogEntry()
@@ -54,7 +54,7 @@ function toTaskLogEntryFragment(row): TaskLogEntryFragment {
 // -- Create
 // --
 
-export async function logStepChange(context: BackendContext, taskId: string, stepId: string) {
+export async function logStepChange(context: ModelContext, taskId: string, stepId: string) {
   let sql = insert("task_log", {
     "task_id": int(taskId),
     "step_id": int(stepId),

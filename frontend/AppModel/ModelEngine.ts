@@ -1,11 +1,9 @@
-import config from "../../isomorphic/config"
 import { Dash } from "bkb"
 import { getFragmentMeta, toIdentifier, FragmentMeta, TypeVariant } from "../../isomorphic/meta"
-import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate, Identifiers, Dependencies } from "../../isomorphic/Cargo"
+import { Cargo, Type, FragmentRef, FragmentsRef, Fragments, Changed, PartialFragments, Identifier, BatchCargo, ModelUpdate, Dependencies } from "../../isomorphic/Cargo"
 import { WhoUseItem } from "../../isomorphic/transfers"
 import { makeHKMap, makeHKSet, HKMap, HKSet } from "../../isomorphic/libraries/HKCollections"
 import Deferred from "../libraries/Deferred"
-import { toDebugStr } from "../../isomorphic/libraries/helpers"
 import { Collection } from "./modelDefinitions"
 import GenericBgCommandManager from "./BgCommandManager"
 
@@ -117,7 +115,7 @@ export default class ModelEngine {
   private batch: Batch | null = null
   private processing = new Set<string>()
 
-  constructor(private dash: Dash<object>) {
+  constructor(private dash: Dash, private baseUrl: string) {
     this.dash.exposeEvent("change", "create", "update", "delete", "reorder", "processing", "endProcessing")
     this.bgManager = new GenericBgCommandManager(dash)
   }
@@ -172,7 +170,7 @@ export default class ModelEngine {
     let batch = this.batch
     this.batch = null
     if (batch.list.length > 0)
-      await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, "/api/model/batch", batch.list))
+      await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, `${this.baseUrl}/api/model/batch`, batch.list))
   }
 
   public cancelBatchRecord(err?: any) {
@@ -198,7 +196,7 @@ export default class ModelEngine {
     try {
       let resultFrag = await this.httpSendAndUpdate(
         "POST",
-        "/api/model/exec",
+        `${this.baseUrl}/api/model/exec`,
         { cmd, type, frag, dependencies },
         del ? "none" : "fragment"
       )
@@ -249,7 +247,7 @@ export default class ModelEngine {
     if (orderedIds.idList.length === 0)
       return []
     let dependencies = this.getExecDependencies("reorder", type, orderedIds)
-    await this.httpSendAndUpdate("POST", "/api/model/exec", { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
+    await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/exec`, { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
     return orderedIds.idList
       .map(id => ({ id, frag: this.getFragment({ id, type }) }))
       .sort((a, b) => a.frag[orderFieldName!] - b.frag[orderFieldName!])
@@ -264,7 +262,7 @@ export default class ModelEngine {
     let data: any = { cmd: "fetch", type }
     if (filters)
       data.filters = filters
-    let fragments: any[] = await this.httpSendAndUpdate("POST", "/api/model/query", data, "fragments"),
+    let fragments: any[] = await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/query`, data, "fragments"),
       fragMeta = getFragmentMeta(type)
     return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, type))), type)
   }
@@ -617,7 +615,7 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.whoUse) {
     output.updateTools.whoUse = () => engine.bgManager.add((async () => {
-      let fetched = await httpSendJson("POST", "/api/model/who-use", {
+      let fetched = await httpSendJson("POST", `${this.baseUrl}/api/model/who-use`, {
         type,
         id: toIdentifier(getFrag(), type)
       })
@@ -754,8 +752,7 @@ function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
   return !ref["list"]
 }
 
-export async function httpSendJson(method: HttpMethod, url: string, data): Promise<any> {
-  url = `${config.urlPrefix}${url}`
+export async function httpSendJson(method: HttpMethod, url: string, data: unknown): Promise<any> {
   console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {
     method: method,

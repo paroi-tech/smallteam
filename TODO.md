@@ -7,6 +7,7 @@ the time, so I can't use JIRA.
 - logs:
   - Add a log system (`bristol`?) and replace all the `console.log` on the backend
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
+- Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part
 
 # Thomas
 
@@ -17,6 +18,8 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Replace `config.minPasswordLength` and `config.maxTeamCodeLength` with `whyNewPasswordIsInvalid()` and `whyTeamCodeIsInvalid()`
+config
 - Move the `sessions` database to the data directory
 - Paste images in the task description
 - Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)

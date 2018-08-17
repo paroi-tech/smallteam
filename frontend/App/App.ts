@@ -1,30 +1,21 @@
 import { AppDash, Log, LogEvent, EventName, EventCallback } from "bkb"
-import ModelComp, { Model, ProjectModel, Session, SessionData } from "../AppModel/AppModel"
+import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
-import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
 import LoginDialog from "../generics/LoginDialog/LoginDialog"
 import PasswordRequestDialog from "../generics/PasswordRequestDialog/PasswordRequestDialog"
-import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
-import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
-import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace"
-import ContributorHome from "../semantics/contributors/ContributorHome/ContributorHome"
-import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace"
-import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
-import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
-import Workspace404 from "../generics/Workspace404/Workspace404"
-import config from "../../isomorphic/config"
-import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
-import AppFrame from "../AppFrame/AppFrame"
 import { InfoDialog, WarningDialog } from "../generics/modalDialogs/modalDialogs"
+import AppFrame from "../AppFrame/AppFrame"
 
 export default class App {
   readonly log: Log
+  readonly baseUrl: string
   private _model!: Model
   private appFrame?: AppFrame
 
   constructor(private dash: AppDash<App>) {
     this.log = dash.log
+    this.baseUrl = document.documentElement.dataset.baseUrl || ""
 
     this.dash.listenTo<LogEvent>("log", data => {
       console.log(`[${data.level}]`, ...data.messages)
@@ -58,7 +49,7 @@ export default class App {
   public async connect(): Promise<string> {
     // First, we try to recover session, if there is one active...
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/current`, {
+      let response = await fetch(`${this.baseUrl}/api/session/current`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -86,7 +77,7 @@ export default class App {
 
   public async disconnect() {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/session/disconnect`, {
+      let response = await fetch(`${this.baseUrl}/api/session/disconnect`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({

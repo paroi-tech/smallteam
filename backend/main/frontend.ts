@@ -1,9 +1,11 @@
 import { platformVersion } from "../backendConfig"
+import { getSubdirUrl } from "../utils/serverUtils";
 
 export function getMainHtml() {
-  const v = platformVersion
+  let v = platformVersion
+  let subdirUrl = getSubdirUrl()
   return `<!DOCTYPE html>
-<html data-ver="${v}">
+<html data-ver="${v}"${subdirUrl ? ` data-base-url="${subdirUrl}"` : ""}>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">

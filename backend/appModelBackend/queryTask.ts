@@ -1,4 +1,4 @@
-import { BackendContext } from "./backendContext/context"
+import { ModelContext } from "./backendContext/context"
 import taskMeta from "../../isomorphic/meta/Task"
 import { TaskFragment, TaskCreateFragment, TaskIdFragment, TaskUpdateFragment, TaskSearchFragment } from "../../isomorphic/meta/Task"
 import { select, insertInto, update, deleteFrom, in as sqlIn, isNotNull, like, or } from "sql-bricks"
@@ -16,7 +16,7 @@ type DbCn =DatabaseConnectionWithSqlBricks
 // -- Read
 // --
 
-export async function fetchTasks(context: BackendContext, filters: TaskSearchFragment) {
+export async function fetchTasks(context: ModelContext, filters: TaskSearchFragment) {
   let sql = selectFromTask()
 
   if (filters.projectId !== undefined)
@@ -59,7 +59,7 @@ function taskMatchSearch(frag: TaskFragment, query: string) {
   return (frag.description && frag.description.indexOf(query) !== -1) || (frag.label.indexOf(query) !== -1)
 }
 
-export async function fetchProjectTasks(context: BackendContext, projectIdList: number[]) {
+export async function fetchProjectTasks(context: ModelContext, projectIdList: number[]) {
   let sql = selectFromTask()
 
   sql.where(sqlIn("t.project_id", projectIdList))
@@ -73,7 +73,7 @@ export async function fetchProjectTasks(context: BackendContext, projectIdList: 
   }
 }
 
-export async function fetchTasksByIds(context: BackendContext, idList: string[]) {
+export async function fetchTasksByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
 
@@ -97,7 +97,7 @@ function selectFromTask() {
     .groupBy("t.task_id, t.project_id, t.code, t.label, t.created_by, t.cur_step_id, t.create_ts, t.update_ts, d.description, c.parent_task_id, c.order_num")
 }
 
-async function toTaskFragment(context: BackendContext, row): Promise<TaskFragment> {
+async function toTaskFragment(context: ModelContext, row): Promise<TaskFragment> {
   let frag: TaskFragment = {
     id: row["task_id"].toString(),
     projectId: row["project_id"].toString(),
@@ -132,7 +132,7 @@ async function toTaskFragment(context: BackendContext, row): Promise<TaskFragmen
 // -- Who use
 // --
 
-export async function whoUseTask(context: BackendContext, id: string): Promise<WhoUseItem[]> {
+export async function whoUseTask(context: ModelContext, id: string): Promise<WhoUseItem[]> {
   let dbId = int(id),
     result: WhoUseItem[] = [],
     count: number
@@ -224,7 +224,7 @@ async function fetchFlagIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map
 // -- Create
 // --
 
-export async function createTask(context: BackendContext, newFrag: TaskCreateFragment) {
+export async function createTask(context: ModelContext, newFrag: TaskCreateFragment) {
   if (newFrag.parentTaskId === undefined)
     throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
 
@@ -295,7 +295,7 @@ async function getDefaultOrderNum(cn: DbCn, parentTaskId: number) {
 // -- Update
 // --
 
-export async function updateTask(context: BackendContext, updFrag: TaskUpdateFragment) {
+export async function updateTask(context: ModelContext, updFrag: TaskUpdateFragment) {
   let taskId = int(updFrag.id)
   let values = toSqlValues(updFrag, taskMeta.update, "exceptId")
 
@@ -327,7 +327,7 @@ export async function updateTask(context: BackendContext, updFrag: TaskUpdateFra
   })
 }
 
-async function hasStepChange(context: BackendContext, updFrag: TaskUpdateFragment): Promise<boolean> {
+async function hasStepChange(context: ModelContext, updFrag: TaskUpdateFragment): Promise<boolean> {
   if (updFrag.curStepId === undefined)
     return false
 
@@ -346,7 +346,7 @@ async function hasStepChange(context: BackendContext, updFrag: TaskUpdateFragmen
 // -- Delete
 // --
 
-export async function deleteTask(context: BackendContext, frag: TaskIdFragment) {
+export async function deleteTask(context: ModelContext, frag: TaskIdFragment) {
   let sql = deleteFrom("task")
     .where("task_id", int(frag.id))
 
@@ -361,7 +361,7 @@ export async function deleteTask(context: BackendContext, frag: TaskIdFragment) 
 // -- Reorder child tasks
 // --
 
-export async function reorderChildTasks(context: BackendContext, idList: string[], parentIdStr: string) {
+export async function reorderChildTasks(context: ModelContext, idList: string[], parentIdStr: string) {
   let parentId = int(parentIdStr)
   let oldNums = await loadChildOrderNums(context.cn, parentId),
       curNum = 0

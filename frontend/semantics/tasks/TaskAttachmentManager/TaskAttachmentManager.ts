@@ -1,10 +1,9 @@
 import { OwnDash } from "../../../App/OwnDash"
 import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, TaskModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { removeAllChildren } from "../../../libraries/utils"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
-import config from "../../../../isomorphic/config"
 import { ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
 import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
 
@@ -16,7 +15,6 @@ export default class TaskAttachmentManager {
   private listEl: HTMLElement
   private formEl: HTMLFormElement
   private inputEl: HTMLInputElement
-  private uploadBtnEl: HTMLButtonElement
   private spinnerEl: HTMLElement
 
   private model: Model
@@ -32,7 +30,6 @@ export default class TaskAttachmentManager {
     this.listEl = view.ref("ul")
     this.formEl = view.ref("form")
     this.inputEl = view.ref("input")
-    this.uploadBtnEl = view.ref("upload")
     this.spinnerEl = view.ref("spinner")
     this.formEl.onsubmit = (ev) => {
       ev.preventDefault()
@@ -124,7 +121,7 @@ export default class TaskAttachmentManager {
     let fd = new FormData(this.formEl)
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${config.urlPrefix}/medias/upload`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -160,7 +157,7 @@ export default class TaskAttachmentManager {
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/medias/delete`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/medias/delete`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({

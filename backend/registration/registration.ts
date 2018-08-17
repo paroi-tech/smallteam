@@ -7,10 +7,9 @@ import { sendMail } from "../mail"
 import { tokenSize, bcryptSaltRounds } from "../backendConfig"
 import config from "../../isomorphic/config"
 import { getContributorById, getContributorByLogin } from "../utils/userUtils"
-import { AuthorizationError } from "../utils/serverUtils"
+import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { SessionData } from "../session"
 import validate from "../utils/joiUtils"
-import { URL } from "url"
 import { getCn } from "../utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 
@@ -45,6 +44,7 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
   if (!sessionData)
     throw new Error("SessionData missing in 'routeSendInvitation'")
 
+  let context = { subdomain }
   let cn = await getCn(subdomain)
   let contributor = await getContributorById(cn, sessionData.contributorId)
 
@@ -57,7 +57,7 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
   let answer = { done: false } as any
 
   try {
-    let inv = await storeAndSendInvitation(tcn, token, cleanData.email, cleanData.validity, cleanData.username)
+    let inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
 
     if (inv) {
       await tcn.commit()
@@ -75,6 +75,7 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
   if (!sessionData)
     throw new Error("SessionData missing in 'routeResendInvitation'")
 
+  let context = { subdomain }
   let cn = await getCn(subdomain)
   let contributor = await getContributorById(cn, sessionData.contributorId)
 
@@ -97,7 +98,7 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
   try {
     await removeInvitationWithId(tcn, cleanData.invitationId)
 
-    let inv = await storeAndSendInvitation(tcn, token, cleanData.email, cleanData.validity, cleanData.username)
+    let inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
 
     if (inv) {
       await tcn.commit()
@@ -199,11 +200,11 @@ function toInvitation(row) {
   }
 }
 
-async function storeAndSendInvitation(runner: QueryRunnerWithSqlBricks, token: string, email: string, validity: number, username?: string) {
+async function storeAndSendInvitation(context: BackendContext, cn: QueryRunnerWithSqlBricks, token: string, email: string, validity: number, username?: string) {
   try {
-    let inv = await storeInvitation(runner, token, email, validity, username)
+    let inv = await storeInvitation(cn, token, email, validity, username)
 
-    if (await sendInvitationMail(token, email, username))
+    if (await sendInvitationMail(context, token, email, username))
       return Object.assign({}, inv, { username, email })
   } catch (error) {
     console.log("Could not store invitation", error.message)
@@ -212,13 +213,10 @@ async function storeAndSendInvitation(runner: QueryRunnerWithSqlBricks, token: s
   return undefined
 }
 
-async function sendInvitationMail(token: string, email: string, username?: string) {
-  let regUrl = new URL(`${config.host}${config.urlPrefix}/registration`)
-
-  regUrl.searchParams.append("action", "registration")
-  regUrl.searchParams.append("token", token)
+async function sendInvitationMail(context: BackendContext, token: string, email: string, username?: string) {
+  let regUrl = `${getTeamSiteUrl(context)}/registration?action=registration&token=${encodeURIComponent(token)}`
   if (username)
-    regUrl.searchParams.append("username", username)
+    regUrl += `&username=${encodeURIComponent(username)}`
 
   let text = `Please follow this link ${regUrl} to create your account.`
   let html = `Please click <a href="${regUrl.toString()}">here</a> to create your account.`

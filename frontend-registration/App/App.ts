@@ -1,7 +1,6 @@
 import { AppDash, Log, LogEvent } from "bkb"
 import PasswordResetDialog from "../PasswordResetDialog/PasswordResetDialog"
 import RegistrationForm from "../../frontend/generics/invitations/RegistrationForm/RegistrationForm"
-import config from "../../isomorphic/config"
 
 export interface AppParams {
   action: string
@@ -12,9 +11,11 @@ export interface AppParams {
 
 export default class App {
   readonly log: Log
+  readonly baseUrl: string
 
   constructor(private dash: AppDash<App>, private params: AppParams) {
     this.log = dash.log
+    this.baseUrl = document.documentElement.dataset.baseUrl || ""
     this.dash.listenTo<LogEvent>("log", data => {
       console.log(`[${data.level}]`, ...data.messages)
     })
@@ -40,6 +41,6 @@ export default class App {
     let dialog = this.dash.create(RegistrationForm, this.params.token, this.params.username)
     // In case of successful registration, we redirect user to login page.
     if (await dialog.open())
-      window.location.href = `${config.urlPrefix}/index.html`
+      window.location.href = `${this.baseUrl}/`
   }
 }

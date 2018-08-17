@@ -11,6 +11,18 @@ export interface ServerConfig {
   publicPort?: number
   dataDir: string
   versionFile?: string
+  /**
+   * Default is: `"singleTeam"`.
+   */
+  mode?: "singleTeam" | "multiTeams",
+  singleTeam?: {
+    /**
+     * For example: `"/my/sub/directory"` (optional).
+     */
+    subdirUrl?: string
+  },
+  multiTeams?: {
+  },
   mail: {
     from: string
     user: string

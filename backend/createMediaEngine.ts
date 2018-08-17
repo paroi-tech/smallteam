@@ -1,15 +1,14 @@
 import { Request } from "express"
-import { BackendContext, CargoLoader } from "./appModelBackend/backendContext/context"
+import { ModelContext, CargoLoader } from "./appModelBackend/backendContext/context"
 import { getSessionData, hasSession } from "./session"
 import { putMediasToCargoLoader } from "./appModelBackend/queryMedia"
 import { ModelUpdate, Type } from "../isomorphic/Cargo"
 import { completeCargo } from "./appModelBackend"
-import config from "../isomorphic/config"
 import { ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStorage, ImageVariantsConfiguration, isSupportedImage } from "@fabtom/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { getCn, getMediaEngine } from "./utils/dbUtils"
-import { getConfirmedSubdomain } from "./utils/serverUtils"
+import { getConfirmedSubdomain, getSubdirUrl } from "./utils/serverUtils"
 
 export const MEDIAS_BASE_URL = "/medias"
 
@@ -29,7 +28,7 @@ export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, exe
     uploadEngine: createUploadEngine({
       manager: createUploadEngineManager(storage),
       storage,
-      baseUrl: `${config.urlPrefix}${MEDIAS_BASE_URL}`
+      baseUrl: `${getSubdirUrl()}${MEDIAS_BASE_URL}`
     })
   }
 }
@@ -139,7 +138,7 @@ async function markExternalTypeAsUpdate(req: Request, media: Media, loader: Carg
     let subdomain = await getConfirmedSubdomain(req)
     if (!subdomain)
       throw new Error(`Cannot use a media engine outside a subdomain`)
-    let context: BackendContext = {
+    let context: ModelContext = {
       subdomain,
       cn: await getCn(subdomain),
       mediaEngine: await getMediaEngine(subdomain),

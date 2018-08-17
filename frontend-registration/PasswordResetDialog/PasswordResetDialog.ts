@@ -1,9 +1,10 @@
 import config from "../../isomorphic/config"
-import { PublicDash, Dash } from "bkb"
+import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import PasswordEdit from "../../frontend/generics/PasswordEdit/PasswordEdit"
 import InfoDialog from "../../frontend/generics/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../frontend/generics/modalDialogs/ErrorDialog/ErrorDialog"
+import App from "../App/App";
 
 const template = require("./PasswordResetDialog.monk")
 
@@ -13,7 +14,7 @@ export default class LoginDialog {
 
   private edit: PasswordEdit
 
-  constructor(private dash: Dash, private contributorId: string, private token: string) {
+  constructor(private dash: Dash<App>, private contributorId: string, private token: string) {
     let view = render(template)
     this.el = view.rootEl()
     this.spinnerEl = view.ref("spinner")
@@ -61,7 +62,7 @@ export default class LoginDialog {
     try {
       let b = await this.doFetch(password)
       if (b) {
-        let fn = () => window.location.href = `${config.urlPrefix}/index.html`
+        let fn = () => window.location.href = `${this.dash.app.baseUrl}/`
         setTimeout(fn, 4000)
         await this.dash.create(InfoDialog).show("Password changed. You will be redirected to the login page.")
       }
@@ -75,7 +76,7 @@ export default class LoginDialog {
     let result = false
 
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/reset-password`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/reset-password`, {
         method: "post",
         credentials: "same-origin",
         headers: {

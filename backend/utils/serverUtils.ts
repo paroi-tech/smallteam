@@ -33,3 +33,30 @@ export async function getConfirmedSubdomain(req: Request) {
   if (subDomain && await fileExists(path.join(serverConfig.dataDir, subDomain))) // TODO: Check it is a directory
     return subDomain
 }
+
+export function getSubdirUrl() {
+  if (!serverConfig.mode || serverConfig.mode === "singleTeam") {
+    let subdirUrl = serverConfig.singleTeam ? serverConfig.singleTeam.subdirUrl : undefined
+    return subdirUrl || ""
+  }
+  return ""
+}
+
+export interface BackendContext {
+  readonly subdomain?: string
+}
+
+export function getTeamSiteUrl(context: BackendContext) {
+  let protocol = serverConfig.ssl ? "https" : "http"
+  let publicPort = serverConfig.publicPort || serverConfig.port
+  let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
+  let domain = context.subdomain ? `${context.subdomain}.${serverConfig.mainDomain}` : serverConfig.mainDomain
+  return `${protocol}://${domain}${portSuffix}${getSubdirUrl()}`
+}
+
+export function getMainDomainUrl() {
+  let protocol = serverConfig.ssl ? "https" : "http"
+  let publicPort = serverConfig.publicPort || serverConfig.port
+  let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
+  return `${protocol}://${serverConfig.mainDomain}${portSuffix}${getSubdirUrl() || "/"}`
+}

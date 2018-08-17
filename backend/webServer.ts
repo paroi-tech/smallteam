@@ -1,14 +1,13 @@
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
-import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./registration/registration"
 import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
-import { ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain } from "./utils/serverUtils"
+import { ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain, getMainDomainUrl, getSubdirUrl } from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode, routeActivateTeam } from "./newTeam/team"
 import { MEDIAS_BASE_URL } from "./createMediaEngine"
 import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
@@ -51,7 +50,7 @@ export function startWebServer() {
     saveUninitialized: false,
     store,
     cookie: {
-      path: `${config.urlPrefix}/`,
+      path: `${getSubdirUrl()}/`,
       maxAge: 2 * 24 * 60 * 60 * 1000 // 2 days
     }
   })
@@ -113,23 +112,16 @@ export function startWebServer() {
 
   router.get("/new-team", (req, res) => writeHtmlResponse(res, getRegistrationHtml()))
 
-  app.use(config.urlPrefix, router)
+  app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
 
   wsEngineInit(server)
   server.listen(port, function () {
-    console.log(`The smallteam server is listening on: ${getApplicationUrl()}`)
+    console.log(`The smallteam server is listening on: ${getMainDomainUrl()}`)
   })
 
   // Scheduled task to remove password reset tokens each day.
   setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000).unref()
-}
-
-function getApplicationUrl() {
-  let protocol = serverConfig.ssl ? "https" : "http"
-  let publicPort = serverConfig.publicPort || serverConfig.port
-  let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  return `${protocol}://${serverConfig.mainDomain}${portSuffix}${config.urlPrefix || "/"}`
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {

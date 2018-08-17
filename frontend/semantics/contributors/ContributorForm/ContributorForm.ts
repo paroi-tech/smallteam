@@ -193,7 +193,7 @@ export default class ContributorForm {
 
   private async updatePassword(contributorId: string, login: string, password: string) {
     try {
-      let response = await fetch(`${config.urlPrefix}/api/registration/set-password`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/set-password`, {
         method: "post",
         credentials: "same-origin",
         headers: {
