@@ -10,7 +10,7 @@ import { getContributorById, getContributorByLogin, getContributorByEmail } from
 import validate from "./utils/joiUtils"
 import { AuthorizationError } from "./utils/serverUtils"
 import { getCn } from "./utils/dbUtils"
-import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { getSubdomain } from "./utils/serverUtils"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
@@ -110,10 +110,12 @@ export async function routeSetPassword(subdomain: string, data: any, sessionData
 
   let cn = await getCn(subdomain)
   let contributor = await getContributorById(cn, sessionData.contributorId)
+
   if (!contributor || contributor.role !== "admin")
     throw new AuthorizationError("You are not allowed to change passwords")
 
   let cleanData = await validate(data, joiSchemata.routeSetPassword)
+
   await updateContributorPassword(cn, cleanData.contributorId, cleanData.password)
 
   return {
@@ -129,8 +131,10 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeChangePassword)
   let contributor = await getContributorById(cn, sessionData.contributorId)
+
   if (contributor && await compare(cleanData.currentPassword, contributor.password)) {
     await updateContributorPassword(cn, contributor.id, cleanData.newPassword)
+
     return {
       done: true
     }
@@ -147,31 +151,40 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
     throw new Error("'Request parameter missing in 'routeResetPassword'")
 
   let cn = await getCn(subdomain)
+
   await destroySessionIfAny(req)
+
   let cleanData = await validate(data, joiSchemata.routeResetPassword)
+  let tcn = await cn.beginTransaction()
+  let answer = { done: false } as any
+
   try {
-    let passwordInfo = await getPasswordUpdateObject(cn, cleanData.token, cleanData.contributorId)
+    let passwordInfo = await getPasswordUpdateObject(tcn, cleanData.token, cleanData.contributorId)
     let currentTs = Math.floor(Date.now())
+
     if (currentTs - passwordInfo.createTs > passwordResetTokenValidity)
       throw new Error("Token expired")
-    await updateContributorPassword(cn, cleanData.contributorId, cleanData.password)
-    removePasswordToken(cn, data.token).catch(err => console.log(`Cannot remove used mail token ${data.token}`, err))
+
+    await updateContributorPassword(tcn, cleanData.contributorId, cleanData.password)
+    await removePasswordToken(tcn, data.token)
+
+    answer.done = true
   } catch (error) {
-    return {
-      done: false,
-      reason: error.message
-    }
+    answer.reason = "Cannot update password"
+    console.log("Error when resetting password", error.message)
+  } finally {
+    if (tcn.inTransaction)
+      await tcn.rollback()
   }
 
-  return {
-    done: true
-  }
+  return answer
 }
 
 export async function routeSendPasswordEmail(subdomain: string, data: any) {
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeSendPasswordEmail)
   let contributor = await getContributorByEmail(cn, cleanData.email)
+
   if (!contributor) {
     return {
       done: false,
@@ -180,18 +193,27 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   }
 
   let token = randomBytes(tokenSize).toString("hex")
-  sendPasswordResetMail(token, contributor.id, data.email)
-    .then(result => storePasswordResetToken(cn, result.token, result.contributorId))
-    .catch(err => console.log("All steps of sending password reset mail have not been processed.", err.message))
+  let tcn = await cn.beginTransaction()
+  let answer = { done: false } as any
 
-  return {
-    done: true
+  try {
+    await storePasswordResetToken(tcn, token, contributor.id)
+
+    if (await sendPasswordResetMail(token, contributor.id, data.email)) {
+      await tcn.commit()
+      answer.done = true
+    }
+  } finally {
+    if (tcn.inTransaction)
+      await tcn.rollback()
   }
+
+  return answer
 }
 
-export async function removeExpiredPasswordTokens(cn: DatabaseConnectionWithSqlBricks) {
+export async function removeExpiredPasswordTokens(runner: QueryRunnerWithSqlBricks) {
   try {
-    await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
+    await runner.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {
     console.log("Error while removing expired account activation tokens", err)
   }
@@ -200,6 +222,7 @@ export async function removeExpiredPasswordTokens(cn: DatabaseConnectionWithSqlB
 export async function getSessionData(req: Request): Promise<SessionData> {
   if (!await hasSession(req))
     throw new Error("Missing session data")
+
   return {
     contributorId: req.session!.contributorId,
     subdomain: req.session!.subdomain
@@ -221,17 +244,18 @@ export async function hasSession(req: Request) {
 
 async function sendPasswordResetMail(token: string, contributorId: string, address: string) {
   let host = `${config.host}${config.urlPrefix}`
-  let url  = `${host}/registration.html?action=passwordreset&token=${token}&uid=${contributorId}`
+  let url = `${host}/registration.html?action=passwordreset&token=${token}&uid=${contributorId}`
   let text = `Please follow this link ${url} if you made a request to change your password.`
   let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
+  let res = await sendMail(address, "SmallTeam password reset", text, html)
 
-  let result = await sendMail(address, "SmallTeam password reset", text, html)
-  if (result.done)
-    return { token, contributorId }
-  throw new Error(`Could not send password reset mail: ${result.errorMsg}`)
+  if (!res.done)
+    console.log(`Could not send password reset mail: ${res.errorMsg}`)
+
+  return res.done
 }
 
-async function storePasswordResetToken(cn: DatabaseConnectionWithSqlBricks, token: string, contributorId: string) {
+async function storePasswordResetToken(runner: QueryRunnerWithSqlBricks, token: string, contributorId: string) {
   let currentTs = Math.floor(Date.now())
   let query = insert("reg_pwd", {
     "contributor_id": contributorId,
@@ -239,18 +263,13 @@ async function storePasswordResetToken(cn: DatabaseConnectionWithSqlBricks, toke
     "create_ts": currentTs,
     "expire_ts": currentTs + passwordResetTokenValidity
   })
-  await cn.execSqlBricks(query)
+
+  await runner.execSqlBricks(query)
 }
 
-async function getPasswordUpdateObject(cn: DatabaseConnectionWithSqlBricks, token: string, contributorId: string) {
+async function getPasswordUpdateObject(runner: QueryRunnerWithSqlBricks, token: string, contributorId: string) {
   let query = select().from("reg_pwd").where("token", token).and("contributor_id", contributorId)
-  let row
-
-  try {
-    row = await cn.singleRowSqlBricks(query)
-  } catch (error) {
-    throw new Error("More than one token found")
-  }
+  let row = await runner.singleRowSqlBricks(query)
 
   if (!row)
     throw new Error("Token not found")
@@ -266,15 +285,17 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   }
 }
 
-function removePasswordToken(cn: DatabaseConnectionWithSqlBricks, token: string) {
+function removePasswordToken(runner: QueryRunnerWithSqlBricks, token: string) {
   let query = deleteFrom("reg_pwd").where("token", token)
-  return cn.execSqlBricks(query)
+
+  return runner.execSqlBricks(query)
 }
 
-async function updateContributorPassword(cn: DatabaseConnectionWithSqlBricks, contributorId: string, password: string) {
+async function updateContributorPassword(runner: QueryRunnerWithSqlBricks, contributorId: string, password: string) {
   let passwordHash = await hash(password, bcryptSaltRounds)
   let query = update("contributor", { "password": passwordHash }).where("contributor_id", contributorId)
-  await cn.execSqlBricks(query)
+
+  await runner.execSqlBricks(query)
 
   return true
 }
