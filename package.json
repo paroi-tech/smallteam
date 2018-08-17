@@ -68,7 +68,7 @@
     "@types/nodemailer": "4.6.0",
     "@types/showdown": "1.7.3",
     "@types/sortablejs": "1.3.32",
-    "@types/sql-bricks": "2.0.0",
+    "@types/sql-bricks": "2.0.1",
     "@types/uuid": "3.4.3",
     "@types/ws": "5.1.1",
     "bkb": "0.26.0",

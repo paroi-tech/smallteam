@@ -11,10 +11,9 @@ the time, so I can't use JIRA.
 
 # August 2018
 
-- Update the definition for SqlBricks in DefinitelyTyped
-- Use systemd to run our Node application (using the user `committeam`!)
-- Add a SSL certificate - https://letsencrypt.org/
-- Check if [the warning here](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html) concerns us
+- Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
+- Add a log system (`bristol`?)
+- Add a webhook to track the commits from GitHub
 - Deploy automatically
   - Create a detached `prod` branch in the Git repository, with a built version of our application
   - Configure a hook on GitHub and write a script on the server (with a `npm install` without `devDependencies` and a `service restart`)
@@ -23,8 +22,7 @@ the time, so I can't use JIRA.
     - commit
     - Add a tag with the release version
     - push
-- Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
-- Upgrade to typescript 3
+- Use the typescript 3 new sub-projects feature?
 
 # Thomas
 
@@ -262,3 +260,10 @@ the time, so I can't use JIRA.
 - Connection:
   - Chromium ask for saving password => find a solution
   - Use a session token
+
+# August 2018 - DONE
+
+- Update the definition for SqlBricks in DefinitelyTyped
+- Use systemd to run our Node application (using the user `committeam`!)
+- Add a SSL certificate - https://letsencrypt.org/
+- [NOT RELEVANT] Check if [the warning here](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html) concerns us
