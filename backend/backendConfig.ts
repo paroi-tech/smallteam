@@ -24,13 +24,16 @@ export let serverConfig!: ServerConfig
 
 export async function initServerConfig(): Promise<ServerConfig> {
   let j = process.argv.indexOf("--config")
+
   if (j == -1 || j + 1 >= process.argv.length)
     throw new Error("Missing config parameter")
 
   let path = process.argv[j+1]
+
   if (!await fileExists(path))
     throw new Error("Config file not found")
 
   serverConfig = JSON.parse((await readFile(path)).toString())
+
   return serverConfig
 }

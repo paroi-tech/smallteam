@@ -1,13 +1,16 @@
+import * as path from "path"
+import { randomBytes } from "crypto"
+import { Request, Response } from "express"
 import Joi = require("joi")
 import { SessionData } from "./session"
-import { select, insert, update, deleteFrom } from "sql-bricks"
-import { Request, Response } from "express"
-import { randomBytes } from "crypto"
-import { tokenSize } from "./backendConfig"
+import { select, insert, deleteFrom } from "sql-bricks"
+import { tokenSize, serverConfig } from "./backendConfig"
 import config from "../isomorphic/config"
 import validate from "./utils/joiUtils"
-import { TransactionConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { sendMail } from "./mail"
+import { teamDbCn } from "./utils/dbUtils"
+import { fileExists, createDir } from "./utils/fsUtils"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
@@ -28,71 +31,85 @@ let joiSchemata = {
 export async function routeCreateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let cleanData = await validate(data, joiSchemata.routeCreateTeam)
   let token = randomBytes(tokenSize).toString("hex")
-  let result = { done: false }
+  let tcn = await teamDbCn.beginTransaction()
 
-  // let tcn = await cn.beginTransaction()
-  // try {
-  //   let teamId = await createTeam(tcn, cleanData)
-  //   await storeTeamToken(tcn, data, teamId, token)
-  //   await sendTeamCreationMail(token, cleanData.email)
-  //   tcn.commit()
-  //   result.done = true
-  // } catch (error) {
-  //     console.log("Error when creating team", error.message)
-  // } finally {
-  //   if (tcn.inTransaction) {
-  //     await tcn.rollback()
-  //     result.done = false
-  //   }
-  // }
+  try {
+    let teamId = await createTeam(tcn, cleanData)
 
-  return result
+    await storeTeamToken(tcn, data, teamId, token)
+    if (await sendTeamCreationMail(token, cleanData.email))
+      await tcn.commit()
+  } finally {
+    if (tcn.inTransaction) {
+      await tcn.rollback()
+    }
+  }
+
+  return { done: true }
 }
 
 export async function routeActivateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  // let cleanData = await validate(data, joiSchemata.routeActivateTeam)
-  // let query = select().from("reg_team").where("token", cleanData.token)
-  // let rs = await cn.allSqlBricks(query)
-  // if (rs.length === 0) {
-  //   // TODO: return 404 status code instead of this answer?
-  //   return {
-  //     done: false,
-  //     reason: "Token not found!"
-  //   }
-  // }
-  // TODO: create database for the team, insert new user and return a response.
+  let cleanData = await validate(data, joiSchemata.routeActivateTeam)
+  let token = cleanData.token
+
+  let query = select().from("reg_team")
+
+  query.innerJoin("team").on("reg_team.team_id", "team.team_id")
+  query.where("reg_team.token", token)
+
+  let rs = await teamDbCn.singleRowSqlBricks(query)
+
+  if (!rs) {
+    return {
+      done: false,
+      reason: "Token not found"
+    }
+  }
+
+  let p = path.join(serverConfig.dataDir, rs["team_code"])
+  let tcn = await teamDbCn.beginTransaction()
+  try {
+    if (await createDir(p, 0o755)) {
+      await removeTeamToken(tcn, token)
+      tcn.commit()
+    }
+  } finally {
+    if (tcn.inTransaction)
+      await tcn.rollback()
+  }
+
+  return { done: true }
 }
 
 export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  // let cleanData = await validate(data, joiSchemata.routeCheckTeamCode)
-  // let query = select().from("team").where("team_code", cleanData.teamCode)
+  let cleanData = await validate(data, joiSchemata.routeCheckTeamCode)
+  let query = select().from("team").where("team_code", cleanData.teamCode)
+  let p = path.join(serverConfig.dataDir, cleanData.teamCode)
+  let b = false
 
-  // try {
-  //   let rs = await cn.allSqlBricks(query)
-  //   return {
-  //     done: true,
-  //     answer: rs.length === 0
-  //   }
-  // } catch (error) {
-  //   return {
-  //     done: false
-  //   }
-  // }
+  if (!await fileExists(p)) {
+    let rs = await teamDbCn.allSqlBricks(query)
+    b = rs.length === 0
+  }
+
+  return {
+    answer: b
+  }
 }
 
-async function createTeam(cn: TransactionConnectionWithSqlBricks, data) {
+async function createTeam(runner: QueryRunnerWithSqlBricks, data) {
   let query = insert("team", {
     "team_name": data.teamName,
     "team_code": data.teamCode,
     "activated": 0
   })
-  let r = await cn.execSqlBricks(query)
-  let teamId = r.getInsertedIdString()
+  let res = await runner.execSqlBricks(query)
+  let teamId = res.getInsertedIdString()
 
   return teamId
 }
 
-async function storeTeamToken(cn: TransactionConnectionWithSqlBricks, data, teamId: string, token: string) {
+async function storeTeamToken(runner: QueryRunnerWithSqlBricks, data, teamId: string, token: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + 3 * 24 * 3600 * 1000
   let query = insert("reg_team", {
@@ -105,7 +122,13 @@ async function storeTeamToken(cn: TransactionConnectionWithSqlBricks, data, team
     "expire_ts": expireTs
   })
 
-  await cn.execSqlBricks(query)
+  await runner.execSqlBricks(query)
+}
+
+async function removeTeamToken(runner: QueryRunnerWithSqlBricks, token: string) {
+  let cmd = deleteFrom("reg_team").where("token", token)
+
+  await runner.execSqlBricks(cmd)
 }
 
 async function sendTeamCreationMail(token: string, email: string) {
@@ -115,9 +138,10 @@ async function sendTeamCreationMail(token: string, email: string) {
 
   let text = `Please follow this link ${url} to activate your team.`
   let html = `Please click <a href="${url.toString()}">here</a> to activate your team.`
-  let result = await sendMail(email, "Team activation", text, html)
+  let obj = await sendMail(email, "Team activation", text, html)
 
-  if (result.done)
-    return true
-  throw new Error(`Could not send team activation mail: ${result.errorMsg}`)
+  if (!obj.done)
+    console.log(`Could not send team activation mail: ${obj.errorMsg}`)
+
+  return obj.done
 }
