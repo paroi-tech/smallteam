@@ -1,42 +1,26 @@
 I used this file to record ideas and things that I think useful. I don't have Internet connection all
 the time, so I can't use JIRA.
 
-# DNS and proxy settings
-
-- https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension
-- https://webmasters.stackexchange.com/questions/76540/apache-wildcard-domains-restrict-number-of-subdomain-levels
-- https://en.wikipedia.org/wiki/Proxy_server
-- http://askubuntu.com/a/233224/88802
-- https://unix.stackexchange.com/questions/28941/what-dns-servers-am-i-using
-
 # August 2018
 
 - Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
-- Add a log system (`bristol`?)
-- Add a webhook to track the commits from GitHub
-- Deploy automatically
-  - Create a detached `prod` branch in the Git repository, with a built version of our application
-  - Configure a hook on GitHub and write a script on the server (with a `npm install` without `devDependencies` and a `service restart`)
-  - Create a npm script to run locally on the `prod` branch:
-    - build
-    - commit
-    - Add a tag with the release version
-    - push
-- Use the typescript 3 new sub-projects feature?
+- logs:
+  - Add a log system (`bristol`?) and replace all the `console.log` on the backend
+  - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 
 # Thomas
 
 - CSS
-- Upload engine & co:
-  - Implement multi-files upload
 - WebSocket:
   - Synchronisation between several users
   - Accept to open only for connected users
 
 # Lionel
 
+- Move the `sessions` database to the data directory
+- Paste images in the task description
 - Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
-- Github notifications
+- Github notifications: use a hook to track the commits from GitHub
 - Team creation
 - TaskBox order in BoxList (StepSwitcher)
 - queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
@@ -49,17 +33,22 @@ the time, so I can't use JIRA.
 
 # Not urgent
 
+- Deploy automatically
+  - Create a detached `prod` branch in the Git repository, with a built version of our application
+  - Configure a hook on GitHub and write a script on the server (with a `npm install` without `devDependencies` and a `service restart`)
+  - Create a npm script to run locally on the `prod` branch:
+    - build
+    - commit
+    - Add a tag with the release version
+    - push
+- Use the typescript 3 new sub-projects feature?
 - Add roles for users
-- Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
-- Use true avatars
-- Add attached files to tasks
-- Use a GitHub hook to show the commits on tasks
-- Use HTTPS, deploy the project on the Web server
 - Internationalisation
-- Multi-teams
 
 # Thomas - v2 - Not urgent
 
+- Upload engine & co:
+  - Implement multi-files upload
 - In the Model:
   - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
 - Refactoring in the backend: one code for all the reordering
@@ -72,7 +61,7 @@ the time, so I can't use JIRA.
   - `this.project.steps` etc. => store the array? or rename to `getSteps()` or cache as `global`
   - Remove the `HKMap` for indexes => use `Map` with string keys
   - Use the following declarations:
-
+      ```
       {
         type: "Task",
         index: {
@@ -86,6 +75,9 @@ the time, so I can't use JIRA.
           filter: step => step.orderNum !== null
         }
       }
+      ```
+
+---
 
 # Lionel - DONE
 
@@ -261,9 +253,23 @@ the time, so I can't use JIRA.
   - Chromium ask for saving password => find a solution
   - Use a session token
 
-# August 2018 - DONE
+# August 2018 & old tasks - DONE
 
 - Update the definition for SqlBricks in DefinitelyTyped
 - Use systemd to run our Node application (using the user `committeam`!)
 - Add a SSL certificate - https://letsencrypt.org/
 - [NOT RELEVANT] Check if [the warning here](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html) concerns us
+- Use true avatars
+- Add attached files to tasks
+- Use a GitHub hook to show the commits on tasks
+- Use HTTPS, deploy the project on the Web server
+- Multi-teams
+
+
+# DNS and proxy settings - DONE
+
+- https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension
+- https://webmasters.stackexchange.com/questions/76540/apache-wildcard-domains-restrict-number-of-subdomain-levels
+- https://en.wikipedia.org/wiki/Proxy_server
+- http://askubuntu.com/a/233224/88802
+- https://unix.stackexchange.com/questions/28941/what-dns-servers-am-i-using
