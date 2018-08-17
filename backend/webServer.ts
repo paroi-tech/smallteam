@@ -17,9 +17,9 @@ import express = require("express")
 import session = require("express-session")
 import makeSQLiteExpressStore = require("connect-sqlite3")
 import { serverConfig } from "./backendConfig"
-import { getMainHtml } from "./main/frontend";
-import { getRegistrationHtml } from "./registration/frontend";
-import { getNewTeamHtml } from "./newTeam/frontend";
+import { getMainHtml } from "./main/frontend"
+import { getRegistrationHtml } from "./registration/frontend"
+import { getNewTeamHtml } from "./newTeam/frontend"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -103,7 +103,11 @@ export function startWebServer() {
       write404(res)
   })
 
-  router.get("/registration", (req, res) => {
+  router.get("/registration", async (req, res) => {
+    if (!await getConfirmedSubdomain(req)) {
+      write404(res)
+      return
+    }
     writeHtmlResponse(res, getRegistrationHtml())
   })
 
