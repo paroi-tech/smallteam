@@ -1,5 +1,6 @@
 import { startWebServer } from "./webServer"
 import { loadServerConfig } from "./backendConfig"
+import { initDbTeamCn } from "./utils/dbUtils"
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)
@@ -13,6 +14,7 @@ process.on("unhandledRejection", err => {
 
 async function startup() {
   await loadServerConfig()
+  await initDbTeamCn()
   startWebServer()
 }
 

@@ -131,26 +131,5 @@ create table reg_new (
     create_ts timestamp not null default current_timestamp
 );
 
-create table team (
-    team_id integer not null primary key autoincrement,
-    team_code varchar(255) not null unique,
-    team_name varchar(255) not null,
-    activated tinyint not null default 0
-);
-
-create table reg_team (
-    reg_team_id integer not null primary key autoincrement,
-    token varchar(255) not null unique,
-    team_id integer not null unique references team(team_id),
-    user_email varchar(255) not null,
-    user_name varchar(255),
-    user_password varchar(255) not null,
-    expire_ts timestamp not null,
-    create_ts timestamp not null default current_timestamp
-);
-
 insert into step (label) values ('On Hold');
 insert into step (label) values ('Archived');
-
--- Fake data
-insert into contributor (name, login, email, role, password) values ('Admin', 'admin', 'smallteam229@yopmail.com', 'admin', '$2b$10$9Tm/MQpiXv7hGI1bT3j6kezEH/KA90eCj5B7cdQmFWVTg54fNSJUm');

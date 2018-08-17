@@ -5,35 +5,25 @@ import { fileExists, readFile } from "./fsUtils"
 import { MediaEngine, createMediaEngine } from "../createMediaEngine"
 import { serverConfig } from "../backendConfig"
 
-// export const mainDbConf = (function () {
-//   let dir = path.join(__dirname, "..", ".."),
-//     file = "ourdb.sqlite"
-//   return {
-//     dir,
-//     file,
-//     path: path.join(dir, file)
-//   }
-// })()
-
-// export const fileDbConf = (function () {
-//   let dir = path.join(__dirname, "..", ".."),
-//     file = "files.sqlite"
-//   return {
-//     dir,
-//     file,
-//     path: path.join(dir, file)
-//   }
-// })()
-
 export const sessionDbConf = (function () {
-  let dir = path.join(__dirname, "..", ".."),
-    file = "sessions.sqlite"
+  let dir = serverConfig.dataDir
+  let file = "sessions.sqlite"
+
   return {
     dir,
     file,
     path: path.join(dir, file)
   }
 })()
+
+export let teamDbCn!: DatabaseConnectionWithSqlBricks
+
+export async function initDbTeamCn() {
+  let dbPath = path.join(serverConfig.dataDir, "teams.sqlite")
+  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "teams.sql")
+
+  teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
+}
 
 let cnMap = new Map<string, DatabaseConnectionWithSqlBricks>()
 
@@ -63,28 +53,13 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
     let execDdl = !await fileExists(dbPath)
     let up = subdomain.toUpperCase()
     let debug = `[F-${up}]`
+
     engine = await createMediaEngine(await newSqliteCn(debug, dbPath), execDdl)
     ngMap.set(subdomain, engine)
   }
 
   return engine
 }
-
-// export let cn!: DatabaseConnectionWithSqlBricks
-
-// export async function initConnection() {
-//   cn = await newSqliteCn("[MAIN]", mainDbConf.path, path.join(mainDbConf.dir, "sqlite-scripts", "smallteam.sql"))
-// }
-
-// export let mediaEngine!: MediaEngine
-
-// export async function initMediaEngine() {
-//   let execDdl = !await fileExists(fileDbConf.path)
-//   mediaEngine = await createMediaEngine(
-//     await newSqliteCn("[F]", fileDbConf.path),
-//     execDdl
-//   )
-// }
 
 async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
@@ -112,8 +87,10 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
       console.log("[SQL]", action, sql)
     }
   })
+
   if (isNewDb && newDbScriptFileName)
     await cn.execScript(await readFile(newDbScriptFileName, "utf8"))
+
   return cn
 }
 

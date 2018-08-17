@@ -1,11 +1,6 @@
 import { createTestAccount, createTransport, getTestMessageUrl } from "nodemailer"
 import { serverConfig } from "./backendConfig"
 
-interface ActionResult {
-  done: boolean
-  errorMsg?: string
-}
-
 async function getSettings() {
   if (serverConfig.env === "prod")
     return serverConfig.mail
@@ -25,7 +20,7 @@ async function getSettings() {
   }
 }
 
-export async function sendMail(to: string, subject: string, text: string, html: string): Promise<ActionResult> {
+export async function sendMail(to: string, subject: string, text: string, html: string) {
   let settings = await getSettings()
   if (!settings) {
     return {
@@ -34,7 +29,7 @@ export async function sendMail(to: string, subject: string, text: string, html: 
     }
   }
 
-  let rs: ActionResult = { done: false }
+  let answer = { done: false } as any
   try {
 // let transporter = createTransport({
 //     sendmail: true,
@@ -54,14 +49,15 @@ export async function sendMail(to: string, subject: string, text: string, html: 
       from: settings.from, to, subject, text, html
     })
 
-    rs.done = true
+    answer.done = true
+
     if (serverConfig.env === "local") {
       console.log("Mail sent:", info.messageId)
       console.log("Preview URL:", getTestMessageUrl(info))
     }
   } catch (error) {
-    rs.errorMsg = error.message
+    answer.errorMsg = error.message
   }
 
-  return rs
+  return answer
 }
