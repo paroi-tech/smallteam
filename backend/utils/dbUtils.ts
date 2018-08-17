@@ -20,7 +20,7 @@ export let teamDbCn!: DatabaseConnectionWithSqlBricks
 
 export async function initDbTeamCn() {
   let dbPath = path.join(serverConfig.dataDir, "teams.sqlite")
-  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
+  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "teams.sql")
 
   teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }

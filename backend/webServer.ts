@@ -4,14 +4,14 @@ import * as path from "path"
 import config from "../isomorphic/config"
 import { SessionData } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
-import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
+import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./registration/registration"
 import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
-import { ValidationError, AuthorizationError, getConfirmedSubdomain, getRequestedSubdomain, isMainDomain } from "./utils/serverUtils"
-import { routeCreateTeam, routeCheckTeamCode } from "./team"
-import { MEDIAS_BASE_URL } from "./createMediaEngine";
-import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload";
+import { ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain } from "./utils/serverUtils"
+import { routeCreateTeam, routeCheckTeamCode, routeActivateTeam } from "./newTeam/team"
+import { MEDIAS_BASE_URL } from "./createMediaEngine"
+import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
 
 import express = require("express")
 import session = require("express-session")
@@ -61,6 +61,7 @@ export function startWebServer() {
 
   router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
   router.post("/api/team/check-team-id", makeMainSiteRouteHandler(routeCheckTeamCode))
+  router.post("/api/team/activate-team", makeMainSiteRouteHandler(routeActivateTeam))
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))

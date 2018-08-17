@@ -14,6 +14,7 @@ export function getNewTeamHtml() {
   <script src="bundle-team.js?v=${v}" defer></script>
 </head>
 <body>
+  <div class="js-app"></div>
 </body>
 </html>`
 }

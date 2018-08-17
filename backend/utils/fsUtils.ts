@@ -11,12 +11,12 @@ export function fileExists(path: string): Promise<boolean> {
 
 export async function createDir(path: string, mode?: number) {
   let b = false
+
   try {
     await mkdir(path, mode)
     b = true
   } catch (err) {
-    let m = (mode === undefined ? "default" : mode)
-    console.log(`Unable to create directory ${path} with mode ${m}`, err.message)
+    console.log(`Unable to create directory ${path} with mode ${mode === undefined ? "default" : mode}`, err.message)
   }
 
   return b

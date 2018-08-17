@@ -14,6 +14,7 @@ export function getRegistrationHtml() {
   <script src="bundle-registration.js?v=${v}" defer></script>
 </head>
 <body>
+  <div class="js-app"></div>
 </body>
 </html>`
 }

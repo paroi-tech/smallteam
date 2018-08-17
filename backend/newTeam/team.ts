@@ -2,20 +2,21 @@ import * as path from "path"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import Joi = require("joi")
-import { SessionData } from "./session"
+import { SessionData } from "../session"
 import { select, insert, deleteFrom } from "sql-bricks"
-import { tokenSize, serverConfig } from "./backendConfig"
-import config from "../isomorphic/config"
-import validate from "./utils/joiUtils"
+import { tokenSize, serverConfig } from "../backendConfig"
+import config from "../../isomorphic/config"
+import validate from "../utils/joiUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { sendMail } from "./mail"
-import { teamDbCn } from "./utils/dbUtils"
-import { fileExists, createDir } from "./utils/fsUtils"
+import { sendMail } from "../mail"
+import { teamDbCn, getCn } from "../utils/dbUtils"
+import { fileExists, mkdir } from "../utils/fsUtils"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
     teamName: Joi.string().trim(),
     teamCode: Joi.string().trim().min(1).max(config.maxTeamCodeLength).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
+    name: Joi.string().trim().min(4).max(255).required(),
     username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }),
     password: Joi.string().trim().min(config.minPasswordLength).required(),
     email: Joi.string().trim().email().required()
@@ -66,19 +67,25 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
     }
   }
 
-  let p = path.join(serverConfig.dataDir, rs["team_code"])
+  let teamCode = rs["team_code"]
+  let p = path.join(serverConfig.dataDir, teamCode)
+  let answer = { done: false } as any
   let tcn = await teamDbCn.beginTransaction()
+
   try {
-    if (await createDir(p, 0o755)) {
-      await removeTeamToken(tcn, token)
-      tcn.commit()
-    }
+    await mkdir(p, 0o755)
+    await removeTeamToken(tcn, token)
+    await storeFirstUser(await getCn(teamCode), cleanData)
+    tcn.commit()
+    answer.done = true
+  } catch (err) {
+    console.error("Cannot activate team", err.message)
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
   }
 
-  return { done: true }
+  return answer
 }
 
 export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
@@ -141,4 +148,16 @@ async function sendTeamCreationMail(token: string, email: string) {
     console.log("Unable to send team creation mail", res.errorMsg)
 
   return res.done
+}
+
+async function storeFirstUser(runner: QueryRunnerWithSqlBricks, data) {
+  let cmd = insert("contributor", {
+    "name": data.name,
+    "login": data.username,
+    "password": data.password,
+    "role": "admin",
+    "email": data.email
+  })
+
+  await runner.execSqlBricks(cmd)
 }
