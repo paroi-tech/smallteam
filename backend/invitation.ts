@@ -213,7 +213,7 @@ async function storeAndSendInvitation(runner: QueryRunnerWithSqlBricks, token: s
 }
 
 async function sendInvitationMail(token: string, email: string, username?: string) {
-  let regUrl = new URL(`${config.host}${config.urlPrefix}/registration.html`)
+  let regUrl = new URL(`${config.host}${config.urlPrefix}/registration`)
 
   regUrl.searchParams.append("action", "registration")
   regUrl.searchParams.append("token", token)

@@ -5,6 +5,7 @@
   "port": 3921,
   "publicPort": 80,
   "dataDir": "/path/to/site/data/folder",
+  "versionFile": "version.txt",
   "mail": {
     "from": "committeambot",
     "user": "tux",

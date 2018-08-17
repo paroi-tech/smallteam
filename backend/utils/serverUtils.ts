@@ -19,11 +19,17 @@ export class AuthorizationError extends Error {
   }
 }
 
-export async function getSubdomain(req: Request) {
-  if (req.subdomains.length !== 1)
-    return undefined
-  let p = path.join(serverConfig.dataDir, req.subdomains[0]);
-  if (!await fileExists(p))
-    return undefined
-  return req.subdomains[0].toLowerCase()
+export function isMainDomain(req: Request) {
+  return req.subdomains.length === 0
+}
+
+export function getRequestedSubdomain(req: Request) {
+  if (req.subdomains.length === 1)
+    return req.subdomains[0].toLowerCase()
+}
+
+export async function getConfirmedSubdomain(req: Request) {
+  let subDomain = getRequestedSubdomain(req)
+  if (subDomain && await fileExists(path.join(serverConfig.dataDir, subDomain))) // TODO: Check it is a directory
+    return subDomain
 }

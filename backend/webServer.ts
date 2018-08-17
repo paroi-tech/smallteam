@@ -8,7 +8,7 @@ import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCa
 import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { sessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
-import { ValidationError, AuthorizationError, getSubdomain } from "./utils/serverUtils"
+import { ValidationError, AuthorizationError, getConfirmedSubdomain, getRequestedSubdomain, isMainDomain } from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode } from "./team"
 import { MEDIAS_BASE_URL } from "./createMediaEngine";
 import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload";
@@ -17,6 +17,9 @@ import express = require("express")
 import session = require("express-session")
 import makeSQLiteExpressStore = require("connect-sqlite3")
 import { serverConfig } from "./backendConfig"
+import { getMainHtml } from "./main/frontend";
+import { getRegistrationHtml } from "./registration/frontend";
+import { getNewTeamHtml } from "./newTeam/frontend";
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -82,13 +85,28 @@ export function startWebServer() {
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL
   }, async (req: Request, res: Response) => {
-    let subdomain = await getSubdomain(req)
+    let subdomain = await getConfirmedSubdomain(req)
     if (subdomain)
       return (await getMediaEngine(subdomain)).uploadEngine
     write404(res)
   })
 
   router.use(express.static(path.join(__dirname, "..", "www")))
+
+  router.get("/", async (req, res) => {
+    if (isMainDomain(req))
+      writeHtmlResponse(res, getNewTeamHtml())
+    else if (await getConfirmedSubdomain(req))
+      writeHtmlResponse(res, getMainHtml())
+    else
+      write404(res)
+  })
+
+  router.get("/registration", (req, res) => {
+    writeHtmlResponse(res, getRegistrationHtml())
+  })
+
+  router.get("/new-team", (req, res) => writeHtmlResponse(res, getRegistrationHtml()))
 
   app.use(config.urlPrefix, router)
   app.get("*", (req, res) => write404(res))
@@ -111,7 +129,7 @@ function getApplicationUrl() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    let subdomain = await getSubdomain(req)
+    let subdomain = await getConfirmedSubdomain(req)
 
     if (!subdomain) {
       write404(res)
@@ -135,7 +153,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     try {
       body = await waitForRequestBody(req)
       // TODO: routes could specify status in their result.
-      writeServerResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
+      writeJsonResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)
     }
@@ -144,7 +162,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
 
 function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
   return async function (req: Request, res: Response) {
-    if (await getSubdomain(req)) {
+    if (!isMainDomain(req)) {
       write404(res)
       return
     }
@@ -152,7 +170,7 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
-      writeServerResponse(res, 200, await cb(JSON.parse(body), req.session as any, req, res))
+      writeJsonResponse(res, 200, await cb(JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)
     }
@@ -171,17 +189,24 @@ function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
     errorMsg = "Bad request"
   else
     errorMsg = err.message
-  writeServerResponse(res, statusCode, {
+  writeJsonResponse(res, statusCode, {
     error: errorMsg,
     request: reqBody
   })
 }
 
-function writeServerResponse(res: Response, httpCode: number, data) {
+function writeJsonResponse(res: Response, httpCode: number, data: unknown) {
   // TODO: check if data contain a 'statusCode' property and use it as status code.
   res.setHeader("Content-Type", "application/json")
   res.status(httpCode)
   res.send(JSON.stringify(data))
+  res.end()
+}
+
+function writeHtmlResponse(res: Response, html: string) {
+  res.setHeader("Content-Type", "text/html")
+  res.status(200)
+  res.send(html)
   res.end()
 }
 

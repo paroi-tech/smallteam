@@ -10,6 +10,7 @@ export interface ServerConfig {
   port: number
   publicPort?: number
   dataDir: string
+  versionFile?: string
   mail: {
     from: string
     user: string
@@ -21,16 +22,29 @@ export interface ServerConfig {
 }
 
 export let serverConfig!: ServerConfig
+export let platformVersion: string | undefined
 
-export async function initServerConfig(): Promise<ServerConfig> {
-  let j = process.argv.indexOf("--config")
-  if (j == -1 || j + 1 >= process.argv.length)
+export async function loadServerConfig(): Promise<ServerConfig> {
+  let paramIndex = process.argv.indexOf("--config")
+  if (paramIndex === -1 || paramIndex + 1 >= process.argv.length)
     throw new Error("Missing config parameter")
-
-  let path = process.argv[j+1]
-  if (!await fileExists(path))
-    throw new Error("Config file not found")
-
-  serverConfig = JSON.parse((await readFile(path)).toString())
+  let confFile = process.argv[paramIndex + 1]
+  try {
+    serverConfig = JSON.parse((await readFile(confFile)).toString("utf8"))
+  } catch (err) {
+    throw new Error(`Cannot load the configuration file: ${err.message}`)
+  }
+  if (serverConfig.versionFile)
+    platformVersion = await readPlatformVersion(serverConfig.versionFile)
+  else
+    platformVersion = "0"
   return serverConfig
+}
+
+export async function readPlatformVersion(versionFile): Promise<string> {
+  try {
+    return (await readFile(versionFile)).toString("utf8")
+  } catch (err) {
+    throw new Error(`Cannot load the configuration file: ${err.message}`)
+  }
 }

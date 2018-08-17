@@ -9,7 +9,7 @@ import { ExternalRef, MediaRef, Media, MulterFile, MediaStorage, createMediaStor
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { getCn, getMediaEngine } from "./utils/dbUtils"
-import { getSubdomain } from "./utils/serverUtils"
+import { getConfirmedSubdomain } from "./utils/serverUtils"
 
 export const MEDIAS_BASE_URL = "/medias"
 
@@ -95,7 +95,7 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
       let media = await storage.findMedia({ mediaId })
       let modelUpd: ModelUpdate | undefined
       if (media) {
-        let subdomain = await getSubdomain(req)
+        let subdomain = await getConfirmedSubdomain(req)
         if (!subdomain)
           throw new Error(`Cannot use a media engine outside a subdomain`)
         let mediaEngine = await getMediaEngine(subdomain)
@@ -136,7 +136,7 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
 
 async function markExternalTypeAsUpdate(req: Request, media: Media, loader: CargoLoader) {
   if (media.externalRef) {
-    let subdomain = await getSubdomain(req)
+    let subdomain = await getConfirmedSubdomain(req)
     if (!subdomain)
       throw new Error(`Cannot use a media engine outside a subdomain`)
     let context: BackendContext = {

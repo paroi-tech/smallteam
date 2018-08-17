@@ -1,5 +1,5 @@
 import { startWebServer } from "./webServer"
-import { initServerConfig } from "./backendConfig"
+import { loadServerConfig } from "./backendConfig"
 
 process.on("uncaughtException", err => {
   console.log("uncaughtException", err)
@@ -12,7 +12,7 @@ process.on("unhandledRejection", err => {
 })
 
 async function startup() {
-  await initServerConfig()
+  await loadServerConfig()
   startWebServer()
 }
 

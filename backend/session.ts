@@ -11,7 +11,7 @@ import validate from "./utils/joiUtils"
 import { AuthorizationError } from "./utils/serverUtils"
 import { getCn } from "./utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { getSubdomain } from "./utils/serverUtils"
+import { getConfirmedSubdomain } from "./utils/serverUtils"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 
@@ -230,7 +230,7 @@ export async function getSessionData(req: Request): Promise<SessionData> {
 }
 
 export async function hasSession(req: Request) {
-  let subdomain = await getSubdomain(req)
+  let subdomain = await getConfirmedSubdomain(req)
 
   if (!subdomain || !req.session || !req.session.contributorId || !req.session.subdomain)
     return false
@@ -244,7 +244,7 @@ export async function hasSession(req: Request) {
 
 async function sendPasswordResetMail(token: string, contributorId: string, address: string) {
   let host = `${config.host}${config.urlPrefix}`
-  let url = `${host}/registration.html?action=passwordreset&token=${token}&uid=${contributorId}`
+  let url = `${host}/registration?action=passwordreset&token=${token}&uid=${contributorId}`
   let text = `Please follow this link ${url} if you made a request to change your password.`
   let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
   let res = await sendMail(address, "SmallTeam password reset", text, html)
