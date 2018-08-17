@@ -6,7 +6,7 @@ import { SessionData } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./invitation"
 import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
-import { sessionDbConf, getMediaEngine } from "./utils/dbUtils"
+import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./wsEngine"
 import { ValidationError, AuthorizationError, getConfirmedSubdomain, getRequestedSubdomain, isMainDomain } from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode } from "./team"
@@ -37,7 +37,7 @@ export function startWebServer() {
   let server = http.createServer(app)
 
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
-  let { dir, file: db } = sessionDbConf
+  let { dir, file: db } = getSessionDbConf()
 
   let store = new SQLiteExpressStore({
     table: "session",

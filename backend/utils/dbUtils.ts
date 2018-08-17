@@ -5,7 +5,7 @@ import { fileExists, readFile } from "./fsUtils"
 import { MediaEngine, createMediaEngine } from "../createMediaEngine"
 import { serverConfig } from "../backendConfig"
 
-export const sessionDbConf = (function () {
+export function getSessionDbConf() {
   let dir = serverConfig.dataDir
   let file = "sessions.sqlite"
 
@@ -14,13 +14,13 @@ export const sessionDbConf = (function () {
     file,
     path: path.join(dir, file)
   }
-})()
+}
 
 export let teamDbCn!: DatabaseConnectionWithSqlBricks
 
 export async function initDbTeamCn() {
   let dbPath = path.join(serverConfig.dataDir, "teams.sqlite")
-  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "teams.sql")
+  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
 
   teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
