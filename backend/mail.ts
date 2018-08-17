@@ -36,7 +36,12 @@ export async function sendMail(to: string, subject: string, text: string, html: 
 
   let rs: ActionResult = { done: false }
   try {
-    let transporter = await createTransport({
+// let transporter = createTransport({
+//     sendmail: true,
+//     newline: 'unix',
+//     path: '/usr/sbin/sendmail'
+// });
+    let transporter = createTransport({
       host: settings.host,
       port: settings.port,
       secure: settings.secure,
