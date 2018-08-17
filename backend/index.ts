@@ -12,8 +12,8 @@ process.on("unhandledRejection", err => {
 })
 
 async function startup() {
-  let config = await initServerConfig()
-  startWebServer(config.port)
+  await initServerConfig()
+  startWebServer()
 }
 
-startup().catch(console.log)
+startup().catch(err => console.log(err))

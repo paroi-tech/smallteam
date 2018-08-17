@@ -16,12 +16,21 @@ import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload";
 import express = require("express")
 import session = require("express-session")
 import makeSQLiteExpressStore = require("connect-sqlite3")
+import { serverConfig } from "./backendConfig"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 
-export function startWebServer(port: number) {
+function getSubdomainOffset(mainDomain: string) {
+  return (mainDomain.match(/\./g) || []).length + 1
+}
+
+export function startWebServer() {
+  let { port, mainDomain } = serverConfig
+
   let app = express()
+  app.set("subdomain offset", getSubdomainOffset(mainDomain))
+
   let server = http.createServer(app)
 
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
@@ -86,7 +95,11 @@ export function startWebServer(port: number) {
 
   wsEngineInit(server)
   server.listen(port, function () {
-    console.log(`The smallteam server is listening on port: ${port}, the path is: ${config.urlPrefix || "/"}...`)
+    let protocol = serverConfig.ssl ? "https" : "http"
+    let publicPort = serverConfig.publicPort || port
+    let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
+    let url = `${protocol}://${mainDomain}${portSuffix}${config.urlPrefix || "/"}`
+    console.log(`The smallteam server is listening on: ${url}`)
   })
 
   // Scheduled task to remove password reset tokens each day.

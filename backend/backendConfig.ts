@@ -5,8 +5,11 @@ export const tokenSize = 16
 
 export interface ServerConfig {
   env: "prod" | "local"
+  ssl: boolean
+  mainDomain: string
   port: number
-  siteDir: string
+  publicPort?: number
+  dataDir: string
   mail: {
     from: string
     user: string

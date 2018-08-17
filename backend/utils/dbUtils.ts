@@ -41,8 +41,8 @@ export async function getCn(subdomain: string): Promise<DatabaseConnectionWithSq
   let cn = cnMap.get(subdomain)
 
   if (!cn) {
-    let dbPath = path.join(serverConfig.siteDir, subdomain, "main.sqlite")
-    let scriptPath = path.join(serverConfig.siteDir, "main.sql")
+    let dbPath = path.join(serverConfig.dataDir, subdomain, "main.sqlite")
+    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "main.sql")
     let up = subdomain.toUpperCase()
     let debug = `[${up}]`
 
@@ -59,7 +59,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
   let engine = ngMap.get(subdomain)
 
   if (!engine) {
-    let dbPath = path.join(serverConfig.siteDir, subdomain, "files.sqlite")
+    let dbPath = path.join(serverConfig.dataDir, subdomain, "files.sqlite")
     let execDdl = !await fileExists(dbPath)
     let up = subdomain.toUpperCase()
     let debug = `[F-${up}]`

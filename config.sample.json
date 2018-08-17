@@ -1,7 +1,10 @@
 {
   "env": "local",
+  "ssl": true,
+  "mainDomain": "commit.team",
   "port": 3921,
-  "siteDir": "/path/to/site/data/folder",
+  "publicPort": 80,
+  "dataDir": "/path/to/site/data/folder",
   "mail": {
     "from": "committeambot",
     "user": "tux",

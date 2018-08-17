@@ -22,7 +22,7 @@ export class AuthorizationError extends Error {
 export async function getSubdomain(req: Request) {
   if (req.subdomains.length !== 1)
     return undefined
-  let p = path.join(serverConfig.siteDir, req.subdomains[0]);
+  let p = path.join(serverConfig.dataDir, req.subdomains[0]);
   if (!await fileExists(p))
     return undefined
   return req.subdomains[0].toLowerCase()
