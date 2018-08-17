@@ -31,6 +31,7 @@ export async function sendMail(to: string, subject: string, text: string, html: 
 
   let answer = { done: false } as any
   try {
+    // https://nodemailer.com/transports/sendmail/
 // let transporter = createTransport({
 //     sendmail: true,
 //     newline: 'unix',
