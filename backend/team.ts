@@ -109,12 +109,10 @@ async function storeTeamToken(cn: TransactionConnectionWithSqlBricks, data, team
 }
 
 async function sendTeamCreationMail(token: string, email: string) {
-  let url = new URL(`${config.host}${config.urlPrefix}/team.html`)
-  url.searchParams.append("action", "activate")
-  url.searchParams.append("token", token)
+  let url = `${config.host}${config.urlPrefix}/team.html?action=activate&token=${encodeURIComponent(token)}`
 
   let text = `Please follow this link ${url} to activate your team.`
-  let html = `Please click <a href="${url.toString()}">here</a> to activate your team.`
+  let html = `Please click <a href="${url}">here</a> to activate your team.`
   let result = await sendMail(email, "Team activation", text, html)
 
   if (result.done)
