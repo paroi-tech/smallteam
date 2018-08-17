@@ -1,5 +1,6 @@
 {
   "env": "local",
+  "port": 3921,
   "siteDir": "/path/to/site/data/folder",
   "mail": {
     "from": "committeambot",

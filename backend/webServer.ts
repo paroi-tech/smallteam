@@ -13,37 +13,36 @@ import { routeCreateTeam, routeCheckTeamCode } from "./team"
 import { MEDIAS_BASE_URL } from "./createMediaEngine";
 import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload";
 
-const express = require("express")
+import express = require("express")
 import session = require("express-session")
-const makeSQLiteExpressStore = require("connect-sqlite3")
-
-const PORT = 3921
+import makeSQLiteExpressStore = require("connect-sqlite3")
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
-// type RouteMethod = "get" | "post"
 
-export function startWebServer() {
+export function startWebServer(port: number) {
   let app = express()
   let server = http.createServer(app)
 
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
-  let { dir, file } = sessionDbConf
+  let { dir, file: db } = sessionDbConf
+
+  let store = new SQLiteExpressStore({
+    table: "session",
+    db,
+    dir
+  })
 
   app.use(session({
-      secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",
-      resave: false,
-      saveUninitialized: false,
-      store: new SQLiteExpressStore({
-        table: "session",
-        db: file,
-        dir
-      }),
-      cookie: {
-        path: `${config.urlPrefix}/`,
-        maxAge: 2 * 24 * 60 * 60 * 1000 // 2 days
-      }
-    })
+    secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",
+    resave: false,
+    saveUninitialized: false,
+    store,
+    cookie: {
+      path: `${config.urlPrefix}/`,
+      maxAge: 2 * 24 * 60 * 60 * 1000 // 2 days
+    }
+  })
   )
 
   let router = Router()
@@ -86,8 +85,8 @@ export function startWebServer() {
   app.get("*", (req, res) => write404(res))
 
   wsEngineInit(server)
-  server.listen(PORT, function () {
-    console.log(`The smallteam server is listening on port: ${PORT}, the path is: ${config.urlPrefix}...`)
+  server.listen(port, function () {
+    console.log(`The smallteam server is listening on port: ${port}, the path is: ${config.urlPrefix || "/"}...`)
   })
 
   // Scheduled task to remove password reset tokens each day.

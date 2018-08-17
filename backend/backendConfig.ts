@@ -3,8 +3,9 @@ import { fileExists, readFile } from "./utils/fsUtils"
 export const bcryptSaltRounds = 10
 export const tokenSize = 16
 
-interface ServerConfig {
+export interface ServerConfig {
   env: "prod" | "local"
+  port: number
   siteDir: string
   mail: {
     from: string
@@ -18,7 +19,7 @@ interface ServerConfig {
 
 export let serverConfig!: ServerConfig
 
-export async function initServerConfig() {
+export async function initServerConfig(): Promise<ServerConfig> {
   let j = process.argv.indexOf("--config")
   if (j == -1 || j + 1 >= process.argv.length)
     throw new Error("Missing config parameter")
@@ -27,6 +28,6 @@ export async function initServerConfig() {
   if (!await fileExists(path))
     throw new Error("Config file not found")
 
-  let json = await readFile(path)
-  serverConfig = JSON.parse(json.toString())
+  serverConfig = JSON.parse((await readFile(path)).toString())
+  return serverConfig
 }
