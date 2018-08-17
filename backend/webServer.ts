@@ -95,15 +95,18 @@ export function startWebServer() {
 
   wsEngineInit(server)
   server.listen(port, function () {
-    let protocol = serverConfig.ssl ? "https" : "http"
-    let publicPort = serverConfig.publicPort || port
-    let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-    let url = `${protocol}://${mainDomain}${portSuffix}${config.urlPrefix || "/"}`
-    console.log(`The smallteam server is listening on: ${url}`)
+    console.log(`The smallteam server is listening on: ${getApplicationUrl()}`)
   })
 
   // Scheduled task to remove password reset tokens each day.
-  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000)
+  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000).unref()
+}
+
+function getApplicationUrl() {
+  let protocol = serverConfig.ssl ? "https" : "http"
+  let publicPort = serverConfig.publicPort || serverConfig.port
+  let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
+  return `${protocol}://${serverConfig.mainDomain}${portSuffix}${config.urlPrefix || "/"}`
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
