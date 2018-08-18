@@ -38,10 +38,10 @@ export default class InvitationForm {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-invitation`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({ username, email, validity })
       })
       if (response.ok)

@@ -1,4 +1,4 @@
-import config from "../../../../isomorphic/config"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../../isomorphic/libraries/helpers"
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../../libraries/Deferred"
@@ -52,25 +52,34 @@ export default class RegistrationForm {
 
   private async onSubmit() {
     let dialog = this.dash.create(WarningDialog)
+    let checkMsg: string | undefined
 
     let name = this.nameEl.value.trim()
+
     if (name.length === 0) {
       await dialog.show("Please enter your name.")
       this.nameEl.focus()
+
       return
     }
 
     let login = this.usernameEl.value.trim()
-    if (login.length < 4 || /[^a-zA-Z_0-9]/.test(login)) {
-      await dialog.show("Please enter a username. It should have at least 4 characters and contain only letters and digits.")
+
+    checkMsg = whyUsernameIsInvalid(login)
+    if (checkMsg) {
+      await dialog.show(checkMsg)
       this.usernameEl.focus()
+
       return
     }
 
     let password = this.passwordEl.value.trim()
-    if (password.length < config.minPasswordLength) {
-      await dialog.show(`Password should contain at least ${config.minPasswordLength} characters.`)
+
+    checkMsg = whyNewPasswordIsInvalid(password)
+    if (checkMsg) {
+      await dialog.show(checkMsg)
       this.passwordEl.focus()
+
       return
     }
 
@@ -81,6 +90,7 @@ export default class RegistrationForm {
     }
 
     let email = this.emailEl.value.trim()
+
     if (email.length === 0 || !validateEmail(email)) {
       await dialog.show("Please enter a valid email address.")
       this.emailEl.focus()
@@ -88,6 +98,7 @@ export default class RegistrationForm {
     }
 
     let b = await this.register(name, login, password, email)
+
     if (b && this.curDfd) {
       this.curDfd.resolve(true)
       this.curDfd = undefined
@@ -100,10 +111,10 @@ export default class RegistrationForm {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/register`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({ name, login, password, email, token: this.token })
       })
       if (!response.ok)

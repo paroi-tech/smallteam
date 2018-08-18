@@ -757,9 +757,9 @@ export async function httpSendJson(method: HttpMethod, url: string, data: unknow
   let response = await fetch(url, {
     method: method,
     credentials: "same-origin",
-    headers: {
+    headers: new Headers({
       "Content-Type": "application/json"
-    },
+    }),
     body: data ? JSON.stringify(data) : undefined
   })
   try {

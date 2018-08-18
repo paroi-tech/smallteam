@@ -34,7 +34,20 @@ export function whyNewPasswordIsInvalid(password: string): string | undefined {
     return "A password must have at least 8 characters"
 }
 
-export function whyTeamCodeIsInvalid(code: string): string | undefined {
-  if (code.length > 16)
-    return "A team code must have 16 characters maximum"
+export function whyTeamCodeIsInvalid(teamCode: string): string | undefined {
+  if (teamCode.length < 2 || teamCode.length > 16)
+    return "A team code must have at least 2 characters and 16 characters at most"
+
+  let arr = teamCode.match(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g)
+
+  if (!arr || arr.length === 0 || arr[0] != teamCode)
+    return "A team code should contain only lowercase letters and dashes"
+}
+
+export function whyUsernameIsInvalid(username: string): string | undefined {
+  if (username.length < 4 || /[^a-zA-Z_0-9]/.test(username))
+    return "A username should have at least 4 characters and contain only letters and digits."
+
+  if (username.match(/[^a-zA-Z_0-9]/))
+    return "A username should and contain only letters and digits."
 }

@@ -59,7 +59,7 @@ export function startWebServer() {
   let router = Router()
 
   router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
-  router.post("/api/team/check-team-id", makeMainSiteRouteHandler(routeCheckTeamCode))
+  router.post("/api/team/check-id", makeMainSiteRouteHandler(routeCheckTeamCode))
   router.post("/api/team/activate-team", makeMainSiteRouteHandler(routeActivateTeam))
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))

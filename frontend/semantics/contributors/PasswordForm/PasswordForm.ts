@@ -1,7 +1,7 @@
 import { Log } from "bkb"
 import { ContributorModel } from "../../../AppModel/AppModel"
 import PasswordEdit from "../../../generics/PasswordEdit/PasswordEdit"
-import config from "../../../../isomorphic/config"
+import { whyNewPasswordIsInvalid } from "../../../../isomorphic/libraries/helpers"
 import { InfoDialog, ErrorDialog } from "../../../generics/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
@@ -42,25 +42,22 @@ export default class PasswordForm {
   }
 
   private async checkUserInput() {
-    let d = this.dash.create(InfoDialog)
-
     let currentPassword = this.currentPasswordEl.value.trim()
-    if (currentPassword.length < config.minPasswordLength) {
-      await d.show("Please enter your current password.")
-      this.currentPasswordEl.focus()
-      return undefined
-    }
-
     let newPassword = this.passwordEdit.getPasswordIfMatch()
+
     if (!newPassword) {
-      await d.show("Passwords do not match.")
+      await this.dash.create(InfoDialog).show("Passwords do not match.")
       this.passwordEdit.focus()
+
       return undefined
     }
 
-    if (newPassword.length < config.minPasswordLength) {
-      await d.show(`Passwords should have at least ${config.minPasswordLength} characters`)
+    let checkMsg = whyNewPasswordIsInvalid(newPassword)
+
+    if (checkMsg) {
+      await this.dash.create(InfoDialog).show(checkMsg)
       this.passwordEdit.focus()
+
       return undefined
     }
 
@@ -72,10 +69,10 @@ export default class PasswordForm {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/change-password`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({
           currentPassword,
           newPassword

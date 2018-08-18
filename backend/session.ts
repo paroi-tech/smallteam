@@ -3,7 +3,6 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import Joi = require("joi")
-import config from "../isomorphic/config"
 import { bcryptSaltRounds, tokenSize } from "./backendConfig"
 import { sendMail } from "./mail"
 import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
@@ -31,22 +30,22 @@ let numberRegex = /^[1-9][0-9]*$/
 let joiSchemata = {
   routeConnect: Joi.object().keys({
     login: Joi.string().trim().alphanum().min(4).required(),
-    password: Joi.string().trim().min(config.minPasswordLength).required()
+    password: Joi.string().trim().min(8).required()
   }),
 
   routeSetPassword: Joi.object().keys({
     contributorId: Joi.string().regex(numberRegex).required(),
-    password: Joi.string().trim().min(config.minPasswordLength).required()
+    password: Joi.string().trim().min(8).required()
   }),
 
   routeChangePassword: Joi.object().keys({
     currentPassword: Joi.string().min(8).required(),
-    newPassword: Joi.string().trim().min(config.minPasswordLength).required()
+    newPassword: Joi.string().trim().min(8).required()
   }),
 
   routeResetPassword: Joi.object().keys({
     token: Joi.string().required(),
-    password: Joi.string().trim().min(config.minPasswordLength).required(),
+    password: Joi.string().trim().min(8).required(),
     contributorId: Joi.string().regex(numberRegex).required()
   }),
 

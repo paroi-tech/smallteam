@@ -1,9 +1,9 @@
-import config from "../../../isomorphic/config"
+import { whyUsernameIsInvalid } from "../../../isomorphic/libraries/helpers"
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../libraries/Deferred"
 import { ErrorDialog, WarningDialog } from "../modalDialogs/modalDialogs"
-import App from "../../App/App";
+import App from "../../App/App"
 
 const template = require("./LoginDialog.monk")
 
@@ -18,12 +18,14 @@ export default class LoginDialog {
 
   constructor(private dash: Dash<App>) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.nameEl = view.ref("username")
     this.passwordEl = view.ref("password") as HTMLInputElement
     this.spinnerEl = view.ref("spinner") as HTMLElement
 
     let btnEl: HTMLButtonElement = view.ref("submitBtn")
+
     btnEl.addEventListener("click", ev => this.onSubmit())
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter" && this.enabled)
@@ -40,6 +42,7 @@ export default class LoginDialog {
   public open(): Promise<string> {
     this.el.showModal()
     this.curDfd = new Deferred()
+
     return this.curDfd.promise
   }
 
@@ -52,15 +55,20 @@ export default class LoginDialog {
     this.enabled = false
     this.removeWarnings()
     this.showSpinner()
+
     let login = this.nameEl.value.trim()
     let password = this.passwordEl.value.trim()
-    if (!this.checkUserInput(login, password)) {
-      this.enabled = true
-      this.hideSpinner()
+
+    let checkMsg = whyUsernameIsInvalid(login)
+
+    if (checkMsg) {
+      await this.dash.create(WarningDialog).show(checkMsg)
+
       return
     }
 
     let contributorId = await this.tryToLogin(login, password)
+
     this.hideSpinner()
     if (contributorId && this.curDfd) {
       this.el.close()
@@ -78,31 +86,15 @@ export default class LoginDialog {
     }
   }
 
-  private checkUserInput(login: string, password: string) {
-    if (login.length < 4) {
-      this.nameEl.style.borderColor = "red"
-      this.nameEl.focus()
-      return false
-    }
-
-    if (password.length < config.minPasswordLength) {
-      this.passwordEl.style.borderColor = "red"
-      this.passwordEl.focus()
-      return false
-    }
-
-    return true
-  }
-
   private async tryToLogin(login: string, password: string): Promise<string | undefined> {
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({ login, password })
       })
 

@@ -1,10 +1,10 @@
-import config from "../../isomorphic/config"
+import { whyNewPasswordIsInvalid } from "../../isomorphic/libraries/helpers"
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import PasswordEdit from "../../frontend/generics/PasswordEdit/PasswordEdit"
 import InfoDialog from "../../frontend/generics/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../frontend/generics/modalDialogs/ErrorDialog/ErrorDialog"
-import App from "../App/App";
+import App from "../App/App"
 
 const template = require("./PasswordResetDialog.monk")
 
@@ -40,16 +40,19 @@ export default class LoginDialog {
 
   private async onSubmit() {
     let password = this.edit.getPasswordIfMatch()
+
     if (password === undefined) {
       await this.dash.create(InfoDialog).show("Passwords do not match.")
       this.edit.focus()
+
       return
     }
 
-    if (password.length < config.minPasswordLength) {
-      let msg = `Password should have at least ${config.minPasswordLength} characters.`
-      await this.dash.create(InfoDialog).show(msg)
+    let checkMsg = whyNewPasswordIsInvalid(password)
+    if (checkMsg) {
+      await this.dash.create(InfoDialog).show(checkMsg)
       this.edit.focus()
+
       return
     }
 
@@ -79,10 +82,10 @@ export default class LoginDialog {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/reset-password`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers ({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({
           contributorId: this.contributorId,
           token: this.token,

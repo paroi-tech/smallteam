@@ -1,7 +1,7 @@
 import { Log } from "bkb"
 import { Model, ContributorModel } from "../../../AppModel/AppModel"
 import { ContributorCreateFragment, ContributorUpdateFragment } from "../../../../isomorphic/meta/Contributor"
-import config from "../../../../isomorphic/config"
+import { whyNewPasswordIsInvalid } from "../../../../isomorphic/libraries/helpers"
 import { WarningDialog } from "../../../generics/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
@@ -104,8 +104,10 @@ export default class ContributorForm {
 
   private async onSubmit() {
     let data = this.checkUserInput()
+
     if (!data)
       return
+
     if (!this.currentContributor) {
       this.canClearForm = true
       this.createContributor(data)
@@ -121,10 +123,12 @@ export default class ContributorForm {
       }
 
       let password = this.passwordEdit.getPassword()
-      if (password.length < config.minPasswordLength) {
-        let msg = `Passwords should contain at least ${config.minPasswordLength} characters.`
-        await this.dash.create(WarningDialog).show(msg)
+      let checkMsg = whyNewPasswordIsInvalid(password)
+
+      if (checkMsg) {
+        await this.dash.create(WarningDialog).show(checkMsg)
         this.passwordEdit.focus()
+
         return
       }
       this.updatePassword(this.currentContributor.id, this.currentContributor.login, password)
@@ -196,10 +200,10 @@ export default class ContributorForm {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/set-password`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({
           contributorId,
           password

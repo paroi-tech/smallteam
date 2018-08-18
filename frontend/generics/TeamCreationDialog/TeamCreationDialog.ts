@@ -1,10 +1,9 @@
-import config from "../../../isomorphic/config"
+import { whyNewPasswordIsInvalid, whyTeamCodeIsInvalid, whyUsernameIsInvalid } from "../../../isomorphic/libraries/helpers"
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../libraries/Deferred"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 import { validateEmail } from "../../libraries/utils"
-import App from "../../App/App";
 
 const template = require("./TeamCreationDialog.monk")
 
@@ -53,8 +52,10 @@ export default class TeamCreationDialog {
 
   private async onSubmit() {
     let dialog = this.dash.create(WarningDialog)
+    let checkMsg: string | undefined
 
     let teamName = this.teamNameEl.value.trim()
+
     if (teamName.length === 0) {
       await dialog.show("Please enter a team name.")
       this.teamNameEl.focus()
@@ -62,24 +63,29 @@ export default class TeamCreationDialog {
     }
 
     let teamCode = this.teamCodeEl.value.trim()
-    let rgx = /[a-z0-9][a-z0-9-]*[a-z0-9]$/g
-    if (teamCode.length === 0 || teamCode.length > config.maxTeamCodeLength || !rgx.test(teamCode) || teamCode === "www") {
-      await dialog.show("Please enter a valid team name.")
+
+    checkMsg = whyTeamCodeIsInvalid(teamCode)
+    if (checkMsg) {
+      await dialog.show(checkMsg)
       this.teamNameEl.focus()
       return
     }
 
     let username = this.usernameEl.value.trim()
-    if (username.length < 4 || /[^a-zA-Z_0-9]/.test(username)) {
-      let s = "Please enter a username. It should have at least 4 characters and contain only letters and digits."
-      await dialog.show(s)
+
+    checkMsg = whyUsernameIsInvalid(username)
+    if (checkMsg) {
+      await dialog.show(checkMsg)
       this.usernameEl.focus()
       return
     }
 
+
     let password = this.passwordEl.value.trim()
-    if (password.length < config.minPasswordLength) {
-      await dialog.show(`Password should contain at least ${config.minPasswordLength} characters.`)
+
+    checkMsg = whyNewPasswordIsInvalid(password)
+    if (checkMsg) {
+      await dialog.show(checkMsg)
       this.passwordEl.focus()
       return
     }
@@ -97,6 +103,19 @@ export default class TeamCreationDialog {
       return
     }
 
+    let data = await this.checkTeamCode(teamCode)
+
+    if (!data.done) {
+      await dialog.show("Something went wrong. We could not contact server for the moment")
+      return
+    }
+
+    if (!data.answer) {
+      await dialog.show("The code you chosed is not available. Try another one.")
+      this.teamCodeEl.focus()
+      return
+    }
+
     if (await this.register(teamName, teamCode, username, password, email) && this.curDfd) {
       this.curDfd.resolve(true)
       this.curDfd = undefined
@@ -104,15 +123,38 @@ export default class TeamCreationDialog {
     }
   }
 
-  private async register(teamName: string, teamCode: string, username: string, password: string, email: string) {
+  private async checkTeamCode(teamCode: string) {
+    let returnValue = { done: false, answer: false }
+
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/register`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/team/check-id`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
+        body: JSON.stringify({ teamCode })
+      })
+
+      if (response.ok)
+        returnValue.answer = (await response.json()).answer
+    } catch (error) {
+      this.dash.log.error("Unable to get response from server", error)
+    }
+
+    return returnValue
+  }
+
+  private async register(teamName: string, teamCode: string, username: string, password: string, email: string) {
+    try {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/team/create`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: new Headers({
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }),
         body: JSON.stringify({ teamName, teamCode, username, password, email })
       })
       if (!response.ok)

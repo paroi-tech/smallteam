@@ -1,4 +1,3 @@
-import * as path from "path"
 import { ModelContext } from "./backendContext/context"
 import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../isomorphic/meta/Project"
 import { select, insertInto, update, deleteFrom, in as sqlIn, isNotNull, like } from "sql-bricks"

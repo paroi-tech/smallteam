@@ -5,25 +5,24 @@ import Joi = require("joi")
 import { SessionData } from "../session"
 import { select, insert, deleteFrom } from "sql-bricks"
 import { tokenSize, serverConfig } from "../backendConfig"
-import config from "../../isomorphic/config"
 import validate from "../utils/joiUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { sendMail } from "../mail"
 import { teamDbCn, getCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
-import { getMainDomainUrl } from "../utils/serverUtils";
+import { getMainDomainUrl } from "../utils/serverUtils"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
     teamName: Joi.string().trim(),
-    teamCode: Joi.string().trim().min(1).max(config.maxTeamCodeLength).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
+    teamCode: Joi.string().trim().min(1).max(16).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
     name: Joi.string().trim().min(4).max(255).required(),
     username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }),
-    password: Joi.string().trim().min(config.minPasswordLength).required(),
+    password: Joi.string().trim().min(8).required(),
     email: Joi.string().trim().email().required()
   }),
   routeCheckTeamCode: Joi.object().keys({
-    teamCode: Joi.string().trim().min(1).max(config.maxTeamCodeLength).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
+    teamCode: Joi.string().trim().min(1).max(16).regex(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g),
   }),
   routeActivateTeam: Joi.object().keys({
     token: Joi.string().trim().hex().length(tokenSize).required()

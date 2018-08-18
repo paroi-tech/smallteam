@@ -5,7 +5,6 @@ import { select, insert, deleteFrom } from "sql-bricks"
 import { hash } from "bcrypt"
 import { sendMail } from "../mail"
 import { tokenSize, bcryptSaltRounds } from "../backendConfig"
-import config from "../../isomorphic/config"
 import { getContributorById, getContributorByLogin } from "../utils/userUtils"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { SessionData } from "../session"
@@ -34,7 +33,7 @@ let joiSchemata = {
   routeRegister: Joi.object().keys({
     name: Joi.string().trim().min(1).required(),
     login: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).required(),
-    password: Joi.string().trim().min(config.minPasswordLength).required(),
+    password: Joi.string().trim().min(8).required(),
     email: Joi.string().email().required(),
     token: Joi.string().hex().length(tokenSize).required()
   })

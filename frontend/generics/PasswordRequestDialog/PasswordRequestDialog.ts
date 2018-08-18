@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import Deferred from "../../libraries/Deferred"
 import { ErrorDialog, InfoDialog } from "../modalDialogs//modalDialogs"
-import App from "../../App/App";
+import App from "../../App/App"
 
 const template = require("./PasswordRequestDialog.monk")
 
@@ -61,10 +61,10 @@ export default class PasswordRequestDialog {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-password-reset-mail`, {
         method: "post",
         credentials: "same-origin",
-        headers: {
+        headers: new Headers ({
           "Accept": "application/json",
           "Content-Type": "application/json"
-        },
+        }),
         body: JSON.stringify({ email: address })
       })
 
