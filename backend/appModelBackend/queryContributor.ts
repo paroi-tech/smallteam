@@ -9,8 +9,8 @@ import { sendMail } from "../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
 import { bcryptSaltRounds, tokenSize } from "../backendConfig"
-import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks";
-import { getTeamSiteUrl } from "../utils/serverUtils";
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { getTeamSiteUrl } from "../utils/serverUtils"
 
 type DbCn = DatabaseConnectionWithSqlBricks
 

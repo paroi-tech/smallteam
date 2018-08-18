@@ -36,7 +36,7 @@ let joiSchemata = {
     login: Joi.string().trim().required(),
     password: Joi.string().trim().required(),
     email: Joi.string().email().required(),
-    token: Joi.string().hex().length(tokenSize).required()
+    token: Joi.string().hex().length(tokenSize * 2).required()
   })
 }
 

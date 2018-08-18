@@ -58,5 +58,5 @@ export function getMainDomainUrl() {
   let protocol = serverConfig.ssl ? "https" : "http"
   let publicPort = serverConfig.publicPort || serverConfig.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  return `${protocol}://${serverConfig.mainDomain}${portSuffix}${getSubdirUrl() || "/"}`
+  return `${protocol}://${serverConfig.mainDomain}${portSuffix}${getSubdirUrl()}`
 }

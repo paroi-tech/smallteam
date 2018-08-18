@@ -60,7 +60,7 @@ export function startWebServer() {
 
   router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
   router.post("/api/team/check-id", makeMainSiteRouteHandler(routeCheckTeamCode))
-  router.post("/api/team/activate-team", makeMainSiteRouteHandler(routeActivateTeam))
+  router.post("/api/team/activate", makeMainSiteRouteHandler(routeActivateTeam))
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))
   router.post("/api/session/current", makeRouteHandler(routeCurrentSession, true))
@@ -110,14 +110,14 @@ export function startWebServer() {
     writeHtmlResponse(res, getRegistrationHtml())
   })
 
-  router.get("/new-team", (req, res) => writeHtmlResponse(res, getRegistrationHtml()))
+  router.get("/new-team", (req, res) => writeHtmlResponse(res, getNewTeamHtml()))
 
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
 
   wsEngineInit(server)
   server.listen(port, function () {
-    console.log(`The smallteam server is listening on: ${getMainDomainUrl()}`)
+    console.log(`The smallteam server is listening on: ${getMainDomainUrl()}/`)
   })
 
   // Scheduled task to remove password reset tokens each day.

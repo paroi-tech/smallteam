@@ -4,18 +4,19 @@ import { Request, Response } from "express"
 import Joi = require("joi")
 import { SessionData } from "../session"
 import { select, insert, deleteFrom } from "sql-bricks"
-import { tokenSize, serverConfig } from "../backendConfig"
+import { tokenSize, serverConfig, bcryptSaltRounds } from "../backendConfig"
 import validate from "../utils/joiUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { sendMail } from "../mail"
+import { hash } from "bcrypt"
 import { teamDbCn, getCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
-import { getMainDomainUrl } from "../utils/serverUtils"
+import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
 import { whyUsernameIsInvalid, whyNewPasswordIsInvalid, whyTeamCodeIsInvalid } from "../../isomorphic/libraries/helpers"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
-    teamName: Joi.string().min(1).trim().required(),
+    teamName: Joi.string().trim().min(1).required(),
     teamCode: Joi.string().trim().required(),
     name: Joi.string().trim().required(),
     username: Joi.string().trim().required(),
@@ -26,7 +27,7 @@ let joiSchemata = {
     teamCode: Joi.string().trim().required(),
   }),
   routeActivateTeam: Joi.object().keys({
-    token: Joi.string().trim().hex().length(tokenSize).required()
+    token: Joi.string().trim().hex().length(tokenSize * 2).required()
   })
 }
 
@@ -59,8 +60,9 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
 
   try {
     let teamId = await createTeam(tcn, cleanData)
+    let passwordHash = await hash(cleanData.password, bcryptSaltRounds)
 
-    await storeTeamToken(tcn, data, teamId, token)
+    await storeTeamToken(tcn, data, passwordHash, teamId, token)
     if (await sendTeamCreationMail(token, cleanData.email))
       await tcn.commit()
   } finally {
@@ -98,9 +100,10 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   try {
     await mkdir(p, 0o755)
     await removeTeamToken(tcn, token)
-    await storeFirstUser(await getCn(teamCode), cleanData)
+    await storeFirstUser(await getCn(teamCode), rs)
     tcn.commit()
     answer.done = true
+    answer.teamUrl = getTeamSiteUrl({ subdomain: teamCode })
   } catch (err) {
     console.error("Cannot activate team", err.message)
   } finally {
@@ -131,6 +134,7 @@ export async function routeCheckTeamCode(data: any, sessionData?: SessionData, r
   }
 
   return {
+    done: true,
     answer: b
   }
 }
@@ -147,16 +151,17 @@ async function createTeam(runner: QueryRunnerWithSqlBricks, data) {
   return teamId
 }
 
-async function storeTeamToken(runner: QueryRunnerWithSqlBricks, data, teamId: string, token: string) {
+async function storeTeamToken(runner: QueryRunnerWithSqlBricks, data, passwordHash: string, teamId: string, token: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + 3 * 24 * 3600 * 1000
   let query = insert("reg_team", {
     "token": token,
     "team_id": teamId,
     "user_email": data.email,
-    "user_name": data.username,
-    "user_password": data.password,
-    "crate_ts": currentTs,
+    "user_name": data.name,
+    "user_login": data.username,
+    "user_password": passwordHash,
+    "create_ts": currentTs,
     "expire_ts": expireTs
   })
 
@@ -170,7 +175,7 @@ async function removeTeamToken(runner: QueryRunnerWithSqlBricks, token: string) 
 }
 
 async function sendTeamCreationMail(token: string, email: string) {
-  let url = `${getMainDomainUrl()}/team.html?action=activate&token=${encodeURIComponent(token)}`
+  let url = `${getMainDomainUrl()}/new-team?action=activate&token=${encodeURIComponent(token)}`
   let text = `Please follow this link ${url} to activate your team.`
   let html = `Please click <a href="${url}">here</a> to activate your team.`
   let res = await sendMail(email, "Team activation", text, html)
@@ -183,11 +188,11 @@ async function sendTeamCreationMail(token: string, email: string) {
 
 async function storeFirstUser(runner: QueryRunnerWithSqlBricks, data) {
   let cmd = insert("contributor", {
-    "name": data.name,
-    "login": data.username,
-    "password": data.password,
+    "name": data["user_name"],
+    "login": data["user_login"],
+    "password": data["user_password"],
     "role": "admin",
-    "email": data.email
+    "email": data["user_email"]
   })
 
   await runner.execSqlBricks(cmd)
