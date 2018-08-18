@@ -11,18 +11,19 @@ import { sendMail } from "../mail"
 import { teamDbCn, getCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
 import { getMainDomainUrl } from "../utils/serverUtils"
+import { whyUsernameIsInvalid, whyNewPasswordIsInvalid, whyTeamCodeIsInvalid } from "../../isomorphic/libraries/helpers"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
-    teamName: Joi.string().trim(),
-    teamCode: Joi.string().trim().min(1).max(16).regex(/[a-z0-9][a-z0-9-]*[a-z0-9]$/g),
-    name: Joi.string().trim().min(4).max(255).required(),
-    username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }),
-    password: Joi.string().trim().min(8).required(),
+    teamName: Joi.string().min(1).trim().required(),
+    teamCode: Joi.string().trim().required(),
+    name: Joi.string().trim().required(),
+    username: Joi.string().trim().required(),
+    password: Joi.string().trim().required(),
     email: Joi.string().trim().email().required()
   }),
   routeCheckTeamCode: Joi.object().keys({
-    teamCode: Joi.string().trim().min(1).max(16).regex(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g),
+    teamCode: Joi.string().trim().required(),
   }),
   routeActivateTeam: Joi.object().keys({
     token: Joi.string().trim().hex().length(tokenSize).required()
@@ -31,6 +32,28 @@ let joiSchemata = {
 
 export async function routeCreateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let cleanData = await validate(data, joiSchemata.routeCreateTeam)
+
+  if (whyUsernameIsInvalid(cleanData.username)) {
+    return {
+      done: false,
+      reason: "Invalid username"
+    }
+  }
+
+  if (whyNewPasswordIsInvalid(cleanData.password)) {
+    return {
+      done: false,
+      reason: "Invalid password"
+    }
+  }
+
+  if (whyTeamCodeIsInvalid(cleanData.teamCode)) {
+    return {
+      done: false,
+      reason: "Invalid team code"
+    }
+  }
+
   let token = randomBytes(tokenSize).toString("hex")
   let tcn = await teamDbCn.beginTransaction()
 
@@ -90,6 +113,14 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
 
 export async function routeCheckTeamCode(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let cleanData = await validate(data, joiSchemata.routeCheckTeamCode)
+
+  if (whyTeamCodeIsInvalid(cleanData.teamCode)) {
+    return {
+      done: false,
+      reason: "Invalid team code"
+    }
+  }
+
   let query = select().from("team").where("team_code", cleanData.teamCode)
   let p = path.join(serverConfig.dataDir, cleanData.teamCode)
   let b = false

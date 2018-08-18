@@ -11,6 +11,7 @@ import { AuthorizationError, getTeamSiteUrl, BackendContext } from "./utils/serv
 import { getCn } from "./utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { getConfirmedSubdomain } from "./utils/serverUtils"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../isomorphic/libraries/helpers"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 
@@ -29,23 +30,23 @@ let numberRegex = /^[1-9][0-9]*$/
 
 let joiSchemata = {
   routeConnect: Joi.object().keys({
-    login: Joi.string().trim().alphanum().min(4).required(),
-    password: Joi.string().trim().min(8).required()
+    login: Joi.string().trim().alphanum().required(),
+    password: Joi.string().trim().required()
   }),
 
   routeSetPassword: Joi.object().keys({
     contributorId: Joi.string().regex(numberRegex).required(),
-    password: Joi.string().trim().min(8).required()
+    password: Joi.string().trim().required()
   }),
 
   routeChangePassword: Joi.object().keys({
-    currentPassword: Joi.string().min(8).required(),
-    newPassword: Joi.string().trim().min(8).required()
+    currentPassword: Joi.string().required(),
+    newPassword: Joi.string().trim().required()
   }),
 
   routeResetPassword: Joi.object().keys({
     token: Joi.string().required(),
-    password: Joi.string().trim().min(8).required(),
+    password: Joi.string().trim().required(),
     contributorId: Joi.string().regex(numberRegex).required()
   }),
 
@@ -115,6 +116,13 @@ export async function routeSetPassword(subdomain: string, data: any, sessionData
 
   let cleanData = await validate(data, joiSchemata.routeSetPassword)
 
+  if (whyNewPasswordIsInvalid(cleanData.password)) {
+    return {
+      done: false,
+      reason: "Invalid password"
+    }
+  }
+
   await updateContributorPassword(cn, cleanData.contributorId, cleanData.password)
 
   return {
@@ -129,6 +137,14 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
 
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeChangePassword)
+
+  if (whyNewPasswordIsInvalid(cleanData.newPassword)) {
+    return {
+      done: false,
+      reason: "Invalid password"
+    }
+  }
+
   let contributor = await getContributorById(cn, sessionData.contributorId)
 
   if (contributor && await compare(cleanData.currentPassword, contributor.password)) {
@@ -154,6 +170,14 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
   await destroySessionIfAny(req)
 
   let cleanData = await validate(data, joiSchemata.routeResetPassword)
+
+  if (whyNewPasswordIsInvalid(cleanData.password)) {
+    return {
+      done: false,
+      reason: "Invalid password"
+    }
+  }
+
   let tcn = await cn.beginTransaction()
   let answer = { done: false } as any
 
