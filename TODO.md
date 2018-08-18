@@ -17,10 +17,9 @@ the time, so I can't use JIRA.
   - Accept to open only for connected users
 
 # Lionel
-
+- Set `activated` attribute to `true` in `team` table on activation.
 - Remove trim on password
 - Replace `config.minPasswordLength` and `config.maxTeamCodeLength` with `whyNewPasswordIsInvalid()` and `whyTeamCodeIsInvalid()`
-config
 - Move the `sessions` database to the data directory
 - Paste images in the task description
 - Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
