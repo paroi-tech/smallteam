@@ -18,6 +18,7 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Remove trim on password
 - Replace `config.minPasswordLength` and `config.maxTeamCodeLength` with `whyNewPasswordIsInvalid()` and `whyTeamCodeIsInvalid()`
 config
 - Move the `sessions` database to the data directory
