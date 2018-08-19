@@ -33,7 +33,7 @@ export interface ServerConfig {
   }
 }
 
-export let serverConfig!: ServerConfig
+export let config!: ServerConfig
 export let platformVersion: string | undefined
 
 export async function loadServerConfig(): Promise<ServerConfig> {
@@ -42,15 +42,15 @@ export async function loadServerConfig(): Promise<ServerConfig> {
     throw new Error("Missing config parameter")
   let confFile = process.argv[paramIndex + 1]
   try {
-    serverConfig = JSON.parse((await readFile(confFile)).toString("utf8"))
+    config = JSON.parse((await readFile(confFile)).toString("utf8"))
   } catch (err) {
     throw new Error(`Cannot load the configuration file: ${err.message}`)
   }
-  if (serverConfig.versionFile)
-    platformVersion = await readPlatformVersion(serverConfig.versionFile)
+  if (config.versionFile)
+    platformVersion = await readPlatformVersion(config.versionFile)
   else
     platformVersion = "0"
-  return serverConfig
+  return config
 }
 
 export async function readPlatformVersion(versionFile): Promise<string> {

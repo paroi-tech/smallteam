@@ -11,7 +11,7 @@ import { SessionData } from "../session"
 import validate from "../utils/joiUtils"
 import { getCn } from "../utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { whyUsernameIsInvalid, whyNewPasswordIsInvalid } from "../../isomorphic/libraries/helpers"
+import { whyUsernameIsInvalid, whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({

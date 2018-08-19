@@ -1,9 +1,9 @@
-import { whyNewPasswordIsInvalid } from "../../isomorphic/libraries/helpers"
+import { whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import PasswordEdit from "../../frontend/generics/PasswordEdit/PasswordEdit"
-import InfoDialog from "../../frontend/generics/modalDialogs/InfoDialog/InfoDialog"
-import ErrorDialog from "../../frontend/generics/modalDialogs/ErrorDialog/ErrorDialog"
+import PasswordEdit from "../../sharedFrontend/PasswordEdit/PasswordEdit"
+import InfoDialog from "../../sharedFrontend/modalDialogs/InfoDialog/InfoDialog"
+import ErrorDialog from "../../sharedFrontend/modalDialogs/ErrorDialog/ErrorDialog"
 import App from "../App/App"
 
 const template = require("./PasswordResetDialog.monk")

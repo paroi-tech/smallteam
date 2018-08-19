@@ -1,9 +1,9 @@
 import { createTestAccount, createTransport, getTestMessageUrl } from "nodemailer"
-import { serverConfig } from "./backendConfig"
+import { config } from "./backendConfig"
 
 async function getSettings() {
-  if (serverConfig.env === "prod")
-    return serverConfig.mail
+  if (config.env === "prod")
+    return config.mail
 
   try {
     let testAccount = await createTestAccount()
@@ -52,7 +52,7 @@ export async function sendMail(to: string, subject: string, text: string, html: 
 
     answer.done = true
 
-    if (serverConfig.env === "local") {
+    if (config.env === "local") {
       console.log("Mail sent:", info.messageId)
       console.log("Preview URL:", getTestMessageUrl(info))
     }

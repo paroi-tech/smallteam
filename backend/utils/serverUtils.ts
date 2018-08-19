@@ -1,6 +1,6 @@
 import { Request } from "express"
 import { fileExists } from "./fsUtils"
-import { serverConfig } from "../backendConfig"
+import { config } from "../backendConfig"
 import * as path from "path"
 
 export class ValidationError extends Error {
@@ -30,13 +30,13 @@ export function getRequestedSubdomain(req: Request) {
 
 export async function getConfirmedSubdomain(req: Request) {
   let subDomain = getRequestedSubdomain(req)
-  if (subDomain && await fileExists(path.join(serverConfig.dataDir, subDomain))) // TODO: Check it is a directory
+  if (subDomain && await fileExists(path.join(config.dataDir, subDomain))) // TODO: Check it is a directory
     return subDomain
 }
 
 export function getSubdirUrl() {
-  if (!serverConfig.mode || serverConfig.mode === "singleTeam") {
-    let subdirUrl = serverConfig.singleTeam ? serverConfig.singleTeam.subdirUrl : undefined
+  if (!config.mode || config.mode === "singleTeam") {
+    let subdirUrl = config.singleTeam ? config.singleTeam.subdirUrl : undefined
     return subdirUrl || ""
   }
   return ""
@@ -47,16 +47,16 @@ export interface BackendContext {
 }
 
 export function getTeamSiteUrl(context: BackendContext) {
-  let protocol = serverConfig.ssl ? "https" : "http"
-  let publicPort = serverConfig.publicPort || serverConfig.port
+  let protocol = config.ssl ? "https" : "http"
+  let publicPort = config.publicPort || config.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  let domain = context.subdomain ? `${context.subdomain}.${serverConfig.mainDomain}` : serverConfig.mainDomain
+  let domain = context.subdomain ? `${context.subdomain}.${config.mainDomain}` : config.mainDomain
   return `${protocol}://${domain}${portSuffix}${getSubdirUrl()}`
 }
 
 export function getMainDomainUrl() {
-  let protocol = serverConfig.ssl ? "https" : "http"
-  let publicPort = serverConfig.publicPort || serverConfig.port
+  let protocol = config.ssl ? "https" : "http"
+  let publicPort = config.publicPort || config.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  return `${protocol}://${serverConfig.mainDomain}${portSuffix}${getSubdirUrl()}`
+  return `${protocol}://${config.mainDomain}${portSuffix}${getSubdirUrl()}`
 }

@@ -2,11 +2,11 @@ import * as path from "path"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { fileExists, readFile } from "./fsUtils"
-import { MediaEngine, createMediaEngine } from "../createMediaEngine"
-import { serverConfig } from "../backendConfig"
+import { MediaEngine, createMediaEngine } from "../team/createMediaEngine"
+import { config } from "../backendConfig"
 
 export function getSessionDbConf() {
-  let dir = serverConfig.dataDir
+  let dir = config.dataDir
   let file = "sessions.sqlite"
 
   return {
@@ -19,8 +19,8 @@ export function getSessionDbConf() {
 export let teamDbCn!: DatabaseConnectionWithSqlBricks
 
 export async function initDbTeamCn() {
-  let dbPath = path.join(serverConfig.dataDir, "teams.sqlite")
-  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "teams.sql")
+  let dbPath = path.join(config.dataDir, "platform.sqlite")
+  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
 
   teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
@@ -31,8 +31,8 @@ export async function getCn(subdomain: string): Promise<DatabaseConnectionWithSq
   let cn = cnMap.get(subdomain)
 
   if (!cn) {
-    let dbPath = path.join(serverConfig.dataDir, subdomain, "main.sqlite")
-    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "main.sql")
+    let dbPath = path.join(config.dataDir, subdomain, "team.sqlite")
+    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
     let up = subdomain.toUpperCase()
     let debug = `[${up}]`
 
@@ -49,7 +49,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
   let engine = ngMap.get(subdomain)
 
   if (!engine) {
-    let dbPath = path.join(serverConfig.dataDir, subdomain, "files.sqlite")
+    let dbPath = path.join(config.dataDir, subdomain, "files.sqlite")
     let execDdl = !await fileExists(dbPath)
     let up = subdomain.toUpperCase()
     let debug = `[F-${up}]`

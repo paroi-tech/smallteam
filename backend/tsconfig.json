@@ -1,18 +1,19 @@
 {
   "compilerOptions": {
-    "module": "commonjs",
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
     "target": "es2017",
+    "module": "commonjs",
+    "sourceMap": true,
     "lib": [
       "es2017"
     ],
     "moduleResolution": "node",
-    "sourceMap": true,
-    "strict": true,
-    "noImplicitAny": false,
-    "noImplicitThis": false,
     "outDir": "../www-server"
   },
-  "exclude": [
-    "../node_modules"
+  "include": [
+    ".",
+    "../shared"
   ]
 }

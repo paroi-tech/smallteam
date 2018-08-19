@@ -1,4 +1,4 @@
-var path = require("path")
+var path = require("path");
 
 module.exports = {
   mode: "development",
@@ -6,7 +6,7 @@ module.exports = {
   resolve: {
     extensions: [".ts", ".js"],
   },
-  entry: [ path.join(__dirname, "main.ts") ],
+  entry: [/* 'whatwg-fetch', */ path.join(__dirname, "main.ts")],
   output: {
     path: path.join(__dirname, "..", "www-server", "www"),
     filename: "bundle-team.js"

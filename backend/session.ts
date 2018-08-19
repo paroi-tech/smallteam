@@ -11,7 +11,7 @@ import { AuthorizationError, getTeamSiteUrl, BackendContext } from "./utils/serv
 import { getCn } from "./utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { getConfirmedSubdomain } from "./utils/serverUtils"
-import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../isomorphic/libraries/helpers"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../shared/libraries/helpers"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 

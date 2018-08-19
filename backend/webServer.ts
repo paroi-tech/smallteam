@@ -2,23 +2,23 @@ import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
 import { SessionData } from "./session"
-import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./appModelBackend"
+import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./registration/registration"
 import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
-import { wsEngineInit } from "./wsEngine"
+import { wsEngineInit } from "./team/wsEngine"
 import { ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain, getMainDomainUrl, getSubdirUrl } from "./utils/serverUtils"
-import { routeCreateTeam, routeCheckTeamCode, routeActivateTeam } from "./newTeam/team"
-import { MEDIAS_BASE_URL } from "./createMediaEngine"
+import { routeCreateTeam, routeCheckTeamCode, routeActivateTeam } from "./platform/platform"
+import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
 import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
 
 import express = require("express")
 import session = require("express-session")
 import makeSQLiteExpressStore = require("connect-sqlite3")
-import { serverConfig } from "./backendConfig"
-import { getMainHtml } from "./main/frontend"
+import { config } from "./backendConfig"
+import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
-import { getNewTeamHtml } from "./newTeam/frontend"
+import { getNewTeamHtml } from "./platform/frontend"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -28,7 +28,7 @@ function getSubdomainOffset(mainDomain: string) {
 }
 
 export function startWebServer() {
-  let { port, mainDomain } = serverConfig
+  let { port, mainDomain } = config
 
   let app = express()
   app.set("subdomain offset", getSubdomainOffset(mainDomain))
@@ -117,7 +117,7 @@ export function startWebServer() {
 
   wsEngineInit(server)
   server.listen(port, function () {
-    console.log(`The smallteam server is listening on: ${getMainDomainUrl()}/`)
+    console.log(`The server is listening on: ${getMainDomainUrl()}/`)
   })
 
   // Scheduled task to remove password reset tokens each day.

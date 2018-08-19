@@ -4,12 +4,10 @@ node_modules
 www-server/*
 !www-server/sqlite-scripts
 !www-server/www
-www-server/www/bundle.js*
-www-server/www/bundle-registration.js*
-www-server/www/bundle-team.js*
-www-server/www/smallteam.css*
+www-server/www/bundle*.js*
+www-server/www/team.css*
+www-server/www/platform.css*
+www-server/www/registration.css*
 *.sqlite
 
 /config.json
-
-.ropeproject

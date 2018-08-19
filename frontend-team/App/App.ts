@@ -1,70 +1,161 @@
-import { AppDash, Log, LogEvent, registerApplication } from "bkb"
-import TeamCreationDialog from "../../frontend/generics/TeamCreationDialog/TeamCreationDialog"
-import { ErrorDialog, InfoDialog } from "../../frontend/generics/modalDialogs/modalDialogs"
+import { AppDash, Log, LogEvent, EventName, EventCallback } from "bkb"
+import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
+import { BgCommand } from "../AppModel/BgCommandManager"
+import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
+import LoginDialog from "../generics/LoginDialog/LoginDialog"
+import PasswordRequestDialog from "../generics/PasswordRequestDialog/PasswordRequestDialog"
+import AppFrame from "../AppFrame/AppFrame"
+import { WarningDialog, InfoDialog } from "../../sharedFrontend/modalDialogs/modalDialogs"
 
 export default class App {
   readonly log: Log
   readonly baseUrl: string
-  private teamDialog: TeamCreationDialog
+  private _model!: Model
+  private appFrame?: AppFrame
 
-  constructor(private dash: AppDash<App>, private action?: string, private token?: string) {
+  constructor(private dash: AppDash<App>) {
     this.log = dash.log
     this.baseUrl = document.documentElement.dataset.baseUrl || ""
-    this.teamDialog = this.dash.create(TeamCreationDialog)
+
     this.dash.listenTo<LogEvent>("log", data => {
       console.log(`[${data.level}]`, ...data.messages)
     })
+
+    this.dash.addDashAugmentation(d => {
+      return {
+        listenToModel: (eventName: EventName, listener: EventCallback, thisArg?: any) => {
+          return d.listenTo(this._model, eventName, listener, thisArg)
+        }
+      }
+    })
   }
 
-  public start() {
-    if ((!this.action && !this.token) || (this.action === "register")) {
-      this.showTeamCreationDialog()
-      return
-    }
-
-    if (this.action === "activate") {
-      this.activateTeam()
-      return
-    }
-
-    throw new Error("Unknown action parameter")
+  public async alert(msg: string) {
+    await this.dash.create(WarningDialog).show(msg)
   }
 
-  private async activateTeam() {
-    if (!this.token)
-      throw new Error("Token not found")
+  public get model(): Model {
+    if (!this._model)
+      throw new Error("The application is still not initialized")
+    return this._model
+  }
 
+  public async navigate(queryString: string): Promise<void> {
+    if (!this.appFrame)
+      return
+    await this.appFrame.viewer.router.navigate(queryString)
+  }
+
+  public async connect(): Promise<string> {
+    // First, we try to recover session, if there is one active...
     try {
-      let response = await fetch(`${this.baseUrl}/api/team/activate`, {
+      let response = await fetch(`${this.baseUrl}/api/session/current`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ token: this.token })
+        body: JSON.stringify({})
       })
 
-      if (!response.ok) {
-        await this.dash.create(ErrorDialog).show("Cannot complete this task now. Try again in a moment.")
-        return
+      if (!response.ok)
+        this.log.warn("Unable to get a response from server while trying to recover session.")
+      else {
+        let result = await response.json()
+        if (result.done)
+          return result.contributorId as string
       }
+    } catch (err) {
+      this.log.warn(err)
+    }
 
-      let data = await response.json()
+    // Show login dialog if session recover failed.
+    let dialog = this.dash.create(LoginDialog)
+    return await dialog.open()
+  }
 
-      if (!data.done) {
-        this.dash.create(ErrorDialog).show("Team activation failed.")
-        return
+  public async disconnect() {
+    try {
+      let response = await fetch(`${this.baseUrl}/api/session/disconnect`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: new Headers({
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify({})
+      })
+
+      if (!response.ok)
+        this.log.error("Unable to get a response from server while trying to disconnect...")
+      else {
+        let result = await response.json()
+
+        if (result.done) {
+          await this.navigate("") // This prevents the router to show current page at next login.
+          document.location.reload(false)
+        } else {
+          await this.dash.create(InfoDialog).show("Unable to end session. Please try again.")
+        }
       }
-      // FIXME: redirect to home if there is no base URL.
-      document.location.href = `${data.teamUrl}`
-    } catch (error) {
-      this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
+    } catch (err) {
+      this.log.warn("Unable to disconnect user...")
     }
   }
 
-  private async showTeamCreationDialog() {
-    if(await this.teamDialog.open())
-      console.log("Team registered...")
+  public async showPasswordResetDialog() {
+    let dialog = this.dash.create(PasswordRequestDialog)
+    try {
+      await dialog.open()
+    } catch (error) {
+      console.log(error)
+    }
+  }
+
+  public async start(sessionData: SessionData) {
+    await this.initModel(sessionData)
+
+    let appEl = document.querySelector(".js-app")
+
+    if (appEl) {
+      this.appFrame = this.dash.create(AppFrame)
+      appEl.appendChild(this.appFrame.el)
+    }
+  }
+
+  private async initModel(sessionData: SessionData) {
+    this._model = this.dash.create(ModelComp, sessionData)
+
+    let modelDash = this.dash.getPublicDashOf(this.model)
+
+    modelDash.unmanagedListeners.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
+      if ("orderedIds" in data)
+        console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
+      else
+        console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
+
+    modelDash.unmanagedListeners.on<BgCommand>("bgCommandAdded", data => {
+      console.log(`[BG] Add: ${data.label}`)
+    })
+
+    modelDash.unmanagedListeners.on<BgCommand>("bgCommandDone", data => {
+      console.log(`[BG] Done: ${data.label}`)
+    })
+
+    modelDash.unmanagedListeners.on<BgCommand>("bgCommandError", data => {
+      console.log(`[BG] Error: ${data.label}`, data.errorMessage)
+    })
+
+    modelDash.unmanagedListeners.on<UpdateModelEvent>("processing", data => {
+      console.log(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
+
+    modelDash.unmanagedListeners.on<UpdateModelEvent>("endProcessing", data => {
+      console.log(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
+    })
+
+    await this.model.global.loading
   }
 }

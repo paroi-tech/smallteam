@@ -1,0 +1,98 @@
+@import "../definitions";
+
+button, label, input, textarea {
+  font-family: inherit;
+}
+
+.FormField {
+  display: block;
+
+  &-span {
+    display: block;
+    font-weight: bold;
+  }
+}
+
+.SimpleTitle {
+  font-size: $f24;
+  font-family: Georgia, serif;
+}
+
+.Form {
+  &-item {
+    margin-bottom: 9px;
+
+    &.-gap {
+      margin-top: 14px;
+    }
+  }
+
+  // &.-spaced &-item {
+  //   margin-bottom: 18px;
+  // }
+
+  &-action {
+    margin-top: 11px;
+  }
+}
+
+.TextField {
+  display: block;
+  font-size: $f14;
+
+  &-lbl {
+    color: #051837;
+    display: block;
+    height: 17px;
+  }
+
+  &-input {
+    border: 1px solid #e8e8e8;
+    display: block;
+    height: 34px;
+    line-height: 32px;
+    padding: 0 7px;
+    width: 100%;
+    &::placeholder {
+      color: #ababab;
+    }
+  }
+
+  &-deco {
+    display: block;
+  }
+
+  &-deco.-leftBlue {
+    border-left: 4px solid #5584ff;
+  }
+
+  &-deco.-leftBlue &-input {
+    // padding-left: 5px;
+    border-left: none;
+    padding-left: 32px;
+  }
+
+  &-deco.-icon &-input {
+    padding-left: 32px;
+  }
+
+  &-deco.-icon {
+    position: relative;
+  }
+
+  &-deco.-icon::before {
+    content: "";
+    height: 16px;
+    left: 8px;
+    margin-top: -8px;
+    position: absolute;
+    top: 50%;
+    width: 16px;
+  }
+  &-deco.-icon.-profile::before {
+    @include bgSprite(-89px, -26px);
+  }
+  &-deco.-icon.-lock::before {
+    @include bgSprite(-89px, -2px);
+  }
+}
