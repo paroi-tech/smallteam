@@ -12,7 +12,7 @@ export function getNewTeamHtml() {
   <title>Platform</title>
   <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
   <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
-  <link rel="stylesheet" media="all" href="platform.css?v=${v}">
+  <link rel="stylesheet" media="all" href="bundle-platform.css?v=${v}">
   <script src="bundle-platform.js?v=${v}" defer></script>
 </head>
 <body>

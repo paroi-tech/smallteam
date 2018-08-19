@@ -1,13 +1,10 @@
-# Dependencies
 node_modules
 
 www-server/*
 !www-server/sqlite-scripts
 !www-server/www
 www-server/www/bundle*.js*
-www-server/www/team.css*
-www-server/www/platform.css*
-www-server/www/registration.css*
+www-server/www/bundle*.css*
 *.sqlite
 
 /config.json

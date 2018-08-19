@@ -18,9 +18,7 @@
     "www-server/shared": true,
     "www-server/*.sqlite": true,
     "www-server/www/bundle*.js*": true,
-    "www-server/www/team.css": true,
-    "www-server/www/platform.css": true,
-    "www-server/www/registration.css": true,
+    "www-server/www/bundle*.css*": true,
     "www-server/www/**/*.min.*": true
   },
   // "search.useIgnoreFiles": false,
