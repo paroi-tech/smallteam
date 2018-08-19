@@ -11,19 +11,20 @@ import { SessionData } from "../session"
 import validate from "../utils/joiUtils"
 import { getCn } from "../utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { whyUsernameIsInvalid, whyNewPasswordIsInvalid } from "../../isomorphic/libraries/helpers"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({
-    username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).optional(),
+    username: Joi.string().trim().optional(),
     email: Joi.string().email().required(),
-    validity: Joi.number().integer().min(1).max(30)
+    validity: Joi.number().integer().min(1).max(30).required()
   }),
 
   routeResendInvitation: Joi.object().keys({
     invitationId: Joi.number().min(1).required(),
     email: Joi.string().email().required(),
-    username: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).optional(),
-    validity: Joi.number().integer().min(1).max(30)
+    username: Joi.string().trim().optional(),
+    validity: Joi.number().integer().min(1).max(30).required()
   }),
 
   routeCancelInvitation: Joi.object().keys({
@@ -32,10 +33,10 @@ let joiSchemata = {
 
   routeRegister: Joi.object().keys({
     name: Joi.string().trim().min(1).required(),
-    login: Joi.string().trim().min(4).regex(/[^a-zA-Z_0-9]/, { invert: true }).required(),
-    password: Joi.string().trim().min(8).required(),
+    login: Joi.string().trim().required(),
+    password: Joi.string().trim().required(),
     email: Joi.string().email().required(),
-    token: Joi.string().hex().length(tokenSize).required()
+    token: Joi.string().hex().length(tokenSize * 2).required()
   })
 }
 
@@ -51,6 +52,14 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeSendInvitation)
+
+  if (cleanData.username && whyUsernameIsInvalid(cleanData.username)) {
+    return {
+      done: false,
+      reason: "Invalid username"
+    }
+  }
+
   let token = randomBytes(tokenSize).toString("hex")
   let tcn = await cn.beginTransaction()
   let answer = { done: false } as any
@@ -82,6 +91,13 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
+
+  if (cleanData.username && whyUsernameIsInvalid(cleanData.username)) {
+    return {
+      done: false,
+      reason: "Invalid username"
+    }
+  }
 
   if (!existsInvitationWithId(cn, cleanData.invitationId)) {
     return {
@@ -134,6 +150,20 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
 export async function routeRegister(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeRegister)
+
+  if (whyUsernameIsInvalid(cleanData.login)) {
+    return {
+      done: false,
+      reason: "Invalid login"
+    }
+  }
+
+  if (whyNewPasswordIsInvalid(cleanData.password)) {
+    return {
+      done: false,
+      reason: "Invalid password"
+    }
+  }
 
   if (!await existsInvitationWithToken(cn, cleanData.token)) {
     return {

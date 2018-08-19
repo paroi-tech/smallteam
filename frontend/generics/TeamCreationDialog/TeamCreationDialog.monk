@@ -15,9 +15,16 @@
     </label>
 
     <label class="Form-item TextField">
-      <span class="TextField-lbl">Username</span>
+      <span class="TextField-lbl">Name of default user</span>
       <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="username" type="text" placeholder="Username">
+        <input class="TextField-input" :ref="name" type="text" placeholder="Name">
+      </span>
+    </label>
+
+    <label class="Form-item TextField">
+      <span class="TextField-lbl">Login of default user</span>
+      <span class="TextField-deco -leftBlue">
+        <input class="TextField-input" :ref="login" type="text" placeholder="Login">
       </span>
     </label>
 

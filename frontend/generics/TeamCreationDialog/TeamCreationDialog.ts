@@ -11,7 +11,8 @@ export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement
   private teamNameEl: HTMLInputElement
   private teamCodeEl: HTMLInputElement
-  private usernameEl: HTMLInputElement
+  private nameEl: HTMLInputElement
+  private loginEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
   private emailEl: HTMLInputElement
@@ -21,10 +22,12 @@ export default class TeamCreationDialog {
 
   constructor(private dash: Dash<{ baseUrl: string }>) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.teamNameEl = view.ref("teamName")
     this.teamCodeEl = view.ref("teamCode")
-    this.usernameEl = view.ref("username")
+    this.nameEl = view.ref("name")
+    this.loginEl = view.ref("login")
     this.passwordEl = view.ref("password")
     this.confirmEl = view.ref("confirm")
     this.emailEl = view.ref("email")
@@ -47,13 +50,13 @@ export default class TeamCreationDialog {
     document.body.appendChild(this.el)
     this.el.showModal()
     this.curDfd = new Deferred()
+
     return this.curDfd.promise
   }
 
   private async onSubmit() {
     let dialog = this.dash.create(WarningDialog)
     let checkMsg: string | undefined
-
     let teamName = this.teamNameEl.value.trim()
 
     if (teamName.length === 0) {
@@ -71,15 +74,22 @@ export default class TeamCreationDialog {
       return
     }
 
-    let username = this.usernameEl.value.trim()
+    let name = this.nameEl.value.trim()
 
-    checkMsg = whyUsernameIsInvalid(username)
-    if (checkMsg) {
-      await dialog.show(checkMsg)
-      this.usernameEl.focus()
+    if (name.length === 0) {
+      await dialog.show("Please enter a name for the user.")
+      this.teamNameEl.focus()
       return
     }
 
+    let login = this.loginEl.value.trim()
+
+    checkMsg = whyUsernameIsInvalid(login)
+    if (checkMsg) {
+      await dialog.show(checkMsg)
+      this.loginEl.focus()
+      return
+    }
 
     let password = this.passwordEl.value.trim()
 
@@ -106,7 +116,8 @@ export default class TeamCreationDialog {
     let data = await this.checkTeamCode(teamCode)
 
     if (!data.done) {
-      await dialog.show("Something went wrong. We could not contact server for the moment")
+      await dialog.show("Something went wrong. We could not contact server for the moment.")
+      console.log(data)
       return
     }
 
@@ -116,7 +127,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    if (await this.register(teamName, teamCode, username, password, email) && this.curDfd) {
+    if (await this.register(teamName, teamCode, name, login, password, email) && this.curDfd) {
       this.curDfd.resolve(true)
       this.curDfd = undefined
       this.el.close()
@@ -137,8 +148,10 @@ export default class TeamCreationDialog {
         body: JSON.stringify({ teamCode })
       })
 
-      if (response.ok)
+      if (response.ok) {
         returnValue.answer = (await response.json()).answer
+        returnValue.done = true
+      }
     } catch (error) {
       this.dash.log.error("Unable to get response from server", error)
     }
@@ -146,7 +159,7 @@ export default class TeamCreationDialog {
     return returnValue
   }
 
-  private async register(teamName: string, teamCode: string, username: string, password: string, email: string) {
+  private async register(teamName: string, teamCode: string, name: string, username: string, password: string, email: string) {
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/team/create`, {
         method: "post",
@@ -155,22 +168,26 @@ export default class TeamCreationDialog {
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ teamName, teamCode, username, password, email })
+        body: JSON.stringify({ teamName, teamCode, name, username, password, email })
       })
-      if (!response.ok)
-        throw new Error("Our server did not process the request.")
+
+      if (!response.ok) {
+        await this.dash.create(ErrorDialog).show("Cannot complete this task now. Try again in a moment.")
+        return false
+      }
 
       let answer = await response.json()
+
       if (answer.done) {
         this.dash.create(InfoDialog).show("You have been successfully registred.")
         return true
       } else {
-        this.dash.create(InfoDialog).show("Registration failed. Try again later or contact the admin.")
+        this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
         return false
       }
     } catch (error) {
-      this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
       this.dash.log.error(error)
+      this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
     }
 
     return false

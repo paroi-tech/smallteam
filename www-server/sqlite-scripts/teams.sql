@@ -13,7 +13,8 @@ create table reg_team (
     token varchar(255) not null unique,
     team_id integer not null unique references team(team_id),
     user_email varchar(255) not null,
-    user_name varchar(255),
+    user_name varchar(255) not null,
+    user_login varchar(255) not null,
     user_password varchar(255) not null,
     expire_ts timestamp not null,
     create_ts timestamp not null default current_timestamp

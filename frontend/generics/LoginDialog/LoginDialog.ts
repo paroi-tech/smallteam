@@ -58,15 +58,6 @@ export default class LoginDialog {
 
     let login = this.nameEl.value.trim()
     let password = this.passwordEl.value.trim()
-
-    let checkMsg = whyUsernameIsInvalid(login)
-
-    if (checkMsg) {
-      await this.dash.create(WarningDialog).show(checkMsg)
-
-      return
-    }
-
     let contributorId = await this.tryToLogin(login, password)
 
     this.hideSpinner()
