@@ -1,7 +1,7 @@
 {
   "env": "local",
   "ssl": true,
-  "mainDomain": "commit.team",
+  "domain": "commit.team",
   "port": 3921,
   "publicPort": 80,
   "dataDir": "/path/to/site/data/folder",

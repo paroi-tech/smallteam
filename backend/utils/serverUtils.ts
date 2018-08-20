@@ -50,7 +50,7 @@ export function getTeamSiteUrl(context: BackendContext) {
   let protocol = config.ssl ? "https" : "http"
   let publicPort = config.publicPort || config.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  let domain = context.subdomain ? `${context.subdomain}.${config.mainDomain}` : config.mainDomain
+  let domain = context.subdomain ? `${context.subdomain}.${config.domain}` : config.domain
   return `${protocol}://${domain}${portSuffix}${getSubdirUrl()}`
 }
 
@@ -58,5 +58,5 @@ export function getMainDomainUrl() {
   let protocol = config.ssl ? "https" : "http"
   let publicPort = config.publicPort || config.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  return `${protocol}://${config.mainDomain}${portSuffix}${getSubdirUrl()}`
+  return `${protocol}://${config.domain}${portSuffix}${getSubdirUrl()}`
 }

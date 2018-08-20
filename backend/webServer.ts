@@ -23,15 +23,15 @@ import { getNewTeamHtml } from "./platform/frontend"
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 
-function getSubdomainOffset(mainDomain: string) {
-  return (mainDomain.match(/\./g) || []).length + 1
+function getSubdomainOffset(domain: string) {
+  return (domain.match(/\./g) || []).length + 1
 }
 
 export function startWebServer() {
-  let { port, mainDomain } = config
+  let { port, domain } = config
 
   let app = express()
-  app.set("subdomain offset", getSubdomainOffset(mainDomain))
+  app.set("subdomain offset", getSubdomainOffset(domain))
 
   let server = http.createServer(app)
 

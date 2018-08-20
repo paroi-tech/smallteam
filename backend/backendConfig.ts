@@ -6,7 +6,10 @@ export const tokenSize = 16
 export interface ServerConfig {
   env: "prod" | "local"
   ssl: boolean
-  mainDomain: string
+  /**
+   * In the `platform` mode, this is the main domain.
+   */
+  domain: string
   port: number
   publicPort?: number
   dataDir: string
