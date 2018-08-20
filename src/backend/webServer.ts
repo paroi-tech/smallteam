@@ -1,10 +1,10 @@
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
-import { SessionData } from "./session"
+import { SessionData, hasSessionForSubdomain } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
 import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./registration/registration"
-import { getSessionData, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import { removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
 import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./team/wsEngine"
 import { ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain, getMainDomainUrl, getSubdirUrl } from "./utils/serverUtils"
@@ -137,23 +137,19 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
       return
     }
 
-    if (!isPublic) {
-      try {
-        let sessionData = await getSessionData(req)
-        if (!sessionData || sessionData.subdomain !== subdomain) {
-          write404(res)
-          return
-        }
-      } catch (error) {
+    try {
+      if (!isPublic && !hasSessionForSubdomain(req, subdomain)) {
         write404(res)
         return
       }
+    } catch (error) {
+      writeServerResponseError(res, error)
+      return
     }
 
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
-      // TODO: routes could specify status in their result.
       writeJsonResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)

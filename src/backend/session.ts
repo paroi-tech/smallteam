@@ -82,7 +82,7 @@ export async function routeCurrentSession(subdomain: string, data: any, sessionD
   if (!req)
     throw new Error("Request object missing 'routeCurrentSession'")
 
-  if (await hasSession(req) && req.session!.subdomain === subdomain) {
+  if (await hasSessionForSubdomain(req, subdomain)) {
     return {
       done: true,
       accountId: req.session!.accountId
@@ -260,6 +260,22 @@ export async function hasSession(req: Request) {
   if (typeof req.session.accountId !== "string" || typeof req.session.subdomain !== "string")
     return false
   if (subdomain !== req.session.subdomain)
+    return false
+
+  return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
+}
+
+/**
+ * Note: the subdomain parameter should be the result of getConfirmedSubdomain()
+ * with the request object as parameter. This function is used to avoid to call
+ * getConfirmedSubdomain twice with the same request object.
+ */
+export async function hasSessionForSubdomain(req: Request, subdomain: string) {
+  if (!req.session || !req.session.accountId || !req.session.subdomain)
+    return false
+  if (typeof req.session.accountId !== "string" || typeof req.session.subdomain !== "string")
+    return false
+  if (req.session.subdomain !== subdomain)
     return false
 
   return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
