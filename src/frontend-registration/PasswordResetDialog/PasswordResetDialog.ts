@@ -16,6 +16,7 @@ export default class LoginDialog {
 
   constructor(private dash: Dash<App>, private accountId: string, private token: string) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.spinnerEl = view.ref("spinner")
 
@@ -23,6 +24,7 @@ export default class LoginDialog {
     view.ref("container").appendChild(this.edit.el)
 
     let btnEl: HTMLButtonElement = view.ref("submitBtn")
+
     btnEl.addEventListener("click", ev => this.onSubmit())
     this.el.addEventListener("keyup", (ev: KeyboardEvent) => {
       if (ev.key === "Enter")
@@ -44,15 +46,14 @@ export default class LoginDialog {
     if (password === undefined) {
       await this.dash.create(InfoDialog).show("Passwords do not match.")
       this.edit.focus()
-
       return
     }
 
     let checkMsg = whyNewPasswordIsInvalid(password)
+
     if (checkMsg) {
       await this.dash.create(InfoDialog).show(checkMsg)
       this.edit.focus()
-
       return
     }
 
@@ -63,8 +64,7 @@ export default class LoginDialog {
 
   private async doPasswordChange(password: string) {
     try {
-      let b = await this.doFetch(password)
-      if (b) {
+      if (await this.doFetch(password)) {
         let fn = () => window.location.href = `${this.dash.app.baseUrl}/`
         setTimeout(fn, 4000)
         await this.dash.create(InfoDialog).show("Password changed. You will be redirected to the login page.")

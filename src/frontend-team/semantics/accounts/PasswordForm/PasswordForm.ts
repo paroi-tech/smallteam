@@ -34,6 +34,7 @@ export default class PasswordForm {
 
   private async onSubmit() {
     let cleanData = await this.checkUserInput()
+
     if (!cleanData)
       return
     this.showSpinner()
@@ -42,13 +43,12 @@ export default class PasswordForm {
   }
 
   private async checkUserInput() {
-    let currentPassword = this.currentPasswordEl.value.trim()
+    let currentPassword = this.currentPasswordEl.value
     let newPassword = this.passwordEdit.getPasswordIfMatch()
 
     if (!newPassword) {
       await this.dash.create(InfoDialog).show("Passwords do not match.")
       this.passwordEdit.focus()
-
       return undefined
     }
 
@@ -86,11 +86,13 @@ export default class PasswordForm {
       }
 
       let result = await response.json()
+
       if (result.done) {
         this.clearFields()
         await this.dash.create(InfoDialog).show("Password successfully updated.")
       } else {
         let msg = "Password was not changed. Maybe you mistyped your current password."
+
         await this.dash.create(InfoDialog).show(msg)
       }
     } catch (err) {

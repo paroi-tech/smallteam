@@ -6,6 +6,7 @@ import { OwnDash } from "../../../App/OwnDash"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
 import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { validateEmail } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./AccountForm.monk")
 
@@ -216,6 +217,7 @@ export default class AccountForm {
       }
 
       let data = await response.json()
+
       if (!data.done)
         this.dash.log.error("Password not changed.")
       else
@@ -249,7 +251,7 @@ export default class AccountForm {
       return undefined
     }
 
-    if (!this.validateEmail(frag.email)) {
+    if (!this.checkEmail(frag.email)) {
       this.log.warn("Invalid email...")
       this.emailEl.focus()
       return undefined
@@ -271,9 +273,9 @@ export default class AccountForm {
     this.state.role  = ""
   }
 
-  private validateEmail(email: string): boolean {
+  private checkEmail(email: string): boolean {
     // Email address is limited to 254 characters => https://en.wikipedia.org/wiki/Email_address
-    return (email.length > 0 && email.length <= 254)
+    return (email.length > 0 && email.length <= 254 && validateEmail(email))
   }
 
   private showIndicator() {

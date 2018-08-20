@@ -91,7 +91,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    let password = this.passwordEl.value.trim()
+    let password = this.passwordEl.value
 
     checkMsg = whyNewPasswordIsInvalid(password)
     if (checkMsg) {
@@ -100,13 +100,14 @@ export default class TeamCreationDialog {
       return
     }
 
-    if (this.confirmEl.value.trim() !== password) {
+    if (this.confirmEl.value !== password) {
       await dialog.show("Passwords do not match.")
       this.confirmEl.focus()
       return
     }
 
     let email = this.emailEl.value.trim()
+
     if (email.length === 0 || !validateEmail(email)) {
       await dialog.show("Please enter a valid email address.")
       this.emailEl.focus()

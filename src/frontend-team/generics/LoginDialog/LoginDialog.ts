@@ -56,7 +56,7 @@ export default class LoginDialog {
     this.showSpinner()
 
     let login = this.nameEl.value.trim()
-    let password = this.passwordEl.value.trim()
+    let password = this.passwordEl.value
     let accountId = await this.tryToLogin(login, password)
 
     this.hideSpinner()
@@ -94,6 +94,7 @@ export default class LoginDialog {
       }
 
       let result = await response.json()
+
       if (result.done) {
         let accountId = result.accountId as string
         return accountId

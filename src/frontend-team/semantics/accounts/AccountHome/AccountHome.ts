@@ -13,6 +13,7 @@ export default class AccountHome implements Workspace {
 
   constructor(private dash: OwnDash, private account: AccountModel) {
     let view = render(template)
+
     this.el = view.rootEl()
 
     let form = this.dash.create(AccountForm, false)

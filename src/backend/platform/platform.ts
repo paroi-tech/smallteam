@@ -20,7 +20,7 @@ let joiSchemata = {
     teamCode: Joi.string().trim().required(),
     name: Joi.string().trim().required(),
     username: Joi.string().trim().required(),
-    password: Joi.string().trim().required(),
+    password: Joi.string().required(),
     email: Joi.string().trim().email().required()
   }),
   routeCheckTeamCode: Joi.object().keys({

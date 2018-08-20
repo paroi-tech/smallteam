@@ -31,27 +31,27 @@ let numberRegex = /^[1-9][0-9]*$/
 let joiSchemata = {
   routeConnect: Joi.object().keys({
     login: Joi.string().trim().alphanum().required(),
-    password: Joi.string().trim().required()
+    password: Joi.string().required()
   }),
 
   routeSetPassword: Joi.object().keys({
     accountId: Joi.string().regex(numberRegex).required(),
-    password: Joi.string().trim().required()
+    password: Joi.string().required()
   }),
 
   routeChangePassword: Joi.object().keys({
     currentPassword: Joi.string().required(),
-    newPassword: Joi.string().trim().required()
+    newPassword: Joi.string().required()
   }),
 
   routeResetPassword: Joi.object().keys({
-    token: Joi.string().required(),
-    password: Joi.string().trim().required(),
+    token: Joi.string().hex().length(2 * tokenSize).required(),
+    password: Joi.string().required(),
     accountId: Joi.string().regex(numberRegex).required()
   }),
 
   routeSendPasswordEmail: Joi.object().keys({
-    email: Joi.string().email().required()
+    email: Joi.string().trim().email().required()
   })
 }
 

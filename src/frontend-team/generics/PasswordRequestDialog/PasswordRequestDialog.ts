@@ -15,11 +15,13 @@ export default class PasswordRequestDialog {
 
   constructor(private dash: Dash<App>) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.emailEl = view.ref("email")
     this.spinnerEl = view.ref("spinner")
 
     let btnEl: HTMLButtonElement = view.ref("submit")
+
     btnEl.addEventListener("click", ev => this.onSubmit())
     view.ref("cancel").addEventListener("click", ev => this.onCancel())
     this.el.addEventListener("keyup", ev => {
@@ -36,6 +38,7 @@ export default class PasswordRequestDialog {
   public open() {
     this.el.showModal()
     this.curDfd = new Deferred()
+
     return this.curDfd.promise
   }
 
@@ -44,12 +47,11 @@ export default class PasswordRequestDialog {
     this.showSpinner()
 
     let address = this.emailEl.value
-    if (address) {
-      if (await this.makeApiCall(address) && this.curDfd) {
+
+    if (address && await this.makeApiCall(address) && this.curDfd) {
         this.curDfd.resolve(undefined)
         this.curDfd = undefined
         this.el.close()
-      }
     }
 
     this.enable()
@@ -74,11 +76,14 @@ export default class PasswordRequestDialog {
       }
 
       let result = await response.json()
+
       if (result.done) {
         let msg = "Request received by server. Your should receive an email in order to complete the process."
+
         await this.dash.create(InfoDialog).show(msg)
         return true
       }
+
       await this.dash.create(ErrorDialog).show(`There was an problem while processing your resquest.\n${result.reason}`)
     } catch (err) {
       await this.dash.create(ErrorDialog).show("There was an problem while processing your resquest.")

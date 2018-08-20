@@ -20,6 +20,7 @@ export default class RegistrationForm {
 
   constructor(private dash: Dash<{ baseUrl: string }>, private token: string, username?: string) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.nameEl = view.ref("name")
     this.usernameEl = view.ref("username")
@@ -73,7 +74,7 @@ export default class RegistrationForm {
       return
     }
 
-    let password = this.passwordEl.value.trim()
+    let password = this.passwordEl.value
 
     checkMsg = whyNewPasswordIsInvalid(password)
     if (checkMsg) {
@@ -83,7 +84,7 @@ export default class RegistrationForm {
       return
     }
 
-    if (this.confirmEl.value.trim() !== password) {
+    if (this.confirmEl.value !== password) {
       await dialog.show("Passwords do not match.")
       this.confirmEl.focus()
       return
@@ -117,10 +118,12 @@ export default class RegistrationForm {
         }),
         body: JSON.stringify({ name, login, password, email, token: this.token })
       })
+
       if (!response.ok)
         throw new Error("Our server did not process the request.")
 
       let answer = await response.json()
+
       if (answer.done) {
         this.dash.create(InfoDialog).show("You have been successfully registred.")
         return true
