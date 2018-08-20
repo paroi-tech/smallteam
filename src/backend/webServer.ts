@@ -92,6 +92,7 @@ export function startWebServer() {
   })
 
   router.use(express.static(path.join(__dirname, "..", "www")))
+  router.use(express.static(path.join(__dirname, "..", "..", "static")))
 
   router.get("/", async (req, res) => {
     if (isMainDomain(req))
