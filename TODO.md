@@ -51,6 +51,7 @@ the time, so I can't use JIRA.
 - Use the typescript 3 new sub-projects feature?
 - Add roles for users
 - Internationalisation
+- On error 'Unable to disconnect user...', clear the session cookie and reload the page
 
 # Thomas - v2 - Not urgent
 

@@ -75,7 +75,7 @@ export async function routeWhoUse(subdomain: string, data, sessionData?: Session
     throw new Error("SessionData missing in 'routeWhoUse'")
   let cb = whoUseCallbacks[data.type]
   if (!cb)
-    throw new Error(`Invalid 'whoUser' type: "${data.type}"`)
+    throw new Error(`Invalid 'whoUse' type: "${data.type}"`)
   let context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
