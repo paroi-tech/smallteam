@@ -8,19 +8,19 @@ import NavMenu from "../generics/NavMenu/NavMenu"
 import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
 import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
 import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
-import ContributorWorkspace from "../semantics/contributors/ContributorWorkspace/ContributorWorkspace"
+import AccountWorkspace from "../semantics/accounts/AccountWorkspace/AccountWorkspace"
 import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 import Workspace404 from "../generics/Workspace404/Workspace404"
 import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
-import ContributorHome from "../semantics/contributors/ContributorHome/ContributorHome"
+import AccountHome from "../semantics/accounts/AccountHome/AccountHome"
 import { Model } from "../AppModel/modelDefinitions"
 import { UpdateModelEvent } from "../AppModel/ModelEngine"
 import { ProjectModel } from "../AppModel/AppModel"
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
 import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu"
-import { ContributorModel } from "../AppModel/Models/ContributorModel"
+import { AccountModel } from "../AppModel/Models/AccountModel"
 import { OwnDash } from "../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import InvitationWorkspace from "../generics/invitations/InvitationWorkspace/InvitationWorkspace"
@@ -60,15 +60,15 @@ export default class AppFrame {
   private createWorkspaces(viewer: WorkspaceViewer) {
     viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
     viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
-    viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
+    viewer.addWorkspace("/settings/accounts", "dropdown", "Accounts", this.dash.create(AccountWorkspace))
     viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
     viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
-    if (this.model.session.contributor.role === "admin")
-      viewer.addWorkspace("/settings/invitations", "dropdown", "Invite contributors", this.dash.create(InvitationWorkspace))
+    if (this.model.session.account.role === "admin")
+      viewer.addWorkspace("/settings/invitations", "dropdown", "Invite accounts", this.dash.create(InvitationWorkspace))
 
-    let w = this.dash.create(ContributorHome, this.model.session.contributor)
+    let w = this.dash.create(AccountHome, this.model.session.account)
     viewer.addHomeWorkspace("Personal space", w, "/settings/my-profile")
 
     let projects = this.model.global.projects
@@ -131,8 +131,8 @@ export default class AppFrame {
         }
       },
       {
-        label: "Contributors",
-        onClick: () => this.dash.app.navigate("/settings/contributors")
+        label: "Accounts",
+        onClick: () => this.dash.app.navigate("/settings/accounts")
       },
       {
         label: "Flags",
@@ -144,7 +144,7 @@ export default class AppFrame {
       }
     )
 
-    if (this.model.session.contributor.role === "admin") {
+    if (this.model.session.account.role === "admin") {
       ddMenu.entries.createNavBtn({
         label: "Invitations",
         onClick: () => this.dash.app.navigate("/settings/invitations")
@@ -153,7 +153,7 @@ export default class AppFrame {
 
     // viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
     // viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
-    // viewer.addWorkspace("/settings/contributors", "dropdown", "Contributors", this.dash.create(ContributorWorkspace))
+    // viewer.addWorkspace("/settings/accounts", "dropdown", "Accounts", this.dash.create(AccountWorkspace))
     // viewer.addWorkspace("/settings/flags", "dropdown", "Flags", this.dash.create(FlagWorkspace))
     // viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
 
@@ -168,11 +168,11 @@ export default class AppFrame {
       }
     } as NavBtnOptions)
 
-    updateSessionBtn(menuBtn, this.dash.app.model.session.contributor)
+    updateSessionBtn(menuBtn, this.dash.app.model.session.account)
 
-    this.dash.listenToModel("updateContributor", evData => {
-      if (evData.model === this.dash.app.model.session.contributor)
-        updateSessionBtn(menuBtn, this.dash.app.model.session.contributor)
+    this.dash.listenToModel("updateAccount", evData => {
+      if (evData.model === this.dash.app.model.session.account)
+        updateSessionBtn(menuBtn, this.dash.app.model.session.account)
     })
 
     let ddMenu = this.dash.create(DropdownMenu, {
@@ -216,9 +216,9 @@ export default class AppFrame {
   }
 }
 
-function updateSessionBtn(menuBtn: NavBtn, contributor: ContributorModel) {
-  menuBtn.setLabel(contributor.name);
-  let variant = contributor.avatar && contributor.avatar.getVariant("34x34")
-  console.log(">> update btn", contributor.avatar, variant)
-  menuBtn.innerEl!.style.backgroundImage = contributor.avatar ? `url("${variant ? variant.url : undefined}")` : null
+function updateSessionBtn(menuBtn: NavBtn, account: AccountModel) {
+  menuBtn.setLabel(account.name);
+  let variant = account.avatar && account.avatar.getVariant("34x34")
+  console.log(">> update btn", account.avatar, variant)
+  menuBtn.innerEl!.style.backgroundImage = account.avatar ? `url("${variant ? variant.url : undefined}")` : null
 }

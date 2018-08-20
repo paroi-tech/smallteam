@@ -14,7 +14,7 @@ export default class LoginDialog {
 
   private edit: PasswordEdit
 
-  constructor(private dash: Dash<App>, private contributorId: string, private token: string) {
+  constructor(private dash: Dash<App>, private accountId: string, private token: string) {
     let view = render(template)
     this.el = view.rootEl()
     this.spinnerEl = view.ref("spinner")
@@ -87,7 +87,7 @@ export default class LoginDialog {
           "Content-Type": "application/json"
         }),
         body: JSON.stringify({
-          contributorId: this.contributorId,
+          accountId: this.accountId,
           token: this.token,
           password
         })

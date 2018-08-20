@@ -1,5 +1,0 @@
-<dialog class="ContributorSelectionDialog">
-  <header class="ContributorSelectionDialog-header">Select contributors</header>
-  <div :ref="selectorContainer"></div>
-  <button class="ContributorSelectionDialog-closeButton" :ref="button">Close</button>
-</dialog>

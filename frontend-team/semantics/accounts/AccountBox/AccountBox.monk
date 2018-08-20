@@ -1,0 +1,4 @@
+<div class="AccountBox">
+  <span :ref="avatar"></span>
+  <span class="AccountBox-name">{{ name }}</span>
+</div>

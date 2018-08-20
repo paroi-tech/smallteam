@@ -1,6 +1,6 @@
 import { Cargo, BatchCargo, Type } from "../../../shared/Cargo"
 import { WhoUseItem } from "../../../shared/transfers"
-import { fetchContributorsByIds, fetchContributors, createContributor, updateContributor, reorderAffectedContributors, deleteContributor, whoUseContributor } from "./queryContributor"
+import { fetchAccountsByIds, fetchAccounts, createAccount, updateAccount, reorderAffectedAccounts, deleteAccount, whoUseAccount } from "./queryAccount"
 import "./backendMeta/initBackendMeta"
 import { fetchProjects, createProject, fetchProjectsByIds, updateProject, deleteProject, whoUseProject } from "./queryProject"
 import { createTask, updateTask, fetchTasksByIds, reorderChildTasks, deleteTask, fetchTasks, whoUseTask } from "./queryTask"
@@ -63,7 +63,7 @@ export async function routeBatch(subdomain: string, list: any[], sessionData?: S
 }
 
 const whoUseCallbacks = {
-  Contributor: whoUseContributor,
+  Account: whoUseAccount,
   Flag: whoUseFlag,
   Project: whoUseProject,
   Task: whoUseTask,
@@ -95,7 +95,7 @@ const fetchCallbacks = {
   Task: fetchTasks,
   Step: fetchSteps,
   Flag: fetchFlags,
-  Contributor: fetchContributors,
+  Account: fetchAccounts,
   Comment: fetchComments,
   TaskLogEntry: fetchTaskLogEntries
 }
@@ -110,7 +110,7 @@ async function executeFetch(context: ModelContext, data) {
 }
 
 const commands = {
-  Contributor: executeCommandContributor,
+  Account: executeCommandAccount,
   Project: executeCommandProject,
   Step: executeCommandStep,
   Flag: executeCommandFlag,
@@ -129,15 +129,15 @@ async function executeCommand(context: ModelContext, data) {
   await completeCargo(context)
 }
 
-async function executeCommandContributor(context: ModelContext, data) {
+async function executeCommandAccount(context: ModelContext, data) {
   if (data.cmd === "create")
-    await createContributor(context, data.frag) // FIXME: remove this. Invitations have replaced it.
+    await createAccount(context, data.frag) // FIXME: remove this. Invitations have replaced it.
   else if (data.cmd === "update")
-    await updateContributor(context, data.frag)
+    await updateAccount(context, data.frag)
   else if (data.cmd === "delete")
-    await deleteContributor(context, data.frag)
+    await deleteAccount(context, data.frag)
   else if (data.cmd === "reorder" && data.groupName === "affectedTo")
-    await reorderAffectedContributors(context, data.idList, data.groupId)
+    await reorderAffectedAccounts(context, data.idList, data.groupId)
   else
     throw new Error(`Invalid ${data.type} command: "${data.cmd}"`)
 }
@@ -213,7 +213,7 @@ export async function completeCargo(context: ModelContext) {
     await fetchTasksByIds(context, upd.getNeededFragments("Task") as any)
     await fetchStepsByIds(context, upd.getNeededFragments("Step") as any)
     await fetchFlagsByIds(context, upd.getNeededFragments("Flag") as any)
-    await fetchContributorsByIds(context, upd.getNeededFragments("Contributor") as any)
+    await fetchAccountsByIds(context, upd.getNeededFragments("Account") as any)
     await fetchCommentsByIds(context, upd.getNeededFragments("Comment") as any)
     await fetchTaskLogEntriesByIds(context, upd.getNeededFragments("TaskLogEntry") as any)
   }

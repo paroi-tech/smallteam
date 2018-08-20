@@ -1,7 +1,7 @@
 import { TaskFragment, TaskUpdateFragment, TaskCreateFragment, TaskIdFragment } from "../../../shared/meta/Task"
 import ModelEngine, { appendGettersToModel, toCollection, OrderProperties, appendUpdateToolsToModel } from "../ModelEngine"
 import { ProjectModel } from "./ProjectModel"
-import { ContributorModel } from "./ContributorModel"
+import { AccountModel } from "./AccountModel"
 import { FlagModel } from "./FlagModel"
 import { Collection } from "../modelDefinitions"
 import { CommentModel } from "./CommentModel"
@@ -29,8 +29,8 @@ export interface TaskModel extends TaskFragment {
   readonly currentStep: StepModel
   readonly parent?: TaskModel
   readonly children?: Collection<TaskModel, string>
-  readonly createdBy: ContributorModel
-  readonly affectedTo?: Collection<ContributorModel, string>
+  readonly createdBy: AccountModel
+  readonly affectedTo?: Collection<AccountModel, string>
   readonly flags?: Collection<FlagModel, string>
   getComments(): Promise<Collection<CommentModel, string>>
   getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
@@ -63,14 +63,14 @@ export function registerTask(engine: ModelEngine) {
         }, undefined)
       },
       get createdBy() {
-        return engine.getModel("Contributor", getFrag().createdById)
+        return engine.getModel("Account", getFrag().createdById)
       },
       get affectedTo() {
         let frag = getFrag()
         if (!frag.affectedToIds)
           return undefined
-        let list = frag.affectedToIds.map(contributorId => engine.getModel("Contributor", contributorId))
-        return toCollection(list, "Contributor")
+        let list = frag.affectedToIds.map(accountId => engine.getModel("Account", accountId))
+        return toCollection(list, "Account")
       },
       get flags() {
         let flagIds = getFrag().flagIds

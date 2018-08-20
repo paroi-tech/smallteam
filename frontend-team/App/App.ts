@@ -64,7 +64,7 @@ export default class App {
       else {
         let result = await response.json()
         if (result.done)
-          return result.contributorId as string
+          return result.accountId as string
       }
     } catch (err) {
       this.log.warn(err)

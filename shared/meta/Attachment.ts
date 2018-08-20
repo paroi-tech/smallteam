@@ -1,7 +1,7 @@
 // import { FragmentMeta } from "../FragmentMeta"
 
 // export interface AttachmentInfo {
-//   readonly attachedById: string //ContributorModel
+//   readonly attachedById: string //AccountModel
 //   readonly attachedTs: number
 //   readonly weightKb: number
 // }

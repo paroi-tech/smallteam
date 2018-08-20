@@ -53,9 +53,9 @@ export function registerMedia(engine: ModelEngine) {
   //   if (media.externalType === undefined || media.externalId === undefined)
   //     return
   //   switch (media.externalType) {
-  //     case "contributorAvatar":
+  //     case "accountAvatar":
   //       engine.emitEvents({
-  //         Contributor: [media.externalId]
+  //         Account: [media.externalId]
   //       }, "update")
   //       break;
   //     case "task":

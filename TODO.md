@@ -9,7 +9,7 @@ the time, so I can't use JIRA.
   - Add a log system (`bristol`?) and replace all the `console.log` on the backend
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part
-- Rename `contributor` to `user`
+- Rename `account` to `user`
 
 # Thomas
 
@@ -30,7 +30,7 @@ the time, so I can't use JIRA.
 - Github notifications: use a hook to track the commits from GitHub
 - Team creation
 - TaskBox order in BoxList (StepSwitcher)
-- queryContributor.ts => createContributor: fix default password problem. Set password to NULL and forbid connection
+- queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
 - Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
 - Show an animated loader on the background command button when there is something started
@@ -58,7 +58,7 @@ the time, so I can't use JIRA.
 - Upload engine & co:
   - Implement multi-files upload
 - In the Model:
-  - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `contributors` as dependencies
+  - (optimisation) In the backend, do not fetch `stepTypes`, `flags`, `accounts` as dependencies
 - Refactoring in the backend: one code for all the reordering
 - Bkb: publish `test-app` as `bkb-test-app` in a distinct repository
 - Rewrite EasyRouter or find a better router
@@ -100,19 +100,19 @@ the time, so I can't use JIRA.
   - In the DropdownMenu button (`…`):
     - A button "Show Tasks On Hold" => Implement a new component "Tasks On Hold"
     - A button "Archived Tasks" => Implement a new component "Archived Tasks"
-- In `TaskForm` and `ContributorForm`, show the uploaded files in an appropriate component `FileThumbnail`
-- In `TaskBox`, display the true contributor's avatar (if exists)
-- In ContributorForm, pass a boolean parameter that controls is password inputs will be displayed or hidden.
+- In `TaskForm` and `AccountForm`, show the uploaded files in an appropriate component `FileThumbnail`
+- In `TaskBox`, display the true account's avatar (if exists)
+- In AccountForm, pass a boolean parameter that controls is password inputs will be displayed or hidden.
 - In the backend, replace our old SQL query builder by SqlBricks:
   - Do not use `import * as sql from` but choose what you need: `import { select, insertInto, update, deleteFrom } from`
-- Merge `ContributorHome` and `ContributorForm`
+- Merge `AccountHome` and `AccountForm`
   - The admin can reset the password (via frontend-registration)
   - The profile of the connected user allows to change the password but in a distinct `ChangePassword` form (on the same screen)
 - TaskAttachmentManager => remove attached files (test only since it is not supported by model)
 - Image library (sharp => https://github.com/lovell/sharp)
 - Each DropDown menus must be displayed on an overlay. A click on the overlay closes the dropdown menu.
 - In the main frontend:
-  - Menu _Settings_, add an entry: "Invite contributors", that opens a panel `ContributorInvitations`
+  - Menu _Settings_, add an entry: "Invite accounts", that opens a panel `AccountInvitations`
     - The admin user entries email addresses (required) and names (optional), the form insert a new token in `reg_new` and send emails
     - The panel show the list of awaiting invites, for each one there are two actions:
       - remove
@@ -120,37 +120,37 @@ the time, so I can't use JIRA.
 - The application _frontend-registration_:
   - SQL schema: the table `mail_challenge` is replaced by `reg_pwd`, create a new table `reg_new`
   - Rename the application `frontend-pwd` to `frontend-registration`
-  - Implement the `NewContributorForm`
+  - Implement the `NewAccountForm`
 - In `LoginDialog`, the link "Forgot your password" opens a panel `PasswordReset`:
   - The user entries his email address, the form insert a new token in `reg_pwd` and send an email
-- Merge `ContributorHome` into `ContributorForm`
-  - Allow to upload an avatar from the `ContributorForm`
-  - Allow to change the password from the `ContributorForm`
+- Merge `AccountHome` into `AccountForm`
+  - Allow to upload an avatar from the `AccountForm`
+  - Allow to change the password from the `AccountForm`
 - Replace `alert` & `confirm` with a component `ModalDialog`
 - Add a background task that removes expired tokens from mail_challenge table
 - In webserver.ts, the `/get-file` route is declared as public. Anybody can download the files stored on the server.
 - Improve forms
-- Improve contributors selector in taskform. Open a dialog to select constributors and use inline BoxList.
-- In TaskForm, show contributor name and creation date beside a comment.
+- Improve accounts selector in taskform. Open a dialog to select constributors and use inline BoxList.
+- In TaskForm, show account name and creation date beside a comment.
 - Listen to events (create, update, delete) in CheckboxMultiSelect in order to reorder and update items
   - Create a listener object and pass it as optional parameter to CheckboxMultiSelect.
   - The listener will listen to update events from model and update the CheckboxMultiSelect
 - Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - In `TaskForm`:
-  - Show, Add, remove, reorder the contributors affected to the task
+  - Show, Add, remove, reorder the accounts affected to the task
   - Show, Add, remove the flags for the task
   - Show, Add, update, remove comments
   - Add a button "Log" in the task form, and show the task log in a dialog
-  - On create/update/delete contributors, update the list in `TaskForm`
+  - On create/update/delete accounts, update the list in `TaskForm`
   - On create/update/delete flags, update the list in `TaskForm`
 - Create a component `SessionMenu`:
   - It contains a drop-down menu to append to the right of the main drop-down menu
   - Show the user's avatar on the button (do not use `…`)
-  - Add a menu item: "Edit my profile" → app.navigate to "/settings/contributors/my-profile"
+  - Add a menu item: "Edit my profile" → app.navigate to "/settings/accounts/my-profile"
   - Add a menu item: "Disconnect"
 - **Step form**: Allow to delete a stepType when it has no step (after user confirmation)
 - In `TaskBox`:
-  - Show the contributors affected to the task
+  - Show the accounts affected to the task
   - Show the flags for the task
   - Show the field `commentCount`
 - Add static workspaces:
@@ -166,7 +166,7 @@ the time, so I can't use JIRA.
 - Implement flag adding/removing in TaskFlagSelector
 - Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - Do not hide any existing StepSwitcher by default
-- Contributor (form, management, backend queries)
+- Account (form, management, backend queries)
 - Refactoring in WorkspaceViewer (with Thomas)
 - Refactor Menu and DropDownMenu components
 - Add `disable` method to BoxList.
@@ -201,7 +201,7 @@ the time, so I can't use JIRA.
   - Implement `session/disconnect`
 - In the Model:
   - `Model` becomes `GlobalModel`, it contains `stepTypes` and `projects` that are loaded on init
-  - Load data on init: `stepTypes`, `flags`, `contributors`
+  - Load data on init: `stepTypes`, `flags`, `accounts`
   - ModelEngine: add a method `get(id)` on the list returned by `getModels`
   - When `StepTypes` are reordered, the new order of the StepTypes should be reflected in ProjectModel.
   - Model have to emit event when task orders are changed.
@@ -220,7 +220,7 @@ the time, so I can't use JIRA.
     - Add a method `getDiffToUpdate(updFrag): null | FragUpd`
 - Replace all `model.on` by `this.dash.listenTo(model)`
 - CSS: use flexbox & grid
-- In the backend, keep the session and associate a contributorId (string)
+- In the backend, keep the session and associate a accountId (string)
   - Call logStepChange()
 - Add a frontend router
   - Sub-routers provided by workspaces
@@ -249,7 +249,7 @@ the time, so I can't use JIRA.
       => including markAs "update"
       => remove the triggerAfter on medias
   - Make the upload storage & engine an instance with a context object: the DB connection, the URL prefix
-  - Remove the dependent medias on delete tasks, contributors (backend & frontend)
+  - Remove the dependent medias on delete tasks, accounts (backend & frontend)
   - Implement several variants for images
 - In the Model:
   - Keep `global` lists up-to-date

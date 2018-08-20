@@ -5,7 +5,7 @@ import { deleteFrom, insert, select, update } from "sql-bricks"
 import Joi = require("joi")
 import { bcryptSaltRounds, tokenSize } from "./backendConfig"
 import { sendMail } from "./mail"
-import { getContributorById, getContributorByLogin, getContributorByEmail } from "./utils/userUtils"
+import { getAccountById, getAccountByLogin, getAccountByEmail } from "./utils/userUtils"
 import validate from "./utils/joiUtils"
 import { AuthorizationError, getTeamSiteUrl, BackendContext } from "./utils/serverUtils"
 import { getCn } from "./utils/dbUtils"
@@ -16,12 +16,12 @@ import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../shared/librari
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 
 export interface SessionData {
-  contributorId: string
+  accountId: string
   subdomain: string
 }
 
 interface PasswordUpdateInfo {
-  contributorId: string
+  accountId: string
   createTs: number
   token: string
 }
@@ -35,7 +35,7 @@ let joiSchemata = {
   }),
 
   routeSetPassword: Joi.object().keys({
-    contributorId: Joi.string().regex(numberRegex).required(),
+    accountId: Joi.string().regex(numberRegex).required(),
     password: Joi.string().trim().required()
   }),
 
@@ -47,7 +47,7 @@ let joiSchemata = {
   routeResetPassword: Joi.object().keys({
     token: Joi.string().required(),
     password: Joi.string().trim().required(),
-    contributorId: Joi.string().regex(numberRegex).required()
+    accountId: Joi.string().regex(numberRegex).required()
   }),
 
   routeSendPasswordEmail: Joi.object().keys({
@@ -61,15 +61,15 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
 
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeConnect)
-  let contributor = await getContributorByLogin(cn, cleanData.login)
+  let account = await getAccountByLogin(cn, cleanData.login)
 
-  if (contributor && await compare(cleanData.password, contributor.password)) {
-    req.session!.contributorId = contributor.id
+  if (account && await compare(cleanData.password, account.password)) {
+    req.session!.accountId = account.id
     req.session!.subdomain = subdomain
 
     return {
       done: true,
-      contributorId: contributor.id
+      accountId: account.id
     }
   }
 
@@ -85,7 +85,7 @@ export async function routeCurrentSession(subdomain: string, data: any, sessionD
   if (await hasSession(req) && req.session!.subdomain === subdomain) {
     return {
       done: true,
-      contributorId: req.session!.contributorId
+      accountId: req.session!.accountId
     }
   }
 
@@ -103,15 +103,15 @@ export async function routeEndSession(subdomain: string, data: any, sessionData?
   }
 }
 
-/** Used by the admins to set the password of any contributor. */
+/** Used by the admins to set the password of any account. */
 export async function routeSetPassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeSetPassword'")
 
   let cn = await getCn(subdomain)
-  let contributor = await getContributorById(cn, sessionData.contributorId)
+  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!contributor || contributor.role !== "admin")
+  if (!account || account.role !== "admin")
     throw new AuthorizationError("You are not allowed to change passwords")
 
   let cleanData = await validate(data, joiSchemata.routeSetPassword)
@@ -123,14 +123,14 @@ export async function routeSetPassword(subdomain: string, data: any, sessionData
     }
   }
 
-  await updateContributorPassword(cn, cleanData.contributorId, cleanData.password)
+  await updateAccountPassword(cn, cleanData.accountId, cleanData.password)
 
   return {
     done: true
   }
 }
 
-/** Used by a contributor to change his password. */
+/** Used by a account to change his password. */
 export async function routeChangePassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeChangePassword'")
@@ -145,10 +145,10 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
     }
   }
 
-  let contributor = await getContributorById(cn, sessionData.contributorId)
+  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (contributor && await compare(cleanData.currentPassword, contributor.password)) {
-    await updateContributorPassword(cn, contributor.id, cleanData.newPassword)
+  if (account && await compare(cleanData.currentPassword, account.password)) {
+    await updateAccountPassword(cn, account.id, cleanData.newPassword)
 
     return {
       done: true
@@ -160,7 +160,7 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
   }
 }
 
-/** Used by a contributor to reset his password after he received a password reset email. */
+/** Used by a account to reset his password after he received a password reset email. */
 export async function routeResetPassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!req)
     throw new Error("'Request parameter missing in 'routeResetPassword'")
@@ -182,13 +182,13 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
   let answer = { done: false } as any
 
   try {
-    let passwordInfo = await getPasswordUpdateObject(tcn, cleanData.token, cleanData.contributorId)
+    let passwordInfo = await getPasswordUpdateObject(tcn, cleanData.token, cleanData.accountId)
     let currentTs = Math.floor(Date.now())
 
     if (currentTs - passwordInfo.createTs > passwordResetTokenValidity)
       throw new Error("Token expired")
 
-    await updateContributorPassword(tcn, cleanData.contributorId, cleanData.password)
+    await updateAccountPassword(tcn, cleanData.accountId, cleanData.password)
     await removePasswordToken(tcn, data.token)
 
     answer.done = true
@@ -207,12 +207,12 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   let context = { subdomain }
   let cn = await getCn(subdomain)
   let cleanData = await validate(data, joiSchemata.routeSendPasswordEmail)
-  let contributor = await getContributorByEmail(cn, cleanData.email)
+  let account = await getAccountByEmail(cn, cleanData.email)
 
-  if (!contributor) {
+  if (!account) {
     return {
       done: false,
-      reason: "No contributor with the given email"
+      reason: "No account with the given email"
     }
   }
 
@@ -221,9 +221,9 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   let answer = { done: false } as any
 
   try {
-    await storePasswordResetToken(tcn, token, contributor.id)
+    await storePasswordResetToken(tcn, token, account.id)
 
-    if (await sendPasswordResetMail(context, token, contributor.id, data.email)) {
+    if (await sendPasswordResetMail(context, token, account.id, data.email)) {
       await tcn.commit()
       answer.done = true
     }
@@ -248,7 +248,7 @@ export async function getSessionData(req: Request): Promise<SessionData> {
     throw new Error("Missing session data")
 
   return {
-    contributorId: req.session!.contributorId,
+    accountId: req.session!.accountId,
     subdomain: req.session!.subdomain
   }
 }
@@ -256,18 +256,18 @@ export async function getSessionData(req: Request): Promise<SessionData> {
 export async function hasSession(req: Request) {
   let subdomain = await getConfirmedSubdomain(req)
 
-  if (!subdomain || !req.session || !req.session.contributorId || !req.session.subdomain)
+  if (!subdomain || !req.session || !req.session.accountId || !req.session.subdomain)
     return false
-  if (typeof req.session.contributorId !== "string" || typeof req.session.subdomain !== "string")
+  if (typeof req.session.accountId !== "string" || typeof req.session.subdomain !== "string")
     return false
   if (subdomain !== req.session.subdomain)
     return false
 
-  return await getContributorById(await getCn(subdomain), req.session.contributorId) !== undefined
+  return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
 }
 
-async function sendPasswordResetMail(context: BackendContext, token: string, contributorId: string, address: string) {
-  let url = `${getTeamSiteUrl(context)}/registration?action=passwordreset&token=${token}&uid=${contributorId}`
+async function sendPasswordResetMail(context: BackendContext, token: string, accountId: string, address: string) {
+  let url = `${getTeamSiteUrl(context)}/registration?action=passwordreset&token=${token}&uid=${accountId}`
   let text = `Please follow this link ${url} if you made a request to change your password.`
   let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
   let res = await sendMail(address, "SmallTeam password reset", text, html)
@@ -278,10 +278,10 @@ async function sendPasswordResetMail(context: BackendContext, token: string, con
   return res.done
 }
 
-async function storePasswordResetToken(runner: QueryRunnerWithSqlBricks, token: string, contributorId: string) {
+async function storePasswordResetToken(runner: QueryRunnerWithSqlBricks, token: string, accountId: string) {
   let currentTs = Math.floor(Date.now())
   let query = insert("reg_pwd", {
-    "contributor_id": contributorId,
+    "account_id": accountId,
     "token": token,
     "create_ts": currentTs,
     "expire_ts": currentTs + passwordResetTokenValidity
@@ -290,8 +290,8 @@ async function storePasswordResetToken(runner: QueryRunnerWithSqlBricks, token: 
   await runner.execSqlBricks(query)
 }
 
-async function getPasswordUpdateObject(runner: QueryRunnerWithSqlBricks, token: string, contributorId: string) {
-  let query = select().from("reg_pwd").where("token", token).and("contributor_id", contributorId)
+async function getPasswordUpdateObject(runner: QueryRunnerWithSqlBricks, token: string, accountId: string) {
+  let query = select().from("reg_pwd").where("token", token).and("account_id", accountId)
   let row = await runner.singleRowSqlBricks(query)
 
   if (!row)
@@ -302,7 +302,7 @@ async function getPasswordUpdateObject(runner: QueryRunnerWithSqlBricks, token: 
 
 function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   return {
-    contributorId: row["contributor_id"].toString(),
+    accountId: row["account_id"].toString(),
     createTs: row["create_ts"],
     token: row["token"]
   }
@@ -314,9 +314,9 @@ function removePasswordToken(runner: QueryRunnerWithSqlBricks, token: string) {
   return runner.execSqlBricks(query)
 }
 
-async function updateContributorPassword(runner: QueryRunnerWithSqlBricks, contributorId: string, password: string) {
+async function updateAccountPassword(runner: QueryRunnerWithSqlBricks, accountId: string, password: string) {
   let passwordHash = await hash(password, bcryptSaltRounds)
-  let query = update("contributor", { "password": passwordHash }).where("contributor_id", contributorId)
+  let query = update("account", { "password": passwordHash }).where("account_id", accountId)
 
   await runner.execSqlBricks(query)
 

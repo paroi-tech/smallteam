@@ -5,7 +5,7 @@ import stepMeta from "../../../../shared/meta/Step"
 import taskLogEntryMeta from "../../../../shared/meta/TaskLogEntry"
 import flagMeta from "../../../../shared/meta/Flag"
 import commentMeta from "../../../../shared/meta/Comment"
-import contributorMeta from "../../../../shared/meta/Contributor"
+import accountMeta from "../../../../shared/meta/Account"
 
 addBackendFragmentMeta(
   projectMeta.read,
@@ -20,10 +20,10 @@ addBackendFragmentMeta(
 )
 
 addBackendFragmentMeta(
-  contributorMeta.read,
+  accountMeta.read,
   {
     id: {
-      column: "contributor_id",
+      column: "account_id",
       columnType: "bigint"
     },
     name: {},
@@ -82,7 +82,7 @@ addBackendFragmentMeta(
     stepId: {
       columnType: "bigint"
     },
-    contributorId: {
+    accountId: {
       columnType: "bigint"
     },
     entryTs: {

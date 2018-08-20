@@ -187,7 +187,7 @@ async function sendTeamCreationMail(token: string, email: string) {
 }
 
 async function storeFirstUser(runner: QueryRunnerWithSqlBricks, data) {
-  let cmd = insert("contributor", {
+  let cmd = insert("account", {
     "name": data["user_name"],
     "login": data["user_login"],
     "password": data["user_password"],

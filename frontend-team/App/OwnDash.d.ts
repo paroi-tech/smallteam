@@ -7,7 +7,7 @@ export interface OwnDash extends Dash<App> {
   listenToModel(eventName: "reorderFlag", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this
   listenToModel(eventName: "reorderStep", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this
   listenToModel(eventName: "reorderTask", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this
-  listenToModel(eventName: "reorderContributor", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this
+  listenToModel(eventName: "reorderAccount", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this
 
   listenToModel(eventName: "changeTask", listener: EventCallback<UpdateModelEvent<TaskModel>>, thisArg?: any): this
   listenToModel(eventName: "updateTask", listener: EventCallback<UpdateModelEvent<TaskModel>>, thisArg?: any): this

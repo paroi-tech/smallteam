@@ -92,8 +92,8 @@ export default class TaskAttachmentManager {
     })
 
     view.ref("remove").addEventListener("click", ev => {
-      let contributorId = this.model.session.contributor.id
-      if (media.ownerId === contributorId && this.removeTaskAttachment(media.id))
+      let accountId = this.model.session.account.id
+      if (media.ownerId === accountId && this.removeTaskAttachment(media.id))
         this.listEl.removeChild(el)
     })
 

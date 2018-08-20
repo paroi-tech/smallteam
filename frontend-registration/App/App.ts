@@ -5,7 +5,7 @@ import RegistrationForm from "../../sharedFrontend/RegistrationForm/Registration
 export interface AppParams {
   action: string
   token: string
-  contributorId?: string
+  accountId?: string
   username?: string
 }
 
@@ -31,9 +31,9 @@ export default class App {
   }
 
   private handlePasswordReset() {
-    if (!this.params.contributorId)
+    if (!this.params.accountId)
         throw new Error("User ID not provided")
-    let dialog = this.dash.create(PasswordResetDialog, this.params.contributorId, this.params.token)
+    let dialog = this.dash.create(PasswordResetDialog, this.params.accountId, this.params.token)
     dialog.open()
   }
 

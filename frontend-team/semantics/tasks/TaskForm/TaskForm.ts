@@ -4,7 +4,7 @@ import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../AppModel/AppModel"
 import FlagSelector from "../../flags/FlagSelector/FlagSelector"
 import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
-import ContributorSelector from "../../contributors/ContributorSelector/ContributorSelector"
+import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import { OwnDash } from "../../../App/OwnDash"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
@@ -28,7 +28,7 @@ export default class TaskForm {
 
   private commentEditor: TaskCommentEditor
   private flagSelector: FlagSelector
-  private contributorSelector: ContributorSelector
+  private accountSelector: AccountSelector
   private attachmentMgr: TaskAttachmentManager
   private logDialog: TaskLogDialog
   private text: EditableTextField
@@ -73,8 +73,8 @@ export default class TaskForm {
     this.flagSelector = this.dash.create(FlagSelector)
     this.view.ref("flag").appendChild(this.flagSelector.el)
 
-    this.contributorSelector = this.dash.create(ContributorSelector)
-    this.view.ref("contributor").appendChild(this.contributorSelector.el)
+    this.accountSelector = this.dash.create(AccountSelector)
+    this.view.ref("account").appendChild(this.accountSelector.el)
 
     this.commentEditor = this.dash.create(TaskCommentEditor)
     this.view.ref("comment").appendChild(this.commentEditor.el)
@@ -145,7 +145,7 @@ export default class TaskForm {
 
   private resetChildComponents() {
     this.flagSelector.task = undefined
-    this.contributorSelector.task = undefined
+    this.accountSelector.task = undefined
     this.commentEditor.task = undefined
     this.attachmentMgr.task = undefined
     this.logDialog.task = undefined
@@ -153,7 +153,7 @@ export default class TaskForm {
 
   private setTaskInChildComponents(task: TaskModel) {
     this.flagSelector.task = task
-    this.contributorSelector.task = task
+    this.accountSelector.task = task
     this.commentEditor.task = task
     this.attachmentMgr.task = task
     this.logDialog.task = task
@@ -191,7 +191,7 @@ export default class TaskForm {
         label: label.trim(),
         description: this.descriptionEl.value.trim() || "",
         flagIds: this.flagSelector.selectedFlagIds,
-        affectedToIds: this.contributorSelector.selectedContributorIds
+        affectedToIds: this.accountSelector.selectedAccountIds
       })
       result = true
     } catch(err) {
@@ -214,7 +214,7 @@ export default class TaskForm {
     })
     this.updateOnHoldBtnLabel()
     this.flagSelector.refreshFlags()
-    this.contributorSelector.refresh()
+    this.accountSelector.refresh()
   }
 
   private async archiveTask() {

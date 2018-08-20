@@ -57,12 +57,12 @@ export default class LoginDialog {
 
     let login = this.nameEl.value.trim()
     let password = this.passwordEl.value.trim()
-    let contributorId = await this.tryToLogin(login, password)
+    let accountId = await this.tryToLogin(login, password)
 
     this.hideSpinner()
-    if (contributorId && this.curDfd) {
+    if (accountId && this.curDfd) {
       this.el.close()
-      this.curDfd.resolve(contributorId)
+      this.curDfd.resolve(accountId)
       this.curDfd = undefined
     }
     this.enabled = true
@@ -95,8 +95,8 @@ export default class LoginDialog {
 
       let result = await response.json()
       if (result.done) {
-        let contributorId = result.contributorId as string
-        return contributorId
+        let accountId = result.accountId as string
+        return accountId
       }
       await this.dash.create(WarningDialog).show("Wrong username or password.")
     } catch (err) {

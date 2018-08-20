@@ -34,7 +34,7 @@ export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, exe
 }
 
 const IMAGES_CONF: ImageVariantsConfiguration = {
-  "contributorAvatar": [
+  "accountAvatar": [
     {
       code: "34x34",
       width: 68,
@@ -69,14 +69,14 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
         }
       }
       let sessionData = await getSessionData(req)
-      if (!["contributorAvatar", "task"].includes(externalRef.type)) {
+      if (!["accountAvatar", "task"].includes(externalRef.type)) {
         return {
           canUpload: false,
           errorCode: 400, // Bad Request
           errorMsg: `Invalid externalRef.type: ${externalRef.type}`
         }
       }
-      if (externalRef.type === "contributorAvatar" && !isSupportedImage(file.mimetype)) {
+      if (externalRef.type === "accountAvatar" && !isSupportedImage(file.mimetype)) {
         return {
           canUpload: false,
           errorCode: 400, // Bad Request
@@ -86,7 +86,7 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
       // TODO: Check the existence of `externalRef.id` in the database
       return {
         canUpload: true,
-        ownerId: sessionData.contributorId
+        ownerId: sessionData.accountId
       }
     },
 
@@ -154,8 +154,8 @@ async function markExternalTypeAsUpdate(req: Request, media: Media, loader: Carg
 
 function mediaExternalTypeToType(externalRefType: string): Type {
   switch (externalRefType) {
-    case "contributorAvatar":
-      return "Contributor"
+    case "accountAvatar":
+      return "Account"
     case "task":
       return "Task"
     default:

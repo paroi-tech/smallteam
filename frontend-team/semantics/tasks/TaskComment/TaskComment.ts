@@ -27,14 +27,14 @@ export default class TaskComment {
 
   private model: Model
   private log: Log
-  private contributorId: string
+  private accountId: string
 
   private editMode = false
 
   constructor(private dash: OwnDash, readonly comment: CommentModel) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.contributorId = this.dash.app.model.session.contributor.id
+    this.accountId = this.dash.app.model.session.account.id
 
     this.view = render(template)
     this.el = this.view.rootEl()
@@ -50,7 +50,7 @@ export default class TaskComment {
     this.deleteButtonEl.addEventListener("click", ev => this.onBtnDeleteClick())
 
     this.cancelButtonEl.style.display = "none" // Cancel button is hidden by default.
-    if (this.contributorId != this.comment.writtenById) {
+    if (this.accountId != this.comment.writtenById) {
       // Only the creator of a comment can edit or delete it.
       this.deleteButtonEl.style.display = "none"
       this.editButtonEl.style.display = "none"
@@ -78,7 +78,7 @@ export default class TaskComment {
   }
 
   private async onBtnEditClick() {
-    if (this.comment.writtenById !== this.contributorId)
+    if (this.comment.writtenById !== this.accountId)
       return
 
     if (!this.editMode) {
@@ -119,7 +119,7 @@ export default class TaskComment {
   }
 
   private async onBtnDeleteClick() {
-    if (this.comment.writtenById !== this.contributorId)
+    if (this.comment.writtenById !== this.accountId)
       return
     if (!confirm("Do you really want to remove this comment?"))
       return

@@ -52,7 +52,7 @@ function toCommentFragment(row): CommentFragment {
 
 export async function createComment(context: ModelContext, newFrag: CommentCreateFragment) {
   let values = toSqlValues(newFrag, commentMeta.create)!
-  values["written_by"] = int(context.sessionData.contributorId)
+  values["written_by"] = int(context.sessionData.accountId)
   let sql = insert("comment", values)
   let res = await context.cn.execSqlBricks(sql)
   let commentId = res.getInsertedIdString()

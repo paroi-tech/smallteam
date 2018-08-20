@@ -5,7 +5,7 @@ import { select, insert, deleteFrom } from "sql-bricks"
 import { hash } from "bcrypt"
 import { sendMail } from "../mail"
 import { tokenSize, bcryptSaltRounds } from "../backendConfig"
-import { getContributorById, getContributorByLogin } from "../utils/userUtils"
+import { getAccountById, getAccountByLogin } from "../utils/userUtils"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { SessionData } from "../session"
 import validate from "../utils/joiUtils"
@@ -46,9 +46,9 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
 
   let context = { subdomain }
   let cn = await getCn(subdomain)
-  let contributor = await getContributorById(cn, sessionData.contributorId)
+  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!contributor || contributor.role !== "admin")
+  if (!account || account.role !== "admin")
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeSendInvitation)
@@ -85,9 +85,9 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
 
   let context = { subdomain }
   let cn = await getCn(subdomain)
-  let contributor = await getContributorById(cn, sessionData.contributorId)
+  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!contributor || contributor.role !== "admin")
+  if (!account || account.role !== "admin")
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
@@ -132,9 +132,9 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
     throw new Error("SessionData missing in 'routeCancelInvitation'")
 
   let cn = await getCn(subdomain)
-  let contributor = await getContributorById(cn, sessionData.contributorId)
+  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!contributor || contributor.role !== "admin")
+  if (!account || account.role !== "admin")
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
   let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
@@ -173,7 +173,7 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
   }
 
   let passwordHash = await hash(cleanData.password, bcryptSaltRounds)
-  let query = insert("contributor", {
+  let query = insert("account", {
     "name": cleanData.name,
     "login": cleanData.login,
     "email": cleanData.email,
@@ -201,9 +201,9 @@ export async function routeGetPendingInvitations(subdomain: string, data: any, s
     throw new Error("SessionData missing in 'routeGetPendingInvitations'")
 
   let cn = await getCn(subdomain)
-  let contributor = await getContributorById(cn, sessionData.contributorId)
+  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!contributor || contributor.role !== "admin")
+  if (!account || account.role !== "admin")
     throw new AuthorizationError("You are not allowed to do this")
 
   let arr = [] as any[]
@@ -267,7 +267,7 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
     "expire_ts": expireTs
   })
 
-  if (username && !await getContributorByLogin(cn, username))
+  if (username && !await getAccountByLogin(cn, username))
     query.values({ "user_name": username })
 
   let result = await cn.execSqlBricks(query)

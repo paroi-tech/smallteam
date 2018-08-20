@@ -1,1 +1,0 @@
-<label class="ContributorSelectorList-label"> <input type="checkbox"> &nbsp; {{ value }} </label>

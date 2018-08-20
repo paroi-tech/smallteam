@@ -1,7 +1,7 @@
 import TaskFlag from "../TaskFlag/TaskFlag"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
-import ContributorFlag from "../../contributors/ContributorFlag/ContributorFlag"
+import AccountFlag from "../../accounts/AccountFlag/AccountFlag"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
@@ -35,7 +35,7 @@ export default class TaskBox implements Box {
     labelEl.textContent = this.task.label
 
     this.usersEl = view.ref("users")
-    this.addContributorFlags()
+    this.addAccountFlags()
 
     this.flagsEl = view.ref("flags")
     this.addTaskFlags()
@@ -49,7 +49,7 @@ export default class TaskBox implements Box {
         removeAllChildren(this.flagsEl)
         this.addTaskFlags()
         removeAllChildren(this.usersEl)
-        this.addContributorFlags()
+        this.addAccountFlags()
       }
     })
 
@@ -72,13 +72,13 @@ export default class TaskBox implements Box {
       this.el.classList.remove("focus")
   }
 
-  private addContributorFlags() {
+  private addAccountFlags() {
     if (!this.task.affectedToIds)
       return
-    for (let contributorId of this.task.affectedToIds) {
-      let contributor = this.model.global.contributors.get(contributorId)
-      if (contributor) {
-        let comp = this.dash.create(ContributorFlag, contributor)
+    for (let accountId of this.task.affectedToIds) {
+      let account = this.model.global.accounts.get(accountId)
+      if (account) {
+        let comp = this.dash.create(AccountFlag, account)
         this.usersEl.appendChild(comp.el)
       }
     }

@@ -1,5 +1,5 @@
 import { CommentFragment } from "./meta/Comment"
-import { ContributorFragment } from "./meta/Contributor"
+import { AccountFragment } from "./meta/Account"
 import { FlagFragment } from "./meta/Flag"
 import { ProjectFragment } from "./meta/Project"
 import { StepFragment } from "./meta/Step"
@@ -10,7 +10,7 @@ import { MediaVariantFragment } from "./meta/MediaVariant"
 
 export interface Fragments {
   Comment?: CommentFragment[]
-  Contributor?: ContributorFragment[]
+  Account?: AccountFragment[]
   Flag?: FlagFragment[]
   Project?: ProjectFragment[]
   Step?: StepFragment[]

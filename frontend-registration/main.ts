@@ -8,7 +8,7 @@ document.addEventListener("DOMContentLoaded", ev => {
   let params = {
     action: url.searchParams.get("action"),
     token: url.searchParams.get("token"),
-    contributorId: url.searchParams.get("uid"),
+    accountId: url.searchParams.get("uid"),
     username: url.searchParams.get("username")
   }
   if (params.action && params.token)

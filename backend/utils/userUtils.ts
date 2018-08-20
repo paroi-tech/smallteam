@@ -2,15 +2,15 @@ import { select } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 
 
-interface RegContributor {
+interface RegAccount {
   id: string
   role: string
   login: string
   password: string
 }
 
-export async function getContributorById(runner: QueryRunnerWithSqlBricks, id: string): Promise<RegContributor | undefined> {
-  let query = select("contributor_id, login, password, role").from("contributor").where("contributor_id", id)
+export async function getAccountById(runner: QueryRunnerWithSqlBricks, id: string): Promise<RegAccount | undefined> {
+  let query = select("account_id, login, password, role").from("account").where("account_id", id)
   let row
 
   try {
@@ -19,11 +19,11 @@ export async function getContributorById(runner: QueryRunnerWithSqlBricks, id: s
     console.log(err)
   }
 
-  return row ? toContributor(row) : undefined
+  return row ? toAccount(row) : undefined
 }
 
-export async function getContributorByLogin(runner: QueryRunnerWithSqlBricks, login: string) {
-  let query = select("contributor_id, login, password, role").from("contributor").where("login", login)
+export async function getAccountByLogin(runner: QueryRunnerWithSqlBricks, login: string) {
+  let query = select("account_id, login, password, role").from("account").where("login", login)
   let row
 
   try {
@@ -32,11 +32,11 @@ export async function getContributorByLogin(runner: QueryRunnerWithSqlBricks, lo
     console.log(err)
   }
 
-  return row ? toContributor(row) : undefined
+  return row ? toAccount(row) : undefined
 }
 
-export async function getContributorByEmail(runner: QueryRunnerWithSqlBricks, email: string) {
-  let query = select("contributor_id, login, password, role").from("contributor").where("email", email)
+export async function getAccountByEmail(runner: QueryRunnerWithSqlBricks, email: string) {
+  let query = select("account_id, login, password, role").from("account").where("email", email)
   let row
 
   try {
@@ -45,12 +45,12 @@ export async function getContributorByEmail(runner: QueryRunnerWithSqlBricks, em
     console.log(err)
   }
 
-  return row ? toContributor(row) : undefined
+  return row ? toAccount(row) : undefined
 }
 
-function toContributor(row): RegContributor {
+function toAccount(row): RegAccount {
   return {
-    id: row["contributor_id"].toString(),
+    id: row["account_id"].toString(),
     role: row["role"],
     login: row["login"],
     password: row["password"]

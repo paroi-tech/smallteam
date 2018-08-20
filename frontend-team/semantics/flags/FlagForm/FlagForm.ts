@@ -31,7 +31,7 @@ export default class FlagForm {
 
   /**
    * Property used to know whether we can empty the fields of the form afer
-   * the model has successfully created a contributor.
+   * the model has successfully created a account.
    */
   private canClearForm = false
 
@@ -59,8 +59,8 @@ export default class FlagForm {
       if (this.currentFlag && this.currentFlag.id === id)
         this.updateView()
     })
-    this.dash.listenToModel("endProcessingContributor", data => this.onEndProcessing(data.model))
-    this.dash.listenToModel("processingContributor", data => this.onProcessing(data.model))
+    this.dash.listenToModel("endProcessingAccount", data => this.onEndProcessing(data.model))
+    this.dash.listenToModel("processingAccount", data => this.onProcessing(data.model))
   }
 
   get flag(): FlagModel | undefined {
@@ -174,7 +174,7 @@ export default class FlagForm {
       this.currentFlag = await this.model.exec("update", "Flag", frag)
       this.updateView()
     } catch (err) {
-      this.log.error(`Unable to update contributor...`)
+      this.log.error(`Unable to update account...`)
     }
     this.hideSpinner()
   }

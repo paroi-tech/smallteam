@@ -1,0 +1,1 @@
+<label class="AccountSelectorList-label"> <input type="checkbox"> &nbsp; {{ value }} </label>

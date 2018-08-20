@@ -1,5 +1,5 @@
 import commentMetaVariants from "./Comment"
-import contributorMetaVariants from "./Contributor"
+import accountMetaVariants from "./Account"
 import flagMetaVariants from "./Flag"
 import projectMetaVariants from "./Project"
 import stepMetaVariants from "./Step"
@@ -10,7 +10,7 @@ import mediaMetaVariantVariants from "./MediaVariant"
 import { Type, Identifier } from "../Cargo"
 
 export let types: ReadonlyArray<Type> = Object.freeze([
-  "Comment", "Contributor", "Flag", "Project", "Step", "Task", "TaskLogEntry", "Media", "MediaVariant"
+  "Comment", "Account", "Flag", "Project", "Step", "Task", "TaskLogEntry", "Media", "MediaVariant"
   ]) as any
 
 export type TypeVariant = "read" | "create" | "update" | "id" | "fetch"
@@ -44,7 +44,7 @@ export interface FieldMeta {
 
 let allMeta: { [type: string]: MetaVariants } = {
   Comment: commentMetaVariants,
-  Contributor: contributorMetaVariants,
+  Account: accountMetaVariants,
   Flag: flagMetaVariants,
   Project: projectMetaVariants,
   Step: stepMetaVariants,

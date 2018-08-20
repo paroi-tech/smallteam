@@ -61,7 +61,7 @@ export default class TaskLogDialog {
     row.insertCell(-1).textContent = entry.id
     row.insertCell(-1).textContent = new Date(entry.entryTs).toLocaleTimeString()
     row.insertCell(-1).textContent = entry.step.label
-    row.insertCell(-1).textContent = entry.contributor.login
+    row.insertCell(-1).textContent = entry.account.login
   }
 
   private async loadTaskLogEntries() {

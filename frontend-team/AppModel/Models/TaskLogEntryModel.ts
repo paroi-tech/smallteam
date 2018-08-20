@@ -1,13 +1,13 @@
 import { TaskLogEntryFragment, TaskLogEntryIdFragment } from "../../../shared/meta/TaskLogEntry"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
-import { ContributorModel } from "./ContributorModel"
+import { AccountModel } from "./AccountModel"
 import { StepModel } from "./StepModel"
 
 export interface TaskLogEntryModel extends TaskLogEntryFragment {
   readonly task: TaskModel
   readonly step: StepModel
-  readonly contributor: ContributorModel
+  readonly account: AccountModel
 }
 
 export function registerTaskLogEntry(engine: ModelEngine) {
@@ -19,8 +19,8 @@ export function registerTaskLogEntry(engine: ModelEngine) {
       get step() {
         return engine.getModel("Step", getFrag().stepId)
       },
-      get contributor() {
-        return engine.getModel("Contributor", getFrag().contributorId)
+      get account() {
+        return engine.getModel("Account", getFrag().accountId)
       }
     }
     appendGettersToModel(model, "TaskLogEntry", getFrag)

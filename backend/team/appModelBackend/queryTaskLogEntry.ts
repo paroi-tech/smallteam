@@ -37,7 +37,7 @@ export async function fetchTaskLogEntriesByIds(context: ModelContext, idList: st
 }
 
 function selectFromTaskLogEntry() {
-  return select("task_log_id, task_id, step_id, entry_ts, contributor_id").from("task_log")
+  return select("task_log_id, task_id, step_id, entry_ts, account_id").from("task_log")
 }
 
 function toTaskLogEntryFragment(row): TaskLogEntryFragment {
@@ -46,7 +46,7 @@ function toTaskLogEntryFragment(row): TaskLogEntryFragment {
     taskId: row["task_id"].toString(),
     stepId: row["step_id"].toString(),
     entryTs: row["entry_ts"],
-    contributorId: row["contributor_id"].toString()
+    accountId: row["account_id"].toString()
   }
 }
 
@@ -58,7 +58,7 @@ export async function logStepChange(context: ModelContext, taskId: string, stepI
   let sql = insert("task_log", {
     "task_id": int(taskId),
     "step_id": int(stepId),
-    "contributor_id": int(context.sessionData.contributorId)
+    "account_id": int(context.sessionData.accountId)
   })
   await context.cn.execSqlBricks(sql)
 }

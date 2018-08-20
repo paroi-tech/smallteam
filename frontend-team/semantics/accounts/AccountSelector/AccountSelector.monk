@@ -1,0 +1,7 @@
+<div class="AccountSelector">
+  <header class="AccountSelector-header">Accounts</header>
+  <div :ref="boxlist"></div>
+  <button class="AccountSelector-button" :ref="btn">
+    Select accounts <span class="fa fa-eye fa-1x"></span>
+  </button>
+</div>

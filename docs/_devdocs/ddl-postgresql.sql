@@ -14,10 +14,10 @@ drop table if exists task;
 drop table if exists step;
 drop table if exists project;
 drop table if exists step_type;
-drop table if exists contributor;
+drop table if exists account;
 
-create table contributor (
-    contributor_id bigserial not null primary key,
+create table account (
+    account_id bigserial not null primary key,
     name varchar(255) not null,
     login varchar(255) not null unique,
     email varchar(255) not null,
@@ -49,7 +49,7 @@ create table step (
 create table task (
     task_id bigserial not null primary key,
     code varchar(255) not null unique,
-    created_by bigint not null references contributor(contributor_id),
+    created_by bigint not null references account(account_id),
     cur_step_id bigint not null references step(step_id),
     label varchar(255) not null,
     create_ts timestamp not null default current_timestamp,
@@ -70,9 +70,9 @@ create table task_description (
 
 create table task_affected_to (
     task_id bigint not null references task(task_id) on delete cascade,
-    contributor_id bigint not null references contributor(contributor_id) on delete cascade,
+    account_id bigint not null references account(account_id) on delete cascade,
     order_num integer,
-    primary key (task_id, contributor_id)
+    primary key (task_id, account_id)
 );
 
 create table task_log (
@@ -80,7 +80,7 @@ create table task_log (
     task_id bigint not null references task(task_id),
     step_id bigint not null references step(step_id),
     entry_ts timestamp not null default current_timestamp,
-    by bigint not null references contributor(contributor_id)
+    by bigint not null references account(account_id)
 );
 
 create table root_task (
@@ -103,7 +103,7 @@ create table task_flag (
 create table comment (
     comment_id bigserial not null primary key,
     task_id bigint not null references task(task_id),
-    written_by bigint not null references contributor(contributor_id),
+    written_by bigint not null references account(account_id),
     body text not null,
     create_ts timestamp not null default current_timestamp,
     update_ts timestamp not null default current_timestamp
@@ -113,4 +113,4 @@ insert into step_type (name, order_num) values ('Not started', 0);
 insert into step_type (name, order_num) values ('Archived', -1);
 
 -- Fake data
-insert into contributor (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '123');
+insert into account (name, login, email, password) values ('Loly', 'loly', 'loly@nope.com', '123');

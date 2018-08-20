@@ -12,7 +12,7 @@
     <node x="775.4931506849315" y="566.958904109589">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_flag</node>
     <node x="86.30958904109582" y="657.0000000000001">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log</node>
     <node x="122.02739726027409" y="247.70136986301375">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step_type</node>
-    <node x="479.9260273972602" y="679.2109589041095">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor</node>
+    <node x="479.9260273972602" y="679.2109589041095">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.account</node>
     <node x="139.3808219178082" y="409.23561643835626">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.step</node>
     <node x="459.04657534246576" y="167.41369863013688">272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.project</node>
   </nodes>
@@ -22,7 +22,7 @@
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor">
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task_log" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.account">
       <point x="6.5967148461706415" y="0.0" />
       <point x="6.596714846170585" y="0.0" />
     </edge>
@@ -30,11 +30,11 @@
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>
-    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor">
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.task" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.account">
       <point x="1.110446645275033" y="4.875131613402601" />
       <point x="1.110446645275033" y="4.875131613402598" />
     </edge>
-    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.comment" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.contributor">
+    <edge source="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.comment" target="272f3697-ebd0-48b8-9d75-b2daea8ffc92.TABLE:ft_smallteam.public.account">
       <point x="0.0" y="0.0" />
       <point x="0.0" y="0.0" />
     </edge>

@@ -1,4 +1,0 @@
-<section class="ContributorWorkspace">
-  <div :ref="list"></div>
-  <div :ref="form"></div>
-</section>

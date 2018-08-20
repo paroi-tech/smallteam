@@ -6,7 +6,7 @@ export interface TaskLogEntryFragment {
   readonly taskId: string
   readonly stepId: string
   readonly entryTs: number
-  readonly contributorId: string
+  readonly accountId: string
 }
 
 const meta: FragmentMeta = {
@@ -26,7 +26,7 @@ const meta: FragmentMeta = {
     entryTs: {
       dataType: "number"
     },
-    contributorId: {
+    accountId: {
       dataType: "string"
     }
   }

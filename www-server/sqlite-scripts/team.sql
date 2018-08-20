@@ -15,12 +15,12 @@ drop table if exists task;
 drop table if exists project_step;
 drop table if exists project;
 drop table if exists step;
-drop table if exists contributor;
+drop table if exists account;
 
 -- Create tables
 
-create table contributor (
-    contributor_id integer not null primary key autoincrement,
+create table account (
+    account_id integer not null primary key autoincrement,
     name varchar(255) not null,
     login varchar(255) not null unique,
     email varchar(255) not null unique,
@@ -53,7 +53,7 @@ create table task (
     project_id bigint not null references project(project_id),
     cur_step_id bigint not null references step(step_id),
     code varchar(255) not null unique,
-    created_by bigint not null references contributor(contributor_id),
+    created_by bigint not null references account(account_id),
     label varchar(255) not null,
     create_ts timestamp not null default current_timestamp,
     update_ts timestamp not null default current_timestamp,
@@ -73,9 +73,9 @@ create table task_description (
 
 create table task_affected_to (
     task_id bigint not null references task(task_id) on delete cascade,
-    contributor_id bigint not null references contributor(contributor_id),
+    account_id bigint not null references account(account_id),
     order_num integer,
-    primary key (task_id, contributor_id)
+    primary key (task_id, account_id)
 );
 
 create table task_log (
@@ -83,7 +83,7 @@ create table task_log (
     task_id bigint not null references task(task_id) on delete cascade,
     step_id bigint not null references step(step_id) on delete cascade,
     entry_ts timestamp not null default current_timestamp,
-    contributor_id bigint not null references contributor(contributor_id)
+    account_id bigint not null references account(account_id)
 );
 
 create table root_task (
@@ -107,7 +107,7 @@ create table task_flag (
 create table comment (
     comment_id integer not null primary key autoincrement,
     task_id bigint not null references task(task_id) on delete cascade,
-    written_by bigint not null references contributor(contributor_id),
+    written_by bigint not null references account(account_id),
     body text not null,
     create_ts timestamp not null default current_timestamp,
     update_ts timestamp not null default current_timestamp
@@ -117,7 +117,7 @@ create table comment (
 create table reg_pwd (
     reg_pwd_id integer not null primary key autoincrement,
     token varchar(255) not null unique,
-    contributor_id bigint not null references contributor(contributor_id),
+    account_id bigint not null references account(account_id),
     expire_ts timestamp not null,
     create_ts timestamp not null default current_timestamp
 );

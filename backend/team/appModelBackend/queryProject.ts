@@ -178,7 +178,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "project_id": projectId,
         "cur_step_id": 1, // FIXME: step "Not Started" (or make the column NULLABLE?)
         "code": `${newFrag.code}-0`,
-        "created_by": int(context.sessionData.contributorId),
+        "created_by": int(context.sessionData.accountId),
         "label": newFrag.name
       })
     res = await transCn.execSqlBricks(sql)

@@ -1,6 +1,6 @@
 import { Type, Identifier, ModelUpdate } from "../../shared/Cargo"
-import { ContributorCreateFragment, ContributorUpdateFragment, ContributorSearchFragment, ContributorIdFragment } from "../../shared/meta/Contributor"
-import { ContributorModel } from "./Models/ContributorModel"
+import { AccountCreateFragment, AccountUpdateFragment, AccountSearchFragment, AccountIdFragment } from "../../shared/meta/Account"
+import { AccountModel } from "./Models/AccountModel"
 import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment, ProjectSearchFragment } from "../../shared/meta/Project"
 import { ProjectModel } from "./Models/ProjectModel"
 import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment, TaskSearchFragment } from "../../shared/meta/Task"
@@ -14,9 +14,9 @@ import { FlagCreateFragment, FlagUpdateFragment, FlagIdFragment } from "../../sh
 import { CommentIdFragment, CommentCreateFragment, CommentUpdateFragment } from "../../shared/meta/Comment"
 
 export interface ModelCommandMethods {
-  exec(cmd: "create", type: "Contributor", frag: ContributorCreateFragment): Promise<ContributorModel>
-  exec(cmd: "update", type: "Contributor", frag: ContributorUpdateFragment): Promise<ContributorModel>
-  exec(cmd: "delete", type: "Contributor", frag: ContributorIdFragment): Promise<void>
+  exec(cmd: "create", type: "Account", frag: AccountCreateFragment): Promise<AccountModel>
+  exec(cmd: "update", type: "Account", frag: AccountUpdateFragment): Promise<AccountModel>
+  exec(cmd: "delete", type: "Account", frag: AccountIdFragment): Promise<void>
 
   exec(cmd: "create", type: "Project", frag: ProjectCreateFragment): Promise<ProjectModel>
   exec(cmd: "update", type: "Project", frag: ProjectUpdateFragment): Promise<ProjectModel>
@@ -41,13 +41,13 @@ export interface ModelCommandMethods {
   fetch(type: "Project", filters: ProjectSearchFragment): Promise<Collection<ProjectModel, string>>
   fetch(type: "Step"): Promise<Collection<StepModel, string>>
   fetch(type: "Flag"): Promise<Collection<FlagModel, string>>
-  fetch(type: "Contributor", filters?: ContributorSearchFragment): Promise<Collection<ContributorModel, string>>
+  fetch(type: "Account", filters?: AccountSearchFragment): Promise<Collection<AccountModel, string>>
   fetch(type: "Task", filters: TaskSearchFragment): Promise<Collection<TaskModel, string>>
 
   reorder(type: "Flag", idList: string[]): Promise<string[]>
   reorder(type: "Step", idList: string[]): Promise<string[]>
   reorder(type: "Task", idList: string[], group: "childOf", parentTaskId: string): Promise<string[]>
-  reorder(type: "Contributor", idList: string[], group: "affectedTo", taskId: string): Promise<string[]>
+  reorder(type: "Account", idList: string[], group: "affectedTo", taskId: string): Promise<string[]>
 }
 
 export interface Collection<M, ID> extends Array<M> {
@@ -70,16 +70,16 @@ export interface GlobalModels {
   readonly specialSteps: Collection<StepModel, string>
   readonly allSteps: Collection<StepModel, string>
   readonly flags: Collection<FlagModel, string>
-  readonly contributors: Collection<ContributorModel, string>
+  readonly accounts: Collection<AccountModel, string>
   readonly projects: Collection<ProjectModel, string>
 }
 
 export interface SessionData {
-  readonly contributorId: string
+  readonly accountId: string
 }
 
 export interface Session {
-  readonly contributor: ContributorModel
+  readonly account: AccountModel
 }
 
 export interface Model extends ModelCommandMethods {

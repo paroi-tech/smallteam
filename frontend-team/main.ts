@@ -10,7 +10,7 @@ async function startup() {
       await app.showPasswordResetDialog()
     else {
       let sessionData = {
-        contributorId: value
+        accountId: value
       }
       wsClientInit()
       await app.start(sessionData)

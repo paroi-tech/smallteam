@@ -27,7 +27,7 @@ export async function fetchTasks(context: ModelContext, filters: TaskSearchFragm
     sql.where("t.created_by", int(filters.createdById))
   // if (filters.affectedToId) {
   //   sql.innerJoin("task_affected_to ac").using("task_id")
-  //     .where("ac.contributor_id", int(filters.affectedToId))
+  //     .where("ac.account_id", int(filters.affectedToId))
   // }
   if (filters.parentTaskId !== undefined)
     sql.where("c.parent_task_id", int(filters.parentTaskId))
@@ -158,13 +158,13 @@ export async function whoUseTask(context: ModelContext, id: string): Promise<Who
 
 async function addDependenciesTo(cn: DbCn, taskRows: any[]) {
   let taskIdList = taskRows.map(row => row["task_id"])
-  let contributorMap = await fetchAffectedToIdentifiers(cn, taskIdList)
+  let accountMap = await fetchAffectedToIdentifiers(cn, taskIdList)
   let flagMap = await fetchFlagIdentifiers(cn, taskIdList)
 
   for (let row of taskRows) {
-    let contributorIds = contributorMap.get(row["task_id"])
-    if (contributorIds)
-      row["affectedToIds"] = contributorIds
+    let accountIds = accountMap.get(row["task_id"])
+    if (accountIds)
+      row["affectedToIds"] = accountIds
 
     let flagIds = flagMap.get(row["task_id"])
     if (flagIds)
@@ -173,22 +173,22 @@ async function addDependenciesTo(cn: DbCn, taskRows: any[]) {
 }
 
 async function fetchAffectedToIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map<number, number[]>> {
-  let sql = select("a.task_id, a.contributor_id")
+  let sql = select("a.task_id, a.account_id")
     .from("task_affected_to a")
     .where(sqlIn("a.task_id", taskIdList))
     .orderBy("1, a.order_num")
   let rs = await cn.allSqlBricks(sql)
   let map = new Map<number, number[]>(),
     curTaskId: number | undefined = undefined,
-    curContributorIds: number[]
+    curAccountIds: number[]
 
   for (let row of rs) {
     if (row["task_id"] !== curTaskId) {
       curTaskId = row["task_id"]
-      curContributorIds = []
-      map.set(curTaskId!, curContributorIds)
+      curAccountIds = []
+      map.set(curTaskId!, curAccountIds)
     }
-    curContributorIds!.push(row["contributor_id"])
+    curAccountIds!.push(row["account_id"])
   }
 
   return map
@@ -234,7 +234,7 @@ export async function createTask(context: ModelContext, newFrag: TaskCreateFragm
 
   values["project_id"] = int(projectId)
   values["code"] = await findTaskCode(context.cn, projectId)
-  values["created_by"] = int(context.sessionData.contributorId)
+  values["created_by"] = int(context.sessionData.accountId)
 
   let sql = insertInto("task").values(values)
   let res = await context.cn.execSqlBricks(sql),
@@ -263,7 +263,7 @@ export async function createTask(context: ModelContext, newFrag: TaskCreateFragm
   }
 
   if (newFrag.affectedToIds)
-    insertTaskAffectedToContributors(context.cn, taskId, newFrag.affectedToIds)
+    insertTaskAffectedToAccounts(context.cn, taskId, newFrag.affectedToIds)
 
   if (newFrag.flagIds)
     insertTaskFlags(context.cn, taskId, newFrag.flagIds)
@@ -314,7 +314,7 @@ export async function updateTask(context: ModelContext, updFrag: TaskUpdateFragm
     await updateTaskDescription(context.cn, taskId, updFrag.description)
 
   if (updFrag.affectedToIds)
-    await updateTaskAffectedToContributors(context.cn, taskId, updFrag.affectedToIds)
+    await updateTaskAffectedToAccounts(context.cn, taskId, updFrag.affectedToIds)
 
   if (updFrag.flagIds)
     await updateTaskFlags(context.cn, taskId, updFrag.flagIds)
@@ -420,14 +420,14 @@ async function loadChildOrderNums(cn: DbCn, parentId: number): Promise<Map<numbe
 // -- Dependencies
 // --
 
-async function insertTaskAffectedToContributors(cn: DbCn, taskId: number | string, contributorIds: string[]) {
+async function insertTaskAffectedToAccounts(cn: DbCn, taskId: number | string, accountIds: string[]) {
   let orderNum = 0
 
-  for (let contributorId of contributorIds) {
+  for (let accountId of accountIds) {
     let sql = insertInto("task_affected_to")
       .values({
         "task_id": int(taskId),
-        "contributor_id": int(contributorId),
+        "account_id": int(accountId),
         "order_num": ++orderNum
       })
 
@@ -435,12 +435,12 @@ async function insertTaskAffectedToContributors(cn: DbCn, taskId: number | strin
   }
 }
 
-async function updateTaskAffectedToContributors(cn: DbCn, taskId: number | string, contributorIds: string[]) {
+async function updateTaskAffectedToAccounts(cn: DbCn, taskId: number | string, accountIds: string[]) {
   let sql = deleteFrom("task_affected_to")
     .where("task_id", int(taskId))
 
   await cn.execSqlBricks(sql)
-  await insertTaskAffectedToContributors(cn, taskId, contributorIds)
+  await insertTaskAffectedToAccounts(cn, taskId, accountIds)
 }
 
 async function insertTaskFlags(cn: DbCn, taskId: number | string, flagIds: string[]) {

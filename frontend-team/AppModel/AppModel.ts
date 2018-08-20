@@ -1,6 +1,6 @@
 import { Type, Identifier, ModelUpdate } from "../../shared/Cargo"
-import { ContributorCreateFragment, ContributorUpdateFragment } from "../../shared/meta/Contributor"
-import { registerContributor } from "./Models/ContributorModel"
+import { AccountCreateFragment, AccountUpdateFragment } from "../../shared/meta/Account"
+import { registerAccount } from "./Models/AccountModel"
 import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment } from "../../shared/meta/Project"
 import { registerProject, ProjectModel } from "./Models/ProjectModel"
 import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../shared/meta/Task"
@@ -25,7 +25,7 @@ export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
 export { Model, CommandBatch } from "./modelDefinitions"
 
 export { CommentModel } from "./Models/CommentModel"
-export { ContributorModel } from "./Models/ContributorModel"
+export { AccountModel } from "./Models/AccountModel"
 export { FlagModel } from "./Models/FlagModel"
 export { ProjectModel }
 export { StepModel }
@@ -49,7 +49,7 @@ export default class ModelComp implements Model {
   constructor(private dash: OwnDash, sessionData: SessionData) {
     this.engine = new ModelEngine(dash, dash.app.baseUrl)
     this.bgManager = this.engine.bgManager
-    registerContributor(this.engine)
+    registerAccount(this.engine)
     registerComment(this.engine)
     registerFlag(this.engine)
     registerTaskLogEntry(this.engine)
@@ -59,7 +59,7 @@ export default class ModelComp implements Model {
     registerMedia(this.engine)
     registerMediaVariant(this.engine)
     this.global = createGlobal(this.dash, this.engine)
-    this.session = createSession(this.global, sessionData.contributorId)
+    this.session = createSession(this.global, sessionData.accountId)
   }
 
   // --
@@ -95,7 +95,7 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
   let batch = new GenericCommandBatch(engine)
   batch.fetch("Step")
   batch.fetch("Flag")
-  batch.fetch("Contributor")
+  batch.fetch("Account")
   batch.fetch("Project", { archived: false })
   let isReady = false
   let batchPromise = batch.sendAll().then(results => {
@@ -119,9 +119,9 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
       type: "Flag",
       factory: () => engine.getAllModels("Flag", ["orderNum", "asc"])
     },
-    "contributors": {
-      type: "Contributor",
-      factory: () => engine.getAllModels("Contributor", ["name", "asc"])
+    "accounts": {
+      type: "Account",
+      factory: () => engine.getAllModels("Account", ["name", "asc"])
     },
     "projects": {
       type: "Project",
@@ -161,13 +161,13 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
 function makeGlobalProperties(propNames: string[], collFactories: object) {
 }
 
-function createSession(global: GlobalModels, contributorId: string): Session {
+function createSession(global: GlobalModels, accountId: string): Session {
   return {
-    get contributor() {
-      let contributor = global.contributors.get(contributorId)
-      if (!contributor)
-        throw new Error(`Unknown session contributor "${contributorId}"`)
-      return contributor
+    get account() {
+      let account = global.accounts.get(accountId)
+      if (!account)
+        throw new Error(`Unknown session account "${accountId}"`)
+      return account
     }
   }
 }

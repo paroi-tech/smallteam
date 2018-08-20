@@ -6,7 +6,7 @@ import { ChangedType } from "./backendContext/ModelUpdateLoader"
 import CargoLoader from "./backendContext/CargoLoader"
 import { MediaEngine } from "../createMediaEngine";
 
-export type MainMetaCode = "contributorAvatar" | "task"
+export type MainMetaCode = "accountAvatar" | "task"
 
 export async function fetchMedias(context: ModelContext, type: MainMetaCode, id: string): Promise<string[]> {
   let medias = await context.mediaEngine.storage.findMedias({

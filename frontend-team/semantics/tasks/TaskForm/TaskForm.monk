@@ -12,7 +12,7 @@
     </textarea>
 
     <div :ref="flag"></div>
-    <div :ref="contributor"></div>
+    <div :ref="account"></div>
 
     <button type="button" class="StdBtn" :ref="submit">
       Submit <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="submitSpinner"></span>

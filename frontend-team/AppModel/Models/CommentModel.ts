@@ -1,7 +1,7 @@
 import { CommentFragment, CommentUpdateFragment, CommentCreateFragment, CommentIdFragment } from "../../../shared/meta/Comment"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { TaskModel } from "./TaskModel"
-import { ContributorModel } from "./ContributorModel"
+import { AccountModel } from "./AccountModel"
 
 export interface CommentUpdateTools {
   processing: boolean
@@ -15,7 +15,7 @@ export interface CommentUpdateTools {
 export interface CommentModel extends CommentFragment {
   readonly updateTools: CommentUpdateTools
   readonly task: TaskModel
-  readonly writtenBy: ContributorModel
+  readonly writtenBy: AccountModel
 }
 
 export function registerComment(engine: ModelEngine) {
@@ -25,11 +25,11 @@ export function registerComment(engine: ModelEngine) {
         return engine.getModel("Task", getFrag().taskId)
       },
       get writtenBy() {
-        return engine.getModel("Contributor", getFrag().writtenById)
+        return engine.getModel("Account", getFrag().writtenById)
       }
     }
     appendGettersToModel(model, "Comment", getFrag)
-    appendUpdateToolsToModel(model, "Contributor", getFrag, engine, {
+    appendUpdateToolsToModel(model, "Account", getFrag, engine, {
       processing: true,
       toFragment: true,
       diffToUpdate: true

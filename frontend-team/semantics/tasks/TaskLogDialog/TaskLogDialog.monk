@@ -17,7 +17,7 @@
           <td>ID</td>
           <td>Date</td>
           <td>Step</td>
-          <td>Contributor</td>
+          <td>Account</td>
         </tr>
       </thead>
       <tbody></tbody>
