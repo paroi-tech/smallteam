@@ -9,7 +9,6 @@ the time, so I can't use JIRA.
   - Add a log system (`bristol`?) and replace all the `console.log` on the backend
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part
-- Rename `account` to `user`
 
 # Thomas
 
@@ -272,6 +271,7 @@ the time, so I can't use JIRA.
 - Use a GitHub hook to show the commits on tasks
 - Use HTTPS, deploy the project on the Web server
 - Multi-teams
+- Rename `contributor` to `account`
 
 
 # DNS and proxy settings - DONE
