@@ -9,6 +9,7 @@ export default class PasswordEdit {
 
   constructor() {
     let view = render(template)
+
     this.el = view.rootEl()
     this.primaryEl = view.ref("primary")
     this.confirmEl = view.ref("confirm")
@@ -24,17 +25,18 @@ export default class PasswordEdit {
   }
 
   passwordsMatch(): boolean {
-    return this.confirmEl.value.trim() === this.primaryEl.value.trim()
+    return this.confirmEl.value === this.primaryEl.value
   }
 
   getPasswordIfMatch(): string | undefined {
-    let primary = this.primaryEl.value.trim()
-    let confirm = this.confirmEl.value.trim()
+    let primary = this.primaryEl.value
+    let confirm = this.confirmEl.value
+
     return primary === confirm ? primary : undefined
   }
 
   getPassword(): string {
-    return this.primaryEl.value.trim()
+    return this.primaryEl.value
   }
 
   hasPassword() {

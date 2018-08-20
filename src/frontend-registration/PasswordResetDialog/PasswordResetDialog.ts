@@ -76,8 +76,6 @@ export default class LoginDialog {
   }
 
   private async doFetch(password: string) {
-    let result = false
-
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/reset-password`, {
         method: "post",
@@ -99,6 +97,7 @@ export default class LoginDialog {
       }
 
       let data = await response.json()
+
       if (!data.done) {
         await this.dash.create(InfoDialog).show(`Sorry. Impossible to change your password. ${data.reason}`)
         return false
