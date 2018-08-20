@@ -42,7 +42,7 @@
 
     "watch": "run-p all:sass:watch all:webpack:watch backend:tsc:watch _backend:wait-then-nodemon",
     "watch:light": "run-p sass:watch webpack:watch _backend:tsc-start",
-    "postwatch": "echo"
+    "postwatch": "node -e \"console.log()\""
   },
   "repository": {
     "type": "git",
