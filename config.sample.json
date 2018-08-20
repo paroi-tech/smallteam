@@ -6,11 +6,11 @@
   "publicPort": 80,
   "dataDir": "/path/to/site/data/folder",
   "versionFile": "version.txt",
-  "mode": "multiTeams",
+  "mode": "platform",
   "singleTeam": {
     "subdirUrl": ""
   },
-  "multiTeams": {
+  "platform": {
   },
   "mail": {
     "from": "committeambot",

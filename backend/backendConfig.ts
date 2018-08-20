@@ -14,14 +14,14 @@ export interface ServerConfig {
   /**
    * Default is: `"singleTeam"`.
    */
-  mode?: "singleTeam" | "multiTeams",
+  mode?: "singleTeam" | "platform",
   singleTeam?: {
     /**
      * For example: `"/my/sub/directory"` (optional).
      */
     subdirUrl?: string
   },
-  multiTeams?: {
+  platform?: {
   },
   mail: {
     from: string
