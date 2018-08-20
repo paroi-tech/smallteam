@@ -243,13 +243,12 @@ export async function removeExpiredPasswordTokens(runner: QueryRunnerWithSqlBric
   }
 }
 
-export async function getSessionData(req: Request): Promise<SessionData> {
-  if (!await hasSession(req))
-    throw new Error("Missing session data")
-
-  return {
-    accountId: req.session!.accountId,
-    subdomain: req.session!.subdomain
+export async function getSessionData(req: Request): Promise<SessionData | undefined> {
+  if (await hasSession(req)) {
+    return {
+      accountId: req.session!.accountId,
+      subdomain: req.session!.subdomain
+    }
   }
 }
 

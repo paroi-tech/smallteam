@@ -19,7 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessNotification } from "./notifications"
+import { routeProcessNotification } from "./notifications";
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>

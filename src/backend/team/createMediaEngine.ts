@@ -62,13 +62,13 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
 function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
   return {
     async canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
-      if (!await hasSession(req)) {
+      let sessionData = await getSessionData(req)
+      if (!sessionData) {
         return {
           canUpload: false,
           errorCode: 403 // Forbidden
         }
       }
-      let sessionData = await getSessionData(req)
       if (!["accountAvatar", "task"].includes(externalRef.type)) {
         return {
           canUpload: false,
@@ -136,13 +136,14 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
 async function markExternalTypeAsUpdate(req: Request, media: Media, loader: CargoLoader) {
   if (media.externalRef) {
     let subdomain = await getConfirmedSubdomain(req)
-    if (!subdomain)
-      throw new Error(`Cannot use a media engine outside a subdomain`)
+    let sessionData = await getSessionData(req)
+    if (!subdomain || !sessionData || sessionData.subdomain !== subdomain)
+      throw new Error(`Cannot use a media engine outside a subdomain or without a session`)
     let context: ModelContext = {
       subdomain,
       cn: await getCn(subdomain),
       mediaEngine: await getMediaEngine(subdomain),
-      sessionData: await getSessionData(req),
+      sessionData,
       loader
     }
     let updatedType = mediaExternalTypeToType(media.externalRef.type)
