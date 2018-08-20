@@ -3,7 +3,7 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import Joi = require("joi")
 import { SessionData } from "../session"
-import { select, insert, deleteFrom } from "sql-bricks"
+import { select, insert,  update, deleteFrom } from "sql-bricks"
 import { tokenSize, config, bcryptSaltRounds } from "../backendConfig"
 import validate from "../utils/joiUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
@@ -101,6 +101,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
     await mkdir(p, 0o755)
     await removeTeamToken(tcn, token)
     await storeFirstUser(await getCn(teamCode), rs)
+    await setTeamAsActivated(tcn, rs["team_id"])
     tcn.commit()
     answer.done = true
     answer.teamUrl = getTeamSiteUrl({ subdomain: teamCode })
@@ -194,6 +195,12 @@ async function storeFirstUser(runner: QueryRunnerWithSqlBricks, data) {
     "role": "admin",
     "email": data["user_email"]
   })
+
+  await runner.execSqlBricks(cmd)
+}
+
+async function setTeamAsActivated(runner: QueryRunnerWithSqlBricks, teamId: string) {
+  let cmd = update("team", { "activated": 1 }).where("team_id", teamId)
 
   await runner.execSqlBricks(cmd)
 }

@@ -20,14 +20,10 @@ the time, so I can't use JIRA.
 - Routes for tasks
 
 # Lionel
-- Set `activated` attribute to `true` in `team` table on activation.
-- Remove trim on password
-- Replace `config.minPasswordLength` and `config.maxTeamCodeLength` with `whyNewPasswordIsInvalid()` and `whyTeamCodeIsInvalid()`
-- Move the `sessions` database to the data directory
+
 - Paste images in the task description
 - Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
 - Github notifications: use a hook to track the commits from GitHub
-- Team creation
 - TaskBox order in BoxList (StepSwitcher)
 - queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
@@ -88,6 +84,11 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- Team creation
+- Set `activated` attribute to `true` in `team` table on activation.
+- Remove trim on password
+- Replace `config.minPasswordLength` and `config.maxTeamCodeLength` with `whyNewPasswordIsInvalid()` and `whyTeamCodeIsInvalid()`
+- Move the `sessions` database to the data directory
 - Define a `subdomain` property in `req.session` or `req.session.cookie` when user logins to add another
   level of security.\
   `express-session` uses only one database for all sessions (including subdomains) and I haven't find a way
