@@ -20,7 +20,7 @@ export let teamDbCn!: DatabaseConnectionWithSqlBricks
 
 export async function initDbTeamCn() {
   let dbPath = path.join(config.dataDir, "platform.sqlite")
-  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
+  let scriptPath = path.join(__dirname, "..", "..", "..", "sqlite-scripts", "platform.sql")
 
   teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
@@ -32,7 +32,7 @@ export async function getCn(subdomain: string): Promise<DatabaseConnectionWithSq
 
   if (!cn) {
     let dbPath = path.join(config.dataDir, subdomain, "team.sqlite")
-    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
+    let scriptPath = path.join(__dirname, "..", "..", "..", "sqlite-scripts", "team.sql")
     let up = subdomain.toUpperCase()
     let debug = `[${up}]`
 
