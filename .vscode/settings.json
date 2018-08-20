@@ -13,13 +13,7 @@
   "search.exclude": {
     "**/*.map": true,
     "**/node_modules": true,
-    "**/bower_components": true,
-    "dist/backend": true,
-    "dist/shared": true,
-    "dist/*.sqlite": true,
-    "dist/www/bundle*.js*": true,
-    "dist/www/bundle*.css*": true,
-    "dist/www/**/*.min.*": true
+    "dist": true
   },
   // "search.useIgnoreFiles": false,
   "typescript.locale": "en"

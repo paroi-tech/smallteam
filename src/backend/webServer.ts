@@ -19,6 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
+import { routeProcessNotification } from "./notifications"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -81,6 +82,8 @@ export function startWebServer() {
   router.post("/api/model/exec", makeRouteHandler(routeExec, false))
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
+
+  router.post("/api/notifications/github", makeRouteHandler(routeProcessNotification, true))
 
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL
