@@ -8,3 +8,5 @@ dist/www/bundle*.css*
 *.sqlite
 
 /config.json
+
+.ropeproject
