@@ -1,10 +1,10 @@
 node_modules
 
-www-server/*
-!www-server/sqlite-scripts
-!www-server/www
-www-server/www/bundle*.js*
-www-server/www/bundle*.css*
+dist/*
+!dist/sqlite-scripts
+!dist/www
+dist/www/bundle*.js*
+dist/www/bundle*.css*
 *.sqlite
 
 /config.json

@@ -14,12 +14,12 @@
     "**/*.map": true,
     "**/node_modules": true,
     "**/bower_components": true,
-    "www-server/backend": true,
-    "www-server/shared": true,
-    "www-server/*.sqlite": true,
-    "www-server/www/bundle*.js*": true,
-    "www-server/www/bundle*.css*": true,
-    "www-server/www/**/*.min.*": true
+    "dist/backend": true,
+    "dist/shared": true,
+    "dist/*.sqlite": true,
+    "dist/www/bundle*.js*": true,
+    "dist/www/bundle*.css*": true,
+    "dist/www/**/*.min.*": true
   },
   // "search.useIgnoreFiles": false,
   "typescript.locale": "en"

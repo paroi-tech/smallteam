@@ -8,7 +8,7 @@ module.exports = {
   },
   entry: [/* 'whatwg-fetch', */ path.join(__dirname, "main.ts")],
   output: {
-    path: path.join(__dirname, "..", "www-server", "www"),
+    path: path.join(__dirname, "..", "..", "dist", "www"),
     filename: "bundle-team.js"
   },
   module: {

@@ -16,7 +16,7 @@ Description=Commit.team server service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /home/committeam/commit.team/smallteam/www-server/backend/index.js --config /home/committeam/commit.team/config.json
+ExecStart=/usr/bin/node /home/committeam/commit.team/smallteam/dist/backend/index.js --config /home/committeam/commit.team/config.json
 Type=simple
 User=committeam
 
@@ -101,7 +101,7 @@ server {
   server_name commit.team *.commit.team;
 
   location / {
-    root /home/committeam/smallteam/www-server/www;
+    root /home/committeam/smallteam/dist/www;
     index index.html;
     try_files $uri @express;
   }
