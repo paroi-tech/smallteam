@@ -1,7 +1,6 @@
 import Joi = require("joi")
 import { ValidationError } from "./serverUtils"
 
-
 export default async function validate<T>(value: T, schema: Joi.SchemaLike): Promise<T> {
   try {
     let result = await Joi.validate(value, schema)

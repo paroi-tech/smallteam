@@ -165,6 +165,7 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
       return
     }
 
+    // FIXME: route cb should be abble to set response object statis code. REALLY!!!
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
@@ -194,7 +195,7 @@ function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
 }
 
 function writeJsonResponse(res: Response, httpCode: number, data: unknown) {
-  // TODO: check if data contain a 'statusCode' property and use it as status code.
+  // FIXME: check if data contain a 'statusCode' property and use it as status code.
   res.setHeader("Content-Type", "application/json")
   res.status(httpCode)
   res.send(JSON.stringify(data))
