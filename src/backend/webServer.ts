@@ -19,7 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessNotification } from "./notifications";
+import { routeProcessGithubNotification } from "./notifications";
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -83,7 +83,7 @@ export function startWebServer() {
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
-  router.post("/api/notifications/github", makeRouteHandler(routeProcessNotification, true))
+  router.post("/api/notifications/github/:hookId", makeRouteHandler(routeProcessGithubNotification, true))
 
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL
@@ -150,6 +150,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     let body: string | undefined
     try {
       body = await waitForRequestBody(req)
+      req.body = body
       writeJsonResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)

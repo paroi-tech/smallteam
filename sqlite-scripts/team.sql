@@ -131,5 +131,27 @@ create table reg_new (
     create_ts timestamp not null default current_timestamp
 );
 
+create table commit (
+    commit_id integer not null primary key autoincrement,
+    external_id varchar(255) not null,
+    message text not null,
+    author_name varchar(255) not null,
+    ts timestamp not null
+);
+
+create table task_commit (
+    task_id bigint not null references task(task_id) on delete cascade,
+    commit_id bigint not null references commit(commit_id) on delete cascade,
+    primary key (task_id, commit_id)
+);
+
+create table hook (
+    hook_id integer not null primary key autoincrement,
+    provider varchar(255) not null,
+    secret varchar(255) not null,
+    token varchar(255) not null,
+    unique (provider, token)
+);
+
 insert into step (label) values ('On Hold');
 insert into step (label) values ('Archived');

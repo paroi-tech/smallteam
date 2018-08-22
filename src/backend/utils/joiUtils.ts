@@ -11,3 +11,7 @@ export default async function validate<T>(value: T, schema: Joi.SchemaLike): Pro
     throw new ValidationError(`Invalid data received: '${key}' did not pass validation.`)
   }
 }
+
+export function isHexString(str: string) {
+  return Joi.validate(str, Joi.string().hex()).error === null
+}
