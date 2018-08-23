@@ -19,7 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessGithubNotification } from "./notifications";
+import { routeProcessGithubNotification, routeCreateGithubHook, routeGenerateSecret } from "./notifications"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -84,6 +84,8 @@ export function startWebServer() {
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
   router.post("/api/notifications/github/:hookId", makeRouteHandler(routeProcessGithubNotification, true))
+  router.post("/api/notifications/github/get-secret", makeRouteHandler(routeGenerateSecret, false))
+  router.post("/api/notifications/github/create-hook", makeRouteHandler(routeCreateGithubHook, false))
 
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL

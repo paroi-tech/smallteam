@@ -151,6 +151,7 @@ create table hook (
     provider varchar(255) not null,
     secret varchar(255) not null,
     token varchar(255) not null,
+    activated tinyint default 1,
     unique (provider, token)
 );
 

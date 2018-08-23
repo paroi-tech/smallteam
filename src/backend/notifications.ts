@@ -1,4 +1,5 @@
 import * as crypto from "crypto"
+import { tokenSize } from "./backendConfig"
 import { Request, Response } from "express"
 import { SessionData } from "./session"
 import { getCn } from "./utils/dbUtils"
@@ -6,8 +7,8 @@ import { select, insert } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import Joi = require("joi")
 import validate, { isHexString } from "./utils/joiUtils"
-
-const hookTokenSize = 8
+import { getAccountById } from "./utils/userUtils"
+import { AuthorizationError } from "./utils/serverUtils"
 
 let commitSchemata = Joi.object().keys({
   sha: Joi.string().hex().required(),
@@ -29,12 +30,50 @@ let pushDataSchemata = Joi.object().keys({
   commits: Joi.array().items(commitSchemata)
 })
 
-export async function routeCreateHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+let routeCreateHookSchemata = Joi.object().keys({
+  secret: Joi.string().hex().length(tokenSize * 2).required()
+})
 
+export async function routeCreateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Missing session data in 'routeCreateGithubHook'")
+
+  let cn = await getCn(subdomain)
+  let account = await getAccountById(cn, sessionData.accountId)
+
+  if (!account || account.role !== "admin")
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  let cleanData = await validate(data, routeCreateHookSchemata)
+  let token = crypto.randomBytes(8).toString("hex")
+  let cmd = insert("hook", {
+    "secret": cleanData.secret,
+    "provider": "Github",
+    "token": token
+  })
+
+  await cn.execSqlBricks(cmd)
+
+  return {
+    done: true,
+    token
+  }
 }
 
-export async function genereateHookSecretToken(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeGenerateSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Missing session data in 'routeGenerateSecret'")
 
+  let cn = await getCn(subdomain)
+  let account = await getAccountById(cn, sessionData.accountId)
+
+  if (!account || account.role !== "admin")
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  return {
+    done: true,
+    secret: crypto.randomBytes(tokenSize).toString("hex")
+  }
 }
 
 export async function routeProcessGithubNotification(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
@@ -45,19 +84,19 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!req.body || typeof req.body !== "string")
     throw new Error("Missing 'rawBody' in request.")
 
-  let token = req.params.hookId
-  if (!token || !isHexString(token))
-    throw new Error("Invalid URL")
-
   let hookEvent = req.headers["x-github-event"]
   if (!hookEvent || typeof hookEvent !== "string" || hookEvent !== "push")
     throw new Error("Unsupported hook event")
+
+  let token = req.params.hookId
+  if (!token || !isHexString(token))
+    throw new Error("Invalid URL")
 
   let cn = await getCn(subdomain)
   let secret = await getGithubHookToken(cn, token)
 
   if (!secret)
-    throw new Error("No token Github found")
+    throw new Error("No Github hook found") // FIXME: return 404 status code instead.
 
   let reqDigest = req.headers["x-hub-signature"]
   if (!reqDigest || typeof reqDigest !== "string")
@@ -74,6 +113,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   try {
     for (let commit of cleanData.commits)
       processCommit(tcn, commit, ts, deliveryGuid)
+    await tcn.commit()
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
@@ -81,13 +121,11 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
 }
 
 async function getGithubHookToken(runner: QueryRunnerWithSqlBricks, token: string) {
-  let query = select("secret").from("options").where({ "provider": "github", "token": token })
+  let query = select("activated, secret").from("options").where({ "provider": "Github", "token": token })
+  let res = runner.singleRowSqlBricks(query)
 
-  return await runner.singleValueSqlBricks(query)
-}
-
-async function saveHook() {
-
+  if (res && res["activated"] != 0)
+    return res["secret"]
 }
 
 /**

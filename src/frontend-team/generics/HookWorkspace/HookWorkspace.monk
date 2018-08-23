@@ -1,0 +1,14 @@
+<div class="HookWorkspace">
+  <header>Manage Hooks</header>
+  <table :ref=""table>
+    <caption>Available hooks</caption>
+    <thead>
+      <tr>
+        <td>Provider</td>
+        <td>URL</td>
+        <td>Show secret</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
