@@ -136,8 +136,8 @@ create table commit (
     external_id varchar(255) not null,
     message text not null,
     author_name varchar(255) not null,
-    ts timestamp not null,
-    delivery_id varchar(255) default null
+    ts timestamp not null default current_timestamp,
+    notification_id varchar(512) default null
 );
 
 create table task_commit (

@@ -29,7 +29,17 @@ let pushDataSchemata = Joi.object().keys({
   commits: Joi.array().items(commitSchemata)
 })
 
+export async function routeCreateHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+
+}
+
+export async function genereateHookSecretToken(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+
+}
+
 export async function routeProcessGithubNotification(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  let ts = Date.now()
+
   if (!req || !res)
     throw new Error("Missing request or response object in route.")
   if (!req.body || typeof req.body !== "string")
@@ -63,7 +73,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
 
   try {
     for (let commit of cleanData.commits)
-      processCommit(tcn, commit, deliveryGuid)
+      processCommit(tcn, commit, ts, deliveryGuid)
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
@@ -76,10 +86,38 @@ async function getGithubHookToken(runner: QueryRunnerWithSqlBricks, token: strin
   return await runner.singleValueSqlBricks(query)
 }
 
-async function processCommit(runner: QueryRunnerWithSqlBricks, commit, deliveryGuid?: string) {
-  let taskCodeRegex = /[a-zA-Z0-9]\-[\d]+/
-  // TODO: save the commit in db, search for task codes in the commit message, get the project,
-  // and if the project is still active, attach commit to the tasks.
+async function saveHook() {
+
+}
+
+/**
+ * What this does is:
+ *  - save the commit in db,
+ *  - search for task codes in the commit message,
+ *  - and attach commit to the tasks.
+ */
+async function processCommit(runner: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
+  let commitId = await saveCommit(runner, commit, ts, deliveryGuid)
+
+  for (let taskCode of getTaskCodesInCommitMessage(commit.message)) {
+    let taskId = await getIdOfTaskWithCode(runner, taskCode)
+
+    if (taskId)
+      addCommitToTask(runner, taskId, commitId)
+  }
+}
+
+async function saveCommit(runner: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
+  let cmd = insert("commit", {
+    "external_id": commit.sha,
+    "message": commit.message,
+    "author_name": commit.author.name,
+    "ts": ts,
+    "notification_id": deliveryGuid || null
+  })
+  let res = await runner.execSqlBricks(cmd)
+
+  return res.getInsertedIdString()
 }
 
 function getDeliveryGuid(req) {
@@ -87,4 +125,29 @@ function getDeliveryGuid(req) {
 
   if (guid && typeof guid === "string")
     return guid
+}
+
+function getTaskCodesInCommitMessage(message: string) {
+  return message.match(/[a-zA-Z0-9]-[\d]+/g) || [] as string[]
+}
+
+function getProjectCodeFromTaskCode(taskCode: string) {
+  let arr = taskCode.split("-")
+
+  if (arr.length > 1)
+    return arr[0]
+}
+
+async function getIdOfTaskWithCode(runner: QueryRunnerWithSqlBricks, code: string) {
+  let query = select("task_id").from("task").where({ code })
+  let res = runner.singleValueSqlBricks(query)
+
+  if (res)
+    return res.toString()
+}
+
+async function addCommitToTask(runner: QueryRunnerWithSqlBricks, taskId: string, commitId: string) {
+  let cmd = insert("task_commit", { "task_id": taskId, "commit_id": commitId })
+
+  await runner.execSqlBricks(cmd)
 }
