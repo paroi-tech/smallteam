@@ -11,6 +11,7 @@ import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
 import { bcryptSaltRounds, tokenSize } from "../../backendConfig"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { getTeamSiteUrl } from "../../utils/serverUtils"
+import { log } from "../../utils/log"
 
 type DbCn = DatabaseConnectionWithSqlBricks
 
@@ -87,7 +88,7 @@ export async function createAccount(context: ModelContext, newFrag: AccountCreat
   let res = await context.cn.execSqlBricks(sql)
   let accountId = res.getInsertedIdString()
 
-  generateAndSendActivationToken(context, accountId, newFrag.email).catch(console.error)
+  generateAndSendActivationToken(context, accountId, newFrag.email).catch(err => log.error(err))
   context.loader.addFragment({
     type: "Account",
     id: accountId.toString(),
@@ -108,7 +109,7 @@ async function generateAndSendActivationToken(context: ModelContext, accountId: 
     html
   })
   if (!result.done) {
-    console.error("Unable to send account activation mail to user", result.errorMsg)
+    log.error("Unable to send account activation mail to user", result.errorMsg)
     return
   }
   await storeAccountActivationToken(context, token, accountId, to)

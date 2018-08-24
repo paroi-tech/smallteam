@@ -103,11 +103,11 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
     await removeTeamToken(tcn, token)
     await storeFirstUser(await getCn(teamCode), rs)
     await setTeamAsActivated(tcn, rs["team_id"])
-    tcn.commit()
+    await tcn.commit()
     answer.done = true
     answer.teamUrl = getTeamSiteUrl({ subdomain: teamCode })
   } catch (err) {
-    console.error("Cannot activate team", err.message)
+    log.error("Cannot activate team", err.message, err)
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
@@ -170,10 +170,8 @@ async function storeTeamToken(runner: QueryRunnerWithSqlBricks, data, passwordHa
   await runner.execSqlBricks(query)
 }
 
-async function removeTeamToken(runner: QueryRunnerWithSqlBricks, token: string) {
-  let cmd = deleteFrom("reg_team").where("token", token)
-
-  await runner.execSqlBricks(cmd)
+async function removeTeamToken(cn: QueryRunnerWithSqlBricks, token: string) {
+  await cn.execSqlBricks(deleteFrom("reg_team").where("token", token))
 }
 
 async function sendTeamCreationMail(token: string, to: string) {
@@ -191,20 +189,18 @@ async function sendTeamCreationMail(token: string, to: string) {
   return res.done
 }
 
-async function storeFirstUser(runner: QueryRunnerWithSqlBricks, data) {
-  let cmd = insert("account", {
+async function storeFirstUser(cn: QueryRunnerWithSqlBricks, data) {
+  await cn.execSqlBricks(insert("account", {
     "name": data["user_name"],
     "login": data["user_login"],
     "password": data["user_password"],
     "role": "admin",
     "email": data["user_email"]
-  })
-
-  await runner.execSqlBricks(cmd)
+  }))
 }
 
-async function setTeamAsActivated(runner: QueryRunnerWithSqlBricks, teamId: string) {
-  let cmd = update("team", { "activated": 1 }).where("team_id", teamId)
+async function setTeamAsActivated(cn: QueryRunnerWithSqlBricks, teamId: string) {
+  let cmd = update("team").set({ "activated": 1 }).where("team_id", teamId)
 
-  await runner.execSqlBricks(cmd)
+  await cn.execSqlBricks(cmd)
 }
