@@ -16,36 +16,39 @@ export interface MailOptions {
 }
 
 export async function sendMail(options: MailOptions): Promise<SendMail> {
-  try {
-    // https://nodemailer.com/transports/sendmail/
-    let transporter = createTransport({
-      sendmail: true,
-      newline: 'unix',
-      path: '/usr/sbin/sendmail'
-    });
-    await transporter.sendMail({
-      from: options.from || config.mail.from,
-      to: options.to,
-      subject: options.subject,
-      text: options.text || htmlToText(options.html),
-      html: options.html
-    })
-
-    if (config.env === "local") {
-      log.info(`-----------------
+  if (config.env === "local") {
+    log.info(`-----------------
 To: ${options.to}
 Subject: ${options.subject}
 ${options.html}
 ...
 ${options.text || htmlToText(options.html)}`)
-    }
     return {
       done: true
     }
-  } catch (error) {
-    return {
-      done: false,
-      errorMsg: error.message
+  } else {
+    try {
+      // https://nodemailer.com/transports/sendmail/
+      let transporter = createTransport({
+        sendmail: true,
+        newline: 'unix',
+        path: '/usr/sbin/sendmail'
+      });
+      await transporter.sendMail({
+        from: options.from || config.mail.from,
+        to: options.to,
+        subject: options.subject,
+        text: options.text || htmlToText(options.html),
+        html: options.html
+      })
+      return {
+        done: true
+      }
+    } catch (error) {
+      return {
+        done: false,
+        errorMsg: error.message
+      }
     }
   }
 }
