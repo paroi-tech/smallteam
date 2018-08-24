@@ -1,5 +1,8 @@
 -- Drop tables
 
+drop table if exists git_commit_task;
+drop table if exists git_commit;
+drop table if exists hook;
 drop table if exists reg_pwd;
 drop table if exists reg_new;
 drop table if exists reg_team;
@@ -16,9 +19,6 @@ drop table if exists project_step;
 drop table if exists project;
 drop table if exists step;
 drop table if exists account;
-drop table if exists task_commit;
-drop table if exists commit;
-drop table if exists hook;
 
 -- Create tables
 
@@ -134,7 +134,7 @@ create table reg_new (
     create_ts timestamp not null default current_timestamp
 );
 
-create table commit (
+create table git_commit (
     commit_id integer not null primary key autoincrement,
     external_id varchar(255) not null,
     message text not null,
@@ -143,9 +143,9 @@ create table commit (
     notification_id varchar(512) default null
 );
 
-create table task_commit (
+create table git_commit_task (
     task_id bigint not null references task(task_id) on delete cascade,
-    commit_id bigint not null references commit(commit_id) on delete cascade,
+    commit_id bigint not null references git_commit(commit_id) on delete cascade,
     primary key (task_id, commit_id)
 );
 
