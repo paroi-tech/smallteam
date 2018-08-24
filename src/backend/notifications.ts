@@ -1,16 +1,17 @@
 import * as crypto from "crypto"
 import { tokenSize } from "./backendConfig"
 import { Request, Response } from "express"
-import { SessionData } from "./session"
+import { SessionData, hasAdminRights } from "./session"
 import { getCn } from "./utils/dbUtils"
 import { select, insert } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import Joi = require("joi")
 import validate, { isHexString } from "./utils/joiUtils"
-import { getAccountById } from "./utils/userUtils"
 import { AuthorizationError } from "./utils/serverUtils"
 
-let commitSchemata = Joi.object().keys({
+const HOOK_UID_LENGTH = 8
+
+let commitSchema = Joi.object().keys({
   sha: Joi.string().hex().required(),
   message: Joi.string().default(""),
   author: Joi.object().keys({
@@ -21,17 +22,21 @@ let commitSchemata = Joi.object().keys({
   distinct: Joi.boolean().required()
 })
 
-let pushDataSchemata = Joi.object().keys({
+let pushDataSchema = Joi.object().keys({
   ref: Joi.string().required(),
   head: Joi.string().required(),
   before: Joi.string().required(),
   size: Joi.number().integer().required(),
   distinct_size: Joi.number().integer().required(),
-  commits: Joi.array().items(commitSchemata)
+  commits: Joi.array().items(commitSchema)
 })
 
-let routeCreateHookSchemata = Joi.object().keys({
+let routeCreateHookSchema = Joi.object().keys({
   secret: Joi.string().hex().length(tokenSize * 2).required()
+})
+
+let routeGetSecretSchema = Joi.object().keys({
+  hookId: Joi.string().regex(/\d+/).required()
 })
 
 export async function routeCreateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
@@ -39,24 +44,23 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
     throw new Error("Missing session data in 'routeCreateGithubHook'")
 
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let cleanData = await validate(data, routeCreateHookSchemata)
-  let token = crypto.randomBytes(8).toString("hex")
+  let cleanData = await validate(data, routeCreateHookSchema)
+  let uid = crypto.randomBytes(HOOK_UID_LENGTH).toString("hex")
   let cmd = insert("hook", {
     "secret": cleanData.secret,
     "provider": "Github",
-    "token": token
+    "hook_uid": uid
   })
 
   await cn.execSqlBricks(cmd)
 
   return {
     done: true,
-    token
+    uid
   }
 }
 
@@ -65,9 +69,8 @@ export async function routeGenerateSecret(subdomain: string, data: any, sessionD
     throw new Error("Missing session data in 'routeGenerateSecret'")
 
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
   return {
@@ -76,24 +79,69 @@ export async function routeGenerateSecret(subdomain: string, data: any, sessionD
   }
 }
 
+export async function routeGetGithubHookSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Missing session data in 'routeGenerateSecret'")
+
+  let cleanData = await validate(data, routeGetSecretSchema)
+  let cn = await getCn(subdomain)
+
+  if (!await hasAdminRights(cn, sessionData))
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  let query = select("secret").from("hook").where({ "provider": "Github", "hook_id": cleanData.hookId })
+  let secret = await cn.singleValueSqlBricks(query)
+
+  return {
+    done: true,
+    secret
+  }
+}
+
+export async function routeFetchGithubHooks(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+  throw new Error("Missing session data in 'routeGenerateSecret'")
+
+  let cn = await getCn(subdomain)
+
+  if (!await hasAdminRights(cn, sessionData))
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  let query = select().from("hook").where({ "provider": "Github" }) // FIXME: create index on provider column?
+  let rs = await cn.allSqlBricks(query)
+  let hooks = rs.map(row => ({
+    id: row["hook_id"].toString(),
+    provider: row["provider"],
+    uid: row["hook_uid"],
+    activated: row["activated"] != 0
+  }))
+
+  return {
+    done: true,
+    hooks
+  }
+}
+
 export async function routeProcessGithubNotification(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   let ts = Date.now()
 
   if (!req || !res)
     throw new Error("Missing request or response object in route.")
-  if (!req.body || typeof req.body !== "string")
-    throw new Error("Missing 'rawBody' in request.")
+
+  let reqBody = req["rawBody"]
+  if (reqBody || typeof reqBody !== "string")
+    throw new Error("Missing 'rawBody' attribute in request.")
 
   let hookEvent = req.headers["x-github-event"]
   if (!hookEvent || typeof hookEvent !== "string" || hookEvent !== "push")
     throw new Error("Unsupported hook event")
 
-  let token = req.params.hookId
-  if (!token || !isHexString(token))
+  let hookUid = req.params.uid
+  if (!hookUid || !isHexString(hookUid))
     throw new Error("Invalid URL")
 
   let cn = await getCn(subdomain)
-  let secret = await getGithubHookToken(cn, token)
+  let secret = await getActiveGithubHookSecret(cn, hookUid)
 
   if (!secret)
     throw new Error("No Github hook found") // FIXME: return 404 status code instead.
@@ -102,11 +150,11 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!reqDigest || typeof reqDigest !== "string")
     throw new Error("Invalid digest")
 
-  let digest = crypto.createHmac("sha1", token).update(req.body).digest("hex")
+  let digest = crypto.createHmac("sha1", hookUid).update(reqBody).digest("hex")
   if (reqDigest !== digest)
     throw new Error("Invalid message digest")
 
-  let cleanData = await validate(data, pushDataSchemata)
+  let cleanData = await validate(data, pushDataSchema)
   let deliveryGuid = getDeliveryGuid(req)
   let tcn = await cn.beginTransaction()
 
@@ -120,8 +168,8 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   }
 }
 
-async function getGithubHookToken(runner: QueryRunnerWithSqlBricks, token: string) {
-  let query = select("activated, secret").from("options").where({ "provider": "Github", "token": token })
+async function getActiveGithubHookSecret(runner: QueryRunnerWithSqlBricks, uid: string) {
+  let query = select("activated, secret").from("options").where({ "provider": "Github", "hook_uid": uid })
   let res = runner.singleRowSqlBricks(query)
 
   if (res && res["activated"] != 0)

@@ -7,7 +7,7 @@ import { sendMail } from "../mail"
 import { tokenSize, bcryptSaltRounds } from "../backendConfig"
 import { getAccountById, getAccountByLogin } from "../utils/userUtils"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
-import { SessionData } from "../session"
+import { SessionData, hasAdminRights } from "../session"
 import validate from "../utils/joiUtils"
 import { getCn } from "../utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
@@ -47,9 +47,8 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
 
   let context = { subdomain }
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeSendInvitation)
@@ -86,9 +85,8 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
 
   let context = { subdomain }
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
   let cleanData = await validate(data, joiSchemata.routeResendInvitation)
@@ -133,9 +131,8 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
     throw new Error("SessionData missing in 'routeCancelInvitation'")
 
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
   let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
@@ -202,9 +199,8 @@ export async function routeGetPendingInvitations(subdomain: string, data: any, s
     throw new Error("SessionData missing in 'routeGetPendingInvitations'")
 
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to do this")
 
   let arr = [] as any[]

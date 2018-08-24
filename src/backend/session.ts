@@ -110,9 +110,8 @@ export async function routeSetPassword(subdomain: string, data: any, sessionData
     throw new Error("'SessionData' missing in 'routeSetPassword'")
 
   let cn = await getCn(subdomain)
-  let account = await getAccountById(cn, sessionData.accountId)
 
-  if (!account || account.role !== "admin")
+  if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to change passwords")
 
   let cleanData = await validate(data, joiSchemata.routeSetPassword)
@@ -280,6 +279,12 @@ export async function hasSessionForSubdomain(req: Request, subdomain: string) {
     return false
 
   return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
+}
+
+export async function hasAdminRights(subdomainCn: QueryRunnerWithSqlBricks, sessionData: SessionData) {
+  let account = await getAccountById(subdomainCn, sessionData.accountId)
+
+  return (account !== undefined && account.role === "admin")
 }
 
 async function sendPasswordResetMail(context: BackendContext, token: string, accountId: string, address: string) {
