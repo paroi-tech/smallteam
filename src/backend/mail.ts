@@ -1,63 +1,87 @@
-import { createTestAccount, createTransport, getTestMessageUrl } from "nodemailer"
+import { createTransport } from "nodemailer"
 import { config } from "./backendConfig"
 import { log } from "./utils/log"
 
-async function getSettings() {
-  if (config.env === "prod")
-    return config.mail
-
-  try {
-    let testAccount = await createTestAccount()
-    return {
-      from: "smallteambot@smallteam.io",
-      user: testAccount.user,
-      password: testAccount.pass,
-      host: testAccount.smtp.host,
-      port: testAccount.smtp.port,
-      secure: testAccount.smtp.secure
-    }
-  } catch (error) {
-    return undefined
-  }
+export interface SendMail {
+  done: boolean,
+  errorMsg?: string
 }
 
-export async function sendMail(to: string, subject: string, text: string, html: string) {
-  let settings = await getSettings()
-  if (!settings) {
-    return {
-      done: false,
-      errorMsg: "Cannot retrieve mail account"
-    }
-  }
+export interface MailOptions {
+  from?: string,
+  to: string,
+  subject: string,
+  html: string,
+  text?: string
+}
 
-  let answer = { done: false } as any
+export async function sendMail(options: MailOptions): Promise<SendMail> {
   try {
     // https://nodemailer.com/transports/sendmail/
-// let transporter = createTransport({
-//     sendmail: true,
-//     newline: 'unix',
-//     path: '/usr/sbin/sendmail'
-// });
     let transporter = createTransport({
-      host: settings.host,
-      port: settings.port,
-      secure: settings.secure,
-      auth: {
-        user: settings.user,
-        pass: settings.password
-      }
-    })
-    let info = await transporter.sendMail({
-      from: settings.from, to, subject, text, html
+      sendmail: true,
+      newline: 'unix',
+      path: '/usr/sbin/sendmail'
+    });
+    await transporter.sendMail({
+      from: options.from || config.mail.from,
+      to: options.to,
+      subject: options.subject,
+      text: options.text || htmlToText(options.html),
+      html: options.html
     })
 
-    answer.done = true
-
-    if (config.env === "local")
-      log.info("[LOCAL ENV] Mail sent:", info.messageId, "Preview URL:", getTestMessageUrl(info))
+    if (config.env === "local") {
+      log.info(`-----------------
+To: ${options.to}
+Subject: ${options.subject}
+${options.html}
+...
+${options.text || htmlToText(options.html)}`)
+    }
+    return {
+      done: true
+    }
   } catch (error) {
-    answer.errorMsg = error.message
+    return {
+      done: false,
+      errorMsg: error.message
+    }
   }
-
-  return answer
 }
+
+const htmlToText = (function () {
+  function replaceLinks(html) {
+    return html.replace(/<a\s+.*?href="([^"]*)".*?>(.*?)<\/a>/gi, (_, url, label) => {
+      return `${label} ( ${url} )`
+    })
+  }
+  /**
+   * Thanks to https://stackoverflow.com/a/430240/3786294
+   */
+  let tagBody = '(?:[^"\'>]|"[^"]*"|\'[^\']*\')*'
+  let tagOrComment = new RegExp(
+    '<(?:'
+    // Comment body.
+    + '!--(?:(?:-*[^->])*--+|-?)'
+    // Special "raw text" elements whose content should be elided.
+    + '|script\\b' + tagBody + '>[\\s\\S]*?</script\\s*'
+    + '|style\\b' + tagBody + '>[\\s\\S]*?</style\\s*'
+    // Regular name
+    + '|/?[a-z]'
+    + tagBody
+    + ')>',
+    'gi')
+  function stripHtmlTags(html) {
+    let oldHtml
+    do {
+      oldHtml = html
+      html = html.replace(tagOrComment, '')
+    } while (html !== oldHtml)
+    return html.replace(/</g, '&lt;')
+  }
+  return function (html) {
+    html = replaceLinks(html)
+    return stripHtmlTags(html)
+  }
+})()

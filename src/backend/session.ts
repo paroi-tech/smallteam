@@ -282,11 +282,14 @@ export async function hasSessionForSubdomain(req: Request, subdomain: string) {
   return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
 }
 
-async function sendPasswordResetMail(context: BackendContext, token: string, accountId: string, address: string) {
+async function sendPasswordResetMail(context: BackendContext, token: string, accountId: string, to: string) {
   let url = `${getTeamSiteUrl(context)}/registration?action=passwordreset&token=${token}&uid=${accountId}`
-  let text = `Please follow this link ${url} if you made a request to change your password.`
   let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
-  let res = await sendMail(address, "SmallTeam password reset", text, html)
+  let res = await sendMail({
+    to,
+    subject: "SmallTeam password reset",
+    html
+  })
 
   if (!res.done)
     log.error(`Could not send password reset mail: ${res.errorMsg}`)

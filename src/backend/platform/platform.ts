@@ -176,11 +176,14 @@ async function removeTeamToken(runner: QueryRunnerWithSqlBricks, token: string) 
   await runner.execSqlBricks(cmd)
 }
 
-async function sendTeamCreationMail(token: string, email: string) {
+async function sendTeamCreationMail(token: string, to: string) {
   let url = `${getMainDomainUrl()}/new-team?action=activate&token=${encodeURIComponent(token)}`
-  let text = `Please follow this link ${url} to activate your team.`
   let html = `Please click <a href="${url}">here</a> to activate your team.`
-  let res = await sendMail(email, "Team activation", text, html)
+  let res = await sendMail({
+    to,
+    subject: "Activate Your Team",
+    html
+  })
 
   if (!res.done)
     log.error("Unable to send team creation mail", res.errorMsg)

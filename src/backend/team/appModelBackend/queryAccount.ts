@@ -96,18 +96,22 @@ export async function createAccount(context: ModelContext, newFrag: AccountCreat
   })
 }
 
-async function generateAndSendActivationToken(context: ModelContext, accountId: string, address: string) {
+async function generateAndSendActivationToken(context: ModelContext, accountId: string, to: string) {
   let token = randomBytes(tokenSize).toString("hex")
   let url  = `${getTeamSiteUrl(context)}/reset-password?token=${encodeURIComponent(token)}&uid=${accountId}`
-  let text = `SmallTeam registration\nPlease follow the link ${url} to activate your account.`
-  let html = `<h3>SmallTeam registration</h3> <p>Please follow this <a href="${url}">link</a> to activate your account.</p>`
+  let html = `<h3>SmallTeam registration</h3>
+<p>Please follow this <a href="${url}">link</a> to activate your account.</p>`
 
-  let result = await sendMail(address, "SmallTeam account activation", text, html)
+  let result = await sendMail({
+    to,
+    subject: "Activate Your Account",
+    html
+  })
   if (!result.done) {
     console.error("Unable to send account activation mail to user", result.errorMsg)
     return
   }
-  await storeAccountActivationToken(context, token, accountId, address)
+  await storeAccountActivationToken(context, token, accountId, to)
 }
 
 async function storeAccountActivationToken(context: ModelContext, token: string, accountId: string, address: string) {

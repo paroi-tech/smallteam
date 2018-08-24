@@ -243,14 +243,17 @@ async function storeAndSendInvitation(context: BackendContext, cn: QueryRunnerWi
   return undefined
 }
 
-async function sendInvitationMail(context: BackendContext, token: string, email: string, username?: string) {
+async function sendInvitationMail(context: BackendContext, token: string, to: string, username?: string) {
   let regUrl = `${getTeamSiteUrl(context)}/registration?action=registration&token=${encodeURIComponent(token)}`
   if (username)
     regUrl += `&username=${encodeURIComponent(username)}`
 
-  let text = `Please follow this link ${regUrl} to create your account.`
   let html = `Please click <a href="${regUrl.toString()}">here</a> to create your account.`
-  let result = await sendMail(email, "SmallTeam password reset", text, html)
+  let result = await sendMail({
+    to,
+    subject: "Create your account",
+    html
+  })
 
   if (!result.done)
     log.error(`Could not send invitation mail: ${result.errorMsg}`)
