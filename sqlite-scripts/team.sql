@@ -16,6 +16,9 @@ drop table if exists project_step;
 drop table if exists project;
 drop table if exists step;
 drop table if exists account;
+drop table if exists task_commit;
+drop table if exists commit;
+drop table if exists hook;
 
 -- Create tables
 
@@ -150,9 +153,8 @@ create table hook (
     hook_id integer not null primary key autoincrement,
     provider varchar(255) not null,
     secret varchar(255) not null,
-    token varchar(255) not null,
-    activated tinyint default 1,
-    unique (provider, token)
+    hook_uid varchar(255) not null unique,
+    activated tinyint default 1
 );
 
 insert into step (label) values ('On Hold');

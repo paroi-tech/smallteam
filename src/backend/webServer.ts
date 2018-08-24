@@ -19,7 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessGithubNotification, routeCreateGithubHook, routeGenerateSecret } from "./notifications"
+import { routeProcessGithubNotification, routeCreateGithubHook, routeGetGithubHookSecret } from "./notifications"
 import { log } from "./utils/log"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -85,7 +85,7 @@ export function startWebServer() {
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
   router.post("/api/notifications/github/:hookId", makeRouteHandler(routeProcessGithubNotification, true))
-  router.post("/api/notifications/github/get-secret", makeRouteHandler(routeGenerateSecret, false))
+  router.post("/api/notifications/github/get-secret", makeRouteHandler(routeGetGithubHookSecret, false))
   router.post("/api/notifications/github/create-hook", makeRouteHandler(routeCreateGithubHook, false))
 
   declareRoutesMultiEngine(router, {
@@ -151,9 +151,11 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     }
 
     let body: string | undefined
+
     try {
+      // FIXME: route cb should be able to set response object status code. REALLY!!!
       body = await waitForRequestBody(req)
-      req.body = body
+      req["rawBody"] = body
       writeJsonResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)
@@ -168,10 +170,11 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
       return
     }
 
-    // FIXME: route cb should be abble to set response object statis code. REALLY!!!
     let body: string | undefined
+
     try {
       body = await waitForRequestBody(req)
+      req["rawBody"] = body
       writeJsonResponse(res, 200, await cb(JSON.parse(body), req.session as any, req, res))
     } catch (err) {
       writeServerResponseError(res, err, body)

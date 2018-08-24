@@ -1,4 +1,4 @@
-import { ServerConfiguration } from "../backendConfig";
+import { ServerConfiguration } from "../backendConfig"
 
 let bristol = require("bristol")
 
