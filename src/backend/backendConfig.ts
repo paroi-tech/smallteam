@@ -1,5 +1,5 @@
 import * as path from "path"
-import { fileExists, readFile } from "./utils/fsUtils"
+import { readFile } from "./utils/fsUtils"
 
 export const bcryptSaltRounds = 10
 export const tokenSize = 16
@@ -16,6 +16,8 @@ export interface TargetLogConf {
    */
   formatter?: LogFormatter
   /**
+   * Can be an absolute or a relative path. A relative path will be relative to the data directory.
+   *
    * This option is required when `"target"` is set to `"file"`.
    */
   file?: string
@@ -46,11 +48,6 @@ export interface ServerConfiguration {
   },
   mail: {
     from: string
-    user: string
-    password: string
-    host: string
-    port: number
-    secure: boolean
   }
 }
 
