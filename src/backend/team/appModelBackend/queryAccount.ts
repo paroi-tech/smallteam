@@ -116,12 +116,12 @@ async function generateAndSendActivationToken(context: ModelContext, accountId: 
 }
 
 async function storeAccountActivationToken(context: ModelContext, token: string, accountId: string, address: string) {
-  let query = insert("reg_new", {
+  let sql = insert("reg_new", {
     "account_id": accountId,
     "user_email": address,
     "token": token
   })
-  await context.cn.execSqlBricks(query)
+  await context.cn.execSqlBricks(sql)
 }
 
 // --

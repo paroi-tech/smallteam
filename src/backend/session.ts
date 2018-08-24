@@ -235,9 +235,9 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   return answer
 }
 
-export async function removeExpiredPasswordTokens(runner: QueryRunnerWithSqlBricks) {
+export async function removeExpiredPasswordTokens(cn: QueryRunnerWithSqlBricks) {
   try {
-    await runner.exec("delete from reg_pwd where create_ts >= expire_ts")
+    await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {
     log.error("Error while removing expired account activation tokens", err)
   }
@@ -302,21 +302,21 @@ async function sendPasswordResetMail(context: BackendContext, token: string, acc
   return res.done
 }
 
-async function storePasswordResetToken(runner: QueryRunnerWithSqlBricks, token: string, accountId: string) {
+async function storePasswordResetToken(cn: QueryRunnerWithSqlBricks, token: string, accountId: string) {
   let currentTs = Math.floor(Date.now())
-  let query = insert("reg_pwd", {
+  let sql = insert("reg_pwd", {
     "account_id": accountId,
     "token": token,
     "create_ts": currentTs,
     "expire_ts": currentTs + passwordResetTokenValidity
   })
 
-  await runner.execSqlBricks(query)
+  await cn.execSqlBricks(sql)
 }
 
-async function getPasswordUpdateObject(runner: QueryRunnerWithSqlBricks, token: string, accountId: string) {
-  let query = select().from("reg_pwd").where("token", token).and("account_id", accountId)
-  let row = await runner.singleRowSqlBricks(query)
+async function getPasswordUpdateObject(cn: QueryRunnerWithSqlBricks, token: string, accountId: string) {
+  let sql = select().from("reg_pwd").where("token", token).and("account_id", accountId)
+  let row = await cn.singleRowSqlBricks(sql)
 
   if (!row)
     throw new Error("Token not found")
@@ -332,17 +332,17 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   }
 }
 
-function removePasswordToken(runner: QueryRunnerWithSqlBricks, token: string) {
-  let query = deleteFrom("reg_pwd").where("token", token)
+function removePasswordToken(cn: QueryRunnerWithSqlBricks, token: string) {
+  let sql = deleteFrom("reg_pwd").where("token", token)
 
-  return runner.execSqlBricks(query)
+  return cn.execSqlBricks(sql)
 }
 
-async function updateAccountPassword(runner: QueryRunnerWithSqlBricks, accountId: string, password: string) {
+async function updateAccountPassword(cn: QueryRunnerWithSqlBricks, accountId: string, password: string) {
   let passwordHash = await hash(password, bcryptSaltRounds)
-  let query = update("account", { "password": passwordHash }).where("account_id", accountId)
+  let sql = update("account", { "password": passwordHash }).where("account_id", accountId)
 
-  await runner.execSqlBricks(query)
+  await cn.execSqlBricks(sql)
 
   return true
 }

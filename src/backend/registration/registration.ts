@@ -171,7 +171,7 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
   }
 
   let passwordHash = await hash(cleanData.password, bcryptSaltRounds)
-  let query = insert("account", {
+  let sql = insert("account", {
     "name": cleanData.name,
     "login": cleanData.login,
     "email": cleanData.email,
@@ -181,7 +181,7 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
   let tcn = await cn.beginTransaction()
 
   try {
-    await tcn.execSqlBricks(query)
+    await tcn.execSqlBricks(sql)
     await tcn.execSqlBricks(deleteFrom("reg_new").where({ token: cleanData.token }))
     await tcn.commit()
   } finally {
@@ -204,8 +204,8 @@ export async function routeGetPendingInvitations(subdomain: string, data: any, s
     throw new AuthorizationError("You are not allowed to do this")
 
   let arr = [] as any[]
-  let query = select().from("reg_new")
-  let result = await cn.allSqlBricks(query)
+  let sql = select().from("reg_new")
+  let result = await cn.allSqlBricks(sql)
 
   for (let row of result)
     arr.push(toInvitation(row))
@@ -260,7 +260,7 @@ async function sendInvitationMail(context: BackendContext, token: string, to: st
 async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, email: string, validity: number, username?: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + validity * 24 * 3600 * 1000
-  let query = insert("reg_new", {
+  let sql = insert("reg_new", {
     "user_email": email,
     "token": token,
     "create_ts": currentTs,
@@ -268,9 +268,9 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
   })
 
   if (username && !await getAccountByLogin(cn, username))
-    query.values({ "user_name": username })
+    sql.values({ "user_name": username })
 
-  let result = await cn.execSqlBricks(query)
+  let result = await cn.execSqlBricks(sql)
 
   return {
     id: result.getInsertedIdString(),
@@ -280,27 +280,27 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
 }
 
 async function removeInvitationWithId(cn: QueryRunnerWithSqlBricks, id: string) {
-  let query = deleteFrom("reg_new").where({ "reg_new_id": id })
+  let sql = deleteFrom("reg_new").where({ "reg_new_id": id })
 
-  await cn.execSqlBricks(query)
+  await cn.execSqlBricks(sql)
 }
 
 async function removeInvitationWithToken(cn: QueryRunnerWithSqlBricks, token: string) {
-  let query = deleteFrom("reg_new").where({ token })
+  let sql = deleteFrom("reg_new").where({ token })
 
-  await cn.execSqlBricks(query)
+  await cn.execSqlBricks(sql)
 }
 
 async function existsInvitationWithToken(cn: QueryRunnerWithSqlBricks, token: string) {
-  let query = select().from("reg_new").where({ token })
-  let row = await cn.singleRowSqlBricks(query)
+  let sql = select().from("reg_new").where({ token })
+  let row = await cn.singleRowSqlBricks(sql)
 
   return row ? true : false
 }
 
 async function existsInvitationWithId(cn: QueryRunnerWithSqlBricks, id: string) {
-  let query = select().from("reg_new").where({ "reg_new_id": id })
-  let row = await cn.singleRowSqlBricks(query)
+  let sql = select().from("reg_new").where({ "reg_new_id": id })
+  let row = await cn.singleRowSqlBricks(sql)
 
   return row ? true : false
 }

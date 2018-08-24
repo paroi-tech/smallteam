@@ -9,8 +9,8 @@ import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
 // --
 
 export async function fetchComments(context: ModelContext, filters: CommentSearchFragment) {
-  let query = selectFromComment().where("task_id", int(filters.taskId))
-  let rs = await context.cn.allSqlBricks(query)
+  let sql = selectFromComment().where("task_id", int(filters.taskId))
+  let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
     context.loader.addFragment({
       type: "Comment",
@@ -23,8 +23,8 @@ export async function fetchComments(context: ModelContext, filters: CommentSearc
 export async function fetchCommentsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let query = selectFromComment().where(sqlIn("comment_id", toIntList(idList)))
-  let rs = await context.cn.allSqlBricks(query)
+  let sql = selectFromComment().where(sqlIn("comment_id", toIntList(idList)))
+  let rs = await context.cn.allSqlBricks(sql)
   for (let row of rs) {
     let data = toCommentFragment(row)
     context.loader.modelUpdate.addFragment("Comment", data.id, data)

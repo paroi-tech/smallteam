@@ -79,12 +79,12 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   let cleanData = await validate(data, joiSchemata.routeActivateTeam)
   let token = cleanData.token
 
-  let query = select().from("reg_team")
+  let sql = select().from("reg_team")
 
-  query.innerJoin("team").on("reg_team.team_id", "team.team_id")
-  query.where("reg_team.token", token)
+  sql.innerJoin("team").on("reg_team.team_id", "team.team_id")
+  sql.where("reg_team.token", token)
 
-  let rs = await teamDbCn.singleRowSqlBricks(query)
+  let rs = await teamDbCn.singleRowSqlBricks(sql)
 
   if (!rs) {
     return {
@@ -126,12 +126,12 @@ export async function routeCheckTeamCode(data: any, sessionData?: SessionData, r
     }
   }
 
-  let query = select().from("team").where("team_code", cleanData.teamCode)
+  let sql = select().from("team").where("team_code", cleanData.teamCode)
   let p = path.join(config.dataDir, cleanData.teamCode)
   let b = false
 
   if (!await fileExists(p)) {
-    let rs = await teamDbCn.allSqlBricks(query)
+    let rs = await teamDbCn.allSqlBricks(sql)
     b = rs.length === 0
   }
 
@@ -141,22 +141,22 @@ export async function routeCheckTeamCode(data: any, sessionData?: SessionData, r
   }
 }
 
-async function createTeam(runner: QueryRunnerWithSqlBricks, data) {
-  let query = insert("team", {
+async function createTeam(cn: QueryRunnerWithSqlBricks, data) {
+  let sql = insert("team", {
     "team_name": data.teamName,
     "team_code": data.teamCode,
     "activated": 0
   })
-  let res = await runner.execSqlBricks(query)
+  let res = await cn.execSqlBricks(sql)
   let teamId = res.getInsertedIdString()
 
   return teamId
 }
 
-async function storeTeamToken(runner: QueryRunnerWithSqlBricks, data, passwordHash: string, teamId: string, token: string) {
+async function storeTeamToken(cn: QueryRunnerWithSqlBricks, data, passwordHash: string, teamId: string, token: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + 3 * 24 * 3600 * 1000
-  let query = insert("reg_team", {
+  let sql = insert("reg_team", {
     "token": token,
     "team_id": teamId,
     "user_email": data.email,
@@ -167,7 +167,7 @@ async function storeTeamToken(runner: QueryRunnerWithSqlBricks, data, passwordHa
     "expire_ts": expireTs
   })
 
-  await runner.execSqlBricks(query)
+  await cn.execSqlBricks(sql)
 }
 
 async function removeTeamToken(cn: QueryRunnerWithSqlBricks, token: string) {

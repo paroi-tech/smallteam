@@ -10,12 +10,12 @@ interface RegAccount {
   password: string
 }
 
-export async function getAccountById(runner: QueryRunnerWithSqlBricks, id: string): Promise<RegAccount | undefined> {
-  let query = select("account_id, login, password, role").from("account").where("account_id", id)
+export async function getAccountById(cn: QueryRunnerWithSqlBricks, id: string): Promise<RegAccount | undefined> {
+  let sql = select("account_id, login, password, role").from("account").where("account_id", id)
   let row
 
   try {
-    row = await runner.singleRowSqlBricks(query)
+    row = await cn.singleRowSqlBricks(sql)
   } catch (err) {
     log.error(err)
   }
@@ -23,12 +23,12 @@ export async function getAccountById(runner: QueryRunnerWithSqlBricks, id: strin
   return row ? toAccount(row) : undefined
 }
 
-export async function getAccountByLogin(runner: QueryRunnerWithSqlBricks, login: string) {
-  let query = select("account_id, login, password, role").from("account").where("login", login)
+export async function getAccountByLogin(cn: QueryRunnerWithSqlBricks, login: string) {
+  let sql = select("account_id, login, password, role").from("account").where("login", login)
   let row
 
   try {
-    row = await runner.singleRowSqlBricks(query)
+    row = await cn.singleRowSqlBricks(sql)
   } catch (err) {
     log.error(err)
   }
@@ -36,12 +36,12 @@ export async function getAccountByLogin(runner: QueryRunnerWithSqlBricks, login:
   return row ? toAccount(row) : undefined
 }
 
-export async function getAccountByEmail(runner: QueryRunnerWithSqlBricks, email: string) {
-  let query = select("account_id, login, password, role").from("account").where("email", email)
+export async function getAccountByEmail(cn: QueryRunnerWithSqlBricks, email: string) {
+  let sql = select("account_id, login, password, role").from("account").where("email", email)
   let row
 
   try {
-    row = await runner.singleRowSqlBricks(query)
+    row = await cn.singleRowSqlBricks(sql)
   } catch (err) {
     log.error(err)
   }
