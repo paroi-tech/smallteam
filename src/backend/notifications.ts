@@ -50,13 +50,13 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
 
   let cleanData = await validate(data, routeCreateHookSchema)
   let uid = crypto.randomBytes(HOOK_UID_LENGTH).toString("hex")
-  let cmd = insert("hook", {
+  let sql = insert("hook", {
     "secret": cleanData.secret,
     "provider": "Github",
     "hook_uid": uid
   })
 
-  await cn.execSqlBricks(cmd)
+  await cn.execSqlBricks(sql)
 
   return {
     done: true,
@@ -89,8 +89,8 @@ export async function routeGetGithubHookSecret(subdomain: string, data: any, ses
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let query = select("secret").from("hook").where({ "provider": "Github", "hook_id": cleanData.hookId })
-  let secret = await cn.singleValueSqlBricks(query)
+  let sql = select("secret").from("hook").where({ "provider": "Github", "hook_id": cleanData.hookId })
+  let secret = await cn.singleValueSqlBricks(sql)
 
   return {
     done: true,
@@ -107,8 +107,8 @@ export async function routeFetchGithubHooks(subdomain: string, data: any, sessio
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let query = select().from("hook").where({ "provider": "Github" }) // FIXME: create index on provider column?
-  let rs = await cn.allSqlBricks(query)
+  let sql = select().from("hook").where({ "provider": "Github" }) // FIXME: create index on provider column?
+  let rs = await cn.allSqlBricks(sql)
   let hooks = rs.map(row => ({
     id: row["hook_id"].toString(),
     provider: row["provider"],
@@ -168,9 +168,9 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   }
 }
 
-async function getActiveGithubHookSecret(runner: QueryRunnerWithSqlBricks, uid: string) {
-  let query = select("activated, secret").from("options").where({ "provider": "Github", "hook_uid": uid })
-  let res = runner.singleRowSqlBricks(query)
+async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uid: string) {
+  let sql = select("activated, secret").from("hook").where({ "provider": "Github", "hook_uid": uid })
+  let res = cn.singleRowSqlBricks(sql)
 
   if (res && res["activated"] != 0)
     return res["secret"]
@@ -182,26 +182,26 @@ async function getActiveGithubHookSecret(runner: QueryRunnerWithSqlBricks, uid: 
  *  - search for task codes in the commit message,
  *  - and attach commit to the tasks.
  */
-async function processCommit(runner: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
-  let commitId = await saveCommit(runner, commit, ts, deliveryGuid)
+async function processCommit(cn: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
+  let commitId = await saveCommit(cn, commit, ts, deliveryGuid)
 
   for (let taskCode of getTaskCodesInCommitMessage(commit.message)) {
-    let taskId = await getIdOfTaskWithCode(runner, taskCode)
+    let taskId = await getIdOfTaskWithCode(cn, taskCode)
 
     if (taskId)
-      addCommitToTask(runner, taskId, commitId)
+      addCommitToTask(cn, taskId, commitId)
   }
 }
 
-async function saveCommit(runner: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
-  let cmd = insert("commit", {
+async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
+  let sql = insert("git_commit", {
     "external_id": commit.sha,
     "message": commit.message,
     "author_name": commit.author.name,
     "ts": ts,
     "notification_id": deliveryGuid || null
   })
-  let res = await runner.execSqlBricks(cmd)
+  let res = await cn.execSqlBricks(sql)
 
   return res.getInsertedIdString()
 }
@@ -224,16 +224,16 @@ function getProjectCodeFromTaskCode(taskCode: string) {
     return arr[0]
 }
 
-async function getIdOfTaskWithCode(runner: QueryRunnerWithSqlBricks, code: string) {
-  let query = select("task_id").from("task").where({ code })
-  let res = runner.singleValueSqlBricks(query)
+async function getIdOfTaskWithCode(cn: QueryRunnerWithSqlBricks, code: string) {
+  let sql = select("task_id").from("task").where({ code })
+  let res = cn.singleValueSqlBricks(sql)
 
   if (res)
     return res.toString()
 }
 
-async function addCommitToTask(runner: QueryRunnerWithSqlBricks, taskId: string, commitId: string) {
-  let cmd = insert("task_commit", { "task_id": taskId, "commit_id": commitId })
+async function addCommitToTask(cn: QueryRunnerWithSqlBricks, taskId: string, commitId: string) {
+  let sql = insert("git_commit_task", { "task_id": taskId, "commit_id": commitId })
 
-  await runner.execSqlBricks(cmd)
+  await cn.execSqlBricks(sql)
 }
