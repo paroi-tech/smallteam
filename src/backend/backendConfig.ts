@@ -1,4 +1,5 @@
-import { fileExists, readFile } from "./utils/fsUtils"
+import * as path from "path"
+import { readFile } from "./utils/fsUtils"
 
 export const BCRYPT_SALT_ROUNDS = 10
 export const TOKEN_LENGTH = 16
@@ -15,6 +16,8 @@ export interface TargetLogConf {
    */
   formatter?: LogFormatter
   /**
+   * Can be an absolute or a relative path. A relative path will be relative to the data directory.
+   *
    * This option is required when `"target"` is set to `"file"`.
    */
   file?: string
@@ -31,7 +34,6 @@ export interface ServerConfiguration {
   port: number
   publicPort?: number
   dataDir: string
-  versionFile?: string
   /**
    * Default is: `"singleTeam"`.
    */
@@ -46,16 +48,11 @@ export interface ServerConfiguration {
   },
   mail: {
     from: string
-    user: string
-    password: string
-    host: string
-    port: number
-    secure: boolean
   }
 }
 
 export let config!: ServerConfiguration
-export let platformVersion: string | undefined
+export let appVersion!: string
 
 export async function loadServerConfig(): Promise<ServerConfiguration> {
   let paramIndex = process.argv.indexOf("--config")
@@ -67,17 +64,15 @@ export async function loadServerConfig(): Promise<ServerConfiguration> {
   } catch (err) {
     throw new Error(`Cannot load the configuration file: ${err.message}`)
   }
-  if (config.versionFile)
-    platformVersion = await readPlatformVersion(config.versionFile)
-  else
-    platformVersion = "0"
+  appVersion = await readPackageVersion()
   return config
 }
 
-export async function readPlatformVersion(versionFile): Promise<string> {
+export async function readPackageVersion(): Promise<string> {
   try {
-    return (await readFile(versionFile)).toString("utf8")
+    let data = JSON.parse((await readFile(path.join(__dirname, "..", "..", "package.json"))).toString("utf8"))
+    return data.version || "0"
   } catch (err) {
-    throw new Error(`Cannot load the configuration file: ${err.message}`)
+    throw new Error(`Cannot load the package.json file: ${err.message}`)
   }
 }
