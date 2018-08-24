@@ -13,11 +13,19 @@ process.on("unhandledRejection", err => {
   process.exit(1)
 })
 
-async function startup() {
+async function loadConfiguration() {
   let conf = await loadServerConfig()
   initLog(conf)
+}
+
+async function startup() {
+  try {
+  } catch (err) {
+    console.error(err)
+    return
+  }
   await initDbTeamCn()
   startWebServer()
 }
 
-startup().catch(err => log.error(err))
+loadConfiguration().then(startup, err => console.error(err)).catch(err => log.error(err))

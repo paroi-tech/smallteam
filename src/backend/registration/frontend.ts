@@ -1,8 +1,8 @@
-import { platformVersion } from "../backendConfig"
+import { appVersion } from "../backendConfig"
 import { getSubdirUrl } from "../utils/serverUtils";
 
 export function getRegistrationHtml() {
-  let v = platformVersion
+  let v = appVersion
   let subdirUrl = getSubdirUrl()
   return `<!DOCTYPE html>
 <html data-ver="${v}"${subdirUrl ? ` data-base-url="${subdirUrl}"` : ""}>

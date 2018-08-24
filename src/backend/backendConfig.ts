@@ -1,3 +1,4 @@
+import * as path from "path"
 import { fileExists, readFile } from "./utils/fsUtils"
 
 export const bcryptSaltRounds = 10
@@ -31,7 +32,6 @@ export interface ServerConfiguration {
   port: number
   publicPort?: number
   dataDir: string
-  versionFile?: string
   /**
    * Default is: `"singleTeam"`.
    */
@@ -55,7 +55,7 @@ export interface ServerConfiguration {
 }
 
 export let config!: ServerConfiguration
-export let platformVersion: string | undefined
+export let appVersion!: string
 
 export async function loadServerConfig(): Promise<ServerConfiguration> {
   let paramIndex = process.argv.indexOf("--config")
@@ -67,17 +67,15 @@ export async function loadServerConfig(): Promise<ServerConfiguration> {
   } catch (err) {
     throw new Error(`Cannot load the configuration file: ${err.message}`)
   }
-  if (config.versionFile)
-    platformVersion = await readPlatformVersion(config.versionFile)
-  else
-    platformVersion = "0"
+  appVersion = await readPackageVersion()
   return config
 }
 
-export async function readPlatformVersion(versionFile): Promise<string> {
+export async function readPackageVersion(): Promise<string> {
   try {
-    return (await readFile(versionFile)).toString("utf8")
+    let data = JSON.parse((await readFile(path.join(__dirname, "..", "..", "package.json"))).toString("utf8"))
+    return data.version || "0"
   } catch (err) {
-    throw new Error(`Cannot load the configuration file: ${err.message}`)
+    throw new Error(`Cannot load the package.json file: ${err.message}`)
   }
 }

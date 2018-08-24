@@ -16,7 +16,6 @@
   "port": 3921,
   "publicPort": 80,
   "dataDir": "/path/to/site/data/folder",
-  "versionFile": "version.txt",
   "mode": "platform",
   "singleTeam": {
     "subdirUrl": ""
@@ -24,11 +23,6 @@
   "platform": {
   },
   "mail": {
-    "from": "committeambot",
-    "user": "tux",
-    "password": "secret",
-    "host": "smtp.example.com",
-    "port": "587",
-    "secure": "true"
+    "from": "noreply@commit.team"
   }
 }
