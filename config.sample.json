@@ -1,5 +1,16 @@
 {
   "env": "local",
+  "log": [
+    {
+      "target": "console",
+      "minSeverity": "info"
+    },
+    {
+      "target": "file",
+      "minSeverity": "trace",
+      "file": "log-trace.log"
+    }
+  ],
   "ssl": true,
   "domain": "commit.team",
   "port": 3921,

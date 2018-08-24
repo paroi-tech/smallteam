@@ -4,6 +4,7 @@ import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks 
 import { fileExists, readFile } from "./fsUtils"
 import { MediaEngine, createMediaEngine } from "../team/createMediaEngine"
 import { config } from "../backendConfig"
+import { log } from "./log"
 
 export function getSessionDbConf() {
   let dir = config.dataDir
@@ -71,8 +72,8 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
       await cn.exec("PRAGMA journal_mode = WAL")
     },
     poolOptions: {
-      logError: err => console.log(err),
-      logMonitoring: m => console.log(debug, "[MONITORING]", m.event, m.id),
+      logError: err => log.error(err),
+      logMonitoring: m => log.trace(debug, "[MONITORING]", m.event, m.id),
       connectionTtl: 30
     }
   }, {
@@ -84,7 +85,7 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
       } catch {
         sql = sqlBricks.toParams().text
       }
-      console.log("[SQL]", action, sql)
+      log.trace("[SQL]", action, sql)
     }
   })
 

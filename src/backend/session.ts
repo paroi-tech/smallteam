@@ -12,6 +12,7 @@ import { getCn } from "./utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { getConfirmedSubdomain } from "./utils/serverUtils"
 import { whyNewPasswordIsInvalid } from "../shared/libraries/helpers"
+import { log } from "./utils/log"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 
@@ -194,7 +195,7 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
     answer.done = true
   } catch (error) {
     answer.reason = "Cannot update password"
-    console.log("Error when resetting password", error.message)
+    log.error("Error when resetting password", error.message)
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
@@ -239,7 +240,7 @@ export async function removeExpiredPasswordTokens(runner: QueryRunnerWithSqlBric
   try {
     await runner.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {
-    console.log("Error while removing expired account activation tokens", err)
+    log.error("Error while removing expired account activation tokens", err)
   }
 }
 
@@ -288,7 +289,7 @@ async function sendPasswordResetMail(context: BackendContext, token: string, acc
   let res = await sendMail(address, "SmallTeam password reset", text, html)
 
   if (!res.done)
-    console.log(`Could not send password reset mail: ${res.errorMsg}`)
+    log.error(`Could not send password reset mail: ${res.errorMsg}`)
 
   return res.done
 }

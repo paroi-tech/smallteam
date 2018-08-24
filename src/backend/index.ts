@@ -1,21 +1,23 @@
 import { startWebServer } from "./webServer"
 import { loadServerConfig } from "./backendConfig"
 import { initDbTeamCn } from "./utils/dbUtils"
+import { initLog, log } from "./utils/log"
 
 process.on("uncaughtException", err => {
-  console.log("uncaughtException", err)
+  console.error("uncaughtException", err)
   process.exit(1)
 })
 
 process.on("unhandledRejection", err => {
-  console.log("unhandledRejection", err)
+  console.error("unhandledRejection", err)
   process.exit(1)
 })
 
 async function startup() {
-  await loadServerConfig()
+  let conf = await loadServerConfig()
+  initLog(conf)
   await initDbTeamCn()
   startWebServer()
 }
 
-startup().catch(err => console.log(err))
+startup().catch(err => log.error(err))

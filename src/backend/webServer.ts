@@ -20,6 +20,7 @@ import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
 import { routeProcessGithubNotification, routeCreateGithubHook, routeGenerateSecret } from "./notifications"
+import { log } from "./utils/log"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -123,7 +124,7 @@ export function startWebServer() {
 
   wsEngineInit(server)
   server.listen(port, function () {
-    console.log(`The server is listening on: ${getMainDomainUrl()}/`)
+    log.info(`The server is listening on: ${getMainDomainUrl()}/`)
   })
 
   // Scheduled task to remove password reset tokens each day.
@@ -179,7 +180,7 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
 }
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
-  console.log("[ERR]", err, err.stack, "Request body:", reqBody)
+  log.error("[ERR]", err, err.stack, "Request body:", reqBody)
   let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 404 : 500)
   let errorMsg: string
   if (statusCode >= 500 && statusCode < 600)

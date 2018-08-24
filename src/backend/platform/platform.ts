@@ -13,6 +13,7 @@ import { teamDbCn, getCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
 import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
 import { whyUsernameIsInvalid, whyNewPasswordIsInvalid, whyTeamCodeIsInvalid } from "../../shared/libraries/helpers"
+import { log } from "../utils/log"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({
@@ -182,7 +183,7 @@ async function sendTeamCreationMail(token: string, email: string) {
   let res = await sendMail(email, "Team activation", text, html)
 
   if (!res.done)
-    console.log("Unable to send team creation mail", res.errorMsg)
+    log.error("Unable to send team creation mail", res.errorMsg)
 
   return res.done
 }

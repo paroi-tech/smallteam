@@ -1,5 +1,6 @@
 import { select } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { log } from "./log"
 
 
 interface RegAccount {
@@ -16,7 +17,7 @@ export async function getAccountById(runner: QueryRunnerWithSqlBricks, id: strin
   try {
     row = await runner.singleRowSqlBricks(query)
   } catch (err) {
-    console.log(err)
+    log.error(err)
   }
 
   return row ? toAccount(row) : undefined
@@ -29,7 +30,7 @@ export async function getAccountByLogin(runner: QueryRunnerWithSqlBricks, login:
   try {
     row = await runner.singleRowSqlBricks(query)
   } catch (err) {
-    console.log(err)
+    log.error(err)
   }
 
   return row ? toAccount(row) : undefined
@@ -42,7 +43,7 @@ export async function getAccountByEmail(runner: QueryRunnerWithSqlBricks, email:
   try {
     row = await runner.singleRowSqlBricks(query)
   } catch (err) {
-    console.log(err)
+    log.error(err)
   }
 
   return row ? toAccount(row) : undefined

@@ -3,8 +3,26 @@ import { fileExists, readFile } from "./utils/fsUtils"
 export const bcryptSaltRounds = 10
 export const tokenSize = 16
 
-export interface ServerConfig {
+export type LogSeverity = "error" | "warn" | "info" | "debug" | "trace"
+export type LogTarget = "console" | "file"
+export type LogFormatter = "human" | "json" | "syslog" | "commonInfoModel"
+
+export interface TargetLogConf {
+  target: LogTarget
+  minSeverity: LogSeverity
+  /**
+   * Default value is: `"commonInfoModel"`.
+   */
+  formatter?: LogFormatter
+  /**
+   * This option is required when `"target"` is set to `"file"`.
+   */
+  file?: string
+}
+
+export interface ServerConfiguration {
   env: "prod" | "local"
+  log: TargetLogConf[]
   ssl: boolean
   /**
    * In the `platform` mode, this is the main domain.
@@ -36,10 +54,10 @@ export interface ServerConfig {
   }
 }
 
-export let config!: ServerConfig
+export let config!: ServerConfiguration
 export let platformVersion: string | undefined
 
-export async function loadServerConfig(): Promise<ServerConfig> {
+export async function loadServerConfig(): Promise<ServerConfiguration> {
   let paramIndex = process.argv.indexOf("--config")
   if (paramIndex === -1 || paramIndex + 1 >= process.argv.length)
     throw new Error("Missing config parameter")

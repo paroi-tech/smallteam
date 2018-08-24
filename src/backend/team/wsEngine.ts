@@ -19,7 +19,7 @@ export function wsEngineInit(server: Server) {
   wss.on("connection", function (ws: WebSocketWithProperties, req) {
     // TODO: Check the session here
     // if (!req.session) {
-    //   console.log("...........>> Missing session")
+    //   log.error("...........>> Missing session")
     //   return
     // }
 

@@ -12,6 +12,7 @@ import validate from "../utils/joiUtils"
 import { getCn } from "../utils/dbUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { whyUsernameIsInvalid, whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
+import { log } from "../utils/log"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({
@@ -236,7 +237,7 @@ async function storeAndSendInvitation(context: BackendContext, cn: QueryRunnerWi
     if (await sendInvitationMail(context, token, email, username))
       return Object.assign({}, inv, { username, email })
   } catch (error) {
-    console.log("Could not store invitation", error.message)
+    log.error("Could not store invitation", error.message)
   }
 
   return undefined
@@ -252,7 +253,7 @@ async function sendInvitationMail(context: BackendContext, token: string, email:
   let result = await sendMail(email, "SmallTeam password reset", text, html)
 
   if (!result.done)
-    console.log(`Could not send invitation mail: ${result.errorMsg}`)
+    log.error(`Could not send invitation mail: ${result.errorMsg}`)
 
   return result.done
 }
