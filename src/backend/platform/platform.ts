@@ -4,7 +4,7 @@ import { Request, Response } from "express"
 import Joi = require("joi")
 import { SessionData } from "../session"
 import { select, insert,  update, deleteFrom } from "sql-bricks"
-import { tokenSize, config, bcryptSaltRounds } from "../backendConfig"
+import { TOKEN_LENGTH, config, BCRYPT_SALT_ROUNDS } from "../backendConfig"
 import validate from "../utils/joiUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { sendMail } from "../mail"
@@ -28,7 +28,7 @@ let joiSchemata = {
     teamCode: Joi.string().trim().required(),
   }),
   routeActivateTeam: Joi.object().keys({
-    token: Joi.string().trim().hex().length(tokenSize * 2).required()
+    token: Joi.string().trim().hex().length(TOKEN_LENGTH * 2).required()
   })
 }
 
@@ -56,12 +56,12 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
     }
   }
 
-  let token = randomBytes(tokenSize).toString("hex")
+  let token = randomBytes(TOKEN_LENGTH).toString("hex")
   let tcn = await teamDbCn.beginTransaction()
 
   try {
     let teamId = await createTeam(tcn, cleanData)
-    let passwordHash = await hash(cleanData.password, bcryptSaltRounds)
+    let passwordHash = await hash(cleanData.password, BCRYPT_SALT_ROUNDS)
 
     await storeTeamToken(tcn, data, passwordHash, teamId, token)
     if (await sendTeamCreationMail(token, cleanData.email))

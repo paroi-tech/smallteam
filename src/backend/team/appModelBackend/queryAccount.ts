@@ -8,7 +8,7 @@ import { WhoUseItem } from "../../../shared/transfers"
 import { sendMail } from "../../mail"
 import { fetchSingleMedia, deleteMedias } from "./queryMedia"
 import { select, insert, update, deleteFrom, in as sqlIn } from "sql-bricks"
-import { bcryptSaltRounds, tokenSize } from "../../backendConfig"
+import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../../backendConfig"
 import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { getTeamSiteUrl } from "../../utils/serverUtils"
 import { log } from "../../utils/log"
@@ -83,7 +83,7 @@ export async function whoUseAccount(context: ModelContext, id: string): Promise<
 // --
 
 export async function createAccount(context: ModelContext, newFrag: AccountCreateFragment) {
-  let passwordHash = await hash("init", bcryptSaltRounds)
+  let passwordHash = await hash("init", BCRYPT_SALT_ROUNDS)
   let sql = insert("account", toSqlValues(newFrag, accountMeta.create)).values({ "password": passwordHash })
   let res = await context.cn.execSqlBricks(sql)
   let accountId = res.getInsertedIdString()
@@ -98,7 +98,7 @@ export async function createAccount(context: ModelContext, newFrag: AccountCreat
 }
 
 async function generateAndSendActivationToken(context: ModelContext, accountId: string, to: string) {
-  let token = randomBytes(tokenSize).toString("hex")
+  let token = randomBytes(TOKEN_LENGTH).toString("hex")
   let url  = `${getTeamSiteUrl(context)}/reset-password?token=${encodeURIComponent(token)}&uid=${accountId}`
   let html = `<h3>SmallTeam registration</h3>
 <p>Please follow this <a href="${url}">link</a> to activate your account.</p>`

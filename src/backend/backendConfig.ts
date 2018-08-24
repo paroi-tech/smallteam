@@ -1,7 +1,7 @@
 import { fileExists, readFile } from "./utils/fsUtils"
 
-export const bcryptSaltRounds = 10
-export const tokenSize = 16
+export const BCRYPT_SALT_ROUNDS = 10
+export const TOKEN_LENGTH = 16
 
 export type LogSeverity = "error" | "warn" | "info" | "debug" | "trace"
 export type LogTarget = "console" | "file"

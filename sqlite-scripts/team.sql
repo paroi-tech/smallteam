@@ -154,7 +154,7 @@ create table hook (
     provider varchar(255) not null,
     secret varchar(255) not null,
     hook_uid varchar(255) not null unique,
-    activated tinyint default 1
+    active tinyint default 1
 );
 
 insert into step (label) values ('On Hold');

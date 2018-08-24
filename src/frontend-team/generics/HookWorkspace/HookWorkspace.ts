@@ -1,6 +1,13 @@
 import { OwnDash } from "../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
+export interface HookModel {
+  id: string
+  uid: string
+  provider: string
+  active: string
+}
+
 const template = require("./HookWorkspace.monk")
 
 export default class HookWorkspace {

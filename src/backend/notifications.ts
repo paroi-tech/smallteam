@@ -1,5 +1,5 @@
 import * as crypto from "crypto"
-import { tokenSize } from "./backendConfig"
+import { TOKEN_LENGTH } from "./backendConfig"
 import { Request, Response } from "express"
 import { SessionData, hasAdminRights } from "./session"
 import { getCn } from "./utils/dbUtils"
@@ -31,10 +31,6 @@ let pushDataSchema = Joi.object().keys({
   commits: Joi.array().items(commitSchema)
 })
 
-let routeCreateHookSchema = Joi.object().keys({
-  secret: Joi.string().hex().length(tokenSize * 2).required()
-})
-
 let routeGetSecretSchema = Joi.object().keys({
   hookId: Joi.string().regex(/\d+/).required()
 })
@@ -48,10 +44,10 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let cleanData = await validate(data, routeCreateHookSchema)
+  let secret = crypto.randomBytes(TOKEN_LENGTH).toString("hex")
   let uid = crypto.randomBytes(HOOK_UID_LENGTH).toString("hex")
   let sql = insert("hook", {
-    "secret": cleanData.secret,
+    "secret": secret,
     "provider": "Github",
     "hook_uid": uid
   })
@@ -60,22 +56,8 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
 
   return {
     done: true,
-    uid
-  }
-}
-
-export async function routeGenerateSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  if (!sessionData)
-    throw new Error("Missing session data in 'routeGenerateSecret'")
-
-  let cn = await getCn(subdomain)
-
-  if (!await hasAdminRights(cn, sessionData))
-    throw new AuthorizationError("Only admins are allowed to access this ressource.")
-
-  return {
-    done: true,
-    secret: crypto.randomBytes(tokenSize).toString("hex")
+    uid,
+    secret
   }
 }
 
@@ -109,12 +91,16 @@ export async function routeFetchGithubHooks(subdomain: string, data: any, sessio
 
   let sql = select().from("hook").where({ "provider": "Github" }) // FIXME: create index on provider column?
   let rs = await cn.allSqlBricks(sql)
-  let hooks = rs.map(row => ({
-    id: row["hook_id"].toString(),
-    provider: row["provider"],
-    uid: row["hook_uid"],
-    activated: row["activated"] != 0
-  }))
+  let hooks = [] as any[]
+
+  for (let row of rs) {
+    hooks.push({
+      id: row["hook_id"].toString(),
+      provider: row["provider"],
+      uid: row["hook_uid"],
+      activated: row["active"] != 0
+    })
+  }
 
   return {
     done: true,
@@ -172,7 +158,7 @@ async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uid: stri
   let sql = select("activated, secret").from("hook").where({ "provider": "Github", "hook_uid": uid })
   let res = cn.singleRowSqlBricks(sql)
 
-  if (res && res["activated"] != 0)
+  if (res && res["active"] != 0)
     return res["secret"]
 }
 
@@ -186,7 +172,7 @@ async function processCommit(cn: QueryRunnerWithSqlBricks, commit, ts: number, d
   let commitId = await saveCommit(cn, commit, ts, deliveryGuid)
 
   for (let taskCode of getTaskCodesInCommitMessage(commit.message)) {
-    let taskId = await getIdOfTaskWithCode(cn, taskCode)
+    let taskId = await getTaskIdFromCode(cn, taskCode)
 
     if (taskId)
       addCommitToTask(cn, taskId, commitId)
@@ -224,7 +210,7 @@ function getProjectCodeFromTaskCode(taskCode: string) {
     return arr[0]
 }
 
-async function getIdOfTaskWithCode(cn: QueryRunnerWithSqlBricks, code: string) {
+async function getTaskIdFromCode(cn: QueryRunnerWithSqlBricks, code: string) {
   let sql = select("task_id").from("task").where({ code })
   let res = cn.singleValueSqlBricks(sql)
 

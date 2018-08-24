@@ -3,7 +3,7 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import Joi = require("joi")
-import { bcryptSaltRounds, tokenSize } from "./backendConfig"
+import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./backendConfig"
 import { sendMail } from "./mail"
 import { getAccountById, getAccountByLogin, getAccountByEmail } from "./utils/userUtils"
 import validate from "./utils/joiUtils"
@@ -46,7 +46,7 @@ let joiSchemata = {
   }),
 
   routeResetPassword: Joi.object().keys({
-    token: Joi.string().hex().length(2 * tokenSize).required(),
+    token: Joi.string().hex().length(2 * TOKEN_LENGTH).required(),
     password: Joi.string().required(),
     accountId: Joi.string().regex(numberRegex).required()
   }),
@@ -216,7 +216,7 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
     }
   }
 
-  let token = randomBytes(tokenSize).toString("hex")
+  let token = randomBytes(TOKEN_LENGTH).toString("hex")
   let tcn = await cn.beginTransaction()
   let answer = { done: false } as any
 
@@ -339,7 +339,7 @@ function removePasswordToken(cn: QueryRunnerWithSqlBricks, token: string) {
 }
 
 async function updateAccountPassword(cn: QueryRunnerWithSqlBricks, accountId: string, password: string) {
-  let passwordHash = await hash(password, bcryptSaltRounds)
+  let passwordHash = await hash(password, BCRYPT_SALT_ROUNDS)
   let sql = update("account", { "password": passwordHash }).where("account_id", accountId)
 
   await cn.execSqlBricks(sql)

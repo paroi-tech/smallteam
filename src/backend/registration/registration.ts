@@ -4,7 +4,7 @@ import { Request, Response } from "express"
 import { select, insert, deleteFrom } from "sql-bricks"
 import { hash } from "bcrypt"
 import { sendMail } from "../mail"
-import { tokenSize, bcryptSaltRounds } from "../backendConfig"
+import { TOKEN_LENGTH, BCRYPT_SALT_ROUNDS } from "../backendConfig"
 import { getAccountById, getAccountByLogin } from "../utils/userUtils"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { SessionData, hasAdminRights } from "../session"
@@ -37,7 +37,7 @@ let joiSchemata = {
     login: Joi.string().trim().required(),
     password: Joi.string().trim().required(),
     email: Joi.string().email().required(),
-    token: Joi.string().hex().length(tokenSize * 2).required()
+    token: Joi.string().hex().length(TOKEN_LENGTH * 2).required()
   })
 }
 
@@ -60,7 +60,7 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
     }
   }
 
-  let token = randomBytes(tokenSize).toString("hex")
+  let token = randomBytes(TOKEN_LENGTH).toString("hex")
   let tcn = await cn.beginTransaction()
   let answer = { done: false } as any
 
@@ -106,7 +106,7 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
   }
 
   let answer = { done: false } as any
-  let token = randomBytes(tokenSize).toString("hex")
+  let token = randomBytes(TOKEN_LENGTH).toString("hex")
   let tcn = await cn.beginTransaction()
 
   try {
@@ -170,7 +170,7 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
     }
   }
 
-  let passwordHash = await hash(cleanData.password, bcryptSaltRounds)
+  let passwordHash = await hash(cleanData.password, BCRYPT_SALT_ROUNDS)
   let sql = insert("account", {
     "name": cleanData.name,
     "login": cleanData.login,
