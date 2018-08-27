@@ -102,7 +102,7 @@ export default class LoginDialog {
       await this.dash.create(WarningDialog).show("Wrong username or password.")
     } catch (err) {
       await this.dash.create(ErrorDialog).show("There was an problem while processing your resquest.")
-      console.log(err)
+      this.dash.log.error(err)
     }
 
     return undefined

@@ -24,6 +24,7 @@ import { AccountModel } from "../AppModel/Models/AccountModel"
 import { OwnDash } from "../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import InvitationWorkspace from "../generics/invitations/InvitationWorkspace/InvitationWorkspace"
+import HookWorkspace from "../generics/HookWorkspace/HookWorkspace"
 
 const template = require("./AppFrame.monk")
 
@@ -65,8 +66,11 @@ export default class AppFrame {
     viewer.addWorkspace("/search", "dropdown", "Search", this.dash.create(SearchWorkspace))
     viewer.add404Workspace("404 Not Found", this.dash.create(Workspace404))
     viewer.addHomeWorkspace("Home", this.dash.create(HomeWorkspace))
-    if (this.model.session.account.role === "admin")
+
+    if (this.model.session.account.role === "admin") {
       viewer.addWorkspace("/settings/invitations", "dropdown", "Invite accounts", this.dash.create(InvitationWorkspace))
+      viewer.addWorkspace("/setting/hooks", "dropdown", "Manage hooks", this.dash.create(HookWorkspace))
+    }
 
     let w = this.dash.create(AccountHome, this.model.session.account)
     viewer.addHomeWorkspace("Personal space", w, "/settings/my-profile")
@@ -148,6 +152,10 @@ export default class AppFrame {
       ddMenu.entries.createNavBtn({
         label: "Invitations",
         onClick: () => this.dash.app.navigate("/settings/invitations")
+      })
+      ddMenu.entries.createNavBtn({
+        label: "Hooks",
+        onClick: () => this.dash.app.navigate("/setting/hooks")
       })
     }
 

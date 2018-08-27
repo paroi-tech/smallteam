@@ -3,7 +3,7 @@ import { TOKEN_LENGTH } from "./backendConfig"
 import { Request, Response } from "express"
 import { SessionData, hasAdminRights } from "./session"
 import { getCn } from "./utils/dbUtils"
-import { select, insert } from "sql-bricks"
+import { select, insert, update, deleteFrom } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import Joi = require("joi")
 import validate, { isHexString } from "./utils/joiUtils"
@@ -31,7 +31,7 @@ let pushDataSchema = Joi.object().keys({
   commits: Joi.array().items(commitSchema)
 })
 
-let routeGetSecretSchema = Joi.object().keys({
+let schemaForHookId = Joi.object().keys({
   hookId: Joi.string().regex(/\d+/).required()
 })
 
@@ -63,9 +63,9 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
 
 export async function routeGetGithubHookSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-    throw new Error("Missing session data in 'routeGenerateSecret'")
+    throw new Error("Missing session data in 'routeGetGithubHookSecret'")
 
-  let cleanData = await validate(data, routeGetSecretSchema)
+  let cleanData = await validate(data, schemaForHookId)
   let cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
@@ -77,6 +77,63 @@ export async function routeGetGithubHookSecret(subdomain: string, data: any, ses
   return {
     done: true,
     secret
+  }
+}
+
+export async function routeActivateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Missing session data in 'routeActivateGithubHook'")
+
+  let cleanData = await validate(data, schemaForHookId)
+  let cn = await getCn(subdomain)
+
+  if (!await hasAdminRights(cn, sessionData))
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  let sql = update("hook", { "hook_id": cleanData.hookId, "active": 1 })
+
+  await cn.execSqlBricks(sql)
+
+  return {
+    done: true
+  }
+}
+
+export async function routeDeactivateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Missing session data in 'routeDeactivateGithubHook'")
+
+  let cleanData = await validate(data, schemaForHookId)
+  let cn = await getCn(subdomain)
+
+  if (!await hasAdminRights(cn, sessionData))
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  let sql = update("hook", { "hook_id": cleanData.hookId, "active": 0 })
+
+  await cn.execSqlBricks(sql)
+
+  return {
+    done: true
+  }
+}
+
+export async function routeDeleteGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  if (!sessionData)
+    throw new Error("Missing session data in 'routeDeleteGithubHook'")
+
+  let cleanData = await validate(data, schemaForHookId)
+  let cn = await getCn(subdomain)
+
+  if (!await hasAdminRights(cn, sessionData))
+    throw new AuthorizationError("Only admins are allowed to access this ressource.")
+
+  let sql = deleteFrom("hook").where({ "hook_id": cleanData.hookId })
+
+  await cn.execSqlBricks(sql)
+
+  return {
+    done: true
   }
 }
 

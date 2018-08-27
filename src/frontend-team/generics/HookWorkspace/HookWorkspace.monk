@@ -1,6 +1,6 @@
 <div class="HookWorkspace">
   <header>Manage Hooks</header>
-  <table :ref=""table>
+  <table :ref="table">
     <caption>Available hooks</caption>
     <thead>
       <tr>
@@ -11,4 +11,7 @@
     </thead>
     <tbody></tbody>
   </table>
+  <div>
+    <button :ref="add">Add hook</button>
+  </div>
 </div>

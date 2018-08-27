@@ -19,7 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessGithubNotification, routeCreateGithubHook, routeGetGithubHookSecret } from "./notifications"
+import { routeProcessGithubNotification, routeCreateGithubHook, routeGetGithubHookSecret, routeFetchGithubHooks, routeActivateGithubHook, routeDeactivateGithubHook, routeDeleteGithubHook } from "./notifications"
 import { log } from "./utils/log"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -84,9 +84,13 @@ export function startWebServer() {
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
-  router.post("/api/notifications/github/:hookId", makeRouteHandler(routeProcessGithubNotification, true))
+  router.post("/api/notifications/github/hook/:uid", makeRouteHandler(routeProcessGithubNotification, true))
   router.post("/api/notifications/github/get-secret", makeRouteHandler(routeGetGithubHookSecret, false))
   router.post("/api/notifications/github/create-hook", makeRouteHandler(routeCreateGithubHook, false))
+  router.post("/api/notifications/github/fetch-hooks", makeRouteHandler(routeFetchGithubHooks, false))
+  router.post("/api/notifications/github/activate-hook", makeRouteHandler(routeActivateGithubHook, false))
+  router.post("/api/notifications/github/deactivate-hook", makeRouteHandler(routeDeactivateGithubHook, false))
+  router.post("/api/notifications/github/delete-hook", makeRouteHandler(routeDeleteGithubHook, false))
 
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL

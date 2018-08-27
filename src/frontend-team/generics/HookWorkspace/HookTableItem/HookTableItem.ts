@@ -2,9 +2,9 @@ import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import { HookModel } from "../HookWorkspace"
 
-const template = require("./Hook.monk")
+const template = require("./HookTableItem.monk")
 
-export default class Hook {
+export default class HookTableItem {
   readonly el: HTMLElement
   private providerEl: HTMLElement
   private urlEl: HTMLElement
