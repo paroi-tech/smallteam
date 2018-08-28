@@ -6,10 +6,10 @@ import { getCn } from "./utils/dbUtils"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import Joi = require("joi")
-import validate, { isHexString } from "./utils/joiUtils"
-import { AuthorizationError } from "./utils/serverUtils"
+import validate from "./utils/joiUtils"
+import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
 
-const HOOK_UID_LENGTH = 8
+const HOOK_UID_LENGTH = 8 // It must be a multiple of 2.
 
 let commitSchema = Joi.object().keys({
   sha: Joi.string().hex().required(),
@@ -45,19 +45,26 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
   let secret = crypto.randomBytes(TOKEN_LENGTH).toString("hex")
-  let uid = crypto.randomBytes(HOOK_UID_LENGTH).toString("hex")
+  let token = crypto.randomBytes(HOOK_UID_LENGTH).toString("hex")
+  let arr = token.match(/[a-z]{4}/g)
+  let uid = arr ? arr.join("-") : token
   let sql = insert("hook", {
     "secret": secret,
     "provider": "Github",
     "hook_uid": uid
   })
-
-  await cn.execSqlBricks(sql)
+  let execRes = await cn.execSqlBricks(sql)
+  let hookId = execRes.getInsertedIdString()
+  let hook = {
+    id: hookId,
+    provider: "Github",
+    active: true,
+    url: `${getTeamSiteUrl({ subdomain })}/api/notifications/github/hook/${uid}`
+  }
 
   return {
     done: true,
-    uid,
-    secret
+    hook
   }
 }
 
@@ -154,8 +161,8 @@ export async function routeFetchGithubHooks(subdomain: string, data: any, sessio
     hooks.push({
       id: row["hook_id"].toString(),
       provider: row["provider"],
-      uid: row["hook_uid"],
-      activated: row["active"] != 0
+      url: `${getTeamSiteUrl({ subdomain })}/api/notifications/github/hook/${row["hook_uid"]}`,
+      active: row["active"] != 0
     })
   }
 
@@ -180,7 +187,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
     throw new Error("Unsupported hook event")
 
   let hookUid = req.params.uid
-  if (!hookUid || !isHexString(hookUid))
+  if (!hookUid)
     throw new Error("Invalid URL")
 
   let cn = await getCn(subdomain)

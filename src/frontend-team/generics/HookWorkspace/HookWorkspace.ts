@@ -8,9 +8,10 @@ import { Log } from "bkb"
 
 export interface HookModel {
   id: string
-  uid: string
+  url: string
   provider: string
-  active: string
+  active: boolean
+  inProcessing: boolean
 }
 
 const template = require("./HookWorkspace.monk")
@@ -81,8 +82,10 @@ export default class HookWorkspace {
         return
       }
 
-      for (let hook of data.hooks)
+      for (let hook of data.hooks) {
+        hook.inProcessing = false
         this.addHookToTable(hook)
+      }
     } catch (err) {
       this.log.error("Unable to get list of hooks from server. Network error.")
     }
