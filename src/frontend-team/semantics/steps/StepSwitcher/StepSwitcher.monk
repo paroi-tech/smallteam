@@ -7,9 +7,7 @@
         <!-- The content of the span will be set in component constructor. -->
         <span :ref="toggleSpan"></span>
       </button>
-      <button class="StepSwitcher-closeButton" title="Hide" :ref="closeBtn">
-        <!-- Same remark as above for the content. -->
-      </button>
+      <button class="StepSwitcher-closeButton" title="Close" :ref="closeBtn">×</button>
       <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none" :ref="indicator"></span>
     </div>
   </header>
@@ -17,7 +15,7 @@
   <div class="StepSwitcher-foldableContent" :ref="foldable">
     <div class="AutoColumns" :ref="boxLists"></div>
     <div class="StepSwitcher-bottom" :ref="bottom">
-      <input class="TextInput" type="text" maxlength="20" placeholder="Task name" :ref="taskName">
+      <input class="TextInput" type="text" maxlength="255" placeholder="Task name" :ref="taskName">
       <button type="button" class="StdBtn" :ref="addBtn">
         Add task
         <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="spinner"></span>

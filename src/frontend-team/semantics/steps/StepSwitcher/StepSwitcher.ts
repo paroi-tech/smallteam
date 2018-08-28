@@ -10,7 +10,6 @@ const template = require("./StepSwitcher.monk")
 
 const caretUp = "\u{25B2}"
 const caretDown = "\u{25BC}"
-const times = "\u{00D7}"
 
 /**
  * Component used to display a task and its children (subtasks).
@@ -59,9 +58,10 @@ export default class StepSwitcher {
 
     let isRootTask = parentTask.id === this.project.rootTaskId
 
-    let closeBtnEl = view.ref("closeBtn")
-    closeBtnEl.textContent = times
-    closeBtnEl.addEventListener("click", ev => {
+    let closeBtnEl = view.ref("closeBtn") as HTMLElement
+    if (this.parentTask.children && this.parentTask.children.length > 0)
+      closeBtnEl.hidden = true
+    closeBtnEl.addEventListener("click", () => {
       // We can't hide the rootTask StepSwitcher or tasks with children.
       let hasChildren = this.parentTask.children && this.parentTask.children.length !== 0
       if (!isRootTask && !hasChildren)
@@ -76,7 +76,7 @@ export default class StepSwitcher {
     })
     view.ref("toggleBtn").addEventListener("click", ev => this.toggleFoldableContent())
 
-    let title = isRootTask ? "Main tasks": this.parentTask.label
+    let title = this.parentTask.label
     let titleEl = view.ref("title") as HTMLElement
     titleEl.textContent = title
 
