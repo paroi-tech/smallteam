@@ -31,9 +31,9 @@ ${options.text || htmlToText(options.html)}`)
       // https://nodemailer.com/transports/sendmail/
       let transporter = createTransport({
         sendmail: true,
-        newline: 'unix',
-        path: '/usr/sbin/sendmail'
-      });
+        newline: "unix",
+        path: "/usr/sbin/sendmail"
+      })
       await transporter.sendMail({
         from: options.from || config.mail.from,
         to: options.to,

@@ -1,6 +1,6 @@
 <div class="HookWorkspace">
   <header>Manage Hooks</header>
-  <table :ref="table">
+  <table class="HookWorkspace-table" :ref="table">
     <caption>Available hooks</caption>
     <thead>
       <tr>

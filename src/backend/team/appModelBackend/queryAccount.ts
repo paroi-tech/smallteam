@@ -48,8 +48,10 @@ async function toAccountFragment(context: ModelContext, row): Promise<AccountFra
     role: row["role"]
   }
   let mediaId = await fetchSingleMedia(context, "accountAvatar", frag.id)
+
   if (mediaId !== undefined)
     frag.avatarId = mediaId
+
   return frag
 }
 
@@ -88,40 +90,12 @@ export async function createAccount(context: ModelContext, newFrag: AccountCreat
   let res = await context.cn.execSqlBricks(sql)
   let accountId = res.getInsertedIdString()
 
-  generateAndSendActivationToken(context, accountId, newFrag.email).catch(err => log.error(err))
   context.loader.addFragment({
     type: "Account",
     id: accountId.toString(),
     asResult: "fragment",
     markAs: "created"
   })
-}
-
-async function generateAndSendActivationToken(context: ModelContext, accountId: string, to: string) {
-  let token = randomBytes(TOKEN_LENGTH).toString("hex")
-  let url  = `${getTeamSiteUrl(context)}/reset-password?token=${encodeURIComponent(token)}&uid=${accountId}`
-  let html = `<h3>SmallTeam registration</h3>
-<p>Please follow this <a href="${url}">link</a> to activate your account.</p>`
-
-  let result = await sendMail({
-    to,
-    subject: "Activate Your Account",
-    html
-  })
-  if (!result.done) {
-    log.error("Unable to send account activation mail to user", result.errorMsg)
-    return
-  }
-  await storeAccountActivationToken(context, token, accountId, to)
-}
-
-async function storeAccountActivationToken(context: ModelContext, token: string, accountId: string, address: string) {
-  let sql = insert("reg_new", {
-    "account_id": accountId,
-    "user_email": address,
-    "token": token
-  })
-  await context.cn.execSqlBricks(sql)
 }
 
 // --
