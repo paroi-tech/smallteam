@@ -7,6 +7,7 @@ import { TaskFragment } from "./meta/Task"
 import { TaskLogEntryFragment } from "./meta/TaskLogEntry"
 import { MediaFragment } from "./meta/Media"
 import { MediaVariantFragment } from "./meta/MediaVariant"
+import { GitCommitFragment } from "./meta/GitCommit"
 
 export interface Fragments {
   Comment?: CommentFragment[]
@@ -18,6 +19,7 @@ export interface Fragments {
   TaskLogEntry?: TaskLogEntryFragment[]
   Media?: MediaFragment[]
   MediaVariant?: MediaVariantFragment[]
+  GitCommit?: GitCommitFragment[]
 }
 
 export type Type = keyof Fragments

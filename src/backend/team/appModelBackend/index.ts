@@ -10,7 +10,8 @@ import { fetchComments, createComment, updateComment, deleteComment, fetchCommen
 import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./queryTaskLogEntry"
 import { ModelContext, CargoLoader } from "./backendContext/context"
 import { SessionData } from "../../session"
-import { getCn, getMediaEngine } from "../../utils/dbUtils";
+import { getCn, getMediaEngine } from "../../utils/dbUtils"
+import { fetchGitCommitsByIds } from "./queryGitCommit"
 
 export async function routeFetch(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
@@ -216,5 +217,6 @@ export async function completeCargo(context: ModelContext) {
     await fetchAccountsByIds(context, upd.getNeededFragments("Account") as any)
     await fetchCommentsByIds(context, upd.getNeededFragments("Comment") as any)
     await fetchTaskLogEntriesByIds(context, upd.getNeededFragments("TaskLogEntry") as any)
+    await fetchGitCommitsByIds(context, upd.getNeededFragments("GitCommit") as any)
   }
 }

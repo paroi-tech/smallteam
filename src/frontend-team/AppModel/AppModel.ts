@@ -1,25 +1,19 @@
 import { Type, Identifier, ModelUpdate } from "../../shared/Cargo"
-import { AccountCreateFragment, AccountUpdateFragment } from "../../shared/meta/Account"
 import { registerAccount } from "./Models/AccountModel"
-import { ProjectCreateFragment, ProjectUpdateFragment, ProjectIdFragment } from "../../shared/meta/Project"
 import { registerProject, ProjectModel } from "./Models/ProjectModel"
-import { TaskCreateFragment, TaskUpdateFragment, TaskIdFragment } from "../../shared/meta/Task"
 import { registerTask } from "./Models/TaskModel"
-import { StepCreateFragment, StepUpdateFragment, StepFragment } from "../../shared/meta/Step"
 import { registerStep, StepModel } from "./Models/StepModel"
 import { registerFlag } from "./Models/FlagModel"
 import { registerMedia } from "./Models/MediaModel"
 import { registerMediaVariant } from "./Models/MediaVariantModel"
-import { ComponentEvent, Dash } from "bkb"
-import ModelEngine, { CommandType, toCollection } from "./ModelEngine"
-import App from "../App/App"
+import ModelEngine, { CommandType } from "./ModelEngine"
 import { registerComment } from "./Models/CommentModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
 import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Model, CommandBatch, GlobalModels, Collection, Session, SessionData } from "./modelDefinitions"
-import { makeHKMap, HKMap } from "../../shared/libraries/HKCollections"
 import GenericBgCommandManager from "./BgCommandManager"
 import { OwnDash } from "../App/OwnDash"
+import { registerGitCommit } from "./Models/GitCommitModel"
 
 export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
 export { Model, CommandBatch } from "./modelDefinitions"
@@ -58,6 +52,7 @@ export default class ModelComp implements Model {
     registerStep(this.engine)
     registerMedia(this.engine)
     registerMediaVariant(this.engine)
+    registerGitCommit(this.engine)
     this.global = createGlobal(this.dash, this.engine)
     this.session = createSession(this.global, sessionData.accountId)
   }

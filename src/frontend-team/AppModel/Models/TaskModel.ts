@@ -12,6 +12,7 @@ import { Type } from "../../../shared/Cargo"
 import { WhoUseItem } from "../../../shared/transfers"
 import { StepModel } from "./StepModel"
 import { MediaModel } from "./MediaModel"
+import { GitCommitModel } from "./GitCommitModel"
 
 export interface TaskUpdateTools {
   processing: boolean
@@ -35,6 +36,7 @@ export interface TaskModel extends TaskFragment {
   getComments(): Promise<Collection<CommentModel, string>>
   getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
   readonly attachedMedias?: Collection<MediaModel, string>
+  readonly gitCommits?: Collection<GitCommitModel, string>
 }
 
 export function registerTask(engine: ModelEngine) {
@@ -95,6 +97,13 @@ export function registerTask(engine: ModelEngine) {
           return undefined
         let list = mediaIds.map(mediaId => engine.getModel("Media", mediaId))
         return toCollection(list, "Media")
+      },
+      get gitCommits() {
+        let gitCommitIds = getFrag().gitCommitIds
+        if (!gitCommitIds)
+          return undefined
+        let list = gitCommitIds.map(gitCommitId => engine.getModel("GitCommit", gitCommitId))
+        return toCollection(list, "GitCommit")
       }
     } as Partial<TaskModel>
     appendGettersToModel(model, "Task", getFrag)
