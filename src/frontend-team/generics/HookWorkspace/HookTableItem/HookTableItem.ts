@@ -134,10 +134,10 @@ export default class HookTableItem {
       else {
         let data = await response.json()
         if (!data.done)
-        this.log.error("Something went wrong. Cannot perform this action now. Try again later.")
-        else {
-          this.hook.active = !this.hook.active
-          this.btnToggleEl.textContent = this.hook.active ? "Deactivate" : "Activate"
+          this.dash.create(ErrorDialog).show("Something went wrong. Cannot remove hook. Try again later.")
+         else {
+          this.el.hidden = true
+          this.dash.emit("hookDeleted", this.hook.id)
         }
       }
     } catch (err) {
@@ -145,7 +145,5 @@ export default class HookTableItem {
     }
 
     this.hook.inProcessing = false
-    this.el.hidden = true
-    this.dash.emit("hookDeleted")
   }
 }

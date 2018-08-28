@@ -7,7 +7,7 @@ import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
 import validate from "./utils/joiUtils"
 import Joi = require("joi")
-import uuidv5 = require("uuid/v5")
+import uuidv4 = require("uuid/v4")
 import crypto = require("crypto")
 
 let commitSchema = Joi.object().keys({
@@ -44,8 +44,7 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
   let secret = crypto.randomBytes(TOKEN_LENGTH).toString("hex")
-  let teamSiteUrl = getTeamSiteUrl({ subdomain })
-  let uuid = uuidv5(teamSiteUrl, uuidv5.URL)
+  let uuid = uuidv4()
   let sql = insert("git_subscription", {
     "secret": secret,
     "provider": "Github",
@@ -53,6 +52,7 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
   })
   let execResult = await cn.execSqlBricks(sql)
   let subscriptionId = execResult.getInsertedIdString()
+  let teamSiteUrl = getTeamSiteUrl({ subdomain })
   let hook = {
     id: subscriptionId,
     provider: "Github",
@@ -98,7 +98,7 @@ export async function routeActivateGithubHook(subdomain: string, data: any, sess
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = update("git_subscription", { "subscription_id": cleanData.subscriptionId, "active": 1 })
+  let sql = update("git_subscription", { "active": 1 }).where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.execSqlBricks(sql)
 
@@ -117,7 +117,7 @@ export async function routeDeactivateGithubHook(subdomain: string, data: any, se
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = update("git_subscription", { "subscription_id": cleanData.subscriptionId, "active": 0 })
+  let sql = update("git_subscription", { "active": 0 }).where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.execSqlBricks(sql)
 
@@ -136,7 +136,7 @@ export async function routeDeleteGithubHook(subdomain: string, data: any, sessio
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = deleteFrom("git_subscription").where({ "subscription_id": cleanData.hookId })
+  let sql = deleteFrom("git_subscription").where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.execSqlBricks(sql)
 
