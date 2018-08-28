@@ -102,11 +102,11 @@ export default class TaskForm {
   }
 
   public hide() {
-    this.el.style.display = "none"
+    this.el.hidden = true
   }
 
   public show() {
-    this.el.style.display = ""
+    this.el.hidden = false
   }
 
   get task(): TaskModel | undefined {
@@ -289,11 +289,11 @@ export default class TaskForm {
   }
 
   private showSpinner() {
-    this.submitSpinnerEl.style.display = "inline"
+    this.submitSpinnerEl.hidden = false
   }
 
   private hideSpinner() {
-    this.submitSpinnerEl.style.display = "none"
+    this.submitSpinnerEl.hidden = true
   }
 
   private updateOnHoldBtnLabel() {

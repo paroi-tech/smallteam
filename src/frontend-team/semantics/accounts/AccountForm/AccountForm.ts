@@ -279,11 +279,11 @@ export default class AccountForm {
   }
 
   private showIndicator() {
-    this.submitSpinnerEl.style.display = "inline"
+    this.submitSpinnerEl.hidden = false
   }
 
   private hideIndicator() {
-    this.submitSpinnerEl.style.display = "none"
+    this.submitSpinnerEl.hidden = true
   }
 
   private lockForm() {

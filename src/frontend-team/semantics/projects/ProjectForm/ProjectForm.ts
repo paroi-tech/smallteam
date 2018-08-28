@@ -160,13 +160,13 @@ export default class ProjectForm implements Workspace {
   }
 
   private async onSubmit() {
-    this.spinnerEl.style.display = "inline"
+    this.spinnerEl.hidden = false
 
     let code = this.codeEl.value.trim()
     let name = this.nameEl.value.trim()
     let description = this.descriptionEl.value.trim()
     if (code.length < 4 && name.length === 0) {
-      this.spinnerEl.style.display = "none"
+      this.spinnerEl.hidden = true
       return
     }
 
@@ -176,7 +176,7 @@ export default class ProjectForm implements Workspace {
     else
       await this.updateProject(name, description, stepIds)
 
-    this.spinnerEl.style.display = "none"
+    this.spinnerEl.hidden = true
   }
 
   private async createProject(code: string, name: string, description: string, stepIds: string[]) {

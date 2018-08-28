@@ -119,10 +119,10 @@ export default class LoginDialog {
   }
 
   private showSpinner() {
-    this.spinnerEl.style.display = "block"
+    this.spinnerEl.hidden = false
   }
 
   private hideSpinner() {
-    this.spinnerEl.style.display = "none"
+    this.spinnerEl.hidden = true
   }
 }

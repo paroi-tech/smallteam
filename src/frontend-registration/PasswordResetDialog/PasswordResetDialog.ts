@@ -57,9 +57,9 @@ export default class LoginDialog {
       return
     }
 
-    this.spinnerEl.style.display = "inline"
+    this.spinnerEl.hidden = false
     await this.doPasswordChange(password)
-    this.spinnerEl.style.display = "none"
+    this.spinnerEl.hidden = true
   }
 
   private async doPasswordChange(password: string) {

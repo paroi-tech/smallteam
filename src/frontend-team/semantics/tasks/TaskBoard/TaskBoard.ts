@@ -37,11 +37,11 @@ export default class TaskBoard {
   }
 
   public hide() {
-    this.el.style.display = "none"
+    this.el.hidden = true
   }
 
   public show() {
-    this.el.style.display = "block"
+    this.el.hidden = false
   }
 
   private addDashListeners() {

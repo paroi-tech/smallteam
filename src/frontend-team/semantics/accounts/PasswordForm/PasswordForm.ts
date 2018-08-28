@@ -106,11 +106,11 @@ export default class PasswordForm {
   }
 
   public showSpinner() {
-    this.spinnerEl.style.display = "inline"
+    this.spinnerEl.hidden = false
   }
 
   private hideSpinner() {
-    this.spinnerEl.style.display = "none"
+    this.spinnerEl.hidden = true
   }
 
   private clearFields() {
