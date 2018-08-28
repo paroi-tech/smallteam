@@ -6,6 +6,7 @@ import taskLogEntryMeta from "../../../../shared/meta/TaskLogEntry"
 import flagMeta from "../../../../shared/meta/Flag"
 import commentMeta from "../../../../shared/meta/Comment"
 import accountMeta from "../../../../shared/meta/Account"
+import gitCommitMeta from "../../../../shared/meta/GitCommit"
 
 addBackendFragmentMeta(
   projectMeta.read,
@@ -122,6 +123,22 @@ addBackendFragmentMeta(
       columnType: "timestamp"
     },
     updateTs: {
+      columnType: "timestamp"
+    }
+  }
+)
+
+addBackendFragmentMeta(
+  gitCommitMeta.read,
+  {
+    id: {
+      column: "commit_id",
+      columnType: "bigint"
+    },
+    externalId: {},
+    message: {},
+    authorName: {},
+    ts: {
       columnType: "timestamp"
     }
   }

@@ -17,6 +17,7 @@ export interface TaskFragment {
   flagIds?: string[]
   readonly commentCount?: number
   attachedMediaIds?: string[]
+  readonly gitCommitIds?: string[]
 }
 
 const meta: FragmentMeta = {
@@ -78,6 +79,10 @@ const meta: FragmentMeta = {
       optional: true
     },
     attachedMediaIds: {
+      dataType: "string[]",
+      optional: true
+    },
+    gitCommitIds: {
       dataType: "string[]",
       optional: true
     }

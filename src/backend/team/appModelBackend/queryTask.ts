@@ -8,9 +8,7 @@ import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { logStepChange } from "./queryTaskLogEntry"
 import { WhoUseItem } from "../../../shared/transfers"
 import { fetchMedias, deleteMedias } from "./queryMedia"
-import { DatabaseConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-
-type DbCn =DatabaseConnectionWithSqlBricks
+import { DatabaseConnectionWithSqlBricks as DbCn, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 
 // --
 // -- Read
@@ -44,20 +42,20 @@ export async function fetchTasks(context: ModelContext, filters: TaskSearchFragm
   }
 
   let rs = await context.cn.allSqlBricks(sql)
-  await addDependenciesTo(context.cn, rs)
+  await addDependenciesTo(context, rs)
   for (let row of rs) {
     let frag = await toTaskFragment(context, row)
     context.loader.addFragment({
       type: "Task",
-      frag: frag,
+      frag,
       asResult: "fragments"
     })
   }
 }
 
-function taskMatchSearch(frag: TaskFragment, query: string) {
-  return (frag.description && frag.description.indexOf(query) !== -1) || (frag.label.indexOf(query) !== -1)
-}
+// function taskMatchSearch(frag: TaskFragment, query: string) {
+//   return (frag.description && frag.description.indexOf(query) !== -1) || (frag.label.indexOf(query) !== -1)
+// }
 
 export async function fetchProjectTasks(context: ModelContext, projectIdList: number[]) {
   let sql = selectFromTask()
@@ -66,7 +64,7 @@ export async function fetchProjectTasks(context: ModelContext, projectIdList: nu
 
   let rs = await context.cn.allSqlBricks(sql)
 
-  await addDependenciesTo(context.cn, rs)
+  await addDependenciesTo(context, rs)
   for (let row of rs) {
     let frag = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", frag.id, frag)
@@ -81,7 +79,7 @@ export async function fetchTasksByIds(context: ModelContext, idList: string[]) {
     .where(sqlIn("t.task_id", toIntList(idList)))
   let rs = await context.cn.allSqlBricks(sql)
 
-  await addDependenciesTo(context.cn, rs)
+  await addDependenciesTo(context, rs)
   for (let row of rs) {
     let data = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", data.id, data)
@@ -107,7 +105,8 @@ async function toTaskFragment(context: ModelContext, row): Promise<TaskFragment>
     createdById: row["created_by"].toString(),
     createTs: row["create_ts"],
     updateTs: row["update_ts"],
-    commentCount: row["comment_count"] || undefined
+    commentCount: row["comment_count"] || undefined,
+    gitCommitIds: row["gitCommitIds"] ? row["gitCommitIds"].map(id => id.toString()) : undefined
   }
 
   if (row["parent_task_id"] !== null)
@@ -156,10 +155,11 @@ export async function whoUseTask(context: ModelContext, id: string): Promise<Who
 // -- Add dependencies
 // --
 
-async function addDependenciesTo(cn: DbCn, taskRows: any[]) {
+async function addDependenciesTo(context: ModelContext, taskRows: any[]) {
   let taskIdList = taskRows.map(row => row["task_id"])
-  let accountMap = await fetchAffectedToIdentifiers(cn, taskIdList)
-  let flagMap = await fetchFlagIdentifiers(cn, taskIdList)
+  let accountMap = await fetchAffectedToIdentifiers(context.cn, taskIdList)
+  let flagMap = await fetchFlagIdentifiers(context.cn, taskIdList)
+  let gitCommitMap = await fetchGitCommitIdentifiers(context, taskIdList)
 
   for (let row of taskRows) {
     let accountIds = accountMap.get(row["task_id"])
@@ -169,6 +169,10 @@ async function addDependenciesTo(cn: DbCn, taskRows: any[]) {
     let flagIds = flagMap.get(row["task_id"])
     if (flagIds)
       row["flagIds"] = flagIds
+
+    let gitCommitIds = gitCommitMap.get(row["task_id"])
+    if (gitCommitIds)
+      row["gitCommitIds"] = gitCommitIds
   }
 }
 
@@ -215,6 +219,31 @@ async function fetchFlagIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map
     // if (!map.has(row["task_id"]))
     //   map.set(row["task_id"], [])
     // map.get(row["task_id"])!.push(row["flag_id"])
+  }
+
+  return map
+}
+
+async function fetchGitCommitIdentifiers(context: ModelContext, taskIdList: number[]): Promise<Map<number, number[]>> {
+  let sql = select("ct.task_id, ct.commit_id")
+    .from("git_commit_task ct")
+    .innerJoin("git_commit c").on("ct.commit_id", "c.commit_id")
+    .where(sqlIn("ct.task_id", taskIdList))
+    .orderBy("1, c.ts")
+  let rs = await context.cn.allSqlBricks(sql)
+  let map = new Map<number, number[]>(),
+    curTaskId: number | undefined = undefined,
+    curGitCommitIds: number[]
+
+  for (let row of rs) {
+    if (row["task_id"] !== curTaskId) {
+      curTaskId = row["task_id"]
+      curGitCommitIds = []
+      map.set(curTaskId!, curGitCommitIds)
+    }
+    curGitCommitIds!.push(row["commit_id"])
+
+    context.loader.modelUpdate.addFragment("GitCommit", row["commit_id"].toString())
   }
 
   return map

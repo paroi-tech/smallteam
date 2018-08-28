@@ -309,9 +309,9 @@ export default class StepSwitcher {
   private async onAddtaskClick() {
     let name = this.taskNameEl.value.trim()
 
-    if (name.length < 4) {
+    if (name.length < 2) {
       this.log.warn("Impossible to create a new task. Invalid name...")
-      await this.dash.app.alert("Impossible to create a new task. Name should have 4 characters.")
+      await this.dash.app.alert("Impossible to create a new task. Name should have 2 characters.")
       this.taskNameEl.focus()
       return
     }
