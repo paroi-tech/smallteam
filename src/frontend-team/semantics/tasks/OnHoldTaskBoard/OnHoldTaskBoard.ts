@@ -81,10 +81,10 @@ export default class OnHoldTaskBoard {
   }
 
   private showOverlay() {
-    this.overlayEl.style.display = "block"
+    this.overlayEl.hidden = false
   }
 
   private hideOverlay() {
-    this.overlayEl.style.display = "none"
+    this.overlayEl.hidden = true
   }
 }

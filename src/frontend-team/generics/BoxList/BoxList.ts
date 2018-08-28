@@ -248,10 +248,10 @@ export default class BoxList<T extends Box> {
   }
 
   private showBusyIcon() {
-    this.busyIndicatorEl.style.display = "inline"
+    this.busyIndicatorEl.hidden = false
   }
 
   private hideBusyIcon() {
-    this.busyIndicatorEl.style.display = "none"
+    this.busyIndicatorEl.hidden = true
   }
 }

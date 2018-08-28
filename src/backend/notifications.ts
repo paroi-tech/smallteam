@@ -1,15 +1,14 @@
-import * as crypto from "crypto"
 import { TOKEN_LENGTH } from "./backendConfig"
 import { Request, Response } from "express"
 import { SessionData, hasAdminRights } from "./session"
 import { getCn } from "./utils/dbUtils"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import Joi = require("joi")
-import validate from "./utils/joiUtils"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
-
-const HOOK_UID_LENGTH = 8 // It must be a multiple of 2.
+import validate from "./utils/joiUtils"
+import Joi = require("joi")
+import uuidv4 = require("uuid/v4")
+import crypto = require("crypto")
 
 let commitSchema = Joi.object().keys({
   sha: Joi.string().hex().required(),
@@ -31,8 +30,8 @@ let pushDataSchema = Joi.object().keys({
   commits: Joi.array().items(commitSchema)
 })
 
-let schemaForHookId = Joi.object().keys({
-  hookId: Joi.string().regex(/\d+/).required()
+let schemaForSubscriptionId = Joi.object().keys({
+  subscriptionId: Joi.string().regex(/\d+/).required()
 })
 
 export async function routeCreateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
@@ -45,21 +44,20 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
   let secret = crypto.randomBytes(TOKEN_LENGTH).toString("hex")
-  let token = crypto.randomBytes(HOOK_UID_LENGTH).toString("hex")
-  let arr = token.match(/[a-z]{4}/g)
-  let uid = arr ? arr.join("-") : token
-  let sql = insert("hook", {
+  let uuid = uuidv4()
+  let sql = insert("git_subscription", {
     "secret": secret,
     "provider": "Github",
-    "hook_uid": uid
+    "subscription_uuid": uuid
   })
-  let execRes = await cn.execSqlBricks(sql)
-  let hookId = execRes.getInsertedIdString()
+  let execResult = await cn.execSqlBricks(sql)
+  let subscriptionId = execResult.getInsertedIdString()
+  let teamSiteUrl = getTeamSiteUrl({ subdomain })
   let hook = {
-    id: hookId,
+    id: subscriptionId,
     provider: "Github",
     active: true,
-    url: `${getTeamSiteUrl({ subdomain })}/api/notifications/github/hook/${uid}`
+    url: `${teamSiteUrl}/api/notifications/github/hook/${uuid}`
   }
 
   return {
@@ -72,13 +70,16 @@ export async function routeGetGithubHookSecret(subdomain: string, data: any, ses
   if (!sessionData)
     throw new Error("Missing session data in 'routeGetGithubHookSecret'")
 
-  let cleanData = await validate(data, schemaForHookId)
+  let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = select("secret").from("hook").where({ "provider": "Github", "hook_id": cleanData.hookId })
+  let sql = select("secret").from("git_subscription").where({
+    "provider": "Github",
+    "subscription_id": cleanData.subscriptionId
+  })
   let secret = await cn.singleValueSqlBricks(sql)
 
   return {
@@ -91,13 +92,13 @@ export async function routeActivateGithubHook(subdomain: string, data: any, sess
   if (!sessionData)
     throw new Error("Missing session data in 'routeActivateGithubHook'")
 
-  let cleanData = await validate(data, schemaForHookId)
+  let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = update("hook", { "hook_id": cleanData.hookId, "active": 1 })
+  let sql = update("git_subscription", { "active": 1 }).where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.execSqlBricks(sql)
 
@@ -110,13 +111,13 @@ export async function routeDeactivateGithubHook(subdomain: string, data: any, se
   if (!sessionData)
     throw new Error("Missing session data in 'routeDeactivateGithubHook'")
 
-  let cleanData = await validate(data, schemaForHookId)
+  let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = update("hook", { "hook_id": cleanData.hookId, "active": 0 })
+  let sql = update("git_subscription", { "active": 0 }).where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.execSqlBricks(sql)
 
@@ -129,13 +130,13 @@ export async function routeDeleteGithubHook(subdomain: string, data: any, sessio
   if (!sessionData)
     throw new Error("Missing session data in 'routeDeleteGithubHook'")
 
-  let cleanData = await validate(data, schemaForHookId)
+  let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = deleteFrom("hook").where({ "hook_id": cleanData.hookId })
+  let sql = deleteFrom("git_subscription").where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.execSqlBricks(sql)
 
@@ -153,15 +154,16 @@ export async function routeFetchGithubHooks(subdomain: string, data: any, sessio
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = select().from("hook").where({ "provider": "Github" }) // FIXME: create index on provider column?
+  let sql = select().from("git_subscription").where({ "provider": "Github" }) // FIXME: create index on provider column?
   let rs = await cn.allSqlBricks(sql)
   let hooks = [] as any[]
+  let teamSiteUrl = getTeamSiteUrl({ subdomain })
 
   for (let row of rs) {
     hooks.push({
-      id: row["hook_id"].toString(),
+      id: row["subscription_id"].toString(),
       provider: row["provider"],
-      url: `${getTeamSiteUrl({ subdomain })}/api/notifications/github/hook/${row["hook_uid"]}`,
+      url: `${teamSiteUrl}/api/notifications/github/hook/${row["subscription_uuid"]}`,
       active: row["active"] != 0
     })
   }
@@ -186,12 +188,12 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!hookEvent || typeof hookEvent !== "string" || hookEvent !== "push")
     throw new Error("Unsupported hook event")
 
-  let hookUid = req.params.uid
-  if (!hookUid)
+  let uuid = req.params.uuid
+  if (!uuid)
     throw new Error("Invalid URL")
 
   let cn = await getCn(subdomain)
-  let secret = await getActiveGithubHookSecret(cn, hookUid)
+  let secret = await getActiveGithubHookSecret(cn, uuid)
 
   if (!secret)
     throw new Error("No Github hook found") // FIXME: return 404 status code instead.
@@ -200,7 +202,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!reqDigest || typeof reqDigest !== "string")
     throw new Error("Invalid digest")
 
-  let digest = crypto.createHmac("sha1", hookUid).update(reqBody).digest("hex")
+  let digest = crypto.createHmac("sha1", uuid).update(reqBody).digest("hex")
   if (reqDigest !== digest)
     throw new Error("Invalid message digest")
 
@@ -218,8 +220,8 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   }
 }
 
-async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uid: string) {
-  let sql = select("activated, secret").from("hook").where({ "provider": "Github", "hook_uid": uid })
+async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string) {
+  let sql = select("activated, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
   let res = cn.singleRowSqlBricks(sql)
 
   if (res && res["active"] != 0)

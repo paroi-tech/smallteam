@@ -67,7 +67,7 @@ export default class TaskLogDialog {
   private async loadTaskLogEntries() {
     if (!this.currentTask)
       return
-    this.loadIndicatorEl.style.display = "block"
+    this.loadIndicatorEl.hidden = false
     try {
       let entries = await this.currentTask.getLogEntries()
       for (let entry of entries)
@@ -75,6 +75,6 @@ export default class TaskLogDialog {
     } catch (err) {
       this.log.error(`Cannot get log entries for task ${this.currentTask.id}`)
     }
-    this.loadIndicatorEl.style.display = "none"
+    this.loadIndicatorEl.hidden = true
   }
 }

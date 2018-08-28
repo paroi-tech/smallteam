@@ -139,8 +139,8 @@ create table git_commit (
     external_id varchar(255) not null,
     message text not null,
     author_name varchar(255) not null,
-    ts timestamp not null default current_timestamp,
-    notification_id varchar(512) default null
+    ts timestamp not null,
+    notification_id text default null
 );
 
 create table git_commit_task (
@@ -149,11 +149,11 @@ create table git_commit_task (
     primary key (task_id, commit_id)
 );
 
-create table hook (
-    hook_id integer not null primary key autoincrement,
+create table git_subscription (
+    subscription_id integer not null primary key autoincrement,
     provider varchar(255) not null,
     secret varchar(255) not null,
-    hook_uid varchar(255) not null unique,
+    subscription_uuid varchar(255) not null unique,
     active tinyint not null default 1
 );
 

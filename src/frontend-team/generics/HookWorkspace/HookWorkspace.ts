@@ -52,7 +52,7 @@ export default class HookWorkspace {
 
   public activate(ctrl: ViewerController) {
     this.ctrl = ctrl
-    this.ctrl.setContentEl(this.el).setTitle("Manage invitations")
+    this.ctrl.setContentEl(this.el).setTitle("Github subscriptions")
   }
 
   public deactivate() {
@@ -71,14 +71,14 @@ export default class HookWorkspace {
       })
 
       if (!response.ok) {
-        this.log.error("Something went wrong. Server did not fulfill our request.")
+        this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
         return
       }
 
       let data = await response.json()
 
       if (!data.done) {
-        this.log.error("Something went wrong. We can not display hooks. Try again later.")
+        this.dash.create(ErrorDialog).show("Something went wrong. We can not display hooks. Try again later.")
         return
       }
 
@@ -99,6 +99,32 @@ export default class HookWorkspace {
   }
 
   private async createHook() {
+    try {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/create-hook`, {
+        method: "post",
+        credentials: "same-origin",
+        headers: new Headers({
+          "Accept": "application/json",
+          "Content-Type": "application/json"
+        }),
+        body: JSON.stringify({})
+      })
 
+      if (!response.ok) {
+        this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
+        return
+      }
+
+      let data = await response.json()
+
+      if (!data.done) {
+        this.log.error("Something went wrong. Cannot create hook. Try again later.")
+        return
+      }
+      data.hook.inProcessing = false
+      this.addHookToTable(data.hook)
+    } catch (err) {
+      this.log.error("Unable to get list of hooks from server. Network error.")
+    }
   }
 }

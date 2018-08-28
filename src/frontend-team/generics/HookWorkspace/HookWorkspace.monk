@@ -1,5 +1,4 @@
 <div class="HookWorkspace">
-  <header>Manage Hooks</header>
   <table class="HookWorkspace-table" :ref="table">
     <caption>Available hooks</caption>
     <thead>

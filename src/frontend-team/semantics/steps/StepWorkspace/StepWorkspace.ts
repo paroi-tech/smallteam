@@ -112,14 +112,14 @@ export default class StepWorkspace implements Workspace {
   }
 
   private async addStep(label: string) {
-    this.spinnerEl.style.display = "inline"
+    this.spinnerEl.hidden = false
     try {
       await this.model.exec("create", "Step", { label })
       this.nameEl.value = ""
     } catch (err) {
       this.log.error("Unable to create new step...")
     }
-    this.spinnerEl.style.display = "none"
+    this.spinnerEl.hidden = true
     this.nameEl.focus()
   }
 

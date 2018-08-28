@@ -49,11 +49,11 @@ export default class TaskComment {
     this.cancelButtonEl.addEventListener("click", ev => this.onBtnCancelClick())
     this.deleteButtonEl.addEventListener("click", ev => this.onBtnDeleteClick())
 
-    this.cancelButtonEl.style.display = "none" // Cancel button is hidden by default.
+    this.cancelButtonEl.hidden = true // Cancel button is hidden by default.
     if (this.accountId != this.comment.writtenById) {
       // Only the creator of a comment can edit or delete it.
-      this.deleteButtonEl.style.display = "none"
-      this.editButtonEl.style.display = "none"
+      this.deleteButtonEl.hidden = true
+      this.editButtonEl.hidden = true
     }
 
     this.updateView()
@@ -83,8 +83,8 @@ export default class TaskComment {
 
     if (!this.editMode) {
       this.textareaEl.value = this.comment.body
-      this.textareaEl.style.display = "block"
-      this.cancelButtonEl.style.display = "block"
+      this.textareaEl.hidden = false
+      this.cancelButtonEl.hidden = false
       this.editButtonEl.textContent = saveText
       this.editButtonEl.title = "Save changes"
     } else {
@@ -102,8 +102,8 @@ export default class TaskComment {
         return
       }
 
-      this.textareaEl.style.display = "none"
-      this.cancelButtonEl.style.display = "none"
+      this.textareaEl.hidden = true
+      this.cancelButtonEl.hidden = true
       this.editButtonEl.textContent = editText
       this.editButtonEl.title = "Edit comment"
     }
@@ -111,8 +111,8 @@ export default class TaskComment {
   }
 
   private onBtnCancelClick() {
-    this.textareaEl.style.display = "none"
-    this.cancelButtonEl.style.display = "none"
+    this.textareaEl.hidden = true
+    this.cancelButtonEl.hidden = true
     this.editButtonEl.textContent = editText
     this.editButtonEl.title = "Edit comment"
     this.editMode = false

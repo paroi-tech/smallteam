@@ -175,11 +175,11 @@ export default class StepSwitcher {
   }
 
   public showBusyIcon() {
-    this.busyIndicatorEl.style.display = "inline"
+    this.busyIndicatorEl.hidden = false
   }
 
   public hideBusyIcon() {
-    this.busyIndicatorEl.style.display = "none"
+    this.busyIndicatorEl.hidden = true
   }
 
   public setVisible(b: boolean) {
@@ -210,10 +210,10 @@ export default class StepSwitcher {
   private toggleFoldableContent() {
     if (this.collapsibleElVisible) {
       this.toggleBtnSpanEl.textContent = caretDown
-      this.foldableEl.style.display = "none"
+      this.foldableEl.hidden = true
     } else {
       this.toggleBtnSpanEl.textContent = caretUp
-      this.foldableEl.style.display = "block"
+      this.foldableEl.hidden = false
     }
     this.collapsibleElVisible = !this.collapsibleElVisible
   }
@@ -323,10 +323,10 @@ export default class StepSwitcher {
     }
 
     this.bottomEl.style.pointerEvents = "none"
-    this.spinnerEl.style.display = "inline"
+    this.spinnerEl.hidden = false
     if (await this.createTask(name))
       this.taskNameEl.value = ""
-    this.spinnerEl.style.display = "none"
+    this.spinnerEl.hidden = true
     this.bottomEl.style.pointerEvents = "auto"
     this.taskNameEl.focus()
   }
