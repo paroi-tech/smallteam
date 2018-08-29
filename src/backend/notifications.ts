@@ -182,7 +182,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
     throw new Error("Missing request or response object in route.")
 
   let reqBody = req["rawBody"]
-  if (reqBody || typeof reqBody !== "string")
+  if (!reqBody || typeof reqBody !== "string")
     throw new Error("Missing 'rawBody' attribute in request.")
 
   let event = req.headers["x-github-event"]
