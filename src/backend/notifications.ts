@@ -5,6 +5,7 @@ import { getCn } from "./utils/dbUtils"
 import { select, insert, update, deleteFrom } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
+import { log } from "./utils/log"
 import validate from "./utils/joiUtils"
 import Joi = require("joi")
 import uuidv4 = require("uuid/v4")
@@ -184,8 +185,8 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (reqBody || typeof reqBody !== "string")
     throw new Error("Missing 'rawBody' attribute in request.")
 
-  let hookEvent = req.headers["x-github-event"]
-  if (!hookEvent || typeof hookEvent !== "string" || hookEvent !== "push")
+  let event = req.headers["x-github-event"]
+  if (!event || typeof event !== "string" || (event !== "push" && event !== "ping"))
     throw new Error("Unsupported hook event")
 
   let uuid = req.params.uuid
@@ -198,13 +199,18 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!secret)
     throw new Error("No Github hook found") // FIXME: return 404 status code instead.
 
-  let reqDigest = req.headers["x-hub-signature"]
-  if (!reqDigest || typeof reqDigest !== "string")
+  let contentDigest = req.headers["x-hub-signature"]
+  if (!contentDigest || typeof contentDigest !== "string")
     throw new Error("Invalid digest")
 
-  let digest = crypto.createHmac("sha1", uuid).update(reqBody).digest("hex")
-  if (reqDigest !== digest)
+  let computedDigest = crypto.createHmac("sha1", uuid).update(reqBody).digest("hex")
+  if (contentDigest !== computedDigest)
     throw new Error("Invalid message digest")
+
+  if (event === "push") {
+    log.info(`Received ping for Github hook ${uuid}`, data)
+    return "Ping received..."
+  }
 
   let cleanData = await validate(data, pushDataSchema)
   let deliveryGuid = getDeliveryGuid(req)
