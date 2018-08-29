@@ -16,6 +16,8 @@ export interface HookModel {
 
 const template = require("./HookWorkspace.monk")
 
+// TODO: Only invitations and hooks when workspace is displayed.
+
 export default class HookWorkspace {
   readonly el: HTMLElement
   private tableEl: HTMLTableElement
@@ -26,6 +28,8 @@ export default class HookWorkspace {
   private log: Log
 
   private itemMap = new Map<string, HookTableItem>()
+
+  private needFetch = true
 
   constructor(private dash: OwnDash) {
     this.log = this.dash.log
@@ -46,13 +50,13 @@ export default class HookWorkspace {
         this.itemMap.delete(data)
       }
     })
-
-    this.fetchHooks()
   }
 
   public activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     this.ctrl.setContentEl(this.el).setTitle("Github subscriptions")
+    if (this.needFetch)
+      this.fetchHooks().then(b => this.needFetch = b)
   }
 
   public deactivate() {
@@ -72,22 +76,29 @@ export default class HookWorkspace {
 
       if (!response.ok) {
         this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
-        return
+        return false
       }
 
       let data = await response.json()
 
       if (!data.done) {
         this.dash.create(ErrorDialog).show("Something went wrong. We can not display hooks. Try again later.")
-        return
+        return false
       }
 
-      for (let hook of data.hooks) {
-        hook.inProcessing = false
-        this.addHookToTable(hook)
-      }
+      this.processHooks(data.hooks)
+      return true
     } catch (err) {
       this.log.error("Unable to get list of hooks from server. Network error.")
+    }
+
+    return false
+  }
+
+  private processHooks(hooks: HookModel[]) {
+    for (let hook of hooks) {
+      hook.inProcessing = false
+      this.addHookToTable(hook)
     }
   }
 
