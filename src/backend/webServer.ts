@@ -84,7 +84,7 @@ export function startWebServer() {
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
-  router.post("/api/notifications/github/hook/:uid", makeRouteHandler(routeProcessGithubNotification, true))
+  router.post("/api/notifications/github/hook/:uuid", makeRouteHandler(routeProcessGithubNotification, true))
   router.post("/api/notifications/github/get-secret", makeRouteHandler(routeGetGithubHookSecret, false))
   router.post("/api/notifications/github/create-hook", makeRouteHandler(routeCreateGithubHook, false))
   router.post("/api/notifications/github/fetch-hooks", makeRouteHandler(routeFetchGithubHooks, false))
