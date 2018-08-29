@@ -227,7 +227,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
 }
 
 async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string) {
-  let sql = select("activated, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
+  let sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
   let res = cn.singleRowSqlBricks(sql)
 
   if (res && res["active"] != 0)
