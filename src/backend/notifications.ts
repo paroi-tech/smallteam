@@ -24,10 +24,10 @@ let commitSchema = Joi.object().keys({
 
 let pushDataSchema = Joi.object().keys({
   ref: Joi.string().required(),
-  head: Joi.string().required(),
+  head: Joi.string().optional(),
   before: Joi.string().required(),
-  size: Joi.number().integer().required(),
-  distinct_size: Joi.number().integer().required(),
+  size: Joi.number().integer().optional(),
+  distinct_size: Joi.number().integer().optional(),
   commits: Joi.array().items(commitSchema)
 })
 
@@ -199,15 +199,16 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!secret)
     throw new Error("No Github hook found") // FIXME: return 404 status code instead.
 
-  let contentDigest = req.headers["x-hub-signature"]
-  if (!contentDigest || typeof contentDigest !== "string")
+  let reqDigest = req.headers["x-hub-signature"]
+  if (!reqDigest || typeof reqDigest !== "string")
     throw new Error("Invalid digest")
 
-  let computedDigest = crypto.createHmac("sha1", uuid).update(reqBody).digest("hex")
-  if (contentDigest !== computedDigest)
+  let digest = crypto.createHmac("sha1", secret).update(reqBody).digest("hex")
+  let digestWithPrefix = "sha1=" + digest
+  if (reqDigest !== digestWithPrefix)
     throw new Error("Invalid message digest")
 
-  if (event === "push") {
+  if (event === "ping") {
     log.info(`Received ping for Github hook ${uuid}`, data)
     return "Ping received..."
   }
@@ -228,7 +229,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
 
 async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string) {
   let sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
-  let res = cn.singleRowSqlBricks(sql)
+  let res = await cn.singleRowSqlBricks(sql)
 
   if (res && res["active"] != 0)
     return res["secret"]
