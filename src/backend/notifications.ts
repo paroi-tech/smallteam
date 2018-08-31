@@ -12,22 +12,21 @@ import uuidv4 = require("uuid/v4")
 import crypto = require("crypto")
 
 let commitSchema = Joi.object().keys({
-  sha: Joi.string().hex().required(),
+  id: Joi.string().hex().required(),
   message: Joi.string().default(""),
   author: Joi.object().keys({
     name: Joi.string().required(),
     email: Joi.string().required(),
+    username: Joi.string().required(),
   }),
   url: Joi.string().uri(),
-  distinct: Joi.boolean().required()
+  distinct: Joi.boolean().required(),
+  timestamp: Joi.date().required()
 })
 
 let pushDataSchema = Joi.object().keys({
   ref: Joi.string().required(),
-  head: Joi.string().optional(),
   before: Joi.string().required(),
-  size: Joi.number().integer().optional(),
-  distinct_size: Joi.number().integer().optional(),
   commits: Joi.array().items(commitSchema)
 })
 
@@ -176,10 +175,8 @@ export async function routeFetchGithubHooks(subdomain: string, data: any, sessio
 }
 
 export async function routeProcessGithubNotification(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let ts = Date.now()
-
   if (!req || !res)
-    throw new Error("Missing request or response object in route.")
+    throw new Error("Missing request or response object in 'routeProcessGithubNotification'.")
 
   let reqBody = req["rawBody"]
   if (!reqBody || typeof reqBody !== "string")
@@ -209,22 +206,28 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
     throw new Error("Invalid message digest")
 
   if (event === "ping") {
-    log.info(`Received ping for Github hook ${uuid}`, data)
+    log.info(`Received ping for Github Hook ${uuid} for subdomain ${subdomain}`, data)
     return "Ping received..."
   }
 
-  let cleanData = await validate(data, pushDataSchema)
+  let cleanData = await validate(data, pushDataSchema, { allowUnknown: true })
   let deliveryGuid = getDeliveryGuid(req)
   let tcn = await cn.beginTransaction()
 
   try {
-    for (let commit of cleanData.commits)
-      processCommit(tcn, commit, ts, deliveryGuid)
+    for (let commit of cleanData.commits) {
+      if (commit.distinct)
+        await processCommit(tcn, commit, deliveryGuid)
+    }
     await tcn.commit()
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
   }
+
+  log.info(`Processed push event hook with uuid ${deliveryGuid}`)
+
+  return "Hook successfully processed..."
 }
 
 async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string) {
@@ -241,23 +244,24 @@ async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: str
  *  - search for task codes in the commit message,
  *  - and attach commit to the tasks.
  */
-async function processCommit(cn: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
-  let commitId = await saveCommit(cn, commit, ts, deliveryGuid)
+async function processCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: string) {
+  let id = await saveCommit(cn, commit, deliveryGuid)
+  let codes = getTaskCodesInCommitMessage(commit.message)
 
-  for (let taskCode of getTaskCodesInCommitMessage(commit.message)) {
-    let taskId = await getTaskIdFromCode(cn, taskCode)
+  for (let code of codes) {
+    let taskId = await getTaskIdFromCode(cn, code)
 
     if (taskId)
-      addCommitToTask(cn, taskId, commitId)
+      await addCommitToTask(cn, taskId, id)
   }
 }
 
-async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, ts: number, deliveryGuid?: string) {
+async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: string) {
   let sql = insert("git_commit", {
-    "external_id": commit.sha,
+    "external_id": commit.id,
     "message": commit.message,
-    "author_name": commit.author.name,
-    "ts": ts,
+    "author_name": commit.author.username,
+    "ts": commit.timestamp.getTime(),
     "notification_id": deliveryGuid || null
   })
   let res = await cn.execSqlBricks(sql)
@@ -273,7 +277,7 @@ function getDeliveryGuid(req) {
 }
 
 function getTaskCodesInCommitMessage(message: string) {
-  return message.match(/[a-zA-Z0-9]-[\d]+/g) || [] as string[]
+  return message.match(/[a-zA-Z0-9]{1,}-[\d]+/g) || ([] as string[])
 }
 
 function getProjectCodeFromTaskCode(taskCode: string) {
@@ -285,7 +289,7 @@ function getProjectCodeFromTaskCode(taskCode: string) {
 
 async function getTaskIdFromCode(cn: QueryRunnerWithSqlBricks, code: string) {
   let sql = select("task_id").from("task").where({ code })
-  let res = cn.singleValueSqlBricks(sql)
+  let res = await cn.singleValueSqlBricks(sql)
 
   if (res)
     return res.toString()

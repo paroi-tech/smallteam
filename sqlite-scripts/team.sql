@@ -140,7 +140,7 @@ create table git_commit (
     message text not null,
     author_name varchar(255) not null,
     ts timestamp not null,
-    notification_id text default null
+    notification_id text varchar(255) null
 );
 
 create table git_commit_task (

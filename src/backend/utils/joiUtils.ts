@@ -1,9 +1,9 @@
 import Joi = require("joi")
 import { ValidationError } from "./serverUtils"
 
-export default async function validate<T>(value: T, schema: Joi.SchemaLike): Promise<T> {
+export default async function validate<T>(value: T, schema: Joi.SchemaLike, options?: Joi.ValidationOptions): Promise<T> {
   try {
-    let result = await Joi.validate(value, schema)
+    let result = await Joi.validate(value, schema, options || {})
     return result
   } catch (error) {
     let key = error.details[0].context.key
