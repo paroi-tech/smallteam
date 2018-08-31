@@ -1,13 +1,14 @@
+import { OwnDash } from "../../../App/OwnDash"
 import { Log } from "bkb"
+import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../AppModel/AppModel"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
-import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../AppModel/AppModel"
 import FlagSelector from "../../flags/FlagSelector/FlagSelector"
 import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
 import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
-import { OwnDash } from "../../../App/OwnDash"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
+import TaskCommitDialog from "../TaskCommitDialog/TaskCommitDialog"
 
 const template = require("./TaskForm.monk")
 
@@ -30,6 +31,7 @@ export default class TaskForm {
   private flagSelector: FlagSelector
   private accountSelector: AccountSelector
   private attachmentMgr: TaskAttachmentManager
+  private commitDialog: TaskCommitDialog
   private logDialog: TaskLogDialog
   private text: EditableTextField
 
@@ -54,21 +56,25 @@ export default class TaskForm {
       else
         this.putTaskOnHold()
     })
+
     this.view.ref("submit").addEventListener("click", ev => this.updateTask())
     this.view.ref("btnToggle").addEventListener("click", ev => {
       if (this.currentTask)
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
     this.view.ref("btnLog").addEventListener("click", ev => {
-      if (!this.currentTask)
-        return
-      this.logDialog.show()
+      if (this.currentTask)
+        this.logDialog.show()
     })
     this.view.ref("btnDelete").addEventListener("click", ev => {
       if (this.currentTask)
         this.deleteTask()
     })
     this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
+    this.view.ref("btnCommits").addEventListener("click", ev => {
+      if (this.currentTask)
+        this.commitDialog.show()
+    })
 
     this.flagSelector = this.dash.create(FlagSelector)
     this.view.ref("flag").appendChild(this.flagSelector.el)
@@ -81,6 +87,8 @@ export default class TaskForm {
 
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
+
+    this.commitDialog = this.dash.create(TaskCommitDialog)
 
     this.logDialog = this.dash.create(TaskLogDialog)
 
@@ -118,8 +126,6 @@ export default class TaskForm {
     if (!task)
       return
 
-    console.log("task commits", task.gitCommits)
-
     this.currentTask = task
     this.view.update({
       description: task.description || "",
@@ -152,6 +158,7 @@ export default class TaskForm {
     this.commentEditor.task = undefined
     this.attachmentMgr.task = undefined
     this.logDialog.task = undefined
+    this.commitDialog.reset()
   }
 
   private setTaskInChildComponents(task: TaskModel) {
@@ -160,6 +167,7 @@ export default class TaskForm {
     this.commentEditor.task = task
     this.attachmentMgr.task = task
     this.logDialog.task = task
+    this.commitDialog.setTask(task)
   }
 
   private async deleteTask() {

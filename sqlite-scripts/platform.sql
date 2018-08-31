@@ -1,5 +1,5 @@
-drop table if exists team;
 drop table if exists reg_team;
+drop table if exists team;
 
 create table team (
     team_id integer not null primary key autoincrement,

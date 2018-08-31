@@ -1,0 +1,14 @@
+<dialog class="TaskCommitDialog">
+  <table :ref="table">
+    <caption>Commits</caption>
+    <thead>
+      <tr>
+        <td>Author</td>
+        <td>Message</td>
+        <td>Date</td>
+        <td>URL</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</dialog>

@@ -1,11 +1,10 @@
 -- Drop tables
 
+drop table if exists git_subscription;
 drop table if exists git_commit_task;
 drop table if exists git_commit;
-drop table if exists hook;
 drop table if exists reg_pwd;
 drop table if exists reg_new;
-drop table if exists reg_team;
 drop table if exists comment;
 drop table if exists task_flag;
 drop table if exists flag;

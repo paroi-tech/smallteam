@@ -27,6 +27,7 @@
 
     <div><button :ref="btnToggle">Show/Hide as parent</button></div>
     <div><button :ref="btnLog">Show logs</button></div>
+    <div><button :ref="btnCommits">Show commits</button></div>
 
     <button :ref="btnDelete">
       Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
