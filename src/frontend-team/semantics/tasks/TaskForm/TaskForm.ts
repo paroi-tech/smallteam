@@ -117,6 +117,9 @@ export default class TaskForm {
     this.reset()
     if (!task)
       return
+
+    console.log("task commits", task.gitCommits)
+
     this.currentTask = task
     this.view.update({
       description: task.description || "",
