@@ -98,7 +98,7 @@ export default class BoxList<T extends Box> {
     this.sortable = this.makeSortable()
   }
 
-  public addBox(box: T) {
+  addBox(box: T) {
     let tpl = this.options.inline ? inlineLiTemplate : liTemplate
     let view = render(tpl)
     let li: HTMLElement = view.rootEl()
@@ -114,11 +114,11 @@ export default class BoxList<T extends Box> {
     this.boxes.set(box.id, li)
   }
 
-  public hasBox(id: string) {
+  hasBox(id: string) {
     return this.boxes.has(id)
   }
 
-  public removeBox(boxId: string) {
+  removeBox(boxId: string) {
     let liElt = this.boxes.get(boxId)
     if (!liElt)
       return false
@@ -127,12 +127,12 @@ export default class BoxList<T extends Box> {
     return true
   }
 
-  public clear() {
+  clear() {
     for (let key of this.boxes.keys())
       this.removeBox(key)
   }
 
-  public setTitle(title: string) {
+  setTitle(title: string) {
     this.titleEl.textContent = title
   }
 
@@ -142,25 +142,25 @@ export default class BoxList<T extends Box> {
    * @param order - array of ids which will be used to sort the boxlist.
    * @see {@link https://github.com/RubaXa/Sortable#sortorderstring}
    */
-  public sort(order: string[]) {
+  sort(order: string[]) {
     this.sortable.sort(order)
   }
 
   /**
    * Return the IDs of the BoxList elements, based on their current order.
    */
-  public getOrder(): string[] {
+  getOrder(): string[] {
     return this.sortable.toArray()
   }
 
-  public enable(hideBusyIcon: boolean = false) {
+  enable(hideBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.el.style.opacity = "1.0"
     if (hideBusyIcon)
       this.hideBusyIcon()
   }
 
-  public disable(showBusyIcon: boolean = false) {
+  disable(showBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.el.style.opacity = "0.4"
     if (showBusyIcon)
@@ -174,7 +174,7 @@ export default class BoxList<T extends Box> {
    *       was set to true.
    * @param hideIcon - Indicate if the busy icon should be hidden
    */
-  public enableSort(hideBusyIcon: boolean = false) {
+  enableSort(hideBusyIcon: boolean = false) {
     if (this.options.sort && this.sortable.option("disabled")) {
       this.sortable.option("disabled", false)
       if (hideBusyIcon)
@@ -189,7 +189,7 @@ export default class BoxList<T extends Box> {
    *       param was set to true.
    * @param showIcon - Indicate if the busy icon should be displayed
    */
-  public disableSort(showBusyIcon: boolean = false) {
+  disableSort(showBusyIcon: boolean = false) {
     if (this.options.sort && !this.sortable.option("disabled")) {
       this.sortable.option("disabled", true)
       if (showBusyIcon)

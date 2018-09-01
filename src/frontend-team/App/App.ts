@@ -30,23 +30,23 @@ export default class App {
     })
   }
 
-  public async alert(msg: string) {
+  async alert(msg: string) {
     await this.dash.create(WarningDialog).show(msg)
   }
 
-  public get model(): Model {
+  get model(): Model {
     if (!this._model)
       throw new Error("The application is still not initialized")
     return this._model
   }
 
-  public async navigate(queryString: string): Promise<void> {
+  async navigate(queryString: string): Promise<void> {
     if (!this.appFrame)
       return
     await this.appFrame.viewer.router.navigate(queryString)
   }
 
-  public async connect(): Promise<string> {
+  async connect(): Promise<string> {
     // First, we try to recover session, if there is one active...
     try {
       let response = await fetch(`${this.baseUrl}/api/session/current`, {
@@ -75,7 +75,7 @@ export default class App {
     return await dialog.open()
   }
 
-  public async disconnect() {
+  async disconnect() {
     try {
       let response = await fetch(`${this.baseUrl}/api/session/disconnect`, {
         method: "post",
@@ -104,7 +104,7 @@ export default class App {
     }
   }
 
-  public async showPasswordResetDialog() {
+  async showPasswordResetDialog() {
     let dialog = this.dash.create(PasswordRequestDialog)
     try {
       await dialog.open()
@@ -113,7 +113,7 @@ export default class App {
     }
   }
 
-  public async start(sessionData: SessionData) {
+  async start(sessionData: SessionData) {
     await this.initModel(sessionData)
 
     let appEl = document.querySelector(".js-app")

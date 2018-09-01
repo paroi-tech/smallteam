@@ -1,4 +1,4 @@
-import { Model, AccountModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import { AccountModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
@@ -10,10 +10,7 @@ const template = require("./AccountFlag.monk")
 export default class AccountFlag {
   readonly el: HTMLElement
 
-  private model: Model
-
   constructor(private dash: OwnDash, readonly account: AccountModel) {
-    this.model = this.dash.app.model
     this.el = render(template).rootEl()
     this.update()
     this.dash.listenToModel("updateAccount", data => {

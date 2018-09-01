@@ -12,7 +12,7 @@ export default class TaskLogDialog {
   private loadIndicatorEl: HTMLElement
 
   private model: Model
-  private currentTask: TaskModel | undefined
+  private task?: TaskModel
   private log: Log
 
   constructor(private dash: OwnDash) {
@@ -20,6 +20,7 @@ export default class TaskLogDialog {
     this.log = this.dash.app.log
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.loadIndicatorEl = view.ref("loader")
     this.tableEl = view.ref("table")
@@ -27,7 +28,7 @@ export default class TaskLogDialog {
 
     this.dash.listenTo(this.model, "createTaskLogEntry", data => {
       let entry = data.model as TaskLogEntryModel
-      if (!this.currentTask || this.currentTask.id !== entry.taskId)
+      if (!this.task || this.task.id !== entry.taskId)
         return
       this.addEntry(entry)
     })
@@ -36,22 +37,27 @@ export default class TaskLogDialog {
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
-  get task(): TaskModel | undefined {
+  getTask() {
     return this.task
   }
 
-  set task(task: TaskModel | undefined) {
-    this.currentTask = task
-    removeAllChildren(this.tableEl.tBodies[0])
+  setTask(task: TaskModel) {
+    this.reset()
+    this.task = task
     this.loadTaskLogEntries()
   }
 
-  public show() {
+  reset() {
+    this.task = undefined
+    removeAllChildren(this.tableEl.tBodies[0])
+  }
+
+  show() {
     document.body.appendChild(this.el)
     this.el.showModal()
   }
 
-  public hide() {
+  hide() {
     this.el.close()
     document.body.removeChild(this.el)
   }
@@ -65,15 +71,15 @@ export default class TaskLogDialog {
   }
 
   private async loadTaskLogEntries() {
-    if (!this.currentTask)
+    if (!this.task)
       return
     this.loadIndicatorEl.hidden = false
     try {
-      let entries = await this.currentTask.getLogEntries()
+      let entries = await this.task.getLogEntries()
       for (let entry of entries)
         this.addEntry(entry)
     } catch (err) {
-      this.log.error(`Cannot get log entries for task ${this.currentTask.id}`)
+      this.log.error(`Cannot get log entries for task ${this.task.id}`)
     }
     this.loadIndicatorEl.hidden = true
   }

@@ -1,9 +1,7 @@
-import { Dash } from "bkb"
-import { Box } from "../../../generics/BoxList/BoxList";
-import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel";
-import App from "../../../App/App"
-import { OwnDash } from "../../../App/OwnDash";
-import { render } from "@fabtom/lt-monkberry";
+import { Box } from "../../../generics/BoxList/BoxList"
+import { FlagModel } from "../../../AppModel/AppModel"
+import { OwnDash } from "../../../App/OwnDash"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./FlagBox.monk")
 
@@ -12,14 +10,16 @@ export default class FlagBox implements Box {
 
   constructor(private dash: OwnDash, readonly flag: FlagModel) {
     let view = render(template)
-    this.el = view.rootEl()
     let colorEl = view.ref<HTMLElement>("boxColor")
+
+    this.el = view.rootEl()
     colorEl.style.color = this.flag.color
     this.el.addEventListener("click", ev => this.dash.emit("flagBoxSelected", this.flag))
     view.update(this.flag)
 
     this.dash.listenToModel("updateFlag", data => {
       let flag = data.model as FlagModel
+
       if (flag.id === this.flag.id) {
         view.update(this.flag)
         colorEl.style.color = this.flag.color
@@ -27,7 +27,7 @@ export default class FlagBox implements Box {
     })
   }
 
-  public setWithFocus(focus: boolean) {
+  setWithFocus(focus: boolean) {
     if (focus)
       this.el.classList.add("focus")
     else

@@ -33,7 +33,7 @@ export default class CheckboxMultiSelect<M> {
     this.fieldsetEl = view.ref("fieldset")
   }
 
-  public setAllItems(dataList: M[]) {
+  setAllItems(dataList: M[]) {
     let dataSet = new Set(dataList)
 
     Array.from(this.items.values())
@@ -49,7 +49,7 @@ export default class CheckboxMultiSelect<M> {
     }
   }
 
-  public selectItems(dataList: M[]) {
+  selectItems(dataList: M[]) {
     let selectSet = new Set(dataList)
 
     for (let [data, item] of this.items)
@@ -59,11 +59,11 @@ export default class CheckboxMultiSelect<M> {
   /**
    * Notice: the returned list in unordered
    */
-  public getSelected(): M[] {
+  getSelected(): M[] {
     return Array.from(this.items.values()).filter(item => item.checkboxEl.checked).map(item => item.data)
   }
 
-  public setEnabled(enabled: boolean) {
+  setEnabled(enabled: boolean) {
     this.fieldsetEl.disabled = !enabled
   }
 

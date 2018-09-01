@@ -28,7 +28,7 @@ export default class Sidebar {
     } as NavBtnOptions).el)
   }
 
-  public addProject(project: ProjectModel, path: string) {
+  addProject(project: ProjectModel, path: string) {
     this.menu.addItem(
       this.dash.create(ProjectBtn, { project } as ProjectBtnOptions)
     )

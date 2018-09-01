@@ -33,7 +33,7 @@ export default class ErrorDialog {
     document.body.appendChild(this.el)
   }
 
-  public show(msg: string, title = "Error"): Promise<boolean> {
+  show(msg: string, title = "Error"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title

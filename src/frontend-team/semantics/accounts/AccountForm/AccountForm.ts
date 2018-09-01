@@ -30,7 +30,7 @@ export default class AccountForm {
   }
 
   private model: Model
-  private currentAccount: AccountModel | undefined
+  private account: AccountModel | undefined
   private log: Log
 
   /**
@@ -64,8 +64,8 @@ export default class AccountForm {
     this.dash.listenToModel("processingAccount", data => this.onProcessing(data.model))
   }
 
-  public reset() {
-    this.currentAccount = undefined
+  reset() {
+    this.account = undefined
     this.resetState()
     this.view.update(this.state)
     this.unlockForm()
@@ -83,7 +83,7 @@ export default class AccountForm {
       return
     }
 
-    this.currentAccount = account
+    this.account = account
     this.state = account.updateTools.toFragment("update") as any
     this.view.update(this.state)
     this.roleEl.value = this.state.role
@@ -95,8 +95,8 @@ export default class AccountForm {
       this.unlockForm()
   }
 
-  get account(): AccountModel | undefined {
-    return this.currentAccount
+  getAccount() {
+    return this.account
   }
 
   // --
@@ -109,7 +109,7 @@ export default class AccountForm {
     if (!data)
       return
 
-    if (!this.currentAccount) {
+    if (!this.account) {
       this.canClearForm = true
       this.createAccount(data)
       return
@@ -132,31 +132,31 @@ export default class AccountForm {
 
         return
       }
-      this.updatePassword(this.currentAccount.id, this.currentAccount.login, password)
+      this.updatePassword(this.account.id, this.account.login, password)
       this.passwordEdit.clear()
     }
 
-    let id = this.currentAccount.id
-    let frag = this.currentAccount.updateTools.getDiffToUpdate({ id, ...data })
+    let id = this.account.id
+    let frag = this.account.updateTools.getDiffToUpdate({ id, ...data })
     // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
     if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
       this.updateAccount({ id, ...frag })
   }
 
   private onProcessing(data: AccountModel) {
-    if (!this.currentAccount || this.currentAccount.id !== data.id)
+    if (!this.account || this.account.id !== data.id)
       return
     this.lockForm()
   }
 
   private onEndProcessing(data: AccountModel) {
-    if (!this.currentAccount || this.currentAccount.id !== data.id)
+    if (!this.account || this.account.id !== data.id)
       return
     this.unlockForm()
   }
 
   private onAccountUpdate(account: AccountModel) {
-    if (!this.currentAccount || this.currentAccount.id !== account.id)
+    if (!this.account || this.account.id !== account.id)
       return
     console.log("[DEBUG] onAccountUpdate", account)
     this.canClearForm = false
@@ -185,7 +185,7 @@ export default class AccountForm {
   }
 
   private async updateAccount(frag: AccountUpdateFragment) {
-    if (!this.currentAccount)
+    if (!this.account)
       return
     this.lockForm()
     try {

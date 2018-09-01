@@ -16,7 +16,7 @@ export default class App {
     })
   }
 
-  public start() {
+  start() {
     if ((!this.action && !this.token) || (this.action === "register")) {
       this.showTeamCreationDialog()
       return

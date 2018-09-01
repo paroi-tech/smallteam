@@ -45,7 +45,7 @@ export default class RegistrationForm {
     document.body.appendChild(this.el)
   }
 
-  public async open() {
+  async open() {
     this.el.showModal()
     this.curDfd = new Deferred()
     return this.curDfd.promise

@@ -46,7 +46,7 @@ export class DropdownMenu {
     dash.listenTo("click", () => this.hide())
   }
 
-  public toggle() {
+  toggle() {
     if (this.isVisible)
       this.hide()
     else
@@ -59,11 +59,11 @@ export class DropdownMenu {
    * We need them in StepForm when the step displayed in the form is processed by the model
    * and the form need to be locked.
    */
-  public enable() {
+  enable() {
     this.btnEl.style.pointerEvents = "initial"
   }
 
-  public disable() {
+  disable() {
     this.btnEl.style.pointerEvents = "none"
   }
 

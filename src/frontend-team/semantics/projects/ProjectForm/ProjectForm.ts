@@ -30,7 +30,7 @@ export default class ProjectForm implements Workspace {
   }
 
   private model: Model
-  private currentProject: ProjectModel | undefined
+  private project?: ProjectModel
   private log: Log
 
   /**
@@ -58,42 +58,42 @@ export default class ProjectForm implements Workspace {
 
     this.dash.listenToModel(["createStep", "updateStep", "deleteStep"], () => {
       this.stepMultiSelect.setAllItems(this.model.global.steps)
-      if (this.currentProject)
-        this.stepMultiSelect.selectItems(this.currentProject.steps)
+      if (this.project)
+        this.stepMultiSelect.selectItems(this.project.steps)
     })
     this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => {
       this.stepMultiSelect.setAllItems(this.model.global.steps)
-      if (this.currentProject)
-        this.stepMultiSelect.selectItems(this.currentProject.steps)
+      if (this.project)
+        this.stepMultiSelect.selectItems(this.project.steps)
     })
   }
 
-  public refresh() {
-    if (!this.currentProject)
+  refresh() {
+    if (!this.project)
       return
-    this.state.code = this.currentProject.code
-    this.state.name = this.currentProject.name
-    this.state.description = this.currentProject.description || ""
+    this.state.code = this.project.code
+    this.state.name = this.project.name
+    this.state.description = this.project.description || ""
     this.view.update(this.state)
   }
 
-  public clearContent() {
+  clearContent() {
     this.state.code = ""
     this.state.name = ""
     this.state.description = ""
     this.view.update(this.state)
   }
 
-  public hasProject(): boolean {
-    return this.currentProject !== undefined
+  hasProject(): boolean {
+    return this.project !== undefined
   }
 
-  get project() {
-    return this.currentProject
+  getProject() {
+    return this.project
   }
 
-  set project(p: ProjectModel | undefined) {
-    this.currentProject = p
+  setProject(p: ProjectModel) {
+    this.project = p
     this.stepMultiSelect.selectItems(p ? p.steps : [])
     if (p) {
       this.codeEl.setAttribute("readonly", "true")
@@ -106,7 +106,7 @@ export default class ProjectForm implements Workspace {
     }
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     if (this.reusable)
       this.project = undefined
     ctrl.setContentEl(this.el)
@@ -115,7 +115,7 @@ export default class ProjectForm implements Workspace {
     this.nameEl.focus()
   }
 
-  public deactivate() {
+  deactivate() {
   }
 
   private createDropdownMenu() {
@@ -154,7 +154,7 @@ export default class ProjectForm implements Workspace {
   private async listenToForm() {
     this.codeEl.onkeyup = () => this.generateCode = false
     this.nameEl.onkeyup = () => {
-      if (!this.currentProject && this.generateCode && this.nameEl.value.length > 0)
+      if (!this.project && this.generateCode && this.nameEl.value.length > 0)
         this.codeEl.value = this.nameEl.value.replace(/\s/g, "").slice(0, 5).toUpperCase()
     }
   }
@@ -171,7 +171,8 @@ export default class ProjectForm implements Workspace {
     }
 
     let stepIds = this.stepMultiSelect.getSelected().map(step => step.id)
-    if (!this.currentProject)
+
+    if (!this.project)
       await this.createProject(code, name, description, stepIds)
     else
       await this.updateProject(name, description, stepIds)
@@ -190,11 +191,11 @@ export default class ProjectForm implements Workspace {
   }
 
   private async updateProject(name: string, description: string, stepIds: string[]) {
-    if (!this.currentProject)
+    if (!this.project)
       return
     try {
       await this.model.exec("update", "Project", {
-        id: this.currentProject.id,
+        id: this.project.id,
         name,
         description,
         stepIds

@@ -23,6 +23,7 @@ export default class SearchWorkspace implements Workspace {
     this.model = this.dash.app.model
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.inputEl = view.ref("input")
     this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
@@ -43,17 +44,19 @@ export default class SearchWorkspace implements Workspace {
     })
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el).setTitle("Search tasks")
   }
 
-  public deactivate() {
+  deactivate() {
   }
 
   private async onSearch(ev: KeyboardEvent) {
     if (ev.key !== "Enter")
       return
+
     let query = this.inputEl.value.trim()
+
     if (query.length !== 0) {
       this.boxList.clear()
       this.taskForm.task = undefined

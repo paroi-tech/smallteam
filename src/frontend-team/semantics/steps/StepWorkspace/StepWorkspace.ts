@@ -56,7 +56,7 @@ export default class StepWorkspace implements Workspace {
     this.fillBoxList()
 
     this.dash.listenTo<StepModel>("stepBoxSelected", step => {
-      this.form.step = step
+      this.form.setStep(step)
     })
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleStepOrderUpdate(data))
 
@@ -123,10 +123,10 @@ export default class StepWorkspace implements Workspace {
     this.nameEl.focus()
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el).setTitle("Steps")
   }
 
-  public deactivate() {
+  deactivate() {
   }
 }

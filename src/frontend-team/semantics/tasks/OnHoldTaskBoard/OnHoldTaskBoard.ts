@@ -45,10 +45,12 @@ export default class OnHoldTaskBoard {
     })
   }
 
-  public async refresh() {
+  async refresh() {
     this.showOverlay()
     this.boxList.clear()
+
     let tasks = await this.fetchTasks()
+
     if (tasks)
       this.displayTasks(tasks)
     this.hideOverlay()
@@ -63,12 +65,12 @@ export default class OnHoldTaskBoard {
   }
 
   private addTaskBox(task: TaskModel){
-    let box = this.dash.create(TaskBox, task)
-    this.boxList.addBox(box)
+    this.boxList.addBox(this.dash.create(TaskBox, task))
   }
 
   private async fetchTasks() {
     let tasks: Collection<TaskModel, string> | undefined = undefined
+
     try {
       tasks = await this.model.fetch("Task", {
         projectId: this.project.id,
@@ -77,6 +79,7 @@ export default class OnHoldTaskBoard {
     } catch (error) {
       this.log.error("Cannot fetch on hold tasks for project", this.project.id)
     }
+
     return tasks
   }
 

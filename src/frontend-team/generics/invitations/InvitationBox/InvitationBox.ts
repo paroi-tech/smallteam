@@ -10,7 +10,9 @@ export default class StepBox implements Box {
 
   constructor(private dash: OwnDash, readonly invitation: Invitation) {
     let view = render(template)
+
     this.el = view.rootEl()
+
     view.ref("email").textContent = this.invitation.email
     view.ref("username").textContent = this.invitation.username || "<not defined>"
     view.ref("creation").textContent = new Date(this.invitation.creationTs).toDateString()
@@ -24,7 +26,7 @@ export default class StepBox implements Box {
     return this.invitation.id
   }
 
-  public setWithFocus(focus: boolean) {
+  setWithFocus(focus: boolean) {
     if (focus)
       this.el.classList.add("focus")
     else

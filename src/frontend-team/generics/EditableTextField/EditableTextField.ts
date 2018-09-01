@@ -25,7 +25,7 @@ export default class EditableTextField {
     })
   }
 
-  public reset() {
+  reset() {
     this.inputEl.disabled = true
     this.inputEl.value = ""
   }

@@ -22,6 +22,7 @@ export default class TaskBoard {
     this.log = this.dash.app.log
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.leftEl = view.ref("left")
 
@@ -29,6 +30,7 @@ export default class TaskBoard {
     view.ref("right").appendChild(this.taskForm.el)
 
     let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
+
     this.leftEl.appendChild(rootTaskStepSwitcher.el)
     this.createStepSwitchersForChildren(this.rootTask)
 
@@ -36,11 +38,11 @@ export default class TaskBoard {
     this.addModelListeners()
   }
 
-  public hide() {
+  hide() {
     this.el.hidden = true
   }
 
-  public show() {
+  show() {
     this.el.hidden = false
   }
 
@@ -70,6 +72,7 @@ export default class TaskBoard {
 
   private removeStepSwitcherOf(taskId: string) {
     let stepSwitcher = this.stepSwitcherMap.get(taskId)
+
     if (!stepSwitcher)
       return
     this.leftEl.removeChild(stepSwitcher.el)

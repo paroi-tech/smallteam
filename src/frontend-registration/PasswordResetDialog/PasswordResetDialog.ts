@@ -35,7 +35,7 @@ export default class LoginDialog {
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
-  public open() {
+  open() {
     document.body.appendChild(this.el)
     this.el.showModal()
   }

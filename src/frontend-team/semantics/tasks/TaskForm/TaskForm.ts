@@ -99,7 +99,7 @@ export default class TaskForm {
     this.hide() // TaskForm is hidden by default.
   }
 
-  public reset() {
+  reset() {
     this.currentTask = undefined
     this.view.update({
       description: "",
@@ -109,11 +109,11 @@ export default class TaskForm {
     this.resetChildComponents()
   }
 
-  public hide() {
+  hide() {
     this.el.hidden = true
   }
 
-  public show() {
+  show() {
     this.el.hidden = false
   }
 
@@ -153,20 +153,20 @@ export default class TaskForm {
   }
 
   private resetChildComponents() {
-    this.flagSelector.task = undefined
-    this.accountSelector.task = undefined
-    this.commentEditor.task = undefined
-    this.attachmentMgr.task = undefined
-    this.logDialog.task = undefined
+    this.flagSelector.reset()
+    this.accountSelector.reset()
+    this.commentEditor.reset()
+    this.attachmentMgr.reset()
+    this.logDialog.reset()
     this.commitDialog.reset()
   }
 
   private setTaskInChildComponents(task: TaskModel) {
-    this.flagSelector.task = task
-    this.accountSelector.task = task
-    this.commentEditor.task = task
-    this.attachmentMgr.task = task
-    this.logDialog.task = task
+    this.flagSelector.setTask(task)
+    this.accountSelector.setTask(task)
+    this.commentEditor.setTask(task)
+    this.attachmentMgr.setTask(task)
+    this.logDialog.setTask(task)
     this.commitDialog.setTask(task)
   }
 
@@ -201,7 +201,7 @@ export default class TaskForm {
         id: this.currentTask.id,
         label: label.trim(),
         description: this.descriptionEl.value.trim() || "",
-        flagIds: this.flagSelector.selectedFlagIds,
+        flagIds: this.flagSelector.getSelectedFlagIds(),
         affectedToIds: this.accountSelector.selectedAccountIds
       })
       result = true

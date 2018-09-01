@@ -24,7 +24,7 @@ export default class GenericBgCommandManager implements BgCommandManager {
     this.dash.exposeEvent("bgCommandAdded", "bgCommandDone", "bgCommandError")
   }
 
-  public add<R>(promise: Promise<R>, label: string): BgCommand<R> {
+  add<R>(promise: Promise<R>, label: string): BgCommand<R> {
     let cmd = bgCommandFactory(promise, label)
     this.inProgressCommands.add(cmd)
     cmd.promise.then(() => {
@@ -39,11 +39,11 @@ export default class GenericBgCommandManager implements BgCommandManager {
     return cmd
   }
 
-  public getInProgressCommands(): Iterable<BgCommand> {
+  getInProgressCommands(): Iterable<BgCommand> {
     return this.inProgressCommands.values()
   }
 
-  public getErrorCommands(): Iterable<BgCommand> {
+  getErrorCommands(): Iterable<BgCommand> {
     return this.errorCommands.values()
   }
 }

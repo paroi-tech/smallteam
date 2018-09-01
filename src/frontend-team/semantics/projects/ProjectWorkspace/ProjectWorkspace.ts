@@ -80,17 +80,17 @@ export default class ProjectWorkspace implements Workspace {
     this.onHoldTaskBoard = this.dash.create(OnHoldTaskBoard, this.project)
     this.archivedTaskBoard = this.dash.create(ArchivedTaskBoard, this.project)
     this.form = this.dash.create(ProjectForm)
-    this.form.project = this.project
+    this.form.setProject(this.project)
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.taskBoard.el)
       .setTitle(this.project.name)
       .setTitleRightEl(this.dropdownMenu.btnEl)
   }
 
-  public deactivate() {
+  deactivate() {
   }
 
   private async deleteProject() {

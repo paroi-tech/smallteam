@@ -31,7 +31,7 @@ export default class ProjectBtn {
     })
   }
 
-  public addCssClass(cssClass: string | string[]) {
+  addCssClass(cssClass: string | string[]) {
     addCssClass(this.el, cssClass)
   }
 }

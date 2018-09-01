@@ -24,7 +24,7 @@ export default class TaskCommitDialog {
     this.tableEl = view.ref("table")
   }
 
-  public setTask(task: TaskModel) {
+  setTask(task: TaskModel) {
     this.reset()
     if (!task)
       return
@@ -45,17 +45,17 @@ export default class TaskCommitDialog {
     row.insertCell().textContent = new Date(commit.ts).toDateString()
   }
 
-  public reset() {
+  reset() {
     this.task = undefined
     removeAllChildren(this.tableEl.tBodies[0])
   }
 
-  public show() {
+  show() {
     document.body.appendChild(this.el)
     this.el.showModal()
   }
 
-  public hide() {
+  hide() {
     this.el.close()
     document.body.removeChild(this.el)
   }

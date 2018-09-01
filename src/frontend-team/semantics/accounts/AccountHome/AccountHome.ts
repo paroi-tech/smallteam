@@ -24,10 +24,10 @@ export default class AccountHome implements Workspace {
     view.ref("avatarArea").appendChild(this.dash.create(AvatarForm, account).el)
   }
 
-  public activate(ctrl: ViewerController): void {
+  activate(ctrl: ViewerController): void {
     ctrl.setTitle("Personal space").setContentEl(this.el)
   }
 
-  public deactivate(): void {
+  deactivate(): void {
   }
 }

@@ -51,7 +51,7 @@ export default class WorkspaceViewer {
     this.router.addAsyncErrorListener(console.log)
   }
 
-  public start() {
+  start() {
     this.router.start({
       baseUrl: `${this.dash.app.baseUrl}/`,
       hashMode: true,
@@ -60,7 +60,7 @@ export default class WorkspaceViewer {
     })
   }
 
-  public addHomeWorkspace(title: string, w: Workspace, workspacePath?: string) {
+  addHomeWorkspace(title: string, w: Workspace, workspacePath?: string) {
     let path = workspacePath || ""
     this.workspaces.set(path, {
       workspace: w,
@@ -75,7 +75,7 @@ export default class WorkspaceViewer {
     })
   }
 
-  public add404Workspace(title: string, w: Workspace) {
+  add404Workspace(title: string, w: Workspace) {
     this.workspaces.set(this.symb404, {
       workspace: w,
       defaultTitle: title
@@ -89,7 +89,7 @@ export default class WorkspaceViewer {
     })
   }
 
-  public addWorkspace(path: string, menu: "main" | "dropdown", menuLabel: string, w: Workspace) {
+  addWorkspace(path: string, menu: "main" | "dropdown", menuLabel: string, w: Workspace) {
     this.workspaces.set(path, { workspace: w, path, menu, defaultTitle: menuLabel })
     this.router.map({
       route: path,
@@ -109,7 +109,7 @@ export default class WorkspaceViewer {
     }
   }
 
-  public removeWorkspace(path: string) {
+  removeWorkspace(path: string) {
     let info = this.workspaces.get(path)
     if (info) {
       this.workspaces.delete(path)

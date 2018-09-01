@@ -15,7 +15,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
   constructor(private engine: ModelEngine) {
   }
 
-  public exec(...args): Promise<any> {
+  exec(...args): Promise<any> {
     let deferred = new Deferred<any>()
     this.commands.push({
       method: "exec",
@@ -25,7 +25,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
     return deferred.promise
   }
 
-  public fetch(...args): Promise<Collection<any, Identifier>> {
+  fetch(...args): Promise<Collection<any, Identifier>> {
     let deferred = new Deferred<Collection<any, Identifier>>()
     this.commands.push({
       method: "fetch",
@@ -35,7 +35,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
     return deferred.promise
   }
 
-  public reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
+  reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
     let deferred = new Deferred<Identifier[]>()
     this.commands.push({
       method: "reorder",
@@ -45,7 +45,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
     return deferred.promise
   }
 
-  public async sendAll(): Promise<any[]> {
+  async sendAll(): Promise<any[]> {
     let count = this.commands.length
     try {
       this.engine.startBatchRecord()

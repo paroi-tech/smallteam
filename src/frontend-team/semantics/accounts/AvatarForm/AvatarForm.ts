@@ -20,6 +20,7 @@ export default class AvatarForm {
     this.log = this.dash.app.log
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.formEl = view.ref("form")
     this.inputEl = view.ref("input")

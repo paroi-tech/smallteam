@@ -18,7 +18,7 @@ export default class TaskAttachmentManager {
   private spinnerEl: HTMLElement
 
   private model: Model
-  private currentTask: TaskModel | undefined
+  private task: TaskModel | undefined
   private log: Log
 
   constructor(private dash: OwnDash) {
@@ -26,6 +26,7 @@ export default class TaskAttachmentManager {
     this.log = this.dash.app.log
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.listEl = view.ref("ul")
     this.formEl = view.ref("form")
@@ -42,22 +43,19 @@ export default class TaskAttachmentManager {
     })
   }
 
-  get task(): TaskModel | undefined {
-    return this.currentTask
+  getTask() {
+    return this.task
   }
 
-  set task(task: TaskModel | undefined) {
-    if (!task)
-      this.reset
-    else {
-      this.currentTask = task
-      this.inputEl.value = ""
-      this.refreshMediaList()
-    }
+  setTask(task) {
+    this.reset
+    this.task = task
+    this.inputEl.value = ""
+    this.refreshMediaList()
   }
 
-  public reset() {
-    this.currentTask = undefined
+  reset() {
+    this.task = undefined
     this.clearMediaList()
     this.inputEl.value = ""
   }
@@ -68,9 +66,9 @@ export default class TaskAttachmentManager {
   }
 
   private listAttachedMedias() {
-    if (!this.currentTask || !this.currentTask.attachedMedias)
+    if (!this.task || !this.task.attachedMedias)
       return
-    for (let media of this.currentTask.attachedMedias)
+    for (let media of this.task.attachedMedias)
       this.displayMedia(media)
   }
 
@@ -81,22 +79,19 @@ export default class TaskAttachmentManager {
   private displayMedia(media: MediaModel) {
     let view = render(mediaTemplate)
     let el = view.rootEl()
-
     let thumbnail = this.dash.create(FileThumbnail, media, 24, 24)
-    view.ref("thumbnail").appendChild(thumbnail.el)
 
+    view.ref("thumbnail").appendChild(thumbnail.el)
     view.ref("download").addEventListener("click", (ev) => {
       let orig = media.getVariant("orig")
       if (orig)
         window.open(`${orig.url}?download=1`)
     })
-
     view.ref("remove").addEventListener("click", ev => {
       let accountId = this.model.session.account.id
       if (media.ownerId === accountId && this.removeTaskAttachment(media.id))
         this.listEl.removeChild(el)
     })
-
     view.update({ name: media.originalName || media.baseName })
     this.listEl.appendChild(el)
   }
@@ -110,12 +105,12 @@ export default class TaskAttachmentManager {
   }
 
   private async doUpload() {
-    if (!this.currentTask)
+    if (!this.task)
       return
     let meta = {
       ref: {
         type: "task",
-        id: this.currentTask.id
+        id: this.task.id
       }
     }
     let fd = new FormData(this.formEl)
@@ -151,7 +146,7 @@ export default class TaskAttachmentManager {
 
 
   private async removeTaskAttachment(mediaId: string) {
-    if (!this.currentTask)
+    if (!this.task)
       return false
 
     let result = false

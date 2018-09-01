@@ -34,7 +34,7 @@ export class Menu {
     this.ul = this.el.querySelector("ul") as HTMLElement
   }
 
-  public addItem(item: MenuItem) {
+  addItem(item: MenuItem) {
     if (this.items.has(item.id))
       throw new Error(`Item with ID ${item.id} already exists`)
 
@@ -48,12 +48,12 @@ export class Menu {
     this.items.set(item.id, [li, btn])
   }
 
-  public addItems(items: Array<MenuItem>) {
+  addItems(items: Array<MenuItem>) {
     for (let i of items)
       this.addItem(i)
   }
 
-  public removeItem(itemId: string) {
+  removeItem(itemId: string) {
     let arr = this.items.get(itemId)
 
     if (arr) {
@@ -62,7 +62,7 @@ export class Menu {
     }
   }
 
-  public setItemLabel(id: string, label: string) {
+  setItemLabel(id: string, label: string) {
     let arr = this.items.get(id)
 
     if (!arr)
@@ -70,15 +70,15 @@ export class Menu {
     arr[1].textContent = label
   }
 
-  public enable() {
+  enable() {
     this.fieldsetEl.disabled = false
   }
 
-  public disable() {
+  disable() {
     this.fieldsetEl.disabled = true
   }
 
-  public disableItem(itemId: string) {
+  disableItem(itemId: string) {
     let arr = this.items.get(itemId)
     if (arr) {
       let btn = arr[1] as HTMLButtonElement
@@ -86,7 +86,7 @@ export class Menu {
     }
   }
 
-  public enableItem(itemId: string) {
+  enableItem(itemId: string) {
     let arr = this.items.get(itemId)
     if (arr) {
       let btn = arr[1] as HTMLButtonElement

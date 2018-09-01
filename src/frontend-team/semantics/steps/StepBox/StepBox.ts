@@ -26,7 +26,7 @@ export default class StepBox implements Box {
     return this.step.id
   }
 
-  public setWithFocus(focus: boolean) {
+  setWithFocus(focus: boolean) {
     if (focus)
       this.el.classList.add("focus")
     else

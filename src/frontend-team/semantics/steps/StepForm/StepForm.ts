@@ -17,7 +17,7 @@ export default class StepForm {
   private dropdownMenu: DropdownMenu
   private view: LtMonkberryView
 
-  private currentStep: StepModel | undefined
+  private step?: StepModel
   private model: Model
   private log: Log
 
@@ -42,6 +42,7 @@ export default class StepForm {
     this.view.ref("menu").appendChild(this.dropdownMenu.btnEl)
 
     let btnEl = this.view.ref("submitBtn") as HTMLButtonElement
+
     btnEl.addEventListener("click", ev => {
       let name = this.nameEl.value.trim()
       if (name.length === 0) {
@@ -53,7 +54,7 @@ export default class StepForm {
     this.view.ref("cancelBtn").addEventListener("click", ev => {
       this.clearContent()
       btnEl.setAttribute("disabled", "true")
-      if (this.currentStep)
+      if (this.step)
         this.updateView()
     })
     this.nameEl.addEventListener("keyup", ev => {
@@ -63,42 +64,40 @@ export default class StepForm {
     this.nameEl.addEventListener("input", ev => btnEl.removeAttribute("disabled"))
 
     this.dash.listenToModel("deleteStep", data => {
-      if (this.currentStep && this.currentStep.id === data.id)
+      if (this.step && this.step.id === data.id)
         this.reset()
     })
     this.dash.listenTo<StepModel>(this.model, "endProcessingStep", data => this.onEndProcessing(data))
     this.dash.listenTo<StepModel>(this.model, "processingStep", data => this.onProcessing(data))
   }
 
-  public reset() {
-    this.currentStep = undefined
+  reset() {
+    this.step = undefined
     this.clearContent()
     this.unlockForm()
   }
 
-  get step(): StepModel | undefined {
-    return this.currentStep
+  getStep() {
+    return this.step
   }
 
-  set step(step: StepModel | undefined) {
+  setStep(step: StepModel) {
     this.reset()
-    if (!step)
-      return
-    this.currentStep = step
+    this.step = step
     this.updateView()
-    if (this.currentStep.updateTools.processing)
+    if (this.step.updateTools.processing)
       this.lockForm()
   }
 
   private onEndProcessing(step: StepModel) {
-    if (!this.currentStep || this.currentStep.id !== step.id)
+    if (!this.step || this.step.id !== step.id)
       return
     this.updateView()
     this.unlockForm()
   }
 
   private onProcessing(step: StepModel) {
-    if (!this.currentStep || this.currentStep.id !== step.id)
+    if (!this.step || this.step.id !== step.id)
       return
     this.lockForm()
   }
@@ -108,28 +107,29 @@ export default class StepForm {
   // --
 
   private async updateStep(newName: string) {
-    if (!this.currentStep)
+    if (!this.step)
       return
 
-    let id = this.currentStep.id
-    let frag = this.currentStep.updateTools.getDiffToUpdate({ id, label: newName })
+    let id = this.step.id
+    let frag = this.step.updateTools.getDiffToUpdate({ id, label: newName })
+
     if (!frag || !(Object.keys(frag).length !== 0 || frag.constructor !== Object))
       return
     await this.model.exec("update", "Step", { id, ...frag })
   }
 
   private async deleteCurrentStep() {
-    if (!this.currentStep)
+    if (!this.step)
       return
     try {
-      let w = await this.currentStep.updateTools.whoUse()
+      let w = await this.step.updateTools.whoUse()
       if (w) {
         await this.dash.create(InfoDialog).show("Can't delete step.")
         return
       }
-      await this.model.exec("delete", "Step", { id: this.currentStep.id })
+      await this.model.exec("delete", "Step", { id: this.step.id })
     } catch (error) {
-      this.log.error(`Error while deleting Step with ID ${this.currentStep.id}`)
+      this.log.error(`Error while deleting Step with ID ${this.step.id}`)
     }
   }
 
@@ -138,11 +138,11 @@ export default class StepForm {
   // --
 
   private updateView() {
-    if (!this.currentStep)
+    if (!this.step)
       return
     this.view.update({
-      name: this.currentStep.label,
-      orderNum: (this.currentStep.orderNum || "").toString()
+      name: this.step.label,
+      orderNum: (this.step.orderNum || "").toString()
     })
   }
 

@@ -35,7 +35,7 @@ export default class PasswordRequestDialog {
     document.body.appendChild(this.el)
   }
 
-  public open() {
+  open() {
     this.el.showModal()
     this.curDfd = new Deferred()
 

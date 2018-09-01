@@ -32,7 +32,7 @@ export default class WarningDialog {
     document.body.appendChild(this.el)
   }
 
-  public show(msg: string, title = "Warning"): Promise<boolean> {
+  show(msg: string, title = "Warning"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title

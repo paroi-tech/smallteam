@@ -18,10 +18,13 @@ export default class AccountSelectionDialog {
     this.model = this.dash.app.model
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.buttonEl = view.ref("button")
+
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
+
     this.buttonEl.addEventListener("click", ev => {
       this.el.close()
       this.dash.emit("accountSelectionDialogClosed")
@@ -31,16 +34,16 @@ export default class AccountSelectionDialog {
     view.ref("selectorContainer").appendChild(this.selector.el)
   }
 
-  public show() {
+  show() {
     document.body.appendChild(this.el)
     this.el.showModal()
   }
 
-  public selectAccounts(arr: AccountModel[]) {
+  selectAccounts(arr: AccountModel[]) {
     this.selector.selectItems(arr)
   }
 
-  public selectedAccounts() {
+  selectedAccounts() {
     return this.selector.getSelected()
   }
 

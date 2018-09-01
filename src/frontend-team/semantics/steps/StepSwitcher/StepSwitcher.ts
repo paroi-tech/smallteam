@@ -174,33 +174,33 @@ export default class StepSwitcher {
     })
   }
 
-  public showBusyIcon() {
+  showBusyIcon() {
     this.busyIndicatorEl.hidden = false
   }
 
-  public hideBusyIcon() {
+  hideBusyIcon() {
     this.busyIndicatorEl.hidden = true
   }
 
-  public setVisible(b: boolean) {
+  setVisible(b: boolean) {
     if (b !== this.visible) {
       this.el.style.display = b ? "block" : "none"
       this.visible = b
     }
   }
 
-  public get isVisible() {
+  isVisible() {
     return this.visible
   }
 
-  public enable(showBusyIcon: boolean = false) {
+  enable(showBusyIcon: boolean = false) {
     this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.foldableEl.style.opacity = "1.0"
     if (showBusyIcon)
       this.hideBusyIcon()
   }
 
-  public disable(showBusyIcon: boolean = false) {
+  disable(showBusyIcon: boolean = false) {
     this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.foldableEl.style.opacity = "0.4"
     if (showBusyIcon)

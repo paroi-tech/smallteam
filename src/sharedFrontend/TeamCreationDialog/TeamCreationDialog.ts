@@ -46,7 +46,7 @@ export default class TeamCreationDialog {
     this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
-  public async open() {
+  async open() {
     document.body.appendChild(this.el)
     this.el.showModal()
     this.curDfd = new Deferred()

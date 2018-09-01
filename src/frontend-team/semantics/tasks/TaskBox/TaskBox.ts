@@ -65,7 +65,7 @@ export default class TaskBox implements Box {
     return this.task.id
   }
 
-  public setWithFocus(focus: boolean) {
+  setWithFocus(focus: boolean) {
     if (focus)
       this.el.classList.add("focus")
     else

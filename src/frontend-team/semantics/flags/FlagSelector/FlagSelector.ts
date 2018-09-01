@@ -1,8 +1,6 @@
-import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import FlagBox from "../FlagBox/FlagBox"
-import { Model, TaskModel, FlagModel, UpdateModelEvent, ReorderModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
+import { Model, TaskModel, FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./FlagSelector.monk")
@@ -13,7 +11,7 @@ export default class FlagSelector {
   private listEl: HTMLElement
 
   private model: Model
-  private currentTask: TaskModel | undefined
+  private task?: TaskModel
 
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
@@ -22,6 +20,7 @@ export default class FlagSelector {
     this.model = this.dash.app.model
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.listEl = view.ref("ul")
 
@@ -29,8 +28,8 @@ export default class FlagSelector {
       this.addItemFor(flag)
 
     this.dash.listenToModel("createFlag", data => this.addItemFor(data.model as FlagModel))
-    // IMPORTANT: What happens to orderNums when a flag is deleted ?
     this.dash.listenToModel("deleteFlag", data => {
+      // IMPORTANT: What happens to orderNums when a flag is deleted ?
       let flagId = data.id as string
       let li = this.items.get(flagId)
       if (li)
@@ -47,38 +46,38 @@ export default class FlagSelector {
     })
   }
 
-  get task(): TaskModel | undefined {
-    return this.currentTask
+  getTask() {
+    return this.task
   }
 
-  set task(task: TaskModel| undefined) {
+  setTask(task: TaskModel) {
+    this.reset()
+    this.task = task
+    if (task.flagIds) {
+      for (let flagId of task.flagIds) {
+        let checkBox = this.checkBoxes.get(flagId)
+        if (checkBox)
+        checkBox.checked = true
+      }
+    }
+    this.el.style.pointerEvents = "auto"
+  }
+
+  reset() {
+    this.task = undefined
     for (let checkBox of this.checkBoxes.values())
       checkBox.checked = false
-
-    this.currentTask = task
-    if (!task) {
-      this.el.style.pointerEvents = "none"
-      return
-    }
-
-    this.el.style.pointerEvents = "auto"
-    if (!task.flagIds)
-      return
-    for (let flagId of task.flagIds) {
-      let checkBox = this.checkBoxes.get(flagId)
-      if (checkBox)
-      checkBox.checked = true
-    }
+    this.el.style.pointerEvents = "none"
   }
 
-  get selectedFlagIds(): string[] {
-    if (!this.currentTask)
-      return []
+  getSelectedFlagIds(): string[] {
+    let arr = [] as string[]
 
-    let arr: string[] = []
-    for (let entry of this.checkBoxes.entries()) {
-      if (entry[1].checked)
-        arr.push(entry[0] as string)
+    if (this.task) {
+      for (let entry of this.checkBoxes.entries()) {
+        if (entry[1].checked)
+          arr.push(entry[0] as string)
+      }
     }
 
     return arr
@@ -89,14 +88,16 @@ export default class FlagSelector {
    *
    * Note: use when the task update fails.
    */
-  public refreshFlags() {
+  refreshFlags() {
     for (let checkBox of this.checkBoxes.values())
       checkBox.checked = false
-    if (!this.currentTask || !this.currentTask.flagIds)
+
+    if (!this.task || !this.task.flagIds)
       return
 
-    for (let flagId of this.currentTask.flagIds) {
+    for (let flagId of this.task.flagIds) {
       let checkBox = this.checkBoxes.get(flagId)
+
       if (checkBox)
         checkBox.checked = true
     }

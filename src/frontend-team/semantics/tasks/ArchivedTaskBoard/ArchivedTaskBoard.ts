@@ -43,7 +43,7 @@ export default class ArchivedTaskBoard {
     })
   }
 
-  public async refresh() {
+  async refresh() {
     this.boxList.clear()
     let tasks = await this.fetchTasks()
     if (tasks)
@@ -65,6 +65,7 @@ export default class ArchivedTaskBoard {
 
   private async fetchTasks() {
     let tasks: Collection<TaskModel, string> | undefined = undefined
+
     try {
       tasks = await this.model.fetch("Task", {
         projectId: this.project.id,
@@ -73,6 +74,7 @@ export default class ArchivedTaskBoard {
     } catch (error) {
       this.log.error("Cannot fetch on hold tasks for project", this.project.id)
     }
+
     return tasks
   }
 }

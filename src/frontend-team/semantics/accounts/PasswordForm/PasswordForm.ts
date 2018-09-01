@@ -3,8 +3,8 @@ import { AccountModel } from "../../../AppModel/AppModel"
 import { whyNewPasswordIsInvalid } from "../../../../shared/libraries/helpers"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit";
-import { InfoDialog, ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs";
+import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
+import { InfoDialog, ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
 const template = require("./PasswordForm.monk")
 
@@ -21,6 +21,7 @@ export default class PasswordForm {
     this.log = this.dash.app.log
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.currentPasswordEl = view.ref("currentPassword")
     this.spinnerEl = view.ref("spinner")
@@ -105,7 +106,7 @@ export default class PasswordForm {
     this.clearFields()
   }
 
-  public showSpinner() {
+  private showSpinner() {
     this.spinnerEl.hidden = false
   }
 

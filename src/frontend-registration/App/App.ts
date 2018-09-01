@@ -21,7 +21,7 @@ export default class App {
     })
   }
 
-  public start() {
+  start() {
     if (this.params.action === "passwordreset")
       this.handlePasswordReset()
     else if (this.params.action === "registration")

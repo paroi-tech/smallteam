@@ -120,7 +120,7 @@ export default class ModelEngine {
     this.bgManager = new GenericBgCommandManager(dash)
   }
 
-  public registerType(type: Type, modelMaker: (getFrag: () => any) => object) { // FIXME: Why 'any' instead of 'object'?
+  registerType(type: Type, modelMaker: (getFrag: () => any) => object) { // FIXME: Why 'any' instead of 'object'?
     this.store.set(type, {
       entities: makeHKMap<any, any>(),
       indexes: makeHKMap<any, any>(),
@@ -132,7 +132,7 @@ export default class ModelEngine {
     )
   }
 
-  public registerDependency(cmd: CommandType | "reorder", dependOf: Type, getDependencies: GetDependencies) {
+  registerDependency(cmd: CommandType | "reorder", dependOf: Type, getDependencies: GetDependencies) {
     let depKey = JSON.stringify([cmd, dependOf])
     let list = this.dependencies.get(depKey)
     if (!list)
@@ -140,21 +140,21 @@ export default class ModelEngine {
     list.push(getDependencies)
   }
 
-  public registerTriggerBefore(type: Type, trigger: Trigger) {
+  registerTriggerBefore(type: Type, trigger: Trigger) {
     let list = this.triggers.before.get(type)
     if (!list)
       this.triggers.before.set(type, list = [])
     list.push(trigger)
   }
 
-  public registerTriggerAfter(type: Type, trigger: Trigger) {
+  registerTriggerAfter(type: Type, trigger: Trigger) {
     let list = this.triggers.after.get(type)
     if (!list)
       this.triggers.after.set(type, list = [])
     list.push(trigger)
   }
 
-  public startBatchRecord(httpMethod?: HttpMethod) {
+  startBatchRecord(httpMethod?: HttpMethod) {
     if (this.batch)
       throw new Error(`Invalid call to startBatchRecord: the engine is already in batch mode`)
     let batch: Batch = this.batch = {
@@ -164,7 +164,7 @@ export default class ModelEngine {
     }
   }
 
-  public async sendBatchRecord(): Promise<void> {
+  async sendBatchRecord(): Promise<void> {
     if (!this.batch)
       throw new Error(`Invalid call to sendBatchRecord: the engine is not in batch mode`)
     let batch = this.batch
@@ -173,14 +173,14 @@ export default class ModelEngine {
       await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, `${this.baseUrl}/api/model/batch`, batch.list))
   }
 
-  public cancelBatchRecord(err?: any) {
+  cancelBatchRecord(err?: any) {
     if (this.batch) {
       this.batch.deferred.reject(err || new Error(`Batch record is canceled`))
       this.batch = null
     }
   }
 
-  public exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
+  exec(cmd: CommandType, type: Type, frag: object): Promise<any> {
     return this.bgManager.add(this.doExec(cmd, type, frag), `${cmd} ${type}`).promise
   }
 
@@ -232,15 +232,15 @@ export default class ModelEngine {
     return processingKey
   }
 
-  public isProcessing(id: Identifier, type: Type): boolean {
+  isProcessing(id: Identifier, type: Type): boolean {
     return this.processing.has(JSON.stringify([type, id]))
   }
 
-  public reorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
+  reorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
     return this.bgManager.add(this.doReorder(type, orderedIds), `reorder ${type}`).promise
   }
 
-  private async doReorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
+  async doReorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
     let orderFieldName = getFragmentMeta(type).orderFieldName
     if (!orderFieldName)
       throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
@@ -254,11 +254,11 @@ export default class ModelEngine {
       .map(obj => obj.id)
   }
 
-  public fetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
+  fetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
     return this.bgManager.add(this.doFetch(type, filters), `fetch ${type}`).promise
   }
 
-  public async doFetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
+  async doFetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
     let data: any = { cmd: "fetch", type }
     if (filters)
       data.filters = filters
@@ -267,7 +267,7 @@ export default class ModelEngine {
     return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, type))), type)
   }
 
-  public getModel<M = any>(type: Type, id: Identifier): M {
+  getModel<M = any>(type: Type, id: Identifier): M {
     let storage = this.getTypeStorage(type),
       entity = storage.entities.get(id)
     if (!entity)
@@ -282,7 +282,7 @@ export default class ModelEngine {
     return entity.model as any
   }
 
-  public getModels<M = any>(query: ModelsQuery<M>, onEmptyVal: any = []): Collection<M, Identifier> {
+  getModels<M = any>(query: ModelsQuery<M>, onEmptyVal: any = []): Collection<M, Identifier> {
     let identifiers = this.findIdentifiersFromIndex(query)
     let list: any[] = []
     if (identifiers) {
@@ -299,7 +299,7 @@ export default class ModelEngine {
     return toCollection(list, query.type)
   }
 
-  public getAllModels<M = any>(type: Type, orderBy?: [string, "asc" | "desc"] | ((a, b) => number)): M[] {
+  getAllModels<M = any>(type: Type, orderBy?: [string, "asc" | "desc"] | ((a, b) => number)): M[] {
     let storage = this.getTypeStorage(type),
       identifiers = storage.entities.keys()
     let list: any[] = []
@@ -312,12 +312,12 @@ export default class ModelEngine {
     return toCollection(list, type)
   }
 
-  public countModels(query: IndexQuery): number {
+  countModels(query: IndexQuery): number {
     let identifiers = this.findIdentifiersFromIndex(query)
     return identifiers ? identifiers.size : 0
   }
 
-  public findSingleFromIndex(query: IndexQuery): any | undefined {
+  findSingleFromIndex(query: IndexQuery): any | undefined {
     let identifiers = this.findIdentifiersFromIndex(query)
     //console.log(`  > findSingleFromIndex A`, query, identifiers)
     if (!identifiers)
@@ -427,7 +427,7 @@ export default class ModelEngine {
   /**
    * Called by triggers. Remove dependencies from the store. No effect on the backend.
    */
-  public removeFrontendModels(query: ModelsQuery) {
+  removeFrontendModels(query: ModelsQuery) {
     let identifiers = this.findIdentifiersFromIndex(query)
     if (identifiers) {
       this.deleteFromStore({
@@ -454,7 +454,7 @@ export default class ModelEngine {
   /**
    * Can be called by triggers.
    */
-  public emitEvents(changed: Changed, cmd: CommandType) {
+  emitEvents(changed: Changed, cmd: CommandType) {
     const that = this
     for (let [type, idList] of Object.entries<any>(changed)) {
       let storage = this.getTypeStorage(type as Type)
@@ -541,7 +541,7 @@ export default class ModelEngine {
       this.execTriggers(triggerType, "create", modelUpd.created)
   }
 
-  public processModelUpdate(modelUpd: ModelUpdate) {
+  processModelUpdate(modelUpd: ModelUpdate) {
     this.processModelUpdateTriggers("before", modelUpd)
 
     if (modelUpd.fragments)

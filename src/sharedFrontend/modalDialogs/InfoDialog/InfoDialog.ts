@@ -37,7 +37,7 @@ export default class InfoDialog {
     document.body.appendChild(this.el)
   }
 
-  public show(msg: string, title = "Information"): Promise<boolean> {
+  show(msg: string, title = "Information"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title

@@ -29,11 +29,11 @@ export default class BackgroundCommandManager {
     this.dash.listenToModel<BgCommand>("bgCommandError", bgCmd => this.onBgCommandError(bgCmd))
   }
 
-  public show() {
+  show() {
     this.el.showModal()
   }
 
-  public hide() {
+  hide() {
     if (this.el.open)
       this.el.close()
   }

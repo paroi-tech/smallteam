@@ -52,14 +52,14 @@ export default class HookWorkspace {
     })
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     this.ctrl.setContentEl(this.el).setTitle("Github subscriptions")
     if (this.needFetch)
       this.fetchHooks().then(b => this.needFetch = b)
   }
 
-  public deactivate() {
+  deactivate() {
   }
 
   private async fetchHooks() {

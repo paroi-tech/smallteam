@@ -38,7 +38,7 @@ export default class LoginDialog {
     document.body.appendChild(this.el)
   }
 
-  public open(): Promise<string> {
+  open(): Promise<string> {
     this.el.showModal()
     this.curDfd = new Deferred()
 

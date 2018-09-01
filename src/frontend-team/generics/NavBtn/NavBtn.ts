@@ -73,18 +73,18 @@ export default class NavBtn {
     }
   }
 
-  public setAlertCount(count: number) {
+  setAlertCount(count: number) {
     if (!this.alertEl)
       throw new Error(`The button '${this.options.label}' cannot have an alert`)
     this.alertEl.textContent = `${count}`
     this.alertEl.style.display = count === 0 ? "none" : "block"
   }
 
-  public setLabel(label: string) {
+  setLabel(label: string) {
     this.labelEl.textContent = label
   }
 
-  public addCssClass(cssClass: string | string[]) {
+  addCssClass(cssClass: string | string[]) {
     addCssClass(this.el, cssClass)
   }
 }

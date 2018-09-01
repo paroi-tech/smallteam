@@ -20,12 +20,12 @@ export default class HomeWorkspace implements Workspace {
     this.el = view.rootEl()
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.el)
       .setTitle("Home")
   }
 
-  public deactivate() {
+  deactivate() {
   }
 }

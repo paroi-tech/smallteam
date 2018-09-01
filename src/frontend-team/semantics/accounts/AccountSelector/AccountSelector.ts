@@ -18,7 +18,7 @@ export default class AccountSelector {
   private dialog: AccountSelectionDialog
 
   private model: Model
-  private currentTask: TaskModel | undefined
+  private task?: TaskModel
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -27,9 +27,9 @@ export default class AccountSelector {
     this.el = view.rootEl()
 
     view.ref("btn").addEventListener("click", ev => {
-      if (!this.currentTask)
+      if (!this.task)
         return
-      this.dialog.selectAccounts(this.currentTask.affectedTo || [])
+      this.dialog.selectAccounts(this.task.affectedTo || [])
       document.body.appendChild(this.dialog.el)
       this.dialog.show()
     })
@@ -56,16 +56,16 @@ export default class AccountSelector {
     })
   }
 
-  public reset() {
-    this.currentTask = undefined
+  reset() {
+    this.task = undefined
     this.boxList.clear()
   }
 
-  public refresh() {
+  refresh() {
     this.boxList.clear()
-    if (!this.currentTask || !this.currentTask.affectedTo)
+    if (!this.task || !this.task.affectedTo)
       return
-    for (let c of this.currentTask.affectedTo)
+    for (let c of this.task.affectedTo)
       this.addBoxFor(c)
   }
 
@@ -73,13 +73,13 @@ export default class AccountSelector {
   // -- Accessors
   // --
 
-  get task(): TaskModel | undefined {
-    return this.currentTask
+  getTask() {
+    return this.task
   }
 
-  set task(task: TaskModel | undefined) {
+  setTask(task: TaskModel | undefined) {
     this.reset()
-    this.currentTask = task
+    this.task = task
     if (!task || !task.affectedToIds)
       return
     task.affectedToIds.forEach(id => {
@@ -90,7 +90,7 @@ export default class AccountSelector {
   }
 
   get selectedAccountIds(): string[] {
-    return this.currentTask ? this.boxList.getOrder() : []
+    return this.task ? this.boxList.getOrder() : []
   }
 
   // --

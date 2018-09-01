@@ -199,7 +199,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   private curChild: ChildRouter | null = null
   private working = false
 
-  public start(config: ERConfig): Promise<void> {
+  start(config: ERConfig): Promise<void> {
     if (this.isRoot !== undefined)
       throw Error("Cannot call start(), the router is " + (this.isRoot ? "already root" : "a child"))
     this.isStarted = true
@@ -234,19 +234,19 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     })
   }
 
-  public addAsyncErrorListener(cb: (err: any) => void): number {
+  addAsyncErrorListener(cb: (err: any) => void): number {
     return this.doAddErrorListener("asyncError", cb)
   }
 
-  public addRejectListener(cb: (err: any, query?: ERQuery) => void): number {
+  addRejectListener(cb: (err: any, query?: ERQuery) => void): number {
     return this.doAddErrorListener("reject", cb)
   }
 
-  public addUnknownRouteListener(cb: (query: ERQuery) => void): number {
+  addUnknownRouteListener(cb: (query: ERQuery) => void): number {
     return this.doAddErrorListener("unknownRoute", cb)
   }
 
-  public map(...activators: ERRouteActivator[]): this {
+  map(...activators: ERRouteActivator[]): this {
     var ra, compiledRoute
     for (var i = 0, len = activators.length; i < len; ++i) {
       ra = activators[i]
@@ -273,7 +273,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     return this
   }
 
-  public mapUnknownRoutes(activator: ERRouteActivator): this {
+  mapUnknownRoutes(activator: ERRouteActivator): this {
     if (Object.freeze)
       Object.freeze(activator)
     this.unknownActivator = activator
@@ -284,7 +284,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // -- Public - ParentRouter
   // --
 
-  public parentNavigateToUnknown(changeHist: boolean): Promise<boolean> {
+  parentNavigateToUnknown(changeHist: boolean): Promise<boolean> {
     return this.doNavigate(null, changeHist, null, null, true)
   }
 
@@ -292,7 +292,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // -- Public - ChildRouter
   // --
 
-  public startAsChild(parent: ParentRouter, withHistory: boolean): void {
+  startAsChild(parent: ParentRouter, withHistory: boolean): void {
     if (this.isRoot)
       throw Error("Cannot call startAsChild() on the root router")
     if (this.parent) {
@@ -309,11 +309,11 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       this.children[i].startAsChild(this, this.withHistory)
   }
 
-  public childNavigate(queryString: string, changeHist: boolean, parentUrl: string, parentQuery: any): Promise<boolean> {
+  childNavigate(queryString: string, changeHist: boolean, parentUrl: string, parentQuery: any): Promise<boolean> {
     return this.doNavigate(queryString, changeHist, parentUrl, parentQuery)
   }
 
-  public leaveChildRouter(): Promise<boolean> {
+  leaveChildRouter(): Promise<boolean> {
     if (!this.curQuery)
       return Promise.resolve(true)
     return this.canLeaveCurrent().then((can: boolean): any => {
@@ -327,15 +327,15 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // -- Public - MinimalRouter
   // --
 
-  public navigate(queryString: string): Promise<boolean> {
+  navigate(queryString: string): Promise<boolean> {
     return this.doNavigate(queryString, true)
   }
 
-  public navigateToUnknown(): Promise<boolean> {
+  navigateToUnknown(): Promise<boolean> {
     return this.doNavigate(null, true)
   }
 
-  public navigateBack(level = 1): Promise<boolean> {
+  navigateBack(level = 1): Promise<boolean> {
     if (!this.isRoot)
       throw Error("Method navigateBack() is available for root router only")
     if (level === 0)
@@ -348,19 +348,19 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     return this.doNavigate(qs, true)
   }
 
-  public addCanLeaveListener(cb: () => any, onNavRm = false): number {
+  addCanLeaveListener(cb: () => any, onNavRm = false): number {
     return this.addListener("canLeave", cb, onNavRm)
   }
 
-  public removeCanLeaveListener(handle: number): void {
+  removeCanLeaveListener(handle: number): void {
     return this.removeListener("canLeave", handle)
   }
 
-  public addLeaveListener(cb: () => void, onNavRm = false): number {
+  addLeaveListener(cb: () => void, onNavRm = false): number {
     return this.addListener("leave", cb, onNavRm)
   }
 
-  public removeLeaveListener(handle: number): void {
+  removeLeaveListener(handle: number): void {
     return this.removeListener("leave", handle)
   }
 
@@ -368,19 +368,19 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // -- Public
   // --
 
-  public addCanNavigateListener(cb: (query: ERQuery) => any, onNavRm = false): number {
+  addCanNavigateListener(cb: (query: ERQuery) => any, onNavRm = false): number {
     return this.addListener("canNavigate", cb, onNavRm)
   }
 
-  public removeCanNavigateListener(handle: number): void {
+  removeCanNavigateListener(handle: number): void {
     return this.removeListener("canNavigate", handle)
   }
 
-  public addNavigateListener(cb: (query: ERQuery) => void, onNavRm = false): number {
+  addNavigateListener(cb: (query: ERQuery) => void, onNavRm = false): number {
     return this.addListener("navigate", cb, onNavRm)
   }
 
-  public removeNavigateListener(handle: number): void {
+  removeNavigateListener(handle: number): void {
     return this.removeListener("navigate", handle)
   }
 
@@ -751,7 +751,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     return handle
   }
 
-  public fireErrorListeners(type: string, ...args: any[]) {
+  fireErrorListeners(type: string, ...args: any[]) {
     // console.log(`...........${type}`)
     var listeners = this.listeners[type]
     if (listeners === undefined) {

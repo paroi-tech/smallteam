@@ -1,5 +1,5 @@
 export default class Deferred<T> {
-  public readonly promise: Promise<T>
+  readonly promise: Promise<T>
 
   private resolveCb!: (result: T) => void
   private rejectCb!: (err: any) => void
@@ -11,7 +11,7 @@ export default class Deferred<T> {
     })
   }
 
-  public pipeTo(prom: Promise<T>): Promise<T> {
+  pipeTo(prom: Promise<T>): Promise<T> {
     prom.then(
       result => this.resolve(result),
       err => this.reject(err)
@@ -19,11 +19,11 @@ export default class Deferred<T> {
     return this.promise
   }
 
-  public resolve(result: T): void {
+  resolve(result: T): void {
     this.resolveCb(result)
   }
 
-  public reject(err: any): void {
+  reject(err: any): void {
     this.rejectCb(err)
   }
 }

@@ -59,7 +59,7 @@ export default class FlagWorkspace implements Workspace {
 
     this.fillBoxList()
 
-    this.dash.listenTo<FlagModel>("flagBoxSelected", flag => this.form.flag = flag)
+    this.dash.listenTo<FlagModel>("flagBoxSelected", flag => this.form.setFlag(flag))
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleFlagReordering(data))
     this.dash.listenToModel("deleteFlag", data => this.boxList.removeBox(data.id as string))
     this.dash.listenToModel("createFlag", data => {
@@ -98,12 +98,12 @@ export default class FlagWorkspace implements Workspace {
     this.model.global.flags.forEach(flag => this.boxList.addBox(this.dash.create(FlagBox, flag)))
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
         .setTitleRightEl(this.menu.btnEl)
         .setTitle("Flags")
   }
 
-  public deactivate() {
+  deactivate() {
   }
 }

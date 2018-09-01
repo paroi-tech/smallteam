@@ -32,11 +32,11 @@ export default class NavMenu {
     this.el.addEventListener("click", catchAndLog(() => this.dash.emit("click")))
   }
 
-  public createNavBtn(...btnOptions: NavBtnOptions[]) {
+  createNavBtn(...btnOptions: NavBtnOptions[]) {
     this.addItem(...btnOptions.map(options => this.dash.create(NavBtn, options)))
   }
 
-  public addItem(...buttons: NavMenuButton[]) {
+  addItem(...buttons: NavMenuButton[]) {
     for (let btn of buttons) {
       if (this.options.btnCssClass)
         btn.addCssClass(this.options.btnCssClass)

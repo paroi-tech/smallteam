@@ -53,14 +53,14 @@ export default class InvitationWorkspace {
     this.dash.listenTo("cancelInvitation", invitationId => this.cancelInvitation(invitationId))
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.el).setTitle("Manage invitations")
     if (!this.needFetch)
       this.fetchInvitations().then(b => this.needFetch = b)
   }
 
-  public deactivate() {
+  deactivate() {
   }
 
   private async fetchInvitations() {

@@ -17,7 +17,7 @@ export default class TaskCommentEditor {
   private listItems = new Map<string, HTMLElement>()
 
   private model: Model
-  private currentTask: TaskModel | undefined = undefined
+  private task?: TaskModel
   private log: Log
 
   constructor(private dash: OwnDash) {
@@ -31,20 +31,20 @@ export default class TaskCommentEditor {
     this.spinnerEl = view.ref("spinner")
 
     view.ref("submit").addEventListener("click", ev => {
-      if (this.currentTask)
+      if (this.task)
         this.onSubmit()
     })
 
     this.dash.listenToModel("createComment", data => {
-      if (!this.currentTask)
+      if (!this.task)
         return
       let comment = data.model as CommentModel
-      if (comment.taskId === this.currentTask.id)
+      if (comment.taskId === this.task.id)
         this.addComment(comment)
     })
 
     this.dash.listenToModel("deleteComment", data => {
-      if (!this.currentTask)
+      if (!this.task)
         return
       let commentId = data.id as string
       let item = this.listItems.get(commentId)
@@ -55,7 +55,7 @@ export default class TaskCommentEditor {
     })
   }
 
-  public addComment(comment: CommentModel) {
+  addComment(comment: CommentModel) {
     let li = document.createElement("li")
 
     this.listItems.set(comment.id, li)
@@ -63,20 +63,24 @@ export default class TaskCommentEditor {
     this.listEl.appendChild(li)
   }
 
-  get task(): TaskModel | undefined {
-    return this.currentTask
+  getTask() {
+    return this.task
   }
 
-  set task(task: TaskModel | undefined) {
+  setTask(task: TaskModel) {
     this.reset()
-    this.currentTask = task
-    if (!task)
-      return
+    this.task = task
     this.loadComments()
   }
 
+  reset() {
+    this.textEl.value = ""
+    this.task = undefined
+    removeAllChildren(this.listEl)
+  }
+
   private async onSubmit() {
-    if (!this.currentTask)
+    if (!this.task)
       return
 
     let text = this.textEl.value.trim()
@@ -85,7 +89,7 @@ export default class TaskCommentEditor {
 
     let frag: CommentCreateFragment = {
       body: text,
-      taskId: this.currentTask.id
+      taskId: this.task.id
     }
 
     try {
@@ -97,19 +101,14 @@ export default class TaskCommentEditor {
   }
 
   private async loadComments() {
-    if (!this.currentTask)
+    if (!this.task)
       return
     try {
-      let comments = await this.currentTask.getComments()
+      let comments = await this.task.getComments()
       for (let comment of comments)
         this.addComment(comment)
     } catch (err) {
       this.log.error("Unable to get task comments...", err)
     }
-  }
-
-  private reset() {
-    this.textEl.value = ""
-    removeAllChildren(this.listEl)
   }
 }

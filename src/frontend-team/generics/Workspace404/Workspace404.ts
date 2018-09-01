@@ -13,10 +13,11 @@ export default class Workspace404 implements Workspace {
     this.el = render(template).rootEl()
   }
 
-  public activate(ctrl: ViewerController) {
+  activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.el).setTitle("Oups!!!")
   }
 
-  public deactivate() {}
+  deactivate() {
+  }
 }

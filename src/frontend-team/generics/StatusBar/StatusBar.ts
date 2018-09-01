@@ -10,7 +10,7 @@ export default class StatusBar {
     this.el = render(template).rootEl()
   }
 
-  public addItem(el: HTMLElement) {
+  addItem(el: HTMLElement) {
     this.el.appendChild(el)
   }
 }

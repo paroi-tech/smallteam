@@ -39,7 +39,7 @@ export default class PromptDialog {
     document.body.appendChild(this.el)
   }
 
-  public show(msg: string, title = "Prompt"): Promise<string> {
+  show(msg: string, title = "Prompt"): Promise<string> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title

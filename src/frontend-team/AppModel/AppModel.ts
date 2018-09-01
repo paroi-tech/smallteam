@@ -61,15 +61,15 @@ export default class ModelComp implements Model {
   // -- ModelCommandMethods
   // --
 
-  public exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
+  exec(cmd: CommandType, type: Type, fragOrId: any): Promise<any> {
     return this.engine.exec(cmd, type, fragOrId)
   }
 
-  public fetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
+  fetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
     return this.engine.fetch(type, filters)
   }
 
-  public reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
+  reorder(type: Type, idList: Identifier[], groupName?: string, groupId?: Identifier): Promise<any[]> {
     return this.engine.reorder(type, { idList, groupName, groupId })
   }
 
@@ -77,11 +77,11 @@ export default class ModelComp implements Model {
   // -- Model
   // --
 
-  public createCommandBatch(): CommandBatch {
+  createCommandBatch(): CommandBatch {
     return new GenericCommandBatch(this.engine)
   }
 
-  public processModelUpdate(modelUpd: ModelUpdate) {
+  processModelUpdate(modelUpd: ModelUpdate) {
     this.engine.processModelUpdate(modelUpd)
   }
 }

@@ -1,8 +1,6 @@
-import { PublicDash, Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import directives from "monkberry-directives"
-import { Model, FlagModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import App from "../../../App/App"
+import { Model, FlagModel } from "../../../AppModel/AppModel"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../shared/meta/Flag"
 import { OwnDash } from "../../../App/OwnDash"
 
@@ -25,9 +23,10 @@ export default class FlagForm {
     }
   }
 
-  private log: Log
   private model: Model
-  private currentFlag: FlagModel | undefined
+  private flag?: FlagModel
+
+  private log: Log
 
   /**
    * Property used to know whether we can empty the fields of the form afer
@@ -51,41 +50,37 @@ export default class FlagForm {
 
     this.dash.listenToModel("deleteFlag", data => {
       let id = data.id as string
-      if (this.currentFlag && this.currentFlag.id === id)
+      if (this.flag && this.flag.id === id)
         this.reset()
     })
     this.dash.listenToModel("updateFlag", data => {
       let id = data.id as string
-      if (this.currentFlag && this.currentFlag.id === id)
+      if (this.flag && this.flag.id === id)
         this.updateView()
     })
     this.dash.listenToModel("endProcessingAccount", data => this.onEndProcessing(data.model))
     this.dash.listenToModel("processingAccount", data => this.onProcessing(data.model))
   }
 
-  get flag(): FlagModel | undefined {
-    return this.currentFlag
+  getFlag() {
+    return this.flag
   }
 
-  set flag(flag: FlagModel | undefined) {
+  setFlag(flag: FlagModel) {
     this.canClearForm = false
-    if (!flag)
-      this.reset()
-    else {
-      this.currentFlag = flag
-      this.updateView()
-    }
+    this.flag = flag
+    this.updateView()
   }
 
-  public reset() {
-    this.currentFlag = undefined
+  reset() {
+    this.flag = undefined
     this.state.frag.color = "#000000"
     this.state.frag.label = ""
     this.state.frag.orderNum = ""
     this.view.update(this.state)
   }
 
-  public switchToCreationMode() {
+  switchToCreationMode() {
     this.reset()
     this.labelEl.focus()
   }
@@ -95,11 +90,11 @@ export default class FlagForm {
   // --
 
   private updateView() {
-    if (!this.currentFlag)
+    if (!this.flag)
       return
-    this.state.frag.color = this.currentFlag.color
-    this.state.frag.label = this.currentFlag.label
-    this.state.frag.orderNum = (this.currentFlag.orderNum || "").toString()
+    this.state.frag.color = this.flag.color
+    this.state.frag.label = this.flag.label
+    this.state.frag.orderNum = (this.flag.orderNum || "").toString()
     this.view.update(this.state)
   }
 
@@ -108,13 +103,13 @@ export default class FlagForm {
   // --
 
   private onProcessing(flag: FlagModel) {
-    if (!this.currentFlag || this.currentFlag.id !== flag.id)
+    if (!this.flag || this.flag.id !== flag.id)
       return
     this.lockForm()
   }
 
   private onEndProcessing(flag: FlagModel) {
-    if (!this.currentFlag || this.currentFlag.id !== flag.id)
+    if (!this.flag || this.flag.id !== flag.id)
       return
     this.unlockForm()
   }
@@ -126,12 +121,12 @@ export default class FlagForm {
     if (!this.checkUserInput(label, color))
       return
 
-    if (!this.currentFlag) {
+    if (!this.flag) {
       this.canClearForm = true
       this.createFlag({ label, color })
     } else {
-      let id = this.currentFlag.id
-      let frag = this.currentFlag.updateTools.getDiffToUpdate({ id, label, color })
+      let id = this.flag.id
+      let frag = this.flag.updateTools.getDiffToUpdate({ id, label, color })
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
         this.updateFlag({ id, ...frag })
     }
@@ -168,10 +163,10 @@ export default class FlagForm {
 
   private async updateFlag(frag: FlagUpdateFragment) {
     this.showSpinner()
-    if (!this.currentFlag)
+    if (!this.flag)
       return
     try {
-      this.currentFlag = await this.model.exec("update", "Flag", frag)
+      this.flag = await this.model.exec("update", "Flag", frag)
       this.updateView()
     } catch (err) {
       this.log.error(`Unable to update account...`)
