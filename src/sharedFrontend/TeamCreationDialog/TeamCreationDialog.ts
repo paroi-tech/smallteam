@@ -118,7 +118,6 @@ export default class TeamCreationDialog {
 
     if (!data.done) {
       await dialog.show("Something went wrong. We could not contact server for the moment.")
-      console.log(data)
       return
     }
 

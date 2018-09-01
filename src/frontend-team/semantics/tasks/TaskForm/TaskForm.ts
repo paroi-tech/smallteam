@@ -183,10 +183,8 @@ export default class TaskForm {
   }
 
   private async updateTask() {
-    if (!this.currentTask || this.currentTask.currentStep.isSpecial) {
-      console.log("Cannot update task which current step is special.")
+    if (!this.currentTask || this.currentTask.currentStep.isSpecial)
       return false
-    }
 
     let label = this.labelEl.value.trim()
     if (label.length < 4) {
@@ -229,12 +227,13 @@ export default class TaskForm {
   }
 
   private async archiveTask() {
-    if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID) {
-      console.log("Cannot archive as task twice...")
+    if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
       return false
-    }
+
     this.showSpinner()
+
     let result = false
+
     try {
       await this.model.exec("update", "Task", {
         id: this.currentTask.id,
@@ -244,19 +243,22 @@ export default class TaskForm {
     } catch(err) {
       this.log.error("Unable to archive task", err)
     }
+
     this.hideSpinner()
     if (result)
       this.reset()
-    return result
+
+      return result
   }
 
   private async putTaskOnHold() {
-    if (!this.currentTask || this.currentTask.currentStep.isSpecial) {
-      console.log("Cannot put on hold a task which current step is special...")
+    if (!this.currentTask || this.currentTask.currentStep.isSpecial)
       return false
-    }
+
     this.showSpinner()
+
     let result = false
+
     try {
       await this.model.exec("update", "Task", {
         id: this.currentTask.id,
@@ -266,24 +268,27 @@ export default class TaskForm {
     } catch(err) {
       this.log.error("Unable to put task on hold", err)
     }
+
     this.hideSpinner()
     if (result)
       this.reset()
+
     return result
   }
 
   private async reactivateTask() {
-    if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID) {
-      console.log("Cannot reactivate a task which is not on hold...")
+    if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID)
       return false
-    }
+
     let stepIds = this.currentTask.project.stepIds
+
     if (stepIds.length === 0){
-      console.log("Cannot activate a task which project has no step...")
       return
     }
     this.showSpinner()
+
     let result = false
+
     try {
       await this.model.exec("update", "Task", {
         id: this.currentTask.id,
@@ -293,9 +298,11 @@ export default class TaskForm {
     } catch(err) {
       this.log.error("Unable to reactivate task", err)
     }
+
     this.hideSpinner()
     if (result)
       this.reset()
+
     return result
   }
 

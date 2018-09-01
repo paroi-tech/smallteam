@@ -20,13 +20,8 @@ the time, so I can't use JIRA.
 - Routes for tasks
 
 # Lionel
-- Github notifications: use a hook to track the commits from GitHub
-  - Add a menu to configure hooks on a project
-  - Accepted events are `push`, `issues`, `create` (for branches and tags).
-  - When adding hook genereate a secret to validate payloads from Github using cryto#randomBytes
-  - URL will be /api/notifications
+
 - Paste images in the task description
-- Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
 - TaskBox order in BoxList (StepSwitcher)
 - queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
@@ -87,6 +82,12 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
+- Github notifications: use a hook to track the commits from GitHub
+  - Add a menu to configure hooks on a project
+  - Accepted events are `push`, `issues`, `create` (for branches and tags).
+  - When adding hook genereate a secret to validate payloads from Github using cryto#randomBytes
+  - URL will be /api/notifications
 - Team creation
 - Set `activated` attribute to `true` in `team` table on activation.
 - Remove trim on password

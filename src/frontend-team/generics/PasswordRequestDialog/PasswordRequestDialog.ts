@@ -87,7 +87,7 @@ export default class PasswordRequestDialog {
       await this.dash.create(ErrorDialog).show(`There was an problem while processing your resquest.\n${result.reason}`)
     } catch (err) {
       await this.dash.create(ErrorDialog).show("There was an problem while processing your resquest.")
-      console.log(err)
+      this.dash.log.error("Error while requesting password reset mail", err)
     }
 
     return false

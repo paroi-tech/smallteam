@@ -26,9 +26,7 @@ export default class InfoDialog {
       this.close()
     })
     this.el.addEventListener("keydown", ev => {
-      console.log("keydown event catched...")
       if (ev.key === "Enter") {
-        console.log("enter key pressed...")
         ev.stopPropagation()
         this.close()
       }

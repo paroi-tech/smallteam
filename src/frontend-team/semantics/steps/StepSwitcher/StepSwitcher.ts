@@ -367,19 +367,24 @@ export default class StepSwitcher {
   }
 
   private async createTask(name: string): Promise<boolean> {
+    let b = false
+
     try {
       let steps = this.project.steps
+
       if (steps.length === 0)
         throw new Error("Cannot create task, there is no steps!")
-      let task = await this.model.exec("create", "Task", {
+
+      await this.model.exec("create", "Task", {
         label: name,
         parentTaskId: this.parentTask.id,
         curStepId: steps[0].id
       })
-      return true
+      b = true
     } catch(err) {
-      console.error("Unable to create task...", err)
-      return false
+      this.log.error("Unable to create task", err)
     }
+
+    return b
   }
 }

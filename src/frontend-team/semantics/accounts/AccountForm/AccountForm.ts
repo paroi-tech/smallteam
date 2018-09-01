@@ -158,7 +158,7 @@ export default class AccountForm {
   private onAccountUpdate(account: AccountModel) {
     if (!this.account || this.account.id !== account.id)
       return
-    console.log("[DEBUG] onAccountUpdate", account)
+
     this.canClearForm = false
     this.state = account.updateTools.toFragment("update") as any
     this.view.update(this.state)
