@@ -22,6 +22,12 @@ export default class TaskCommitDialog {
 
     this.el = view.rootEl()
     this.tableEl = view.ref("table")
+
+    view.ref("close").addEventListener("click", ev => this.close())
+    this.el.addEventListener("cancel", ev => {
+      ev.preventDefault()
+      this.close()
+    })
   }
 
   setTask(task: TaskModel) {
@@ -42,7 +48,13 @@ export default class TaskCommitDialog {
     row.insertCell().textContent = commit.authorName
     row.insertCell().textContent = commit.message
     row.insertCell().textContent = new Date(commit.ts).toDateString()
-    row.insertCell().textContent = new Date(commit.ts).toDateString()
+
+    let link = document.createElement("a")
+
+    link.href = commit.url
+    link.target = "_blank"
+    link.textContent = "Visit"
+    row.insertCell().appendChild(link)
   }
 
   reset() {
@@ -55,7 +67,7 @@ export default class TaskCommitDialog {
     this.el.showModal()
   }
 
-  hide() {
+  close() {
     this.el.close()
     document.body.removeChild(this.el)
   }

@@ -11,4 +11,7 @@
     </thead>
     <tbody></tbody>
   </table>
+  <div>
+    <button :ref="close">Close</button>
+  </div>
 </dialog>

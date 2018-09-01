@@ -262,6 +262,7 @@ async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: s
     "message": commit.message,
     "author_name": commit.author.username,
     "ts": commit.timestamp.getTime(),
+    "commit_url": commit.url,
     "notification_id": deliveryGuid || null
   })
   let res = await cn.execSqlBricks(sql)

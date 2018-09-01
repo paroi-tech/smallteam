@@ -154,7 +154,7 @@ export default class AppFrame {
         onClick: () => this.dash.app.navigate("/settings/invitations")
       })
       ddMenu.entries.createNavBtn({
-        label: "Hooks",
+        label: "Webhooks",
         onClick: () => this.dash.app.navigate("/setting/webhooks")
       })
     }

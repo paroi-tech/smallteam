@@ -7,6 +7,7 @@ export interface GitCommitFragment {
   readonly message: string
   readonly authorName: string
   readonly ts: string
+  readonly url: string
 }
 
 const meta: FragmentMeta = {
@@ -24,6 +25,9 @@ const meta: FragmentMeta = {
       dataType: "string"
     },
     authorName: {
+      dataType: "string"
+    },
+    url: {
       dataType: "string"
     },
     ts: {

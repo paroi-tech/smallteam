@@ -3,12 +3,11 @@ the time, so I can't use JIRA.
 
 # August 2018
 
-- Configure and use SendMail on the server
 - Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
 - logs:
   - Add a log system (`bristol`?) and replace all the `console.log` on the backend
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
-- Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part
+- Listen to commit events from model in `TaskCommitDialog`
 
 # Thomas
 
@@ -79,6 +78,11 @@ the time, so I can't use JIRA.
       ```
 
 ---
+
+# August 2018 - DONE
+
+- Configure and use SendMail on the server
+- Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part.
 
 # Lionel - DONE
 
