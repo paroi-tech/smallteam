@@ -190,6 +190,8 @@ async function sendTeamCreationMail(token: string, to: string) {
 }
 
 async function storeFirstUser(cn: QueryRunnerWithSqlBricks, data) {
+  // We need this because if team creation failed a first time, there would be a record in the account table.
+  await cn.execSqlBricks(deleteFrom("account"))
   await cn.execSqlBricks(insert("account", {
     "name": data["user_name"],
     "login": data["user_login"],
