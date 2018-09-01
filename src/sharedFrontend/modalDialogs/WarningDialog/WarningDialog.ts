@@ -43,7 +43,7 @@ export default class WarningDialog {
 
   private close() {
     if (this.currDfd)
-      this.currDfd && this.currDfd.resolve(true)
+      this.currDfd.resolve(true)
     this.currDfd = undefined
     this.el.close()
     document.body.removeChild(this.el)

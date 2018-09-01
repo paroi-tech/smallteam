@@ -50,7 +50,7 @@ export default class PromptDialog {
 
   private close(s: string) {
     if (this.currDfd)
-      this.currDfd && this.currDfd.resolve(s)
+      this.currDfd.resolve(s)
     this.currDfd = undefined
     this.el.close()
     document.body.removeChild(this.el)

@@ -19,7 +19,7 @@ import { config } from "./backendConfig"
 import { getMainHtml } from "./team/frontend"
 import { getRegistrationHtml } from "./registration/frontend"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessGithubNotification, routeCreateGithubHook, routeGetGithubHookSecret, routeFetchGithubHooks, routeActivateGithubHook, routeDeactivateGithubHook, routeDeleteGithubHook } from "./notifications"
+import { routeProcessGithubNotification, routeCreateGithubWebhook, routeGetGithubWebhookSecret, routeFetchGithubWebhooks, routeActivateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook } from "./notifications"
 import { log } from "./utils/log"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -84,13 +84,13 @@ export function startWebServer() {
   router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
-  router.post("/api/notifications/github/hook/:uuid", makeRouteHandler(routeProcessGithubNotification, true))
-  router.post("/api/notifications/github/get-secret", makeRouteHandler(routeGetGithubHookSecret, false))
-  router.post("/api/notifications/github/create-hook", makeRouteHandler(routeCreateGithubHook, false))
-  router.post("/api/notifications/github/fetch-hooks", makeRouteHandler(routeFetchGithubHooks, false))
-  router.post("/api/notifications/github/activate-hook", makeRouteHandler(routeActivateGithubHook, false))
-  router.post("/api/notifications/github/deactivate-hook", makeRouteHandler(routeDeactivateGithubHook, false))
-  router.post("/api/notifications/github/delete-hook", makeRouteHandler(routeDeleteGithubHook, false))
+  router.post("/api/notifications/github/fetch-webhooks", makeRouteHandler(routeFetchGithubWebhooks, false))
+  router.post("/api/notifications/github/create-webhook", makeRouteHandler(routeCreateGithubWebhook, false))
+  router.post("/api/notifications/github/activate-webhook", makeRouteHandler(routeActivateGithubWebhook, false))
+  router.post("/api/notifications/github/deactivate-webhook", makeRouteHandler(routeDeactivateGithubWebhook, false))
+  router.post("/api/notifications/github/get-webhook-secret", makeRouteHandler(routeGetGithubWebhookSecret, false))
+  router.post("/api/notifications/github/delete-webhook", makeRouteHandler(routeDeleteGithubWebhook, false))
+  router.post("/api/notifications/github/webhook/:uuid", makeRouteHandler(routeProcessGithubNotification, true))
 
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL

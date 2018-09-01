@@ -24,7 +24,7 @@ import { AccountModel } from "../AppModel/Models/AccountModel"
 import { OwnDash } from "../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import InvitationWorkspace from "../generics/invitations/InvitationWorkspace/InvitationWorkspace"
-import HookWorkspace from "../generics/HookWorkspace/HookWorkspace"
+import WebhookWorkspace from "../generics/WebhookWorkspace/WebhookWorkspace"
 
 const template = require("./AppFrame.monk")
 
@@ -69,7 +69,7 @@ export default class AppFrame {
 
     if (this.model.session.account.role === "admin") {
       viewer.addWorkspace("/settings/invitations", "dropdown", "Invite accounts", this.dash.create(InvitationWorkspace))
-      viewer.addWorkspace("/setting/hooks", "dropdown", "Manage hooks", this.dash.create(HookWorkspace))
+      viewer.addWorkspace("/setting/webhooks", "dropdown", "Manage webhooks", this.dash.create(WebhookWorkspace))
     }
 
     let w = this.dash.create(AccountHome, this.model.session.account)
@@ -99,7 +99,7 @@ export default class AppFrame {
       },
       canHaveAlert: true,
       onClick: ev => {
-        console.log("Notifications to implement…") // TODO:
+        console.log("Notifications to implement...") // TODO:
       }
     } as NavBtnOptions)
     bar.entries.addItem(notifBtn)
@@ -155,7 +155,7 @@ export default class AppFrame {
       })
       ddMenu.entries.createNavBtn({
         label: "Hooks",
-        onClick: () => this.dash.app.navigate("/setting/hooks")
+        onClick: () => this.dash.app.navigate("/setting/webhooks")
       })
     }
 

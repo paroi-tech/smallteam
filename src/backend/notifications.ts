@@ -34,9 +34,9 @@ let schemaForSubscriptionId = Joi.object().keys({
   subscriptionId: Joi.string().regex(/\d+/).required()
 })
 
-export async function routeCreateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCreateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-    throw new Error("Missing session data in 'routeCreateGithubHook'")
+    throw new Error("Missing session data in 'routeCreateGithubWebhook'")
 
   let cn = await getCn(subdomain)
 
@@ -53,22 +53,22 @@ export async function routeCreateGithubHook(subdomain: string, data: any, sessio
   let execResult = await cn.execSqlBricks(sql)
   let subscriptionId = execResult.getInsertedIdString()
   let teamSiteUrl = getTeamSiteUrl({ subdomain })
-  let hook = {
+  let webhook = {
     id: subscriptionId,
     provider: "Github",
     active: true,
-    url: `${teamSiteUrl}/api/notifications/github/hook/${uuid}`
+    url: `${teamSiteUrl}/api/notifications/github/webhook/${uuid}`
   }
 
   return {
     done: true,
-    hook
+    webhook
   }
 }
 
-export async function routeGetGithubHookSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeGetGithubWebhookSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-    throw new Error("Missing session data in 'routeGetGithubHookSecret'")
+    throw new Error("Missing session data in 'routeGetGithubWebhookSecret'")
 
   let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
@@ -88,9 +88,9 @@ export async function routeGetGithubHookSecret(subdomain: string, data: any, ses
   }
 }
 
-export async function routeActivateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeActivateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-    throw new Error("Missing session data in 'routeActivateGithubHook'")
+    throw new Error("Missing session data in 'routeActivateGithubWebhook'")
 
   let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
@@ -107,9 +107,9 @@ export async function routeActivateGithubHook(subdomain: string, data: any, sess
   }
 }
 
-export async function routeDeactivateGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeDeactivateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-    throw new Error("Missing session data in 'routeDeactivateGithubHook'")
+    throw new Error("Missing session data in 'routeDeactivateGithubWebhook'")
 
   let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
@@ -126,9 +126,9 @@ export async function routeDeactivateGithubHook(subdomain: string, data: any, se
   }
 }
 
-export async function routeDeleteGithubHook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeDeleteGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-    throw new Error("Missing session data in 'routeDeleteGithubHook'")
+    throw new Error("Missing session data in 'routeDeleteGithubWebhook'")
 
   let cleanData = await validate(data, schemaForSubscriptionId)
   let cn = await getCn(subdomain)
@@ -145,9 +145,9 @@ export async function routeDeleteGithubHook(subdomain: string, data: any, sessio
   }
 }
 
-export async function routeFetchGithubHooks(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeFetchGithubWebhooks(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-  throw new Error("Missing session data in 'routeGenerateSecret'")
+  throw new Error("Missing session data in 'routeFetchGithubWebhooks'")
 
   let cn = await getCn(subdomain)
 
@@ -156,21 +156,21 @@ export async function routeFetchGithubHooks(subdomain: string, data: any, sessio
 
   let sql = select().from("git_subscription").where({ "provider": "Github" }) // FIXME: create index on provider column?
   let rs = await cn.allSqlBricks(sql)
-  let hooks = [] as any[]
+  let webhooks = [] as any[]
   let teamSiteUrl = getTeamSiteUrl({ subdomain })
 
   for (let row of rs) {
-    hooks.push({
+    webhooks.push({
       id: row["subscription_id"].toString(),
       provider: row["provider"],
-      url: `${teamSiteUrl}/api/notifications/github/hook/${row["subscription_uuid"]}`,
+      url: `${teamSiteUrl}/api/notifications/github/webhook/${row["subscription_uuid"]}`,
       active: row["active"] != 0
     })
   }
 
   return {
     done: true,
-    hooks
+    webhooks
   }
 }
 
@@ -227,7 +227,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
 
   log.info(`Processed push event hook with uuid ${deliveryGuid}`)
 
-  return "Hook successfully processed..."
+  return "Webhook successfully processed..."
 }
 
 async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string) {

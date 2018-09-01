@@ -1,12 +1,11 @@
 import { OwnDash } from "../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import HookTableItem from "./HookTableItem/HookTableItem"
+import WebhookTableItem from "./WebhookTableItem/WebhookTableItem"
 import { ErrorDialog } from "../../../sharedFrontend/modalDialogs/modalDialogs"
 import { ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
-import { Model } from "../../AppModel/AppModel"
 import { Log } from "bkb"
 
-export interface HookModel {
+export interface WebhookModel {
   id: string
   url: string
   provider: string
@@ -14,26 +13,22 @@ export interface HookModel {
   inProcessing: boolean
 }
 
-const template = require("./HookWorkspace.monk")
+const template = require("./WebhookWorkspace.monk")
 
-// TODO: Only invitations and hooks when workspace is displayed.
-
-export default class HookWorkspace {
+export default class WebhookWorkspace {
   readonly el: HTMLElement
   private tableEl: HTMLTableElement
   private btnEl: HTMLButtonElement
 
   private ctrl: ViewerController | undefined
-  private model: Model
   private log: Log
 
-  private itemMap = new Map<string, HookTableItem>()
+  private itemMap = new Map<string, WebhookTableItem>()
 
   private needFetch = true
 
   constructor(private dash: OwnDash) {
     this.log = this.dash.log
-    this.model = this.dash.app.model
 
     let view = render(template)
 
@@ -41,8 +36,8 @@ export default class HookWorkspace {
     this.tableEl = view.ref("table")
     this.btnEl = view.ref("add")
 
-    this.btnEl.addEventListener("click", ev => this.createHook())
-    this.dash.listenTo("hookDeleted", data => {
+    this.btnEl.addEventListener("click", ev => this.createWebhook())
+    this.dash.listenTo("webhookDeleted", data => {
       let item = this.itemMap.get(data)
 
       if (item) {
@@ -56,15 +51,15 @@ export default class HookWorkspace {
     this.ctrl = ctrl
     this.ctrl.setContentEl(this.el).setTitle("Github subscriptions")
     if (this.needFetch)
-      this.fetchHooks().then(b => this.needFetch = b)
+      this.fetchWebhooks().then(b => this.needFetch = b)
   }
 
   deactivate() {
   }
 
-  private async fetchHooks() {
+  private async fetchWebhooks() {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/fetch-hooks`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/fetch-webhooks`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -86,7 +81,8 @@ export default class HookWorkspace {
         return false
       }
 
-      this.processHooks(data.hooks)
+      this.processHooks(data.webhooks)
+
       return true
     } catch (err) {
       this.log.error("Unable to get list of hooks from server. Network error.")
@@ -95,23 +91,23 @@ export default class HookWorkspace {
     return false
   }
 
-  private processHooks(hooks: HookModel[]) {
-    for (let hook of hooks) {
-      hook.inProcessing = false
-      this.addHookToTable(hook)
+  private processHooks(webhooks: WebhookModel[]) {
+    for (let w of webhooks) {
+      w.inProcessing = false
+      this.addHookToTable(w)
     }
   }
 
-  private addHookToTable(hook: HookModel) {
-    let item = this.dash.create(HookTableItem, hook)
+  private addHookToTable(webhook: WebhookModel) {
+    let item = this.dash.create(WebhookTableItem, webhook)
 
-    this.itemMap.set(hook.id, item)
+    this.itemMap.set(webhook.id, item)
     this.tableEl.tBodies[0].appendChild(item.el)
   }
 
-  private async createHook() {
+  private async createWebhook() {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/create-hook`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/create-webhook`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -129,13 +125,13 @@ export default class HookWorkspace {
       let data = await response.json()
 
       if (!data.done) {
-        this.log.error("Something went wrong. Cannot create hook. Try again later.")
+        this.log.error("Something went wrong. Cannot create webhook. Try again later.")
         return
       }
-      data.hook.inProcessing = false
-      this.addHookToTable(data.hook)
+      data.webhook.inProcessing = false
+      this.addHookToTable(data.webhook)
     } catch (err) {
-      this.log.error("Unable to get list of hooks from server. Network error.")
+      this.log.error("Unable to get list of webhooks from server. Network error.")
     }
   }
 }

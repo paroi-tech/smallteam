@@ -1,12 +1,12 @@
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import { HookModel } from "../HookWorkspace"
+import { WebhookModel } from "../WebhookWorkspace"
 import { Log } from "bkb"
-import { InfoDialog, ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { InfoDialog, ErrorDialog, QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
-const template = require("./HookTableItem.monk")
+const template = require("./WebhookTableItem.monk")
 
-export default class HookTableItem {
+export default class WebhookTableItem {
   readonly el: HTMLElement
   private providerEl: HTMLElement
   private urlEl: HTMLElement
@@ -16,8 +16,9 @@ export default class HookTableItem {
 
   private log: Log
 
-  constructor(private dash: OwnDash, readonly hook: HookModel) {
+  constructor(private dash: OwnDash, readonly webhook: WebhookModel) {
     this.log = this.dash.log
+
     let view = render(template)
 
     this.el = view.rootEl()
@@ -27,9 +28,9 @@ export default class HookTableItem {
     this.btnToggleEl = view.ref("toggle")
     this.btnDeleteEl = view.ref("delete")
 
-    this.providerEl.textContent = this.hook.provider
-    this.urlEl.textContent = this.hook.url
-    this.btnToggleEl.textContent = this.hook.active ? "Deactivate" : "Activate"
+    this.providerEl.textContent = this.webhook.provider
+    this.urlEl.textContent = this.webhook.url
+    this.btnToggleEl.textContent = this.webhook.active ? "Deactivate" : "Activate"
 
     this.btnDeleteEl.addEventListener("click", ev => this.dispatch("delete"))
     this.btnSecretEl.addEventListener("click", ev => this.dispatch("showSecret"))
@@ -37,33 +38,34 @@ export default class HookTableItem {
   }
 
   private dispatch(action: "showSecret" | "toggle" | "delete") {
-    if (this.hook.inProcessing)
-      this.log.info("Cannot perform this action now...")
-    else if (action === "showSecret")
-      this.showHookSecret()
+    if (action === "showSecret")
+      this.showWebhookSecret()
     else if (action === "toggle")
-      this.toggleHook()
+      this.toggleWebhook()
     else if (action === "delete")
-      this.deleteHook()
+      this.deleteWebhook()
     else
       this.log.warn(`Unknown action: ${action}`)
   }
 
-  private async showHookSecret() {
-    this.hook.inProcessing = true
+  private async showWebhookSecret() {
+    if (this.webhook.inProcessing) {
+      // There is no need to wait for user response.
+      this.log.info("Cannot perform this action now.")
+      return
+    }
 
+    this.webhook.inProcessing = true
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/get-secret`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/get-webhook-secret`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ subscriptionId: this.hook.id })
+        body: JSON.stringify({ subscriptionId: this.webhook.id })
       })
-
-      // IMPORTANT: We don't need to wait for the user confirmation on the dialogs we will display.
 
       if (!response.ok)
         this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
@@ -77,15 +79,19 @@ export default class HookTableItem {
     } catch (err) {
       this.dash.create(ErrorDialog).show("Unable to reach server. Network error.")
     }
-
-    this.hook.inProcessing = false
+    this.webhook.inProcessing = false
   }
 
-  private async toggleHook() {
-    this.hook.inProcessing = true
+  private async toggleWebhook() {
+    if (this.webhook.inProcessing) {
+      // There is no need to wait for user response.
+      this.dash.create(InfoDialog).show("Cannot perform this action now.")
+      return
+    }
 
+    this.webhook.inProcessing = true
     try {
-      let action = this.hook.active ? "deactivate-hook" : "activate-hook"
+      let action = this.webhook.active ? "deactivate-webhook" : "activate-webhook"
       let route = `${this.dash.app.baseUrl}/api/notifications/github/${action}`
       let response = await fetch(route, {
         method: "post",
@@ -94,7 +100,7 @@ export default class HookTableItem {
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ subscriptionId: this.hook.id })
+        body: JSON.stringify({ subscriptionId: this.webhook.id })
       })
 
       if (!response.ok)
@@ -104,29 +110,36 @@ export default class HookTableItem {
         if (!data.done)
           this.dash.create(ErrorDialog).show("Something went wrong. Cannot perform this action now. Try again later.")
         else {
-          this.hook.active = !this.hook.active
-          this.btnToggleEl.textContent = this.hook.active ? "Deactivate" : "Activate"
+          this.webhook.active = !this.webhook.active
+          this.btnToggleEl.textContent = this.webhook.active ? "Deactivate" : "Activate"
         }
       }
     } catch (err) {
       this.log.error("Unable to reach server. Network error.")
     }
-
-    this.hook.inProcessing = false
+    this.webhook.inProcessing = false
   }
 
-  private async deleteHook() {
-    this.hook.inProcessing = true
+  private async deleteWebhook() {
+    if (!await this.dash.create(QuestionDialog).show("Do you really want to delete this hook?"))
+      return
 
+    if (this.webhook.inProcessing) {
+      // There is no need to wait for user response.
+      this.dash.create(InfoDialog).show("Cannot perform this action now.")
+      return
+    }
+
+    this.webhook.inProcessing = true
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/delete-hook`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/delete-webhook`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ subscriptionId: this.hook.id })
+        body: JSON.stringify({ subscriptionId: this.webhook.id })
       })
 
       if (!response.ok)
@@ -137,13 +150,12 @@ export default class HookTableItem {
           this.dash.create(ErrorDialog).show("Something went wrong. Cannot remove hook. Try again later.")
          else {
           this.el.hidden = true
-          this.dash.emit("hookDeleted", this.hook.id)
+          this.dash.emit("webhookDeleted", this.webhook.id)
         }
       }
     } catch (err) {
       this.dash.create(ErrorDialog).show("Unable to reach server. Network error.")
     }
-
-    this.hook.inProcessing = false
+    this.webhook.inProcessing = false
   }
 }
