@@ -243,7 +243,7 @@ export async function removeExpiredPasswordTokens(cn: QueryRunnerWithSqlBricks) 
   }
 }
 
-export async function getSessionData(req: Request): Promise<SessionData | undefined> {
+export async function getSessionData(req: Request) {
   if (await hasSession(req)) {
     return {
       accountId: req.session!.accountId,
