@@ -28,7 +28,7 @@ the time, so I can't use JIRA.
 - Show an animated loader on the background command button when there is something started
 - For each form:
   - Disable the submit button until there are any changes
-  - Add a button "Cancel/Close": "Close" if there is no change, "Cancel" as soon as there has been a change
+  - Add a "Close" button
 
 # Not urgent
 
