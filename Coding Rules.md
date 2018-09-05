@@ -2,13 +2,13 @@
 
 ## ECMAScript
 
-Naming: `myFunction`, `myVariable`, `myProperty`, `MyClass`.
-
+* Naming: `myFunction`, `myVariable`, `MyClass`.
 * Encoding: use `UTF-8`
-* Identation: use 2 spaces
+* Indentation: use 2 spaces
 * Do not use semicolons at the end of statements
 * Use double quotes for strings.
 * Use `undefined`. Do not use `null` except for representing a SQL `null`.
+* Prefer `let` over `const`.
 * Do not use class inheritance.
 * Only use ES5 getters or setters when you are absolutely sure that no exceptions can be thrown.
 * The only case where `export default` is welcome is from the `main` file of a npm package.
@@ -16,6 +16,7 @@ Naming: `myFunction`, `myVariable`, `myProperty`, `MyClass`.
 * Prefer `++i` and `--i` over `i++` and `i--`.
 * Avoid using `bind()` (justification [here](https://stackoverflow.com/questions/42117911/lambda-functions-vs-bind-memory-and-performance))
 * Loop and conditional bodies: Curly braces can be omitted only with a one line and one instruction block. Statements on the same line are not allowed.
+* Prefer `new Error()` over `Error()`
 
 ## TypeScript
 
@@ -24,6 +25,10 @@ Naming: `myFunction`, `myVariable`, `myProperty`, `MyClass`.
 * Do not use "I" as a prefix for interface names
 * Do not use "_" as a prefix for private properties.
 
+## CSS
+
+* We use [Pleasant BEM](https://paleo.casa/pleasant-bem.html);
+* Sort CSS properties alphabetically;
 
 ## More documentation
 
