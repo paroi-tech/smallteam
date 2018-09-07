@@ -4,7 +4,7 @@ import { Model, ProjectModel, TaskModel, StepModel, ReorderModelEvent } from "..
 import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
 import TaskBox from "../../tasks/TaskBox/TaskBox"
 import { OwnDash } from "../../../App/OwnDash"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./StepSwitcher.monk")
 
@@ -46,6 +46,7 @@ export default class StepSwitcher {
     this.project = parentTask.project
 
     let view = render(template)
+
     this.el = view.rootEl()
     this.foldableEl = view.ref("foldable")
     this.blContainerEl = view.ref("boxLists")
@@ -57,8 +58,8 @@ export default class StepSwitcher {
     this.bottomEl = view.ref("bottom")
 
     let isRootTask = parentTask.id === this.project.rootTaskId
-
     let closeBtnEl = view.ref("closeBtn") as HTMLElement
+
     if (this.parentTask.children && this.parentTask.children.length > 0)
       closeBtnEl.hidden = true
     closeBtnEl.addEventListener("click", () => {
@@ -69,6 +70,7 @@ export default class StepSwitcher {
     })
 
     let addBtnEl = view.ref("addBtn") as HTMLButtonElement
+
     addBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
     this.taskNameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
@@ -78,6 +80,7 @@ export default class StepSwitcher {
 
     let title = this.parentTask.label
     let titleEl = view.ref("title") as HTMLElement
+
     titleEl.textContent = title
 
     this.createBoxLists()
@@ -120,17 +123,7 @@ export default class StepSwitcher {
     // An alternative solution to sort the content of an HTML element using `data-sort` attribute
     // can be found at:
     // https://stackoverflow.com/questions/7831712/jquery-sort-divs-by-innerhtml-of-children
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => {
-      this.reset()
-      // for (let id of data.orderedIds as string[]) {
-      //   let step = this.project.steps.get(id)
-      //   if (step) {
-      //     let list = this.boxLists.get(step.id)
-      //     if (list)
-      //       this.boxListContainerEl.appendChild(list.el)
-      //   }
-      // }
-    })
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => this.reset())
 
     // Task creation event.
     this.dash.listenToModel("createTask", data => {
@@ -226,10 +219,8 @@ export default class StepSwitcher {
   }
 
   private createBoxLists() {
-    for (let step of this.project.steps) {
-      let list = this.createBoxListFor(step)
-      this.blContainerEl.appendChild(list.el)
-    }
+    for (let step of this.project.steps)
+      this.blContainerEl.appendChild(this.createBoxListFor(step).el)
   }
 
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
@@ -239,21 +230,26 @@ export default class StepSwitcher {
       name: step.label,
       sort: true
     }
-    let b = this.dash.create(BoxList, options)
-    this.boxLists.set(step.id, b)
-    return b
+    let list = this.dash.create(BoxList, options)
+
+    this.boxLists.set(step.id, list)
+
+    return list
   }
 
   private createTaskBoxFor(task: TaskModel) {
     let box = this.dash.create(TaskBox, task)
+
     this.dash.addToGroup(box, "items")
     this.taskBoxes.set(task.id, box)
+
     return box
   }
 
   private async onTaskBoxMove(ev: BoxEvent) {
     let box = this.taskBoxes.get(ev.boxId)
     let step = this.project.steps.get(ev.boxListId)
+
     if (!box)
       throw new Error(`Unable to find task with ID "${ev.boxId}" in StepSwitcher`)
     if (!step)
@@ -279,14 +275,17 @@ export default class StepSwitcher {
     let wrongList = this.boxLists.get(wrongBoxListId)
     let rightListId = box.task.curStepId
     let rightList = this.boxLists.get(box.task.currentStep.id)
+
     if (!wrongList) {
       this.log.error(`Cannot find BoxList with ID "${wrongBoxListId}" in StepSwitcher "${label}"`)
       return
     }
+
     if (!rightList) {
       this.log.error(`Cannot find BoxList with ID "${rightListId}" in StepSwitcher "${label}"`)
       return
     }
+
     wrongList.removeBox(box.task.id)
     rightList.addBox(box)
   }
@@ -294,6 +293,7 @@ export default class StepSwitcher {
   private fillBoxLists() {
     if (!this.parentTask.children)
       return
+
     for (let task of this.parentTask.children) {
       if (task.currentStep.isSpecial)
         continue
@@ -335,6 +335,7 @@ export default class StepSwitcher {
     let stepId = ev.boxListId
     let label = this.parentTask.label
     let list = this.boxLists.get(stepId)
+
     if (!list) {
       this.log.error(`Unknown BoxList with ID ${stepId} in StepSwitcher ${label}`)
       return
@@ -353,12 +354,14 @@ export default class StepSwitcher {
   private restoreBoxListOrder(stepId: string) {
     let label = this.parentTask.label
     let list = this.boxLists.get(stepId)
+
     if (!list) {
       this.log.error(`Cannot restore order in list "${stepId}" in StepSwitcher "${label}"`)
       return
     }
 
     let taskIds = [] as string[]
+
     for (let task of (this.parentTask.children || [] as TaskModel[])) {
       if (task.currentStep.id === stepId)
         taskIds.push(task.id)
