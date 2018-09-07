@@ -1,6 +1,9 @@
 <div class="TaskForm">
   <fieldset :ref="fieldset">
-    <header class="TaskForm-header">Task FieldGroup</header>
+    <header class="TitleBar2">
+      {{ code }}
+      <span class="TitleBar2-right Spinner" hidden :ref="spinner"></span>
+    </header>
 
     <div class="FieldGroup">
       <label class="FieldGroup-item Field">

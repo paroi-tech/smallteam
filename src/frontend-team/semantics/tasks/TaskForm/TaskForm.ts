@@ -9,12 +9,14 @@ import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
 import TaskCommitDialog from "../TaskCommitDialog/TaskCommitDialog"
+import { AutoSave } from "../../../libraries/AutoSave"
+import { TaskFragment } from "../../../../shared/meta/Task"
 
 const template = require("./TaskForm.monk")
 
 export default class TaskForm {
   readonly el: HTMLElement
-  private fieldsetEl: HTMLFieldSetElement
+  private spinnerEl: HTMLElement
   private labelEl: HTMLInputElement
   private descriptionEl: HTMLTextAreaElement
   private submitSpinnerEl: HTMLElement
@@ -35,20 +37,36 @@ export default class TaskForm {
   private logDialog: TaskLogDialog
   private text: EditableTextField
 
+  private autoSave: AutoSave<TaskFragment>
+
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
+    this.autoSave = new AutoSave({
+      logError: err => this.log.error(err),
+      save: () => this.updateTask(),
+      showSpinner: show => {
+        // if (show)
+        //   this.spinnerEl.setAttribute("hidden", "hidden")
+        // else
+        //   this.spinnerEl.removeAttribute("hidden")
+        this.spinnerEl.hidden = !show
+        console.log("this.spinnerEl.hidden", this.spinnerEl.hidden)
+      }
+    })
 
     this.view = render(template)
     this.el = this.view.rootEl()
-    this.fieldsetEl = this.view.ref("fieldset")
+    this.spinnerEl = this.view.ref("spinner")
     this.labelEl = this.view.ref("label")
     this.descriptionEl = this.view.ref("description")
     this.submitSpinnerEl = this.view.ref("submitSpinner")
     this.deleteSpinnerEl = this.view.ref("deleteSpinner")
     this.onHoldBtnEl = this.view.ref("btnOnHold")
 
-    this.onHoldBtnEl.addEventListener("click", ev => {
+    this.labelEl.addEventListener("input", () => this.autoSave.setSingle("label", this.labelEl.value))
+
+    this.onHoldBtnEl.addEventListener("click", () => {
       if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
         return
       if (this.currentTask.curStepId === ON_HOLD_STEP_ID)
@@ -57,12 +75,12 @@ export default class TaskForm {
         this.putTaskOnHold()
     })
 
-    this.view.ref("submit").addEventListener("click", ev => this.updateTask())
-    this.view.ref("btnToggle").addEventListener("click", ev => {
+    this.view.ref("submit").addEventListener("click", () => this.updateTask())
+    this.view.ref("btnToggle").addEventListener("click", () => {
       if (this.currentTask)
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
-    this.view.ref("btnLog").addEventListener("click", ev => {
+    this.view.ref("btnLog").addEventListener("click", () => {
       if (this.currentTask)
         this.logDialog.show()
     })
@@ -122,15 +140,14 @@ export default class TaskForm {
   }
 
   set task(task: TaskModel | undefined) {
+    this.autoSave.use(task)
+
     this.reset()
     if (!task)
       return
 
     this.currentTask = task
-    this.view.update({
-      description: task.description || "",
-      label: task.label
-    })
+    this.view.update(task)
     this.updateOnHoldBtnLabel()
     this.show()
     this.setTaskInChildComponents(task)
@@ -184,16 +201,15 @@ export default class TaskForm {
 
   private async updateTask() {
     if (!this.currentTask || this.currentTask.currentStep.isSpecial)
-      return false
+      return
 
     let label = this.labelEl.value.trim()
     if (label.length < 4) {
-      this.log.info("Cannot update task with a label with less than 4 characters.")
-      return false
+      this.log.info("Cannot update task with a label with less than 1 characters.")
+      return
     }
 
     this.showSpinner()
-    let result = false
     try {
       await this.model.exec("update", "Task", {
         id: this.currentTask.id,
@@ -202,12 +218,10 @@ export default class TaskForm {
         flagIds: this.flagSelector.getSelectedFlagIds(),
         affectedToIds: this.accountSelector.selectedAccountIds
       })
-      result = true
     } catch(err) {
       this.refresh()
     }
     this.hideSpinner()
-    return result
   }
 
   /**

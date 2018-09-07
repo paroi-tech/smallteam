@@ -24,6 +24,7 @@ the time, so I can't use JIRA.
 - Replace all `style="display: none"` with the `hidden` attribute.
 - Make a generic component `Dialog` which recieve a component as a `"body"` parameter
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
+- Replace ES5 `get` and `set` by methods if an exception can be thrown
 
 - Paste images in the task description
 - TaskBox order in BoxList (StepSwitcher)

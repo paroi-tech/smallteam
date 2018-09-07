@@ -49,3 +49,36 @@ body {
     top: 50%;
   }
 }
+
+.TitleBar {
+  background-color: #e9efff;
+  font-size: $f14;
+  line-height: 28px;
+  padding-left: 10px;
+  position: relative;
+  &-right {
+    position: absolute;
+    right: 10px;
+    top: 0;
+  }
+}
+
+.Spinner {
+  background: url(/spinner.svg) no-repeat center center;
+  background-size: contain;
+}
+
+.TitleBar2 {
+  background-color: $lightColor;
+  // color: #000;
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  padding: 3px 5px;
+  // &-text {
+  //   flex-grow: 1;
+  // }
+  &-right {
+    width: 20px;
+  }
+}
