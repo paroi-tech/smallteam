@@ -6,7 +6,7 @@ import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./TaskLogViewer.monk")
 
-export default class TaskLogDialog {
+export default class TaskLogViewer {
   readonly el: HTMLElement
   private tableEl: HTMLTableElement
   private loadIndicatorEl: HTMLElement
