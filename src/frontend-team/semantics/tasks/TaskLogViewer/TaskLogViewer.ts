@@ -2,12 +2,12 @@ import { Log } from "bkb"
 import { Model, TaskModel, TaskLogEntryModel } from "../../../AppModel/AppModel"
 import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
-const template = require("./TaskLogDialog.monk")
+const template = require("./TaskLogViewer.monk")
 
 export default class TaskLogDialog {
-  readonly el: HTMLDialogElement
+  readonly el: HTMLElement
   private tableEl: HTMLTableElement
   private loadIndicatorEl: HTMLElement
 
@@ -24,7 +24,6 @@ export default class TaskLogDialog {
     this.el = view.rootEl()
     this.loadIndicatorEl = view.ref("loader")
     this.tableEl = view.ref("table")
-    view.ref("close").addEventListener("click", ev => this.hide())
 
     this.dash.listenTo(this.model, "createTaskLogEntry", data => {
       let entry = data.model as TaskLogEntryModel
@@ -50,16 +49,6 @@ export default class TaskLogDialog {
   reset() {
     this.task = undefined
     removeAllChildren(this.tableEl.tBodies[0])
-  }
-
-  show() {
-    document.body.appendChild(this.el)
-    this.el.showModal()
-  }
-
-  hide() {
-    this.el.close()
-    document.body.removeChild(this.el)
   }
 
   private addEntry(entry: TaskLogEntryModel) {

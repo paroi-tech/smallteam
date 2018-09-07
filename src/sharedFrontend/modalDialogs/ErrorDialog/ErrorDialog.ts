@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { makeOutsideClickHandlerFor } from "../modalDialogs"
+import { makeOutsideClickHandlerFor } from "../../libraries/utils"
 import Deferred from "../../libraries/Deferred"
 
 const template = require("./ErrorDialog.monk")
@@ -14,11 +14,13 @@ export default class ErrorDialog {
 
   constructor(private dash: Dash) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.msgEl = view.ref("message")
     this.titleEl = view.ref("title")
 
     let closeCb = ev => this.close()
+
     view.ref("button").addEventListener("click", closeCb)
     view.ref("close").addEventListener("click", closeCb)
     this.el.addEventListener("cancel", ev => {
