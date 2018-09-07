@@ -6,6 +6,6 @@
   <span class="NavBtn-lbl" :ref="lbl"></span>
   {% endif %}
   {% if altMode == "alert" %}
-  <b class="NavBtn-alert" style="display: none" :ref="alert"></b>
+  <b class="NavBtn-alert" hidden :ref="alert"></b>
   {% endif %}
 </button>

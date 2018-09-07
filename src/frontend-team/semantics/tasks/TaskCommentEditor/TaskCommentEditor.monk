@@ -5,7 +5,7 @@
     <textarea class="TaskCommentEditor-textarea" rows="10" cols="25" :ref="textarea"></textarea>
     <button type="button" :ref="submit">
       Save comment
-      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none" :ref="spinner"></span>
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" hidden :ref="spinner"></span>
     </button>
   </div>
 </div>
