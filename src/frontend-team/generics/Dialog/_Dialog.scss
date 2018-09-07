@@ -1,4 +1,4 @@
-.TaskLogDialog {
+.Dialog {
   background-color: #fff;
   border: 1px solid rgba(0, 0, 0, 0.3);
   border-radius: 6px;
@@ -19,11 +19,16 @@
     align-content: center;
     display: flex;
     flex-direction: row;
-    justify-content: flex-end;
-    padding: 5px;
+    justify-content: space-between;
+    padding: 4px;
   }
 
-  &-closeButton {
+  &-title {
+    flex-grow: 1;
+    text-align: center;
+  }
+
+  &-closeBtn {
     color: black;
     &:hover {
       color: red;
@@ -32,27 +37,4 @@
       outline: none;
     }
   }
-
-  &-table {
-    margin: 5px auto;
-    width: 95%;
-    caption {
-      font-size: $f18;
-      font-weight: bold;
-    }
-    thead {
-      font-weight: bold;
-    }
-    td {
-      padding: 5px;
-    }
-    tr {
-      border-bottom: 1px steelblue solid;
-    }
-  }
-}
-
-.TaskLogDialogLoader {
-  margin: 5px 0px;
-  text-align: center;
 }

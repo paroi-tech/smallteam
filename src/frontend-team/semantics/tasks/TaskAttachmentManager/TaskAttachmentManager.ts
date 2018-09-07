@@ -82,7 +82,7 @@ export default class TaskAttachmentManager {
     let thumbnail = this.dash.create(FileThumbnail, media, 24, 24)
 
     view.ref("thumbnail").appendChild(thumbnail.el)
-    view.ref("download").addEventListener("click", (ev) => {
+    view.ref("download").addEventListener("click", () => {
       let orig = media.getVariant("orig")
       if (orig)
         window.open(`${orig.url}?download=1`)

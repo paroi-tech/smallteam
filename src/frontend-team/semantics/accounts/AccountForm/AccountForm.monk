@@ -28,7 +28,7 @@
 
     <div class="FieldGroup-action">
       <button type="button" :ref="submitBtn">
-        Save changes <span class="fa fa-spinner fa-pulse fa-1x" style="display: none" :ref="submitSpinner"></span>
+        Save changes <span class="fa fa-spinner fa-pulse fa-1x" hidden :ref="submitSpinner"></span>
       </button>
     </div>
   </fieldset>

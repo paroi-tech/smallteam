@@ -22,7 +22,7 @@
 
       <div class="FieldGroup-action">
         <button class="StdBtn" type="button" :ref="submit">
-          Submit <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="submitSpinner"></span>
+          Submit <span class="fa fa-spinner fa-spin fa-1x fa-fw" hidden :ref="submitSpinner"></span>
         </button>
         <button class="StdBtn" type="button" :ref="btnArchive">Archive task</button>
         <button class="StdBtn" type="button" :ref="btnOnHold">Put on hold</button>
@@ -39,7 +39,7 @@
 
       <div class="FieldGroup-action">
         <button class="StdBtn" :ref="btnDelete">
-          Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
+          Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" hidden :ref="deleteSpinner"></span>
         </button>
       </div>
     </div>

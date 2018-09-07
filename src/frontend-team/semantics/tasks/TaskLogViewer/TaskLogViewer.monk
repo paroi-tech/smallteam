@@ -1,0 +1,18 @@
+<div class="TaskLogViewer">
+  <div class="TaskLogViewerLoader" :ref="loader">
+    <span class="fa fa-spin fa-spinner fa-1x"></span>
+    <p>Loading logs</p>
+  </div>
+
+  <table class="TaskLogViewer-table" :ref="table">
+      <thead>
+        <tr>
+          <td>ID</td>
+          <td>Date</td>
+          <td>Step</td>
+          <td>Account</td>
+        </tr>
+      </thead>
+      <tbody></tbody>
+  </table>
+</div>

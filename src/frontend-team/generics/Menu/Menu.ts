@@ -42,7 +42,7 @@ export class Menu {
     let li = view.nodes[0] as HTMLLIElement
     let btn = li.querySelector("button") as HTMLButtonElement
     btn.textContent = item.label
-    btn.addEventListener("click", (ev) => this.dash.emit("select", item.id))
+    btn.addEventListener("click", () => this.dash.emit("select", item.id))
 
     this.ul.appendChild(li)
     this.items.set(item.id, [li, btn])

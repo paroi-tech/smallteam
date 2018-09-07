@@ -8,7 +8,7 @@
         <span :ref="toggleSpan"></span>
       </button>
       <button class="StepSwitcher-closeButton" title="Close" :ref="closeBtn">×</button>
-      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" style="display: none" :ref="indicator"></span>
+      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" hidden :ref="indicator"></span>
     </div>
   </header>
 
@@ -18,7 +18,7 @@
       <input class="InputAndBtn-input" type="text" maxlength="255" placeholder="Task name" :ref="taskName">
       <button class="InputAndBtn-btn StdBtn" type="button" :ref="addBtn">
         Add task
-        <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="spinner"></span>
+        <span class="fa fa-spinner fa-spin fa-1x fa-fw" hidden :ref="spinner"></span>
       </button>
     </div>
   </div>

@@ -4,13 +4,14 @@ import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../Ap
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import FlagSelector from "../../flags/FlagSelector/FlagSelector"
-import TaskLogDialog from "../TaskLogDialog/TaskLogDialog"
+import TaskLogViewer from "../TaskLogViewer/TaskLogViewer"
 import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
-import TaskCommitDialog from "../TaskCommitDialog/TaskCommitDialog"
 import { AutoSave } from "../../../libraries/AutoSave"
 import { TaskFragment } from "../../../../shared/meta/Task"
+import Dialog from "../../../generics/Dialog/Dialog"
+import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 
 const template = require("./TaskForm.monk")
 
@@ -33,8 +34,8 @@ export default class TaskForm {
   private flagSelector: FlagSelector
   private accountSelector: AccountSelector
   private attachmentMgr: TaskAttachmentManager
-  private commitDialog: TaskCommitDialog
-  private logDialog: TaskLogDialog
+  private commitViewer: TaskCommitViewer
+  private logViewer: TaskLogViewer
   private text: EditableTextField
 
   private autoSave: AutoSave<TaskFragment>
@@ -82,7 +83,7 @@ export default class TaskForm {
     })
     this.view.ref("btnLog").addEventListener("click", () => {
       if (this.currentTask)
-        this.logDialog.show()
+        this.dash.create(Dialog, this.logViewer.el, "Task logs").show()
     })
     this.view.ref("btnDelete").addEventListener("click", ev => {
       if (this.currentTask)
@@ -91,7 +92,7 @@ export default class TaskForm {
     this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
     this.view.ref("btnCommits").addEventListener("click", ev => {
       if (this.currentTask)
-        this.commitDialog.show()
+      this.dash.create(Dialog, this.commitViewer.el, "Task commits").show()
     })
 
     this.flagSelector = this.dash.create(FlagSelector)
@@ -106,9 +107,9 @@ export default class TaskForm {
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
 
-    this.commitDialog = this.dash.create(TaskCommitDialog)
+    this.commitViewer = this.dash.create(TaskCommitViewer)
 
-    this.logDialog = this.dash.create(TaskLogDialog)
+    this.logViewer = this.dash.create(TaskLogViewer)
 
     this.text = this.dash.create(EditableTextField)
     this.el.appendChild(this.text.el)
@@ -174,8 +175,8 @@ export default class TaskForm {
     this.accountSelector.reset()
     this.commentEditor.reset()
     this.attachmentMgr.reset()
-    this.logDialog.reset()
-    this.commitDialog.reset()
+    this.logViewer.reset()
+    this.commitViewer.reset()
   }
 
   private setTaskInChildComponents(task: TaskModel) {
@@ -183,8 +184,8 @@ export default class TaskForm {
     this.accountSelector.setTask(task)
     this.commentEditor.setTask(task)
     this.attachmentMgr.setTask(task)
-    this.logDialog.setTask(task)
-    this.commitDialog.setTask(task)
+    this.logViewer.setTask(task)
+    this.commitViewer.setTask(task)
   }
 
   private async deleteTask() {

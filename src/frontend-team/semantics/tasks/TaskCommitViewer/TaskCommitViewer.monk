@@ -1,6 +1,5 @@
-<dialog class="TaskCommitDialog">
+<div class="TaskCommitViewer">
   <table :ref="table">
-    <caption>Commits</caption>
     <thead>
       <tr>
         <td>Author</td>
@@ -11,7 +10,4 @@
     </thead>
     <tbody></tbody>
   </table>
-  <div>
-    <button :ref="close">Close</button>
-  </div>
-</dialog>
+</div>

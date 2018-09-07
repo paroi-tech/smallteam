@@ -1,0 +1,24 @@
+.TaskLogViewer {
+  &-table {
+    margin: 5px auto;
+    width: 95%;
+    caption {
+      font-size: $f18;
+      font-weight: bold;
+    }
+    thead {
+      font-weight: bold;
+    }
+    td {
+      padding: 5px;
+    }
+    tr {
+      border-bottom: 1px steelblue solid;
+    }
+  }
+}
+
+.TaskLogViewerLoader {
+  margin: 4px 0px;
+  text-align: center;
+}

@@ -5,10 +5,10 @@ import { TaskModel } from "../../../AppModel/AppModel"
 import { GitCommitModel } from "../../../AppModel/Models/GitCommitModel"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
-const template = require("./TaskCommitDialog.monk")
+const template = require("./TaskCommitViewer.monk")
 
-export default class TaskCommitDialog {
-  readonly el: HTMLDialogElement
+export default class TaskCommitViewer {
+  readonly el: HTMLElement
   private tableEl: HTMLTableElement
 
   private log: Log
@@ -22,12 +22,6 @@ export default class TaskCommitDialog {
 
     this.el = view.rootEl()
     this.tableEl = view.ref("table")
-
-    view.ref("close").addEventListener("click", ev => this.close())
-    this.el.addEventListener("cancel", ev => {
-      ev.preventDefault()
-      this.close()
-    })
   }
 
   setTask(task: TaskModel) {
@@ -60,15 +54,5 @@ export default class TaskCommitDialog {
   reset() {
     this.task = undefined
     removeAllChildren(this.tableEl.tBodies[0])
-  }
-
-  show() {
-    document.body.appendChild(this.el)
-    this.el.showModal()
-  }
-
-  close() {
-    this.el.close()
-    document.body.removeChild(this.el)
   }
 }
