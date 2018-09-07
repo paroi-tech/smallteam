@@ -1,21 +1,21 @@
 <div class="FlagForm">
-  <fieldset :ref="fieldset">
-    <label class="FormField">
-      <span class="FormField-span">Label</span>
-      <input type="text" :ref="label" required value="{{ frag.label }}">
+  <fieldset class="FieldGroup" :ref="fieldset">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Label</span>
+      <input class="Field-input" type="text" :ref="label" required value="{{ frag.label }}">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Color</span>
-      <input type="color" :ref="color" value="{{ frag.color }}">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Color</span>
+      <input class="Field-input" type="color" :ref="color" value="{{ frag.color }}">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Index</span>
-      <input type="number" :ref="orderNum" disabled value="{{ frag.orderNum }}">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Index</span>
+      <input class="Field-input" type="number" :ref="orderNum" disabled value="{{ frag.orderNum }}">
     </label>
 
-    <div>
+    <div class="FieldGroup-action">
       <button type="button" :ref="cancelBtn">Cancel</button>
       &nbsp;
       <button type="button" :ref="submitBtn">

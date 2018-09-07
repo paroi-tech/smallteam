@@ -1,13 +1,13 @@
 <div class="StepForm">
   <header class="StepForm-header BlockTitle">
-    <span>Step Form</span>
+    <span>Step FieldGroup</span>
     <div :ref="menu"></div>
   </header>
 
   <div :ref="form">
     <fieldset :ref="fieldset">
-      <label class="FormField">
-        <span class="FormField-span">Name</span>
+      <label class="Field">
+        <span class="Field-lbl">Name</span>
         <input type="text" required value="{{ name }}" :ref="name">
       </label>
       <div>

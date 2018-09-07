@@ -1,4 +1,4 @@
-<div class="TaskBoard">
-  <div class="TaskBoard-left" :ref="left"></div>
-  <div class="TaskBoard-right" :ref="right"></div>
+<div class="SelEditBoard">
+  <div class="SelEditBoard-sel" :ref="sel"></div>
+  <div class="SelEditBoard-edit" :ref="edit"></div>
 </div>

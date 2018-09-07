@@ -37,6 +37,10 @@ table {
 	border-spacing: 0;
 }
 
+button, label, input, textarea {
+  font-family: inherit;
+}
+
 button {
   background: none;
 	color: inherit;

@@ -1,7 +1,7 @@
 import { Log } from "bkb"
 import { Model, AccountModel } from "../../../AppModel/AppModel"
 import { AccountCreateFragment, AccountUpdateFragment } from "../../../../shared/meta/Account"
-import { whyNewPasswordIsInvalid } from "../../../../shared/libraries/helpers"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../../shared/libraries/helpers"
 import { OwnDash } from "../../../App/OwnDash"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
@@ -245,8 +245,9 @@ export default class AccountForm {
       return undefined
     }
 
-    if (frag.login.length < 4) {
-      this.log.warn("Login should have at least 4 characters...")
+    let err = whyUsernameIsInvalid(frag.login)
+    if (err) {
+      this.log.warn(err)
       this.loginEl.focus()
       return undefined
     }

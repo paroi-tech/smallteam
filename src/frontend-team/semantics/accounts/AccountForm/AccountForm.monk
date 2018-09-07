@@ -1,32 +1,32 @@
 <section class="AccountForm">
   <header class="AccountForm-header" :ref="header">Account details</header>
-  <fieldset :ref="fieldset">
-    <label class="FormField">
-      <span class="FormField-span">Name</span>
-      <input type="text" value="{{ name }}" :ref="name">
+  <fieldset class="FieldGroup" :ref="fieldset">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Name</span>
+      <input class="Field-input" type="text" value="{{ name }}" :ref="name">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Login</span>
-      <input type="text" value="{{ login }}" :ref="login">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Login</span>
+      <input class="Field-input" type="text" value="{{ login }}" :ref="login">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Email</span>
-      <input type="email" value="{{ email }}" placeholder="john.doe@example.com" :ref="email">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Email</span>
+      <input class="Field-input" type="email" value="{{ email }}" placeholder="john.doe@example.com" :ref="email">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Role</span>
-      <select :ref="role">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Role</span>
+      <select class="Field-input" :ref="role">
         <option value="admin">Admin</option>
         <option value="contrib" selected="selected">Account</option>
       </select>
     </label>
 
-    <div :ref="password"></div>
+    <div class="FieldGroup-item" :ref="password"></div>
 
-    <div>
+    <div class="FieldGroup-action">
       <button type="button" :ref="submitBtn">
         Save changes <span class="fa fa-spinner fa-pulse fa-1x" style="display: none" :ref="submitSpinner"></span>
       </button>

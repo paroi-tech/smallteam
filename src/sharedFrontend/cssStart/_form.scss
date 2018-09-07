@@ -1,24 +1,11 @@
 @import "../definitions";
 
-button, label, input, textarea {
-  font-family: inherit;
-}
-
-.FormField {
-  display: block;
-
-  &-span {
-    display: block;
-    font-weight: bold;
-  }
-}
-
 .SimpleTitle {
   font-size: $f24;
   font-family: Georgia, serif;
 }
 
-.Form {
+.FieldGroup {
   &-item {
     margin-bottom: 9px;
 
@@ -36,7 +23,7 @@ button, label, input, textarea {
   }
 }
 
-.TextField {
+.Field {
   display: block;
   font-size: $f14;
 
@@ -55,6 +42,10 @@ button, label, input, textarea {
     width: 100%;
     &::placeholder {
       color: #ababab;
+    }
+    &.-textarea {
+      height: 136px;
+      padding: 4px 7px;
     }
   }
 
@@ -94,5 +85,18 @@ button, label, input, textarea {
   }
   &-deco.-icon.-lock::before {
     @include bgSprite(-89px, -2px);
+  }
+}
+
+.InputAndBtn {
+  display: flex;
+  flex-direction: row;
+
+  &-input {
+    border: 1px solid #e8e8e8;
+    padding: 4px;
+    &::placeholder {
+      color: #ababab;
+    }
   }
 }

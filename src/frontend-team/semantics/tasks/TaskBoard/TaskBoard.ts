@@ -9,29 +9,29 @@ const template = require("./TaskBoard.monk")
 
 export default class TaskBoard {
   readonly el: HTMLElement
-  private leftEl: HTMLElement
+  private selEl: HTMLElement
 
   private taskForm: TaskForm
   private stepSwitcherMap = new Map<String, StepSwitcher>()
 
-  private model: Model
-  private log: Log
+  // private model: Model
+  // private log: Log
 
   constructor(private dash: OwnDash, readonly rootTask: TaskModel) {
-    this.model = this.dash.app.model
-    this.log = this.dash.app.log
+    // this.model = this.dash.app.model
+    // this.log = this.dash.app.log
 
     let view = render(template)
 
     this.el = view.rootEl()
-    this.leftEl = view.ref("left")
+    this.selEl = view.ref("sel")
 
     this.taskForm = this.dash.create(TaskForm)
-    view.ref("right").appendChild(this.taskForm.el)
+    view.ref("edit").appendChild(this.taskForm.el)
 
     let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
 
-    this.leftEl.appendChild(rootTaskStepSwitcher.el)
+    this.selEl.appendChild(rootTaskStepSwitcher.el)
     this.createStepSwitchersForChildren(this.rootTask)
 
     this.addDashListeners()
@@ -75,7 +75,7 @@ export default class TaskBoard {
 
     if (!stepSwitcher)
       return
-    this.leftEl.removeChild(stepSwitcher.el)
+    this.selEl.removeChild(stepSwitcher.el)
     this.stepSwitcherMap.delete(taskId)
   }
 
@@ -91,7 +91,7 @@ export default class TaskBoard {
     parentTask.children.filter(t => t.children && t.children.length !== 0).forEach(task => {
       let stepSwitcher = this.createStepSwitcher(task)
       // The StepSwitchers created for child tasks are hidden by default.
-      this.leftEl.appendChild(stepSwitcher.el)
+      this.selEl.appendChild(stepSwitcher.el)
       this.createStepSwitchersForChildren(task)
     })
   }
@@ -149,7 +149,7 @@ export default class TaskBoard {
      *    of the TaskBoard, which is not its correct place.
      */
     stepSwitcher = this.createStepSwitcher(task)
-    let parentNode = this.leftEl
+    let parentNode = this.selEl
     let referenceNode = precedingStepSwitcher ? precedingStepSwitcher.el : parentStepSwitcher.el
     parentNode.insertBefore(stepSwitcher.el, referenceNode.nextSibling)
   }

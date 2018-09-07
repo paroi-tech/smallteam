@@ -1,22 +1,22 @@
-<div class="Form">
-  <label class="Form-item TextField">
-    <span class="TextField-lbl">Email</span>
-    <input class="TextField-input" :ref="email" type="text" placeholder="Email">
+<div class="FieldGroup">
+  <label class="FieldGroup-item Field">
+    <span class="Field-lbl">Email</span>
+    <input class="Field-input" type="text" placeholder="Email" :ref="email">
   </label>
 
-  <label class="Form-item TextField">
-    <span class="TextField-lbl">Username</span>
-    <input class="TextField-input" :ref="username" type="text" placeholder="Username">
+  <label class="FieldGroup-item Field">
+    <span class="Field-lbl">Username</span>
+    <input class="Field-input" type="text" placeholder="Username" :ref="username">
   </label>
 
-  <label class="Form-item TextField">
-    <span class="TextField-lbl">Invitation validity</span>
-    <span class="TextField-deco">
-      <input class="TextField-input" :ref="validity" type="number" step="1" min="1" max="30" pattern="\d+" placeholder="Days">
+  <label class="FieldGroup-item Field">
+    <span class="Field-lbl">Invitation validity</span>
+    <span class="Field-deco">
+      <input class="Field-input" type="number" step="1" min="1" max="30" pattern="\d+" placeholder="Days" :ref="validity">
     </span>
   </label>
 
-  <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+  <button class="FieldGroup-action StdBtn -withSpinner" :ref="submitBtn" type="button">
     Submit
     <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
   </button>

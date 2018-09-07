@@ -1,14 +1,13 @@
-<div class="StepWorkspace">
-  <div>
-    <div class="StepWorkspace-boxListContainer" :ref="boxList"></div>
-    <div class="StepWorkspace-formContainer" :ref="form"></div>
+<div class="SelEditBoard">
+  <div class="SelEditBoard-sel">
+    <div :ref="sel"></div>
+    <div class="InputAndBtn" :ref="add">
+      <input class="InputAndBtn-input" type="text" :ref="input" required>
+      <button class="InputAndBtn-btn StdBtn" type="button" :ref="btn">
+        Add
+        <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="spinner"></span>
+      </button>
+    </div>
   </div>
-
-  <div :ref="add">
-    <input type="text" :ref="input" required>
-    <button type="button" :ref="btn">
-      Add
-      <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="spinner"></span>
-    </button>
-  </div>
+  <div class="SelEditBoard-edit" :ref="edit"></div>
 </div>

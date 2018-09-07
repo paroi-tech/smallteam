@@ -1,22 +1,23 @@
 <div class="ProjectForm">
-  <div :ref="title" class="BlockTitle">Project form</div>
-  <div :ref="form">
-    <label class="FormField">
-      <span class="FormField-span">Project Name</span>
-      <input type="text" :ref="name" value="{{ name }}">
+  <div class="FieldGroup" :ref="form">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Project Name</span>
+      <input class="Field-input" type="text" :ref="name" value="{{ name }}">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Project Code</span>
-      <input type="text" :ref="code" value="{{ code }}">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Project Code</span>
+      <input class="Field-input" type="text" :ref="code" value="{{ code }}">
     </label>
 
-    <label class="FormField">
-      <span class="FormField-span">Description</span>
-      <textarea :ref="description" value="{{ description }}"></textarea>
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Description</span>
+      <textarea class="Field-input -textarea" :ref="description" value="{{ description }}"></textarea>
     </label>
 
-    <div>
+    <div class="FieldGroup-item" :ref="steps"></div>
+
+    <div class="FieldGroup-action">
       <button type="button" :ref="submitBtn">
         Submit
         <span class="fa fa-spinner fa-pulse fa-1x fa-fw" :ref="spinner" style="display: none"></span>

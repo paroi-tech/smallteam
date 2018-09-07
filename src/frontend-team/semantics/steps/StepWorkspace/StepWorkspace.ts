@@ -50,9 +50,9 @@ export default class StepWorkspace implements Workspace {
     })
 
     this.boxList = this.dash.create(BoxList, boxListOptions)
-    view.ref("boxList").appendChild(this.boxList.el)
+    view.ref("sel").appendChild(this.boxList.el)
     this.form = this.dash.create(StepForm)
-    view.ref("form").appendChild(this.boxList.el)
+    view.ref("edit").appendChild(this.form.el)
     this.fillBoxList()
 
     this.dash.listenTo<StepModel>("stepBoxSelected", step => {
