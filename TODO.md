@@ -21,8 +21,6 @@ the time, so I can't use JIRA.
 
 # Lionel
 
-
-- Make a generic component `Dialog` which recieve a component as a `"body"` parameter
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 
 - Paste images in the task description
@@ -91,6 +89,7 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- Make a generic component `Dialog` which recieve a component as a `"body"` parameter
 - Replace all `style="display: none"` with the `hidden` attribute.
 - Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
 - Github notifications: use a hook to track the commits from GitHub
