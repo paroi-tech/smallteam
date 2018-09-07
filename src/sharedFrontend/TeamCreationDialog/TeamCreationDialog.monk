@@ -1,56 +1,56 @@
 <dialog class="TeamCreationDialog">
-  <div class="Form">
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Team name</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="teamName" type="text" placeholder="Name">
+  <div class="FieldGroup">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Team name</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="teamName" type="text" placeholder="Name">
       </span>
     </label>
 
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Team code</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="teamCode" type="text" placeholder="Name">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Team code</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="teamCode" type="text" placeholder="Name">
       </span>
     </label>
 
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Name of default user</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="name" type="text" placeholder="Name">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Name of default user</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="name" type="text" placeholder="Name">
       </span>
     </label>
 
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Login of default user</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="login" type="text" placeholder="Login">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Login of default user</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="login" type="text" placeholder="Login">
       </span>
     </label>
 
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Create a password</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="password" type="password" placeholder="Password">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Create a password</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="password" type="password" placeholder="Password">
       </span>
     </label>
 
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Confirm your password</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="confirm" type="password" placeholder="Password confirmation">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Confirm your password</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="confirm" type="password" placeholder="Password confirmation">
       </span>
     </label>
 
-    <label class="Form-item TextField">
-      <span class="TextField-lbl">Your email address</span>
-      <span class="TextField-deco -leftBlue">
-        <input class="TextField-input" :ref="email" type="email" placeholder="Email">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Your email address</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" :ref="email" type="email" placeholder="Email">
       </span>
     </label>
 
     <div>
-      <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+      <button class="FieldGroup-action StdBtn -withSpinner" :ref="submitBtn" type="button">
         Submit
         <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
       </button>

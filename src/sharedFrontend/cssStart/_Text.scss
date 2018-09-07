@@ -1,4 +1,4 @@
-.InlineText {
+.Text {
 	em {
 		font-style: italic;
 	}
@@ -23,24 +23,11 @@
       text-decoration: underline;
     }
   }
-}
-
-.Text {
-	@extend .InlineText;
 
 	p,
 	ul,
 	ol,
 	blockquote {
 		margin: .25em 0;
-	}
-}
-
-.TextInput {
-	border: 1px solid #e8e8e8;
-	line-height: 100%;
-	padding: 4px;
-	&::placeholder {
-		color: #ababab;
 	}
 }

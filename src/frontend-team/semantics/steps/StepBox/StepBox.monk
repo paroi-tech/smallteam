@@ -1,4 +1,4 @@
-<div class="StepBox">
-  <span class="StepBox-lbl" :ref="span"></span>
+<div class="LblSticker">
+  <span class="LblSticker-lbl" :ref="span"></span>
   <button class="RightOpenBtn" type="button">▶</button>
 </div>

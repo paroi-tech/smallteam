@@ -45,9 +45,9 @@ export function whyTeamCodeIsInvalid(teamCode: string): string | undefined {
 }
 
 export function whyUsernameIsInvalid(username: string): string | undefined {
-  if (username.length < 4 || /[^a-zA-Z_0-9]/.test(username))
-    return "A username should have at least 4 characters and contain only letters and digits."
+  if (username.length < 1)
+    return "A username should have at least one character."
 
-  if (username.match(/[^a-zA-Z_0-9]/))
-    return "A username should and contain only letters and digits."
+  if (!/^[a-zA-Z0-9_\-\.]+$/.test(username))
+    return "A username can contain only letters, digits, dash or underscore."
 }

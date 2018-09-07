@@ -2,6 +2,8 @@
 @import "../sharedFrontend/start";
 @import "../sharedFrontend/sharedFrontend";
 
+@import "./cssCommon";
+
 @import "AppFrame/AppFrame";
 @import "AppFrame/Sidebar/Sidebar";
 

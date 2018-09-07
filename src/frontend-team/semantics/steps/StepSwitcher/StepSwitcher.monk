@@ -14,9 +14,9 @@
 
   <div class="StepSwitcher-foldableContent" :ref="foldable">
     <div class="AutoColumns" :ref="boxLists"></div>
-    <div class="StepSwitcher-bottom" :ref="bottom">
-      <input class="TextInput" type="text" maxlength="255" placeholder="Task name" :ref="taskName">
-      <button type="button" class="StdBtn" :ref="addBtn">
+    <div class="StepSwitcher-bottom InputAndBtn" :ref="bottom">
+      <input class="InputAndBtn-input" type="text" maxlength="255" placeholder="Task name" :ref="taskName">
+      <button class="InputAndBtn-btn StdBtn" type="button" :ref="addBtn">
         Add task
         <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="spinner"></span>
       </button>

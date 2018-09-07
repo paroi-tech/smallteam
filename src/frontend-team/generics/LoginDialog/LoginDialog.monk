@@ -4,18 +4,18 @@
   <main class="LoginDialog-box">
     <h1 class="LoginDialog-h1 SimpleTitle">Login to your account</h1>
 
-    <div class="Form">
-      <label class="Form-item TextField">
-        <span class="TextField-deco -icon -profile -leftBlue">
-          <input class="TextField-input" :ref="username" type="text" placeholder="Username">
+    <div class="FieldGroup">
+      <label class="FieldGroup-item Field">
+        <span class="Field-deco -icon -profile -leftBlue">
+          <input class="Field-input" :ref="username" type="text" placeholder="Username">
         </span>
       </label>
-      <label class="Form-item -gap TextField">
-        <span class="TextField-deco -icon -lock -leftBlue">
-          <input class="TextField-input" :ref="password" type="password" placeholder="Password">
+      <label class="FieldGroup-item -gap Field">
+        <span class="Field-deco -icon -lock -leftBlue">
+          <input class="Field-input" :ref="password" type="password" placeholder="Password">
         </span>
       </label>
-      <button class="Form-action StdBtn -withSpinner" :ref="submitBtn" type="button">
+      <button class="FieldGroup-action StdBtn -withSpinner" :ref="submitBtn" type="button">
         Submit
         <span class="StdBtn-spinner fa fa-spinner fa-spin fa-1x" :ref="spinner"></span>
       </button>

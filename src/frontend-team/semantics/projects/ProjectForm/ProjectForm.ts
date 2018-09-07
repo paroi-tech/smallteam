@@ -17,6 +17,7 @@ export default class ProjectForm implements Workspace {
   private codeEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private descriptionEl: HTMLTextAreaElement
+  private stepsEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
   private stepMultiSelect: CheckboxMultiSelect<StepModel>
@@ -49,6 +50,7 @@ export default class ProjectForm implements Workspace {
     this.codeEl = this.view.ref("code")
     this.nameEl = this.view.ref("name")
     this.descriptionEl = this.view.ref("description")
+    this.stepsEl = this.view.ref("steps")
     this.spinnerEl = this.view.ref("spinner")
     this.view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
 
@@ -142,7 +144,7 @@ export default class ProjectForm implements Workspace {
       (dash: Dash, step: StepModel) => dash.create(StepBox, step)
     ) as any
 
-    this.el.appendChild(ms.el)
+    this.stepsEl.appendChild(ms.el)
     this.dash.listenToModel(["changeStep", "reorderStep"],
       data => ms.setAllItems(this.model.global.steps)
     )

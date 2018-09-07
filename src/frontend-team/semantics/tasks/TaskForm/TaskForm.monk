@@ -1,36 +1,44 @@
 <div class="TaskForm">
   <fieldset :ref="fieldset">
-    <header class="TaskForm-header">Task Form</header>
+    <header class="TaskForm-header">Task FieldGroup</header>
 
-    <span class="TextField">
-      <label class="TextField-lbl">Name</label>
-      <input class="TextField-input" type="text" value="{{ label }}" :ref="label">
-    </span>
+    <div class="FieldGroup">
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Name</span>
+        <input class="Field-input" type="text" value="{{ label }}" :ref="label">
+      </label>
 
-    <label class="FormField">Description</label>
-    <textarea class="Text TaskForm-textarea" value="{{ description }}" rows="4" placeholder="Task description" :ref="description">
-    </textarea>
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Description</span>
+        <textarea class="Field-input -textarea" value="{{ description }}" rows="4" placeholder="Task description" :ref="description">
+        </textarea>
+      </label>
 
-    <div :ref="flag"></div>
-    <div :ref="account"></div>
+      <div class="FieldGroup-item" :ref="flag"></div>
+      <div class="FieldGroup-item" :ref="account"></div>
 
-    <button type="button" class="StdBtn" :ref="submit">
-      Submit <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="submitSpinner"></span>
-    </button>
-    &nbsp;
-    <button type="button" class="StdBtn" :ref="btnArchive">Archive task</button>
-    &nbsp;
-    <button type="button" class="StdBtn" :ref="btnOnHold">Put on hold</button>
+      <div class="FieldGroup-action">
+        <button class="StdBtn" type="button" :ref="submit">
+          Submit <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="submitSpinner"></span>
+        </button>
+        <button class="StdBtn" type="button" :ref="btnArchive">Archive task</button>
+        <button class="StdBtn" type="button" :ref="btnOnHold">Put on hold</button>
+      </div>
 
-    <div :ref="comment"></div>
-    <div :ref="attachment"></div>
+      <div class="FieldGroup-item" :ref="comment"></div>
+      <div class="FieldGroup-item" :ref="attachment"></div>
 
-    <div><button :ref="btnToggle">Show/Hide as parent</button></div>
-    <div><button :ref="btnLog">Show logs</button></div>
-    <div><button :ref="btnCommits">Show commits</button></div>
+      <div class="FieldGroup-action">
+        <button class="StdBtn" :ref="btnToggle">Show/Hide as parent</button>
+        <button class="StdBtn" :ref="btnLog">Show logs</button>
+        <button class="StdBtn" :ref="btnCommits">Show commits</button>
+      </div>
 
-    <button :ref="btnDelete">
-      Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
-    </button>
+      <div class="FieldGroup-action">
+        <button class="StdBtn" :ref="btnDelete">
+          Delete task <span class="fa fa-spinner fa-spin fa-1x fa-fw" style="display: none" :ref="deleteSpinner"></span>
+        </button>
+      </div>
+    </div>
   </fieldset>
 </div>

@@ -9,6 +9,7 @@ the time, so I can't use JIRA.
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Listen to commit events from model in `TaskCommitDialog`
 
+
 # Thomas
 
 - CSS
@@ -19,6 +20,10 @@ the time, so I can't use JIRA.
 - Routes for tasks
 
 # Lionel
+
+- Replace all `style="display: none"` with the `hidden` attribute.
+- Make a generic component `Dialog` which recieve a component as a `"body"` parameter
+- Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 
 - Paste images in the task description
 - TaskBox order in BoxList (StepSwitcher)
