@@ -24,13 +24,10 @@ export default class TaskCommitViewer {
     this.tableEl = view.ref("table")
   }
 
-  setTask(task: TaskModel) {
-    this.reset()
-    if (!task)
-      return
-
+  setTask(task?: TaskModel) {
     this.task = task
-    if (!task.gitCommits || task.gitCommits.length === 0)
+    removeAllChildren(this.tableEl.tBodies[0])
+    if (!task || (!task.gitCommits || task.gitCommits.length === 0))
       return
     for (let commit of task.gitCommits)
       this.showCommit(commit)
@@ -49,10 +46,5 @@ export default class TaskCommitViewer {
     link.target = "_blank"
     link.textContent = "Visit"
     row.insertCell().appendChild(link)
-  }
-
-  reset() {
-    this.task = undefined
-    removeAllChildren(this.tableEl.tBodies[0])
   }
 }

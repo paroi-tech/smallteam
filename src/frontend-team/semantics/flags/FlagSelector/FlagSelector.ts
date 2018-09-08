@@ -50,24 +50,23 @@ export default class FlagSelector {
     return this.task
   }
 
-  setTask(task: TaskModel) {
-    this.reset()
+  setTask(task?: TaskModel) {
     this.task = task
-    if (task.flagIds) {
-      for (let flagId of task.flagIds) {
-        let checkBox = this.checkBoxes.get(flagId)
-        if (checkBox)
-        checkBox.checked = true
+    if (task) {
+      if (task.flagIds) {
+        for (let flagId of task.flagIds) {
+          let checkBox = this.checkBoxes.get(flagId)
+          if (checkBox)
+            checkBox.checked = true
+        }
       }
+      this.el.style.pointerEvents = "auto"
+    } else {
+      this.task = undefined
+      for (let checkBox of this.checkBoxes.values())
+        checkBox.checked = false
+      this.el.style.pointerEvents = "none"
     }
-    this.el.style.pointerEvents = "auto"
-  }
-
-  reset() {
-    this.task = undefined
-    for (let checkBox of this.checkBoxes.values())
-      checkBox.checked = false
-    this.el.style.pointerEvents = "none"
   }
 
   getSelectedFlagIds(): string[] {

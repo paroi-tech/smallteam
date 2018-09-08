@@ -56,11 +56,6 @@ export default class AccountSelector {
     })
   }
 
-  reset() {
-    this.task = undefined
-    this.boxList.clear()
-  }
-
   refresh() {
     this.boxList.clear()
     if (!this.task || !this.task.affectedTo)
@@ -77,8 +72,9 @@ export default class AccountSelector {
     return this.task
   }
 
-  setTask(task: TaskModel | undefined) {
-    this.reset()
+  setTask(task?: TaskModel) {
+    this.task = undefined
+    this.boxList.clear()
     this.task = task
     if (!task || !task.affectedToIds)
       return

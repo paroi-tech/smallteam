@@ -65,8 +65,6 @@ export default class TaskForm {
     this.deleteSpinnerEl = this.view.ref("deleteSpinner")
     this.onHoldBtnEl = this.view.ref("btnOnHold")
 
-    this.labelEl.addEventListener("input", () => this.autoSave.setSingle("label", this.labelEl.value))
-
     this.onHoldBtnEl.addEventListener("click", () => {
       if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
         return
@@ -114,50 +112,9 @@ export default class TaskForm {
     this.text = this.dash.create(EditableTextField)
     this.el.appendChild(this.text.el)
 
-    this.listenToModel()
-    this.hide() // TaskForm is hidden by default.
-  }
-
-  reset() {
-    this.currentTask = undefined
-    this.view.update({
-      description: "",
-      label: ""
-    })
-    this.updateOnHoldBtnLabel()
-    this.resetChildComponents()
-  }
-
-  hide() {
-    this.el.hidden = true
-  }
-
-  show() {
-    this.el.hidden = false
-  }
-
-  get task(): TaskModel | undefined {
-    return this.currentTask
-  }
-
-  set task(task: TaskModel | undefined) {
-    this.autoSave.use(task)
-
-    this.reset()
-    if (!task)
-      return
-
-    this.currentTask = task
-    this.view.update(task)
-    this.updateOnHoldBtnLabel()
-    this.show()
-    this.setTaskInChildComponents(task)
-  }
-
-  private listenToModel() {
     this.dash.listenToModel("deleteTask", data => {
       if (this.currentTask !== undefined && this.currentTask.id === data.id)
-        this.reset()
+        this.setTask()
     })
     this.dash.listenToModel("updateTask", data => {
       if (!this.currentTask || this.currentTask.id !== data.id)
@@ -168,24 +125,32 @@ export default class TaskForm {
       })
       this.updateOnHoldBtnLabel()
     })
+
+    this.labelEl.addEventListener("input", () => this.autoSave.setSingle("label", this.labelEl.value))
+    this.descriptionEl.addEventListener("input", () => this.autoSave.setSingle("description", this.descriptionEl.value))
+
   }
 
-  private resetChildComponents() {
-    this.flagSelector.reset()
-    this.accountSelector.reset()
-    this.commentEditor.reset()
-    this.attachmentMgr.reset()
-    this.logViewer.reset()
-    this.commitViewer.reset()
+  get task(): TaskModel | undefined {
+    return this.currentTask
   }
 
-  private setTaskInChildComponents(task: TaskModel) {
+  setTask(task?: TaskModel) {
+    this.autoSave.use(task)
+
     this.flagSelector.setTask(task)
     this.accountSelector.setTask(task)
     this.commentEditor.setTask(task)
     this.attachmentMgr.setTask(task)
     this.logViewer.setTask(task)
     this.commitViewer.setTask(task)
+
+    this.currentTask = task
+
+    this.updateOnHoldBtnLabel()
+    this.view.update(task || {})
+
+    this.el.hidden = !task
   }
 
   private async deleteTask() {
@@ -261,7 +226,7 @@ export default class TaskForm {
 
     this.hideSpinner()
     if (result)
-      this.reset()
+      this.setTask()
 
       return result
   }
@@ -286,7 +251,7 @@ export default class TaskForm {
 
     this.hideSpinner()
     if (result)
-      this.reset()
+      this.setTask()
 
     return result
   }
@@ -316,7 +281,7 @@ export default class TaskForm {
 
     this.hideSpinner()
     if (result)
-      this.reset()
+      this.setTask()
 
     return result
   }

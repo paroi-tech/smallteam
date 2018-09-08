@@ -35,7 +35,7 @@ export default class ArchivedTaskBoard {
     this.taskForm = this.dash.create(TaskForm)
     view.ref("right").appendChild(this.taskForm.el)
 
-    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.task = task)
+    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
     this.dash.listenToModel("updateTask", data => {
       let task = data.model
       if (task.projectId === this.project.id && task.curStepId === ARCHIVED_STEP_ID && !this.boxList.hasBox(task.id))

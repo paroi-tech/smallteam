@@ -39,7 +39,7 @@ export default class SearchWorkspace implements Workspace {
     view.ref("right").appendChild(this.taskForm.el)
 
     this.dash.listenTo("taskBoxSelected", task => {
-      this.taskForm.task = task
+      this.taskForm.setTask(task)
       this.taskForm.show()
     })
   }
@@ -59,7 +59,7 @@ export default class SearchWorkspace implements Workspace {
 
     if (query.length !== 0) {
       this.boxList.clear()
-      this.taskForm.task = undefined
+      this.taskForm.setTask()
       try {
         let arr = await this.model.fetch("Task", { search: query })
         this.fillBoxList(arr)

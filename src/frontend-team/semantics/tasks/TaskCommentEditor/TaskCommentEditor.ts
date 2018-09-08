@@ -67,16 +67,11 @@ export default class TaskCommentEditor {
     return this.task
   }
 
-  setTask(task: TaskModel) {
-    this.reset()
+  setTask(task?: TaskModel) {
     this.task = task
-    this.loadComments()
-  }
-
-  reset() {
     this.textEl.value = ""
-    this.task = undefined
     removeAllChildren(this.listEl)
+    this.loadComments()
   }
 
   private async onSubmit() {

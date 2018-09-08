@@ -47,7 +47,7 @@ export default class TaskBoard {
   }
 
   private addDashListeners() {
-    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.task = task)
+    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
     this.dash.listenTo<TaskModel>("showStepSwitcher", task => {
       if (task.id === this.rootTask.id) // The rootTask panel is always displayed.
         return

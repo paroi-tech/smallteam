@@ -47,21 +47,14 @@ export default class TaskAttachmentManager {
     return this.task
   }
 
-  setTask(task) {
-    this.reset
+  setTask(task?: TaskModel) {
     this.task = task
     this.inputEl.value = ""
     this.refreshMediaList()
   }
 
-  reset() {
-    this.task = undefined
-    this.clearMediaList()
-    this.inputEl.value = ""
-  }
-
   private refreshMediaList() {
-    this.clearMediaList()
+    removeAllChildren(this.listEl)
     this.listAttachedMedias()
   }
 
@@ -70,10 +63,6 @@ export default class TaskAttachmentManager {
       return
     for (let media of this.task.attachedMedias)
       this.displayMedia(media)
-  }
-
-  private clearMediaList() {
-    removeAllChildren(this.listEl)
   }
 
   private displayMedia(media: MediaModel) {

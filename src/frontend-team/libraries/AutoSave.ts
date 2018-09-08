@@ -28,7 +28,7 @@ export class AutoSave<FRAG> {
     }
   }
 
-  use(frag?: FRAG) {
+  use(frag: FRAG | undefined) {
     if (this.values)
       this.opt.save(this.toFragment()).catch(err => this.opt.logError(err))
     this.cancel()

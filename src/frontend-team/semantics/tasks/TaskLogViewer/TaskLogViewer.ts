@@ -40,15 +40,10 @@ export default class TaskLogViewer {
     return this.task
   }
 
-  setTask(task: TaskModel) {
-    this.reset()
+  setTask(task?: TaskModel) {
     this.task = task
-    this.loadTaskLogEntries()
-  }
-
-  reset() {
-    this.task = undefined
     removeAllChildren(this.tableEl.tBodies[0])
+    this.loadTaskLogEntries()
   }
 
   private addEntry(entry: TaskLogEntryModel) {
