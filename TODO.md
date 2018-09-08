@@ -11,6 +11,7 @@ the time, so I can't use JIRA.
 
 # Thomas
 
+- TaskForm: create an event "change" when closing the dialog of accountSelector (with change)
 - CSS
 - WebSocket:
   - Synchronisation between several users

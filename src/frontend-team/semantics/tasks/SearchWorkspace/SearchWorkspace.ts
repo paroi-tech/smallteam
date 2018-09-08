@@ -1,8 +1,6 @@
-import { Dash } from "bkb"
-import App from "../../../App/App"
 import { render } from "@fabtom/lt-monkberry"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { Model, UpdateModelEvent, TaskModel } from "../../../AppModel/AppModel"
+import { Model, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
@@ -40,7 +38,6 @@ export default class SearchWorkspace implements Workspace {
 
     this.dash.listenTo("taskBoxSelected", task => {
       this.taskForm.setTask(task)
-      this.taskForm.show()
     })
   }
 

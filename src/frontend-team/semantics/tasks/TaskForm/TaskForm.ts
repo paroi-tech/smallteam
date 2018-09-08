@@ -8,8 +8,7 @@ import TaskLogViewer from "../TaskLogViewer/TaskLogViewer"
 import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
-import { AutoSave } from "../../../libraries/AutoSave"
-import { TaskFragment } from "../../../../shared/meta/Task"
+import { DelayedAction } from "../../../libraries/DelayedAction"
 import Dialog from "../../../generics/Dialog/Dialog"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 
@@ -38,22 +37,21 @@ export default class TaskForm {
   private logViewer: TaskLogViewer
   private text: EditableTextField
 
-  private autoSave: AutoSave<TaskFragment>
+  private delayedSave: DelayedAction
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
-    this.autoSave = new AutoSave({
-      logError: err => this.log.error(err),
-      save: () => this.updateTask(),
-      showSpinner: show => {
-        // if (show)
-        //   this.spinnerEl.setAttribute("hidden", "hidden")
-        // else
-        //   this.spinnerEl.removeAttribute("hidden")
-        this.spinnerEl.hidden = !show
-        console.log("this.spinnerEl.hidden", this.spinnerEl.hidden)
-      }
+    this.delayedSave = new DelayedAction({
+      action: () => this.updateTask(),
+      onChangeStatus: status => {
+        this.spinnerEl.hidden = !status
+        if (status === "delaying")
+          this.spinnerEl.classList.add("-delaying")
+        else
+          this.spinnerEl.classList.remove("-delaying")
+      },
+      logError: err => this.log.error(err)
     })
 
     this.view = render(template)
@@ -90,7 +88,7 @@ export default class TaskForm {
     this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
     this.view.ref("btnCommits").addEventListener("click", ev => {
       if (this.currentTask)
-      this.dash.create(Dialog, this.commitViewer.el, "Task commits").show()
+        this.dash.create(Dialog, this.commitViewer.el, "Task commits").show()
     })
 
     this.flagSelector = this.dash.create(FlagSelector)
@@ -126,9 +124,9 @@ export default class TaskForm {
       this.updateOnHoldBtnLabel()
     })
 
-    this.labelEl.addEventListener("input", () => this.autoSave.setSingle("label", this.labelEl.value))
-    this.descriptionEl.addEventListener("input", () => this.autoSave.setSingle("description", this.descriptionEl.value))
-
+    this.labelEl.addEventListener("input", () => this.delayedSave.delay())
+    this.descriptionEl.addEventListener("input", () => this.delayedSave.delay())
+    this.dash.listenTo("change", () => this.delayedSave.delay())
   }
 
   get task(): TaskModel | undefined {
@@ -136,7 +134,7 @@ export default class TaskForm {
   }
 
   setTask(task?: TaskModel) {
-    this.autoSave.use(task)
+    this.delayedSave.reset({ flush: true })
 
     this.flagSelector.setTask(task)
     this.accountSelector.setTask(task)
@@ -184,7 +182,7 @@ export default class TaskForm {
         flagIds: this.flagSelector.getSelectedFlagIds(),
         affectedToIds: this.accountSelector.selectedAccountIds
       })
-    } catch(err) {
+    } catch (err) {
       this.refresh()
     }
     this.hideSpinner()
@@ -220,7 +218,7 @@ export default class TaskForm {
         curStepId: ARCHIVED_STEP_ID
       } as any)
       result = true
-    } catch(err) {
+    } catch (err) {
       this.log.error("Unable to archive task", err)
     }
 
@@ -228,7 +226,7 @@ export default class TaskForm {
     if (result)
       this.setTask()
 
-      return result
+    return result
   }
 
   private async putTaskOnHold() {
@@ -245,7 +243,7 @@ export default class TaskForm {
         curStepId: ON_HOLD_STEP_ID
       } as any)
       result = true
-    } catch(err) {
+    } catch (err) {
       this.log.error("Unable to put task on hold", err)
     }
 
@@ -262,7 +260,7 @@ export default class TaskForm {
 
     let stepIds = this.currentTask.project.stepIds
 
-    if (stepIds.length === 0){
+    if (stepIds.length === 0) {
       return
     }
     this.showSpinner()
@@ -275,7 +273,7 @@ export default class TaskForm {
         curStepId: stepIds[0]
       } as any)
       result = true
-    } catch(err) {
+    } catch (err) {
       this.log.error("Unable to reactivate task", err)
     }
 

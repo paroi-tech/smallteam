@@ -64,13 +64,16 @@ body {
 }
 
 .Spinner {
-  background: url(/spinner.svg) no-repeat center center;
+  background: url(/svg/loaders/circles.svg) no-repeat center center;
   background-size: contain;
+  &.-delaying {
+    filter: grayscale(100%);
+  }
   &.-inside {
     background: initial;
     position: relative;
     &::before {
-      background: url(/spinner.svg) no-repeat center center;
+      background: url(/svg/loaders/circles.svg) no-repeat center center;
       background-size: contain;
       content: "";
       height: 100%;

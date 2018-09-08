@@ -15,6 +15,7 @@ export default class FlagSelector {
 
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
+  private flags = new WeakMap<HTMLInputElement, FlagModel>()
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -23,6 +24,15 @@ export default class FlagSelector {
 
     this.el = view.rootEl()
     this.listEl = view.ref("ul")
+    this.listEl.addEventListener("change", ev => {
+      let flag = this.flags.get(ev.target as any)
+      if (flag) {
+        this.dash.emit("change", {
+          type: "Flag",
+          selected: flag
+        })
+      }
+    })
 
     for (let flag of this.model.global.flags)
       this.addItemFor(flag)
@@ -110,6 +120,7 @@ export default class FlagSelector {
 
     this.items.set(flag.id, li)
     this.checkBoxes.set(flag.id, checkBox)
+    this.flags.set(checkBox, flag)
     li.appendChild(box.el)
     this.listEl.appendChild(li)
   }
