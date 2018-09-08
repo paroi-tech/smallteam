@@ -66,6 +66,14 @@ body {
 .Spinner {
   background: url(/spinner.svg) no-repeat center center;
   background-size: contain;
+  &.-inside {
+    background: initial;
+    &::before {
+      background: url(/spinner.svg) no-repeat center center;
+      background-size: contain;
+      content: "";
+    }
+  }
 }
 
 .TitleBar2 {
