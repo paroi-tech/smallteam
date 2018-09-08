@@ -3,11 +3,12 @@
   grid-template-columns: repeat(12, 1fr);
   grid-template-rows: 100%;
   grid-column-gap: 24px;
-  //grid-template-rows: 100%;
+  // grid-template-rows: 100%;
   height: 100%;
 
   &-sel {
     grid-area: 1 / 1 / span 1 / span 7;
+    overflow-x: hidden;
     overflow-y: auto;
 
     > .StepSwitcher { // FIXME: make BEM compliant
@@ -17,6 +18,7 @@
 
   &-edit {
     grid-area: 1 / 8 / span 1 / span 5;
+    overflow-x: hidden;
     overflow-y: auto;
   }
 }

@@ -68,10 +68,14 @@ body {
   background-size: contain;
   &.-inside {
     background: initial;
+    position: relative;
     &::before {
       background: url(/spinner.svg) no-repeat center center;
       background-size: contain;
       content: "";
+      height: 100%;
+      position: absolute;
+      width: 100%;
     }
   }
 }

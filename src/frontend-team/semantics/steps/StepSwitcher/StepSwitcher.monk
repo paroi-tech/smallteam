@@ -1,14 +1,12 @@
 <section class="StepSwitcher">
   <header class="StepSwitcher-header BlockTitle">
     <span :ref="title"></span>
-    <div>
-      <button class="StepSwitcher-toggleButton" title="Fold/Unfold" :ref="toggleBtn">
-        <!-- Monkberry does not handle HTML entities code. -->
-        <!-- The content of the span will be set in component constructor. -->
-        <span :ref="toggleSpan"></span>
-      </button>
-      <button class="StepSwitcher-closeButton" title="Close" :ref="closeBtn">×</button>
-      <span class="fa fa-spinner fa-pulse fa-1x fa-fw" hidden :ref="indicator"></span>
+    <div class="StepSwitcher-buttonContainer">
+      <!-- Monkberry does not handle HTML entities code. -->
+      <!-- The content of the button will be set in component constructor. -->
+      <button class="StepSwitcher-toggleButton" title="Fold/Unfold" :ref="toggleBtn"></button>
+      <button class="StepSwitcher-closeButton" title="Close" :ref="closeBtn">X</button>
+      <span class="StepSwitcher-spinner Spinner -inside" hidden :ref="indicator"></span>
     </div>
   </header>
 

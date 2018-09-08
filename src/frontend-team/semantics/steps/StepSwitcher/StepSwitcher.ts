@@ -19,7 +19,7 @@ const caretDown = "\u{25BC}"
  */
 export default class StepSwitcher {
   readonly el: HTMLElement
-  private toggleBtnSpanEl: HTMLElement
+  private toggleBtnEl: HTMLElement
   private foldableEl: HTMLElement
   private blContainerEl: HTMLElement
   private busyIndicatorEl: HTMLElement
@@ -51,11 +51,13 @@ export default class StepSwitcher {
     this.foldableEl = view.ref("foldable")
     this.blContainerEl = view.ref("boxLists")
     this.taskNameEl = view.ref("taskName")
-    this.toggleBtnSpanEl = view.ref("toggleSpan")
-    this.toggleBtnSpanEl.textContent = caretUp
+    this.toggleBtnEl = view.ref("toggleBtn")
     this.spinnerEl = view.ref("spinner")
     this.busyIndicatorEl = view.ref("indicator")
     this.bottomEl = view.ref("bottom")
+
+    this.toggleBtnEl.textContent = caretUp
+    view.ref("title").textContent = this.parentTask.label
 
     let isRootTask = parentTask.id === this.project.rootTaskId
     let closeBtnEl = view.ref("closeBtn") as HTMLElement
@@ -69,24 +71,17 @@ export default class StepSwitcher {
         this.setVisible(false)
     })
 
-    let addBtnEl = view.ref("addBtn") as HTMLButtonElement
-
-    addBtnEl.addEventListener("click", ev =>  this.onAddtaskClick())
+    view.ref("addBtn").addEventListener("click", () =>  this.onAddtaskClick())
     this.taskNameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
-        addBtnEl.click()
+        this.onAddtaskClick()
     })
-    view.ref("toggleBtn").addEventListener("click", ev => this.toggleFoldableContent())
-
-    let title = this.parentTask.label
-    let titleEl = view.ref("title") as HTMLElement
-
-    titleEl.textContent = title
+    view.ref("toggleBtn").addEventListener("click", () => this.toggleFoldableContent())
 
     this.createBoxLists()
     this.fillBoxLists()
-
     this.addModelListeners()
+
     this.dash.listenTo<BoxEvent>("boxListItemAdded", data => this.onTaskBoxMove(data))
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.onTaskReorder(data))
   }
@@ -177,7 +172,7 @@ export default class StepSwitcher {
 
   setVisible(b: boolean) {
     if (b !== this.visible) {
-      this.el.style.display = b ? "block" : "none"
+      this.el.hidden = !b
       this.visible = b
     }
   }
@@ -202,10 +197,10 @@ export default class StepSwitcher {
 
   private toggleFoldableContent() {
     if (this.collapsibleElVisible) {
-      this.toggleBtnSpanEl.textContent = caretDown
+      this.toggleBtnEl.textContent = caretDown
       this.foldableEl.hidden = true
     } else {
-      this.toggleBtnSpanEl.textContent = caretUp
+      this.toggleBtnEl.textContent = caretUp
       this.foldableEl.hidden = false
     }
     this.collapsibleElVisible = !this.collapsibleElVisible
