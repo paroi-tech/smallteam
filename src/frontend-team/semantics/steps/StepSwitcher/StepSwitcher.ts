@@ -21,7 +21,7 @@ export default class StepSwitcher {
   readonly el: HTMLElement
   private toggleBtnEl: HTMLElement
   private foldableEl: HTMLElement
-  private blContainerEl: HTMLElement
+  private listContainerEl: HTMLElement
   private busyIndicatorEl: HTMLElement
   private taskNameEl: HTMLInputElement
   private spinnerEl: HTMLElement
@@ -49,7 +49,7 @@ export default class StepSwitcher {
 
     this.el = view.rootEl()
     this.foldableEl = view.ref("foldable")
-    this.blContainerEl = view.ref("boxLists")
+    this.listContainerEl = view.ref("boxLists")
     this.taskNameEl = view.ref("taskName")
     this.toggleBtnEl = view.ref("toggleBtn")
     this.spinnerEl = view.ref("spinner")
@@ -208,14 +208,14 @@ export default class StepSwitcher {
 
   private reset() {
     this.dash.children().forEach(child => this.dash.getPublicDashOf(child).destroy())
-    removeAllChildren(this.blContainerEl)
+    removeAllChildren(this.listContainerEl)
     this.createBoxLists()
     this.fillBoxLists()
   }
 
   private createBoxLists() {
     for (let step of this.project.steps)
-      this.blContainerEl.appendChild(this.createBoxListFor(step).el)
+      this.listContainerEl.appendChild(this.createBoxListFor(step).el)
   }
 
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
@@ -256,13 +256,31 @@ export default class StepSwitcher {
         id: box.task.id,
         curStepId: step.id
       })
+      this.sortBoxListContent(step)
     } catch(err) {
       let taskId = box.task.id
       let label = this.parentTask.label
+
       this.log.error(`Unable to update task "${taskId}" in StepSwitcher "${label}"`)
       this.restoreTaskBoxPosition(box, step.id)
     }
     this.enable(true)
+  }
+
+  private sortBoxListContent(step: StepModel) {
+    let list = this.boxLists.get(step.id)
+    let tasks = Array.from(this.parentTask.children || [])
+
+    if (!list)
+      return
+
+    try {
+      tasks.filter(task => task.curStepId === step.id)
+      tasks.sort((t1, t2) => (t1.orderNum || 0) - (t2.orderNum || 0))
+      list.sort(tasks.map(t => t.id))
+    } catch (error) {
+      this.dash.log.error(error)
+    }
   }
 
   private restoreTaskBoxPosition(box: TaskBox, wrongBoxListId: string) {

@@ -9,7 +9,6 @@ the time, so I can't use JIRA.
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Listen to commit events from model in `TaskCommitDialog`
 
-
 # Thomas
 
 - CSS
@@ -21,11 +20,7 @@ the time, so I can't use JIRA.
 
 # Lionel
 
-- Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
-- Replace ES5 `get` and `set` by methods if an exception can be thrown
-
 - Paste images in the task description
-- TaskBox order in BoxList (StepSwitcher)
 - queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
 - Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
@@ -90,6 +85,9 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- TaskBox order in BoxList (StepSwitcher)
+- Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
+- Replace ES5 `get` and `set` by methods if an exception can be thrown
 - Make a generic component `Dialog` which recieve a component as a `"body"` parameter
 - Replace all `style="display: none"` with the `hidden` attribute.
 - Add subdomain check for public routes (session.ts (use transaction and accept only if mail is sent), invitation.ts)
