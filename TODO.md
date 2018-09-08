@@ -20,6 +20,11 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
+- Replace ES5 `get` and `set` by methods if an exception can be thrown
+
+- In TaskForm, when the user click on the "Archive" button, open a confirmation dialog.
+
 - Paste images in the task description
 - queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
