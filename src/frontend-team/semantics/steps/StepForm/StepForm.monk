@@ -1,16 +1,17 @@
 <div class="StepForm">
   <header class="StepForm-header BlockTitle">
-    <span>Step FieldGroup</span>
+    <span>Step</span>
     <div :ref="menu"></div>
   </header>
 
   <div :ref="form">
-    <fieldset :ref="fieldset">
-      <label class="Field">
+    <fieldset class="FieldGroup" :ref="fieldset">
+      <label class="FieldGroup-item Field">
         <span class="Field-lbl">Name</span>
-        <input type="text" required value="{{ name }}" :ref="name">
+        <input class="Field-input" type="text" required value="{{ name }}" :ref="name">
       </label>
-      <div>
+
+      <div class="FieldGroup-action">
         <button type="button" disabled :ref="submitBtn">
           <span class="fa fa-spinner fa-pulse fa-1x fa-fw" hidden :ref="spinner"></span>
           Submit

@@ -43,6 +43,11 @@ export interface BoxListOptions {
   disabled?: boolean
 
   /**
+   * Hide BoxList title.
+   */
+  hideTitle?: boolean
+
+  /**
    * Is this an InlineBoxlist?
    */
   inline: boolean | undefined
@@ -86,8 +91,8 @@ export default class BoxList<T extends Box> {
 
   constructor(private dash: Dash, private options: BoxListOptions) {
     let view = render(boxListTemplate)
-    this.el = view.rootEl()
 
+    this.el = view.rootEl()
     this.ulEl = view.ref("ul")
     this.busyIndicatorEl = view.ref("busyIcon")
     this.titleEl = view.ref("title")
@@ -95,6 +100,9 @@ export default class BoxList<T extends Box> {
       this.el.classList.add("InlineBoxList")
 
     this.setTitle(this.options.name)
+    if (options.hideTitle)
+      (view.ref("header") as HTMLHtmlElement).hidden = true
+
     this.sortable = this.makeSortable()
   }
 

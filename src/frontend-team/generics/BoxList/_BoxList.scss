@@ -1,12 +1,12 @@
 .BoxList {
   &-header {
-    align-items: baseline;
+    // align-items: baseline;
     color: #000;
     border-bottom: 1px solid $themeColor;
-    display: flex;
-    flex-direction: row;
+    // display: flex;
+    // flex-direction: row;
     font-weight: bold;
-    justify-content: space-between;
+    // justify-content: space-between;
     padding: 8px 0px 5px;
   }
 
@@ -34,6 +34,11 @@
     min-height: 30px;
     padding: 5px;
     vertical-align: middle;
+  }
+
+  &-spinner {
+    height: 16px;
+    width: 16px;
   }
 }
 

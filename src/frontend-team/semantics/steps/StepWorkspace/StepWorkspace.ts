@@ -14,7 +14,8 @@ const boxListOptions = {
   id: "",
   name: "Steps",
   group: undefined,
-  sort: true
+  sort: true,
+  hideTitle: true
 }
 
 export default class StepWorkspace implements Workspace {
