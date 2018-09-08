@@ -274,13 +274,9 @@ export default class StepSwitcher {
     if (!list)
       return
 
-    try {
-      tasks.filter(task => task.curStepId === step.id)
-      tasks.sort((t1, t2) => (t1.orderNum || 0) - (t2.orderNum || 0))
-      list.sort(tasks.map(t => t.id))
-    } catch (error) {
-      this.dash.log.error(error)
-    }
+    tasks.filter(task => task.curStepId === step.id)
+    tasks.sort((t1, t2) => (t1.orderNum || 0) - (t2.orderNum || 0))
+    list.sort(tasks.map(t => t.id))    } catch (error) {
   }
 
   private restoreTaskBoxPosition(box: TaskBox, wrongBoxListId: string) {
