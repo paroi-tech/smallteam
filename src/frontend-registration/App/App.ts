@@ -33,12 +33,18 @@ export default class App {
   private handlePasswordReset() {
     if (!this.params.accountId)
         throw new Error("User ID not provided")
-    let dialog = this.dash.create(PasswordResetDialog, this.params.accountId, this.params.token)
+    let dialog = this.dash.create(PasswordResetDialog, {
+      accountId: this.params.accountId,
+      token: this.params.token
+    })
     dialog.open()
   }
 
   private async handleUserRegistration() {
-    let dialog = this.dash.create(RegistrationForm, this.params.token, this.params.username)
+    let dialog = this.dash.create(RegistrationForm, {
+      token: this.params.token,
+      username: this.params.username
+    })
     // In case of successful registration, we redirect user to login page.
     if (await dialog.open())
       window.location.href = `${this.baseUrl}/`

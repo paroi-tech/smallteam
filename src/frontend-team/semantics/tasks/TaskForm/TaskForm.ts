@@ -79,7 +79,7 @@ export default class TaskForm {
     })
     this.view.ref("btnLog").addEventListener("click", () => {
       if (this.currentTask)
-        this.dash.create(Dialog, this.logViewer.el, "Task logs").show()
+        this.dash.create(Dialog, { contentEl: this.logViewer.el, title: "Task logs" }).show()
     })
     this.view.ref("btnDelete").addEventListener("click", ev => {
       if (this.currentTask)
@@ -88,7 +88,7 @@ export default class TaskForm {
     this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
     this.view.ref("btnCommits").addEventListener("click", ev => {
       if (this.currentTask)
-        this.dash.create(Dialog, this.commitViewer.el, "Task commits").show()
+        this.dash.create(Dialog, { contentEl: this.commitViewer.el, title: "Task commits" }).show()
     })
 
     this.flagSelector = this.dash.create(FlagSelector)

@@ -8,13 +8,18 @@ import App from "../App/App"
 
 import template = require("./PasswordResetDialog.monk")
 
-export default class LoginDialog {
+export interface PasswordResetDialogOptions {
+  accountId: string
+  token: string
+}
+
+export default class PasswordResetDialog {
   readonly el: HTMLDialogElement
   private spinnerEl: HTMLElement
 
   private edit: PasswordEdit
 
-  constructor(private dash: Dash<App>, private accountId: string, private token: string) {
+  constructor(private dash: Dash<App>, private options: PasswordResetDialogOptions) {
     let view = render(template)
 
     this.el = view.rootEl()
@@ -85,8 +90,8 @@ export default class LoginDialog {
           "Content-Type": "application/json"
         }),
         body: JSON.stringify({
-          accountId: this.accountId,
-          token: this.token,
+          accountId: this.options.accountId,
+          token: this.options.token,
           password
         })
       })

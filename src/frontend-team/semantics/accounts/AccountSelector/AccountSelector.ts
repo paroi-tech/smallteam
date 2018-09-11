@@ -1,12 +1,13 @@
 import AccountBox from "../AccountBox/AccountBox"
 import BoxList from "../../../generics/BoxList/BoxList"
-import { Model, TaskModel, UpdateModelEvent, AccountModel } from "../../../AppModel/AppModel"
-import AccountSelectionDialog from "../AccountSelectionDialog/AccountSelectionDialog"
+import { Model, TaskModel, AccountModel } from "../../../AppModel/AppModel"
+import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import Dialog from "../../../generics/Dialog/Dialog";
 
 import template = require("./AccountSelector.monk")
-import itemTemplate = require("./label.monk")
+// import itemTemplate = require("./label.monk")
 
 /**
  * The idea of a list of checkbox was found here:
@@ -15,7 +16,7 @@ import itemTemplate = require("./label.monk")
 export default class AccountSelector {
   readonly el: HTMLElement
   private boxList: BoxList<AccountBox>
-  private dialog: AccountSelectionDialog
+  private dialog: AccountSelectionComponent
 
   private model: Model
   private task?: TaskModel
@@ -26,12 +27,16 @@ export default class AccountSelector {
     let view = render(template)
     this.el = view.rootEl()
 
-    view.ref("btn").addEventListener("click", ev => {
+    view.ref("btn").addEventListener("click", async () => {
       if (!this.task)
         return
       this.dialog.selectAccounts(this.task.affectedTo || [])
-      document.body.appendChild(this.dialog.el)
-      this.dialog.show()
+      await this.dash.create(Dialog, {
+        contentEl: this.dialog.el,
+        title: "Select accounts"
+      }).show()
+      this.boxList.clear()
+      this.dialog.selectedAccounts().forEach(c => this.addBoxFor(c))
     })
 
     this.boxList = this.dash.create(BoxList, {
@@ -43,12 +48,7 @@ export default class AccountSelector {
     })
     view.ref("boxlist").appendChild(this.boxList.el)
 
-    this.dialog = this.dash.create(AccountSelectionDialog)
-    this.dash.listenTo(this.dialog, "accountSelectionDialogClosed", () => {
-      let arr = this.dialog.selectedAccounts()
-      this.boxList.clear()
-      arr.forEach(c => this.addBoxFor(c))
-    })
+    this.dialog = this.dash.create(AccountSelectionComponent)
 
     this.dash.listenToModel("deleteAccount", data => {
       let accountId = data.id as string

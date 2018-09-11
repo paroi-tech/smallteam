@@ -3,13 +3,12 @@ import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/Check
 import AccountBox from "../AccountBox/AccountBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-
-import template = require("./AccountSelectionDialog.monk")
 import App from "../../../App/App"
 
-export default class AccountSelectionDialog {
-  readonly el: HTMLDialogElement
-  private buttonEl: HTMLButtonElement
+import template = require("./AccountSelectionComponent.monk")
+
+export default class AccountSelectionComponent {
+  readonly el: HTMLElement
 
   private model: Model
   private selector: CheckboxMultiSelect<AccountModel, App>
@@ -18,17 +17,7 @@ export default class AccountSelectionDialog {
     this.model = this.dash.app.model
 
     let view = render(template)
-
     this.el = view.rootEl()
-    this.buttonEl = view.ref("button")
-
-    // By default, pressing the ESC key close the dialog. We have to prevent that.
-    this.el.addEventListener("cancel", ev => ev.preventDefault())
-
-    this.buttonEl.addEventListener("click", () => {
-      this.el.close()
-      this.dash.emit("accountSelectionDialogClosed")
-    })
 
     this.selector = this.dash.create<CheckboxMultiSelect<AccountModel, App>>(
       CheckboxMultiSelect,
@@ -41,12 +30,7 @@ export default class AccountSelectionDialog {
     this.dash.listenToModel("changeAccount", () => this.selector.fillWith(this.model.global.accounts))
     this.selector.fillWith(this.model.global.accounts)
 
-    view.ref("selectorContainer").appendChild(this.selector.el)
-  }
-
-  show() {
-    document.body.appendChild(this.el)
-    this.el.showModal()
+    view.ref("selector").appendChild(this.selector.el)
   }
 
   selectAccounts(arr: AccountModel[]) {

@@ -7,6 +7,11 @@ import { validateEmail } from "../libraries/utils"
 
 import template = require("./RegistrationForm.monk")
 
+export interface RegistrationFormOptions {
+  token: string
+  username?: string
+}
+
 export default class RegistrationForm {
   private readonly el: HTMLDialogElement
   private nameEl: HTMLInputElement
@@ -14,11 +19,10 @@ export default class RegistrationForm {
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
   private emailEl: HTMLInputElement
-  private spinnerEl: HTMLElement
 
   private curDfd: Deferred<boolean> | undefined
 
-  constructor(private dash: Dash<{ baseUrl: string }>, private token: string, username?: string) {
+  constructor(private dash: Dash<{ baseUrl: string }>, private options: RegistrationFormOptions) {
     let view = render(template)
 
     this.el = view.rootEl()
@@ -27,7 +31,7 @@ export default class RegistrationForm {
     this.passwordEl = view.ref("password")
     this.confirmEl = view.ref("confirm")
     this.emailEl = view.ref("email")
-    this.spinnerEl = view.ref("spinner")
+    // this.spinnerEl = view.ref("spinner")
 
     view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
     view.ref("cancelBtn").addEventListener("click", ev => {
@@ -38,7 +42,7 @@ export default class RegistrationForm {
       }
     })
 
-    this.usernameEl.value = username || ""
+    this.usernameEl.value = options.username || ""
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
@@ -116,7 +120,7 @@ export default class RegistrationForm {
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ name, login, password, email, token: this.token })
+        body: JSON.stringify({ name, login, password, email, token: this.options.token })
       })
 
       if (!response.ok)

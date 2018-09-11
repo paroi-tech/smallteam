@@ -1,5 +1,0 @@
-<dialog class="AccountSelectionDialog">
-  <header class="AccountSelectionDialog-header">Select accounts</header>
-  <div :ref="selectorContainer"></div>
-  <button class="AccountSelectionDialog-closeButton" :ref="button">Close</button>
-</dialog>

@@ -22,22 +22,28 @@ function makeDefaultThumbnail(elt: HTMLElement) {
   elt.classList.add("fas", "fa-file-alt")
 }
 
+export interface FileThumbnailOptions {
+  media: MediaModel
+  width: number
+  height: number
+}
+
 export default class FileThumbnail {
   readonly el: HTMLElement
   private chosenVariant: MediaVariantModel
 
-  constructor(private dash: Dash, private media: MediaModel, readonly width: number, readonly height: number) {
+  constructor(private dash: Dash, private options: FileThumbnailOptions) {
     let view = render(template)
     this.el = view.rootEl()
-    this.el.style.width = `${width}px`
-    this.el.style.height = `${height}px`
+    this.el.style.width = `${options.width}px`
+    this.el.style.height = `${options.height}px`
 
-    this.chosenVariant = closestImageVariant(this.media, this.width, this.height) || this.media.variants[0]
+    this.chosenVariant = closestImageVariant(options.media, options.width, options.height) || options.media.variants[0]
     this.createThumbnail()
   }
 
   private createThumbnail() {
-    let mtype = getMediaType(this.media)
+    let mtype = getMediaType(this.options.media)
     if (mtype === "image")
       this.displayImageThumbnail()
     else if (mtype === "video")

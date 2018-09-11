@@ -1,6 +1,6 @@
 import { Dash, EventName, EventCallback } from "bkb";
 import App from "./App"
-import { UpdateModelEvent, ReorderModelEvent, TaskModel, FlagModel } from "../AppModel/AppModel";
+import { UpdateModelEvent, ReorderModelEvent, TaskModel, FlagModel, AccountModel } from "../AppModel/AppModel";
 
 export interface OwnDash extends Dash<App> {
   listenToModel(eventName: "reorder", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this
@@ -16,6 +16,11 @@ export interface OwnDash extends Dash<App> {
   listenToModel(eventName: "changeFlag", listener: EventCallback<UpdateModelEvent<FlagModel>>, thisArg?: any): this
   listenToModel(eventName: "updateFlag", listener: EventCallback<UpdateModelEvent<FlagModel>>, thisArg?: any): this
   listenToModel(eventName: "deleteFlag", listener: EventCallback<UpdateModelEvent<undefined>>, thisArg?: any): this
+
+  listenToModel(eventName: "changeAccount", listener: EventCallback<UpdateModelEvent<AccountModel>>, thisArg?: any): this
+  listenToModel(eventName: "updateAccount", listener: EventCallback<UpdateModelEvent<AccountModel>>, thisArg?: any): this
+  listenToModel(eventName: "deleteAccount", listener: EventCallback<UpdateModelEvent<undefined>>, thisArg?: any): this
+  listenToModel(eventName: "createAccount", listener: EventCallback<UpdateModelEvent<AccountModel>>, thisArg?: any): this
 
   listenToModel<ED = UpdateModelEvent>(eventName: EventName, listener: EventCallback<ED>, thisArg?: any): this
 }

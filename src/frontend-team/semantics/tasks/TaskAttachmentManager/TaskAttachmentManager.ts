@@ -68,7 +68,11 @@ export default class TaskAttachmentManager {
   private displayMedia(media: MediaModel) {
     let view = render(mediaTemplate)
     let el = view.rootEl()
-    let thumbnail = this.dash.create(FileThumbnail, media, 24, 24)
+    let thumbnail = this.dash.create(FileThumbnail, {
+      media,
+      width: 24,
+      height: 24
+    })
 
     view.ref("thumbnail").appendChild(thumbnail.el)
     view.ref("download").addEventListener("click", () => {
