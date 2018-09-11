@@ -25,12 +25,12 @@ export default class LoginDialog {
 
     let btnEl: HTMLButtonElement = view.ref("submitBtn")
 
-    btnEl.addEventListener("click", ev => this.onSubmit())
+    btnEl.addEventListener("click", () => this.onSubmit())
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter" && this.enabled)
         btnEl.click()
     })
-    view.ref("pwdReset").addEventListener("click", ev => this.onPasswordReset())
+    view.ref("pwdReset").addEventListener("click", () => this.onPasswordReset())
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())

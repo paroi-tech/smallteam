@@ -58,7 +58,7 @@ export default class TaskBox implements Box {
       this.addTaskFlags()
     })
 
-    view.ref("openBtn").addEventListener("click", ev => this.dash.emit("taskBoxSelected", this.task))
+    view.ref("openBtn").addEventListener("click", () => this.dash.emit("taskBoxSelected", this.task))
   }
 
   get id() {

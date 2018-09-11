@@ -18,7 +18,8 @@ export default class WarningDialog {
     this.msgEl = view.ref("message")
     this.titleEl = view.ref("title")
 
-    let closeCb = ev => this.close()
+    let closeCb = () => this.close()
+
     view.ref("button").addEventListener("click", closeCb)
     view.ref("close").addEventListener("click", closeCb)
     this.el.addEventListener("cancel", ev => {
@@ -29,15 +30,17 @@ export default class WarningDialog {
       if (ev.key === "Enter")
         this.close()
     })
-    document.body.appendChild(this.el)
   }
 
   show(msg: string, title = "Warning"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
+
+    document.body.appendChild(this.el)
     makeOutsideClickHandlerFor(this.el, () => this.close())
     this.el.showModal()
+
     return this.currDfd.promise
   }
 

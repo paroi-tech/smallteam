@@ -15,15 +15,17 @@ export default class PromptDialog {
 
   constructor(private dash: Dash) {
     let view = render(template)
+
     this.el = view.rootEl()
     this.msgEl = view.ref("message")
     this.titleEl = view.ref("title")
     this.inputEl = view.ref("input")
 
-    let closeCb = ev => this.close("")
+    let closeCb = () => this.close("")
+
     view.ref("cancelBtn").addEventListener("click", closeCb)
     view.ref("close").addEventListener("click",closeCb)
-    view.ref("okBtn").addEventListener("click", ev => {
+    view.ref("okBtn").addEventListener("click", () => {
       if (this.inputEl.value !== "")
         this.close(this.inputEl.value)
     })
@@ -35,16 +37,17 @@ export default class PromptDialog {
       if (ev.key === "Enter" && this.inputEl.value !== "")
         this.close(this.inputEl.value)
     })
-
-    document.body.appendChild(this.el)
   }
 
   show(msg: string, title = "Prompt"): Promise<string> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
+
+    document.body.appendChild(this.el)
     makeOutsideClickHandlerFor(this.el, () => this.close(""))
     this.el.showModal()
+
     return this.currDfd.promise
   }
 

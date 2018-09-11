@@ -1,7 +1,7 @@
 import { createApplication } from "bkb"
 import App from "./App/App"
 
-document.addEventListener("DOMContentLoaded", ev => {
+document.addEventListener("DOMContentLoaded", () => {
   let url = new URL(window.location.href)
   // The method used to get URL was params found at:
   // https://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters

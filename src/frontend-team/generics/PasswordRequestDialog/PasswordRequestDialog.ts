@@ -22,8 +22,8 @@ export default class PasswordRequestDialog {
 
     let btnEl: HTMLButtonElement = view.ref("submit")
 
-    btnEl.addEventListener("click", ev => this.onSubmit())
-    view.ref("cancel").addEventListener("click", ev => this.onCancel())
+    btnEl.addEventListener("click", () => this.onSubmit())
+    view.ref("cancel").addEventListener("click", () => this.onCancel())
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
         btnEl.click()

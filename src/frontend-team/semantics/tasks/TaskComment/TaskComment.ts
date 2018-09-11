@@ -45,9 +45,9 @@ export default class TaskComment {
     this.contentEl = this.view.ref("content")
 
     this.editButtonEl.textContent = editText
-    this.editButtonEl.addEventListener("click", ev => this.onBtnEditClick())
-    this.cancelButtonEl.addEventListener("click", ev => this.onBtnCancelClick())
-    this.deleteButtonEl.addEventListener("click", ev => this.onBtnDeleteClick())
+    this.editButtonEl.addEventListener("click", () => this.onBtnEditClick())
+    this.cancelButtonEl.addEventListener("click", () => this.onBtnCancelClick())
+    this.deleteButtonEl.addEventListener("click", () => this.onBtnDeleteClick())
 
     this.cancelButtonEl.hidden = true // Cancel button is hidden by default.
     if (this.accountId != this.comment.writtenById) {

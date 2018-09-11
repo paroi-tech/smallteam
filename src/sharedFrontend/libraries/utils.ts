@@ -59,5 +59,5 @@ export function makeOutsideClickHandlerFor(dialogEl: HTMLDialogElement, cb: () =
   }
 
   document.body.addEventListener("click", clickHandler)
-  dialogEl.addEventListener("close", ev => document.body.removeEventListener("click", clickHandler))
+  dialogEl.addEventListener("close", () => document.body.removeEventListener("click", clickHandler))
 }

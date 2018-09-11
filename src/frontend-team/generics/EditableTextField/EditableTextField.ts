@@ -14,12 +14,12 @@ export default class EditableTextField {
     this.btnEl = view.ref("btn")
     this.inputEl = view.ref("input")
 
-    this.btnEl.addEventListener("click", ev => {
+    this.btnEl.addEventListener("click", () => {
       this.inputEl.disabled = false
       this.inputEl.focus()
     })
 
-    this.inputEl.addEventListener("blur", ev => {
+    this.inputEl.addEventListener("blur", () => {
       this.inputEl.disabled = true
       this.dash.emit("focusout", this.inputEl.value)
     })

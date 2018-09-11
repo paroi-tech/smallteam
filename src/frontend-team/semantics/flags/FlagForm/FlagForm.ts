@@ -46,7 +46,7 @@ export default class FlagForm {
     this.orderNumEl = this.view.ref("orderNum")
     this.spinnerEl = this.view.ref("spinner")
 
-    this.view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
+    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
 
     this.dash.listenToModel("deleteFlag", data => {
       let id = data.id as string

@@ -33,8 +33,8 @@ export default class RegistrationForm {
     this.emailEl = view.ref("email")
     // this.spinnerEl = view.ref("spinner")
 
-    view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
-    view.ref("cancelBtn").addEventListener("click", ev => {
+    view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    view.ref("cancelBtn").addEventListener("click", () => {
       if (this.curDfd) {
         this.curDfd.reject("Process canceled")
         this.curDfd = undefined

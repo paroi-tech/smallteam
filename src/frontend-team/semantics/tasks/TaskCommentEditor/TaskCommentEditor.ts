@@ -30,7 +30,7 @@ export default class TaskCommentEditor {
     this.textEl = view.ref("textarea")
     this.spinnerEl = view.ref("spinner")
 
-    view.ref("submit").addEventListener("click", ev => {
+    view.ref("submit").addEventListener("click", () => {
       if (this.task)
         this.onSubmit()
     })

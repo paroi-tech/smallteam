@@ -43,7 +43,7 @@ export default class StepForm {
 
     let btnEl = this.view.ref("submitBtn") as HTMLButtonElement
 
-    btnEl.addEventListener("click", ev => {
+    btnEl.addEventListener("click", () => {
       let name = this.nameEl.value.trim()
       if (name.length === 0) {
         this.log.warn("The name of the step should contain more characters.")
@@ -51,7 +51,7 @@ export default class StepForm {
       }
       this.updateStep(name)
     })
-    this.view.ref("cancelBtn").addEventListener("click", ev => {
+    this.view.ref("cancelBtn").addEventListener("click", () => {
       this.clearContent()
       btnEl.setAttribute("disabled", "true")
       if (this.step)
@@ -61,7 +61,7 @@ export default class StepForm {
       if (!btnEl.getAttribute("disabled") && ev.key === "Enter")
         btnEl.click()
     })
-    this.nameEl.addEventListener("input", ev => btnEl.removeAttribute("disabled"))
+    this.nameEl.addEventListener("input", () => btnEl.removeAttribute("disabled"))
 
     this.dash.listenToModel("deleteStep", data => {
       if (this.step && this.step.id === data.id)

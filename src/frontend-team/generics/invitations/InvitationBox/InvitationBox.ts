@@ -18,8 +18,8 @@ export default class StepBox implements Box {
     view.ref("creation").textContent = new Date(this.invitation.creationTs).toDateString()
     view.ref("expiration").textContent = new Date(this.invitation.expirationTs).toDateString()
 
-    view.ref("resend").addEventListener("click", ev => this.dash.emit("resendInvitation", this.invitation.id))
-    view.ref("cancel").addEventListener("click", ev => this.dash.emit("cancelInvitation", this.invitation.id))
+    view.ref("resend").addEventListener("click", () => this.dash.emit("resendInvitation", this.invitation.id))
+    view.ref("cancel").addEventListener("click", () => this.dash.emit("cancelInvitation", this.invitation.id))
   }
 
   get id(): string {

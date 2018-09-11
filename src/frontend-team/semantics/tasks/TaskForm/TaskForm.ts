@@ -81,12 +81,12 @@ export default class TaskForm {
       if (this.currentTask)
         this.dash.create(Dialog, { contentEl: this.logViewer.el, title: "Task logs" }).show()
     })
-    this.view.ref("btnDelete").addEventListener("click", ev => {
+    this.view.ref("btnDelete").addEventListener("click", () => {
       if (this.currentTask)
         this.deleteTask()
     })
-    this.view.ref("btnArchive").addEventListener("click", ev => this.archiveTask())
-    this.view.ref("btnCommits").addEventListener("click", ev => {
+    this.view.ref("btnArchive").addEventListener("click", () => this.archiveTask())
+    this.view.ref("btnCommits").addEventListener("click", () => {
       if (this.currentTask)
         this.dash.create(Dialog, { contentEl: this.commitViewer.el, title: "Task commits" }).show()
     })

@@ -32,9 +32,9 @@ export default class WebhookTableItem {
     this.urlEl.textContent = this.webhook.url
     this.btnToggleEl.textContent = this.webhook.active ? "Deactivate" : "Activate"
 
-    this.btnDeleteEl.addEventListener("click", ev => this.dispatch("delete"))
-    this.btnSecretEl.addEventListener("click", ev => this.dispatch("showSecret"))
-    this.btnToggleEl.addEventListener("click", ev => this.dispatch("toggle"))
+    this.btnDeleteEl.addEventListener("click", () => this.dispatch("delete"))
+    this.btnSecretEl.addEventListener("click", () => this.dispatch("showSecret"))
+    this.btnToggleEl.addEventListener("click", () => this.dispatch("toggle"))
   }
 
   private dispatch(action: "showSecret" | "toggle" | "delete") {

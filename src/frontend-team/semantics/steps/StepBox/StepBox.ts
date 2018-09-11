@@ -14,7 +14,7 @@ export default class StepBox implements Box {
     this.el = view.rootEl()
     this.spanEl = view.ref("span")
     this.spanEl.textContent = this.step.label
-    this.el.addEventListener("click", ev => this.dash.emit("stepBoxSelected", this.step))
+    this.el.addEventListener("click", () => this.dash.emit("stepBoxSelected", this.step))
 
     this.dash.listenToModel("updateStep", data => {
       if (data.model === this.step)

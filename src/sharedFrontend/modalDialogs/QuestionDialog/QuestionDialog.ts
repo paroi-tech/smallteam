@@ -19,9 +19,9 @@ export default class QuestionDialog {
     this.msgEl = view.ref("message")
     this.titleEl = view.ref("title")
 
-    view.ref("okBtn").addEventListener("click", ev => this.close(true))
-    view.ref("cancelBtn").addEventListener("click", ev => this.close(false))
-    view.ref("close").addEventListener("click",  ev => this.close(false))
+    view.ref("okBtn").addEventListener("click", () => this.close(true))
+    view.ref("cancelBtn").addEventListener("click", () => this.close(false))
+    view.ref("close").addEventListener("click",  () => this.close(false))
 
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
@@ -32,13 +32,14 @@ export default class QuestionDialog {
         this.close(true)
     })
 
-    document.body.appendChild(this.el)
   }
 
   show(msg: string, title = "Question"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
+
+    document.body.appendChild(this.el)
     makeOutsideClickHandlerFor(this.el, () => this.close(false))
     this.el.showModal()
 

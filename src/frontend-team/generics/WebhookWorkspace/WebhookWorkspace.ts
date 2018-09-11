@@ -36,7 +36,7 @@ export default class WebhookWorkspace {
     this.tableEl = view.ref("table")
     this.btnEl = view.ref("add")
 
-    this.btnEl.addEventListener("click", ev => this.createWebhook())
+    this.btnEl.addEventListener("click", () => this.createWebhook())
     this.dash.listenTo("webhookDeleted", data => {
       let item = this.itemMap.get(data)
 

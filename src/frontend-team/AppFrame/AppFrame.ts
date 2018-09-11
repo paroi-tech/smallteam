@@ -98,7 +98,7 @@ export default class AppFrame {
         cssClass: "-notif"
       },
       canHaveAlert: true,
-      onClick: ev => {
+      onClick: () => {
         console.log("Notifications to implement...") // TODO:
       }
     } as NavBtnOptions)

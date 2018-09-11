@@ -19,7 +19,7 @@ export default class InvitationForm {
     this.emailEl = view.ref("email")
     this.validityEl = view.ref("validity")
     this.spinnerEl = view.ref("spinner")
-    view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
+    view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
   }
 
   private async onSubmit() {

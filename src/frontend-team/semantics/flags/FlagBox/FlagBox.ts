@@ -14,7 +14,7 @@ export default class FlagBox implements Box {
 
     this.el = view.rootEl()
     colorEl.style.color = this.flag.color
-    this.el.addEventListener("click", ev => this.dash.emit("flagBoxSelected", this.flag))
+    this.el.addEventListener("click", () => this.dash.emit("flagBoxSelected", this.flag))
     view.update(this.flag)
 
     this.dash.listenToModel("updateFlag", data => {

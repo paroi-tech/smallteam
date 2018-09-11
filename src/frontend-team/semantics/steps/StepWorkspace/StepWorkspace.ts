@@ -44,7 +44,7 @@ export default class StepWorkspace implements Workspace {
     this.spinnerEl = view.ref("spinner")
 
     let btnEl = view.ref("btn")as HTMLButtonElement
-    btnEl.addEventListener("click", ev => this.onAdd())
+    btnEl.addEventListener("click", () => this.onAdd())
     this.nameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
         btnEl.click()

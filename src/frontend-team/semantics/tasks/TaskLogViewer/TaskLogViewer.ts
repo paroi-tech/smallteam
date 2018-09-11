@@ -31,9 +31,6 @@ export default class TaskLogViewer {
         return
       this.addEntry(entry)
     })
-
-    // By default, pressing the ESC key close the dialog. We have to prevent that.
-    this.el.addEventListener("cancel", ev => ev.preventDefault())
   }
 
   getTask() {
@@ -47,11 +44,12 @@ export default class TaskLogViewer {
   }
 
   private addEntry(entry: TaskLogEntryModel) {
-    let row = this.tableEl.tBodies[0].insertRow(-1)
-    row.insertCell(-1).textContent = entry.id
-    row.insertCell(-1).textContent = new Date(entry.entryTs).toLocaleTimeString()
-    row.insertCell(-1).textContent = entry.step.label
-    row.insertCell(-1).textContent = entry.account.login
+    let row = this.tableEl.tBodies[0].insertRow()
+
+    row.insertCell().textContent = entry.id
+    row.insertCell().textContent = new Date(entry.entryTs).toLocaleTimeString()
+    row.insertCell().textContent = entry.step.label
+    row.insertCell().textContent = entry.account.login
   }
 
   private async loadTaskLogEntries() {

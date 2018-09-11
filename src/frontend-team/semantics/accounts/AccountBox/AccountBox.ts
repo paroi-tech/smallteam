@@ -14,7 +14,7 @@ export default class AccountBox implements Box {
 
     view.update(this.account)
     this.el = view.rootEl()
-    this.el.addEventListener("click", ev => this.dash.emit("accountBoxSelected", this.account))
+    this.el.addEventListener("click", () => this.dash.emit("accountBoxSelected", this.account))
 
     let flag = this.dash.create(AccountFlag, this.account)
     view.ref("avatar").appendChild(flag.el)

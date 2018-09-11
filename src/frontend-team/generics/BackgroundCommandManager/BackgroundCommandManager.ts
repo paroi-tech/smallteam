@@ -22,7 +22,7 @@ export default class BackgroundCommandManager {
     this.el = view.rootEl()
     document.body.appendChild(this.el)
 
-    view.ref("closeBtn").addEventListener("click", ev => this.hide())
+    view.ref("closeBtn").addEventListener("click", () => this.hide())
     this.tableEl = view.ref("table")
     this.buttonEl = this.createHtmlMenuButtonElement()
 
@@ -46,7 +46,7 @@ export default class BackgroundCommandManager {
     let view = render(templateMenuBtn)
     let btnEl = view.rootEl() as HTMLButtonElement
 
-    btnEl.addEventListener("click", ev => {
+    btnEl.addEventListener("click", () => {
       btnEl.style.backgroundColor = "transparent"
       this.show()
     })
@@ -61,23 +61,23 @@ export default class BackgroundCommandManager {
   private onBgCommandError(cmd: BgCommand) {
     this.buttonEl.style.backgroundColor = "orange"
 
-    let row = this.tableEl.tBodies[0].insertRow(-1)
+    let row = this.tableEl.tBodies[0].insertRow()
 
-    row.insertCell(-1).textContent = cmd.label
-    row.insertCell(-1).textContent = cmd.startDt.toLocaleTimeString()
+    row.insertCell().textContent = cmd.label
+    row.insertCell().textContent = cmd.startDt.toLocaleTimeString()
 
     let progressCheckBox = document.createElement("input")
 
     progressCheckBox.setAttribute("type", "checkbox")
     progressCheckBox.disabled = true
     progressCheckBox.checked = cmd.done ? true : false
-    row.insertCell(-1).appendChild(progressCheckBox)
+    row.insertCell().appendChild(progressCheckBox)
 
     let doneCheckBox = document.createElement("input")
 
     doneCheckBox.setAttribute("type", "checkbox")
     doneCheckBox.disabled = true
     doneCheckBox.checked = cmd.done ? true : false
-    row.insertCell(-1).appendChild(doneCheckBox)
+    row.insertCell().appendChild(doneCheckBox)
   }
 }

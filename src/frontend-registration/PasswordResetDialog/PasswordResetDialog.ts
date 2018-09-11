@@ -30,7 +30,7 @@ export default class PasswordResetDialog {
 
     let btnEl: HTMLButtonElement = view.ref("submitBtn")
 
-    btnEl.addEventListener("click", ev => this.onSubmit())
+    btnEl.addEventListener("click", () => this.onSubmit())
     this.el.addEventListener("keyup", (ev: KeyboardEvent) => {
       if (ev.key === "Enter")
         this.onSubmit()
