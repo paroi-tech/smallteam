@@ -1,5 +1,5 @@
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import { makeOutsideClickHandlerFor, removeAllChildren } from "../../../sharedFrontend/libraries/utils"
+import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 import { Dash } from "bkb"
 
 import template = require("./Dialog.monk")
@@ -49,7 +49,7 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
       return Promise.resolve()
 
     this.view.update({
-      title: this.options.title || options.title || ""
+      title: options.title || this.options.title || ""
     })
 
     if (options.content) {
