@@ -4,7 +4,7 @@ import { Model, TaskModel, AccountModel } from "../../../AppModel/AppModel"
 import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import Dialog from "../../../generics/Dialog/Dialog";
+import { Dialog } from "../../../generics/Dialog/Dialog";
 
 import template = require("./AccountSelector.monk")
 // import itemTemplate = require("./label.monk")
@@ -16,7 +16,7 @@ import template = require("./AccountSelector.monk")
 export default class AccountSelector {
   readonly el: HTMLElement
   private boxList: BoxList<AccountBox>
-  private dialog: AccountSelectionComponent
+  private dialog: Dialog<AccountSelectionComponent>
 
   private model: Model
   private task?: TaskModel
@@ -30,13 +30,10 @@ export default class AccountSelector {
     view.ref("btn").addEventListener("click", async () => {
       if (!this.task)
         return
-      this.dialog.selectAccounts(this.task.affectedTo || [])
-      await this.dash.create(Dialog, {
-        contentEl: this.dialog.el,
-        title: "Select accounts"
-      }).show()
+      this.dialog.content.selectAccounts(this.task.affectedTo || [])
+      await this.dialog.open()
       this.boxList.clear()
-      this.dialog.selectedAccounts().forEach(c => this.addBoxFor(c))
+      this.dialog.content.selectedAccounts().forEach(c => this.addBoxFor(c))
     })
 
     this.boxList = this.dash.create(BoxList, {
@@ -48,7 +45,10 @@ export default class AccountSelector {
     })
     view.ref("boxlist").appendChild(this.boxList.el)
 
-    this.dialog = this.dash.create(AccountSelectionComponent)
+    this.dialog = this.dash.create<Dialog<AccountSelectionComponent>>(Dialog, {
+      content: this.dash.create(AccountSelectionComponent),
+      title: "Select Accounts"
+    })
 
     this.dash.listenToModel("deleteAccount", data => {
       let accountId = data.id as string

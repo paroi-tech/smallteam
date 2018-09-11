@@ -1,48 +1,89 @@
-import { render } from "@fabtom/lt-monkberry"
-import { makeOutsideClickHandlerFor } from "../../../sharedFrontend/libraries/utils"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
+import { makeOutsideClickHandlerFor, removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 import { Dash } from "bkb"
 
 import template = require("./Dialog.monk")
 
-export interface DialogOptions {
-  contentEl: HTMLElement
-  title: string
+export type ComponentOrUndef = { el: HTMLElement } | undefined
+
+export interface DialogOptions<C extends ComponentOrUndef> {
+  title?: string
+  content?: C
 }
 
-export default class Dialog {
-  private readonly el: HTMLDialogElement
-  private promise: Promise<any>
-  private resolveCb!: (v?: any) => void
+export class Dialog<C extends ComponentOrUndef = undefined> {
+  readonly content: C
 
-  constructor(private dash: Dash, private options: DialogOptions) {
-    let view = render(template)
+  private el: HTMLDialogElement
+  private view: LtMonkberryView
+  private bodyEl: HTMLElement
+  private resolveCb?: () => void
 
-    this.el = view.rootEl()
-    view.ref("title").textContent = options.title
-    view.ref("content").appendChild(options.contentEl)
-    view.ref("close").addEventListener("click", () => this.close())
+  constructor(private dash: Dash, private options: DialogOptions<C> = {}) {
+    this.content = options.content! // 'C' can be undefined
+    dash.exposeEvent("open", "close")
+
+    this.view = render(template)
+    this.el = this.view.rootEl()
+    this.bodyEl = this.view.ref("body")
+
+    this.view.ref("close").addEventListener("click", () => this.close())
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
       this.close()
     })
+    this.el.addEventListener("click", ev => {
+      if (ev.target === this.el)
+        this.close()
+    })
 
-    this.promise = new Promise((resolve) => this.resolveCb = resolve)
-  }
-
-  show() {
-    makeOutsideClickHandlerFor(this.el, () => this.close())
     document.body.appendChild(this.el)
-    this.el.showModal()
 
-    return this.promise
+    dash.listenTo("destroy", () => {
+      document.body.removeChild(this.el)
+    })
   }
 
-  private close() {
-    if (!this.el.open)
+  open<OC extends ComponentOrUndef = C>(options: DialogOptions<OC> = {}): Promise<void> {
+    if (this.el.open || this.resolveCb)
+      return Promise.resolve()
+
+    this.view.update({
+      title: this.options.title || options.title || ""
+    })
+
+    if (options.content) {
+      removeAllChildren(this.bodyEl)
+      this.bodyEl.appendChild(options.content.el)
+    } else if (!this.bodyContainsDefaultEl()) {
+      removeAllChildren(this.bodyEl)
+      if (this.options.content)
+        this.bodyEl.appendChild(this.options.content.el)
+    }
+
+    this.el.showModal()
+    this.dash.emit("open")
+    return new Promise(resolve => this.resolveCb = resolve)
+  }
+
+  close(): void {
+    if (!this.el.open || !this.resolveCb)
       return
     this.el.close()
-    document.body.removeChild(this.el)
-    this.resolveCb()
+    if (!this.bodyContainsDefaultEl())
+      removeAllChildren(this.bodyEl)
+    let resolveCb = this.resolveCb
+    this.resolveCb = undefined
+    resolveCb()
+    this.dash.emit("close")
+  }
+
+  private bodyContainsDefaultEl() {
+    let children = this.bodyEl.children
+    if (this.options.content)
+      return children.length === 1 && children[0] === this.options.content.el
+    else
+      return children.length === 0
   }
 }
 

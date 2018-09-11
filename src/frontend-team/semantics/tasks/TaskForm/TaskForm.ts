@@ -9,7 +9,7 @@ import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
 import { DelayedAction } from "../../../libraries/DelayedAction"
-import Dialog from "../../../generics/Dialog/Dialog"
+import { Dialog } from "../../../generics/Dialog/Dialog"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 
 import template = require("./TaskForm.monk")
@@ -33,8 +33,8 @@ export default class TaskForm {
   private flagSelector: FlagSelector
   private accountSelector: AccountSelector
   private attachmentMgr: TaskAttachmentManager
-  private commitViewer: TaskCommitViewer
-  private logViewer: TaskLogViewer
+  private commitViewer: Dialog<TaskCommitViewer>
+  private logViewer: Dialog<TaskLogViewer>
   private text: EditableTextField
 
   private delayedSave: DelayedAction
@@ -79,7 +79,7 @@ export default class TaskForm {
     })
     this.view.ref("btnLog").addEventListener("click", () => {
       if (this.currentTask)
-        this.dash.create(Dialog, { contentEl: this.logViewer.el, title: "Task logs" }).show()
+        this.logViewer.open()
     })
     this.view.ref("btnDelete").addEventListener("click", () => {
       if (this.currentTask)
@@ -88,7 +88,7 @@ export default class TaskForm {
     this.view.ref("btnArchive").addEventListener("click", () => this.archiveTask())
     this.view.ref("btnCommits").addEventListener("click", () => {
       if (this.currentTask)
-        this.dash.create(Dialog, { contentEl: this.commitViewer.el, title: "Task commits" }).show()
+        this.commitViewer.open()
     })
 
     this.flagSelector = this.dash.create(FlagSelector)
@@ -103,9 +103,15 @@ export default class TaskForm {
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
 
-    this.commitViewer = this.dash.create(TaskCommitViewer)
+    this.commitViewer = this.dash.create<Dialog<TaskCommitViewer>>(Dialog, {
+      content: this.dash.create(TaskCommitViewer),
+      title: "Task commits"
+    })
 
-    this.logViewer = this.dash.create(TaskLogViewer)
+    this.logViewer = this.dash.create<Dialog<TaskLogViewer>>(Dialog, {
+      content: this.dash.create(TaskLogViewer),
+      title: "Task logs"
+    })
 
     this.text = this.dash.create(EditableTextField)
     this.el.appendChild(this.text.el)
@@ -140,8 +146,8 @@ export default class TaskForm {
     this.accountSelector.setTask(task)
     this.commentEditor.setTask(task)
     this.attachmentMgr.setTask(task)
-    this.logViewer.setTask(task)
-    this.commitViewer.setTask(task)
+    this.logViewer.content.setTask(task)
+    this.commitViewer.content.setTask(task)
 
     this.currentTask = task
 

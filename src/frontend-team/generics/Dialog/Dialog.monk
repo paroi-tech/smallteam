@@ -1,9 +1,11 @@
 <dialog class="Dialog">
-  <header class="Dialog-header">
-    <span class="Dialog-title" :ref="title"></span>
-    <button class="Dialog-closeBtn" title="Close" :ref="close">
-      <span class="fa fa-1x fa-times"></span>
-    </button>
-  </header>
-  <div :ref="content"></div>
+  <div class="Dialog-box">
+    <header class="Dialog-header">
+      <span class="Dialog-title">{{ title }}</span>
+      <button class="Dialog-closeBtn" title="Close" :ref="close">
+        <span class="fa fa-1x fa-times"></span>
+      </button>
+    </header>
+    <div :ref="body"></div>
+  </div>
 </dialog>
