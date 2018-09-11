@@ -9,7 +9,7 @@ import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
 import { DelayedAction } from "../../../libraries/DelayedAction"
-import { Dialog } from "../../../generics/Dialog/Dialog"
+import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 
 import template = require("./TaskForm.monk")
@@ -103,12 +103,12 @@ export default class TaskForm {
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
     this.view.ref("attachment").appendChild(this.attachmentMgr.el)
 
-    this.commitViewer = this.dash.create<Dialog<TaskCommitViewer>>(Dialog, {
+    this.commitViewer = this.dash.create<Dialog<TaskCommitViewer>, DialogOptions<TaskCommitViewer>>(Dialog, {
       content: this.dash.create(TaskCommitViewer),
       title: "Task commits"
     })
 
-    this.logViewer = this.dash.create<Dialog<TaskLogViewer>>(Dialog, {
+    this.logViewer = this.dash.create<Dialog<TaskLogViewer>, DialogOptions<TaskLogViewer>>(Dialog, {
       content: this.dash.create(TaskLogViewer),
       title: "Task logs"
     })

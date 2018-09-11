@@ -4,7 +4,7 @@ import { Model, TaskModel, AccountModel } from "../../../AppModel/AppModel"
 import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import { Dialog } from "../../../generics/Dialog/Dialog";
+import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog";
 
 import template = require("./AccountSelector.monk")
 // import itemTemplate = require("./label.monk")
@@ -45,7 +45,7 @@ export default class AccountSelector {
     })
     view.ref("boxlist").appendChild(this.boxList.el)
 
-    this.dialog = this.dash.create<Dialog<AccountSelectionComponent>>(Dialog, {
+    this.dialog = this.dash.create<Dialog<AccountSelectionComponent>, DialogOptions<AccountSelectionComponent>>(Dialog, {
       content: this.dash.create(AccountSelectionComponent),
       title: "Select Accounts"
     })
