@@ -7,7 +7,7 @@ import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import { Collection } from "../../../AppModel/modelDefinitions"
 
-const template = require("./ArchivedTaskBoard.monk")
+import template = require("./ArchivedTaskBoard.monk")
 
 export default class ArchivedTaskBoard {
   readonly el: HTMLElement

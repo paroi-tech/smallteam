@@ -6,7 +6,7 @@ declare module "html-loader!*" {
 }
 
 declare module "*.monk" {
-  let template: () => void
+  let template: any
   export = template
 }
 

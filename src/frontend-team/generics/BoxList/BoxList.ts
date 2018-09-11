@@ -2,9 +2,9 @@ import { Dash } from "bkb"
 import Sortable = require("sortablejs")
 import { render } from "@fabtom/lt-monkberry"
 
-const boxListTemplate = require("./BoxList.monk")
-const liTemplate = require("./li.monk")
-const inlineLiTemplate = require("./InlineLi.monk")
+import boxListTemplate = require("./BoxList.monk")
+import liTemplate = require("./li.monk")
+import inlineLiTemplate = require("./InlineLi.monk")
 
 export interface Box {
   id: string
@@ -15,12 +15,12 @@ export interface BoxListOptions {
   /**
    * BoxList ID.
    */
-  id: string
+  id?: string
 
   /**
    * Sortable enables to create groups, so that we can move items between lists that belong to the same group.
    */
-  group: string | undefined
+  group?: string
 
   /**
    * Name of the BoxList.
@@ -50,12 +50,12 @@ export interface BoxListOptions {
   /**
    * Is this an InlineBoxlist?
    */
-  inline: boolean | undefined
+  inline?: boolean
 
   /**
    * Can items be reordered within the BoxList?
    */
-  sort: boolean
+  sort?: boolean
 }
 
 export interface BoxEvent {

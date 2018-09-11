@@ -5,7 +5,7 @@ import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 
-const template = require("./TaskBoard.monk")
+import template = require("./TaskBoard.monk")
 
 export default class TaskBoard {
   readonly el: HTMLElement

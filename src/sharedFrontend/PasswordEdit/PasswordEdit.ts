@@ -1,6 +1,6 @@
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./PasswordEdit.monk")
+import template = require("./PasswordEdit.monk")
 
 export default class PasswordEdit {
   readonly el: HTMLDialogElement

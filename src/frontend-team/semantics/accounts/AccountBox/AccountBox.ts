@@ -4,7 +4,7 @@ import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import AccountFlag from "../AccountFlag/AccountFlag"
 
-const template = require("./AccountBox.monk")
+import template = require("./AccountBox.monk")
 
 export default class AccountBox implements Box {
   readonly el: HTMLElement

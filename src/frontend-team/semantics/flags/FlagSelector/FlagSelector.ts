@@ -3,8 +3,10 @@ import FlagBox from "../FlagBox/FlagBox"
 import { Model, TaskModel, FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 
-const template = require("./FlagSelector.monk")
-const liTemplate = require("./li.monk")
+import template = require("./FlagSelector.monk")
+import liTemplate = require("./li.monk")
+import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import App from "../../../App/App";
 
 export default class FlagSelector {
   readonly el: HTMLElement
@@ -16,6 +18,7 @@ export default class FlagSelector {
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
   private flags = new WeakMap<HTMLInputElement, FlagModel>()
+  // private selector: CheckboxMultiSelect<FlagModel>
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -23,6 +26,22 @@ export default class FlagSelector {
     let view = render(template)
 
     this.el = view.rootEl()
+
+    // this.selector = this.dash.create<CheckboxMultiSelect<FlagModel, App>>(
+    //   CheckboxMultiSelect,
+    //   {
+    //     title: "Flags",
+    //     createItem: (dash: OwnDash, step: FlagModel) => dash.create(FlagBox, step)
+    //   }
+    // )
+    // this.dash.listenToModel(["changeFlag", "reorderFlag"], () => {
+    //   this.selector.fillWith(this.model.global.flags)
+    //   if (this.task && this.task.flags)
+    //     this.selector.selectItems(this.task.flags)
+    // })
+    // this.selector.fillWith(this.model.global.flags)
+    // // TODO:
+
     this.listEl = view.ref("ul")
     this.listEl.addEventListener("change", ev => {
       let flag = this.flags.get(ev.target as any)

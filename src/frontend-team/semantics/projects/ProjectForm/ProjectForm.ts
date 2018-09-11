@@ -1,26 +1,25 @@
 import { Dash, Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import { Model, ProjectModel, StepModel, UpdateModelEvent } from "../../../AppModel/AppModel"
+import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepBox from "../../steps/StepBox/StepBox"
-import { ReorderModelEvent } from "../../../AppModel/ModelEngine"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 
-const template = require("./ProjectForm.monk")
+import template = require("./ProjectForm.monk")
+import App from "../../../App/App"
 
 export default class ProjectForm implements Workspace {
   readonly el: HTMLElement
   private codeEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private descriptionEl: HTMLTextAreaElement
-  private stepsEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private stepMultiSelect: CheckboxMultiSelect<StepModel>
+  private stepSelector: CheckboxMultiSelect<StepModel>
   private menu: DropdownMenu
 
   private view: LtMonkberryView
@@ -50,23 +49,31 @@ export default class ProjectForm implements Workspace {
     this.codeEl = this.view.ref("code")
     this.nameEl = this.view.ref("name")
     this.descriptionEl = this.view.ref("description")
-    this.stepsEl = this.view.ref("steps")
     this.spinnerEl = this.view.ref("spinner")
     this.view.ref("submitBtn").addEventListener("click", ev => this.onSubmit())
 
     this.menu = this.createDropdownMenu()
-    this.stepMultiSelect = this.createStepMultiSelect()
-    this.listenToForm()
 
-    this.dash.listenToModel(["createStep", "updateStep", "deleteStep"], () => {
-      this.stepMultiSelect.setAllItems(this.model.global.steps)
+    this.stepSelector = this.dash.create<CheckboxMultiSelect<StepModel, App>>(
+      CheckboxMultiSelect,
+      {
+        title: "Steps",
+        createItem: (dash: Dash, step: StepModel) => dash.create(StepBox, step)
+      }
+    )
+    this.dash.listenToModel(["changeStep", "reorderStep"], () => {
+      this.stepSelector.fillWith(this.model.global.steps)
       if (this.project)
-        this.stepMultiSelect.selectItems(this.project.steps)
+        this.stepSelector.selectItems(this.project.steps)
     })
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => {
-      this.stepMultiSelect.setAllItems(this.model.global.steps)
-      if (this.project)
-        this.stepMultiSelect.selectItems(this.project.steps)
+    this.stepSelector.fillWith(this.model.global.steps)
+
+    this.view.ref("steps").appendChild(this.stepSelector.el)
+
+    this.codeEl.addEventListener("input", () => this.generateCode = false)
+    this.nameEl.addEventListener("input", () => {
+      if (!this.project && this.generateCode && this.nameEl.value.length > 0)
+        this.codeEl.value = this.nameEl.value.replace(/\s/g, "").slice(0, 5).toUpperCase()
     })
   }
 
@@ -96,7 +103,7 @@ export default class ProjectForm implements Workspace {
 
   setProject(p: ProjectModel) {
     this.project = p
-    this.stepMultiSelect.selectItems(p ? p.steps : [])
+    this.stepSelector.selectItems(p ? p.steps : [])
     if (p) {
       this.codeEl.setAttribute("readonly", "true")
       this.generateCode = false
@@ -122,8 +129,8 @@ export default class ProjectForm implements Workspace {
 
   private createDropdownMenu() {
     let menu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl()
-      } as DropdownMenuOptions
+      btnEl: createCustomMenuBtnEl()
+    } as DropdownMenuOptions
     )
 
     menu.entries.createNavBtn({
@@ -137,30 +144,6 @@ export default class ProjectForm implements Workspace {
     return menu
   }
 
-  private createStepMultiSelect() {
-    let ms = this.dash.create(
-      CheckboxMultiSelect,
-      "Steps",
-      (dash: Dash, step: StepModel) => dash.create(StepBox, step)
-    ) as any
-
-    this.stepsEl.appendChild(ms.el)
-    this.dash.listenToModel(["changeStep", "reorderStep"],
-      data => ms.setAllItems(this.model.global.steps)
-    )
-    ms.setAllItems(this.model.global.steps)
-
-    return ms
-  }
-
-  private async listenToForm() {
-    this.codeEl.onkeyup = () => this.generateCode = false
-    this.nameEl.onkeyup = () => {
-      if (!this.project && this.generateCode && this.nameEl.value.length > 0)
-        this.codeEl.value = this.nameEl.value.replace(/\s/g, "").slice(0, 5).toUpperCase()
-    }
-  }
-
   private async onSubmit() {
     this.spinnerEl.hidden = false
 
@@ -172,7 +155,7 @@ export default class ProjectForm implements Workspace {
       return
     }
 
-    let stepIds = this.stepMultiSelect.getSelected().map(step => step.id)
+    let stepIds = this.stepSelector.getSelected().map(step => step.id)
 
     if (!this.project)
       await this.createProject(code, name, description, stepIds)

@@ -5,7 +5,7 @@ import Deferred from "../libraries/Deferred"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 import { validateEmail } from "../libraries/utils"
 
-const template = require("./TeamCreationDialog.monk")
+import template = require("./TeamCreationDialog.monk")
 
 export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement

@@ -10,7 +10,7 @@ import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspa
 import { OwnDash } from "../../../App/OwnDash"
 import { equal } from "../../../../sharedFrontend/libraries/utils";
 
-const template = require("./FlagWorkspace.monk")
+import template = require("./FlagWorkspace.monk")
 
 const boxListOptions = {
   id: "",

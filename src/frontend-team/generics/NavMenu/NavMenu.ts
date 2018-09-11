@@ -3,8 +3,8 @@ import { render } from "@fabtom/lt-monkberry"
 import NavBtn, { NavBtnOptions } from "../NavBtn/NavBtn"
 import { addCssClass, catchAndLog } from "../../../sharedFrontend/libraries/utils";
 
-const template = require("./NavMenu.monk")
-const liTemplate = require("./li.monk")
+import template = require("./NavMenu.monk")
+import liTemplate = require("./li.monk")
 
 export type Direction = "row" | "column" | "rowReverse" | "columnReverse"
 

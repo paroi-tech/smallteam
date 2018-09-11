@@ -4,7 +4,7 @@ import App from "../../App/App"
 import Deferred from "../../../sharedFrontend/libraries/Deferred"
 import { ErrorDialog, InfoDialog } from "../../../sharedFrontend/modalDialogs/modalDialogs"
 
-const template = require("./PasswordRequestDialog.monk")
+import template = require("./PasswordRequestDialog.monk")
 
 export default class PasswordRequestDialog {
   private readonly el: HTMLDialogElement

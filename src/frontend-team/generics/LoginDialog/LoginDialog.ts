@@ -4,7 +4,7 @@ import App from "../../App/App"
 import Deferred from "../../../sharedFrontend/libraries/Deferred"
 import { WarningDialog, ErrorDialog } from "../../../sharedFrontend/modalDialogs/modalDialogs"
 
-const template = require("./LoginDialog.monk")
+import template = require("./LoginDialog.monk")
 
 export default class LoginDialog {
   private readonly el: HTMLDialogElement

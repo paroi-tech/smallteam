@@ -5,7 +5,7 @@ import { MediaModel } from "../../../AppModel/Models/MediaModel"
 import { closestImageVariant } from "../../../libraries/mediaUtils"
 import { MediaVariantModel } from "../../../AppModel/Models/MediaVariantModel";
 
-const template = require("./AccountFlag.monk")
+import template = require("./AccountFlag.monk")
 
 export default class AccountFlag {
   readonly el: HTMLElement

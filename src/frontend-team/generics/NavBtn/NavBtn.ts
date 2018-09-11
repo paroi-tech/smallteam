@@ -2,10 +2,10 @@ import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { addCssClass, catchAndLog } from "../../../sharedFrontend/libraries/utils";
 
-const template = require("./NavBtn.monk")
-// const templateWithAlert = require("./NavBtn-withAlert.monk")
-// const templateWithInner = require("./NavBtn-withInner.monk")
-const templateWrapper = require("./DdMenuWrapper.monk")
+import template = require("./NavBtn.monk")
+// import templateWithAlert = require("./NavBtn-withAlert.monk")
+// import templateWithInner = require("./NavBtn-withInner.monk")
+import templateWrapper = require("./DdMenuWrapper.monk")
 
 export interface NavBtnIcon {
   position: "left" | "right"

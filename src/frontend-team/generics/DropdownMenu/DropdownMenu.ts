@@ -3,8 +3,8 @@ import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 import { render } from "@fabtom/lt-monkberry";
 import { catchAndLog } from "../../../sharedFrontend/libraries/utils"
 
-const template = require("./DropdownMenu.monk")
-// const liTemplate = require("./li.monk")
+import template = require("./DropdownMenu.monk")
+// import liTemplate = require("./li.monk")
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement
@@ -103,7 +103,7 @@ export class DropdownMenu {
   }
 }
 
-function makeNavMenuOptions(options: DropdownMenuOptions) {
+function makeNavMenuOptions(options: DropdownMenuOptions): NavMenuOptions {
   let btnCssClass = options.navMenuOptions ? options.navMenuOptions.btnCssClass : undefined
   btnCssClass = btnCssClass ? (typeof btnCssClass === "string" ? [btnCssClass] : btnCssClass) : []
   btnCssClass.push("DdMenuBtn")

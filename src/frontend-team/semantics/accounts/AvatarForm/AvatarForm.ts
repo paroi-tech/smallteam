@@ -4,7 +4,7 @@ import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialog
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./AvatarForm.monk")
+import template = require("./AvatarForm.monk")
 
 export default class AvatarForm {
   readonly el: HTMLElement

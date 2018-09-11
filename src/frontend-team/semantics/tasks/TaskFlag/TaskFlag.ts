@@ -2,7 +2,7 @@ import { FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./TaskFlag.monk")
+import template = require("./TaskFlag.monk")
 
 export default class TaskFlag {
   readonly el: HTMLElement

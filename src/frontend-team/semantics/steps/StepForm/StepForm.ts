@@ -6,7 +6,7 @@ import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMen
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import InfoDialog from "../../../../sharedFrontend/modalDialogs/InfoDialog/InfoDialog"
 
-const template = require("./StepForm.monk")
+import template = require("./StepForm.monk")
 
 export default class StepForm {
   readonly el: HTMLElement

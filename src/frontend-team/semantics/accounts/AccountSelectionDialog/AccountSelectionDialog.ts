@@ -1,18 +1,18 @@
-import { Dash } from "bkb"
 import { Model, AccountModel } from "../../../AppModel/AppModel"
-import CheckboxMultiSelect from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import AccountBox from "../AccountBox/AccountBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./AccountSelectionDialog.monk")
+import template = require("./AccountSelectionDialog.monk")
+import App from "../../../App/App"
 
 export default class AccountSelectionDialog {
   readonly el: HTMLDialogElement
   private buttonEl: HTMLButtonElement
 
   private model: Model
-  private selector: CheckboxMultiSelect<AccountModel>
+  private selector: CheckboxMultiSelect<AccountModel, App>
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -25,12 +25,22 @@ export default class AccountSelectionDialog {
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
 
-    this.buttonEl.addEventListener("click", ev => {
+    this.buttonEl.addEventListener("click", () => {
       this.el.close()
       this.dash.emit("accountSelectionDialogClosed")
     })
 
-    this.selector = this.createMultiSelect()
+    this.selector = this.dash.create<CheckboxMultiSelect<AccountModel, App>>(
+      CheckboxMultiSelect,
+      {
+        title: "Accounts",
+        createItem: (dash: OwnDash, account: AccountModel) => dash.create(AccountBox, account)
+      }
+    )
+
+    this.dash.listenToModel("changeAccount", () => this.selector.fillWith(this.model.global.accounts))
+    this.selector.fillWith(this.model.global.accounts)
+
     view.ref("selectorContainer").appendChild(this.selector.el)
   }
 
@@ -45,19 +55,5 @@ export default class AccountSelectionDialog {
 
   selectedAccounts() {
     return this.selector.getSelected()
-  }
-
-  private createMultiSelect() {
-    let ms = this.dash.create(
-      CheckboxMultiSelect,
-      "Accounts",
-      (dash: Dash, account: AccountModel) => dash.create(AccountBox, account)
-    ) as any
-
-    let events = ["updateAccount", "createAccount", "deleteAccount"]
-    this.dash.listenToModel(events, data => ms.setAllItems(this.model.global.steps))
-    ms.setAllItems(this.model.global.accounts)
-
-    return ms
   }
 }

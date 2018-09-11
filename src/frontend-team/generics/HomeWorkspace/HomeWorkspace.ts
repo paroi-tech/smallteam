@@ -3,7 +3,7 @@ import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model } from "../../AppModel/modelDefinitions"
 
-const template = require("./HomeWorkspace.monk")
+import template = require("./HomeWorkspace.monk")
 
 export default class HomeWorkspace implements Workspace {
   readonly el: HTMLElement

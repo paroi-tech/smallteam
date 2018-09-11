@@ -6,7 +6,7 @@ import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
 
-const template = require("./TaskBox.monk")
+import template = require("./TaskBox.monk")
 
 /**
  * Component used to show basic information about a task of a project.

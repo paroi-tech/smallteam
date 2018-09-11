@@ -12,7 +12,7 @@ import { DelayedAction } from "../../../libraries/DelayedAction"
 import Dialog from "../../../generics/Dialog/Dialog"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 
-const template = require("./TaskForm.monk")
+import template = require("./TaskForm.monk")
 
 export default class TaskForm {
   readonly el: HTMLElement

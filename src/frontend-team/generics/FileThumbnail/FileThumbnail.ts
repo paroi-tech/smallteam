@@ -4,7 +4,7 @@ import { MediaModel } from "../../AppModel/Models/MediaModel"
 import { getMediaType, closestImageVariant } from "../../libraries/mediaUtils"
 import { MediaVariantModel } from "../../AppModel/Models/MediaVariantModel"
 
-const template = require("./FileThumbnail.monk")
+import template = require("./FileThumbnail.monk")
 
 function makeVideoThumbnail(elt: HTMLElement) {
   elt.classList.add("fas", "fa-file-video")

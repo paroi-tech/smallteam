@@ -10,7 +10,7 @@ import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../librar
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./AccountWorkspace.monk")
+import template = require("./AccountWorkspace.monk")
 
 export default class AccountWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -43,7 +43,7 @@ export default class AccountWorkspace implements Workspace {
     })
     view.ref("list").appendChild(this.boxList.el)
     this.menu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl()
+      btnEl: createCustomMenuBtnEl() as HTMLElement
     })
     this.menu.entries.createNavBtn({
       label: "Add account",

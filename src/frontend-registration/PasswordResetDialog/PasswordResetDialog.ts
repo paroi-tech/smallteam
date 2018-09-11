@@ -6,7 +6,7 @@ import InfoDialog from "../../sharedFrontend/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../sharedFrontend/modalDialogs/ErrorDialog/ErrorDialog"
 import App from "../App/App"
 
-const template = require("./PasswordResetDialog.monk")
+import template = require("./PasswordResetDialog.monk")
 
 export default class LoginDialog {
   readonly el: HTMLDialogElement

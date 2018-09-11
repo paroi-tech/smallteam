@@ -8,7 +8,7 @@ import InvitationBox from "../InvitationBox/InvitationBox"
 import App from "../../../App/App"
 import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
-const template = require("./InvitationWorkspace.monk")
+import template = require("./InvitationWorkspace.monk")
 
 export interface Invitation {
   id: string
@@ -38,7 +38,7 @@ export default class InvitationWorkspace {
     this.form = this.dash.create(InvitationForm)
     this.boxList = this.dash.create(BoxList, {
       name: "Invitations",
-      sort: "false"
+      sort: false
     })
 
     let view = render(template)

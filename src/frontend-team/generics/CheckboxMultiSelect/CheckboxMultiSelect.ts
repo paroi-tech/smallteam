@@ -2,11 +2,16 @@ import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils";
 
-const template = require("./CheckboxMultiSelect.monk")
-const liTemplate = require("./li.monk")
+import template = require("./CheckboxMultiSelect.monk");
+import liTemplate = require("./li.monk")
 
-export interface CreateComponentForItem<M> {
+export interface CreateItem<M> {
   (dash: Dash, data: M): { readonly el: HTMLElement }
+}
+
+export interface CheckboxMultiSelectOptions<M> {
+  title: string
+  createItem: CreateItem<M>
 }
 
 interface Item<M> {
@@ -18,14 +23,17 @@ interface Item<M> {
   checkboxEl: HTMLInputElement
 }
 
-export default class CheckboxMultiSelect<M> {
+export class CheckboxMultiSelect<M = any, APP = any> {
   readonly el: HTMLElement
   private olEl: HTMLElement
   private fieldsetEl: HTMLFieldSetElement
 
   private items = new Map<M, Item<M>>()
+  private createSticker: CreateItem<M>
 
-  constructor(private dash: Dash, title: string, private createComponentForItem: CreateComponentForItem<M>) {
+  constructor(private dash: Dash<APP>, { title, createItem }: CheckboxMultiSelectOptions<any>) {
+    this.createSticker = createItem
+
     let view = render(template)
     view.update({ title })
     this.el = view.rootEl()
@@ -33,7 +41,7 @@ export default class CheckboxMultiSelect<M> {
     this.fieldsetEl = view.ref("fieldset")
   }
 
-  setAllItems(dataList: M[]) {
+  fillWith(dataList: M[]) {
     let dataSet = new Set(dataList)
 
     Array.from(this.items.values())
@@ -75,7 +83,7 @@ export default class CheckboxMultiSelect<M> {
     let view = render(liTemplate)
     let listItemEl = view.rootEl<HTMLElement>()
     let checkboxEl = view.ref<HTMLInputElement>("checkbox")
-    let comp = this.createComponentForItem(this.dash, data)
+    let comp = this.createSticker(this.dash, data)
     let item: Item<M> = { listItemEl, checkboxEl, data, comp }
 
     listItemEl.appendChild(comp.el)

@@ -2,7 +2,7 @@ import { render } from "@fabtom/lt-monkberry"
 import { makeOutsideClickHandlerFor } from "../../../sharedFrontend/libraries/utils"
 import { Dash } from "bkb"
 
-const template = require("./Dialog.monk")
+import template = require("./Dialog.monk")
 
 export default class Dialog {
   private readonly el: HTMLDialogElement

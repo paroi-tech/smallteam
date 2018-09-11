@@ -3,7 +3,7 @@ import { OwnDash } from "../../../App/OwnDash"
 import { Box } from "../../../generics/BoxList/BoxList"
 import { Invitation } from "../InvitationWorkspace/InvitationWorkspace"
 
-const template = require("./InvitationBox.monk")
+import template = require("./InvitationBox.monk")
 
 export default class StepBox implements Box {
   readonly el: HTMLElement

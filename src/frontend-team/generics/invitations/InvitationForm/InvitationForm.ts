@@ -3,7 +3,7 @@ import { Dash } from "bkb"
 import App from "../../../App/App"
 import { WarningDialog, ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
-const template = require("./InvitationForm.monk")
+import template = require("./InvitationForm.monk")
 
 export default class InvitationForm {
   readonly el: HTMLElement

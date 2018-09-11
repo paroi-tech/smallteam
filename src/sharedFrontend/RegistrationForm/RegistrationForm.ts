@@ -5,7 +5,7 @@ import Deferred from "../libraries/Deferred"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 import { validateEmail } from "../libraries/utils"
 
-const template = require("./RegistrationForm.monk")
+import template = require("./RegistrationForm.monk")
 
 export default class RegistrationForm {
   private readonly el: HTMLDialogElement

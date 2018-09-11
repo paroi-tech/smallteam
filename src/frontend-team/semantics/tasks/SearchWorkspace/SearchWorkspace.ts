@@ -6,7 +6,7 @@ import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
 import { OwnDash } from "../../../App/OwnDash";
 
-const template = require("./SearchWorkspace.monk")
+import template = require("./SearchWorkspace.monk")
 
 export default class SearchWorkspace implements Workspace {
   readonly el: HTMLElement

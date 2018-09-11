@@ -4,7 +4,7 @@ import { render } from "@fabtom/lt-monkberry"
 import App from "../../App/App";
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 
-const template = require("./WorkspaceViewer.monk")
+import template = require("./WorkspaceViewer.monk")
 
 export interface Workspace {
   activate(ctrl: ViewerController): void

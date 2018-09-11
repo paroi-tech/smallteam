@@ -9,6 +9,11 @@ the time, so I can't use JIRA.
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Listen to commit events from model in `TaskCommitDialog`
 
+# To refatore
+
+`onkeyup` ⇒ `addEventListener("input", )`
+`prop: smtg | undefined` ⇒ `prop?: smtg`
+
 # Thomas
 
 - TaskForm: create an event "change" when closing the dialog of accountSelector (with change)

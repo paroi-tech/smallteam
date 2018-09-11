@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import NavMenu from "../NavMenu/NavMenu";
 import { render } from "@fabtom/lt-monkberry";
 
-const template = require("./HeaderBar.monk")
+import template = require("./HeaderBar.monk")
 
 export default class HeaderBar {
   readonly el: HTMLElement

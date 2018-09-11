@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./EditableTextField.monk")
+import template = require("./EditableTextField.monk")
 
 export default class EditableTextField {
   readonly el: HTMLElement

@@ -3,7 +3,7 @@ import { FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./FlagBox.monk")
+import template = require("./FlagBox.monk")
 
 export default class FlagBox implements Box {
   readonly el: HTMLElement
