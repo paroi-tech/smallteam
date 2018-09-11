@@ -5,11 +5,10 @@ import AccountBox from "../AccountBox/AccountBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-const template = require("./AccountSelectionDialog.monk")
+const template = require("./AccountSelectionComponent.monk")
 
-export default class AccountSelectionDialog {
-  readonly el: HTMLDialogElement
-  private buttonEl: HTMLButtonElement
+export default class AccountSelectionComponent {
+  readonly el: HTMLElement
 
   private model: Model
   private selector: CheckboxMultiSelect<AccountModel>
@@ -20,23 +19,8 @@ export default class AccountSelectionDialog {
     let view = render(template)
 
     this.el = view.rootEl()
-    this.buttonEl = view.ref("button")
-
-    // By default, pressing the ESC key close the dialog. We have to prevent that.
-    this.el.addEventListener("cancel", ev => ev.preventDefault())
-
-    this.buttonEl.addEventListener("click", ev => {
-      this.el.close()
-      this.dash.emit("accountSelectionDialogClosed")
-    })
-
     this.selector = this.createMultiSelect()
-    view.ref("selectorContainer").appendChild(this.selector.el)
-  }
-
-  show() {
-    document.body.appendChild(this.el)
-    this.el.showModal()
+    view.ref("selector").appendChild(this.selector.el)
   }
 
   selectAccounts(arr: AccountModel[]) {
@@ -55,7 +39,8 @@ export default class AccountSelectionDialog {
     ) as any
 
     let events = ["updateAccount", "createAccount", "deleteAccount"]
-    this.dash.listenToModel(events, data => ms.setAllItems(this.model.global.steps))
+
+    this.dash.listenToModel(events, () => ms.setAllItems(this.model.global.accounts))
     ms.setAllItems(this.model.global.accounts)
 
     return ms
