@@ -2,7 +2,7 @@ import { Dash, Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import { CheckboxMultiSelect, CheckboxMultiSelectOptions } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepBox from "../../steps/StepBox/StepBox"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
@@ -19,7 +19,7 @@ export default class ProjectForm implements Workspace {
   private descriptionEl: HTMLTextAreaElement
   private spinnerEl: HTMLElement
 
-  private stepSelector: CheckboxMultiSelect<StepModel>
+  private stepSelector: CheckboxMultiSelect<StepModel, OwnDash>
   private menu: DropdownMenu
 
   private view: LtMonkberryView
@@ -54,7 +54,7 @@ export default class ProjectForm implements Workspace {
 
     this.menu = this.createDropdownMenu()
 
-    this.stepSelector = this.dash.create<CheckboxMultiSelect<StepModel, App>>(
+    this.stepSelector = this.dash.create<CheckboxMultiSelect<StepModel, OwnDash>, CheckboxMultiSelectOptions<StepModel>, OwnDash>(
       CheckboxMultiSelect,
       {
         title: "Steps",

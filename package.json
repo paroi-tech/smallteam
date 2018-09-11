@@ -80,7 +80,7 @@
     "@types/sql-bricks": "2.0.1",
     "@types/uuid": "3.4.3",
     "@types/ws": "6.0.0",
-    "bkb": "0.27.3",
+    "bkb": "0.27.6",
     "html-loader": "0.5.5",
     "just-wait": "1.0.11",
     "node-sass": "4.9.3",

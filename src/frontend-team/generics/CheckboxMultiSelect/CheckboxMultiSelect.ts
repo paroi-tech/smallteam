@@ -23,7 +23,7 @@ interface Item<M> {
   checkboxEl: HTMLInputElement
 }
 
-export class CheckboxMultiSelect<M = any, APP = any> {
+export class CheckboxMultiSelect<M = any, D extends Dash = Dash> {
   readonly el: HTMLElement
   private olEl: HTMLElement
   private fieldsetEl: HTMLFieldSetElement
@@ -31,7 +31,7 @@ export class CheckboxMultiSelect<M = any, APP = any> {
   private items = new Map<M, Item<M>>()
   private createSticker: CreateItem<M>
 
-  constructor(private dash: Dash<APP>, { title, createItem }: CheckboxMultiSelectOptions<any>) {
+  constructor(private dash: D, { title, createItem }: CheckboxMultiSelectOptions<any>) {
     this.createSticker = createItem
 
     let view = render(template)
