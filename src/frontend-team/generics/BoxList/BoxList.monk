@@ -1,7 +1,7 @@
 <div class="BoxList">
   {% if hasHeader %}
   <header class="BoxList-header">
-    <span :ref="title"></span>
+    <span>{{ title }}</span>
     <span class="BoxList-spinner Spinner -inside" hidden :ref="busyIcon"></span>
   </header>
   {% endif %}

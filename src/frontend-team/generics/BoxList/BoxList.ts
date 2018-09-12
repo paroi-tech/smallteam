@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import Sortable = require("sortablejs")
-import { render } from "@fabtom/lt-monkberry"
+import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 
 const boxListTemplate = require("./BoxList.monk")
 const liTemplate = require("./li.monk")
@@ -82,31 +82,28 @@ export interface BoxListEvent extends BoxEvent {
  */
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
+
+  private view: LtMonkberryView
   private ulEl: HTMLElement
   private spinnerEl?: HTMLElement
-  private titleEl?: HTMLElement
   private sortable: Sortable
-
   private boxes = new Map<string, HTMLElement>()
 
   constructor(private dash: Dash, private options: BoxListOptions = {}) {
-    let view = render(boxListTemplate)
-    view.update({
-      hasHeader: !options.noHeader
+    this.view = render(boxListTemplate)
+    this.view.update({
+      hasHeader: !options.noHeader,
+      title: options.title
     })
 
-    this.el = view.rootEl()
-    this.ulEl = view.ref("ul")
+    this.el = this.view.rootEl()
+    this.ulEl = this.view.ref("ul")
+
+    if (!options.noHeader)
+      this.spinnerEl = this.view.ref("busyIcon")
 
     if (this.options.inline)
       this.el.classList.add("inline")
-
-    if (!options.noHeader) {
-      this.spinnerEl = view.ref("busyIcon")
-      this.titleEl = view.ref("title")
-      if (options.title)
-        this.setTitle(options.title)
-    }
 
     this.sortable = this.makeSortable()
   }
@@ -145,9 +142,11 @@ export default class BoxList<T extends Box> {
       this.removeBox(key)
   }
 
-  setTitle(title: string) {
-    if (this.titleEl)
-      this.titleEl.textContent = title
+  setTitle(title?: string) {
+    this.view.update({
+      hasHeader: !this.options.noHeader,
+      title: title || this.options.title || ""
+    })
   }
 
   /**
