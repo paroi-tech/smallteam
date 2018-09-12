@@ -10,7 +10,7 @@ export interface DelayedActionOptions {
   maxDelayMs?: number
 }
 
-export class DelayedAction {
+export default class DelayedAction {
   private opt: Required<DelayedActionOptions>
   private delaying = false
   private running = false
@@ -97,7 +97,7 @@ export class DelayedAction {
     this.opt.onChangeStatus("running")
     try {
       await this.opt.action()
-      await wait(3000)
+      // await wait(3000)
     } catch (err) {
       this.opt.logError(err)
     }
