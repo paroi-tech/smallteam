@@ -1,8 +1,8 @@
-import { Dash, Log } from "bkb"
+import { Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { MultiSelect, MultiSelectOptions } from "../../../generics/MultiSelect/MultiSelect"
+import MultiSelect, { MultiSelectOptions } from "../../../generics/MultiSelect"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepBox from "../../steps/StepBox/StepBox"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
@@ -10,7 +10,6 @@ import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDial
 import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./ProjectForm.monk")
-import App from "../../../App/App"
 
 export default class ProjectForm implements Workspace {
   readonly el: HTMLElement
@@ -19,7 +18,7 @@ export default class ProjectForm implements Workspace {
   private descriptionEl: HTMLTextAreaElement
   private spinnerEl: HTMLElement
 
-  private stepSelector: MultiSelect<StepModel, OwnDash>
+  private stepSelector: MultiSelect<StepModel>
   private menu: DropdownMenu
 
   private view: LtMonkberryView
@@ -54,14 +53,14 @@ export default class ProjectForm implements Workspace {
 
     this.menu = this.createDropdownMenu()
 
-    this.stepSelector = this.dash.create<MultiSelect<StepModel, OwnDash>, MultiSelectOptions<StepModel>, OwnDash>(
+    this.stepSelector = dash.create<MultiSelect<StepModel>, MultiSelectOptions<StepModel>>(
       MultiSelect,
       {
         title: "Steps",
-        createItem: (dash, step) => dash.create(StepBox, step)
+        createItem: step => dash.create(StepBox, step)
       }
     )
-    this.dash.listenToModel(["changeStep", "reorderStep"], () => {
+    dash.listenToModel(["changeStep", "reorderStep"], () => {
       this.stepSelector.fillWith(this.model.global.steps)
       if (this.project)
         this.stepSelector.selectItems(this.project.steps)

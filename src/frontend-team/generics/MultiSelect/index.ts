@@ -6,7 +6,7 @@ const template = require("./MultiSelect.monk");
 const liTemplate = require("./li.monk")
 
 export interface CreateItem<M> {
-  (dash: Dash, data: M): { readonly el: HTMLElement }
+  (data: M): { readonly el: HTMLElement }
 }
 
 export interface MultiSelectOptions<M> {
@@ -29,7 +29,7 @@ interface Item<M> {
   checkboxEl: HTMLInputElement
 }
 
-export class MultiSelect<M = any, D extends Dash = Dash> {
+export default class MultiSelect<M = any> {
   readonly el: HTMLElement
 
   private olEl: HTMLElement
@@ -38,7 +38,7 @@ export class MultiSelect<M = any, D extends Dash = Dash> {
   private items = new Map<M, Item<M>>()
   private checkboxes = new WeakMap<HTMLInputElement, Item<M>>()
 
-  constructor(private dash: D, { title, createItem }: MultiSelectOptions<any>) {
+  constructor(private dash: Dash, { title, createItem }: MultiSelectOptions<any>) {
     this.createSticker = createItem
 
     let view = render(template)
@@ -56,6 +56,11 @@ export class MultiSelect<M = any, D extends Dash = Dash> {
           checked: (ev.target as HTMLInputElement).checked
         } as ChangeEvent<M>)
       }
+    })
+
+    dash.listenTo("destroy", () => {
+      for (let item of this.items.values())
+        this.dash.getPublicDashOf(item.comp).destroy()
     })
   }
 
@@ -101,7 +106,7 @@ export class MultiSelect<M = any, D extends Dash = Dash> {
     let view = render(liTemplate)
     let listItemEl = view.rootEl<HTMLElement>()
     let checkboxEl = view.ref<HTMLInputElement>("checkbox")
-    let comp = this.createSticker(this.dash, data)
+    let comp = this.createSticker(data)
     let item: Item<M> = { listItemEl, checkboxEl, data, comp }
 
     listItemEl.appendChild(comp.el)
