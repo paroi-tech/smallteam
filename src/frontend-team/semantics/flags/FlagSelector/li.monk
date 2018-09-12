@@ -1,5 +1,0 @@
-<li>
-  <span class="FlagSelector-span js-selector-span">
-    <input type="checkbox" :ref="checkbox">
-  </span>
-</li>

@@ -3,7 +3,6 @@ import { Log } from "bkb"
 import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../AppModel/AppModel"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
-import FlagSelector from "../../flags/FlagSelector/FlagSelector"
 import TaskLogViewer from "../TaskLogViewer/TaskLogViewer"
 import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
@@ -11,6 +10,7 @@ import EditableTextField from "../../../generics/EditableTextField/EditableTextF
 import { DelayedAction } from "../../../libraries/DelayedAction"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
+import FlagSelector from "../../flags/FlagSelector"
 
 const template = require("./TaskForm.monk")
 
@@ -194,9 +194,6 @@ export default class TaskForm {
     this.hideSpinner()
   }
 
-  /**
-   * Never call the reset() method in this method.
-   */
   private refresh() {
     if (!this.currentTask)
       return
@@ -206,7 +203,7 @@ export default class TaskForm {
       description
     })
     this.updateOnHoldBtnLabel()
-    this.flagSelector.refreshFlags()
+    this.flagSelector.setTask(this.task)
     this.accountSelector.refresh()
   }
 

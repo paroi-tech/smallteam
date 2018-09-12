@@ -16,5 +16,6 @@
     "dist": true
   },
   // "search.useIgnoreFiles": false,
-  "typescript.locale": "en"
+  "typescript.locale": "en",
+  "workbench.editor.labelFormat": "short"
 }

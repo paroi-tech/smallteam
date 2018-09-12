@@ -14,6 +14,12 @@ export interface MultiSelectOptions<M> {
   createItem: CreateItem<M>
 }
 
+export interface ChangeEvent<M> {
+  type: string
+  data: M
+  checked: boolean
+}
+
 interface Item<M> {
   data: M
   comp: {
@@ -25,11 +31,12 @@ interface Item<M> {
 
 export class MultiSelect<M = any, D extends Dash = Dash> {
   readonly el: HTMLElement
+
   private olEl: HTMLElement
   private fieldsetEl: HTMLFieldSetElement
-
-  private items = new Map<M, Item<M>>()
   private createSticker: CreateItem<M>
+  private items = new Map<M, Item<M>>()
+  private checkboxes = new WeakMap<HTMLInputElement, Item<M>>()
 
   constructor(private dash: D, { title, createItem }: MultiSelectOptions<any>) {
     this.createSticker = createItem
@@ -39,6 +46,17 @@ export class MultiSelect<M = any, D extends Dash = Dash> {
     this.el = view.rootEl()
     this.olEl = view.ref("ol")
     this.fieldsetEl = view.ref("fieldset")
+
+    this.olEl.addEventListener("change", ev => {
+      let item = this.checkboxes.get(ev.target as any)
+      if (item) {
+        this.dash.emit("change", {
+          type: "Flag",
+          data: item.data,
+          checked: (ev.target as HTMLInputElement).checked
+        } as ChangeEvent<M>)
+      }
+    })
   }
 
   fillWith(dataList: M[]) {
@@ -89,6 +107,7 @@ export class MultiSelect<M = any, D extends Dash = Dash> {
     listItemEl.appendChild(comp.el)
     this.olEl.appendChild(listItemEl)
     this.items.set(data, item)
+    this.checkboxes.set(checkboxEl, item)
 
     return item
   }
@@ -98,5 +117,6 @@ export class MultiSelect<M = any, D extends Dash = Dash> {
       this.olEl.removeChild(item.listItemEl)
     this.dash.getPublicDashOf(item.comp).destroy()
     this.items.delete(item.data)
+    this.checkboxes.delete(item.checkboxEl)
   }
 }

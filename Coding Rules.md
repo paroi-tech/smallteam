@@ -11,7 +11,6 @@
 * Prefer `let` over `const`.
 * Do not use class inheritance.
 * Only use ES5 getters or setters when you are absolutely sure that no exceptions can be thrown.
-* The only case where `export default` is welcome is from the `main` file of a npm package.
 * Never use `==` or `!=`.
 * Prefer `++i` and `--i` over `i++` and `i--`.
 * Avoid using `bind()` (justification [here](https://stackoverflow.com/questions/42117911/lambda-functions-vs-bind-memory-and-performance))
