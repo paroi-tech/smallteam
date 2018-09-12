@@ -23,9 +23,14 @@ export interface BoxListOptions {
   group?: string
 
   /**
-   * Name of the BoxList.
+   * Title of the BoxList.
    */
-  name: string
+  title?: string
+
+  /**
+   * Remove the header.
+   */
+  noHeader?: boolean
 
   /**
    * When an item is moved inside a list or between lists, this function is used to validate or cancel the move.
@@ -41,11 +46,6 @@ export interface BoxListOptions {
    * Is the BoxList disabled?
    */
   disabled?: boolean
-
-  /**
-   * Hide BoxList title.
-   */
-  hideTitle?: boolean
 
   /**
    * Is this an InlineBoxlist?
@@ -83,25 +83,30 @@ export interface BoxListEvent extends BoxEvent {
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
   private ulEl: HTMLElement
-  private busyIndicatorEl: HTMLElement
-  private titleEl: HTMLElement
+  private spinnerEl?: HTMLElement
+  private titleEl?: HTMLElement
   private sortable: Sortable
 
   private boxes = new Map<string, HTMLElement>()
 
-  constructor(private dash: Dash, private options: BoxListOptions) {
+  constructor(private dash: Dash, private options: BoxListOptions = {}) {
     let view = render(boxListTemplate)
+    view.update({
+      hasHeader: !options.noHeader
+    })
 
     this.el = view.rootEl()
     this.ulEl = view.ref("ul")
-    this.busyIndicatorEl = view.ref("busyIcon")
-    this.titleEl = view.ref("title")
-    if (this.options.inline)
-      this.el.classList.add("InlineBoxList")
 
-    this.setTitle(this.options.name)
-    if (options.hideTitle)
-      (view.ref("header") as HTMLHtmlElement).hidden = true
+    if (this.options.inline)
+      this.el.classList.add("inline")
+
+    if (!options.noHeader) {
+      this.spinnerEl = view.ref("busyIcon")
+      this.titleEl = view.ref("title")
+      if (options.title)
+        this.setTitle(options.title)
+    }
 
     this.sortable = this.makeSortable()
   }
@@ -141,7 +146,8 @@ export default class BoxList<T extends Box> {
   }
 
   setTitle(title: string) {
-    this.titleEl.textContent = title
+    if (this.titleEl)
+      this.titleEl.textContent = title
   }
 
   /**
@@ -165,14 +171,14 @@ export default class BoxList<T extends Box> {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.el.style.opacity = "1.0"
     if (hideBusyIcon)
-      this.hideBusyIcon()
+      this.showSpinner(false)
   }
 
   disable(showBusyIcon: boolean = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.el.style.opacity = "0.4"
     if (showBusyIcon)
-      this.showBusyIcon()
+      this.showSpinner(true)
   }
 
   /**
@@ -186,7 +192,7 @@ export default class BoxList<T extends Box> {
     if (this.options.sort && this.sortable.option("disabled")) {
       this.sortable.option("disabled", false)
       if (hideBusyIcon)
-        this.hideBusyIcon()
+        this.showSpinner(false)
     }
   }
 
@@ -201,7 +207,7 @@ export default class BoxList<T extends Box> {
     if (this.options.sort && !this.sortable.option("disabled")) {
       this.sortable.option("disabled", true)
       if (showBusyIcon)
-        this.showBusyIcon()
+        this.showSpinner(true)
     }
   }
 
@@ -255,11 +261,8 @@ export default class BoxList<T extends Box> {
     })
   }
 
-  private showBusyIcon() {
-    this.busyIndicatorEl.hidden = false
-  }
-
-  private hideBusyIcon() {
-    this.busyIndicatorEl.hidden = true
+  private showSpinner(show: boolean) {
+    if (this.spinnerEl)
+      this.spinnerEl.hidden = !show
   }
 }

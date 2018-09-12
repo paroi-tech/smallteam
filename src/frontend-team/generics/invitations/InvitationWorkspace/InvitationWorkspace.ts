@@ -37,7 +37,7 @@ export default class InvitationWorkspace {
 
     this.form = this.dash.create(InvitationForm)
     this.boxList = this.dash.create(BoxList, {
-      name: "Invitations",
+      title: "Invitations",
       sort: false
     })
 

@@ -40,6 +40,14 @@
     height: 16px;
     width: 16px;
   }
+
+  &.inline &-ul {
+    align-content: space-between;
+    display: flex;
+    flex-direction: row;
+    min-height: 0;
+    padding-bottom: 0;
+  }
 }
 
 .MovableBox {
@@ -96,11 +104,3 @@
 //   color: rgba(233, 6, 6, 0.876);
 //   vertical-align: middle;
 // }
-
-.InlineBoxList {
-  > ul {
-    align-content: space-between;
-    display: flex;
-    flex-direction: row;
-  }
-}

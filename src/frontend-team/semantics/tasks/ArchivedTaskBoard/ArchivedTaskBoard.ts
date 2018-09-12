@@ -27,7 +27,7 @@ export default class ArchivedTaskBoard {
 
     this.boxList = this.dash.create(BoxList, {
       id: "taskList",
-      name: "Tasks",
+      title: "Tasks",
       sort: false
     })
     view.ref("left").appendChild(this.boxList.el)

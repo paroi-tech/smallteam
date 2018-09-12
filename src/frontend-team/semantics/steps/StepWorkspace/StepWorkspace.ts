@@ -10,14 +10,6 @@ import { equal } from "../../../../sharedFrontend/libraries/utils";
 
 const template = require("./StepWorkspace.monk")
 
-const boxListOptions = {
-  id: "",
-  name: "Steps",
-  group: undefined,
-  sort: true,
-  hideTitle: true
-}
-
 export default class StepWorkspace implements Workspace {
   readonly el: HTMLElement
   private nameEl: HTMLInputElement
@@ -43,14 +35,16 @@ export default class StepWorkspace implements Workspace {
     this.nameEl = view.ref("input")
     this.spinnerEl = view.ref("spinner")
 
-    let btnEl = view.ref("btn")as HTMLButtonElement
+    let btnEl = view.ref("btn") as HTMLButtonElement
     btnEl.addEventListener("click", () => this.onAdd())
     this.nameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
         btnEl.click()
     })
 
-    this.boxList = this.dash.create(BoxList, boxListOptions)
+    this.boxList = this.dash.create(BoxList, {
+      sort: true,
+    })
     view.ref("sel").appendChild(this.boxList.el)
     this.form = this.dash.create(StepForm)
     view.ref("edit").appendChild(this.form.el)

@@ -20,7 +20,7 @@
       <span class="Field-lbl">Role</span>
       <select class="Field-input" :ref="role">
         <option value="admin">Admin</option>
-        <option value="contrib" selected="selected">Account</option>
+        <option value="contrib" selected="selected">Contributor</option>
       </select>
     </label>
 

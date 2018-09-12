@@ -4,13 +4,13 @@ import { TaskModel, Model, ARCHIVED_STEP_ID, ON_HOLD_STEP_ID } from "../../../Ap
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import TaskLogViewer from "../TaskLogViewer/TaskLogViewer"
-import AccountSelector from "../../accounts/AccountSelector/AccountSelector"
 import TaskAttachmentManager from "../TaskAttachmentManager/TaskAttachmentManager"
 import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
 import { DelayedAction } from "../../../libraries/DelayedAction"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 import FlagSelector from "../../flags/FlagSelector"
+import AccountSelector from "../../accounts/AccountSelector"
 
 const template = require("./TaskForm.monk")
 

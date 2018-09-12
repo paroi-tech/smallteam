@@ -1,7 +1,7 @@
 import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { Model, ProjectModel, TaskModel, StepModel, ReorderModelEvent } from "../../../AppModel/AppModel"
-import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
+import BoxList, { BoxEvent, BoxListEvent, BoxListOptions } from "../../../generics/BoxList/BoxList"
 import TaskBox from "../../tasks/TaskBox/TaskBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
@@ -219,13 +219,12 @@ export default class StepSwitcher {
   }
 
   private createBoxListFor(step: StepModel): BoxList<TaskBox> {
-    let options = {
+    let list = this.dash.create(BoxList, {
       id: step.id,
       group: this.parentTask.code,
-      name: step.label,
+      title: step.label,
       sort: true
-    }
-    let list = this.dash.create(BoxList, options)
+    })
 
     this.boxLists.set(step.id, list)
 

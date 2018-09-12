@@ -27,9 +27,7 @@ export default class SearchWorkspace implements Workspace {
     this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
 
     this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Search results",
-      sort: false
+      title: "Search results"
     })
     view.ref("left").appendChild(this.boxList.el)
 

@@ -8,16 +8,9 @@ import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMen
 import { Model, FlagModel } from "../../../AppModel/AppModel"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import { OwnDash } from "../../../App/OwnDash"
-import { equal } from "../../../../sharedFrontend/libraries/utils";
+import { equal } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./FlagWorkspace.monk")
-
-const boxListOptions = {
-  id: "",
-  name: "Flags",
-  group: undefined,
-  sort: true
-}
 
 export default class FlagWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -41,16 +34,19 @@ export default class FlagWorkspace implements Workspace {
     let view = render(template)
     this.el = view.rootEl()
 
-    this.boxList = this.dash.create(BoxList, boxListOptions)
+    this.boxList = this.dash.create(BoxList, {
+      title: "Flags",
+      sort: true
+    })
     view.ref("list").appendChild(this.boxList.el)
 
     this.form = this.dash.create(FlagForm)
     view.ref("form").appendChild(this.form.el)
 
     this.menu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl(),
-        align: "left"
-      } as DropdownMenuOptions
+      btnEl: createCustomMenuBtnEl(),
+      align: "left"
+    } as DropdownMenuOptions
     )
     this.menu.entries.createNavBtn({
       label: "Add new flag",
@@ -72,7 +68,7 @@ export default class FlagWorkspace implements Workspace {
   private scheduleFlagReordering(ev: BoxListEvent) {
     if (this.timer)
       clearTimeout(this.timer)
-    this.timer = setTimeout(() =>  this.doUpdate(ev.boxIds), 2000)
+    this.timer = setTimeout(() => this.doUpdate(ev.boxIds), 2000)
   }
 
   private async doUpdate(ids: string[]): Promise<void> {
@@ -100,8 +96,8 @@ export default class FlagWorkspace implements Workspace {
 
   activate(ctrl: ViewerController) {
     ctrl.setContentEl(this.el)
-        .setTitleRightEl(this.menu.btnEl)
-        .setTitle("Flags")
+      .setTitleRightEl(this.menu.btnEl)
+      .setTitle("Flags")
   }
 
   deactivate() {

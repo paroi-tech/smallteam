@@ -37,11 +37,9 @@ export default class AccountSelector {
     })
 
     this.boxList = this.dash.create(BoxList, {
-      id: "",
-      name: "Affected accounts",
-      group: undefined,
       sort: true,
-      inline: true
+      inline: true,
+      noHeader: true
     })
     view.ref("boxlist").appendChild(this.boxList.el)
 

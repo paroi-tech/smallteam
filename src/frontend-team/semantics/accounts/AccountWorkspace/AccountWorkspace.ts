@@ -38,7 +38,7 @@ export default class AccountWorkspace implements Workspace {
     view.ref("form").appendChild(this.form.el)
     this.boxList = this.dash.create(BoxList, {
       id: "accountBoxList",
-      name: "Accounts",
+      title: "Accounts",
       sort: false
     })
     view.ref("list").appendChild(this.boxList.el)
