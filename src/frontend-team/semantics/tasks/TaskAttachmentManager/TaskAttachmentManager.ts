@@ -7,8 +7,8 @@ import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialog
 import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
-import template = require("./TaskAttachmentManager.monk")
-import mediaTemplate = require("./media.monk")
+const template = require("./TaskAttachmentManager.monk")
+const mediaTemplate = require("./media.monk")
 
 export default class TaskAttachmentManager {
   readonly el: HTMLElement

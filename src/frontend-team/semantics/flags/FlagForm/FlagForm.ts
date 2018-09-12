@@ -4,7 +4,7 @@ import { Model, FlagModel } from "../../../AppModel/AppModel"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../shared/meta/Flag"
 import { OwnDash } from "../../../App/OwnDash"
 
-import template = require("./FlagForm.monk")
+const template = require("./FlagForm.monk")
 
 export default class FlagForm {
   readonly el: HTMLElement

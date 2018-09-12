@@ -3,8 +3,8 @@ import { BgCommandManager, BgCommand } from "../../AppModel/BgCommandManager"
 import { Model } from "../../AppModel/AppModel"
 import { OwnDash } from "../../App/OwnDash"
 
-import template = require("./BackgroundCommandManager.monk")
-import templateMenuBtn = require("./MenuBtn.monk")
+const template = require("./BackgroundCommandManager.monk")
+const templateMenuBtn = require("./MenuBtn.monk")
 
 export default class BackgroundCommandManager {
   private el: HTMLDialogElement

@@ -2,9 +2,9 @@ import { Dash } from "bkb"
 import Sortable = require("sortablejs")
 import { render } from "@fabtom/lt-monkberry"
 
-import boxListTemplate = require("./BoxList.monk")
-import liTemplate = require("./li.monk")
-import inlineLiTemplate = require("./InlineLi.monk")
+const boxListTemplate = require("./BoxList.monk")
+const liTemplate = require("./li.monk")
+const inlineLiTemplate = require("./InlineLi.monk")
 
 export interface Box {
   id: string

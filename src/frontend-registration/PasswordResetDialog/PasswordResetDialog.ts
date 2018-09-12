@@ -6,7 +6,7 @@ import InfoDialog from "../../sharedFrontend/modalDialogs/InfoDialog/InfoDialog"
 import ErrorDialog from "../../sharedFrontend/modalDialogs/ErrorDialog/ErrorDialog"
 import App from "../App/App"
 
-import template = require("./PasswordResetDialog.monk")
+const template = require("./PasswordResetDialog.monk")
 
 export interface PasswordResetDialogOptions {
   accountId: string

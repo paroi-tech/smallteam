@@ -7,7 +7,7 @@ import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
 import { Collection } from "../../../AppModel/modelDefinitions"
 
-import template = require("./OnHoldTaskBoard.monk")
+const template = require("./OnHoldTaskBoard.monk")
 
 export default class OnHoldTaskBoard {
   readonly el: HTMLElement

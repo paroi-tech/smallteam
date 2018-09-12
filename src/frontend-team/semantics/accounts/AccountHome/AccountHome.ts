@@ -6,7 +6,7 @@ import { AccountModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash";
 import { render } from "@fabtom/lt-monkberry";
 
-import template = require("./AccountHome.monk")
+const template = require("./AccountHome.monk")
 
 export default class AccountHome implements Workspace {
   readonly el: HTMLElement

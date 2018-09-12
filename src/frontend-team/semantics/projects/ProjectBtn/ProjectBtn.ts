@@ -3,7 +3,7 @@ import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
 import { addCssClass, catchAndLog } from "../../../../sharedFrontend/libraries/utils"
 
-import template = require("./ProjectBtn.monk")
+const template = require("./ProjectBtn.monk")
 
 export interface ProjectBtnOptions {
   project: ProjectModel

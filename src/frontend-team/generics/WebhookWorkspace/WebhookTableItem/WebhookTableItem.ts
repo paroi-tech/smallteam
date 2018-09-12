@@ -4,7 +4,7 @@ import { WebhookModel } from "../WebhookWorkspace"
 import { Log } from "bkb"
 import { InfoDialog, ErrorDialog, QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
-import template = require("./WebhookTableItem.monk")
+const template = require("./WebhookTableItem.monk")
 
 export default class WebhookTableItem {
   readonly el: HTMLElement

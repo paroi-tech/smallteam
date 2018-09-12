@@ -5,7 +5,7 @@ import { TaskModel } from "../../../AppModel/AppModel"
 import { GitCommitModel } from "../../../AppModel/Models/GitCommitModel"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
-import template = require("./TaskCommitViewer.monk")
+const template = require("./TaskCommitViewer.monk")
 
 export default class TaskCommitViewer {
   readonly el: HTMLElement

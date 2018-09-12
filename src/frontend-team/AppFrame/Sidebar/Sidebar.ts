@@ -7,7 +7,7 @@ import NavBtn, { NavBtnOptions } from "../../generics/NavBtn/NavBtn"
 import ProjectBtn, { ProjectBtnOptions } from "../../semantics/projects/ProjectBtn/ProjectBtn"
 import { render } from "@fabtom/lt-monkberry";
 
-import template = require("./Sidebar.monk")
+const template = require("./Sidebar.monk")
 
 export default class Sidebar {
   readonly el: Element

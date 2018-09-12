@@ -5,7 +5,7 @@ import Deferred from "../libraries/Deferred"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 import { validateEmail } from "../libraries/utils"
 
-import template = require("./RegistrationForm.monk")
+const template = require("./RegistrationForm.monk")
 
 export interface RegistrationFormOptions {
   token: string

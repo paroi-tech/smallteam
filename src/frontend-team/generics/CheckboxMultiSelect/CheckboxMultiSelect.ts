@@ -2,8 +2,8 @@ import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils";
 
-import template = require("./CheckboxMultiSelect.monk");
-import liTemplate = require("./li.monk")
+const template = require("./CheckboxMultiSelect.monk");
+const liTemplate = require("./li.monk")
 
 export interface CreateItem<M> {
   (dash: Dash, data: M): { readonly el: HTMLElement }

@@ -9,7 +9,7 @@ import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspa
 import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 
-import template = require("./ProjectForm.monk")
+const template = require("./ProjectForm.monk")
 import App from "../../../App/App"
 
 export default class ProjectForm implements Workspace {
@@ -58,7 +58,7 @@ export default class ProjectForm implements Workspace {
       CheckboxMultiSelect,
       {
         title: "Steps",
-        createItem: (dash: Dash, step: StepModel) => dash.create(StepBox, step)
+        createItem: (dash, step) => dash.create(StepBox, step)
       }
     )
     this.dash.listenToModel(["changeStep", "reorderStep"], () => {

@@ -4,7 +4,7 @@ import { Model, CommentModel } from "../../../AppModel/AppModel"
 import { Converter } from "showdown"
 import { OwnDash } from "../../../App/OwnDash";
 
-import template = require("./TaskComment.monk")
+const template = require("./TaskComment.monk")
 
 const editText = "\u{270E}"
 const saveText = "\u{1F4BE}"

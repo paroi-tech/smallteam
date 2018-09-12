@@ -2,11 +2,10 @@ import { render } from "@fabtom/lt-monkberry"
 import FlagBox from "../FlagBox/FlagBox"
 import { Model, TaskModel, FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
-
-import template = require("./FlagSelector.monk")
-import liTemplate = require("./li.monk")
 import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
-import App from "../../../App/App";
+
+const template = require("./FlagSelector.monk")
+const liTemplate = require("./li.monk")
 
 export default class FlagSelector {
   readonly el: HTMLElement
@@ -18,7 +17,7 @@ export default class FlagSelector {
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
   private flags = new WeakMap<HTMLInputElement, FlagModel>()
-  // private selector: CheckboxMultiSelect<FlagModel>
+  // private selector: CheckboxMultiSelect<FlagModel, OwnDash>
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -27,11 +26,11 @@ export default class FlagSelector {
 
     this.el = view.rootEl()
 
-    // this.selector = this.dash.create<CheckboxMultiSelect<FlagModel, App>>(
+    // this.selector = this.dash.create<CheckboxMultiSelect<FlagModel, OwnDash>>(
     //   CheckboxMultiSelect,
     //   {
     //     title: "Flags",
-    //     createItem: (dash: OwnDash, step: FlagModel) => dash.create(FlagBox, step)
+    //     createItem: (dash, step) => dash.create(FlagBox, step)
     //   }
     // )
     // this.dash.listenToModel(["changeFlag", "reorderFlag"], () => {

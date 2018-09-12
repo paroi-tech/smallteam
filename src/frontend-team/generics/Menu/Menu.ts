@@ -1,8 +1,8 @@
 import { Dash } from "bkb"
 import { render } from "monkberry"
 
-import template = require("./Menu.monk")
-import liTemplate = require("./li.monk")
+const template = require("./Menu.monk")
+const liTemplate = require("./li.monk")
 
 /**
  * Properties required by the Menu component for its items.

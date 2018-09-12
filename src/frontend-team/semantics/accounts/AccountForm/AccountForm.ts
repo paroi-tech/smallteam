@@ -8,7 +8,7 @@ import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
 import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { validateEmail } from "../../../../sharedFrontend/libraries/utils"
 
-import template = require("./AccountForm.monk")
+const template = require("./AccountForm.monk")
 
 export default class AccountForm {
   readonly el: HTMLElement

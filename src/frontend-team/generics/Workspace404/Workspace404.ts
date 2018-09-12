@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "@fabtom/lt-monkberry"
 
-import template = require("./Workspace404.monk")
+const template = require("./Workspace404.monk")
 
 export default class Workspace404 implements Workspace {
   readonly el: HTMLElement

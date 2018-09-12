@@ -2,7 +2,7 @@ import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 import { Dash } from "bkb"
 
-import template = require("./Dialog.monk")
+const template = require("./Dialog.monk")
 
 export type ComponentOrUndef = { el: HTMLElement } | undefined
 

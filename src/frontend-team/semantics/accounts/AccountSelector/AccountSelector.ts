@@ -6,8 +6,8 @@ import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog";
 
-import template = require("./AccountSelector.monk")
-// import itemTemplate = require("./label.monk")
+const template = require("./AccountSelector.monk")
+// const itemTemplate = require("./label.monk")
 
 /**
  * The idea of a list of checkbox was found here:

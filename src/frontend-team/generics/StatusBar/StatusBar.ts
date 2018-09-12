@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 
-import template = require("./StatusBar.monk")
+const template = require("./StatusBar.monk")
 
 export default class StatusBar {
   readonly el: HTMLElement

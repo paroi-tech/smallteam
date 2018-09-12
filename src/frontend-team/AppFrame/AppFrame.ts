@@ -26,7 +26,7 @@ import { render } from "@fabtom/lt-monkberry"
 import InvitationWorkspace from "../generics/invitations/InvitationWorkspace/InvitationWorkspace"
 import WebhookWorkspace from "../generics/WebhookWorkspace/WebhookWorkspace"
 
-import template = require("./AppFrame.monk")
+const template = require("./AppFrame.monk")
 
 export default class AppFrame {
   readonly el: Element

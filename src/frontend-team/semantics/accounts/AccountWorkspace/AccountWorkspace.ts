@@ -10,7 +10,7 @@ import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../librar
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 
-import template = require("./AccountWorkspace.monk")
+const template = require("./AccountWorkspace.monk")
 
 export default class AccountWorkspace implements Workspace {
   readonly el: HTMLElement

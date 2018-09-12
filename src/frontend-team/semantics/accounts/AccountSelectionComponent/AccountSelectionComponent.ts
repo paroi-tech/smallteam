@@ -5,7 +5,7 @@ import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
 import App from "../../../App/App"
 
-import template = require("./AccountSelectionComponent.monk")
+const template = require("./AccountSelectionComponent.monk")
 
 export default class AccountSelectionComponent {
   readonly el: HTMLElement

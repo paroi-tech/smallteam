@@ -3,7 +3,7 @@ import { render } from "@fabtom/lt-monkberry"
 import { makeOutsideClickHandlerFor } from "../../libraries/utils"
 import Deferred from "../../libraries/Deferred"
 
-import template = require("./PromptDialog.monk")
+const template = require("./PromptDialog.monk")
 
 export default class PromptDialog {
   private readonly el: HTMLDialogElement

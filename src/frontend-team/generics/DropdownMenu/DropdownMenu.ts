@@ -3,8 +3,8 @@ import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 import { render } from "@fabtom/lt-monkberry";
 import { catchAndLog } from "../../../sharedFrontend/libraries/utils"
 
-import template = require("./DropdownMenu.monk")
-// import liTemplate = require("./li.monk")
+const template = require("./DropdownMenu.monk")
+// const liTemplate = require("./li.monk")
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement

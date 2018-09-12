@@ -4,7 +4,7 @@ import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
-import template = require("./TaskLogViewer.monk")
+const template = require("./TaskLogViewer.monk")
 
 export default class TaskLogViewer {
   readonly el: HTMLElement

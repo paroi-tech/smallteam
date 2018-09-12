@@ -6,7 +6,7 @@ import { render } from "@fabtom/lt-monkberry"
 import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
 import { InfoDialog, ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
-import template = require("./PasswordForm.monk")
+const template = require("./PasswordForm.monk")
 
 export default class PasswordForm {
   readonly el: HTMLElement

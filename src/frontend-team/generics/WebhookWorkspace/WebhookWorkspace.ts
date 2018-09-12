@@ -13,7 +13,7 @@ export interface WebhookModel {
   inProcessing: boolean
 }
 
-import template = require("./WebhookWorkspace.monk")
+const template = require("./WebhookWorkspace.monk")
 
 export default class WebhookWorkspace {
   readonly el: HTMLElement

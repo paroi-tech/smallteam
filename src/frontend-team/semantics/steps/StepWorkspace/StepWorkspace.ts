@@ -8,7 +8,7 @@ import { Model, StepModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash";
 import { equal } from "../../../../sharedFrontend/libraries/utils";
 
-import template = require("./StepWorkspace.monk")
+const template = require("./StepWorkspace.monk")
 
 const boxListOptions = {
   id: "",

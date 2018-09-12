@@ -8,7 +8,7 @@ import InvitationBox from "../InvitationBox/InvitationBox"
 import App from "../../../App/App"
 import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 
-import template = require("./InvitationWorkspace.monk")
+const template = require("./InvitationWorkspace.monk")
 
 export interface Invitation {
   id: string

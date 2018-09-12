@@ -6,7 +6,7 @@ import TaskBox from "../../tasks/TaskBox/TaskBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
-import template = require("./StepSwitcher.monk")
+const template = require("./StepSwitcher.monk")
 
 const caretUp = "\u{25B2}"
 const caretDown = "\u{25BC}"

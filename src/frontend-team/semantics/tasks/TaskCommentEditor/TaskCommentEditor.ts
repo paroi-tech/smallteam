@@ -6,7 +6,7 @@ import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
 
-import template = require("./TaskCommentEditor.monk")
+const template = require("./TaskCommentEditor.monk")
 
 export default class TaskCommentEditor {
   readonly el: HTMLElement
