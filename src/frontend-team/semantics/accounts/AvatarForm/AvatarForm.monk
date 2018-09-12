@@ -2,9 +2,9 @@
   <header class="AvatarForm-header">Change your profile picture (PNG, JPEG or GIF)</header>
   <form action="" method="post" enctype="multipart/form-data" :ref="form">
     <input name="f" type="file" class="AvatarForm-input" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" :ref="input">
-    <button type="Submit" :ref="btn">
+    <button class="StdBtn WithLoader -right" type="Submit" :ref="btn">
       Submit
-      <span class="fa fa-spin fa-spinner fa-1x" hidden :ref="spinner"></span>
+      <span class="WithLoader-l" hidden :ref="spinner"></span>
     </button>
   </form>
 </div>

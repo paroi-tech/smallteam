@@ -21,4 +21,9 @@
 .TaskLogViewerLoader {
   margin: 4px 0px;
   text-align: center;
+  &-l {
+    height: 50px;
+    margin: 30px auto 0;
+    width: 25%;
+  }
 }

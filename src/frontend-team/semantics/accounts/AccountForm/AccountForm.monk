@@ -27,8 +27,8 @@
     <div class="FieldGroup-item" :ref="password"></div>
 
     <div class="FieldGroup-action">
-      <button type="button" :ref="submitBtn">
-        Save changes <span class="fa fa-spinner fa-pulse fa-1x" hidden :ref="submitSpinner"></span>
+      <button class="StdBtn WithLoader -right" type="button" :ref="submitBtn">
+        Save changes <span class="WithLoader-l" hidden :ref="submitSpinner"></span>
       </button>
     </div>
   </fieldset>

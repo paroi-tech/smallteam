@@ -3,9 +3,9 @@
     <div :ref="sel"></div>
     <div class="InputAndBtn" :ref="add">
       <input class="InputAndBtn-input" type="text" :ref="input" required>
-      <button class="InputAndBtn-btn StdBtn" type="button" :ref="btn">
+      <button class="InputAndBtn-btn StdBtn WithLoader -right" type="button" :ref="btn">
         Add
-        <span class="fa fa-spinner fa-spin fa-1x fa-fw" hidden :ref="spinner"></span>
+        <span class="WithLoader-l" hidden :ref="spinner"></span>
       </button>
     </div>
   </div>

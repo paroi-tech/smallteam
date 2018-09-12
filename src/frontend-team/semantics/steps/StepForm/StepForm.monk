@@ -12,9 +12,9 @@
       </label>
 
       <div class="FieldGroup-action">
-        <button type="button" disabled :ref="submitBtn">
-          <span class="fa fa-spinner fa-pulse fa-1x fa-fw" hidden :ref="spinner"></span>
+        <button class="StdBtn WithLoader -right" type="button" disabled :ref="submitBtn">
           Submit
+          <span class="WithLoader-l" hidden :ref="spinner"></span>
         </button>
         &nbsp;
         <button type="button" :ref="cancelBtn">Cancel</button>

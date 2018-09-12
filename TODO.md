@@ -13,6 +13,8 @@ the time, so I can't use JIRA.
 
 `onkeyup` ⇒ `addEventListener("input", )`
 `prop: smtg | undefined` ⇒ `prop?: smtg`
+`<button type="button"` ⇒ remove `type="button"`
+`&nbsp;` ⇒ remove
 
 # Thomas
 

@@ -36,18 +36,6 @@ body {
   color: white;
   font-size: $f14;
   padding: 10px 19px 10px 17px;
-
-  &.-withSpinner {
-    padding-right: 24px;
-    position: relative;
-  }
-  &.-withSpinner &-spinner {
-    display: none;
-    margin-top: -7px;
-    position: absolute;
-    right: 2px;
-    top: 50%;
-  }
 }
 
 .TitleBar {
@@ -63,25 +51,73 @@ body {
   }
 }
 
-.Spinner {
+.WithLoader {
+  position: relative;
+  &.-right {
+    padding-right: 25px;
+  }
+  &-l {
+    background: url(/svg/loaders/circles.svg) no-repeat center center;
+    background-size: contain;
+    height: 16px;
+    position: absolute;
+    width: 16px;
+    &.-delaying {
+      filter: grayscale(100%);
+    }
+  }
+  &.-right &-l {
+    margin-top: -8px;
+    right: 5px;
+    top: 50%;
+  }
+}
+
+.LoaderBg {
+  align-self: center;
   background: url(/svg/loaders/circles.svg) no-repeat center center;
   background-size: contain;
+  height: 16px;
+  width: 16px;
   &.-delaying {
     filter: grayscale(100%);
   }
-  &.-inside {
-    background: initial;
-    position: relative;
-    &::before {
-      background: url(/svg/loaders/circles.svg) no-repeat center center;
-      background-size: contain;
-      content: "";
-      height: 100%;
-      position: absolute;
-      width: 100%;
-    }
-  }
 }
+
+// .Spinner {
+//   background: url(/svg/loaders/circles.svg) no-repeat center center;
+//   background-size: contain;
+//   &.-delaying {
+//     filter: grayscale(100%);
+//   }
+//   // &.-size1,
+//   &.-inside {
+//     background: initial;
+//     position: relative;
+//     &::before {
+//       background: url(/svg/loaders/circles.svg) no-repeat center center;
+//       background-size: contain;
+//       content: "";
+//       height: 100%;
+//       position: absolute;
+//       width: 100%;
+//     }
+//   }
+//   &.-size1 {
+//     height: 16px;
+//     margin-top: -8px;
+//     position: absolute;
+//     right: 5px;
+//     top: 50%;
+//     width: 16px;
+
+//     // // display: inline-block;
+//     // &::before {
+//     //   height: 16px;
+//     //   width: 16px;
+//     // }
+//   }
+// }
 
 .TitleBar2 {
   background-color: $lightColor;
@@ -93,7 +129,7 @@ body {
   // &-text {
   //   flex-grow: 1;
   // }
-  &-right {
-    width: 20px;
-  }
+  // &-right {
+  //   width: 20px;
+  // }
 }

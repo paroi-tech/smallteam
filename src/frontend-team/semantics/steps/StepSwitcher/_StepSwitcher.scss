@@ -7,9 +7,10 @@
     padding: 4px;
   }
 
-  &-toggleButton, &-closeButton {
-    padding: 4px;
+  &-toggleButton,
+  &-closeButton {
     border-radius: 50%;
+    width: 16px;
     &:focus, &:hover {
       color: rgba(255, 200, 170, 0.42);
       outline: none;

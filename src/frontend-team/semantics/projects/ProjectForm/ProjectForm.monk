@@ -18,9 +18,9 @@
     <div class="FieldGroup-item" :ref="steps"></div>
 
     <div class="FieldGroup-action">
-      <button type="button" :ref="submitBtn">
+      <button class="StdBtn WithLoader -right" type="button" :ref="submitBtn">
         Submit
-        <span class="fa fa-spinner fa-pulse fa-1x fa-fw" :ref="spinner" hidden></span>
+        <span class="WithLoader-l" :ref="spinner" hidden></span>
       </button>
     </div>
   </div>
