@@ -2,14 +2,14 @@ import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils";
 
-const template = require("./CheckboxMultiSelect.monk");
+const template = require("./MultiSelect.monk");
 const liTemplate = require("./li.monk")
 
 export interface CreateItem<M> {
   (dash: Dash, data: M): { readonly el: HTMLElement }
 }
 
-export interface CheckboxMultiSelectOptions<M> {
+export interface MultiSelectOptions<M> {
   title: string
   createItem: CreateItem<M>
 }
@@ -23,7 +23,7 @@ interface Item<M> {
   checkboxEl: HTMLInputElement
 }
 
-export class CheckboxMultiSelect<M = any, D extends Dash = Dash> {
+export class MultiSelect<M = any, D extends Dash = Dash> {
   readonly el: HTMLElement
   private olEl: HTMLElement
   private fieldsetEl: HTMLFieldSetElement
@@ -31,7 +31,7 @@ export class CheckboxMultiSelect<M = any, D extends Dash = Dash> {
   private items = new Map<M, Item<M>>()
   private createSticker: CreateItem<M>
 
-  constructor(private dash: D, { title, createItem }: CheckboxMultiSelectOptions<any>) {
+  constructor(private dash: D, { title, createItem }: MultiSelectOptions<any>) {
     this.createSticker = createItem
 
     let view = render(template)

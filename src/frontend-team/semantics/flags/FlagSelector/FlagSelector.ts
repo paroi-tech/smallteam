@@ -2,7 +2,7 @@ import { render } from "@fabtom/lt-monkberry"
 import FlagBox from "../FlagBox/FlagBox"
 import { Model, TaskModel, FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
-import { CheckboxMultiSelect } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import { MultiSelect, MultiSelectOptions } from "../../../generics/MultiSelect/MultiSelect"
 
 const template = require("./FlagSelector.monk")
 const liTemplate = require("./li.monk")
@@ -17,7 +17,7 @@ export default class FlagSelector {
   private items = new Map<string, HTMLElement>()
   private checkBoxes = new Map<String, HTMLInputElement>()
   private flags = new WeakMap<HTMLInputElement, FlagModel>()
-  // private selector: CheckboxMultiSelect<FlagModel, OwnDash>
+  private selector: MultiSelect<FlagModel, OwnDash>
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -26,20 +26,20 @@ export default class FlagSelector {
 
     this.el = view.rootEl()
 
-    // this.selector = this.dash.create<CheckboxMultiSelect<FlagModel, OwnDash>>(
-    //   CheckboxMultiSelect,
-    //   {
-    //     title: "Flags",
-    //     createItem: (dash, step) => dash.create(FlagBox, step)
-    //   }
-    // )
-    // this.dash.listenToModel(["changeFlag", "reorderFlag"], () => {
-    //   this.selector.fillWith(this.model.global.flags)
-    //   if (this.task && this.task.flags)
-    //     this.selector.selectItems(this.task.flags)
-    // })
-    // this.selector.fillWith(this.model.global.flags)
-    // // TODO:
+    this.selector = this.dash.create<MultiSelect<FlagModel, OwnDash>, MultiSelectOptions<FlagModel>, OwnDash>(
+      MultiSelect,
+      {
+        title: "Flags",
+        createItem: (dash, step) => dash.create(FlagBox, step)
+      }
+    )
+    this.dash.listenToModel(["changeFlag", "reorderFlag"], () => {
+      this.selector.fillWith(this.model.global.flags)
+      if (this.task && this.task.flags)
+        this.selector.selectItems(this.task.flags)
+    })
+    this.selector.fillWith(this.model.global.flags)
+    // TODO:
 
     this.listEl = view.ref("ul")
     this.listEl.addEventListener("change", ev => {

@@ -155,9 +155,9 @@ the time, so I can't use JIRA.
 - Improve forms
 - Improve accounts selector in taskform. Open a dialog to select constributors and use inline BoxList.
 - In TaskForm, show account name and creation date beside a comment.
-- Listen to events (create, update, delete) in CheckboxMultiSelect in order to reorder and update items
-  - Create a listener object and pass it as optional parameter to CheckboxMultiSelect.
-  - The listener will listen to update events from model and update the CheckboxMultiSelect
+- Listen to events (create, update, delete) in MultiSelect in order to reorder and update items
+  - Create a listener object and pass it as optional parameter to MultiSelect.
+  - The listener will listen to update events from model and update the MultiSelect
 - Dropdown menus: open them as modal (maybe with a transparent overlay instead of a `<dialog>`?)
 - In `TaskForm`:
   - Show, Add, remove, reorder the accounts affected to the task

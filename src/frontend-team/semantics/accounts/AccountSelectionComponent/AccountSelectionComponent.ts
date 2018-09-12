@@ -1,5 +1,5 @@
 import { Model, AccountModel } from "../../../AppModel/AppModel"
-import { CheckboxMultiSelect, CheckboxMultiSelectOptions } from "../../../generics/CheckboxMultiSelect/CheckboxMultiSelect"
+import { MultiSelect, MultiSelectOptions } from "../../../generics/MultiSelect/MultiSelect"
 import AccountBox from "../AccountBox/AccountBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
@@ -11,7 +11,7 @@ export default class AccountSelectionComponent {
   readonly el: HTMLElement
 
   private model: Model
-  private selector: CheckboxMultiSelect<AccountModel, OwnDash>
+  private selector: MultiSelect<AccountModel, OwnDash>
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
@@ -19,8 +19,8 @@ export default class AccountSelectionComponent {
     let view = render(template)
     this.el = view.rootEl()
 
-    this.selector = this.dash.create<CheckboxMultiSelect<AccountModel, OwnDash>, CheckboxMultiSelectOptions<AccountModel>, OwnDash>(
-      CheckboxMultiSelect,
+    this.selector = this.dash.create<MultiSelect<AccountModel, OwnDash>, MultiSelectOptions<AccountModel>, OwnDash>(
+      MultiSelect,
       {
         title: "Accounts",
         createItem: (dash, account) => dash.create(AccountBox, account)
