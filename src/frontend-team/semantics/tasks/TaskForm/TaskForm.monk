@@ -2,7 +2,7 @@
   <fieldset :ref="fieldset">
     <header class="TitleBar2">
       {{ code }}
-      <span class="LoaderBg"  :ref="spinner"></span>
+      <span class="LoaderBg" hidden :ref="spinner"></span>
     </header>
 
     <div class="FieldGroup">
