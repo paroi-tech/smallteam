@@ -5,11 +5,17 @@ import BoxList, { BoxEvent, BoxListEvent, BoxListOptions } from "../../../generi
 import TaskBox from "../../tasks/TaskBox/TaskBox"
 import { OwnDash } from "../../../App/OwnDash"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 
 const template = require("./StepSwitcher.monk")
 
 const caretUp = "\u{25B2}"
 const caretDown = "\u{25BC}"
+
+export interface TaskBoardOptions {
+  parentTask: TaskModel
+  dropdownMenu?: DropdownMenu
+}
 
 /**
  * Component used to display a task and its children (subtasks).
@@ -27,9 +33,10 @@ export default class StepSwitcher {
   private spinnerEl: HTMLElement
   private bottomEl: HTMLElement
 
-  private model: Model
-  private project: ProjectModel
   private log: Log
+  private model: Model
+  private parentTask: TaskModel
+  private project: ProjectModel
 
   private collapsibleElVisible = true
   private visible = true
@@ -40,10 +47,11 @@ export default class StepSwitcher {
   // Map used to store TaskBoxes. The keys are the task IDs.
   private taskBoxes = new Map<string, TaskBox>()
 
-  constructor(private dash: OwnDash, readonly parentTask: TaskModel) {
+  constructor(private dash: OwnDash, options: TaskBoardOptions) {
     this.model = dash.app.model
     this.log = dash.app.log
-    this.project = parentTask.project
+    this.parentTask = options.parentTask
+    this.project = options.parentTask.project
 
     let view = render(template)
 
@@ -56,17 +64,20 @@ export default class StepSwitcher {
     this.busyIndicatorEl = view.ref("indicator")
     this.bottomEl = view.ref("bottom")
 
-    this.toggleBtnEl.textContent = caretUp
-    view.ref("title").textContent = this.parentTask.label
+    if (options.dropdownMenu)
+      view.ref("menu").appendChild(options.dropdownMenu.btnEl)
 
-    let isRootTask = parentTask.id === this.project.rootTaskId
+    this.toggleBtnEl.textContent = caretUp
+    view.ref("title").textContent = options.parentTask.label
+
+    let isRootTask = options.parentTask.id === this.project.rootTaskId
     let closeBtnEl = view.ref("closeBtn") as HTMLElement
 
-    if (this.parentTask.children && this.parentTask.children.length > 0)
+    if (options.parentTask.children && options.parentTask.children.length > 0)
       closeBtnEl.hidden = true
     closeBtnEl.addEventListener("click", () => {
       // We can't hide the rootTask StepSwitcher or tasks with children.
-      let hasChildren = this.parentTask.children && this.parentTask.children.length !== 0
+      let hasChildren = options.parentTask.children && options.parentTask.children.length !== 0
       if (!isRootTask && !hasChildren)
         this.setVisible(false)
     })

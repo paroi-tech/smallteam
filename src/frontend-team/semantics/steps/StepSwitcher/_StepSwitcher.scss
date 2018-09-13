@@ -1,14 +1,5 @@
-.StepSwitcher {
-  &-header {
-    align-items: baseline;
-    display: flex;
-    flex-direction: row;
-    justify-content: space-between;
-    padding: 4px;
-  }
-
-  &-toggleButton,
-  &-closeButton {
+.StepSwitcherHeader {
+  &-btn {
     border-radius: 50%;
     width: 16px;
     &:focus, &:hover {
@@ -22,11 +13,10 @@
     transition-property: opacity;
     transition-timing-function: linear;
   }
+}
 
+.StepSwitcher {
   &-bottom {
-    // align-content: stretch;
-    // display: flex;
-    // justify-content: flex-start;
     margin-top: 5px;
   }
 

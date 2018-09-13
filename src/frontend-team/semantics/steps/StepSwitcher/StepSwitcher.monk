@@ -1,10 +1,13 @@
 <section class="StepSwitcher">
-  <header class="StepSwitcher-header BlockTitle">
-    <span :ref="title"></span>
-    <div class="StepSwitcher-buttonContainer">
+  <header class="StepSwitcherHeader TitleBar Row -spaced">
+    <div class="Row">
+      <span :ref="title"></span>
+      <div class="DropdownMenuWrapper -asSuffix" :ref="menu"></div>
+    </div>
+    <div class="Row">
       <span class="LoaderBg" hidden :ref="indicator"></span>
-      <button class="StepSwitcher-toggleButton" title="Fold/Unfold" :ref="toggleBtn"></button>
-      <button class="StepSwitcher-closeButton" title="Close" :ref="closeBtn">X</button>
+      <button class="StepSwitcherHeader-btn" title="Fold/Unfold" :ref="toggleBtn"></button>
+      <button class="StepSwitcherHeader-btn" title="Close" :ref="closeBtn">X</button>
     </div>
   </header>
 

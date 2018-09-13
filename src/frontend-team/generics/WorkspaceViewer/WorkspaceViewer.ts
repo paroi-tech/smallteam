@@ -13,7 +13,7 @@ export interface Workspace {
 }
 
 export interface ViewerController {
-  // setMenuLabel(label: string): this
+  showTitleBar(show: boolean): this
   setTitle(title: string): this
   setContentEl(el: HTMLElement): this
   setTitleRightEl(el: HTMLElement): this
@@ -128,13 +128,19 @@ export default class WorkspaceViewer {
       removeAllChildren(this.bodyEl)
       removeAllChildren(this.customMenuPlaceEl)
     }
-    info.workspace.activate(this.createViewController(info))
+    this.showTitleBar(true)
+    info.workspace.activate(this.createViewController())
     this.currentWInfo = info
   }
 
-  private createViewController(info: WorkspaceInfo): ViewerController {
-    let obj = {
+  private createViewController(): ViewerController {
+    let obj: ViewerController = {
+      showTitleBar: (show: boolean) => {
+        this.showTitleBar(show)
+        return obj
+      },
       setTitle: (title: string) => {
+        this.showTitleBar(true)
         this.h1El.textContent = title
         return obj
       },
@@ -150,5 +156,15 @@ export default class WorkspaceViewer {
       }
     }
     return obj
+  }
+
+  private showTitleBar(show: boolean) {
+    if (show)
+      this.el.classList.remove("-noTitleBar")
+    else {
+      this.el.classList.add("-noTitleBar")
+      this.el.classList.add("-noTitleBar")
+      this.el.classList.add("-noTitleBar")
+    }
   }
 }

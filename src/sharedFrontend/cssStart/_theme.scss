@@ -23,6 +23,10 @@ body {
 
   & > * {
     flex: 1 1 0;
+    margin-right: 10px;
+    &:last-child {
+      margin-right: 0;
+    }
   }
 }
 
@@ -71,20 +75,27 @@ body {
   }
 }
 
-.TitleBar {
-  background-color: #e9efff;
+.Row {
   display: flex;
   flex-direction: row;
+  &.-spaced {
+    justify-content: space-between;
+  }
+}
+
+.TitleBar {
+  background-color: #e9efff;
   font-size: $f14;
   line-height: 20px;
   padding: 4px 5px 4px 10px;
   position: relative;
-  &-right {
-    margin-left: 10px;
-    // position: absolute;
-    // right: 10px;
-    // top: 0;
-  }
+
+  // &-right {
+  //   margin-left: 10px;
+  //   // position: absolute;
+  //   // right: 10px;
+  //   // top: 0;
+  // }
 }
 
 .TitleBar2 {

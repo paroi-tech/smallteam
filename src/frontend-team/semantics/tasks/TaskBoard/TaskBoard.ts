@@ -1,11 +1,16 @@
-import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
-import { Model, TaskModel } from "../../../AppModel/AppModel"
+import { TaskModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
 
 const template = require("./TaskBoard.monk")
+
+export interface TaskBoardOptions {
+  rootTask: TaskModel
+  dropdownMenu: DropdownMenu
+}
 
 export default class TaskBoard {
   readonly el: HTMLElement
@@ -14,13 +19,7 @@ export default class TaskBoard {
   private taskForm: TaskForm
   private stepSwitcherMap = new Map<String, StepSwitcher>()
 
-  // private model: Model
-  // private log: Log
-
-  constructor(private dash: OwnDash, readonly rootTask: TaskModel) {
-    // this.model = this.dash.app.model
-    // this.log = this.dash.app.log
-
+  constructor(private dash: OwnDash, private options: TaskBoardOptions) {
     let view = render(template)
 
     this.el = view.rootEl()
@@ -29,10 +28,10 @@ export default class TaskBoard {
     this.taskForm = this.dash.create(TaskForm)
     view.ref("edit").appendChild(this.taskForm.el)
 
-    let rootTaskStepSwitcher = this.createStepSwitcher(this.rootTask)
+    let rootTaskStepSwitcher = this.createStepSwitcher(options.rootTask, options.dropdownMenu)
 
     this.selEl.appendChild(rootTaskStepSwitcher.el)
-    this.createStepSwitchersForChildren(this.rootTask)
+    this.createStepSwitchersForChildren(options.rootTask)
 
     this.addDashListeners()
     this.addModelListeners()
@@ -49,7 +48,7 @@ export default class TaskBoard {
   private addDashListeners() {
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
     this.dash.listenTo<TaskModel>("showStepSwitcher", task => {
-      if (task.id === this.rootTask.id) // The rootTask panel is always displayed.
+      if (task.id === this.options.rootTask.id) // The rootTask panel is always displayed.
         return
       this.showStepSwitcher(task)
     })
@@ -64,7 +63,7 @@ export default class TaskBoard {
     // Task update event. We handle the case when a task is archived or put on hold.
     this.dash.listenToModel("updateTask", data => {
       let task = data.model as TaskModel
-      if (!task.currentStep.isSpecial || !this.rootTask.children || !this.rootTask.children.has(task.id))
+      if (!task.currentStep.isSpecial || !this.options.rootTask.children || !this.options.rootTask.children.has(task.id))
         return
       this.removeLineageStepSwitchers(task)
     })
@@ -79,9 +78,9 @@ export default class TaskBoard {
     this.stepSwitcherMap.delete(taskId)
   }
 
-  private createStepSwitcher(task: TaskModel): StepSwitcher {
-    let stepSwitcher = this.dash.create(StepSwitcher, task)
-    this.stepSwitcherMap.set(task.id, stepSwitcher)
+  private createStepSwitcher(parentTask: TaskModel, dropdownMenu?: DropdownMenu): StepSwitcher {
+    let stepSwitcher = this.dash.create(StepSwitcher, { parentTask, dropdownMenu })
+    this.stepSwitcherMap.set(parentTask.id, stepSwitcher)
     return stepSwitcher
   }
 

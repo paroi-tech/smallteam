@@ -28,6 +28,9 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- `BgCommandManager`: Use our `Dialog` system
+- Create a component `AccountAvatar`, its option is a `AccountModel`, display a letter **or** the avatar
+
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 - Replace ES5 `get` and `set` by methods if an exception can be thrown
 

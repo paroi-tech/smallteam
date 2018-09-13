@@ -1,7 +1,9 @@
 <section class="WorkspaceViewer">
-  <header class="WorkspaceViewer-title TitleBar">
-    <h1 class="TitleBar-h1" :ref="h1"></h1>
-    <span class="TitleBar-right DropdownMenuWrapper" :ref="customMenu"></span>
+  <header class="WorkspaceViewer-title TitleBar" :ref="titleBar">
+    <div class="Row">
+      <h1 :ref="h1"></h1>
+      <span class="DropdownMenuWrapper -asSuffix" :ref="customMenu"></span>
+    </div>
   </header>
   <div class="WorkspaceViewer-body" :ref="body"></div>
 </section>
