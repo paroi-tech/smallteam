@@ -15,9 +15,9 @@
           <input class="Field-input" :ref="password" type="password" placeholder="Password">
         </span>
       </label>
-      <button class="FieldGroup-action StdBtn WithLoader -right" :ref="submitBtn" type="button">
+      <button class="FieldGroup-action Btn WithLoader -right" :ref="submitBtn" type="button">
         Submit
-        <span class="WithLoader-l" :ref="spinner"></span>
+        <span class="WithLoader-l" hidden :ref="spinner"></span>
       </button>
     </div>
 

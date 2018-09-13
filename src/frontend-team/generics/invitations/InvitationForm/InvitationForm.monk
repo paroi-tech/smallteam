@@ -16,7 +16,7 @@
     </span>
   </label>
 
-  <button class="FieldGroup-action StdBtn WithLoader -right" :ref="submitBtn" type="button">
+  <button class="FieldGroup-action Btn WithLoader -right" :ref="submitBtn" type="button">
     Submit
     <span class="WithLoader-l" :ref="spinner"></span>
   </button>

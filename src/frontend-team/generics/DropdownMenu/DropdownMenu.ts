@@ -4,7 +4,7 @@ import { render } from "@fabtom/lt-monkberry";
 import { catchAndLog } from "../../../sharedFrontend/libraries/utils"
 
 const template = require("./DropdownMenu.monk")
-// const liTemplate = require("./li.monk")
+const backdropTemplate = require("./Backdrop.monk")
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement
@@ -14,11 +14,11 @@ export interface DropdownMenuOptions {
 }
 
 export class DropdownMenu {
-  private el: HTMLElement
   readonly btnEl: HTMLElement
-
   readonly entries: NavMenu
 
+  private el: HTMLElement
+  private backdropEl?: HTMLElement
   private detached = true
   private isVisible = false
 
@@ -30,19 +30,7 @@ export class DropdownMenu {
     this.el.classList.add(options.align === "left" ? "-left" : "-right")
 
     this.btnEl.addEventListener("click", catchAndLog(() => this.toggle()))
-    // Design requirement: menu should be closed when user clicks outside.
-    // TSC complains when we used a function to handle the focusout event like this:
-    // this.btnEl.addEventListener("focusout", (ev) => doSomething())
-    // So we end up with the following code. See the following discussion for more information:
-    // https://github.com/Microsoft/TypeScript/issues/1224
-    let thisObj = this
-    let handler = {
-      handleEvent: (ev) => {
-        if (thisObj.isVisible && !thisObj.el.contains(ev.relatedTarget as Node))
-        thisObj.hide()
-      }
-    }
-    this.btnEl.addEventListener("focusout", handler)
+
     dash.listenTo("click", () => this.hide())
   }
 
@@ -72,17 +60,18 @@ export class DropdownMenu {
       return
     if (this.detached)
       this.attachInDom()
-    this.position()
     this.isVisible = true
     this.el.style.display = "block"
     this.el.focus()
+    this.showBackdrop(true)
   }
 
   private hide() {
-    if (this.isVisible) {
-      this.isVisible = false
-      this.el.style.display = "none"
-    }
+    if (!this.isVisible)
+      return
+    this.isVisible = false
+    this.el.style.display = "none"
+    this.showBackdrop(false)
   }
 
   private attachInDom() {
@@ -93,13 +82,13 @@ export class DropdownMenu {
     parentEl.insertBefore(this.el, this.options.btnEl.nextSibling)
   }
 
-  private position() {
-    // let menuTop = this.btnEl.offsetTop + this.btnEl.offsetHeight
-    // let menuLeft = this.btnEl.offsetLeft + this.btnEl.offsetWidth - this.el.offsetWidth
-    //
-    // this.el.style.top = `${menuTop}px`
-    // this.el.style.left = `${menuLeft}px`
-    // console.log("position:", this.btnEl.offsetLeft, this.btnEl.offsetWidth, this.el.offsetWidth)
+  private showBackdrop(show: boolean) {
+    if (!this.backdropEl) {
+      this.backdropEl = render(backdropTemplate).rootEl<HTMLElement>()
+      this.backdropEl.addEventListener("click", () => this.hide())
+      this.el.parentElement!.appendChild(this.backdropEl)
+    }
+    this.backdropEl.hidden = !show
   }
 }
 

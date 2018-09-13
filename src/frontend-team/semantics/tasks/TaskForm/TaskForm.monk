@@ -21,24 +21,24 @@
       <div class="FieldGroup-item" :ref="account"></div>
 
       <div class="FieldGroup-action">
-        <button class="StdBtn WithLoader -right" type="button" :ref="submit">
+        <button class="Btn WithLoader -right" type="button" :ref="submit">
           Submit <span class="WithLoader-l" hidden :ref="submitSpinner"></span>
         </button>
-        <button class="StdBtn" type="button" :ref="btnArchive">Archive task</button>
-        <button class="StdBtn" type="button" :ref="btnOnHold">Put on hold</button>
+        <button class="Btn" type="button" :ref="btnArchive">Archive task</button>
+        <button class="Btn" type="button" :ref="btnOnHold">Put on hold</button>
       </div>
 
       <div class="FieldGroup-item" :ref="comment"></div>
       <div class="FieldGroup-item" :ref="attachment"></div>
 
       <div class="FieldGroup-action">
-        <button class="StdBtn" :ref="btnToggle">Show/Hide as parent</button>
-        <button class="StdBtn" :ref="btnLog">Show logs</button>
-        <button class="StdBtn" :ref="btnCommits">Show commits</button>
+        <button class="Btn" :ref="btnToggle">Show/Hide as parent</button>
+        <button class="Btn" :ref="btnLog">Show logs</button>
+        <button class="Btn" :ref="btnCommits">Show commits</button>
       </div>
 
       <div class="FieldGroup-action">
-        <button class="StdBtn WithLoader -right" :ref="btnDelete">
+        <button class="Btn WithLoader -right" :ref="btnDelete">
           Delete task <span class="WithLoader-l" hidden :ref="deleteSpinner"></span>
         </button>
       </div>

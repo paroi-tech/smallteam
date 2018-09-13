@@ -31,24 +31,11 @@ body {
   color: #fff;
 }
 
-.StdBtn {
+.Btn {
   background-color: #5584ff;
   color: white;
   font-size: $f14;
   padding: 10px 19px 10px 17px;
-}
-
-.TitleBar {
-  background-color: #e9efff;
-  font-size: $f14;
-  line-height: 28px;
-  padding-left: 10px;
-  position: relative;
-  &-right {
-    position: absolute;
-    right: 10px;
-    top: 0;
-  }
 }
 
 .WithLoader {
@@ -84,52 +71,27 @@ body {
   }
 }
 
-// .Spinner {
-//   background: url(/svg/loaders/circles.svg) no-repeat center center;
-//   background-size: contain;
-//   &.-delaying {
-//     filter: grayscale(100%);
-//   }
-//   // &.-size1,
-//   &.-inside {
-//     background: initial;
-//     position: relative;
-//     &::before {
-//       background: url(/svg/loaders/circles.svg) no-repeat center center;
-//       background-size: contain;
-//       content: "";
-//       height: 100%;
-//       position: absolute;
-//       width: 100%;
-//     }
-//   }
-//   &.-size1 {
-//     height: 16px;
-//     margin-top: -8px;
-//     position: absolute;
-//     right: 5px;
-//     top: 50%;
-//     width: 16px;
-
-//     // // display: inline-block;
-//     // &::before {
-//     //   height: 16px;
-//     //   width: 16px;
-//     // }
-//   }
-// }
+.TitleBar {
+  background-color: #e9efff;
+  display: flex;
+  flex-direction: row;
+  font-size: $f14;
+  line-height: 20px;
+  padding: 4px 5px 4px 10px;
+  position: relative;
+  &-right {
+    margin-left: 10px;
+    // position: absolute;
+    // right: 10px;
+    // top: 0;
+  }
+}
 
 .TitleBar2 {
   background-color: $lightColor;
-  // color: #000;
   display: flex;
   flex-direction: row;
+  font-size: $f14;
   justify-content: space-between;
   padding: 3px 5px;
-  // &-text {
-  //   flex-grow: 1;
-  // }
-  // &-right {
-  //   width: 20px;
-  // }
 }

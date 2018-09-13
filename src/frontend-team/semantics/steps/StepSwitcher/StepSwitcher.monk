@@ -12,7 +12,7 @@
     <div class="AutoColumns" :ref="boxLists"></div>
     <div class="StepSwitcher-bottom InputAndBtn" :ref="bottom">
       <input class="InputAndBtn-input" type="text" maxlength="255" placeholder="Task name" :ref="taskName">
-      <button class="InputAndBtn-btn StdBtn WithLoader -right" type="button" :ref="addBtn">
+      <button class="InputAndBtn-btn Btn WithLoader -right" type="button" :ref="addBtn">
         Add task
         <span class="WithLoader-l" hidden :ref="spinner"></span>
       </button>

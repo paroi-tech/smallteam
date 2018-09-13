@@ -33,8 +33,7 @@ export default class StepForm {
 
     this.dropdownMenu = this.dash.create(DropdownMenu, {
         btnEl: createCustomMenuBtnEl()
-      } as DropdownMenuOptions
-    )
+    })
     this.dropdownMenu.entries.createNavBtn({
       label: "Delete step",
       onClick: () => this.deleteCurrentStep()

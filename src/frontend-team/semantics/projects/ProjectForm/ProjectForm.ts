@@ -129,8 +129,7 @@ export default class ProjectForm implements Workspace {
   private createDropdownMenu() {
     let menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl()
-    } as DropdownMenuOptions
-    )
+    })
 
     menu.entries.createNavBtn({
       label: "Create another project",

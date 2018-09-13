@@ -1,7 +1,7 @@
 <section class="WorkspaceViewer">
   <header class="WorkspaceViewer-title TitleBar">
     <h1 class="TitleBar-h1" :ref="h1"></h1>
-    <div class="TitleBar-right" :ref="customMenu"></div>
+    <span class="TitleBar-right DropdownMenuWrapper" :ref="customMenu"></span>
   </header>
   <div class="WorkspaceViewer-body" :ref="body"></div>
 </section>

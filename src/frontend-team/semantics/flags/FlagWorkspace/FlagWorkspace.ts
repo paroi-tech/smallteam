@@ -46,8 +46,7 @@ export default class FlagWorkspace implements Workspace {
     this.menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl(),
       align: "left"
-    } as DropdownMenuOptions
-    )
+    })
     this.menu.entries.createNavBtn({
       label: "Add new flag",
       onClick: () => this.form.switchToCreationMode()

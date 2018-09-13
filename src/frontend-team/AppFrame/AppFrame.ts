@@ -186,7 +186,7 @@ export default class AppFrame {
     let ddMenu = this.dash.create(DropdownMenu, {
       btnEl: menuBtn.btnEl,
       align: "right"
-    } as DropdownMenuOptions)
+    })
     ddMenu.entries.createNavBtn(
       {
         label: "My profile",

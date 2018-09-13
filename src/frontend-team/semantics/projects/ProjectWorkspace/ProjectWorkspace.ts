@@ -27,10 +27,9 @@ export default class ProjectWorkspace implements Workspace {
     this.log = this.dash.log
 
     this.dropdownMenu = this.dash.create(DropdownMenu, {
-        btnEl: createCustomMenuBtnEl(),
-        align: "right"
-      } as DropdownMenuOptions
-    )
+      btnEl: createCustomMenuBtnEl(),
+      align: "left"
+    })
     this.dropdownMenu.entries.createNavBtn(
       {
         label: "Edit project",

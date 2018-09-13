@@ -27,7 +27,7 @@
     <div class="FieldGroup-item" :ref="password"></div>
 
     <div class="FieldGroup-action">
-      <button class="StdBtn WithLoader -right" type="button" :ref="submitBtn">
+      <button class="Btn WithLoader -right" type="button" :ref="submitBtn">
         Save changes <span class="WithLoader-l" hidden :ref="submitSpinner"></span>
       </button>
     </div>

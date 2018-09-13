@@ -43,7 +43,8 @@ export default class AccountWorkspace implements Workspace {
     })
     view.ref("list").appendChild(this.boxList.el)
     this.menu = this.dash.create(DropdownMenu, {
-      btnEl: createCustomMenuBtnEl() as HTMLElement
+      btnEl: createCustomMenuBtnEl() as HTMLElement,
+      align: "left"
     })
     this.menu.entries.createNavBtn({
       label: "Add account",

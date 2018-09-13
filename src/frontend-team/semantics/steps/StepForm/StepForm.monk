@@ -12,7 +12,7 @@
       </label>
 
       <div class="FieldGroup-action">
-        <button class="StdBtn WithLoader -right" type="button" disabled :ref="submitBtn">
+        <button class="Btn WithLoader -right" type="button" disabled :ref="submitBtn">
           Submit
           <span class="WithLoader-l" hidden :ref="spinner"></span>
         </button>
