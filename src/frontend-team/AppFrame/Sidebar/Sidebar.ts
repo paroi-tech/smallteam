@@ -28,10 +28,16 @@ export default class Sidebar {
     }).el)
 
     dash.listenTo(dash.app, "navigate", (query: ERQuery) => {
-      if (!query.queryString)
+      let qs = query.processedQueryString || ""
+      let lastCharIndex = qs.length - 1
+      if (lastCharIndex < 0)
+        return
+      if (qs.charAt(lastCharIndex) === "/")
+        qs = qs.slice(0, -1)
+      if (!qs)
         return
       Array.from(this.buttons.values()).forEach(btn => btn.el.classList.remove("-current"))
-      let btn = this.buttons.get(query.queryString)
+      let btn = this.buttons.get(qs)
       if (btn)
         btn.el.classList.add("-current")
     })
