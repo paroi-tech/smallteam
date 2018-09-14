@@ -1,6 +1,6 @@
 {
   "name": "smallteam",
-  "version": "^0.0.0",
+  "version": "0.0.0",
   "description": "",
   "scripts": {
     "team:sass": "node-sass --recursive --source-map-embed --output-style expanded -o dist/www/ src/frontend-team",

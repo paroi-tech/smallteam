@@ -67,9 +67,6 @@ export default class StepWorkspace implements Workspace {
     ctrl.setContentEl(this.el).setTitle("Steps")
   }
 
-  deactivate() {
-  }
-
   private onAdd() {
     let name = this.nameEl.value.trim()
     if (name.length > 0)

@@ -70,9 +70,6 @@ export default class FlagWorkspace implements Workspace {
       .setTitle("Flags")
   }
 
-  deactivate() {
-  }
-
   private scheduleFlagReordering(ev: BoxListEvent) {
     if (this.timer)
       clearTimeout(this.timer)

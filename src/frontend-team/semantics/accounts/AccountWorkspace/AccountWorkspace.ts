@@ -6,7 +6,7 @@ import BoxList from "../../../generics/BoxList/BoxList"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
+import { ChildEasyRouter, createChildEasyRouter } from "../../../libraries/EasyRouter"
 import AccountBox from "../AccountBox/AccountBox"
 import AccountForm from "../AccountForm/AccountForm"
 
@@ -65,10 +65,10 @@ export default class AccountWorkspace implements Workspace {
     this.fillBoxList()
 
     this.childRouter = createChildEasyRouter()
-    this.childRouter.addAsyncErrorListener(this.log.info)
+    this.childRouter.addAsyncErrorListener(err => this.log.error(err))
     this.childRouter.map({
       route: "my-profile",
-      activate: (query: ERQuery) => {
+      activate: () => {
         this.form.setAccount(this.model.session.account)
       },
       title: "My Profile"
@@ -79,9 +79,6 @@ export default class AccountWorkspace implements Workspace {
     ctrl.setContentEl(this.el)
       .setTitleRightEl(this.menu.btnEl)
       .setTitle("Accounts")
-  }
-
-  deactivate() {
   }
 
   private fillBoxList() {

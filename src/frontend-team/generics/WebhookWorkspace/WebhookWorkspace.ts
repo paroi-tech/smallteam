@@ -54,9 +54,6 @@ export default class WebhookWorkspace {
       this.fetchWebhooks().then(b => this.needFetch = b)
   }
 
-  deactivate() {
-  }
-
   private async fetchWebhooks() {
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/fetch-webhooks`, {

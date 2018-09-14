@@ -88,4 +88,5 @@ export interface Model extends ModelCommandMethods {
   readonly bgManager: BgCommandManager
   createCommandBatch(): CommandBatch
   processModelUpdate(modelUpd: ModelUpdate)
+  findTaskByCode(code: string): TaskModel | undefined
 }

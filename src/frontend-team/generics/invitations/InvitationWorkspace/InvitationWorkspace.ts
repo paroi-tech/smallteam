@@ -60,9 +60,6 @@ export default class InvitationWorkspace {
       this.fetchInvitations().then(b => this.needFetch = b)
   }
 
-  deactivate() {
-  }
-
   private async fetchInvitations() {
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/registration/fetch-invitations`, {

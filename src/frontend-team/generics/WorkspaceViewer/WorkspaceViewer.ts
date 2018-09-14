@@ -9,7 +9,7 @@ const template = require("./WorkspaceViewer.monk")
 export interface Workspace {
   readonly childRouter?: ChildEasyRouter
   activate(ctrl: ViewerController): void
-  deactivate(): void
+  deactivate?(): void
 }
 
 export interface ViewerController {
@@ -128,7 +128,8 @@ export default class WorkspaceViewer {
     if (!info)
       throw new Error(`Unknown workspace path: ${typeof path === "string" ? path : "(symbol)"}`)
     if (this.currentWInfo) {
-      this.currentWInfo.workspace.deactivate()
+      if (this.currentWInfo.workspace.deactivate)
+        this.currentWInfo.workspace.deactivate()
       this.h1El.textContent = info.defaultTitle
       removeAllChildren(this.bodyEl)
       removeAllChildren(this.customMenuPlaceEl)

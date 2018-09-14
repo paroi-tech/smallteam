@@ -4,12 +4,15 @@ import { Model, ProjectModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import { ChildEasyRouter, createChildEasyRouter, ERQuery } from "../../../libraries/EasyRouter"
 import ArchivedTaskBoard from "../../tasks/ArchivedTaskBoard/ArchivedTaskBoard"
 import OnHoldTaskBoard from "../../tasks/OnHoldTaskBoard/OnHoldTaskBoard"
 import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
 import ProjectForm from "../ProjectForm/ProjectForm"
 
 export default class ProjectWorkspace implements Workspace {
+  readonly childRouter: ChildEasyRouter
+
   private dropdownMenu: DropdownMenu
   private taskBoard: TaskBoard
   private onHoldTaskBoard: OnHoldTaskBoard
@@ -33,6 +36,19 @@ export default class ProjectWorkspace implements Workspace {
     this.archivedTaskBoard = this.dash.create(ArchivedTaskBoard, this.project)
     this.form = this.dash.create(ProjectForm)
     this.form.setProject(this.project)
+
+    this.childRouter = createChildEasyRouter()
+    this.childRouter.addAsyncErrorListener(err => dash.log.error(err))
+    this.childRouter.map({
+      route: ":task",
+      activate: (query: ERQuery) => {
+        let taskCode = query.routeParams!.task!
+        let task = dash.app.model.findTaskByCode(taskCode)
+        if (task)
+          this.taskBoard.setTask(task)
+      },
+      title: "My Profile"
+    })
   }
 
   activate(ctrl: ViewerController) {
@@ -41,9 +57,6 @@ export default class ProjectWorkspace implements Workspace {
       .setTitle(this.project.name)
       .setTitleRightEl(this.dropdownMenu.btnEl)
       .showTitleBar(false)
-  }
-
-  deactivate() {
   }
 
   private async deleteProject() {

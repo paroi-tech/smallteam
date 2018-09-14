@@ -17,7 +17,4 @@ export default class Workspace404 implements Workspace {
     this.ctrl = ctrl
     ctrl.setContentEl(this.el).setTitle("Oups!!!")
   }
-
-  deactivate() {
-  }
 }

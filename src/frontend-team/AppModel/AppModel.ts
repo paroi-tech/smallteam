@@ -13,7 +13,7 @@ import { registerMediaVariant } from "./Models/MediaVariantModel"
 import { ProjectModel, registerProject } from "./Models/ProjectModel"
 import { registerStep, StepModel } from "./Models/StepModel"
 import { registerTaskLogEntry } from "./Models/TaskLogEntryModel"
-import { registerTask } from "./Models/TaskModel"
+import { registerTask, TaskModel } from "./Models/TaskModel"
 
 export { CommandType, UpdateModelEvent, ReorderModelEvent } from "./ModelEngine"
 export { Model, CommandBatch } from "./modelDefinitions"
@@ -84,6 +84,16 @@ export default class ModelComp implements Model {
   processModelUpdate(modelUpd: ModelUpdate) {
     this.engine.processModelUpdate(modelUpd)
   }
+
+  findTaskByCode(code: string): TaskModel | undefined {
+    let models = this.engine.getModels({
+      type: "Task",
+      index: "code",
+      key: { code }
+    })
+    if (models.length === 1)
+      return models[0]
+  }
 }
 
 function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
@@ -130,7 +140,7 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
     properties[name] = {
       configurable: false,
       enumerable: true,
-      get () {
+      get() {
         if (!isReady)
           throw new Error(`Model "global" is not ready`)
         let coll = cache.get(name)

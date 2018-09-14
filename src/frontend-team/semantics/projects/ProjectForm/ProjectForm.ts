@@ -123,9 +123,6 @@ export default class ProjectForm implements Workspace {
     this.nameEl.focus()
   }
 
-  deactivate() {
-  }
-
   private createDropdownMenu() {
     let menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl()

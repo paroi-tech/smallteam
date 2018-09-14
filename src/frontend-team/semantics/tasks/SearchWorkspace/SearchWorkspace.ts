@@ -43,9 +43,6 @@ export default class SearchWorkspace implements Workspace {
     ctrl.setContentEl(this.el).setTitle("Search tasks")
   }
 
-  deactivate() {
-  }
-
   private async onSearch(ev: KeyboardEvent) {
     if (ev.key !== "Enter")
       return

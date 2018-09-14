@@ -25,7 +25,4 @@ export default class HomeWorkspace implements Workspace {
     ctrl.setContentEl(this.el)
       .setTitle("Home")
   }
-
-  deactivate() {
-  }
 }

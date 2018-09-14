@@ -17,7 +17,7 @@ export default class TaskBoard {
   private selEl: HTMLElement
 
   private taskForm: TaskForm
-  private stepSwitcherMap = new Map<String, StepSwitcher>()
+  private stepSwitcherMap = new Map<string, StepSwitcher>()
 
   constructor(private dash: OwnDash, private options: TaskBoardOptions) {
     let view = render(template)
@@ -37,6 +37,10 @@ export default class TaskBoard {
     this.addModelListeners()
   }
 
+  setTask(task: TaskModel) {
+    this.taskForm.setTask(task)
+  }
+
   hide() {
     this.el.hidden = true
   }
@@ -46,7 +50,8 @@ export default class TaskBoard {
   }
 
   private addDashListeners() {
-    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
+    // this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
+    this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.dash.app.navigate(`/prj-${task.project.id}/${task.code}`))
     this.dash.listenTo<TaskModel>("showStepSwitcher", task => {
       if (task.id === this.options.rootTask.id) // The rootTask panel is always displayed.
         return
