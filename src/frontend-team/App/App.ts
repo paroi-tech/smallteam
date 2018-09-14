@@ -131,7 +131,7 @@ export default class App {
 
     modelDash.unmanagedListeners.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
       if ("orderedIds" in data)
-        console.log(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
+        this.log.trace(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
         console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
