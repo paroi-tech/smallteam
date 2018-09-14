@@ -18,7 +18,8 @@ export default class App {
     this.baseUrl = document.documentElement.dataset.baseUrl || ""
 
     this.dash.listenTo<LogEvent>("log", data => {
-      console.log(`[${data.level}]`, ...data.messages)
+      if (console && console[data.level])
+        console[data.level](`[${data.level}]`, ...data.messages)
     })
 
     this.dash.addDashAugmentation(d => {
@@ -109,7 +110,7 @@ export default class App {
     try {
       await dialog.open()
     } catch (error) {
-      console.log(error)
+      this.log.error(error)
     }
   }
 
@@ -133,27 +134,27 @@ export default class App {
       if ("orderedIds" in data)
         this.log.trace(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
-        console.log(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
+        this.log.trace(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
     modelDash.unmanagedListeners.on<BgCommand>("bgCommandAdded", data => {
-      console.log(`[BG] Add: ${data.label}`)
+      this.log.trace(`[BG] Add: ${data.label}`)
     })
 
     modelDash.unmanagedListeners.on<BgCommand>("bgCommandDone", data => {
-      console.log(`[BG] Done: ${data.label}`)
+      this.log.trace(`[BG] Done: ${data.label}`)
     })
 
     modelDash.unmanagedListeners.on<BgCommand>("bgCommandError", data => {
-      console.log(`[BG] Error: ${data.label}`, data.errorMessage)
+      this.log.trace(`[BG] Error: ${data.label}`, data.errorMessage)
     })
 
     modelDash.unmanagedListeners.on<UpdateModelEvent>("processing", data => {
-      console.log(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
+      this.log.trace(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
     modelDash.unmanagedListeners.on<UpdateModelEvent>("endProcessing", data => {
-      console.log(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
+      this.log.trace(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
     await this.model.global.loading

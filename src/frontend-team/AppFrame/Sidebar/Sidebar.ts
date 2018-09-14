@@ -3,8 +3,8 @@ import { OwnDash } from "../../App/OwnDash"
 import { ProjectModel } from "../../AppModel/AppModel"
 import NavBtn from "../../generics/NavBtn/NavBtn"
 import NavMenu from "../../generics/NavMenu/NavMenu"
+import { ERQuery } from "../../libraries/EasyRouter"
 import ProjectBtn from "../../semantics/projects/ProjectBtn/ProjectBtn"
-import { ERQuery } from "../../libraries/EasyRouter";
 
 const template = require("./Sidebar.monk")
 
