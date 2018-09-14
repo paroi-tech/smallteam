@@ -8,20 +8,30 @@
     "team:sass:watch": "run-s team:sass _team:sass:watch",
     "team:webpack": "webpack --config src/frontend-team/webpack.config.js",
     "team:webpack:watch": "webpack --watch --config src/frontend-team/webpack.config.js",
+    "team:lint": "tslint -p src/frontend-team/tsconfig.json -t verbose",
+    "team:lint:fix": "tslint -p src/frontend-team/tsconfig.json -t verbose --fix",
+
     "reg:sass": "node-sass --recursive --source-map-embed --output-style expanded -o dist/www/ src/frontend-registration",
     "_reg:sass:watch": "node-sass --watch --recursive --source-map-embed --output-style expanded src/frontend-registration/ -o dist/www/",
     "reg:sass:watch": "run-s reg:sass _reg:sass:watch",
     "reg:webpack": "webpack --config src/frontend-registration/webpack.config.js",
     "reg:webpack:watch": "webpack --watch --config src/frontend-registration/webpack.config.js",
+    "reg:lint": "tslint -p src/frontend-registration/tsconfig.json -t verbose",
+    "reg:lint:fix": "tslint -p src/frontend-registration/tsconfig.json -t verbose --fix",
+
     "platform:sass": "node-sass --recursive --source-map-embed --output-style expanded -o dist/www/ src/frontend-platform",
     "_platform:sass:watch": "node-sass --watch --recursive --source-map-embed --output-style expanded src/frontend-platform/ -o dist/www/",
     "platform:sass:watch": "run-s platform:sass _platform:sass:watch",
     "platform:webpack": "webpack --config src/frontend-platform/webpack.config.js",
     "platform:webpack:watch": "webpack --watch --config src/frontend-platform/webpack.config.js",
+    "platform:lint": "tslint -p src/frontend-platform/tsconfig.json -t verbose",
+    "platform:lint:fix": "tslint -p src/frontend-platform/tsconfig.json -t verbose --fix",
+
     "all:sass": "run-s team:sass reg:sass platform:sass",
     "all:sass:watch": "run-p team:sass:watch reg:sass:watch platform:sass:watch",
     "all:webpack": "run-s team:webpack reg:webpack platform:webpack",
     "all:webpack:watch": "run-p team:webpack:watch reg:webpack:watch platform:webpack:watch",
+
     "_backend:rm": "rimraf dist/backend dist/shared",
     "_backend:tsc": "tsc --project src/backend/",
     "_backend:tsc:watch": "tsc --watch --project src/backend/",
@@ -31,13 +41,16 @@
     "_backend:wait": "just-wait -p \"dist/backend/index.js\" -d 500",
     "_backend:wait-then-nodemon": "run-s _backend:wait backend:nodemon",
     "_backend:tsc-start": "run-s backend:tsc start",
+    "backend:lint": "tslint -p src/backend/tsconfig.json -t verbose",
+    "backend:lint:fix": "tslint -p src/backend/tsconfig.json -t verbose --fix",
+
     "start": "node dist/backend/ --config config.json",
     "build": "run-s all:sass all:webpack backend:tsc",
     "watch": "run-p all:sass:watch all:webpack:watch backend:tsc:watch _backend:wait-then-nodemon",
     "watch:light": "run-p sass:watch webpack:watch _backend:tsc-start",
     "postwatch": "node -e \"console.log()\"",
-    "lint:fix": "tslint --fix src/**/*.ts -t verbose",
-    "lint": "tslint src/**/*.ts -t verbose"
+    "lint": "run-s backend:lint team:lint reg:lint platform:lint",
+    "lint:fix": "run-s backend:lint:fix team:lint:fix reg:lint:fix platform:lint:fix"
   },
   "repository": {
     "type": "git",
