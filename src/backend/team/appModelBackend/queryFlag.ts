@@ -17,7 +17,7 @@ export async function fetchFlags(context: ModelContext) {
     let frag = toFlagFragment(row)
     context.loader.addFragment({
       type: "Flag",
-      frag: frag,
+      frag,
       asResult: "fragments"
     })
   }

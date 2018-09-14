@@ -1,5 +1,5 @@
 import { appVersion } from "../backendConfig"
-import { getSubdirUrl } from "../utils/serverUtils";
+import { getSubdirUrl } from "../utils/serverUtils"
 
 export function getMainHtml() {
   let v = appVersion

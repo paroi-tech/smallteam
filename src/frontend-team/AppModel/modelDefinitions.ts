@@ -83,9 +83,9 @@ export interface Session {
 }
 
 export interface Model extends ModelCommandMethods {
-  createCommandBatch(): CommandBatch
-  processModelUpdate(modelUpd: ModelUpdate)
   readonly global: GlobalModels
   readonly session: Session
   readonly bgManager: BgCommandManager
+  createCommandBatch(): CommandBatch
+  processModelUpdate(modelUpd: ModelUpdate)
 }

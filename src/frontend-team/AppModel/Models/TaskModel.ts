@@ -33,10 +33,10 @@ export interface TaskModel extends TaskFragment {
   readonly createdBy: AccountModel
   readonly affectedTo?: Collection<AccountModel, string>
   readonly flags?: Collection<FlagModel, string>
-  getComments(): Promise<Collection<CommentModel, string>>
-  getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
   readonly attachedMedias?: Collection<MediaModel, string>
   readonly gitCommits?: Collection<GitCommitModel, string>
+  getComments(): Promise<Collection<CommentModel, string>>
+  getLogEntries(): Promise<Collection<TaskLogEntryModel, string>>
 }
 
 export function registerTask(engine: ModelEngine) {

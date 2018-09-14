@@ -125,7 +125,7 @@ async function fetchStepIdentifiers(cn: DatabaseConnectionWithSqlBricks, project
   let rs = await cn.allSqlBricks(sql)
 
   let map = new Map<number, number[]>(),
-    curTaskId: number | undefined = undefined,
+    curTaskId: number | undefined,
     curStepIds: number[]
   for (let row of rs) {
     if (row["project_id"] !== curTaskId) {

@@ -35,10 +35,10 @@ export const ON_HOLD_STEP_ID = "1"
 // --
 
 export default class ModelComp implements Model {
-  private engine: ModelEngine
   readonly bgManager: GenericBgCommandManager
   readonly global: GlobalModels
   readonly session: Session
+  private engine: ModelEngine
 
   constructor(private dash: OwnDash, sessionData: SessionData) {
     this.engine = new ModelEngine(dash, dash.app.baseUrl)
@@ -130,7 +130,7 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
     properties[name] = {
       configurable: false,
       enumerable: true,
-      get: function () {
+      get () {
         if (!isReady)
           throw new Error(`Model "global" is not ready`)
         let coll = cache.get(name)

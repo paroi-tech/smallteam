@@ -18,7 +18,7 @@ export function toDebugObj(entry?: Map<any, any> | Set<any>) {
     }
     return list
   } else {
-    //console.log("+++", entry[Symbol.toStringTag], entry.values())
+    // console.log("+++", entry[Symbol.toStringTag], entry.values())
     let list: any[] = ["SET"]
     for (let val of entry.values()) {
       if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))

@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
 import NavBtn, { NavBtnOptions } from "../NavBtn/NavBtn"
-import { addCssClass, catchAndLog } from "../../../sharedFrontend/libraries/utils";
+import { addCssClass, catchAndLog } from "../../../sharedFrontend/libraries/utils"
 
 const template = require("./NavMenu.monk")
 const liTemplate = require("./li.monk")

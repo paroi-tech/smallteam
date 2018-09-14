@@ -4,7 +4,7 @@ import { Model, TaskModel, AccountModel } from "../../../AppModel/AppModel"
 import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog";
+import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
 
 const template = require("./AccountSelector.monk")
 // const itemTemplate = require("./label.monk")

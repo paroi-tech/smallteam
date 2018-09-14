@@ -10,19 +10,19 @@ export default class ResponseLoader {
   constructor(private resultType: ResultType) {
   }
 
-  public addDisplayError(msg: string) {
+  addDisplayError(msg: string) {
     if (this.ended)
       throw new Error(`Invalid call to "addDisplayError", msg: ${msg}`)
     this.displayError.push(msg)
   }
 
-  public addDebugData(debugData: any) {
+  addDebugData(debugData: any) {
     if (this.ended)
       throw new Error(`Invalid call to "addDebugData": the Cargo is completed`)
     this.debugData.push(debugData)
   }
 
-  public setResultData(data: any) {
+  setResultData(data: any) {
     if (this.ended)
       throw new Error(`Invalid call to "setResultData": the Cargo is completed`)
     if (this.resultType !== "data")
@@ -35,7 +35,7 @@ export default class ResponseLoader {
     }
   }
 
-  public setResultFragment(type: Type, id: Identifier) {
+  setResultFragment(type: Type, id: Identifier) {
     if (this.ended)
       throw new Error(`Invalid call to "setResultFragment": the Cargo is completed`)
     if (this.resultType !== "fragment")
@@ -50,7 +50,7 @@ export default class ResponseLoader {
     }
   }
 
-  public addToResultFragments(type: Type, id: Identifier) {
+  addToResultFragments(type: Type, id: Identifier) {
     if (this.ended)
       throw new Error(`Invalid call to "addToResultFragments": the Cargo is completed`)
     if (this.resultType !== "fragments")
@@ -71,13 +71,13 @@ export default class ResponseLoader {
     this.result.val!.list.push(id)
   }
 
-  public setDone(done: boolean) {
+  setDone(done: boolean) {
     if (this.ended)
       throw new Error(`Invalid call to "setDone": the Cargo is completed`)
     this.done = done
   }
 
-  public toResponse(): CargoResponse {
+  toResponse(): CargoResponse {
     this.ended = true
     let response: Cargo = {
       done: this.done === undefined || this.done

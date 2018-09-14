@@ -10,7 +10,7 @@ export default class ModelUpdateLoader {
   private changedMap = new Map<Type, HKMap<Identifier, ChangedType | "reordered">>()
   private ended = false
 
-  public addFragment(type: Type, id: Identifier, frag?: object) {
+  addFragment(type: Type, id: Identifier, frag?: object) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.addFragment": the Cargo is completed`)
     if (this.isMarkedAsDeleted(type, id))
@@ -25,7 +25,7 @@ export default class ModelUpdateLoader {
       fragments.set(id, frag)
   }
 
-  public addPartial(type: Type, partialFrag: object) {
+  addPartial(type: Type, partialFrag: object) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.updateFields": the Cargo is completed`)
     let id = toIdentifier(partialFrag, type)
@@ -42,7 +42,7 @@ export default class ModelUpdateLoader {
       partial.set(id, partialFrag)
   }
 
-  public markFragmentAs(type: Type, id: Identifier, changedType: ChangedType) {
+  markFragmentAs(type: Type, id: Identifier, changedType: ChangedType) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.markFragmentAs": the Cargo is completed`)
     if (changedType === "deleted") {
@@ -57,7 +57,7 @@ export default class ModelUpdateLoader {
     changed.set(id, changedType)
   }
 
-  public markIdsAsReordered(type: Type, idList: Identifier[]) {
+  markIdsAsReordered(type: Type, idList: Identifier[]) {
     if (this.ended)
       throw new Error(`Invalid call to "updateModel.markIdsAsReordered": the Cargo is completed`)
     let changed = this.changedMap.get(type)
@@ -69,7 +69,7 @@ export default class ModelUpdateLoader {
       changed.set(id, "reordered")
   }
 
-  public getNeededFragments(type: Type): Identifier[] {
+  getNeededFragments(type: Type): Identifier[] {
     if (this.ended)
       throw new Error(`Invalid call to "getNeededFragments": the Cargo is completed`)
     let idList: Identifier[] = [],
@@ -83,7 +83,7 @@ export default class ModelUpdateLoader {
     return idList
   }
 
-  public isFragmentsComplete(): boolean {
+  isFragmentsComplete(): boolean {
     for (let [type, fragments] of this.fragmentsMap.entries()) {
       for (let [id, frag] of fragments.entries()) {
         if (frag === undefined)
@@ -93,7 +93,7 @@ export default class ModelUpdateLoader {
     return true
   }
 
-  public getMissingFragmentTypes(): string[] {
+  getMissingFragmentTypes(): string[] {
     let types: string[] = []
     for (let [type, fragments] of this.fragmentsMap.entries()) {
       for (let [id, frag] of fragments.entries()) {
@@ -106,7 +106,7 @@ export default class ModelUpdateLoader {
     return types
   }
 
-  public toModelUpdate(): ModelUpdate | undefined {
+  toModelUpdate(): ModelUpdate | undefined {
     this.ended = true
     let modelUpd: ModelUpdate = {}
     this.fillModelUpdateWithChanges(modelUpd)

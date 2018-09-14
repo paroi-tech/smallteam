@@ -58,13 +58,13 @@ export default class ArchivedTaskBoard {
     }
   }
 
-  private addTaskBox(task: TaskModel){
+  private addTaskBox(task: TaskModel) {
     let box = this.dash.create(TaskBox, task)
     this.boxList.addBox(box)
   }
 
   private async fetchTasks() {
-    let tasks: Collection<TaskModel, string> | undefined = undefined
+    let tasks: Collection<TaskModel, string> | undefined
 
     try {
       tasks = await this.model.fetch("Task", {

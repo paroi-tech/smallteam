@@ -2,7 +2,7 @@ import { MediaVariantModel } from "../AppModel/Models/MediaVariantModel"
 import { MediaModel } from "../AppModel/Models/MediaModel"
 
 export function closestImageVariant(avatar: MediaModel, width: number, height: number) {
-  let choice: MediaVariantModel | undefined = undefined
+  let choice: MediaVariantModel | undefined
   let minDistance = 10 ** 9
   for (let variant of avatar.variants.filter(v => v.imgWidth && v.imgHeight)) {
     let d = Math.abs(width - variant.imgWidth!) ** 2 + Math.abs(height - variant.imgHeight!) ** 2

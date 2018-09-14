@@ -5,7 +5,7 @@ import { toIntList, int } from "../../utils/dbUtils"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { WhoUseItem } from "../../../shared/transfers"
 import { select, insert, update, deleteFrom, in as sqlIn, isNotNull } from "sql-bricks"
-import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks";
+import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 
 // --
 // -- Read
@@ -18,7 +18,7 @@ export async function fetchSteps(context: ModelContext) {
     let frag = toStepFragment(row)
     context.loader.addFragment({
       type: "Step",
-      frag: frag,
+      frag,
       asResult: "fragments"
     })
   }

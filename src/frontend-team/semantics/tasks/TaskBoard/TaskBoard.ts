@@ -3,7 +3,7 @@ import TaskForm from "../TaskForm/TaskForm"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
 import { TaskModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu";
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 
 const template = require("./TaskBoard.monk")
 
@@ -129,7 +129,7 @@ export default class TaskBoard {
     if (currentTaskIndex < 0)
       throw new Error(`Unable to find task in its parent children: task: ${task.label} parent: ${parentTask.label}`)
 
-    let precedingStepSwitcher: StepSwitcher | undefined = undefined
+    let precedingStepSwitcher: StepSwitcher | undefined
     for (let t of parentTask.children.slice(0, currentTaskIndex)) {
       precedingStepSwitcher = this.stepSwitcherMap.get(t.id)
       if (precedingStepSwitcher !== undefined)

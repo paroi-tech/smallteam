@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
-import NavMenu from "../NavMenu/NavMenu";
-import { render } from "@fabtom/lt-monkberry";
+import NavMenu from "../NavMenu/NavMenu"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./HeaderBar.monk")
 

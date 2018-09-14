@@ -1,6 +1,6 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { addCssClass, catchAndLog } from "../../../sharedFrontend/libraries/utils";
+import { addCssClass, catchAndLog } from "../../../sharedFrontend/libraries/utils"
 
 const template = require("./NavBtn.monk")
 // const templateWithAlert = require("./NavBtn-withAlert.monk")

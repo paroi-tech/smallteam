@@ -64,12 +64,12 @@ export default class OnHoldTaskBoard {
     }
   }
 
-  private addTaskBox(task: TaskModel){
+  private addTaskBox(task: TaskModel) {
     this.boxList.addBox(this.dash.create(TaskBox, task))
   }
 
   private async fetchTasks() {
-    let tasks: Collection<TaskModel, string> | undefined = undefined
+    let tasks: Collection<TaskModel, string> | undefined
 
     try {
       tasks = await this.model.fetch("Task", {

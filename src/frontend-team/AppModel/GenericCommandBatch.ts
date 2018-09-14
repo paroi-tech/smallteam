@@ -1,7 +1,7 @@
 import ModelEngine from "./ModelEngine"
 import { Type, Identifier } from "../../shared/Cargo"
 import { ModelCommandMethods, Collection } from "./modelDefinitions"
-import Deferred from "../../sharedFrontend/libraries/Deferred";
+import Deferred from "../../sharedFrontend/libraries/Deferred"
 
 interface EngineCommand {
   method: string
@@ -49,7 +49,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
     let count = this.commands.length
     try {
       this.engine.startBatchRecord()
-      let promises: Promise<any>[] = []
+      let promises: Array<Promise<any>> = []
       for (let c of this.commands)
         promises.push(this.engine[c.method](...c.args))
       await this.engine.sendBatchRecord()

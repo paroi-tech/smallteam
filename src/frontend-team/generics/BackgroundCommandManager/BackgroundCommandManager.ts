@@ -7,8 +7,8 @@ const template = require("./BackgroundCommandManager.monk")
 const templateMenuBtn = require("./MenuBtn.monk")
 
 export default class BackgroundCommandManager {
-  private el: HTMLDialogElement
   readonly buttonEl: HTMLButtonElement
+  private el: HTMLDialogElement
   private tableEl: HTMLTableElement
 
   private bgCmdManager: BgCommandManager

@@ -4,7 +4,7 @@ import { Model, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./SearchWorkspace.monk")
 

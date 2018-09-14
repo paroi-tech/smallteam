@@ -1,13 +1,11 @@
 import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { removeAllChildren } from "../../../sharedFrontend/libraries/utils";
+import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 
-const template = require("./MultiSelect.monk");
+const template = require("./MultiSelect.monk")
 const liTemplate = require("./li.monk")
 
-export interface CreateItem<M> {
-  (data: M): { readonly el: HTMLElement }
-}
+export type CreateItem<M> = (data: M) => { readonly el: HTMLElement }
 
 export interface MultiSelectOptions<M> {
   title: string

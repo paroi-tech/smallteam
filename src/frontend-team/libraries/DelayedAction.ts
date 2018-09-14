@@ -21,7 +21,7 @@ export default class DelayedAction {
 
   constructor({ onChangeStatus, action, delayMs, maxDelayMs, logError }: DelayedActionOptions) {
     this.opt = {
-      action: action,
+      action,
       onChangeStatus: onChangeStatus || (() => { }),
       logError,
       delayMs: delayMs || 2000,
@@ -68,7 +68,7 @@ export default class DelayedAction {
     let waitId = ++this.waitSeq
     // console.log(`.. [${waitId}] wait`, ms)
     wait(ms).then(() => {
-      //console.log(`.. [${waitId}] wait-then`, waitId === this.waitSeq)
+      // console.log(`.. [${waitId}] wait-then`, waitId === this.waitSeq)
       if (waitId !== this.waitSeq || !this.nextSaveTs)
         return
       this.delaying = false

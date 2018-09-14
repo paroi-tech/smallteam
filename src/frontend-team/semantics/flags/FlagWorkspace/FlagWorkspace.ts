@@ -64,6 +64,15 @@ export default class FlagWorkspace implements Workspace {
     })
   }
 
+  activate(ctrl: ViewerController) {
+    ctrl.setContentEl(this.el)
+      .setTitleRightEl(this.menu.btnEl)
+      .setTitle("Flags")
+  }
+
+  deactivate() {
+  }
+
   private scheduleFlagReordering(ev: BoxListEvent) {
     if (this.timer)
       clearTimeout(this.timer)
@@ -91,14 +100,5 @@ export default class FlagWorkspace implements Workspace {
 
   private async fillBoxList() {
     this.model.global.flags.forEach(flag => this.boxList.addBox(this.dash.create(FlagBox, flag)))
-  }
-
-  activate(ctrl: ViewerController) {
-    ctrl.setContentEl(this.el)
-      .setTitleRightEl(this.menu.btnEl)
-      .setTitle("Flags")
-  }
-
-  deactivate() {
   }
 }

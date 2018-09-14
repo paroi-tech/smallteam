@@ -14,7 +14,7 @@ export async function fetchGitCommits(context: ModelContext) {
     let frag = toGitCommitFragment(row)
     context.loader.addFragment({
       type: "GitCommit",
-      frag: frag,
+      frag,
       asResult: "fragments"
     })
   }

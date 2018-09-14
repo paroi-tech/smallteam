@@ -125,8 +125,7 @@ function stableJsonStringify(obj): string {
       for (let i = 0; i < node.length; i++)
         out.push(stringify(node, i, node[i]) || JSON.stringify(null))
       return "[" + out.join(",") + "]"
-    }
-    else {
+    } else {
       if (seen.indexOf(node) !== -1)
         throw new TypeError("Converting circular structure to JSON")
       seen.push(node)

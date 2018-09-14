@@ -3,8 +3,8 @@ import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, toCollecti
 import { TaskModel } from "./TaskModel"
 import { Collection } from "../modelDefinitions"
 import { WhoUseItem } from "../../../shared/transfers"
-import { StepModel } from "./StepModel";
-import { Type } from "../../../shared/Cargo";
+import { StepModel } from "./StepModel"
+import { Type } from "../../../shared/Cargo"
 
 export interface ProjectUpdateTools {
   processing: boolean

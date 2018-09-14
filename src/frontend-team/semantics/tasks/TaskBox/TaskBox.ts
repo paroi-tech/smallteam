@@ -4,7 +4,7 @@ import { Box } from "../../../generics/BoxList/BoxList"
 import AccountFlag from "../../accounts/AccountFlag/AccountFlag"
 import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./TaskBox.monk")
 

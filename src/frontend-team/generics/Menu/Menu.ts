@@ -48,7 +48,7 @@ export class Menu {
     this.items.set(item.id, [li, btn])
   }
 
-  addItems(items: Array<MenuItem>) {
+  addItems(items: MenuItem[]) {
     for (let i of items)
       this.addItem(i)
   }

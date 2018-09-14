@@ -65,7 +65,7 @@ export default class App {
   }
 
   private async showTeamCreationDialog() {
-    if(await this.teamDialog.open())
+    if (await this.teamDialog.open())
       console.log("Team registered...")
   }
 }

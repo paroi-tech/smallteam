@@ -3,8 +3,8 @@ import PasswordForm from "../PasswordForm/PasswordForm"
 import AvatarForm from "../AvatarForm/AvatarForm"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import { AccountModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash";
-import { render } from "@fabtom/lt-monkberry";
+import { OwnDash } from "../../../App/OwnDash"
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./AccountHome.monk")
 

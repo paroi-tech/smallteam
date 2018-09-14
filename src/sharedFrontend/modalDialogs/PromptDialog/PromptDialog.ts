@@ -24,7 +24,7 @@ export default class PromptDialog {
     let closeCb = () => this.close("")
 
     view.ref("cancelBtn").addEventListener("click", closeCb)
-    view.ref("close").addEventListener("click",closeCb)
+    view.ref("close").addEventListener("click", closeCb)
     view.ref("okBtn").addEventListener("click", () => {
       if (this.inputEl.value !== "")
         this.close(this.inputEl.value)

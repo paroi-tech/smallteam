@@ -15,6 +15,8 @@ const template = require("./AccountWorkspace.monk")
 export default class AccountWorkspace implements Workspace {
   readonly el: HTMLElement
 
+  readonly childRouter: ChildEasyRouter
+
   private boxList: BoxList<AccountBox>
   private form: AccountForm
   private menu: DropdownMenu
@@ -24,8 +26,6 @@ export default class AccountWorkspace implements Workspace {
 
   private accounts: Map<string, AccountModel> = new Map()
   private boxes: Map<string, AccountBox> = new Map()
-
-  readonly childRouter: ChildEasyRouter
 
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model

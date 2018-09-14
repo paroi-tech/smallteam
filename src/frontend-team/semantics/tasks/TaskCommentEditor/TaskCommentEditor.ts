@@ -4,7 +4,7 @@ import { CommentCreateFragment } from "../../../../shared/meta/Comment"
 import TaskComment from "../TaskComment/TaskComment"
 import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils";
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./TaskCommentEditor.monk")
 

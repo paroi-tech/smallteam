@@ -1,15 +1,15 @@
 import { Dash } from "bkb"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { render } from "@fabtom/lt-monkberry"
-import App from "../../App/App";
+import App from "../../App/App"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 
 const template = require("./WorkspaceViewer.monk")
 
 export interface Workspace {
+  readonly childRouter?: ChildEasyRouter
   activate(ctrl: ViewerController): void
   deactivate(): void
-  readonly childRouter?: ChildEasyRouter
 }
 
 export interface ViewerController {
@@ -29,6 +29,8 @@ interface WorkspaceInfo {
 export default class WorkspaceViewer {
   readonly el: HTMLElement
 
+  readonly router: EasyRouter
+
   private currentWInfo: WorkspaceInfo | undefined
 
   private symb404 = Symbol("404")
@@ -37,8 +39,6 @@ export default class WorkspaceViewer {
   private h1El: HTMLElement
   private customMenuPlaceEl: HTMLElement
   private bodyEl: HTMLElement
-
-  readonly router: EasyRouter
 
   constructor(private dash: Dash<App>) {
     let view = render(template)

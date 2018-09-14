@@ -4,7 +4,7 @@ import { MediaVariantFragment } from "../../../shared/meta/MediaVariant"
 import { MediaFragment } from "../../../shared/meta/Media"
 import { ChangedType } from "./backendContext/ModelUpdateLoader"
 import CargoLoader from "./backendContext/CargoLoader"
-import { MediaEngine } from "../createMediaEngine";
+import { MediaEngine } from "../createMediaEngine"
 
 export type MainMetaCode = "accountAvatar" | "task"
 

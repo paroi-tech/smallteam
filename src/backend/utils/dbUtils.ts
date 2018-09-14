@@ -95,7 +95,7 @@ async function newSqliteCn(debug, fileName: string, newDbScriptFileName?: string
   return cn
 }
 
-export function toIntList(strList: (string | number)[]): number[] {
+export function toIntList(strList: Array<string | number>): number[] {
   return strList.map(val => typeof val === "number" ? val : parseInt(val, 10))
 }
 

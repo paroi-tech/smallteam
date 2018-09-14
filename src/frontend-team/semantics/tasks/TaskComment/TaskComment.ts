@@ -2,7 +2,7 @@ import { Log } from "bkb"
 import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model, CommentModel } from "../../../AppModel/AppModel"
 import { Converter } from "showdown"
-import { OwnDash } from "../../../App/OwnDash";
+import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./TaskComment.monk")
 

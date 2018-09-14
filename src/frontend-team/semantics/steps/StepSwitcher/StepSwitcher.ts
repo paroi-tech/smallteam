@@ -97,6 +97,39 @@ export default class StepSwitcher {
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.onTaskReorder(data))
   }
 
+  showBusyIcon() {
+    this.busyIndicatorEl.hidden = false
+  }
+
+  hideBusyIcon() {
+    this.busyIndicatorEl.hidden = true
+  }
+
+  setVisible(b: boolean) {
+    if (b !== this.visible) {
+      this.el.hidden = !b
+      this.visible = b
+    }
+  }
+
+  isVisible() {
+    return this.visible
+  }
+
+  enable(showBusyIcon: boolean = false) {
+    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
+    this.foldableEl.style.opacity = "1.0"
+    if (showBusyIcon)
+      this.hideBusyIcon()
+  }
+
+  disable(showBusyIcon: boolean = false) {
+    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
+    this.foldableEl.style.opacity = "0.4"
+    if (showBusyIcon)
+      this.showBusyIcon()
+  }
+
   /**
    * Listen to changes in the model.
    * The following events are handled:
@@ -173,39 +206,6 @@ export default class StepSwitcher {
     })
   }
 
-  showBusyIcon() {
-    this.busyIndicatorEl.hidden = false
-  }
-
-  hideBusyIcon() {
-    this.busyIndicatorEl.hidden = true
-  }
-
-  setVisible(b: boolean) {
-    if (b !== this.visible) {
-      this.el.hidden = !b
-      this.visible = b
-    }
-  }
-
-  isVisible() {
-    return this.visible
-  }
-
-  enable(showBusyIcon: boolean = false) {
-    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "auto"
-    this.foldableEl.style.opacity = "1.0"
-    if (showBusyIcon)
-      this.hideBusyIcon()
-  }
-
-  disable(showBusyIcon: boolean = false) {
-    this.foldableEl.style.pointerEvents = this.el.style.pointerEvents = "none"
-    this.foldableEl.style.opacity = "0.4"
-    if (showBusyIcon)
-      this.showBusyIcon()
-  }
-
   private toggleFoldableContent() {
     if (this.collapsibleElVisible) {
       this.toggleBtnEl.textContent = caretDown
@@ -267,7 +267,7 @@ export default class StepSwitcher {
         curStepId: step.id
       })
       this.sortBoxListContent(step)
-    } catch(err) {
+    } catch (err) {
       let taskId = box.task.id
       let label = this.parentTask.label
 
@@ -286,7 +286,7 @@ export default class StepSwitcher {
 
     tasks.filter(task => task.curStepId === step.id)
     tasks.sort((t1, t2) => (t1.orderNum || 0) - (t2.orderNum || 0))
-    list.sort(tasks.map(t => t.id))    } catch (error) {
+    list.sort(tasks.map(t => t.id))
   }
 
   private restoreTaskBoxPosition(box: TaskBox, wrongBoxListId: string) {
@@ -403,7 +403,7 @@ export default class StepSwitcher {
         curStepId: steps[0].id
       })
       b = true
-    } catch(err) {
+    } catch (err) {
       this.log.error("Unable to create task", err)
     }
 

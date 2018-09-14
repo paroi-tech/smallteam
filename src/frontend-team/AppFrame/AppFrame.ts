@@ -222,7 +222,7 @@ export default class AppFrame {
 }
 
 function updateSessionBtn(menuBtn: NavBtn, account: AccountModel) {
-  menuBtn.setLabel(account.name);
+  menuBtn.setLabel(account.name)
   let variant = account.avatar && account.avatar.getVariant("34x34")
   console.log(">> update btn", account.avatar, variant)
   menuBtn.innerEl!.style.backgroundImage = account.avatar ? `url("${variant ? variant.url : undefined}")` : null

@@ -3,7 +3,7 @@ import ModelUpdateLoader, { ChangedType } from "./ModelUpdateLoader"
 import ResponseLoader from "./ResponseLoader"
 import { toIdentifier } from "../../../../shared/meta"
 
-export type FragmentOptions = {
+export interface FragmentOptions {
   type: Type
   frag?: object
   partialFrag?: object
@@ -13,22 +13,22 @@ export type FragmentOptions = {
 }
 
 export default class CargoLoader {
-  private responses: ResponseLoader[] = []
-  private ended = false
 
-  public readonly modelUpdate = new ModelUpdateLoader()
-
-  constructor(private isBatch = false) {
-  }
-
-  public get response() {
+  get response() {
     let len = this.responses.length
     if (len === 0)
       throw new Error(`Missing current response`)
     return this.responses[len - 1]
   }
 
-  public startResponse(resultType: ResultType) {
+  readonly modelUpdate = new ModelUpdateLoader()
+  private responses: ResponseLoader[] = []
+  private ended = false
+
+  constructor(private isBatch = false) {
+  }
+
+  startResponse(resultType: ResultType) {
     if (this.ended)
       throw new Error(`Invalid call to "startResponse": the Cargo is completed`)
     if (this.responses.length !== 0 && !this.isBatch)
@@ -36,14 +36,14 @@ export default class CargoLoader {
     this.responses.push(new ResponseLoader(resultType))
   }
 
-  public addDependencies(dependencies: Dependencies[]) {
+  addDependencies(dependencies: Dependencies[]) {
     for (let dep of dependencies) {
       for (let id of dep.idList)
         this.modelUpdate.addFragment(dep.type, id)
     }
   }
 
-  public addFragment(opt: FragmentOptions) {
+  addFragment(opt: FragmentOptions) {
     if (this.ended)
       throw new Error(`Invalid call to "addFragment": the Cargo is completed`)
     let id: Identifier
@@ -71,7 +71,7 @@ export default class CargoLoader {
       this.response.addToResultFragments(opt.type, id)
   }
 
-  public toCargo(): Cargo {
+  toCargo(): Cargo {
     this.ended = true
     let cargo: Cargo = this.response.toResponse()
     let modelUpd = this.modelUpdate.toModelUpdate()
@@ -80,7 +80,7 @@ export default class CargoLoader {
     return cargo
   }
 
-  public toBatchCargo(): BatchCargo {
+  toBatchCargo(): BatchCargo {
     let batchCargo: BatchCargo = {}
     if (this.responses.length > 0)
       batchCargo.responses = this.responses.map(response => response.toResponse())

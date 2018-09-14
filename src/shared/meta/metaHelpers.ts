@@ -17,9 +17,9 @@ export type AsFilter<T> = {
  * Each filter can be of type: `value` or [op, value]. Example: [">=", value]
  */
 export type SearchPick<T, OPT extends keyof T> = {
-  [P in OPT]?: T[P] //| [string, T[P]] // TODO: Implement in SQL92Builder
+  [P in OPT]?: T[P] // | [string, T[P]] // TODO: Implement in SQL92Builder
 } & {
-    search?: string //| [string, string] // TODO: Implement in SQL92Builder
+    search?: string // | [string, string] // TODO: Implement in SQL92Builder
   }
 
 export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, fieldNames: string[]): FragmentMeta {

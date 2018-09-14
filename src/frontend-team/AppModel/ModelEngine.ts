@@ -15,7 +15,11 @@ export type CommandType = "create" | "update" | "delete"
 
 type GetDependencies = (fragOrOrderProps: any | OrderProperties) => Dependencies | undefined  // FIXME: Why 'any' instead of 'object'?
 
-export type OrderProperties = { idList: Identifier[], groupName?: string, groupId?: Identifier }
+export interface OrderProperties {
+  idList: Identifier[],
+  groupName?: string,
+  groupId?: Identifier
+}
 
 export interface IndexCallbacks<M = any> {
   [name: string]: (frag: M) => boolean
@@ -47,7 +51,7 @@ export interface UpdateModelEvent<M = any> {
    */
   model: M
 }
-//type ModelEvent = ReorderModelEvent | UpdateModelEvent
+// type ModelEvent = ReorderModelEvent | UpdateModelEvent
 
 // --
 // -- Private types
@@ -184,54 +188,6 @@ export default class ModelEngine {
     return this.bgManager.add(this.doExec(cmd, type, frag), `${cmd} ${type}`).promise
   }
 
-  private async doExec(cmd: CommandType, type: Type, frag: object): Promise<any | undefined> {
-    let dependencies = this.getExecDependencies(cmd, type, frag)
-    let del = cmd === "delete"
-    let processingKey: string | undefined,
-      id: Identifier | undefined
-    if (cmd === "delete" || cmd === "update") {
-      id = toIdentifier(frag, type)
-      processingKey = this.startProcessing(type, cmd, id)
-    }
-    try {
-      let resultFrag = await this.httpSendAndUpdate(
-        "POST",
-        `${this.baseUrl}/api/model/exec`,
-        { cmd, type, frag, dependencies },
-        del ? "none" : "fragment"
-      )
-      if (!del)
-        return this.getModel(type, toIdentifier(resultFrag, type))
-    } finally {
-      if (processingKey)
-        this.endProcessing(type, cmd, id!, processingKey)
-    }
-  }
-
-  private endProcessing(type: Type, cmd: CommandType, id: Identifier, processingKey: string) {
-    let that = this
-    this.processing.delete(processingKey)
-    this.dash.emit(["endProcessing", `endProcessing${type}`], {
-      type, cmd, id,
-      get model() {
-        return cmd === "delete" ? undefined : that.getModel(type, id)
-      }
-    } as UpdateModelEvent)
-  }
-
-  private startProcessing(type: Type, cmd: CommandType, id: Identifier): string {
-    let processingKey = JSON.stringify([type, id])
-    let that = this
-    this.processing.add(processingKey)
-    this.dash.emit(["processing", `processing${type}`], {
-      type, cmd, id,
-      get model() {
-        return cmd === "delete" ? undefined : that.getModel(type, id)
-      }
-    } as UpdateModelEvent)
-    return processingKey
-  }
-
   isProcessing(id: Identifier, type: Type): boolean {
     return this.processing.has(JSON.stringify([type, id]))
   }
@@ -319,7 +275,7 @@ export default class ModelEngine {
 
   findSingleFromIndex(query: IndexQuery): any | undefined {
     let identifiers = this.findIdentifiersFromIndex(query)
-    //console.log(`  > findSingleFromIndex A`, query, identifiers)
+    // console.log(`  > findSingleFromIndex A`, query, identifiers)
     if (!identifiers)
       return undefined
     if (identifiers.size > 1)
@@ -329,6 +285,107 @@ export default class ModelEngine {
       return this.getModel(query.type, id)
     // console.log(`  > findSingleFromIndex C`, query, identifiers)
     return undefined
+  }
+
+  /**
+   * Called by triggers. Remove dependencies from the store. No effect on the backend.
+   */
+  removeFrontendModels(query: ModelsQuery) {
+    let identifiers = this.findIdentifiersFromIndex(query)
+    if (identifiers) {
+      this.deleteFromStore({
+        [query.type]: identifiers
+      })
+    }
+  }
+
+  /**
+   * Can be called by triggers.
+   */
+  emitEvents(changed: Changed, cmd: CommandType) {
+    const that = this
+    for (let [type, idList] of Object.entries<any>(changed)) {
+      let storage = this.getTypeStorage(type as Type)
+      for (let id of idList) {
+        this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
+          type,
+          cmd,
+          id,
+          get model() {
+            return cmd === "delete" ? undefined : that.getModel(type as Type, id)
+          }
+        } as UpdateModelEvent)
+      }
+    }
+  }
+
+  processModelUpdate(modelUpd: ModelUpdate) {
+    this.processModelUpdateTriggers("before", modelUpd)
+
+    if (modelUpd.fragments)
+      this.updateStore(modelUpd.fragments)
+    if (modelUpd.partial)
+      this.updateStoreFromPartial(modelUpd.partial)
+    if (modelUpd.deleted) {
+      this.deleteFromStore(modelUpd.deleted)
+      this.emitEvents(modelUpd.deleted, "delete")
+    }
+    if (modelUpd.updated)
+      this.emitEvents(modelUpd.updated, "update")
+    if (modelUpd.created)
+      this.emitEvents(modelUpd.created, "create")
+    if (modelUpd.reordered)
+      this.emitEventReordered(modelUpd.reordered)
+
+    this.processModelUpdateTriggers("after", modelUpd)
+  }
+
+  private async doExec(cmd: CommandType, type: Type, frag: object): Promise<any | undefined> {
+    let dependencies = this.getExecDependencies(cmd, type, frag)
+    let del = cmd === "delete"
+    let processingKey: string | undefined,
+      id: Identifier | undefined
+    if (cmd === "delete" || cmd === "update") {
+      id = toIdentifier(frag, type)
+      processingKey = this.startProcessing(type, cmd, id)
+    }
+    try {
+      let resultFrag = await this.httpSendAndUpdate(
+        "POST",
+        `${this.baseUrl}/api/model/exec`,
+        { cmd, type, frag, dependencies },
+        del ? "none" : "fragment"
+      )
+      if (!del)
+        return this.getModel(type, toIdentifier(resultFrag, type))
+    } finally {
+      if (processingKey)
+        this.endProcessing(type, cmd, id!, processingKey)
+    }
+  }
+
+  private endProcessing(type: Type, cmd: CommandType, id: Identifier, processingKey: string) {
+    let that = this
+    this.processing.delete(processingKey)
+    this.dash.emit(["endProcessing", `endProcessing${type}`], {
+      type, cmd, id,
+      get model() {
+        return cmd === "delete" ? undefined : that.getModel(type, id)
+      }
+    } as UpdateModelEvent)
+  }
+
+  private startProcessing(type: Type, cmd: CommandType, id: Identifier): string {
+    let processingKey = JSON.stringify([type, id])
+    let that = this
+    this.processing.add(processingKey)
+    this.dash.emit(["processing", `processing${type}`], {
+      type, cmd, id,
+      get model() {
+        return cmd === "delete" ? undefined : that.getModel(type, id)
+      }
+    } as UpdateModelEvent)
+    return processingKey
   }
 
   private getExecDependencies(cmd: CommandType | "reorder", type: Type, data: object | OrderProperties): Dependencies[] | undefined {
@@ -358,7 +415,7 @@ export default class ModelEngine {
       })
       // console.log("  > findIdentifiersFromIndex B", toDebugStr(storage.indexes))
       fillIndex(storage, index, indexData)
-      //console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
+      // console.log("[storage.indexes] getModels B", toDebugStr(storage.indexes))
       // console.log("==> AFTER FILL", index, "ENTITIES:", type, toDebugStr(storage.entities), "INDEXES:", toDebugStr(storage.indexes), "INDEXMAP", toDebugStr(indexMap))
     }
 
@@ -424,18 +481,6 @@ export default class ModelEngine {
     }
   }
 
-  /**
-   * Called by triggers. Remove dependencies from the store. No effect on the backend.
-   */
-  removeFrontendModels(query: ModelsQuery) {
-    let identifiers = this.findIdentifiersFromIndex(query)
-    if (identifiers) {
-      this.deleteFromStore({
-        [query.type]: identifiers
-      })
-    }
-  }
-
   private execTriggers(triggerType: "before" | "after", cmd: CommandType, changed: Changed) {
     let map = this.triggers[triggerType]
     for (let [type, list] of Object.entries(changed)) {
@@ -447,26 +492,6 @@ export default class ModelEngine {
           for (let id of list)
             trigger(cmd, id as string)
         }
-      }
-    }
-  }
-
-  /**
-   * Can be called by triggers.
-   */
-  emitEvents(changed: Changed, cmd: CommandType) {
-    const that = this
-    for (let [type, idList] of Object.entries<any>(changed)) {
-      let storage = this.getTypeStorage(type as Type)
-      for (let id of idList) {
-        this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
-          type,
-          cmd,
-          id,
-          get model() {
-            return cmd === "delete" ? undefined : that.getModel(type as Type, id)
-          }
-        } as UpdateModelEvent)
       }
     }
   }
@@ -498,7 +523,7 @@ export default class ModelEngine {
     for (let id of ref.list) {
       let entity = storage.entities.get(id)
       if (!entity) {
-        //console.log('=======>', Array.from(storage.entities.keys()))
+        // console.log('=======>', Array.from(storage.entities.keys()))
         throw new Error(`[${ref.type}] Missing data for: ${JSON.stringify(id)}`)
       }
       list.push(entity.fragment)
@@ -541,27 +566,6 @@ export default class ModelEngine {
       this.execTriggers(triggerType, "create", modelUpd.created)
   }
 
-  processModelUpdate(modelUpd: ModelUpdate) {
-    this.processModelUpdateTriggers("before", modelUpd)
-
-    if (modelUpd.fragments)
-      this.updateStore(modelUpd.fragments)
-    if (modelUpd.partial)
-      this.updateStoreFromPartial(modelUpd.partial)
-    if (modelUpd.deleted) {
-      this.deleteFromStore(modelUpd.deleted)
-      this.emitEvents(modelUpd.deleted, "delete")
-    }
-    if (modelUpd.updated)
-      this.emitEvents(modelUpd.updated, "update")
-    if (modelUpd.created)
-      this.emitEvents(modelUpd.created, "create")
-    if (modelUpd.reordered)
-      this.emitEventReordered(modelUpd.reordered)
-
-    this.processModelUpdateTriggers("after", modelUpd)
-  }
-
   private httpSendOrBatch(method: HttpMethod, url, data): Promise<Cargo> {
     if (!this.batch)
       return httpSendJson(method, url, data)
@@ -574,7 +578,7 @@ export default class ModelEngine {
         this.processModelUpdate(result.modelUpd)
       if (!result.responses || result.responses.length <= batchIndex)
         throw new Error(`The batch command is canceled due to a previous command error`)
-      //console.log(`.............${batchIndex} // `, result)
+      // console.log(`.............${batchIndex} // `, result)
       return result.responses[batchIndex]
     })
   }
@@ -588,7 +592,7 @@ export function appendGettersToModel(output: object, type: Type, getFrag: () => 
   let fragMeta = getFragmentMeta(type)
   for (let fieldName of Object.keys(fragMeta.fields)) {
     Object.defineProperty(output, fieldName, {
-      get: function () { return getFrag()[fieldName] },
+      get () { return getFrag()[fieldName] },
       configurable: false
     })
   }
@@ -606,7 +610,7 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.processing) {
     Object.defineProperty(output.updateTools, "processing", {
-      get: function () {
+      get () {
         return engine.isProcessing(toIdentifier(getFrag(), type), type)
       },
       configurable: false
@@ -685,10 +689,10 @@ function cleanIndex(index: Index, indexCb?: IndexCallbacks): Index {
 }
 
 function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
-  //console.log("  ** fillIndex A", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
+  // console.log("  ** fillIndex A", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
   for (let [id, entity] of storage.entities)
     tryToAddToIndex(index, indexData, id, entity.fragment)
-  //console.log("  ** fillIndex B", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
+  // console.log("  ** fillIndex B", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
 }
 
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object, removeOld = false) {
@@ -703,14 +707,14 @@ function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, fra
     return
   let fieldNames = indexToFieldNames(index, indexData.indexCb)
   let key = {}
-  //console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
+  // console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
   for (let name of fieldNames)
     key[name] = frag[name]
   let identifiers = indexData.map.get(key)
   if (!identifiers)
     indexData.map.set(key, identifiers = makeHKSet<any>())
   identifiers.add(id)
-  //console.log("  && tryToAddToIndex b", index, key, toDebugStr(indexData.map), toDebugStr(identifiers), "ID=", id)
+  // console.log("  && tryToAddToIndex b", index, key, toDebugStr(indexData.map), toDebugStr(identifiers), "ID=", id)
 }
 
 function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {
@@ -755,7 +759,7 @@ function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
 export async function httpSendJson(method: HttpMethod, url: string, data: unknown): Promise<any> {
   console.log(`>> ${method}`, url, data)
   let response = await fetch(url, {
-    method: method,
+    method,
     credentials: "same-origin",
     headers: new Headers({
       "Content-Type": "application/json"

@@ -33,7 +33,7 @@ const backendMetaMap = new Map<string, BackendFragmentMeta>()
 // --
 
 export function addBackendFragmentMeta(fragMeta: FragmentMeta,
-  columnProps: { [fieldName: string]: Partial<DbColumnMeta> }, tableName?: string) {
+                                       columnProps: { [fieldName: string]: Partial<DbColumnMeta> }, tableName?: string) {
   let columns = {},
     fieldNames = {}
   for (let fieldName of Object.keys(columnProps)) {
@@ -74,7 +74,7 @@ function toColumnType(fieldMeta: FieldMeta, colProps: Partial<DbColumnMeta>): Co
  * Thanks to https://jamesroberts.name/blog/2010/02/22/string-functions-for-javascript-trim-to-camel-case-to-dashed-and-to-underscore/
  */
 function camelToUnderscoredName(camelName: string): string {
-  return camelName.replace(/([A-Z])/g, function (chr) { return "_" + chr.toLowerCase(); });
+  return camelName.replace(/([A-Z])/g, function (chr) { return "_" + chr.toLowerCase() })
 }
 
 // --
@@ -127,7 +127,6 @@ export function toSqlValues(frag, meta: FragmentMeta, restrict?: "exceptId" | "o
 }
 
 function toSqlValue(val, colMeta: DbColumnMeta, fieldMeta: FieldMeta) {
-  //fieldMeta.
   if (val === null)
     return null
   let colType = colMeta.columnType
@@ -169,5 +168,5 @@ function timestampToSqlValue(val: number, type: "datetime" | "date"): string {
   let dt = new Date(val).toISOString()
   if (type === "datetime")
     return dt.slice(0, 10)
-  return dt.slice(0, 19).replace('T', ' ')
+  return dt.slice(0, 19).replace("T", " ")
 }

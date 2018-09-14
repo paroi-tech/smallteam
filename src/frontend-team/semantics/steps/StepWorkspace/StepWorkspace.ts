@@ -5,8 +5,8 @@ import StepBox from "../StepBox/StepBox"
 import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList"
 import { Model, StepModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash";
-import { equal } from "../../../../sharedFrontend/libraries/utils";
+import { OwnDash } from "../../../App/OwnDash"
+import { equal } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./StepWorkspace.monk")
 
@@ -63,6 +63,13 @@ export default class StepWorkspace implements Workspace {
     this.dash.listenToModel("deleteStep", data => this.boxList.removeBox(data.id as string))
   }
 
+  activate(ctrl: ViewerController) {
+    ctrl.setContentEl(this.el).setTitle("Steps")
+  }
+
+  deactivate() {
+  }
+
   private onAdd() {
     let name = this.nameEl.value.trim()
     if (name.length > 0)
@@ -116,12 +123,5 @@ export default class StepWorkspace implements Workspace {
     }
     this.spinnerEl.hidden = true
     this.nameEl.focus()
-  }
-
-  activate(ctrl: ViewerController) {
-    ctrl.setContentEl(this.el).setTitle("Steps")
-  }
-
-  deactivate() {
   }
 }

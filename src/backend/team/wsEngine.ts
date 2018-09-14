@@ -1,6 +1,6 @@
 import { Server } from "http"
 import * as WebSocket from "ws"
-import { v4 as uuid } from "uuid";
+import { v4 as uuid } from "uuid"
 
 interface WebSocketWithProperties extends WebSocket {
   attachedProperties?: WSProperties
@@ -30,7 +30,7 @@ export function wsEngineInit(server: Server) {
 
     ws.on("pong", () => {
       ws.attachedProperties!.isAlive = true
-    });
+    })
     ws.on("listenModel", () => {
       ws.attachedProperties!.listenModel = true
     })
@@ -49,7 +49,7 @@ export function wsEngineInit(server: Server) {
         ws.terminate()
         return
       }
-      ws.attachedProperties.isAlive = false;
+      ws.attachedProperties.isAlive = false
       ws.ping(noop)
     })
   }, 60000)

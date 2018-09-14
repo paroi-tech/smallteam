@@ -1,7 +1,7 @@
 import { AccountFragment, AccountUpdateFragment, AccountCreateFragment, AccountIdFragment } from "../../../shared/meta/Account"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { WhoUseItem } from "../../../shared/transfers"
-import { MediaModel } from "./MediaModel";
+import { MediaModel } from "./MediaModel"
 
 export interface AccountUpdateTools {
   processing: boolean

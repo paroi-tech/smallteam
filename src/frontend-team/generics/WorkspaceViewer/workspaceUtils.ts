@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry";
+import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./CustomMenuBtn.monk")
 

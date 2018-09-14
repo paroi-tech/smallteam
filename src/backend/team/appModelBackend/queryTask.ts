@@ -183,7 +183,7 @@ async function fetchAffectedToIdentifiers(cn: DbCn, taskIdList: number[]): Promi
     .orderBy("1, a.order_num")
   let rs = await cn.allSqlBricks(sql)
   let map = new Map<number, number[]>(),
-    curTaskId: number | undefined = undefined,
+    curTaskId: number | undefined,
     curAccountIds: number[]
 
   for (let row of rs) {
@@ -206,7 +206,7 @@ async function fetchFlagIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map
     .orderBy("1, f.order_num")
   let rs = await cn.allSqlBricks(sql)
   let map = new Map<number, number[]>(),
-    curTaskId: number | undefined = undefined,
+    curTaskId: number | undefined,
     curFlagIds: number[]
 
   for (let row of rs) {
@@ -232,7 +232,7 @@ async function fetchGitCommitIdentifiers(context: ModelContext, taskIdList: numb
     .orderBy("1, c.ts")
   let rs = await context.cn.allSqlBricks(sql)
   let map = new Map<number, number[]>(),
-    curTaskId: number | undefined = undefined,
+    curTaskId: number | undefined,
     curGitCommitIds: number[]
 
   for (let row of rs) {
@@ -505,7 +505,7 @@ export async function updateTaskDescription(cn: QueryRunnerWithSqlBricks, taskId
   } else {
     let sql = update("task_description")
       .set({
-        description: description
+        description
       })
       .where("task_id", taskId)
     let res = await cn.execSqlBricks(sql)
@@ -513,7 +513,7 @@ export async function updateTaskDescription(cn: QueryRunnerWithSqlBricks, taskId
     if (res.affectedRows === 0) {
       let sql = insertInto("task_description")
         .values({
-          description: description,
+          description,
           task_id: taskId
         })
 

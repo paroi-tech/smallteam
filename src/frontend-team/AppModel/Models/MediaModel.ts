@@ -1,7 +1,7 @@
 import { MediaFragment, MediaIdFragment } from "../../../shared/meta/Media"
 import ModelEngine, { appendGettersToModel, CommandType } from "../ModelEngine"
-import { MediaVariantModel } from "./MediaVariantModel";
-import { Collection } from "../modelDefinitions";
+import { MediaVariantModel } from "./MediaVariantModel"
+import { Collection } from "../modelDefinitions"
 
 export interface MediaModel extends MediaFragment {
   variants: Collection<MediaVariantModel, string>

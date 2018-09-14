@@ -1,4 +1,4 @@
-import { Log, Dash } from 'bkb'
+import { Log, Dash } from "bkb"
 
 type Comp = MonkberryComponent
 
@@ -43,7 +43,7 @@ function createDirective(log: Log, maker: (el: HTMLElement, value?: string) => C
     update(value?: string) {
       try {
         if (!this.el)
-          throw new Error('Cannot call method "update" of an unbound directive')
+          throw new Error("Cannot call method \"update\" of an unbound directive")
         if (this.comp) {
           if (!this.comp.update)
             throw new Error(`Missing method "update" in component of the Monkberry directive "${directiveName}"`)
