@@ -4,11 +4,13 @@ import { initDbTeamCn } from "./utils/dbUtils"
 import { initLog, log } from "./utils/log"
 
 process.on("uncaughtException", err => {
+  // tslint:disable-next-line:no-console
   console.error("uncaughtException", err)
   process.exit(1)
 })
 
 process.on("unhandledRejection", err => {
+  // tslint:disable-next-line:no-console
   console.error("unhandledRejection", err)
   process.exit(1)
 })
@@ -20,12 +22,18 @@ async function loadConfiguration() {
 
 async function startup() {
   try {
+    await loadConfiguration()
   } catch (err) {
+    // tslint:disable-next-line:no-console
     console.error(err)
     return
   }
-  await initDbTeamCn()
-  startWebServer()
+  try {
+    await initDbTeamCn()
+    startWebServer()
+  } catch (err) {
+    log.error(err)
+  }
 }
 
-loadConfiguration().then(startup, err => console.error(err)).catch(err => log.error(err))
+startup()

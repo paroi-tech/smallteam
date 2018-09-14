@@ -36,7 +36,8 @@
     "watch": "run-p all:sass:watch all:webpack:watch backend:tsc:watch _backend:wait-then-nodemon",
     "watch:light": "run-p sass:watch webpack:watch _backend:tsc-start",
     "postwatch": "node -e \"console.log()\"",
-    "lint:fix": "tslint --fix src/**/*.ts -t verbose"
+    "lint:fix": "tslint --fix src/**/*.ts -t verbose",
+    "lint": "tslint src/**/*.ts -t verbose"
   },
   "repository": {
     "type": "git",

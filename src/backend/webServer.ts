@@ -3,11 +3,18 @@ import * as http from "http"
 import * as path from "path"
 import { SessionData, hasSessionForSubdomain } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
-import { routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation } from "./registration/registration"
-import { removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession, routeResetPassword, routeSendPasswordEmail, routeSetPassword } from "./session"
+import {
+  routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation
+} from "./registration/registration"
+import {
+  removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession,
+  routeResetPassword, routeSendPasswordEmail, routeSetPassword
+} from "./session"
 import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
 import { wsEngineInit } from "./team/wsEngine"
-import { ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain, getMainDomainUrl, getSubdirUrl } from "./utils/serverUtils"
+import {
+  ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain, getMainDomainUrl, getSubdirUrl
+} from "./utils/serverUtils"
 import { routeCreateTeam, routeCheckTeamCode, routeActivateTeam } from "./platform/platform"
 import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
 import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
@@ -29,7 +36,7 @@ function getSubdomainOffset(domain: string) {
   return (domain.match(/\./g) || []).length + 1
 }
 
-export function startWebServer() {
+export function startWebServer(): void {
   let { port, domain } = config
 
   let app = express()

@@ -12,6 +12,7 @@ export default class App {
     this.baseUrl = document.documentElement.dataset.baseUrl || ""
     this.teamDialog = this.dash.create(TeamCreationDialog)
     this.dash.listenTo<LogEvent>("log", data => {
+      // tslint:disable-next-line:no-console
       console.log(`[${data.level}]`, ...data.messages)
     })
   }

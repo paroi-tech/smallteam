@@ -164,7 +164,7 @@ export async function routeFetchGithubWebhooks(subdomain: string, data: any, ses
       id: row["subscription_id"].toString(),
       provider: row["provider"],
       url: `${teamSiteUrl}/api/notifications/github/webhook/${row["subscription_uuid"]}`,
-      active: row["active"] != 0
+      active: row["active"] !== 0
     })
   }
 
@@ -234,7 +234,7 @@ async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: str
   let sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
   let res = await cn.singleRowSqlBricks(sql)
 
-  if (res && res["active"] != 0)
+  if (res && res["active"] !== 0)
     return res["secret"]
 }
 
