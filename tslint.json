@@ -28,6 +28,7 @@
     "quotemark": [true, "double"],
     "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
     "semicolon": [true, "never"],
-    "trailing-comma": [true, {"singleline": "never"}]
+    "trailing-comma": [true, {"singleline": "never"}],
+    "variable-name": [true, "allow-leading-underscore"]
   }
 }

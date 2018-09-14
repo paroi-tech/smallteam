@@ -18,8 +18,14 @@ export default class App {
     this.baseUrl = document.documentElement.dataset.baseUrl || ""
 
     this.dash.listenTo<LogEvent>("log", data => {
-      if (console && console[data.level])
-        console[data.level](`[${data.level}]`, ...data.messages)
+      if (!console)
+        return
+      if (data.level !== "trace" && console[data.level])
+        console[data.level](...data.messages)
+      else {
+        // tslint:disable-next-line:no-console
+        console.log(`[${data.level}]`, ...data.messages)
+      }
     })
 
     this.dash.addDashAugmentation(d => {
