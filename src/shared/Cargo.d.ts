@@ -25,7 +25,7 @@ export interface Fragments {
 export type Type = keyof Fragments
 
 export type Identifier = string | { [fieldName: string]: string }
-export type Identifiers = string[] | { [fieldName: string]: string }[]
+export type Identifiers = string[] | Array<{ [fieldName: string]: string }>
 
 export type ResultType = "data" | "fragment" | "fragments" | "none"
 

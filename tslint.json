@@ -17,10 +17,14 @@
     "member-access": [true, "no-public"],
     "no-consecutive-blank-lines": false,
     "no-shadowed-variable": false,
+    "no-string-literal": false,
     "ordered-imports": false,
     "object-literal-sort-keys": false,
+    "object-literal-key-quotes": false,
+    "only-arrow-functions": false,
     "prefer-const": false,
     "quotemark": [true, "double"],
+    "space-before-function-paren": [true, {"anonymous": "always", "named": "never", "asyncArrow": "always"}],
     "semicolon": [true, "never"],
     "trailing-comma": [true, {"singleline": "never"}]
   }
