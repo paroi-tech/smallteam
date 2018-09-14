@@ -166,10 +166,7 @@ export default class WorkspaceViewer {
   private showTitleBar(show: boolean) {
     if (show)
       this.el.classList.remove("-noTitleBar")
-    else {
+    else
       this.el.classList.add("-noTitleBar")
-      this.el.classList.add("-noTitleBar")
-      this.el.classList.add("-noTitleBar")
-    }
   }
 }
