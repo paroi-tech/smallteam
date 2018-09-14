@@ -48,7 +48,8 @@ export default class WorkspaceViewer {
     this.bodyEl = view.ref("body")
 
     this.router = createEasyRouter()
-    this.router.addAsyncErrorListener(console.log)
+    this.router.addAsyncErrorListener(err => dash.log.error(err))
+    // this.router.addNavigateListener()
   }
 
   start() {

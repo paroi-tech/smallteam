@@ -1,10 +1,7 @@
-import { Dash } from "bkb"
-import App from "../App/App"
 import HeaderBar from "../generics/HeaderBar/HeaderBar"
 import StatusBar from "../generics/StatusBar/StatusBar"
 import Sidebar from "./Sidebar/Sidebar"
-import NavBtn, { NavBtnOptions } from "../generics/NavBtn/NavBtn"
-import NavMenu from "../generics/NavMenu/NavMenu"
+import NavBtn from "../generics/NavBtn/NavBtn"
 import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
 import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
 import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
@@ -15,11 +12,10 @@ import Workspace404 from "../generics/Workspace404/Workspace404"
 import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
 import AccountHome from "../semantics/accounts/AccountHome/AccountHome"
 import { Model } from "../AppModel/modelDefinitions"
-import { UpdateModelEvent } from "../AppModel/ModelEngine"
 import { ProjectModel } from "../AppModel/AppModel"
 import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
 import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
-import { DropdownMenu, DropdownMenuOptions } from "../generics/DropdownMenu/DropdownMenu"
+import { DropdownMenu } from "../generics/DropdownMenu/DropdownMenu"
 import { AccountModel } from "../AppModel/Models/AccountModel"
 import { OwnDash } from "../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
@@ -84,8 +80,9 @@ export default class AppFrame {
   }
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
-    viewer.addWorkspace(`/prj-${p.id}`, "main", p.code, this.dash.create(ProjectWorkspace, p))
-    this.sidebar.addProject(p, `/prj-${p.id}`)
+    let path = `/prj-${p.id}`
+    viewer.addWorkspace(path, "main", p.code, this.dash.create(ProjectWorkspace, p))
+    this.sidebar.addProject(p, path)
   }
 
   private createHeaderBar() {
@@ -101,7 +98,7 @@ export default class AppFrame {
       onClick: () => {
         console.log("Notifications to implement...") // TODO:
       }
-    } as NavBtnOptions)
+    })
     bar.entries.addItem(notifBtn)
 
 
@@ -119,12 +116,12 @@ export default class AppFrame {
         cssClass: "-setting"
       },
       withWrapper: true
-    } as NavBtnOptions)
+    })
 
     let ddMenu = this.dash.create(DropdownMenu, {
       btnEl: menuBtn.btnEl,
       align: "left"
-    } as DropdownMenuOptions)
+    })
     ddMenu.entries.createNavBtn(
       {
         label: "Steps",
@@ -174,7 +171,7 @@ export default class AppFrame {
       innerEl: {
         position: "left"
       }
-    } as NavBtnOptions)
+    })
 
     updateSessionBtn(menuBtn, this.dash.app.model.session.account)
 

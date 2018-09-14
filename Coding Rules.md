@@ -1,10 +1,13 @@
 # Coding rules
 
+## Common rules
+
+* Encoding: use `UTF-8`
+* Indentation: use 2 spaces
+
 ## ECMAScript
 
 * Naming: `myFunction`, `myVariable`, `MyClass`.
-* Encoding: use `UTF-8`
-* Indentation: use 2 spaces
 * Do not use semicolons at the end of statements
 * Use double quotes for strings.
 * Use `undefined`. Do not use `null` except for representing a SQL `null`.
@@ -28,6 +31,11 @@
 
 * We use [Pleasant BEM](https://paleo.casa/pleasant-bem.html);
 * Sort CSS properties alphabetically;
+* Prefer double quotes over single quotes.
+
+## HTML
+
+* In a markup, write the attribute `class` first, and non-attributes `:ref` at last position.
 
 ## More documentation
 

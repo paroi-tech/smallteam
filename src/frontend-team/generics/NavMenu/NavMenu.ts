@@ -9,7 +9,9 @@ const liTemplate = require("./li.monk")
 export type Direction = "row" | "column" | "rowReverse" | "columnReverse"
 
 export interface NavMenuOptions {
-  /** Default value is: "row" */
+  /**
+   * Default value is: "row"
+   */
   direction?: Direction
   cssClass?: string | string[]
   btnCssClass?: string | string[]
@@ -40,7 +42,7 @@ export default class NavMenu {
     for (let btn of buttons) {
       if (this.options.btnCssClass)
         btn.addCssClass(this.options.btnCssClass)
-      let li = render(liTemplate).rootEl() as HTMLLIElement
+      let li = render(liTemplate).rootEl()
       li.appendChild(btn.el)
       this.el.appendChild(li)
     }

@@ -18,19 +18,18 @@ export default class Sidebar {
     let view = render(template)
     this.el = view.rootEl()
 
-    this.menu = dash.create(NavMenu, { direction: "column" } as NavMenuOptions)
+    this.menu = dash.create(NavMenu, { direction: "column" })
     view.ref("top").appendChild(this.menu.el)
 
     view.ref("bottom").appendChild(dash.create(NavBtn, {
       label: "New project",
       onClick: () => this.dash.app.navigate("/new-project"),
       cssClass: ["-newProject", "ProjectBtn"]
-    } as NavBtnOptions).el)
+    }).el)
   }
 
   addProject(project: ProjectModel, path: string) {
-    this.menu.addItem(
-      this.dash.create(ProjectBtn, { project } as ProjectBtnOptions)
-    )
+    let btn = this.dash.create(ProjectBtn, { project })
+    this.menu.addItem(btn)
   }
 }
