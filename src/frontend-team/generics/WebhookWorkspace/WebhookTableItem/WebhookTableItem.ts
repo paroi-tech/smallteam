@@ -1,8 +1,8 @@
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import { WebhookModel } from "../WebhookWorkspace"
 import { Log } from "bkb"
-import { InfoDialog, ErrorDialog, QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { ErrorDialog, InfoDialog, QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { OwnDash } from "../../../App/OwnDash"
+import { WebhookModel } from "../WebhookWorkspace"
 
 const template = require("./WebhookTableItem.monk")
 

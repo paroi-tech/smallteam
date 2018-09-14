@@ -1,12 +1,12 @@
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
-import { Model, AccountModel } from "../../../AppModel/AppModel"
-import { AccountCreateFragment, AccountUpdateFragment } from "../../../../shared/meta/Account"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../../shared/libraries/helpers"
-import { OwnDash } from "../../../App/OwnDash"
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
-import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { AccountCreateFragment, AccountUpdateFragment } from "../../../../shared/meta/Account"
 import { validateEmail } from "../../../../sharedFrontend/libraries/utils"
+import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
+import { OwnDash } from "../../../App/OwnDash"
+import { AccountModel, Model } from "../../../AppModel/AppModel"
 
 const template = require("./AccountForm.monk")
 

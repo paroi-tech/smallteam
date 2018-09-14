@@ -1,11 +1,11 @@
-import { OwnDash } from "../../../App/OwnDash"
-import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
+import { Log } from "bkb"
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
-import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./TaskAttachmentManager.monk")
 const mediaTemplate = require("./media.monk")

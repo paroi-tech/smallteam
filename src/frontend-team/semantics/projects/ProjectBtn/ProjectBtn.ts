@@ -1,7 +1,7 @@
 import { render } from "@fabtom/lt-monkberry"
-import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash"
 import { addCssClass, catchAndLog } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
+import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 
 const template = require("./ProjectBtn.monk")
 

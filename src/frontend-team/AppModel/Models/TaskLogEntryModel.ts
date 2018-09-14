@@ -1,8 +1,8 @@
 import { TaskLogEntryFragment, TaskLogEntryIdFragment } from "../../../shared/meta/TaskLogEntry"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
-import { TaskModel } from "./TaskModel"
 import { AccountModel } from "./AccountModel"
 import { StepModel } from "./StepModel"
+import { TaskModel } from "./TaskModel"
 
 export interface TaskLogEntryModel extends TaskLogEntryFragment {
   readonly task: TaskModel

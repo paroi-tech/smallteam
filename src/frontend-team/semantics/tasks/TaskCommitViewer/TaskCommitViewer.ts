@@ -1,9 +1,9 @@
-import { OwnDash } from "../../../App/OwnDash"
-import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
+import { Log } from "bkb"
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
 import { TaskModel } from "../../../AppModel/AppModel"
 import { GitCommitModel } from "../../../AppModel/Models/GitCommitModel"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 
 const template = require("./TaskCommitViewer.monk")
 

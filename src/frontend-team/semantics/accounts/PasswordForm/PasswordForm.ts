@@ -1,10 +1,10 @@
-import { Log } from "bkb"
-import { AccountModel } from "../../../AppModel/AppModel"
-import { whyNewPasswordIsInvalid } from "../../../../shared/libraries/helpers"
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import { Log } from "bkb"
+import { whyNewPasswordIsInvalid } from "../../../../shared/libraries/helpers"
+import { ErrorDialog, InfoDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import PasswordEdit from "../../../../sharedFrontend/PasswordEdit/PasswordEdit"
-import { InfoDialog, ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import { OwnDash } from "../../../App/OwnDash"
+import { AccountModel } from "../../../AppModel/AppModel"
 
 const template = require("./PasswordForm.monk")
 

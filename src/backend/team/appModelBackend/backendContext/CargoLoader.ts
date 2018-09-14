@@ -1,7 +1,7 @@
-import { Cargo, BatchCargo, Identifier, FragmentRef, FragmentsRef, Result, Type, ResultType, ModelUpdate, CargoResponse, Dependencies } from "../../../../shared/Cargo"
+import { BatchCargo, Cargo, CargoResponse, Dependencies, FragmentRef, FragmentsRef, Identifier, ModelUpdate, Result, ResultType, Type } from "../../../../shared/Cargo"
+import { toIdentifier } from "../../../../shared/meta"
 import ModelUpdateLoader, { ChangedType } from "./ModelUpdateLoader"
 import ResponseLoader from "./ResponseLoader"
-import { toIdentifier } from "../../../../shared/meta"
 
 export interface FragmentOptions {
   type: Type

@@ -1,6 +1,6 @@
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
+import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 
 const template = require("./Dialog.monk")
 

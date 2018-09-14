@@ -1,6 +1,6 @@
 import { Server } from "http"
-import * as WebSocket from "ws"
 import { v4 as uuid } from "uuid"
+import * as WebSocket from "ws"
 
 interface WebSocketWithProperties extends WebSocket {
   attachedProperties?: WSProperties

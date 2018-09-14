@@ -1,10 +1,10 @@
-import TaskFlag from "../TaskFlag/TaskFlag"
+import { render } from "@fabtom/lt-monkberry"
+import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
 import AccountFlag from "../../accounts/AccountFlag/AccountFlag"
-import { OwnDash } from "../../../App/OwnDash"
-import { render } from "@fabtom/lt-monkberry"
-import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import TaskFlag from "../TaskFlag/TaskFlag"
 
 const template = require("./TaskBox.monk")
 

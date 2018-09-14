@@ -1,11 +1,11 @@
-import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { Model, ProjectModel, TaskModel, StepModel, ReorderModelEvent } from "../../../AppModel/AppModel"
-import BoxList, { BoxEvent, BoxListEvent, BoxListOptions } from "../../../generics/BoxList/BoxList"
-import TaskBox from "../../tasks/TaskBox/TaskBox"
-import { OwnDash } from "../../../App/OwnDash"
+import { Log } from "bkb"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
+import { Model, ProjectModel, ReorderModelEvent, StepModel, TaskModel } from "../../../AppModel/AppModel"
+import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxList"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import TaskBox from "../../tasks/TaskBox/TaskBox"
 
 const template = require("./StepSwitcher.monk")
 

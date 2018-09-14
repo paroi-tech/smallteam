@@ -1,13 +1,13 @@
-import ProjectForm from "../ProjectForm/ProjectForm"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
-import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
-import OnHoldTaskBoard from "../../tasks/OnHoldTaskBoard/OnHoldTaskBoard"
-import { Model, ProjectModel } from "../../../AppModel/AppModel"
-import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import { ErrorDialog, InfoDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
+import { Model, ProjectModel } from "../../../AppModel/AppModel"
+import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import ArchivedTaskBoard from "../../tasks/ArchivedTaskBoard/ArchivedTaskBoard"
+import OnHoldTaskBoard from "../../tasks/OnHoldTaskBoard/OnHoldTaskBoard"
+import TaskBoard from "../../tasks/TaskBoard/TaskBoard"
+import ProjectForm from "../ProjectForm/ProjectForm"
 
 export default class ProjectWorkspace implements Workspace {
   private dropdownMenu: DropdownMenu

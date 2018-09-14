@@ -1,7 +1,7 @@
-import { Box } from "../../../generics/BoxList/BoxList"
-import { FlagModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
+import { FlagModel } from "../../../AppModel/AppModel"
+import { Box } from "../../../generics/BoxList/BoxList"
 
 const template = require("./FlagBox.monk")
 

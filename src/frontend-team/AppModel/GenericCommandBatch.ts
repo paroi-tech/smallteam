@@ -1,7 +1,7 @@
-import ModelEngine from "./ModelEngine"
-import { Type, Identifier } from "../../shared/Cargo"
-import { ModelCommandMethods, Collection } from "./modelDefinitions"
+import { Identifier, Type } from "../../shared/Cargo"
 import Deferred from "../../sharedFrontend/libraries/Deferred"
+import { Collection, ModelCommandMethods } from "./modelDefinitions"
+import ModelEngine from "./ModelEngine"
 
 interface EngineCommand {
   method: string

@@ -1,8 +1,8 @@
-import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
+import { Dash } from "bkb"
 import { MediaModel } from "../../AppModel/Models/MediaModel"
-import { getMediaType, closestImageVariant } from "../../libraries/mediaUtils"
 import { MediaVariantModel } from "../../AppModel/Models/MediaVariantModel"
+import { closestImageVariant, getMediaType } from "../../libraries/mediaUtils"
 
 const template = require("./FileThumbnail.monk")
 

@@ -1,5 +1,5 @@
-import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
+import { Dash } from "bkb"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 
 const template = require("./MultiSelect.monk")

@@ -1,9 +1,9 @@
-import { AccountModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
+import { AccountModel } from "../../../AppModel/AppModel"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
-import { closestImageVariant } from "../../../libraries/mediaUtils"
 import { MediaVariantModel } from "../../../AppModel/Models/MediaVariantModel"
+import { closestImageVariant } from "../../../libraries/mediaUtils"
 
 const template = require("./AccountFlag.monk")
 

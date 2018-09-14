@@ -1,10 +1,10 @@
-import { Log } from "bkb"
-import { Model, TaskModel, CommentModel } from "../../../AppModel/AppModel"
-import { CommentCreateFragment } from "../../../../shared/meta/Comment"
-import TaskComment from "../TaskComment/TaskComment"
 import { render } from "@fabtom/lt-monkberry"
-import { OwnDash } from "../../../App/OwnDash"
+import { Log } from "bkb"
+import { CommentCreateFragment } from "../../../../shared/meta/Comment"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
+import { CommentModel, Model, TaskModel } from "../../../AppModel/AppModel"
+import TaskComment from "../TaskComment/TaskComment"
 
 const template = require("./TaskCommentEditor.monk")
 

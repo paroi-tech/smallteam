@@ -1,9 +1,9 @@
-import { OwnDash } from "../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
-import WebhookTableItem from "./WebhookTableItem/WebhookTableItem"
-import { ErrorDialog } from "../../../sharedFrontend/modalDialogs/modalDialogs"
-import { ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { Log } from "bkb"
+import { ErrorDialog } from "../../../sharedFrontend/modalDialogs/modalDialogs"
+import { OwnDash } from "../../App/OwnDash"
+import { ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
+import WebhookTableItem from "./WebhookTableItem/WebhookTableItem"
 
 export interface WebhookModel {
   id: string

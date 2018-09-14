@@ -1,8 +1,8 @@
+import { render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
-import { Model, AccountModel } from "../../../AppModel/AppModel"
 import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
-import { render } from "@fabtom/lt-monkberry"
+import { AccountModel, Model } from "../../../AppModel/AppModel"
 
 const template = require("./AvatarForm.monk")
 

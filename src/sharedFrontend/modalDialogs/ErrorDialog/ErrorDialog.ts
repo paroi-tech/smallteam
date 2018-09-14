@@ -1,7 +1,7 @@
-import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import { makeOutsideClickHandlerFor } from "../../libraries/utils"
+import { Dash } from "bkb"
 import Deferred from "../../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../../libraries/utils"
 
 const template = require("./ErrorDialog.monk")
 

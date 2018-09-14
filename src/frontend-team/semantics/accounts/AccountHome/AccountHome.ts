@@ -1,10 +1,10 @@
-import AccountForm from "../AccountForm/AccountForm"
-import PasswordForm from "../PasswordForm/PasswordForm"
-import AvatarForm from "../AvatarForm/AvatarForm"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import { AccountModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
+import { AccountModel } from "../../../AppModel/AppModel"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import AccountForm from "../AccountForm/AccountForm"
+import AvatarForm from "../AvatarForm/AvatarForm"
+import PasswordForm from "../PasswordForm/PasswordForm"
 
 const template = require("./AccountHome.monk")
 

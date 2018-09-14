@@ -1,12 +1,12 @@
-import { ModelContext } from "./backendContext/context"
-import projectMeta, { ProjectFragment, ProjectCreateFragment, ProjectUpdateFragment, ProjectSearchFragment, ProjectIdFragment } from "../../../shared/meta/Project"
-import { select, insertInto, update, deleteFrom, in as sqlIn, isNotNull, like } from "sql-bricks"
+import { DatabaseConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } from "sql-bricks"
 import sqlVanilla = require("sql-bricks")
-import { toIntList, int } from "../../utils/dbUtils"
+import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "../../../shared/meta/Project"
+import { WhoUseItem } from "../../../shared/transfers"
+import { int, toIntList } from "../../utils/dbUtils"
+import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
-import { WhoUseItem } from "../../../shared/transfers"
-import { QueryRunnerWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 
 type DbCn = DatabaseConnectionWithSqlBricks
 

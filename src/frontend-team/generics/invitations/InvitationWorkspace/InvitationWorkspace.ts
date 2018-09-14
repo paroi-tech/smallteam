@@ -1,12 +1,12 @@
-import { Dash, Log } from "bkb"
-import { Model } from "../../../AppModel/modelDefinitions"
-import { ViewerController } from "../../WorkspaceViewer/WorkspaceViewer"
 import { render } from "@fabtom/lt-monkberry"
-import BoxList from "../../BoxList/BoxList"
-import InvitationForm from "../InvitationForm/InvitationForm"
-import InvitationBox from "../InvitationBox/InvitationBox"
-import App from "../../../App/App"
+import { Dash, Log } from "bkb"
 import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
+import App from "../../../App/App"
+import { Model } from "../../../AppModel/modelDefinitions"
+import BoxList from "../../BoxList/BoxList"
+import { ViewerController } from "../../WorkspaceViewer/WorkspaceViewer"
+import InvitationBox from "../InvitationBox/InvitationBox"
+import InvitationForm from "../InvitationForm/InvitationForm"
 
 const template = require("./InvitationWorkspace.monk")
 

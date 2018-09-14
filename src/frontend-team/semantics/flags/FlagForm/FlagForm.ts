@@ -1,8 +1,8 @@
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import { Model, FlagModel } from "../../../AppModel/AppModel"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../shared/meta/Flag"
 import { OwnDash } from "../../../App/OwnDash"
+import { FlagModel, Model } from "../../../AppModel/AppModel"
 
 const template = require("./FlagForm.monk")
 

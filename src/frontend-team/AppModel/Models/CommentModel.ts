@@ -1,7 +1,7 @@
-import { CommentFragment, CommentUpdateFragment, CommentCreateFragment, CommentIdFragment } from "../../../shared/meta/Comment"
+import { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentUpdateFragment } from "../../../shared/meta/Comment"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
-import { TaskModel } from "./TaskModel"
 import { AccountModel } from "./AccountModel"
+import { TaskModel } from "./TaskModel"
 
 export interface CommentUpdateTools {
   processing: boolean

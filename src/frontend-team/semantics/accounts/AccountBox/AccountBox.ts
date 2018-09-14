@@ -1,7 +1,7 @@
-import { Box } from "../../../generics/BoxList/BoxList"
-import { Model, AccountModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
+import { AccountModel, Model } from "../../../AppModel/AppModel"
+import { Box } from "../../../generics/BoxList/BoxList"
 import AccountFlag from "../AccountFlag/AccountFlag"
 
 const template = require("./AccountBox.monk")

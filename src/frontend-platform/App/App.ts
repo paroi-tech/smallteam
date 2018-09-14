@@ -1,6 +1,6 @@
 import { AppDash, Log, LogEvent, registerApplication } from "bkb"
-import TeamCreationDialog from "../../sharedFrontend/TeamCreationDialog/TeamCreationDialog"
 import { ErrorDialog, InfoDialog } from "../../sharedFrontend/modalDialogs/modalDialogs"
+import TeamCreationDialog from "../../sharedFrontend/TeamCreationDialog/TeamCreationDialog"
 
 export default class App {
   readonly log: Log

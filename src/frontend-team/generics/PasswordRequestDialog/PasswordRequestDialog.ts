@@ -1,8 +1,8 @@
-import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import App from "../../App/App"
+import { Dash } from "bkb"
 import Deferred from "../../../sharedFrontend/libraries/Deferred"
 import { ErrorDialog, InfoDialog } from "../../../sharedFrontend/modalDialogs/modalDialogs"
+import App from "../../App/App"
 
 const template = require("./PasswordRequestDialog.monk")
 

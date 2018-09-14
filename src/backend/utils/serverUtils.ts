@@ -1,7 +1,7 @@
 import { Request } from "express"
-import { fileExists } from "./fsUtils"
-import { config } from "../backendConfig"
 import * as path from "path"
+import { config } from "../backendConfig"
+import { fileExists } from "./fsUtils"
 
 export class ValidationError extends Error {
   constructor(...params) {

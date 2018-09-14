@@ -1,7 +1,7 @@
 import { render } from "@fabtom/lt-monkberry"
-import { BgCommandManager, BgCommand } from "../../AppModel/BgCommandManager"
-import { Model } from "../../AppModel/AppModel"
 import { OwnDash } from "../../App/OwnDash"
+import { Model } from "../../AppModel/AppModel"
+import { BgCommand, BgCommandManager } from "../../AppModel/BgCommandManager"
 
 const template = require("./BackgroundCommandManager.monk")
 const templateMenuBtn = require("./MenuBtn.monk")

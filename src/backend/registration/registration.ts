@@ -1,18 +1,18 @@
-import Joi = require("joi")
+import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
-import { select, insert, deleteFrom } from "sql-bricks"
-import { hash } from "bcrypt"
-import { sendMail } from "../mail"
-import { TOKEN_LENGTH, BCRYPT_SALT_ROUNDS } from "../backendConfig"
-import { getAccountById, getAccountByLogin } from "../utils/userUtils"
-import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
-import { SessionData, hasAdminRights } from "../session"
-import validate from "../utils/joiUtils"
-import { getCn } from "../utils/dbUtils"
+import Joi = require("joi")
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { whyUsernameIsInvalid, whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
+import { deleteFrom, insert, select } from "sql-bricks"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
+import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../backendConfig"
+import { sendMail } from "../mail"
+import { hasAdminRights, SessionData } from "../session"
+import { getCn } from "../utils/dbUtils"
+import validate from "../utils/joiUtils"
 import { log } from "../utils/log"
+import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
+import { getAccountById, getAccountByLogin } from "../utils/userUtils"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({

@@ -1,9 +1,9 @@
-import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
-import { Dash } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
+import { Dash } from "bkb"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
-import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 import { validateEmail } from "../libraries/utils"
+import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 
 const template = require("./RegistrationForm.monk")
 

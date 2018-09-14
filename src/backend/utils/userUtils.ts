@@ -1,5 +1,5 @@
-import { select } from "sql-bricks"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { select } from "sql-bricks"
 
 interface RegAccount {
   id: string

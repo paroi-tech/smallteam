@@ -1,10 +1,10 @@
-import { ProjectFragment, ProjectUpdateFragment, ProjectCreateFragment, ProjectIdFragment } from "../../../shared/meta/Project"
-import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, toCollection, OrderProperties } from "../ModelEngine"
-import { TaskModel } from "./TaskModel"
-import { Collection } from "../modelDefinitions"
-import { WhoUseItem } from "../../../shared/transfers"
-import { StepModel } from "./StepModel"
 import { Type } from "../../../shared/Cargo"
+import { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectUpdateFragment } from "../../../shared/meta/Project"
+import { WhoUseItem } from "../../../shared/transfers"
+import { Collection } from "../modelDefinitions"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, OrderProperties, toCollection } from "../ModelEngine"
+import { StepModel } from "./StepModel"
+import { TaskModel } from "./TaskModel"
 
 export interface ProjectUpdateTools {
   processing: boolean

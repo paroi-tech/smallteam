@@ -1,9 +1,9 @@
-import * as path from "path"
 import { sqlite3ConnectionProvider } from "mycn-sqlite3"
 import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
-import { fileExists, readFile } from "./fsUtils"
-import { MediaEngine, createMediaEngine } from "../team/createMediaEngine"
+import * as path from "path"
 import { config } from "../backendConfig"
+import { createMediaEngine, MediaEngine } from "../team/createMediaEngine"
+import { fileExists, readFile } from "./fsUtils"
 import { log } from "./log"
 
 export function getSessionDbConf() {

@@ -1,10 +1,10 @@
 import { render } from "@fabtom/lt-monkberry"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
-import { OwnDash } from "../../../App/OwnDash"
 
 const template = require("./SearchWorkspace.monk")
 

@@ -40,7 +40,7 @@ export function whyTeamCodeIsInvalid(teamCode: string): string | undefined {
 
   let arr = teamCode.match(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g)
 
-  if (!arr || arr.length === 0 || arr[0] != teamCode)
+  if (!arr || arr.length === 0 || arr[0] !== teamCode)
     return "A team code should contain only lowercase letters and dashes"
 }
 

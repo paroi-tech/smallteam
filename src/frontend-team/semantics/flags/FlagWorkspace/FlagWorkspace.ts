@@ -1,14 +1,14 @@
-import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import FlagForm from "../FlagForm/FlagForm"
-import FlagBox from "../FlagBox/FlagBox"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import { Log } from "bkb"
+import { equal } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
+import { FlagModel, Model } from "../../../AppModel/AppModel"
 import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList"
 import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
-import { Model, FlagModel } from "../../../AppModel/AppModel"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
-import { OwnDash } from "../../../App/OwnDash"
-import { equal } from "../../../../sharedFrontend/libraries/utils"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import FlagBox from "../FlagBox/FlagBox"
+import FlagForm from "../FlagForm/FlagForm"
 
 const template = require("./FlagWorkspace.monk")
 

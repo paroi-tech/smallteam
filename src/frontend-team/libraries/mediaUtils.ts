@@ -1,5 +1,5 @@
-import { MediaVariantModel } from "../AppModel/Models/MediaVariantModel"
 import { MediaModel } from "../AppModel/Models/MediaModel"
+import { MediaVariantModel } from "../AppModel/Models/MediaVariantModel"
 
 export function closestImageVariant(avatar: MediaModel, width: number, height: number) {
   let choice: MediaVariantModel | undefined

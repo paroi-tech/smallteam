@@ -1,7 +1,7 @@
-import FlagBox from "../FlagBox/FlagBox"
-import { TaskModel, FlagModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
+import { FlagModel, TaskModel } from "../../../AppModel/AppModel"
 import MultiSelect, { MultiSelectOptions } from "../../../generics/MultiSelect"
+import FlagBox from "../FlagBox/FlagBox"
 
 export default class FlagSelector {
   private task?: TaskModel

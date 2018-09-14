@@ -1,11 +1,11 @@
-import { OwnDash } from "../../../App/OwnDash"
-import { Log } from "bkb"
-import { ProjectModel, Model, TaskModel, ON_HOLD_STEP_ID } from "../../../AppModel/AppModel"
 import { render } from "@fabtom/lt-monkberry"
+import { Log } from "bkb"
+import { OwnDash } from "../../../App/OwnDash"
+import { Model, ON_HOLD_STEP_ID, ProjectModel, TaskModel } from "../../../AppModel/AppModel"
+import { Collection } from "../../../AppModel/modelDefinitions"
 import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
-import { Collection } from "../../../AppModel/modelDefinitions"
 
 const template = require("./OnHoldTaskBoard.monk")
 

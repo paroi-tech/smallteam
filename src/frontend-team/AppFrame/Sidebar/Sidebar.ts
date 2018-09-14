@@ -1,11 +1,9 @@
-import { Dash } from "bkb"
-import { ProjectModel } from "../../AppModel/AppModel"
-import NavMenu, { NavMenuOptions } from "../../generics/NavMenu/NavMenu"
-import { OwnDash } from "../../App/OwnDash"
-import App from "../../App/App"
-import NavBtn, { NavBtnOptions } from "../../generics/NavBtn/NavBtn"
-import ProjectBtn, { ProjectBtnOptions } from "../../semantics/projects/ProjectBtn/ProjectBtn"
 import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../App/OwnDash"
+import { ProjectModel } from "../../AppModel/AppModel"
+import NavBtn from "../../generics/NavBtn/NavBtn"
+import NavMenu from "../../generics/NavMenu/NavMenu"
+import ProjectBtn from "../../semantics/projects/ProjectBtn/ProjectBtn"
 
 const template = require("./Sidebar.monk")
 

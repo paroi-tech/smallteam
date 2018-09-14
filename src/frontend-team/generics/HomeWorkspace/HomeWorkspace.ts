@@ -1,7 +1,7 @@
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Dash, Log } from "bkb"
-import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 import { Model } from "../../AppModel/modelDefinitions"
+import { ViewerController, Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 
 const template = require("./HomeWorkspace.monk")
 

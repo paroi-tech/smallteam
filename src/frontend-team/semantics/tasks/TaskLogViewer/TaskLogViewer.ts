@@ -1,8 +1,8 @@
-import { Log } from "bkb"
-import { Model, TaskModel, TaskLogEntryModel } from "../../../AppModel/AppModel"
 import { render } from "@fabtom/lt-monkberry"
-import { OwnDash } from "../../../App/OwnDash"
+import { Log } from "bkb"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
+import { Model, TaskLogEntryModel, TaskModel } from "../../../AppModel/AppModel"
 
 const template = require("./TaskLogViewer.monk")
 

@@ -1,7 +1,7 @@
-import { Dash } from "bkb"
-import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 import { render } from "@fabtom/lt-monkberry"
+import { Dash } from "bkb"
 import { catchAndLog } from "../../../sharedFrontend/libraries/utils"
+import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 
 const template = require("./DropdownMenu.monk")
 const backdropTemplate = require("./Backdrop.monk")

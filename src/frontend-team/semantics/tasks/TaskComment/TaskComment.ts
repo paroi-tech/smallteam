@@ -1,8 +1,8 @@
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import { Model, CommentModel } from "../../../AppModel/AppModel"
 import { Converter } from "showdown"
 import { OwnDash } from "../../../App/OwnDash"
+import { CommentModel, Model } from "../../../AppModel/AppModel"
 
 const template = require("./TaskComment.monk")
 

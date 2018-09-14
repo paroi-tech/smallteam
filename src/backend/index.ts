@@ -1,7 +1,7 @@
-import { startWebServer } from "./webServer"
 import { loadServerConfig } from "./backendConfig"
 import { initDbTeamCn } from "./utils/dbUtils"
 import { initLog, log } from "./utils/log"
+import { startWebServer } from "./webServer"
 
 process.on("uncaughtException", err => {
   // tslint:disable-next-line:no-console

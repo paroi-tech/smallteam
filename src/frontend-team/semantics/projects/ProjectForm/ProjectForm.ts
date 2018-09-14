@@ -1,13 +1,13 @@
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
-import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
-import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import MultiSelect, { MultiSelectOptions } from "../../../generics/MultiSelect"
-import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
-import StepBox from "../../steps/StepBox/StepBox"
-import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 import { WarningDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
+import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
+import { DropdownMenu, DropdownMenuOptions } from "../../../generics/DropdownMenu/DropdownMenu"
+import MultiSelect, { MultiSelectOptions } from "../../../generics/MultiSelect"
+import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import StepBox from "../../steps/StepBox/StepBox"
 
 const template = require("./ProjectForm.monk")
 

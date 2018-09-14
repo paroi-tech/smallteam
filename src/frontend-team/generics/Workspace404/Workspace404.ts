@@ -1,6 +1,6 @@
-import { Dash } from "bkb"
-import { Workspace, ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
 import { render } from "@fabtom/lt-monkberry"
+import { Dash } from "bkb"
+import { ViewerController, Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 
 const template = require("./Workspace404.monk")
 

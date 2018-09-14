@@ -1,4 +1,4 @@
-import { Log, Dash } from "bkb"
+import { Dash, Log } from "bkb"
 
 type Comp = MonkberryComponent
 

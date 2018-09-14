@@ -1,6 +1,6 @@
 import { AppDash, Log, LogEvent } from "bkb"
-import PasswordResetDialog from "../PasswordResetDialog/PasswordResetDialog"
 import RegistrationForm from "../../sharedFrontend/RegistrationForm/RegistrationForm"
+import PasswordResetDialog from "../PasswordResetDialog/PasswordResetDialog"
 
 export interface AppParams {
   action: string

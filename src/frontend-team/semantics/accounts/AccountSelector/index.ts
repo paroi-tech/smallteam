@@ -1,10 +1,10 @@
-import AccountBox from "../AccountBox/AccountBox"
-import BoxList from "../../../generics/BoxList/BoxList"
-import { Model, TaskModel, AccountModel } from "../../../AppModel/AppModel"
-import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
-import { OwnDash } from "../../../App/OwnDash"
 import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
+import { AccountModel, Model, TaskModel } from "../../../AppModel/AppModel"
+import BoxList from "../../../generics/BoxList/BoxList"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
+import AccountBox from "../AccountBox/AccountBox"
+import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
 
 const template = require("./AccountSelector.monk")
 // const itemTemplate = require("./label.monk")

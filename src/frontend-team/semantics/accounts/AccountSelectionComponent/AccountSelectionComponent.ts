@@ -1,8 +1,8 @@
+import { render } from "@fabtom/lt-monkberry"
+import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"
 import MultiSelect, { MultiSelectOptions } from "../../../generics/MultiSelect"
 import AccountBox from "../AccountBox/AccountBox"
-import { OwnDash } from "../../../App/OwnDash"
-import { render } from "@fabtom/lt-monkberry"
 
 const template = require("./AccountSelectionComponent.monk")
 

@@ -1,15 +1,15 @@
-import { TOKEN_LENGTH } from "./backendConfig"
-import { Request, Response } from "express"
-import { SessionData, hasAdminRights } from "./session"
-import { getCn } from "./utils/dbUtils"
-import { select, insert, update, deleteFrom } from "sql-bricks"
-import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
-import { log } from "./utils/log"
-import validate from "./utils/joiUtils"
-import Joi = require("joi")
-import uuidv4 = require("uuid/v4")
 import crypto = require("crypto")
+import { Request, Response } from "express"
+import Joi = require("joi")
+import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { deleteFrom, insert, select, update } from "sql-bricks"
+import uuidv4 = require("uuid/v4")
+import { TOKEN_LENGTH } from "./backendConfig"
+import { hasAdminRights, SessionData } from "./session"
+import { getCn } from "./utils/dbUtils"
+import validate from "./utils/joiUtils"
+import { log } from "./utils/log"
+import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
 
 let commitSchema = Joi.object().keys({
   id: Joi.string().hex().required(),

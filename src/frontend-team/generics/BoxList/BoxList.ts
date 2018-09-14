@@ -1,6 +1,6 @@
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
 import Sortable = require("sortablejs")
-import { render, LtMonkberryView } from "@fabtom/lt-monkberry"
 
 const boxListTemplate = require("./BoxList.monk")
 const liTemplate = require("./li.monk")

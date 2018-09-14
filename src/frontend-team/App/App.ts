@@ -1,11 +1,11 @@
-import { AppDash, Log, LogEvent, EventName, EventCallback } from "bkb"
+import { AppDash, EventCallback, EventName, Log, LogEvent } from "bkb"
+import { InfoDialog, WarningDialog } from "../../sharedFrontend/modalDialogs/modalDialogs"
+import AppFrame from "../AppFrame/AppFrame"
 import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
-import { UpdateModelEvent, ReorderModelEvent } from "../AppModel/ModelEngine"
+import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
 import LoginDialog from "../generics/LoginDialog/LoginDialog"
 import PasswordRequestDialog from "../generics/PasswordRequestDialog/PasswordRequestDialog"
-import AppFrame from "../AppFrame/AppFrame"
-import { WarningDialog, InfoDialog } from "../../sharedFrontend/modalDialogs/modalDialogs"
 
 export default class App {
   readonly log: Log

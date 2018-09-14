@@ -1,11 +1,11 @@
-import { OwnDash } from "../../../App/OwnDash"
-import { Log } from "bkb"
-import { ProjectModel, Model, TaskModel, ARCHIVED_STEP_ID } from "../../../AppModel/AppModel"
 import { render } from "@fabtom/lt-monkberry"
-import TaskForm from "../TaskForm/TaskForm"
+import { Log } from "bkb"
+import { OwnDash } from "../../../App/OwnDash"
+import { ARCHIVED_STEP_ID, Model, ProjectModel, TaskModel } from "../../../AppModel/AppModel"
+import { Collection } from "../../../AppModel/modelDefinitions"
 import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
-import { Collection } from "../../../AppModel/modelDefinitions"
+import TaskForm from "../TaskForm/TaskForm"
 
 const template = require("./ArchivedTaskBoard.monk")
 

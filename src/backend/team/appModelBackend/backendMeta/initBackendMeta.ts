@@ -1,12 +1,12 @@
-import { addBackendFragmentMeta } from "./backendMetaStore"
-import projectMeta from "../../../../shared/meta/Project"
-import taskMeta from "../../../../shared/meta/Task"
-import stepMeta from "../../../../shared/meta/Step"
-import taskLogEntryMeta from "../../../../shared/meta/TaskLogEntry"
-import flagMeta from "../../../../shared/meta/Flag"
-import commentMeta from "../../../../shared/meta/Comment"
 import accountMeta from "../../../../shared/meta/Account"
+import commentMeta from "../../../../shared/meta/Comment"
+import flagMeta from "../../../../shared/meta/Flag"
 import gitCommitMeta from "../../../../shared/meta/GitCommit"
+import projectMeta from "../../../../shared/meta/Project"
+import stepMeta from "../../../../shared/meta/Step"
+import taskMeta from "../../../../shared/meta/Task"
+import taskLogEntryMeta from "../../../../shared/meta/TaskLogEntry"
+import { addBackendFragmentMeta } from "./backendMetaStore"
 
 addBackendFragmentMeta(
   projectMeta.read,

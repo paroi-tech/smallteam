@@ -1,19 +1,19 @@
-import * as path from "path"
+import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import Joi = require("joi")
-import { SessionData } from "../session"
-import { select, insert,  update, deleteFrom } from "sql-bricks"
-import { TOKEN_LENGTH, config, BCRYPT_SALT_ROUNDS } from "../backendConfig"
-import validate from "../utils/joiUtils"
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import * as path from "path"
+import { deleteFrom, insert,  select, update } from "sql-bricks"
+import { whyNewPasswordIsInvalid, whyTeamCodeIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
+import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../backendConfig"
 import { sendMail } from "../mail"
-import { hash } from "bcrypt"
-import { teamDbCn, getCn } from "../utils/dbUtils"
+import { SessionData } from "../session"
+import { getCn, teamDbCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
-import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
-import { whyUsernameIsInvalid, whyNewPasswordIsInvalid, whyTeamCodeIsInvalid } from "../../shared/libraries/helpers"
+import validate from "../utils/joiUtils"
 import { log } from "../utils/log"
+import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({

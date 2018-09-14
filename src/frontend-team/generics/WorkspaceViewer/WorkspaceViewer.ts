@@ -1,8 +1,8 @@
-import { Dash } from "bkb"
-import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 import { render } from "@fabtom/lt-monkberry"
-import App from "../../App/App"
+import { Dash } from "bkb"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
+import App from "../../App/App"
+import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 
 const template = require("./WorkspaceViewer.monk")
 
@@ -34,13 +34,15 @@ export default class WorkspaceViewer {
   private currentWInfo: WorkspaceInfo | undefined
 
   private symb404 = Symbol("404")
-  private workspaces = new Map<string | Symbol, WorkspaceInfo>()
+  private workspaces = new Map<string | symbol, WorkspaceInfo>()
 
   private h1El: HTMLElement
   private customMenuPlaceEl: HTMLElement
   private bodyEl: HTMLElement
 
   constructor(private dash: Dash<App>) {
+    dash.exposeEvent("navigate")
+
     let view = render(template)
     this.el = view.rootEl()
     this.h1El = view.ref("h1")
@@ -49,7 +51,9 @@ export default class WorkspaceViewer {
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(err => dash.log.error(err))
-    // this.router.addNavigateListener()
+    this.router.addNavigateListener(query => {
+      dash.emit("navigate", query)
+    })
   }
 
   start() {
@@ -119,10 +123,10 @@ export default class WorkspaceViewer {
     }
   }
 
-  private activateWorkspace(path: string | Symbol, data?: any) {
+  private activateWorkspace(path: string | symbol, data?: any) {
     let info = this.workspaces.get(path)
     if (!info)
-      throw new Error(`Unknown workspace path: ${path}`)
+      throw new Error(`Unknown workspace path: ${typeof path === "string" ? path : "(symbol)"}`)
     if (this.currentWInfo) {
       this.currentWInfo.workspace.deactivate()
       this.h1El.textContent = info.defaultTitle

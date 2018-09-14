@@ -1,12 +1,12 @@
-import { Log } from "bkb"
 import { render } from "@fabtom/lt-monkberry"
-import StepForm from "../StepForm/StepForm"
-import StepBox from "../StepBox/StepBox"
-import { Workspace, ViewerController } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
-import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList"
-import { Model, StepModel } from "../../../AppModel/AppModel"
-import { OwnDash } from "../../../App/OwnDash"
+import { Log } from "bkb"
 import { equal } from "../../../../sharedFrontend/libraries/utils"
+import { OwnDash } from "../../../App/OwnDash"
+import { Model, StepModel } from "../../../AppModel/AppModel"
+import BoxList, { BoxListEvent } from "../../../generics/BoxList/BoxList"
+import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
+import StepBox from "../StepBox/StepBox"
+import StepForm from "../StepForm/StepForm"
 
 const template = require("./StepWorkspace.monk")
 

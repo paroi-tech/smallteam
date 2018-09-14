@@ -1,32 +1,32 @@
+import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
-import { SessionData, hasSessionForSubdomain } from "./session"
-import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
+import { routeActivateTeam, routeCheckTeamCode, routeCreateTeam } from "./platform/platform"
 import {
-  routeRegister, routeSendInvitation, routeGetPendingInvitations, routeCancelInvitation, routeResendInvitation
+  routeCancelInvitation, routeGetPendingInvitations, routeRegister, routeResendInvitation, routeSendInvitation
 } from "./registration/registration"
 import {
   removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession,
   routeResetPassword, routeSendPasswordEmail, routeSetPassword
 } from "./session"
-import { getSessionDbConf, getMediaEngine } from "./utils/dbUtils"
-import { wsEngineInit } from "./team/wsEngine"
-import {
-  ValidationError, AuthorizationError, getConfirmedSubdomain, isMainDomain, getMainDomainUrl, getSubdirUrl
-} from "./utils/serverUtils"
-import { routeCreateTeam, routeCheckTeamCode, routeActivateTeam } from "./platform/platform"
+import { hasSessionForSubdomain, SessionData } from "./session"
+import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
 import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
-import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
+import { wsEngineInit } from "./team/wsEngine"
+import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
+import {
+  AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError
+} from "./utils/serverUtils"
 
+import makeSQLiteExpressStore = require("connect-sqlite3")
 import express = require("express")
 import session = require("express-session")
-import makeSQLiteExpressStore = require("connect-sqlite3")
 import { config } from "./backendConfig"
-import { getMainHtml } from "./team/frontend"
-import { getRegistrationHtml } from "./registration/frontend"
+import { routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification } from "./notifications"
 import { getNewTeamHtml } from "./platform/frontend"
-import { routeProcessGithubNotification, routeCreateGithubWebhook, routeGetGithubWebhookSecret, routeFetchGithubWebhooks, routeActivateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook } from "./notifications"
+import { getRegistrationHtml } from "./registration/frontend"
+import { getMainHtml } from "./team/frontend"
 import { log } from "./utils/log"
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>

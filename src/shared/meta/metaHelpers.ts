@@ -1,4 +1,4 @@
-import { TypeVariant, FragmentMeta, FieldMeta } from "./index"
+import { FieldMeta, FragmentMeta, TypeVariant } from "./index"
 
 export type PickUpdate<T, REQ extends keyof T, OPT extends keyof T> = {
   [Q in REQ]: T[Q]

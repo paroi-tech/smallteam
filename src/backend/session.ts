@@ -1,18 +1,18 @@
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
-import { deleteFrom, insert, select, update } from "sql-bricks"
 import Joi = require("joi")
+import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
+import { deleteFrom, insert, select, update } from "sql-bricks"
+import { whyNewPasswordIsInvalid } from "../shared/libraries/helpers"
 import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./backendConfig"
 import { sendMail } from "./mail"
-import { getAccountById, getAccountByLogin, getAccountByEmail } from "./utils/userUtils"
-import validate from "./utils/joiUtils"
-import { AuthorizationError, getTeamSiteUrl, BackendContext } from "./utils/serverUtils"
 import { getCn } from "./utils/dbUtils"
-import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { getConfirmedSubdomain } from "./utils/serverUtils"
-import { whyNewPasswordIsInvalid } from "../shared/libraries/helpers"
+import validate from "./utils/joiUtils"
 import { log } from "./utils/log"
+import { getConfirmedSubdomain } from "./utils/serverUtils"
+import { AuthorizationError, BackendContext, getTeamSiteUrl } from "./utils/serverUtils"
+import { getAccountByEmail, getAccountById, getAccountByLogin } from "./utils/userUtils"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 

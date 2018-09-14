@@ -1,5 +1,5 @@
 import { Type } from "../../../../shared/Cargo"
-import { FragmentMeta, FieldMeta } from "../../../../shared/meta/index"
+import { FieldMeta, FragmentMeta } from "../../../../shared/meta/index"
 
 // --
 // -- Types

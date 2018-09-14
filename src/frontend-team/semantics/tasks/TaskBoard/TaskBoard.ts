@@ -1,9 +1,9 @@
 import { render } from "@fabtom/lt-monkberry"
-import TaskForm from "../TaskForm/TaskForm"
-import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
-import { TaskModel } from "../../../AppModel/AppModel"
 import { OwnDash } from "../../../App/OwnDash"
+import { TaskModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
+import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
+import TaskForm from "../TaskForm/TaskForm"
 
 const template = require("./TaskBoard.monk")
 
