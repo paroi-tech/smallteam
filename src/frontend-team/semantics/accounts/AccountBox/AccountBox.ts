@@ -2,7 +2,7 @@ import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
-import AccountFlag from "../AccountFlag/AccountFlag"
+import AccountAvatar from "../AccountAvatar/AccountAvatar"
 
 const template = require("./AccountBox.monk")
 
@@ -16,8 +16,12 @@ export default class AccountBox implements Box {
     this.el = view.rootEl()
     this.el.addEventListener("click", () => this.dash.emit("accountBoxSelected", this.account))
 
-    let flag = this.dash.create(AccountFlag, this.account)
-    view.ref("avatar").appendChild(flag.el)
+    let avatar = this.dash.create(AccountAvatar, {
+      account: this.account,
+      height: 16,
+      width: 16
+    })
+    view.ref("avatar").appendChild(avatar.el)
 
     this.dash.listenToModel("updateAccount", data => {
       let account = data.model as AccountModel

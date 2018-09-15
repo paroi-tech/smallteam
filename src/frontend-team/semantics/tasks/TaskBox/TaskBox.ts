@@ -3,7 +3,7 @@ import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
-import AccountFlag from "../../accounts/AccountFlag/AccountFlag"
+import AccountAvatar from "../../accounts/AccountAvatar/AccountAvatar"
 import TaskFlag from "../TaskFlag/TaskFlag"
 
 const template = require("./TaskBox.monk")
@@ -17,7 +17,7 @@ const template = require("./TaskBox.monk")
 export default class TaskBox implements Box {
   readonly el: HTMLElement
   private flagsEl: HTMLElement
-  private usersEl: HTMLElement
+  private avatarsEl: HTMLElement
 
   private model: Model
 
@@ -30,12 +30,13 @@ export default class TaskBox implements Box {
     this.model = this.dash.app.model
 
     let view = render(template)
-    this.el = view.rootEl()
     let labelEl = view.ref("lbl")
+
+    this.el = view.rootEl()
     labelEl.textContent = this.task.label
 
-    this.usersEl = view.ref("users")
-    this.addAccountFlags()
+    this.avatarsEl = view.ref("avatars")
+    this.addAccountAvatars()
 
     this.flagsEl = view.ref("flags")
     this.addTaskFlags()
@@ -48,8 +49,8 @@ export default class TaskBox implements Box {
         labelEl.textContent = this.task.label
         removeAllChildren(this.flagsEl)
         this.addTaskFlags()
-        removeAllChildren(this.usersEl)
-        this.addAccountFlags()
+        removeAllChildren(this.avatarsEl)
+        this.addAccountAvatars()
       }
     })
 
@@ -72,14 +73,14 @@ export default class TaskBox implements Box {
       this.el.classList.remove("focus")
   }
 
-  private addAccountFlags() {
+  private addAccountAvatars() {
     if (!this.task.affectedToIds)
       return
     for (let accountId of this.task.affectedToIds) {
       let account = this.model.global.accounts.get(accountId)
       if (account) {
-        let comp = this.dash.create(AccountFlag, account)
-        this.usersEl.appendChild(comp.el)
+        let comp = this.dash.create(AccountAvatar, { account, width: 16, height: 16 })
+        this.avatarsEl.appendChild(comp.el)
       }
     }
   }

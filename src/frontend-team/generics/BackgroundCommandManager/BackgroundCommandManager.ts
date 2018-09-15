@@ -2,14 +2,16 @@ import { render } from "@fabtom/lt-monkberry"
 import { OwnDash } from "../../App/OwnDash"
 import { Model } from "../../AppModel/AppModel"
 import { BgCommand, BgCommandManager } from "../../AppModel/BgCommandManager"
+import { Dialog, DialogOptions } from "../Dialog/Dialog"
 
 const template = require("./BackgroundCommandManager.monk")
 const templateMenuBtn = require("./MenuBtn.monk")
 
 export default class BackgroundCommandManager {
   readonly buttonEl: HTMLButtonElement
-  private el: HTMLDialogElement
+  readonly el: HTMLElement
   private tableEl: HTMLTableElement
+  private dialog: Dialog<BackgroundCommandManager>
 
   private bgCmdManager: BgCommandManager
   private model: Model
@@ -19,23 +21,17 @@ export default class BackgroundCommandManager {
     this.bgCmdManager = this.dash.app.model.bgManager
 
     let view = render(template)
-    this.el = view.rootEl()
-    document.body.appendChild(this.el)
 
-    view.ref("closeBtn").addEventListener("click", () => this.hide())
+    this.el = view.rootEl()
     this.tableEl = view.ref("table")
     this.buttonEl = this.createHtmlMenuButtonElement()
 
+    this.dialog = this.dash.create<Dialog<BackgroundCommandManager>, DialogOptions<BackgroundCommandManager>>(Dialog, {
+      title: "Background Tasks",
+      content: this
+    })
+
     this.dash.listenToModel<BgCommand>("bgCommandError", bgCmd => this.onBgCommandError(bgCmd))
-  }
-
-  show() {
-    this.el.showModal()
-  }
-
-  hide() {
-    if (this.el.open)
-      this.el.close()
   }
 
   // --
@@ -46,10 +42,7 @@ export default class BackgroundCommandManager {
     let view = render(templateMenuBtn)
     let btnEl = view.rootEl() as HTMLButtonElement
 
-    btnEl.addEventListener("click", () => {
-      btnEl.style.backgroundColor = "transparent"
-      this.show()
-    })
+    btnEl.addEventListener("click", () => this.dialog.open())
 
     return btnEl
   }

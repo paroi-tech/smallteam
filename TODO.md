@@ -9,7 +9,7 @@ the time, so I can't use JIRA.
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Listen to commit events from model in `TaskCommitDialog`
 
-# To refatore
+# To refactore
 
 `onkeyup` ⇒ `addEventListener("input", )`
 `prop: smtg | undefined` ⇒ `prop?: smtg`
@@ -27,9 +27,6 @@ the time, so I can't use JIRA.
 - Routes for tasks
 
 # Lionel
-
-- `BgCommandManager`: Use our `Dialog` system
-- Create a component `AccountAvatar`, its option is a `AccountModel`, display a letter **or** the avatar
 
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 - Replace ES5 `get` and `set` by methods if an exception can be thrown
@@ -101,6 +98,8 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- `BgCommandManager`: Use our `Dialog` system
+- Create a component `AccountAvatar`, its option is a `AccountModel`, display a letter **or** the avatar
 - TaskBox order in BoxList (StepSwitcher)
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 - Replace ES5 `get` and `set` by methods if an exception can be thrown
