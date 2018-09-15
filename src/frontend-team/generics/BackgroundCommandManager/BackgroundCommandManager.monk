@@ -1,12 +1,5 @@
-<dialog class="BgCommandManager">
-  <header class="BgCommandManager-header">
-      <button class="BgCommandManager-closeButton" title="Close" :ref="closeBtn">
-        <span class="fa fa-1x fa-times"></span>
-      </button>
-  </header>
-
+<div class="BgCommandManager">
   <table class="BgCommandManager-table" :ref="table">
-    <caption>Background Tasks</caption>
     <thead>
       <tr>
         <td>Label</td>
@@ -17,4 +10,4 @@
     </thead>
     <tbody></tbody>
   </table>
-</dialog>
+</div>

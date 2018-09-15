@@ -8,6 +8,6 @@
     <div class="TaskBoxBottom-col2">
       <span class="TaskCommentCounter" title="Number of comments" :ref="comments"></span>
     </div>
-    <div class="TaskBoxBottom-col3" :ref="users"></div>
+    <div class="TaskBoxBottom-col3" :ref="avatars"></div>
   </div>
 </div>
