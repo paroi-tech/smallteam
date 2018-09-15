@@ -82,7 +82,6 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
 export async function routeCurrentSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!req)
     throw new Error("Request object missing 'routeCurrentSession'")
-
   if (await hasSessionForSubdomain(req, subdomain)) {
     return {
       done: true,

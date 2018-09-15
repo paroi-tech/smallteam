@@ -152,12 +152,12 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     }
 
     try {
-      if (!isPublic && !hasSessionForSubdomain(req, subdomain)) {
+      if (!isPublic && !await hasSessionForSubdomain(req, subdomain)) {
         write404(res)
         return
       }
-    } catch (error) {
-      writeServerResponseError(res, error)
+    } catch (err) {
+      writeServerResponseError(res, err)
       return
     }
 

@@ -267,7 +267,7 @@ export async function createTask(context: ModelContext, newFrag: TaskCreateFragm
 
   let sql = insertInto("task").values(values)
   let res = await context.cn.execSqlBricks(sql),
-    taskId = res.getInsertedIdString()
+    taskId = res.getInsertedIdAsString()
 
   // Task as child
   let parentTaskId = int(newFrag.parentTaskId),

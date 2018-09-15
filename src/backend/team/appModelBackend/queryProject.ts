@@ -154,7 +154,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "task_seq": 0
       })
     let res = await transCn.execSqlBricks(sql),
-      projectId = res.getInsertedIdNumber()
+      projectId = res.getInsertedIdAsNumber()
 
     // Step "Not Started"
     sql = insertInto("project_step")
@@ -182,7 +182,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "label": newFrag.name
       })
     res = await transCn.execSqlBricks(sql)
-    let taskId = res.getInsertedIdNumber()
+    let taskId = res.getInsertedIdAsNumber()
 
     // Mark as root task
     sql = insertInto("root_task")

@@ -88,7 +88,7 @@ export async function createAccount(context: ModelContext, newFrag: AccountCreat
   let passwordHash = await hash("init", BCRYPT_SALT_ROUNDS)
   let sql = insert("account", toSqlValues(newFrag, accountMeta.create)).values({ "password": passwordHash })
   let res = await context.cn.execSqlBricks(sql)
-  let accountId = res.getInsertedIdString()
+  let accountId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
     type: "Account",

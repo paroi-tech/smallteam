@@ -273,7 +273,7 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
   let result = await cn.execSqlBricks(sql)
 
   return {
-    id: result.getInsertedIdString(),
+    id: result.getInsertedIdAsString(),
     creationTs: currentTs,
     expirationTs: expireTs
   }

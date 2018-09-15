@@ -148,7 +148,7 @@ async function createTeam(cn: QueryRunnerWithSqlBricks, data) {
     "activated": 0
   })
   let res = await cn.execSqlBricks(sql)
-  let teamId = res.getInsertedIdString()
+  let teamId = res.getInsertedIdAsString()
 
   return teamId
 }

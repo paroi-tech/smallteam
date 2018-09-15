@@ -24,8 +24,8 @@ export default class DelayedAction {
       action,
       onChangeStatus: onChangeStatus || (() => { }),
       logError,
-      delayMs: delayMs || 2000,
-      maxDelayMs: maxDelayMs || 10000
+      delayMs: delayMs || 2000, // 2000
+      maxDelayMs: maxDelayMs || 10000 // 10000
     }
   }
 

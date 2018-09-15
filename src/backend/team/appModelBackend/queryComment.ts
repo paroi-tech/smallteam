@@ -55,7 +55,7 @@ export async function createComment(context: ModelContext, newFrag: CommentCreat
   values["written_by"] = int(context.sessionData.accountId)
   let sql = insert("comment", values)
   let res = await context.cn.execSqlBricks(sql)
-  let commentId = res.getInsertedIdString()
+  let commentId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
     type: "Comment",

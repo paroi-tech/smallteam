@@ -51,7 +51,7 @@ export async function routeCreateGithubWebhook(subdomain: string, data: any, ses
     "subscription_uuid": uuid
   })
   let execResult = await cn.execSqlBricks(sql)
-  let subscriptionId = execResult.getInsertedIdString()
+  let subscriptionId = execResult.getInsertedIdAsString()
   let teamSiteUrl = getTeamSiteUrl({ subdomain })
   let webhook = {
     id: subscriptionId,
@@ -267,7 +267,7 @@ async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: s
   })
   let res = await cn.execSqlBricks(sql)
 
-  return res.getInsertedIdString()
+  return res.getInsertedIdAsString()
 }
 
 function getDeliveryGuid(req) {

@@ -77,7 +77,7 @@ export async function createFlag(context: ModelContext, newFrag: FlagCreateFragm
 
   let sql = insert("flag", toSqlValues(newFrag, flagMeta.create))
   let res = await context.cn.execSqlBricks(sql)
-  let flagId = res.getInsertedIdString()
+  let flagId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
     type: "Flag",

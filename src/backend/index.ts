@@ -11,7 +11,7 @@ process.on("uncaughtException", err => {
 
 process.on("unhandledRejection", err => {
   // tslint:disable-next-line:no-console
-  console.error("unhandledRejection", err)
+  console.trace("unhandledRejection", err)
   process.exit(1)
 })
 

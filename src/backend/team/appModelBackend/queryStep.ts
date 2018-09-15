@@ -77,7 +77,7 @@ export async function createStep(context: ModelContext, newFrag: StepCreateFragm
 
   let sql = insert("step", toSqlValues(newFrag, stepMeta.create))
   let res = await context.cn.execSqlBricks(sql)
-  let stepId = res.getInsertedIdString()
+  let stepId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
     type: "Step",
