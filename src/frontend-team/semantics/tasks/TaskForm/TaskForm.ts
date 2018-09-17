@@ -1,9 +1,9 @@
 import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
+import { QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { ARCHIVED_STEP_ID, Model, ON_HOLD_STEP_ID, TaskModel } from "../../../AppModel/AppModel"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
-import EditableTextField from "../../../generics/EditableTextField/EditableTextField"
 import DelayedAction from "../../../libraries/DelayedAction"
 import AccountSelector from "../../accounts/AccountSelector"
 import FlagSelector from "../../flags/FlagSelector"
@@ -14,14 +14,17 @@ import TaskLogViewer from "../TaskLogViewer/TaskLogViewer"
 
 const template = require("./TaskForm.monk")
 
+interface TaskFormOptions {
+  noArchiveBtn?: boolean
+  noPostponeBtn?: boolean
+}
+
 export default class TaskForm {
   readonly el: HTMLElement
   private spinnerEl: HTMLElement
   private labelEl: HTMLInputElement
   private descriptionEl: HTMLTextAreaElement
   private submitSpinnerEl: HTMLElement
-  private deleteSpinnerEl: HTMLElement
-  private onHoldBtnEl: HTMLElement
 
   private view: LtMonkberryView
 
@@ -35,13 +38,19 @@ export default class TaskForm {
   private attachmentMgr: TaskAttachmentManager
   private commitViewer: Dialog<TaskCommitViewer>
   private logViewer: Dialog<TaskLogViewer>
-  private text: EditableTextField
 
   private delayedSave: DelayedAction
 
-  constructor(private dash: OwnDash) {
+  private options: Required<TaskFormOptions>
+
+  constructor(private dash: OwnDash, options?: TaskFormOptions) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
+    this.options = {
+      noArchiveBtn: (options && options.noArchiveBtn) || false,
+      noPostponeBtn: (options && options.noPostponeBtn) || false
+    }
+
     this.delayedSave = new DelayedAction({
       action: () => this.updateTask(),
       onChangeStatus: status => {
@@ -55,37 +64,44 @@ export default class TaskForm {
     })
 
     this.view = render(template)
+    this.updateView()
     this.el = this.view.rootEl()
     this.spinnerEl = this.view.ref("spinner")
     this.labelEl = this.view.ref("label")
     this.descriptionEl = this.view.ref("description")
     this.submitSpinnerEl = this.view.ref("submitSpinner")
-    this.deleteSpinnerEl = this.view.ref("deleteSpinner")
-    this.onHoldBtnEl = this.view.ref("btnOnHold")
 
-    this.onHoldBtnEl.addEventListener("click", () => {
-      if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
-        return
-      if (this.currentTask.curStepId === ON_HOLD_STEP_ID)
-        this.reactivateTask()
-      else
-        this.putTaskOnHold()
-    })
+    if (!this.options.noPostponeBtn) {
+      this.view.ref("btnPostpone").addEventListener("click", () => {
+        if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
+          return
+        if (this.currentTask.curStepId === ON_HOLD_STEP_ID)
+          this.reactivateTask()
+        else
+          this.putTaskOnHold()
+      })
+    }
+
+    if (!this.options.noArchiveBtn)
+      this.view.ref("btnArchive").addEventListener("click", () => this.archiveTask())
 
     this.view.ref("submit").addEventListener("click", () => this.updateTask())
+
     this.view.ref("btnToggle").addEventListener("click", () => {
       if (this.currentTask)
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
+
     this.view.ref("btnLog").addEventListener("click", () => {
       if (this.currentTask)
         this.logViewer.open()
     })
+
     this.view.ref("btnDelete").addEventListener("click", () => {
       if (this.currentTask)
         this.deleteTask()
     })
-    this.view.ref("btnArchive").addEventListener("click", () => this.archiveTask())
+
     this.view.ref("btnCommits").addEventListener("click", () => {
       if (this.currentTask)
         this.commitViewer.open()
@@ -113,9 +129,6 @@ export default class TaskForm {
       title: "Task logs"
     })
 
-    this.text = this.dash.create(EditableTextField)
-    this.el.appendChild(this.text.el)
-
     this.dash.listenToModel("deleteTask", data => {
       if (this.currentTask !== undefined && this.currentTask.id === data.id)
         this.setTask()
@@ -123,15 +136,12 @@ export default class TaskForm {
     this.dash.listenToModel("updateTask", data => {
       if (!this.currentTask || this.currentTask.id !== data.id)
         return
-      this.view.update({
-        description: this.currentTask.description || "",
-        label: this.currentTask.label
-      })
-      this.updateOnHoldBtnLabel()
+      this.updateView()
     })
 
     this.labelEl.addEventListener("input", () => this.delayedSave.delay())
     this.descriptionEl.addEventListener("input", () => this.delayedSave.delay())
+
     this.dash.listenTo("change", () => this.delayedSave.delay())
   }
 
@@ -150,9 +160,7 @@ export default class TaskForm {
     this.commitViewer.content.setTask(task)
 
     this.currentTask = task
-
-    this.updateOnHoldBtnLabel()
-    this.view.update(task || {})
+    this.updateView()
 
     this.el.hidden = !task
   }
@@ -197,12 +205,7 @@ export default class TaskForm {
   private refresh() {
     if (!this.currentTask)
       return
-    let description = this.currentTask.description || ""
-    this.view.update({
-      label: this.currentTask.label,
-      description
-    })
-    this.updateOnHoldBtnLabel()
+    this.updateView()
     this.flagSelector.setTask(this.task)
     this.accountSelector.refresh()
   }
@@ -210,6 +213,11 @@ export default class TaskForm {
   private async archiveTask() {
     if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
       return false
+
+    let msg = `Do you really want to archive task ${this.currentTask.code}?`
+
+    if (!await this.dash.create(QuestionDialog).show(msg, "Confirm action"))
+      return
 
     this.showSpinner()
 
@@ -236,6 +244,11 @@ export default class TaskForm {
     if (!this.currentTask || this.currentTask.currentStep.isSpecial)
       return false
 
+    let msg = `Do you really want to put task ${this.currentTask.code} on hold?`
+
+    if (!await this.dash.create(QuestionDialog).show(msg, "Confirm action"))
+      return
+
     this.showSpinner()
 
     let result = false
@@ -260,6 +273,11 @@ export default class TaskForm {
   private async reactivateTask() {
     if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID)
       return false
+
+    let msg = `Do you really want to activate task ${this.currentTask.code}?`
+
+    if (!await this.dash.create(QuestionDialog).show(msg, "Confirm action"))
+      return
 
     let stepIds = this.currentTask.project.stepIds
 
@@ -295,10 +313,22 @@ export default class TaskForm {
     this.submitSpinnerEl.hidden = true
   }
 
-  private updateOnHoldBtnLabel() {
-    if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID)
-      this.onHoldBtnEl.textContent = "Put on hold"
-    else
-      this.onHoldBtnEl.textContent = "Reactivate task"
+  private updateView() {
+    let task = this.currentTask
+    let code = task ? task.code : ""
+    let label = task ? task.label : ""
+    let description = task && task.description ? task.description : ""
+    let showArchiveBtn = !this.options.noArchiveBtn
+    let showPostponeBtn = !this.options.noPostponeBtn
+    let activeTask = (!task || task.curStepId !== ON_HOLD_STEP_ID) ? "Postpone" : "Activate task"
+
+    this.view.update({
+      code,
+      label,
+      description,
+      showArchiveBtn,
+      showPostponeBtn,
+      activeTask
+    })
   }
 }

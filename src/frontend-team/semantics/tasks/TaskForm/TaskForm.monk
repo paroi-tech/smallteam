@@ -24,8 +24,16 @@
         <button class="Btn WithLoader -right" type="button" :ref="submit">
           Submit <span class="WithLoader-l" hidden :ref="submitSpinner"></span>
         </button>
+
+        {% if showArchiveBtn %}
         <button class="Btn" type="button" :ref="btnArchive">Archive task</button>
-        <button class="Btn" type="button" :ref="btnOnHold">Put on hold</button>
+        {% endif %}
+
+        {% if showPostponeBtn %}
+        <button class="Btn" type="button" :ref="btnPostpone">
+            {% if activeTask %} Postpone {% else %} Activate {% endif %}
+        </button>
+        {% endif %}
       </div>
 
       <div class="FieldGroup-item" :ref="comment"></div>

@@ -32,7 +32,7 @@ export default class ArchivedTaskBoard {
     })
     view.ref("left").appendChild(this.boxList.el)
 
-    this.taskForm = this.dash.create(TaskForm)
+    this.taskForm = this.dash.create(TaskForm, { noArchiveBtn: true })
     view.ref("right").appendChild(this.taskForm.el)
 
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))

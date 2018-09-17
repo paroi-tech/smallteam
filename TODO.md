@@ -31,12 +31,10 @@ the time, so I can't use JIRA.
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 - Replace ES5 `get` and `set` by methods if an exception can be thrown
 
-- In TaskForm, when the user click on the "Archive" button, open a confirmation dialog.
-
 - Paste images in the task description
 - queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
   for user with no password.
-- Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
+
 - Show an animated loader on the background command button when there is something started
 - For each form:
   - Disable the submit button until there are any changes
@@ -98,6 +96,8 @@ the time, so I can't use JIRA.
 
 # Lionel - DONE
 
+- In TaskForm, when the user click on the "Archive" button, open a confirmation dialog.
+- Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
 - `BgCommandManager`: Use our `Dialog` system
 - Create a component `AccountAvatar`, its option is a `AccountModel`, display a letter **or** the avatar
 - TaskBox order in BoxList (StepSwitcher)
