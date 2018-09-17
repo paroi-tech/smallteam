@@ -8,8 +8,37 @@
     width: 75%;
   }
 
-  &-editButton, &-cancelButton, &-deleteButton {
-    display: block;
+  &-right {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+  }
+
+  &-editButton, &-cancelButton, &-saveButton, &-deleteButton {
+    background-position: center;
+    background-size: cover;
+    border: 0;
+    flex-grow: 0;
+    height: 16px;
+    margin: 2px;
+    outline: none;
+    width: 16px;
+  }
+
+  &-editButton {
+    background-image: url(svg/feather/edit.svg);
+  }
+
+  &-cancelButton {
+    background-image: url(svg/feather/x-circle.svg);
+  }
+
+  &-saveButton {
+    background-image: url(svg/feather/save.svg);
+  }
+
+  &-deleteButton {
+    background-image: url(svg/feather/trash-2.svg);
   }
 
   &-textarea {

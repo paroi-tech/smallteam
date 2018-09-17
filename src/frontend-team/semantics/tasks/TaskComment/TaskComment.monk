@@ -10,16 +10,11 @@
   </div>
 
   <div class="TaskComment-right">
-    <button class="TaskComment-editButton" :ref="edit" title="Edit comment">
-      <!-- The content of the button is set in the component code. -->
-    </button>
-
-    <button class="TaskComment-cancelButton" :ref="cancel" title="Undo changes">
-      <span class="fa fa-undo fa-1x"></span>
-    </button>
-
-    <button class="TaskComment-deleteButton" :ref="delete" title="Delete comment">
-      <span class="fa fa-remove fa-1x"></span>
-    </button>
+  {% if canEdit %}
+    <button class="TaskComment-saveButton" title="Save changes" :ref="save" :hidden={{ !editMode }}></button>
+    <button class="TaskComment-cancelButton" title="Undo changes " :ref="cancel" :hidden={{ !editMode }}></button>
+    <button class="TaskComment-editButton" title="Edit comment" :ref="edit" :hidden={{ editMode }}></button>
+    <button class="TaskComment-deleteButton" title="Delete comment" :ref="delete" :hidden={{ editMode }}></button>
+  {% endif %}
   </div>
 </div>
