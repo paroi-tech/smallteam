@@ -3,8 +3,8 @@ import App from "./App/App"
 
 document.addEventListener("DOMContentLoaded", () => {
   let url = new URL(window.location.href)
-  let action =  url.searchParams.get("action")
+  let action = url.searchParams.get("action")
   let token = url.searchParams.get("token")
 
-  createApplication(App, action, token).start()
+  createApplication(App, { action, token }).start()
 })

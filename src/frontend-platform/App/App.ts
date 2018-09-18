@@ -2,12 +2,17 @@ import { AppDash, Log, LogEvent, registerApplication } from "bkb"
 import { ErrorDialog, InfoDialog } from "../../sharedFrontend/modalDialogs/modalDialogs"
 import TeamCreationDialog from "../../sharedFrontend/TeamCreationDialog/TeamCreationDialog"
 
+export interface AppOptions {
+  action?: string
+  token?: string
+}
+
 export default class App {
   readonly log: Log
   readonly baseUrl: string
   private teamDialog: TeamCreationDialog
 
-  constructor(private dash: AppDash<App>, private action?: string, private token?: string) {
+  constructor(private dash: AppDash<App>, private options: AppOptions = {}) {
     this.log = dash.log
     this.baseUrl = document.documentElement.dataset.baseUrl || ""
     this.teamDialog = this.dash.create(TeamCreationDialog)
@@ -18,12 +23,12 @@ export default class App {
   }
 
   start() {
-    if ((!this.action && !this.token) || (this.action === "register")) {
+    if ((!this.options.action && !this.options.token) || (this.options.action === "register")) {
       this.showTeamCreationDialog()
       return
     }
 
-    if (this.action === "activate") {
+    if (this.options.action === "activate") {
       this.activateTeam()
       return
     }
@@ -32,7 +37,7 @@ export default class App {
   }
 
   private async activateTeam() {
-    if (!this.token)
+    if (!this.options.token)
       throw new Error("Token not found")
 
     try {
@@ -43,7 +48,7 @@ export default class App {
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ token: this.token })
+        body: JSON.stringify({ token: this.options.token })
       })
 
       if (!response.ok) {
