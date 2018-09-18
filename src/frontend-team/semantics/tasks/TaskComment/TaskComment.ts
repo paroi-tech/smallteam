@@ -1,21 +1,26 @@
 import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
 import { Converter } from "showdown"
+import { QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { CommentModel, Model } from "../../../AppModel/AppModel"
-import { CustomHide as hidden } from "../../../libraries/monkberryUtils"
+import { Show } from "../../../libraries/monkberryUtils"
 
 const template = require("./TaskComment.monk")
 
 export default class TaskComment {
   readonly el: HTMLElement
   private textareaEl: HTMLTextAreaElement
-  private contentEl: HTMLElement
+  private mdEl: HTMLElement
 
   private view: LtMonkberryView
+  private directives = {
+    show: Show
+  }
   private state = {
     author: "",
     date: "",
+    text: "",
     canEdit: false,
     editMode: false
   }
@@ -32,17 +37,16 @@ export default class TaskComment {
     let currentAccountId = this.dash.app.model.session.account.id
     let date = new Date(this.comment.updateTs)
 
-    this.view = render(template, {
-      directives: { hidden }
-    })
+    this.view = render(template, { directives: this.directives })
     this.state.author = this.comment.writtenBy.login
     this.state.date = `${date.toLocaleDateString()}@${date.toLocaleTimeString()}`
     this.state.canEdit = currentAccountId === comment.writtenById
+    this.state.text = comment.body
     this.view.update(this.state)
 
     this.el = this.view.rootEl()
-    this.textareaEl = this.view.ref("textarea")
-    this.contentEl = this.view.ref("content")
+    this.textareaEl = this.view.ref("text")
+    this.mdEl = this.view.ref("markdown")
     if (this.state.canEdit) {
       this.view.ref("edit").addEventListener("click", () => this.onBtnEditClick())
       this.view.ref("save").addEventListener("click", () => this.onBtnSaveClick())
@@ -51,20 +55,20 @@ export default class TaskComment {
     }
 
     this.converter = new Converter()
-    this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
+    this.mdEl.innerHTML = this.converter.makeHtml(this.comment.body)
 
     this.dash.listenToModel("updateComment", data => {
       if (data.id !== this.comment.id)
         return
       let d = new Date(this.comment.updateTs)
       this.state.date = `${d.toLocaleDateString()}@${d.toLocaleTimeString()}`
+      this.state.text = this.comment.body
       this.view.update(this.state)
-      this.contentEl.innerHTML = this.converter.makeHtml(this.comment.body)
+      this.mdEl.innerHTML = this.converter.makeHtml(this.comment.body)
     })
   }
 
   private async onBtnEditClick() {
-    // TODO: show textarea...
     this.state.editMode = true
     this.view.update(this.state)
   }
@@ -80,10 +84,10 @@ export default class TaskComment {
         id: this.comment.id,
         body: str
       })
-      // TODO: Hide text area...
+      this.state.editMode = false
+      this.view.update(this.state)
     } catch (err) {
       this.log.error("Unable to update comment...")
-      return
     }
   }
 
@@ -94,7 +98,7 @@ export default class TaskComment {
 
   private async onBtnDeleteClick() {
     // TODO: use custom modal dialogs...
-    if (!confirm("Do you really want to remove this comment?"))
+    if (!await this.dash.create(QuestionDialog).show("Do you really want to remove this comment?"))
       return
     try {
       this.model.exec("delete", "Comment", {

@@ -1,4 +1,4 @@
-export class CustomHide {
+export class Show {
   private node?: HTMLElement
 
   constructor() {
@@ -16,6 +16,6 @@ export class CustomHide {
   update(value) {
     if (!this.node)
       return
-    this.node.hidden = value ? true : false
+    this.node.hidden = !value
   }
 }

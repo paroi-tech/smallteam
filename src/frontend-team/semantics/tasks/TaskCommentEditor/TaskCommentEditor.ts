@@ -1,9 +1,10 @@
-import { render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
 import { Log } from "bkb"
 import { CommentCreateFragment } from "../../../../shared/meta/Comment"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { CommentModel, Model, TaskModel } from "../../../AppModel/AppModel"
+import { Show } from "../../../libraries/monkberryUtils"
 import TaskComment from "../TaskComment/TaskComment"
 
 const template = require("./TaskCommentEditor.monk")
@@ -14,25 +15,40 @@ export default class TaskCommentEditor {
   private textEl: HTMLTextAreaElement
   private spinnerEl: HTMLElement
 
+  private view: LtMonkberryView
+  private directives = {
+    show: Show
+  }
+
   private listItems = new Map<string, HTMLElement>()
 
   private model: Model
   private task?: TaskModel
   private log: Log
 
+  private state = {
+    showText: false
+  }
+
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
-    this.el = view.rootEl()
-    this.listEl = view.ref("ul")
-    this.textEl = view.ref("textarea")
-    this.spinnerEl = view.ref("spinner")
+    this.view = render(template, { directives: this.directives })
+    this.view.update(this.state)
+    this.el = this.view.rootEl()
+    this.listEl = this.view.ref("ul")
+    this.textEl = this.view.ref("textarea")
+    this.spinnerEl = this.view.ref("spinner")
 
-    view.ref("submit").addEventListener("click", () => {
+    this.view.ref("btnAdd").addEventListener("click", () => {
       if (this.task)
         this.onSubmit()
+    })
+
+    this.view.ref("btnToggle").addEventListener("click", () => {
+      this.state.showText = !this.state.showText
+      this.view.update(this.state)
     })
 
     this.dash.listenToModel("createComment", data => {
@@ -79,6 +95,7 @@ export default class TaskCommentEditor {
       return
 
     let text = this.textEl.value.trim()
+
     if (text.length === 0)
       return
 
@@ -87,12 +104,14 @@ export default class TaskCommentEditor {
       taskId: this.task.id
     }
 
+    this.spinnerEl.hidden = false
     try {
       await this.model.exec("create", "Comment", frag)
       this.textEl.value = ""
     } catch (err) {
       this.log.error("Unable to create new comment")
     }
+    this.spinnerEl.hidden = true
   }
 
   private async loadComments() {
