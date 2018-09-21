@@ -7,7 +7,7 @@
 
 ## ECMAScript
 
-* Naming: `myFunction`, `myVariable`, `MyClass`.
+* Naming: `myFunction`, `myVariable`, `myConstant`, `MyClass`.
 * Do not use semicolons at the end of statements
 * Use double quotes for strings.
 * Use `undefined`. Do not use `null` except for representing a SQL `null`.
@@ -18,7 +18,8 @@
 * Prefer `++i` and `--i` over `i++` and `i--`.
 * Avoid using `bind()` (justification [here](https://stackoverflow.com/questions/42117911/lambda-functions-vs-bind-memory-and-performance))
 * Loop and conditional bodies: Curly braces can be omitted only with a one line and one instruction block. Statements on the same line are not allowed.
-* Prefer `new Error()` over `Error()`
+* Prefer `new Error()` over `Error()`.
+* In generics, type have single-letter names, such as `E`, `T`, `S`, `K`, and `V`.
 
 ## TypeScript
 

@@ -59,7 +59,7 @@
   },
   "homepage": "https://github.com/fabtom/smallteam#readme",
   "dependencies": {
-    "@fabtom/media-engine": "^0.4.2",
+    "@fabtom/media-engine": "^0.4.3",
     "bcrypt": "^3.0.0",
     "bristol": "^0.4.0",
     "connect-sqlite3": "^0.9.11",
