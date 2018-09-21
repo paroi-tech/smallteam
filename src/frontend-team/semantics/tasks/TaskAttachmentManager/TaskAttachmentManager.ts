@@ -18,7 +18,7 @@ export default class TaskAttachmentManager {
   private spinnerEl: HTMLElement
 
   private model: Model
-  private task: TaskModel | undefined
+  private currentTask?: TaskModel
   private log: Log
 
   constructor(private dash: OwnDash) {
@@ -38,17 +38,17 @@ export default class TaskAttachmentManager {
     }
 
     this.dash.listenToModel("updateTask", task => {
-      if (this.task && this.task.id === task.id)
+      if (this.currentTask && this.currentTask.id === task.id)
         this.refreshMediaList()
     })
   }
 
-  getTask() {
-    return this.task
+  get task() {
+    return this.currentTask
   }
 
   setTask(task?: TaskModel) {
-    this.task = task
+    this.currentTask = task
     this.inputEl.value = ""
     this.refreshMediaList()
   }
@@ -59,9 +59,9 @@ export default class TaskAttachmentManager {
   }
 
   private listAttachedMedias() {
-    if (!this.task || !this.task.attachedMedias)
+    if (!this.currentTask || !this.currentTask.attachedMedias)
       return
-    for (let media of this.task.attachedMedias)
+    for (let media of this.currentTask.attachedMedias)
       this.displayMedia(media)
   }
 
@@ -98,15 +98,17 @@ export default class TaskAttachmentManager {
   }
 
   private async doUpload() {
-    if (!this.task)
+    if (!this.currentTask)
       return
+
     let meta = {
       ref: {
         type: "task",
-        id: this.task.id
+        id: this.currentTask.id
       }
     }
     let fd = new FormData(this.formEl)
+
     fd.append("meta", JSON.stringify(meta))
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
@@ -121,12 +123,10 @@ export default class TaskAttachmentManager {
       }
 
       let result = await response.json()
-      if (result.modelUpd) {
+
+      if (result.modelUpd)
         this.model.processModelUpdate(result.modelUpd)
-        console.log(result.modelUpd)
-        let media = result.modelUpd.fragments.Media[0] as MediaModel
-        let task = result.modelUpd.fragments.Task as TaskModel
-      }
+
       if (result.done)
         this.inputEl.value = ""
       else
@@ -136,10 +136,8 @@ export default class TaskAttachmentManager {
     }
   }
 
-
-
   private async removeTaskAttachment(mediaId: string) {
-    if (!this.task)
+    if (!this.currentTask)
       return false
 
     let result = false
@@ -161,8 +159,10 @@ export default class TaskAttachmentManager {
       }
 
       let data = await response.json()
+
       if (data.modelUpd)
         this.model.processModelUpdate(data.modelUpd)
+
       if (data.done)
         result = true
       else
