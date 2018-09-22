@@ -91,7 +91,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
           log.trace(
             debugPrefix, "[DEBUG-MYCN]", msg,
             "\n  -- args --\n", cc.args,
-            "\n  -- result --\n", debug.result,
+            // "\n  -- result --\n", debug.result,
             // "\n  -- connection --\n", cc.connection
           )
         }
