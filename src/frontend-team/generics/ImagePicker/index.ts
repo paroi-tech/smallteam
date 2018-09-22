@@ -40,11 +40,9 @@ export default class ImagePicker {
     if (!f)
       return
 
-    console.log("got file", f)
-
     let imgURL = URL.createObjectURL(f)
 
     this.el.style.backgroundImage = `url("${imgURL}")`
-    this.dash.emit("changed", imgURL)
+    this.dash.emit("changed", { imgURL, f })
   }
 }

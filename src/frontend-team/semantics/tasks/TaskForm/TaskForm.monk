@@ -52,6 +52,4 @@
       </div>
     </div>
   </fieldset>
-
-  <div :ref="picker"></div>
 </div>

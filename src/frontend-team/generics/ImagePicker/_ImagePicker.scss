@@ -2,13 +2,20 @@
   align-content: center;
   background-position: center;
   background-size: cover;
+  border: 1px solid #5584ff;
+  border-radius: 50%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
+  justify-content: center;
 
   &-btn {
+    background-color: #5584ff;
+    border: 1px solid #708090;
+    color: #fff;
     flex-grow: 0;
+    font-weight: bold;
     opacity: 0;
+    padding: 4px 8px;
     text-align: center;
   }
 

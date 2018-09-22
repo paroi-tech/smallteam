@@ -5,6 +5,7 @@
   &-body {
     bottom: 0;
     flex: 1 100%;
+    overflow-y: auto;
     position: absolute;
     top: 42px;
     width: 100%;
