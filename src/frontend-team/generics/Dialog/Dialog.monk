@@ -1,4 +1,4 @@
-<dialog class="Dialog">
+<dialog class="Dialog" draggable="true">
   <div class="Dialog-box">
     <header class="Dialog-header">
       <span class="Dialog-title">{{ title }}</span>

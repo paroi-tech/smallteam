@@ -4,6 +4,7 @@ import { QuestionDialog } from "../../../../sharedFrontend/modalDialogs/modalDia
 import { OwnDash } from "../../../App/OwnDash"
 import { ARCHIVED_STEP_ID, Model, ON_HOLD_STEP_ID, TaskModel } from "../../../AppModel/AppModel"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
+import ImagePicker from "../../../generics/ImagePicker"
 import DelayedAction from "../../../libraries/DelayedAction"
 import AccountSelector from "../../accounts/AccountSelector"
 import FlagSelector from "../../flags/FlagSelector"
@@ -137,6 +138,12 @@ export default class TaskForm {
       if (!this.currentTask || this.currentTask.id !== data.id)
         return
       this.updateView()
+    })
+
+    let picker = this.dash.create(ImagePicker, { width: 96, height: 96})
+    this.view.ref("picker").appendChild(picker.el)
+    this.dash.listenTo(picker, "changed", ev => {
+      console.log(ev)
     })
 
     this.labelEl.addEventListener("input", () => this.delayedSave.delay())

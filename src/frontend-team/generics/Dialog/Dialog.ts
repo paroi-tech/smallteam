@@ -19,6 +19,8 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
   private bodyEl: HTMLElement
   private resolveCb?: () => void
 
+  private lastDragStart?: DragEvent
+
   constructor(private dash: Dash, private options: DialogOptions<C> = {}) {
     this.content = options.content! // 'C' can be undefined
     dash.exposeEvent("open", "close")
@@ -41,6 +43,24 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
 
     dash.listenTo("destroy", () => {
       document.body.removeChild(this.el)
+    })
+
+    this.el.addEventListener("dragstart", ev => this.lastDragStart = ev)
+    this.el.addEventListener("dragend", ev => {
+      if (!this.lastDragStart)
+        return
+
+      let dx = ev.clientX - this.lastDragStart.clientX
+      let dy = ev.clientY - this.lastDragStart.clientY
+      let rect = this.el.getBoundingClientRect()
+      let left = rect.left + dx
+      let top = rect.top + dy
+
+      this.el.style.position = "absolute"
+      this.el.style.top = `${top}px`
+      this.el.style.left = `${left}px`
+
+      this.lastDragStart = undefined
     })
   }
 

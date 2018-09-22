@@ -1,0 +1,4 @@
+<div class="ImagePicker">
+  <input type="file" accept="image/png, image/jpg, image/jpeg" hidden :ref="input">
+  <button class="ImagePicker-btn" :ref="btn">Change</button>
+</div>
