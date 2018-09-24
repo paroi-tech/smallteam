@@ -4,10 +4,12 @@
   background-size: cover;
   border: 1px solid #5584ff;
   border-radius: 50%;
+  cursor: pointer;
   display: flex;
   flex-direction: column;
   justify-content: center;
 
+/*
   &-btn {
     background-color: #5584ff;
     border: 1px solid #708090;
@@ -22,4 +24,5 @@
   &:hover > &-btn {
     opacity: 1;
   }
+*/
 }

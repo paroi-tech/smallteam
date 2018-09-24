@@ -38,11 +38,11 @@ export default class AccountHome implements Workspace {
     this.setPickerToAccountAvatar()
   }
 
-  activate(ctrl: ViewerController): void {
+  activate(ctrl: ViewerController) {
     ctrl.setTitle("Personal space").setContentEl(this.el)
   }
 
-  deactivate(): void {
+  deactivate() {
   }
 
   private setPickerToAccountAvatar() {

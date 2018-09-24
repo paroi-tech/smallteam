@@ -12,16 +12,17 @@ export default class ImagePicker {
   readonly el: HTMLElement
   private inputEl: HTMLInputElement
 
-  constructor(private dash: OwnDash, private options: ImagePickerOptions) {
+  constructor(private dash: OwnDash, options: ImagePickerOptions) {
     let view = render(template)
-    let btn = view.ref("btn")
+    // let btn = view.ref("btn")
 
     this.el = view.rootEl()
     this.inputEl = view.ref("input")
     this.el.style.width = `${options.width}px`
     this.el.style.height = `${options.height}px`
 
-    btn.addEventListener("click", () => this.inputEl.click())
+    // btn.addEventListener("click", () => this.inputEl.click())
+    this.el.addEventListener("click", () => this.inputEl.click())
     this.inputEl.addEventListener("change", () => this.onImageChange())
   }
 
