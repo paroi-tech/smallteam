@@ -3,59 +3,59 @@
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Team name</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="teamName" type="text" placeholder="Name">
+        <input class="Field-input" type="text" placeholder="Name" :ref="teamName">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Team code</span>
+      <span class="Field-lbl">Subdomain</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="teamCode" type="text" placeholder="Name">
+        <input class="Field-input" type="text" placeholder="Name" :ref="subdomain">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Name of default user</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="name" type="text" placeholder="Name">
+        <input class="Field-input" type="text" placeholder="Name" :ref="name">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Login of default user</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="login" type="text" placeholder="Login">
+        <input class="Field-input" type="text" placeholder="Login" :ref="login">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Create a password</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="password" type="password" placeholder="Password">
+        <input class="Field-input" type="password" placeholder="Password" :ref="password">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Confirm your password</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="confirm" type="password" placeholder="Password confirmation">
+        <input class="Field-input" type="password" placeholder="Password confirmation" :ref="confirm">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Your email address</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" :ref="email" type="email" placeholder="Email">
+        <input class="Field-input" type="email" placeholder="Email" :ref="email">
       </span>
     </label>
 
     <div>
       <button class="FieldGroup-action Btn WithLoader -right" :ref="submitBtn" type="button">
         Submit
-        <span class="WithLoader-l" :ref="spinner"></span>
+        <span class="WithLoader-l" hidden :ref="spinner"></span>
       </button>
       &nbsp;
-      <button class="Btn" :ref="cancelBtn" type="button">Cancel</button>
+      <button class="Btn" type="button" :ref="cancelBtn">Cancel</button>
     </div>
   </div>
 </dialog>

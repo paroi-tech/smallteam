@@ -2,7 +2,7 @@ import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
-import { routeActivateTeam, routeCheckTeamCode, routeCreateTeam } from "./platform/platform"
+import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./platform/platform"
 import {
   routeCancelInvitation, routeGetPendingInvitations, routeRegister, routeResendInvitation, routeSendInvitation
 } from "./registration/registration"
@@ -68,7 +68,7 @@ export function startWebServer(): void {
   let router = Router()
 
   router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
-  router.post("/api/team/check-id", makeMainSiteRouteHandler(routeCheckTeamCode))
+  router.post("/api/team/check-subdomain", makeMainSiteRouteHandler(routeCheckTeamSubdomain))
   router.post("/api/team/activate", makeMainSiteRouteHandler(routeActivateTeam))
 
   router.post("/api/session/connect", makeRouteHandler(routeConnect, true))

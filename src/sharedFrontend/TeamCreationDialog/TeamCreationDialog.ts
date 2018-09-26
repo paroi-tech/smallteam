@@ -1,6 +1,6 @@
 import { render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
-import { whyNewPasswordIsInvalid, whyTeamCodeIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
+import { whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
@@ -10,7 +10,7 @@ const template = require("./TeamCreationDialog.monk")
 export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement
   private teamNameEl: HTMLInputElement
-  private teamCodeEl: HTMLInputElement
+  private subdomainEl: HTMLInputElement
   private nameEl: HTMLInputElement
   private loginEl: HTMLInputElement
   private passwordEl: HTMLInputElement
@@ -25,7 +25,7 @@ export default class TeamCreationDialog {
 
     this.el = view.rootEl()
     this.teamNameEl = view.ref("teamName")
-    this.teamCodeEl = view.ref("teamCode")
+    this.subdomainEl = view.ref("subdomain")
     this.nameEl = view.ref("name")
     this.loginEl = view.ref("login")
     this.passwordEl = view.ref("password")
@@ -65,9 +65,9 @@ export default class TeamCreationDialog {
       return
     }
 
-    let teamCode = this.teamCodeEl.value.trim()
+    let subdomain = this.subdomainEl.value.trim()
 
-    checkMsg = whyTeamCodeIsInvalid(teamCode)
+    checkMsg = whyTeamSubdomainIsInvalid(subdomain)
     if (checkMsg) {
       await dialog.show(checkMsg)
       this.teamNameEl.focus()
@@ -114,7 +114,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    let data = await this.checkTeamCode(teamCode)
+    let data = await this.checkSubdomain(subdomain)
 
     if (!data.done) {
       await dialog.show("Something went wrong. We could not contact server for the moment.")
@@ -122,30 +122,30 @@ export default class TeamCreationDialog {
     }
 
     if (!data.answer) {
-      await dialog.show("The code you chosed is not available. Try another one.")
-      this.teamCodeEl.focus()
+      await dialog.show("The subdomain you chosed is not available. Try another one.")
+      this.subdomainEl.focus()
       return
     }
 
-    if (await this.register(teamName, teamCode, name, login, password, email) && this.curDfd) {
+    if (await this.register(teamName, subdomain, name, login, password, email) && this.curDfd) {
       this.curDfd.resolve(true)
       this.curDfd = undefined
       this.el.close()
     }
   }
 
-  private async checkTeamCode(teamCode: string) {
+  private async checkSubdomain(subdomain: string) {
     let returnValue = { done: false, answer: false }
 
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/team/check-id`, {
+      let response = await fetch(`${this.dash.app.baseUrl}/api/team/check-subdomain`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ teamCode })
+        body: JSON.stringify({ subdomain })
       })
 
       if (response.ok) {
@@ -159,7 +159,7 @@ export default class TeamCreationDialog {
     return returnValue
   }
 
-  private async register(teamName: string, teamCode: string, name: string, username: string, password: string, email: string) {
+  private async register(teamName: string, subdomain: string, name: string, username: string, password: string, email: string) {
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/team/create`, {
         method: "post",
@@ -168,7 +168,7 @@ export default class TeamCreationDialog {
           "Accept": "application/json",
           "Content-Type": "application/json"
         }),
-        body: JSON.stringify({ teamName, teamCode, name, username, password, email })
+        body: JSON.stringify({ teamName, subdomain, name, username, password, email })
       })
 
       if (!response.ok) {

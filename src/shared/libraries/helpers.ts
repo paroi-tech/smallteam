@@ -34,14 +34,14 @@ export function whyNewPasswordIsInvalid(password: string): string | undefined {
     return "A password must have at least 8 characters"
 }
 
-export function whyTeamCodeIsInvalid(teamCode: string): string | undefined {
-  if (teamCode.length < 2 || teamCode.length > 16)
-    return "A team code must have at least 2 characters and 16 characters at most"
+export function whyTeamSubdomainIsInvalid(subdomain: string): string | undefined {
+  if (subdomain.length < 2 || subdomain.length > 16)
+    return "A team subdomain must have at least 2 characters and 16 characters at most"
 
-  let arr = teamCode.match(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g)
+  let arr = subdomain.match(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g)
 
-  if (!arr || arr.length === 0 || arr[0] !== teamCode)
-    return "A team code should contain only lowercase letters and dashes"
+  if (!arr || arr.length === 0 || arr[0] !== subdomain)
+    return "A team subdomain should contain only lowercase letters and dashes"
 }
 
 export function whyUsernameIsInvalid(username: string): string | undefined {

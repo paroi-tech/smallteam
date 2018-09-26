@@ -12,7 +12,7 @@ import { getCn } from "../utils/dbUtils"
 import validate from "../utils/joiUtils"
 import { log } from "../utils/log"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
-import { getAccountById, getAccountByLogin } from "../utils/userUtils"
+import { getAccountByLogin } from "../utils/userUtils"
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({

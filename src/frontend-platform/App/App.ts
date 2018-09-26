@@ -20,15 +20,18 @@ export default class App {
       // tslint:disable-next-line:no-console
       console.log(`[${data.level}]`, ...data.messages)
     })
+    console.log("app options", options)
   }
 
   start() {
     if ((!this.options.action && !this.options.token) || (this.options.action === "register")) {
+      console.log("no params")
       this.showTeamCreationDialog()
       return
     }
 
     if (this.options.action === "activate") {
+      console.log("found params")
       this.activateTeam()
       return
     }

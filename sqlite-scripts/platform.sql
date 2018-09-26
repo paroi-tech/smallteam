@@ -3,7 +3,7 @@ drop table if exists team;
 
 create table team (
     team_id integer not null primary key autoincrement,
-    team_code varchar(255) not null unique,
+    team_subdomain varchar(255) not null unique,
     team_name varchar(255) not null,
     activated tinyint not null default 0
 );
