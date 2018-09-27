@@ -15,6 +15,7 @@
     "indent": [true, "spaces", 2],
     "interface-name": false,
     "member-access": [true, "no-public"],
+    "max-classes-per-file": false,
     "max-line-length": false,
     "no-consecutive-blank-lines": false,
     "no-shadowed-variable": false,

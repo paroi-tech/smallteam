@@ -19,7 +19,7 @@ export function initLog(conf: ServerConfiguration) {
     if (targetConf.target === "file") {
       if (!targetConf.file)
         throw new Error("Log Configuration: The option 'file' is required when target is set to 'file'")
-      let file = targetConf.file[0] === "/" ? targetConf.file[0] : path.join(conf.dataDir, targetConf.file)
+      let file = targetConf.file[0] === "/" ? targetConf.file : path.join(conf.dataDir, targetConf.file)
       target = bristol.addTarget("file", { file })
     } else
       target = bristol.addTarget(targetConf.target)

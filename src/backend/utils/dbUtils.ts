@@ -66,7 +66,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
   const isNewDb = !await fileExists(fileName)
   let cn = createDatabaseConnectionWithSqlBricks({
     provider: sqlite3ConnectionProvider({ fileName, logWarning: msg => log.warn(msg) }),
-    init: async cn => {
+    afterOpen: async cn => {
       await cn.exec("PRAGMA busy_timeout = 50")
       await cn.exec("PRAGMA foreign_keys = ON")
       await cn.exec("PRAGMA journal_mode = WAL")
