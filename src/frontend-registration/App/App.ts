@@ -17,6 +17,7 @@ export default class App {
     this.log = dash.log
     this.baseUrl = document.documentElement.dataset.baseUrl || ""
     this.dash.listenTo<LogEvent>("log", data => {
+      // tslint:disable-next-line:no-console
       console.log(`[${data.level}]`, ...data.messages)
     })
   }

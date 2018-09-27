@@ -43,7 +43,7 @@ export function startWebServer(): void {
   app.set("subdomain offset", getSubdomainOffset(domain))
 
   let server = http.createServer(app)
-
+  // tslint:disable-next-line:variable-name
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
   let { dir, file: db } = getSessionDbConf()
 
