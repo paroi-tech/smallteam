@@ -1,6 +1,6 @@
 import { render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
-import { whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
+import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
@@ -9,14 +9,16 @@ const template = require("./TeamCreationDialog.monk")
 
 export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement
-  private teamNameEl: HTMLInputElement
   private subdomainEl: HTMLInputElement
-  private nameEl: HTMLInputElement
+  private teamNameEl: HTMLInputElement
+  private emailEl: HTMLInputElement
   private loginEl: HTMLInputElement
+  private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
-  private emailEl: HTMLInputElement
   private spinnerEl: HTMLElement
+
+  private canSetUsername = true
 
   private curDfd: Deferred<boolean> | undefined
 
@@ -24,13 +26,13 @@ export default class TeamCreationDialog {
     let view = render(template)
 
     this.el = view.rootEl()
-    this.teamNameEl = view.ref("teamName")
     this.subdomainEl = view.ref("subdomain")
-    this.nameEl = view.ref("name")
+    this.teamNameEl = view.ref("teamName")
+    this.emailEl = view.ref("email")
     this.loginEl = view.ref("login")
+    this.nameEl = view.ref("name")
     this.passwordEl = view.ref("password")
     this.confirmEl = view.ref("confirm")
-    this.emailEl = view.ref("email")
     this.spinnerEl = view.ref("spinner")
 
     view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
@@ -41,6 +43,42 @@ export default class TeamCreationDialog {
         this.el.close()
       }
     })
+
+    this.subdomainEl.oninput = () => {
+      if (!this.subdomainEl.validity.valid)
+        this.teamNameEl.value = ""
+      else
+        this.teamNameEl.value = toTitleCase(this.subdomainEl.value)
+    }
+
+    this.teamNameEl.oninput = () => {
+      if (this.subdomainEl.oninput)
+        this.subdomainEl.oninput = null
+    }
+
+    this.emailEl.oninput = () => {
+      if (!this.emailEl.validity.valid) {
+        this.loginEl.value = ""
+        this.nameEl.value = this.canSetUsername ? "" : this.nameEl.value
+        return
+      }
+
+      let parts = this.emailEl.value.split("@")
+      let str = parts[0].toLocaleLowerCase()
+      let lowerStr = str.replace(/\W/g, "_")
+
+      if (!whyUsernameIsInvalid(lowerStr))
+        this.loginEl.value = lowerStr
+      if (this.canSetUsername)
+        this.nameEl.value = toTitleCase(str.replace(/\./, " "))
+    }
+
+    this.loginEl.oninput = () => {
+      if (this.emailEl.oninput)
+        this.emailEl.oninput = null
+    }
+
+    this.nameEl.addEventListener("input", () => this.canSetUsername = false)
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
@@ -55,21 +93,21 @@ export default class TeamCreationDialog {
   }
 
   private async onSubmit() {
-    let dialog = this.dash.create(WarningDialog)
     let checkMsg: string | undefined
-    let teamName = this.teamNameEl.value.trim()
-
-    if (teamName.length === 0) {
-      await dialog.show("Please enter a team name.")
-      this.teamNameEl.focus()
-      return
-    }
 
     let subdomain = this.subdomainEl.value.trim()
 
     checkMsg = whyTeamSubdomainIsInvalid(subdomain)
     if (checkMsg) {
-      await dialog.show(checkMsg)
+      this.dash.create(WarningDialog).show(checkMsg)
+      this.teamNameEl.focus()
+      return
+    }
+
+    let teamName = this.teamNameEl.value.trim()
+
+    if (teamName.length === 0) {
+      this.dash.create(WarningDialog).show("Please enter a team name.")
       this.teamNameEl.focus()
       return
     }
@@ -77,7 +115,7 @@ export default class TeamCreationDialog {
     let name = this.nameEl.value.trim()
 
     if (name.length === 0) {
-      await dialog.show("Please enter a name for the user.")
+      this.dash.create(WarningDialog).show("Please enter a name for the user.")
       this.teamNameEl.focus()
       return
     }
@@ -86,7 +124,7 @@ export default class TeamCreationDialog {
 
     checkMsg = whyUsernameIsInvalid(login)
     if (checkMsg) {
-      await dialog.show(checkMsg)
+      this.dash.create(WarningDialog).show(checkMsg)
       this.loginEl.focus()
       return
     }
@@ -95,13 +133,13 @@ export default class TeamCreationDialog {
 
     checkMsg = whyNewPasswordIsInvalid(password)
     if (checkMsg) {
-      await dialog.show(checkMsg)
+      this.dash.create(WarningDialog).show(checkMsg)
       this.passwordEl.focus()
       return
     }
 
     if (this.confirmEl.value !== password) {
-      await dialog.show("Passwords do not match.")
+      this.dash.create(WarningDialog).show("Passwords do not match.")
       this.confirmEl.focus()
       return
     }
@@ -109,7 +147,7 @@ export default class TeamCreationDialog {
     let email = this.emailEl.value.trim()
 
     if (email.length === 0 || !validateEmail(email)) {
-      await dialog.show("Please enter a valid email address.")
+      this.dash.create(WarningDialog).show("Please enter a valid email address.")
       this.emailEl.focus()
       return
     }
@@ -117,12 +155,12 @@ export default class TeamCreationDialog {
     let data = await this.checkSubdomain(subdomain)
 
     if (!data.done) {
-      await dialog.show("Something went wrong. We could not contact server for the moment.")
+      this.dash.create(WarningDialog).show("Something went wrong. We could not contact server for the moment.")
       return
     }
 
     if (!data.answer) {
-      await dialog.show("The subdomain you chosed is not available. Try another one.")
+      this.dash.create(WarningDialog).show("The subdomain you chosed is not available. Try another one.")
       this.subdomainEl.focus()
       return
     }

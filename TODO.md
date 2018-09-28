@@ -28,6 +28,8 @@ the time, so I can't use JIRA.
 
 # Lionel
 
+- When an account change status, from admin to contributor, check that there is at least one admin in the team.
+
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 - Replace ES5 `get` and `set` by methods if an exception can be thrown
 

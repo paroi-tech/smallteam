@@ -29,6 +29,11 @@ export function toDebugObj(entry?: Map<any, any> | Set<any>) {
   }
 }
 
+export function toTitleCase(str: string) {
+  // See https://love2dev.com/blog/javascript-touppercase-tolowercase/
+  return str.replace(/\w+/g, w => w.charAt(0).toLocaleUpperCase() + w.substr(1))
+}
+
 export function whyNewPasswordIsInvalid(password: string): string | undefined {
   if (password.length < 8)
     return "A password must have at least 8 characters"
@@ -38,16 +43,16 @@ export function whyTeamSubdomainIsInvalid(subdomain: string): string | undefined
   if (subdomain.length < 2 || subdomain.length > 16)
     return "A team subdomain must have at least 2 characters and 16 characters at most"
 
-  let arr = subdomain.match(/[a-z0-9][a-z-0-9]*[a-z0-9]$/g)
+  let arr = subdomain.match(/\w{2,}/g)
 
   if (!arr || arr.length === 0 || arr[0] !== subdomain)
-    return "A team subdomain should contain only lowercase letters and dashes"
+    return "A team subdomain should contain only lowercase alphanumeric characters and underscore."
 }
 
 export function whyUsernameIsInvalid(username: string): string | undefined {
   if (username.length < 1)
     return "A username should have at least one character."
 
-  if (!/^[a-zA-Z0-9_\-\.]+$/.test(username))
-    return "A username can contain only letters, digits, dash or underscore."
+  if (/\W/.test(username))
+    return "A username can contain only letters, digits and underscore."
 }

@@ -1,51 +1,61 @@
 <dialog class="TeamCreationDialog">
   <div class="FieldGroup">
+    <h1 class="FieldGroup-title">Your team</h1>
+
+    <div class="FieldGroup-multiItem">
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Subdomain</span>
+        <span class="Field-deco -leftBlue">
+          <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" :ref="subdomain">
+        </span>
+      </label>
+
+      <label class="FieldGroup-item Field">
+          <span class="Field-lbl">Team name</span>
+          <span class="Field-deco -leftBlue">
+            <input class="Field-input" type="text" spellcheck="false" :ref="teamName">
+          </span>
+        </label>
+    </div>
+  </div>
+
+  <div class="FieldGroup">
+    <h1 class="FieldGroup-title">Your account</h1>
+
     <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Team name</span>
+      <span class="Field-lbl">Your email address</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="text" placeholder="Name" :ref="teamName">
+        <input class="Field-input" type="email" required spellcheck="false" :ref="email">
       </span>
     </label>
 
-    <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Subdomain</span>
-      <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="text" placeholder="Name" :ref="subdomain">
-      </span>
-    </label>
+    <div class="FieldGroup-multiItem">
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Login</span>
+        <span class="Field-deco -leftBlue">
+          <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" :ref="login">
+        </span>
+      </label>
+
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Name</span>
+        <span class="Field-deco -leftBlue">
+          <input class="Field-input" type="text" :ref="name">
+        </span>
+      </label>
+    </div>
 
     <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Name of default user</span>
+      <span class="Field-lbl">Password</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="text" placeholder="Name" :ref="name">
-      </span>
-    </label>
-
-    <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Login of default user</span>
-      <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="text" placeholder="Login" :ref="login">
-      </span>
-    </label>
-
-    <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Create a password</span>
-      <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="password" placeholder="Password" :ref="password">
+        <input class="Field-input" type="password" :ref="password">
       </span>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Confirm your password</span>
       <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="password" placeholder="Password confirmation" :ref="confirm">
-      </span>
-    </label>
-
-    <label class="FieldGroup-item Field">
-      <span class="Field-lbl">Your email address</span>
-      <span class="Field-deco -leftBlue">
-        <input class="Field-input" type="email" placeholder="Email" :ref="email">
+        <input class="Field-input" type="password" :ref="confirm">
       </span>
     </label>
 

@@ -6,6 +6,18 @@
 }
 
 .FieldGroup {
+  &-title {
+    border-bottom: 1px solid #708090;
+    margin-bottom: 9px;
+    padding: 8px;
+  }
+
+  &-multiItem {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+  }
+
   &-item {
     margin-bottom: 9px;
 
