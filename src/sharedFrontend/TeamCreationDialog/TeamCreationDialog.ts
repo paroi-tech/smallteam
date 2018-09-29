@@ -18,7 +18,9 @@ export default class TeamCreationDialog {
   private confirmEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private canSetUsername = true
+  private canSetTeamName = true
+  private canSetName = true
+  private canSetLogin = true
 
   private curDfd: Deferred<boolean> | undefined
 
@@ -44,22 +46,24 @@ export default class TeamCreationDialog {
       }
     })
 
-    this.subdomainEl.oninput = () => {
+    this.subdomainEl.addEventListener("input", () => {
+      if (!this.canSetTeamName)
+        return
       if (!this.subdomainEl.validity.valid)
         this.teamNameEl.value = ""
       else
         this.teamNameEl.value = toTitleCase(this.subdomainEl.value)
-    }
+    })
 
-    this.teamNameEl.oninput = () => {
-      if (this.subdomainEl.oninput)
-        this.subdomainEl.oninput = null
-    }
+    this.teamNameEl.addEventListener("oninput", () => this.canSetTeamName = false)
 
-    this.emailEl.oninput = () => {
+    this.emailEl.addEventListener("input", () => {
+      if (!this.canSetLogin && !this.canSetName)
+        return
+
       if (!this.emailEl.validity.valid) {
-        this.loginEl.value = ""
-        this.nameEl.value = this.canSetUsername ? "" : this.nameEl.value
+        this.loginEl.value = this.canSetLogin ? "" : this.loginEl.value
+        this.nameEl.value = this.canSetName ? "" : this.nameEl.value
         return
       }
 
@@ -67,18 +71,19 @@ export default class TeamCreationDialog {
       let str = parts[0].toLocaleLowerCase()
       let lowerStr = str.replace(/\W/g, "_")
 
-      if (!whyUsernameIsInvalid(lowerStr))
+      if (this.canSetLogin && !whyUsernameIsInvalid(lowerStr))
         this.loginEl.value = lowerStr
-      if (this.canSetUsername)
+      if (this.canSetName)
         this.nameEl.value = toTitleCase(str.replace(/\./, " "))
-    }
+    })
 
-    this.loginEl.oninput = () => {
-      if (this.emailEl.oninput)
-        this.emailEl.oninput = null
-    }
+    this.loginEl.addEventListener("input", () => {
+      this.canSetLogin = false
+      if (this.canSetName && this.loginEl.validity.valid)
+        this.nameEl.value = toTitleCase(this.loginEl.value)
+    })
 
-    this.nameEl.addEventListener("input", () => this.canSetUsername = false)
+    this.nameEl.addEventListener("input", () => this.canSetName = false)
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
@@ -99,7 +104,7 @@ export default class TeamCreationDialog {
 
     checkMsg = whyTeamSubdomainIsInvalid(subdomain)
     if (checkMsg) {
-      this.dash.create(WarningDialog).show(checkMsg)
+      await this.dash.create(WarningDialog).show(checkMsg)
       this.teamNameEl.focus()
       return
     }
@@ -107,7 +112,7 @@ export default class TeamCreationDialog {
     let teamName = this.teamNameEl.value.trim()
 
     if (teamName.length === 0) {
-      this.dash.create(WarningDialog).show("Please enter a team name.")
+      await this.dash.create(WarningDialog).show("Please enter a team name.")
       this.teamNameEl.focus()
       return
     }
@@ -115,7 +120,7 @@ export default class TeamCreationDialog {
     let name = this.nameEl.value.trim()
 
     if (name.length === 0) {
-      this.dash.create(WarningDialog).show("Please enter a name for the user.")
+      await this.dash.create(WarningDialog).show("Please enter a name for the user.")
       this.teamNameEl.focus()
       return
     }
@@ -124,7 +129,7 @@ export default class TeamCreationDialog {
 
     checkMsg = whyUsernameIsInvalid(login)
     if (checkMsg) {
-      this.dash.create(WarningDialog).show(checkMsg)
+      await this.dash.create(WarningDialog).show(checkMsg)
       this.loginEl.focus()
       return
     }
@@ -133,13 +138,13 @@ export default class TeamCreationDialog {
 
     checkMsg = whyNewPasswordIsInvalid(password)
     if (checkMsg) {
-      this.dash.create(WarningDialog).show(checkMsg)
+      await this.dash.create(WarningDialog).show(checkMsg)
       this.passwordEl.focus()
       return
     }
 
     if (this.confirmEl.value !== password) {
-      this.dash.create(WarningDialog).show("Passwords do not match.")
+      await this.dash.create(WarningDialog).show("Passwords do not match.")
       this.confirmEl.focus()
       return
     }
@@ -148,7 +153,7 @@ export default class TeamCreationDialog {
 
     if (email.length === 0 || !validateEmail(email)) {
       this.dash.create(WarningDialog).show("Please enter a valid email address.")
-      this.emailEl.focus()
+      await this.emailEl.focus()
       return
     }
 
@@ -160,7 +165,7 @@ export default class TeamCreationDialog {
     }
 
     if (!data.answer) {
-      this.dash.create(WarningDialog).show("The subdomain you chosed is not available. Try another one.")
+      await this.dash.create(WarningDialog).show("The subdomain you chosed is not available. Try another one.")
       this.subdomainEl.focus()
       return
     }
@@ -173,7 +178,10 @@ export default class TeamCreationDialog {
   }
 
   private async checkSubdomain(subdomain: string) {
-    let returnValue = { done: false, answer: false }
+    let outcome = {
+      done: false,
+      answer: false
+    }
 
     try {
       let response = await fetch(`${this.dash.app.baseUrl}/api/team/check-subdomain`, {
@@ -187,14 +195,14 @@ export default class TeamCreationDialog {
       })
 
       if (response.ok) {
-        returnValue.answer = (await response.json()).answer
-        returnValue.done = true
+        outcome.answer = (await response.json()).answer
+        outcome.done = true
       }
     } catch (error) {
       this.dash.log.error("Unable to get response from server", error)
     }
 
-    return returnValue
+    return outcome
   }
 
   private async register(teamName: string, subdomain: string, name: string, username: string, password: string, email: string) {
@@ -219,10 +227,8 @@ export default class TeamCreationDialog {
       if (answer.done) {
         this.dash.create(InfoDialog).show("You have been successfully registred.")
         return true
-      } else {
-        this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
-        return false
       }
+      this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
     } catch (error) {
       this.dash.log.error(error)
       this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")

@@ -43,7 +43,7 @@ export function whyTeamSubdomainIsInvalid(subdomain: string): string | undefined
   if (subdomain.length < 2 || subdomain.length > 16)
     return "A team subdomain must have at least 2 characters and 16 characters at most"
 
-  let arr = subdomain.match(/\w{2,}/g)
+  let arr = subdomain.match(/[a-z0-9]{2,}/g)
 
   if (!arr || arr.length === 0 || arr[0] !== subdomain)
     return "A team subdomain should contain only lowercase alphanumeric characters and underscore."
