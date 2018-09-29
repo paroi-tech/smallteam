@@ -10,7 +10,7 @@ interface RegAccount {
 
 export async function getAccountById(cn: QueryRunnerWithSqlBricks, id: string) {
   let sql = select("account_id, login, password, role").from("account").where("account_id", id)
-  let row = await cn.singleRowSqlBricks(sql)
+  let row = await cn.singleRow(sql)
 
   if (row)
     return toAccount(row)
@@ -18,7 +18,7 @@ export async function getAccountById(cn: QueryRunnerWithSqlBricks, id: string) {
 
 export async function getAccountByLogin(cn: QueryRunnerWithSqlBricks, login: string) {
   let sql = select("account_id, login, password, role").from("account").where("login", login)
-  let row = await cn.singleRowSqlBricks(sql)
+  let row = await cn.singleRow(sql)
 
   if (row)
     return toAccount(row)
@@ -26,7 +26,7 @@ export async function getAccountByLogin(cn: QueryRunnerWithSqlBricks, login: str
 
 export async function getAccountByEmail(cn: QueryRunnerWithSqlBricks, email: string) {
   let sql = select("account_id, login, password, role").from("account").where("email", email)
-  let row = await cn.singleRowSqlBricks(sql)
+  let row = await cn.singleRow(sql)
 
   if (row)
     return toAccount(row)

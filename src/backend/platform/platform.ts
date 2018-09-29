@@ -4,12 +4,12 @@ import { Request, Response } from "express"
 import Joi = require("joi")
 import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import * as path from "path"
-import { deleteFrom, insert,  select, update } from "sql-bricks"
+import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../backendConfig"
 import { sendMail } from "../mail"
 import { SessionData } from "../session"
-import { getCn, teamDbCn } from "../utils/dbUtils"
+import { getCn, strVal, teamDbCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
 import validate from "../utils/joiUtils"
 import { log } from "../utils/log"
@@ -84,7 +84,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   sql.innerJoin("team").on("reg_team.team_id", "team.team_id")
   sql.where("reg_team.token", token)
 
-  let rs = await teamDbCn.singleRowSqlBricks(sql)
+  let rs = await teamDbCn.singleRow(sql)
 
   if (!rs) {
     return {
@@ -93,7 +93,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
     }
   }
 
-  let subdomain = rs["team_subdomain"]
+  let subdomain = rs["team_subdomain"] as string
   let p = path.join(config.dataDir, subdomain)
   let answer = { done: false } as any
   let tcn = await teamDbCn.beginTransaction()
@@ -102,7 +102,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
     await mkdir(p, 0o755)
     await removeTeamToken(tcn, token)
     await storeFirstUser(await getCn(subdomain), rs)
-    await setTeamAsActivated(tcn, rs["team_id"])
+    await setTeamAsActivated(tcn, strVal(rs["team_id"]))
     await tcn.commit()
     answer.done = true
     answer.teamUrl = getTeamSiteUrl({ subdomain })
@@ -131,7 +131,7 @@ export async function routeCheckTeamSubdomain(data: any, sessionData?: SessionDa
   let b = false
 
   if (!await fileExists(p)) {
-    let rs = await teamDbCn.allSqlBricks(sql)
+    let rs = await teamDbCn.all(sql)
     b = rs.length === 0
   }
 
@@ -147,7 +147,7 @@ async function createTeam(cn: QueryRunnerWithSqlBricks, data) {
     "team_subdomain": data.subdomain,
     "activated": 0
   })
-  let res = await cn.execSqlBricks(sql)
+  let res = await cn.exec(sql)
   let teamId = res.getInsertedIdAsString()
 
   return teamId
@@ -167,11 +167,11 @@ async function storeTeamToken(cn: QueryRunnerWithSqlBricks, data, passwordHash: 
     "expire_ts": expireTs
   })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }
 
 async function removeTeamToken(cn: QueryRunnerWithSqlBricks, token: string) {
-  await cn.execSqlBricks(deleteFrom("reg_team").where("token", token))
+  await cn.exec(deleteFrom("reg_team").where("token", token))
 }
 
 async function sendTeamCreationMail(token: string, to: string) {
@@ -191,19 +191,19 @@ async function sendTeamCreationMail(token: string, to: string) {
 
 async function storeFirstUser(cn: QueryRunnerWithSqlBricks, data) {
   // We need this because if team creation failed a first time, there would be a record in the account table.
-  await cn.execSqlBricks(deleteFrom("account"))
-  await cn.execSqlBricks(insert("account", {
-      "name": data["user_name"],
-      "login": data["user_login"],
-      "password": data["user_password"],
-      "role": "admin",
-      "email": data["user_email"]
-    })
+  await cn.exec(deleteFrom("account"))
+  await cn.exec(insert("account", {
+    "name": data["user_name"],
+    "login": data["user_login"],
+    "password": data["user_password"],
+    "role": "admin",
+    "email": data["user_email"]
+  })
   )
 }
 
 async function setTeamAsActivated(cn: QueryRunnerWithSqlBricks, teamId: string) {
   let cmd = update("team").set({ "activated": 1 }).where("team_id", teamId)
 
-  await cn.execSqlBricks(cmd)
+  await cn.exec(cmd)
 }

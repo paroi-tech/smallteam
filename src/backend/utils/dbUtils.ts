@@ -76,7 +76,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
       connectionTtl: 30
     },
     logError: err => log.error(err),
-    debugLog: debug => {
+    logDebug: debug => {
       if (debug.callingContext) {
         let cc = debug.callingContext
         let msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
@@ -123,7 +123,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
     })
 
   if (isNewDb && newDbScriptFileName)
-    await cn.execScript(await readFile(newDbScriptFileName, "utf8"))
+    await cn.script(await readFile(newDbScriptFileName, "utf8"))
 
   return cn
 }
@@ -132,6 +132,26 @@ export function toIntList(strList: Array<string | number>): number[] {
   return strList.map(val => typeof val === "number" ? val : parseInt(val, 10))
 }
 
-export function int(str: number | string): number {
-  return typeof str === "number" ? str : parseInt(str, 10)
+export function intVal(val: unknown): number {
+  let type = typeof val
+  switch (type) {
+    case "number":
+      return val as number
+    case "string":
+      return parseInt(val as string, 10)
+    default:
+      throw new Error(`Unexpected type for number: ${type}`)
+  }
+}
+
+export function strVal(val: unknown): string {
+  let type = typeof val
+  switch (type) {
+    case "string":
+      return val as string
+    case "number":
+      return (val as number).toString()
+    default:
+      throw new Error(`Unexpected type for string: ${type}`)
+  }
 }

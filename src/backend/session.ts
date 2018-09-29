@@ -310,12 +310,12 @@ async function storePasswordResetToken(cn: QueryRunnerWithSqlBricks, token: stri
     "expire_ts": currentTs + passwordResetTokenValidity
   })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }
 
 async function getPasswordUpdateObject(cn: QueryRunnerWithSqlBricks, token: string, accountId: string) {
   let sql = select().from("reg_pwd").where("token", token).and("account_id", accountId)
-  let row = await cn.singleRowSqlBricks(sql)
+  let row = await cn.singleRow(sql)
 
   if (!row)
     throw new Error("Token not found")
@@ -334,14 +334,14 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
 function removePasswordToken(cn: QueryRunnerWithSqlBricks, token: string) {
   let sql = deleteFrom("reg_pwd").where("token", token)
 
-  return cn.execSqlBricks(sql)
+  return cn.exec(sql)
 }
 
 async function updateAccountPassword(cn: QueryRunnerWithSqlBricks, accountId: string, password: string) {
   let passwordHash = await hash(password, BCRYPT_SALT_ROUNDS)
   let sql = update("account", { "password": passwordHash }).where("account_id", accountId)
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 
   return true
 }

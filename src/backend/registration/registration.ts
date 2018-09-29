@@ -181,8 +181,8 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
   let tcn = await cn.beginTransaction()
 
   try {
-    await tcn.execSqlBricks(sql)
-    await tcn.execSqlBricks(deleteFrom("reg_new").where({ token: cleanData.token }))
+    await tcn.exec(sql)
+    await tcn.exec(deleteFrom("reg_new").where({ token: cleanData.token }))
     await tcn.commit()
   } finally {
     if (tcn.inTransaction)
@@ -205,7 +205,7 @@ export async function routeGetPendingInvitations(subdomain: string, data: any, s
 
   let arr = [] as any[]
   let sql = select().from("reg_new")
-  let result = await cn.allSqlBricks(sql)
+  let result = await cn.all(sql)
 
   for (let row of result)
     arr.push(toInvitation(row))
@@ -270,7 +270,7 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
   if (username && !await getAccountByLogin(cn, username))
     sql.values({ "user_name": username })
 
-  let result = await cn.execSqlBricks(sql)
+  let result = await cn.exec(sql)
 
   return {
     id: result.getInsertedIdAsString(),
@@ -282,25 +282,25 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
 async function removeInvitationWithId(cn: QueryRunnerWithSqlBricks, id: string) {
   let sql = deleteFrom("reg_new").where({ "reg_new_id": id })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }
 
 async function removeInvitationWithToken(cn: QueryRunnerWithSqlBricks, token: string) {
   let sql = deleteFrom("reg_new").where({ token })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }
 
 async function existsInvitationWithToken(cn: QueryRunnerWithSqlBricks, token: string) {
   let sql = select().from("reg_new").where({ token })
-  let row = await cn.singleRowSqlBricks(sql)
+  let row = await cn.singleRow(sql)
 
   return row ? true : false
 }
 
 async function existsInvitationWithId(cn: QueryRunnerWithSqlBricks, id: string) {
   let sql = select().from("reg_new").where({ "reg_new_id": id })
-  let row = await cn.singleRowSqlBricks(sql)
+  let row = await cn.singleRow(sql)
 
   return row ? true : false
 }

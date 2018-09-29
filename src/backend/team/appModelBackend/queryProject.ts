@@ -3,7 +3,7 @@ import { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } 
 import sqlVanilla = require("sql-bricks")
 import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "../../../shared/meta/Project"
 import { WhoUseItem } from "../../../shared/transfers"
-import { int, toIntList } from "../../utils/dbUtils"
+import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
@@ -26,7 +26,7 @@ export async function fetchProjects(context: ModelContext, filters: ProjectSearc
     sql.where(like("d.description", `%${filters.description}%`))
   //   if (filters.search) {
   //     sql.where(like("d.description", `%${filters.description}%`)) // TODO: build search criterion
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   await addDependenciesTo(context.cn, rs)
   let projectIdList: number[] = []
   for (let row of rs) {
@@ -37,7 +37,7 @@ export async function fetchProjects(context: ModelContext, filters: ProjectSearc
       asResult: "fragments"
     })
     context.loader.modelUpdate.addFragment("Task", frag.rootTaskId)
-    projectIdList.push(row["project_id"])
+    projectIdList.push(row["project_id"] as number)
   }
   await fetchProjectTasks(context, projectIdList)
 }
@@ -47,7 +47,7 @@ export async function fetchProjectsByIds(context: ModelContext, idList: string[]
     return
   let sql = selectFromProject()
     .where(sqlIn("p.project_id", toIntList(idList)))
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   await addDependenciesTo(context.cn, rs)
   for (let row of rs) {
     let frag = toProjectFragment(row)
@@ -83,22 +83,20 @@ function toProjectFragment(row): ProjectFragment {
 // --
 
 export async function whoUseProject(context: ModelContext, id: string): Promise<WhoUseItem[]> {
-  let dbId = int(id)
-  let taskId = await context.cn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
-  return whoUseTask(context, taskId.toString())
+  let dbId = intVal(id)
+  let taskId = await context.cn.singleValue(select("task_id").from("root_task").where("project_id", dbId))
+  return whoUseTask(context, strVal(taskId))
 }
 
 export async function whoUseProjectStep(context: ModelContext, projectId: string, stepId: string): Promise<WhoUseItem[]> { // TODO: use this function
-  let result: WhoUseItem[] = [],
-    count: number
-
-  count = await context.cn.singleValueSqlBricks(
+  let result: WhoUseItem[] = []
+  let count = await context.cn.singleValue(
     select("count(1)")
     .from("task")
     .where({
-      "project_id": int(projectId),
-      "cur_step_id": int(stepId)
-    }))
+      "project_id": intVal(projectId),
+      "cur_step_id": intVal(stepId)
+    })) as number
   if (count > 0)
     result.push({ type: "Task", count })
 
@@ -122,18 +120,18 @@ async function fetchStepIdentifiers(cn: DatabaseConnectionWithSqlBricks, project
     .innerJoin("step f").using("step_id")
     .where(sqlIn("pt.project_id", projectIdList))
     .orderBy("1, f.order_num")
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await cn.all(sql)
 
-  let map = new Map<number, number[]>(),
-    curTaskId: number | undefined,
-    curStepIds: number[]
+  let map = new Map<number, number[]>()
+  let curTaskId: number | undefined
+  let curStepIds: number[]
   for (let row of rs) {
     if (row["project_id"] !== curTaskId) {
-      curTaskId = row["project_id"]
+      curTaskId = row["project_id"] as number
       curStepIds = []
       map.set(curTaskId!, curStepIds)
     }
-    curStepIds!.push(row["step_id"])
+    curStepIds!.push(row["step_id"] as number)
   }
 
   return map
@@ -153,8 +151,8 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "code": newFrag.code,
         "task_seq": 0
       })
-    let res = await transCn.execSqlBricks(sql),
-      projectId = res.getInsertedIdAsNumber()
+    let res = await transCn.exec(sql)
+    let projectId = res.getInsertedIdAsNumber()
 
     // Step "Not Started"
     sql = insertInto("project_step")
@@ -162,7 +160,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "project_id": projectId,
         "step_id": 1
       })
-    res = await transCn.execSqlBricks(sql)
+    res = await transCn.exec(sql)
 
     // Step "Archived"
     sql = insertInto("project_step")
@@ -170,7 +168,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "project_id": projectId,
         "step_id": 2
       })
-    await transCn.execSqlBricks(sql)
+    await transCn.exec(sql)
 
     // Task
     sql = insertInto("task")
@@ -178,10 +176,10 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "project_id": projectId,
         "cur_step_id": 1, // FIXME: step "Not Started" (or make the column NULLABLE?)
         "code": `${newFrag.code}-0`,
-        "created_by": int(context.sessionData.accountId),
+        "created_by": intVal(context.sessionData.accountId),
         "label": newFrag.name
       })
-    res = await transCn.execSqlBricks(sql)
+    res = await transCn.exec(sql)
     let taskId = res.getInsertedIdAsNumber()
 
     // Mark as root task
@@ -190,7 +188,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "project_id": projectId,
         "task_id": taskId
       })
-    await transCn.execSqlBricks(sql)
+    await transCn.exec(sql)
 
     // Description
     if (newFrag.description) {
@@ -199,7 +197,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
           "task_id": taskId,
           "description": newFrag.description
         })
-      await transCn.execSqlBricks(sql)
+      await transCn.exec(sql)
     }
 
     await insertProjectSteps(transCn, projectId, newFrag.stepIds)
@@ -237,11 +235,11 @@ export async function updateProject(context: ModelContext, updFrag: ProjectUpdat
       let sql = update("project")
         .set(valuesToUpd)
         .where(toSqlValues(updFrag, projectMeta.update, "onlyId"))
-      await transCn.execSqlBricks(sql)
+      await transCn.exec(sql)
     }
 
     if (updFrag.name !== undefined || updFrag.description !== undefined) {
-      let taskId = await getRootTaskId(transCn, projectId)
+      let taskId = await getRootTaskId(transCn, projectId) as number
 
       if (updFrag.description !== undefined)
         await updateTaskDescription(transCn, taskId, updFrag.description)
@@ -253,7 +251,7 @@ export async function updateProject(context: ModelContext, updFrag: ProjectUpdat
         .where("task_id", taskId)
       if (updFrag.name !== undefined)
         sql.set({ label: updFrag.name })
-      await transCn.execSqlBricks(sql)
+      await transCn.exec(sql)
       context.loader.modelUpdate.addFragment("Task", taskId.toString())
     }
 
@@ -275,9 +273,9 @@ export async function updateProject(context: ModelContext, updFrag: ProjectUpdat
 }
 
 async function hasTasks(rn: QueryRunnerWithSqlBricks, projectId: number) {
-  let count = await rn.singleValueSqlBricks(
+  let count = await rn.singleValue(
     select("count(task_id)").from("task").where("project_id", projectId)
-  )
+  ) as number
   return count > 0
 }
 
@@ -285,7 +283,7 @@ async function getRootTaskId(rn: QueryRunnerWithSqlBricks, projectId: number) {
   let sql = select("task_id")
     .from("root_task")
     .where("project_id", projectId)
-  let rs = await rn.allSqlBricks(sql)
+  let rs = await rn.all(sql)
   if (rs.length !== 1)
     throw new Error(`Missing root task for the project "${projectId}"`)
   return rs[0]["task_id"]
@@ -299,12 +297,12 @@ export async function deleteProject(context: ModelContext, frag: ProjectIdFragme
   let transCn = await context.cn.beginTransaction()
 
   try {
-    let dbId = int(frag.id)
+    let dbId = intVal(frag.id)
 
-    let taskId = await transCn.singleValueSqlBricks(select("task_id").from("root_task").where("project_id", dbId))
-    await transCn.execSqlBricks(deleteFrom("root_task").where("project_id", dbId))
-    await transCn.execSqlBricks(deleteFrom("task").where("task_id", taskId))
-    await transCn.execSqlBricks(deleteFrom("project").where("project_id", dbId))
+    let taskId = await transCn.singleValue(select("task_id").from("root_task").where("project_id", dbId))
+    await transCn.exec(deleteFrom("root_task").where("project_id", dbId))
+    await transCn.exec(deleteFrom("task").where("task_id", taskId))
+    await transCn.exec(deleteFrom("project").where("project_id", dbId))
     await transCn.commit()
 
     context.loader.modelUpdate.markFragmentAs("Project", frag.id, "deleted")
@@ -322,30 +320,30 @@ async function insertProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: numbe
   for (let stepId of stepIds) {
     let sql = insertInto("project_step")
       .values({
-        "project_id": int(projectId),
-        "step_id": int(stepId)
+        "project_id": intVal(projectId),
+        "step_id": intVal(stepId)
       })
-    await cn.execSqlBricks(sql)
+    await cn.exec(sql)
   }
 }
 
 async function updateProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: number | string, stepIds: string[]) {
-  let rs = await cn.allSqlBricks(select("ps.step_id")
+  let rs = await cn.all(select("ps.step_id")
     .from("project_step ps")
     .innerJoin("step s").using("step_id")
-    .where("ps.project_id", int(projectId))
+    .where("ps.project_id", intVal(projectId))
     .where(isNotNull("s.order_num")) // the special steps are never updated (out of the scope)
   )
-  let prevArr = rs.map(row => row["step_id"].toString()) as string[]
+  let prevArr = rs.map(row => strVal(row["step_id"])) as string[]
   let prevSet = new Set<string>(prevArr)
   let idsSet = new Set<string>(stepIds)
   let toAdd = stepIds.filter(id => !prevSet.has(id))
   let toDelete = prevArr.filter(id => !idsSet.has(id))
   if (toDelete.length > 0) {
     let sql = deleteFrom("project_step")
-      .where("project_id", int(projectId))
+      .where("project_id", intVal(projectId))
       .where(sqlIn("step_id", toIntList(toDelete)))
-    await cn.execSqlBricks(sql)
+    await cn.exec(sql)
   }
   await insertProjectSteps(cn, projectId, toAdd)
 }

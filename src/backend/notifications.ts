@@ -6,7 +6,7 @@ import { deleteFrom, insert, select, update } from "sql-bricks"
 import uuidv4 = require("uuid/v4")
 import { TOKEN_LENGTH } from "./backendConfig"
 import { hasAdminRights, SessionData } from "./session"
-import { getCn } from "./utils/dbUtils"
+import { getCn, strVal } from "./utils/dbUtils"
 import validate from "./utils/joiUtils"
 import { log } from "./utils/log"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
@@ -50,7 +50,7 @@ export async function routeCreateGithubWebhook(subdomain: string, data: any, ses
     "provider": "Github",
     "subscription_uuid": uuid
   })
-  let execResult = await cn.execSqlBricks(sql)
+  let execResult = await cn.exec(sql)
   let subscriptionId = execResult.getInsertedIdAsString()
   let teamSiteUrl = getTeamSiteUrl({ subdomain })
   let webhook = {
@@ -80,7 +80,7 @@ export async function routeGetGithubWebhookSecret(subdomain: string, data: any, 
     "provider": "Github",
     "subscription_id": cleanData.subscriptionId
   })
-  let secret = await cn.singleValueSqlBricks(sql)
+  let secret = await cn.singleValue(sql)
 
   return {
     done: true,
@@ -100,7 +100,7 @@ export async function routeActivateGithubWebhook(subdomain: string, data: any, s
 
   let sql = update("git_subscription", { "active": 1 }).where({ "subscription_id": cleanData.subscriptionId })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 
   return {
     done: true
@@ -119,7 +119,7 @@ export async function routeDeactivateGithubWebhook(subdomain: string, data: any,
 
   let sql = update("git_subscription", { "active": 0 }).where({ "subscription_id": cleanData.subscriptionId })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 
   return {
     done: true
@@ -138,7 +138,7 @@ export async function routeDeleteGithubWebhook(subdomain: string, data: any, ses
 
   let sql = deleteFrom("git_subscription").where({ "subscription_id": cleanData.subscriptionId })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 
   return {
     done: true
@@ -147,7 +147,7 @@ export async function routeDeleteGithubWebhook(subdomain: string, data: any, ses
 
 export async function routeFetchGithubWebhooks(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
   if (!sessionData)
-  throw new Error("Missing session data in 'routeFetchGithubWebhooks'")
+    throw new Error("Missing session data in 'routeFetchGithubWebhooks'")
 
   let cn = await getCn(subdomain)
 
@@ -155,13 +155,13 @@ export async function routeFetchGithubWebhooks(subdomain: string, data: any, ses
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
   let sql = select().from("git_subscription").where({ "provider": "Github" }) // FIXME: create index on provider column?
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await cn.all(sql)
   let webhooks = [] as any[]
   let teamSiteUrl = getTeamSiteUrl({ subdomain })
 
   for (let row of rs) {
     webhooks.push({
-      id: row["subscription_id"].toString(),
+      id: strVal(row["subscription_id"]),
       provider: row["provider"],
       url: `${teamSiteUrl}/api/notifications/github/webhook/${row["subscription_uuid"]}`,
       active: row["active"] !== 0
@@ -230,12 +230,12 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   return "Webhook successfully processed..."
 }
 
-async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string) {
+async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string): Promise<string | undefined> {
   let sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
-  let res = await cn.singleRowSqlBricks(sql)
+  let res = await cn.singleRow(sql)
 
   if (res && res["active"] !== 0)
-    return res["secret"]
+    return res["secret"] as string
 }
 
 /**
@@ -265,7 +265,7 @@ async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: s
     "commit_url": commit.url,
     "notification_id": deliveryGuid || null
   })
-  let res = await cn.execSqlBricks(sql)
+  let res = await cn.exec(sql)
 
   return res.getInsertedIdAsString()
 }
@@ -281,23 +281,22 @@ function getTaskCodesInCommitMessage(message: string) {
   return message.match(/[a-zA-Z0-9]{1,}-[\d]+/g) || ([] as string[])
 }
 
-function getProjectCodeFromTaskCode(taskCode: string) {
-  let arr = taskCode.split("-")
+// function getProjectCodeFromTaskCode(taskCode: string) {
+//   let arr = taskCode.split("-")
 
-  if (arr.length > 1)
-    return arr[0]
-}
+//   if (arr.length > 1)
+//     return arr[0]
+// }
 
-async function getTaskIdFromCode(cn: QueryRunnerWithSqlBricks, code: string) {
+async function getTaskIdFromCode(cn: QueryRunnerWithSqlBricks, code: string): Promise<string | undefined> {
   let sql = select("task_id").from("task").where({ code })
-  let res = await cn.singleValueSqlBricks(sql)
-
-  if (res)
-    return res.toString()
+  let id = await cn.singleValue(sql)
+  if (id)
+    return strVal(id)
 }
 
 async function addCommitToTask(cn: QueryRunnerWithSqlBricks, taskId: string, commitId: string) {
   let sql = insert("git_commit_task", { "task_id": taskId, "commit_id": commitId })
 
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }

@@ -6,7 +6,7 @@ import accountMeta, { AccountCreateFragment, AccountFragment, AccountIdFragment,
 import { WhoUseItem } from "../../../shared/transfers"
 import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../../backendConfig"
 import { sendMail } from "../../mail"
-import { int, toIntList } from "../../utils/dbUtils"
+import { intVal, toIntList } from "../../utils/dbUtils"
 import { log } from "../../utils/log"
 import { getTeamSiteUrl } from "../../utils/serverUtils"
 import { ModelContext } from "./backendContext/context"
@@ -19,7 +19,7 @@ export async function fetchAccountsByIds(context: ModelContext, idList: string[]
   if (idList.length === 0)
     return
   let sql = selectFromAccount().where(sqlIn("account_id", toIntList(idList)))
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   for (let row of rs) {
     let data = await toAccountFragment(context, row)
     context.loader.modelUpdate.addFragment("Account", data.id, data)
@@ -28,7 +28,7 @@ export async function fetchAccountsByIds(context: ModelContext, idList: string[]
 
 export async function fetchAccounts(context: ModelContext) {
   let sql = selectFromAccount().orderBy("name")
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   for (let row of rs) {
     let frag = await toAccountFragment(context, row)
     context.loader.addFragment({
@@ -64,16 +64,16 @@ function selectFromAccount() {
 // --
 
 export async function whoUseAccount(context: ModelContext, id: string): Promise<WhoUseItem[]> {
-  let dbId = int(id)
+  let dbId = intVal(id)
   let result = [] as WhoUseItem[]
   let count: number
 
-  count = await context.cn.singleValueSqlBricks(select("count(1)").from("task").where("created_by", dbId))
-  count += await context.cn.singleValueSqlBricks(select("count(1)").from("task_affected_to").where("account_id", dbId))
+  count = await context.cn.singleValue(select("count(1)").from("task").where("created_by", dbId)) as number
+  count += await context.cn.singleValue(select("count(1)").from("task_affected_to").where("account_id", dbId)) as number
   if (count > 0)
     result.push({ type: "Task", count })
 
-  count = await context.cn.singleValueSqlBricks(select("count(1)").from("task_log").where("account_id", dbId))
+  count = await context.cn.singleValue(select("count(1)").from("task_log").where("account_id", dbId)) as number
   if (count > 0)
     result.push({ type: "TaskLogEntry", count })
 
@@ -87,7 +87,7 @@ export async function whoUseAccount(context: ModelContext, id: string): Promise<
 export async function createAccount(context: ModelContext, newFrag: AccountCreateFragment) {
   let passwordHash = await hash("init", BCRYPT_SALT_ROUNDS)
   let sql = insert("account", toSqlValues(newFrag, accountMeta.create)).values({ "password": passwordHash })
-  let res = await context.cn.execSqlBricks(sql)
+  let res = await context.cn.exec(sql)
   let accountId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
@@ -117,7 +117,7 @@ export async function updateAccount(context: ModelContext, updFrag: AccountUpdat
     markAs: "updated"
   })
 
-  await context.cn.execSqlBricks(sql)
+  await context.cn.exec(sql)
 }
 
 // --
@@ -125,9 +125,9 @@ export async function updateAccount(context: ModelContext, updFrag: AccountUpdat
 // --
 
 export async function deleteAccount(context: ModelContext, frag: AccountIdFragment) {
-  let sql = deleteFrom("account").where("account_id", int(frag.id))
+  let sql = deleteFrom("account").where("account_id", intVal(frag.id))
 
-  await context.cn.execSqlBricks(sql)
+  await context.cn.exec(sql)
   context.loader.modelUpdate.markFragmentAs("Account", frag.id, "deleted")
   deleteMedias(context, { type: "accountAvatar", id: frag.id })
 }
@@ -137,13 +137,13 @@ export async function deleteAccount(context: ModelContext, frag: AccountIdFragme
 // --
 
 export async function reorderAffectedAccounts(context: ModelContext, idList: string[], taskIdStr: string) {
-  let taskId = int(taskIdStr)
+  let taskId = intVal(taskIdStr)
 
   let oldNums = await loadAffectedOrderNums(context.cn, taskId)
   let curNum = 0
   for (let idStr of idList) {
-    let id = int(idStr),
-      oldNum = oldNums.get(id)
+    let id = intVal(idStr)
+    let oldNum = oldNums.get(id)
     if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateAffectedOrderNum(context.cn, id, taskId, curNum)
       context.loader.modelUpdate.addPartial("Account", { id: id.toString(), "orderNum": curNum })
@@ -167,16 +167,16 @@ async function updateAffectedOrderNum(cn: DbCn, accountId: number, taskId: numbe
     "account_id": accountId,
     "task_id": taskId
   })
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }
 
 async function loadAffectedOrderNums(cn: DbCn, taskId: number): Promise<Map<number, number>> {
   let sql = select("account_id, order_num")
               .from("task_affected_to")
               .where("c.task_id", taskId)
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await cn.all(sql)
   let orderNums = new Map<number, number>()
   for (let row of rs)
-    orderNums.set(row["account_id"], row["order_num"])
+    orderNums.set(row["account_id"] as number, row["order_num"] as number)
   return orderNums
 }

@@ -2,7 +2,7 @@ import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import flagMeta, { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "../../../shared/meta/Flag"
 import { WhoUseItem } from "../../../shared/transfers"
-import { int, toIntList } from "../../utils/dbUtils"
+import { intVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 
@@ -12,7 +12,7 @@ import { toSqlValues } from "./backendMeta/backendMetaStore"
 
 export async function fetchFlags(context: ModelContext) {
   let sql = selectFromFlag()
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   for (let row of rs) {
     let frag = toFlagFragment(row)
     context.loader.addFragment({
@@ -28,7 +28,7 @@ export async function fetchFlagsByIds(context: ModelContext, idList: string[]) {
     return
   let sql = selectFromFlag()
     .where(sqlIn("flag_id", toIntList(idList)))
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   for (let row of rs) {
     let data = toFlagFragment(row)
     context.loader.modelUpdate.addFragment("Flag", data.id, data)
@@ -55,15 +55,12 @@ function toFlagFragment(row): FlagFragment {
 // --
 
 export async function whoUseFlag(context: ModelContext, id: string): Promise<WhoUseItem[]> {
-  let dbId = int(id)
-  let result = [] as WhoUseItem[]
-  let count = 0
+  let sql = select("count(1)").from("task_flag").where("flag_id", id)
+  let count = await context.cn.singleValue(sql) as number
 
-  let sql = select("count(1)").from("task_flag").where("flag_id", dbId)
-  count = await context.cn.singleValueSqlBricks(sql)
+  let result = [] as WhoUseItem[]
   if (count > 0)
     result.push({ type: "Task", count })
-
   return result
 }
 
@@ -76,7 +73,7 @@ export async function createFlag(context: ModelContext, newFrag: FlagCreateFragm
     newFrag.orderNum = await getDefaultOrderNum(context.cn)
 
   let sql = insert("flag", toSqlValues(newFrag, flagMeta.create))
-  let res = await context.cn.execSqlBricks(sql)
+  let res = await context.cn.exec(sql)
   let flagId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
@@ -89,8 +86,9 @@ export async function createFlag(context: ModelContext, newFrag: FlagCreateFragm
 
 async function getDefaultOrderNum(cn: DatabaseConnectionWithSqlBricks) {
   let sql = select("max(order_num)").from("flag")
-  let rs = await cn.allSqlBricks(sql)
-  return rs.length === 1 ? (rs[0][0] || 0) + 1 : 1
+  let max = await cn.singleValue<number>(sql)
+  return (max || 0) + 1
+  // return rs.length === 1 ? (rs[0][0] || 0) + 1 : 1
 }
 
 // --
@@ -105,7 +103,7 @@ export async function updateFlag(context: ModelContext, updFrag: FlagUpdateFragm
     return
 
   let sql = update("flag", values).where("flag_id", flagId)
-  await context.cn.execSqlBricks(sql)
+  await context.cn.exec(sql)
 
   context.loader.addFragment({
     type: "Flag",
@@ -120,8 +118,8 @@ export async function updateFlag(context: ModelContext, updFrag: FlagUpdateFragm
 // --
 
 export async function deleteFlag(context: ModelContext, frag: FlagIdFragment) {
-  let sql = deleteFrom("flag").where("flag_id", int(frag.id))
-  await context.cn.execSqlBricks(sql)
+  let sql = deleteFrom("flag").where("flag_id", intVal(frag.id))
+  await context.cn.exec(sql)
   context.loader.modelUpdate.markFragmentAs("Flag", frag.id, "deleted")
 }
 
@@ -130,11 +128,11 @@ export async function deleteFlag(context: ModelContext, frag: FlagIdFragment) {
 // --
 
 export async function reorderFlags(context: ModelContext, idList: string[]) {
-  let oldNums = await loadOrderNums(context.cn),
-    curNum = 0
+  let oldNums = await loadOrderNums(context.cn)
+  let curNum = 0
   for (let idStr of idList) {
-    let id = int(idStr),
-      oldNum = oldNums.get(id)
+    let id = intVal(idStr)
+    let oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateOrderNum(context.cn, id, curNum)
       context.loader.modelUpdate.addPartial("Flag", { id: id.toString(), "orderNum": curNum })
@@ -155,16 +153,16 @@ export async function reorderFlags(context: ModelContext, idList: string[]) {
 
 async function updateOrderNum(cn: DatabaseConnectionWithSqlBricks, flagId: number, orderNum: number) {
   let sql = update("flag", { "order_num": orderNum }).where("flag_id", flagId)
-  await cn.execSqlBricks(sql)
+  await cn.exec(sql)
 }
 
 async function loadOrderNums(cn: DatabaseConnectionWithSqlBricks): Promise<Map<number, number>> {
   let sql = select("flag_id, order_num")
     .from("flag")
     .where(isNotNull("order_num"))
-  let rs = await cn.allSqlBricks(sql)
+  let rs = await cn.all(sql)
   let orderNums = new Map<number, number>()
   for (let row of rs)
-    orderNums.set(row["flag_id"], row["order_num"])
+    orderNums.set(intVal(row["flag_id"]), intVal(row["order_num"]))
   return orderNums
 }

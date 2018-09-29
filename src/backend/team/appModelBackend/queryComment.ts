@@ -1,6 +1,6 @@
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
 import commentMeta, { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentSearchFragment, CommentUpdateFragment } from "../../../shared/meta/Comment"
-import { int, toIntList } from "../../utils/dbUtils"
+import { intVal, toIntList, strVal } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 
@@ -9,8 +9,8 @@ import { toSqlValues } from "./backendMeta/backendMetaStore"
 // --
 
 export async function fetchComments(context: ModelContext, filters: CommentSearchFragment) {
-  let sql = selectFromComment().where("task_id", int(filters.taskId))
-  let rs = await context.cn.allSqlBricks(sql)
+  let sql = selectFromComment().where("task_id", intVal(filters.taskId))
+  let rs = await context.cn.all(sql)
   for (let row of rs) {
     context.loader.addFragment({
       type: "Comment",
@@ -24,7 +24,7 @@ export async function fetchCommentsByIds(context: ModelContext, idList: string[]
   if (idList.length === 0)
     return
   let sql = selectFromComment().where(sqlIn("comment_id", toIntList(idList)))
-  let rs = await context.cn.allSqlBricks(sql)
+  let rs = await context.cn.all(sql)
   for (let row of rs) {
     let data = toCommentFragment(row)
     context.loader.modelUpdate.addFragment("Comment", data.id, data)
@@ -52,9 +52,9 @@ function toCommentFragment(row): CommentFragment {
 
 export async function createComment(context: ModelContext, newFrag: CommentCreateFragment) {
   let values = toSqlValues(newFrag, commentMeta.create)!
-  values["written_by"] = int(context.sessionData.accountId)
+  values["written_by"] = intVal(context.sessionData.accountId)
   let sql = insert("comment", values)
-  let res = await context.cn.execSqlBricks(sql)
+  let res = await context.cn.exec(sql)
   let commentId = res.getInsertedIdAsString()
 
   context.loader.addFragment({
@@ -76,9 +76,9 @@ export async function updateComment(context: ModelContext, updFrag: CommentUpdat
   if (values === null)
     return
 
-  let commentId = int(updFrag.id)
+  let commentId = intVal(updFrag.id)
   let sql = update("comment", values).where("comment_id", commentId)
-  await context.cn.execSqlBricks(sql)
+  await context.cn.exec(sql)
 
   context.loader.addFragment({
     type: "Comment",
@@ -94,16 +94,16 @@ export async function updateComment(context: ModelContext, updFrag: CommentUpdat
 
 export async function deleteComment(context: ModelContext, frag: CommentIdFragment) {
   await markTaskAsUpdatedFromComment(context, frag.id)
-  let sql = deleteFrom("comment").where("comment_id", int(frag.id))
-  await context.cn.execSqlBricks(sql)
+  let sql = deleteFrom("comment").where("comment_id", intVal(frag.id))
+  await context.cn.exec(sql)
   context.loader.modelUpdate.markFragmentAs("Comment", frag.id, "deleted")
 }
 
 async function markTaskAsUpdatedFromComment(context: ModelContext, commentId: string) {
-  let sql = select("task_id").from("comment").where("comment_id", int(commentId))
-  let rs = await context.cn.allSqlBricks(sql)
+  let sql = select("task_id").from("comment").where("comment_id", intVal(commentId))
+  let rs = await context.cn.all(sql)
   if (rs.length === 1) {
-    let taskId = rs[0]["task_id"].toString()
+    let taskId = strVal(rs[0]["task_id"])
     markTaskAsUpdated(context, taskId)
   }
 }
