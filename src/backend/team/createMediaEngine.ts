@@ -5,6 +5,7 @@ import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { ModelUpdate, Type } from "../../shared/Cargo"
 import { getSessionData, hasSession } from "../session"
 import { getCn, getMediaEngine } from "../utils/dbUtils"
+import { log } from "../utils/log"
 import { getConfirmedSubdomain, getSubdirUrl } from "../utils/serverUtils"
 import { completeCargo } from "./appModelBackend"
 import { CargoLoader, ModelContext } from "./appModelBackend/backendContext/context"
@@ -21,7 +22,8 @@ export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, exe
   let storage = await createMediaStorage({
     execInitScript: execDdl ? "sqlite" : undefined,
     cn,
-    imagesConf: IMAGES_CONF
+    imagesConf: IMAGES_CONF,
+    logWarning: message => log.warn(`[MediaStorage] ${message}`)
   })
   return {
     storage,

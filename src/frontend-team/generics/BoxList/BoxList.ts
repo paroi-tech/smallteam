@@ -223,6 +223,8 @@ export default class BoxList<T extends Box> {
 
       // Element is dropped into the list from another list.
       onAdd: (ev) => {
+        if (ev.item.dataset.id === undefined)
+          return
         this.boxes.set(ev.item.dataset.id, ev.item)
         this.dash.emit("boxListItemAdded", {
           boxListId: this.options.id,
@@ -232,6 +234,8 @@ export default class BoxList<T extends Box> {
 
       // Element is moved from the list into another list.
       onRemove: (ev) => {
+        if (ev.item.dataset.id === undefined)
+          return
         this.boxes.delete(ev.item.dataset.id)
         this.dash.emit("boxListItemRemoved", {
           boxListId: this.options.id,
