@@ -1,7 +1,7 @@
+import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
 import crypto = require("crypto")
 import { Request, Response } from "express"
 import Joi = require("joi")
-import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import uuidv4 = require("uuid/v4")
 import { TOKEN_LENGTH } from "./backendConfig"

@@ -1,5 +1,5 @@
-import { sqlite3ConnectionProvider } from "mycn-sqlite3"
-import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
+import { createDatabaseConnectionWithSqlBricks, DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
 import * as path from "path"
 import { config } from "../backendConfig"
 import { createMediaEngine, MediaEngine } from "../team/createMediaEngine"

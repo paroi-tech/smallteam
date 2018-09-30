@@ -1,7 +1,7 @@
 import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaRef, MediaStorage, MulterFile } from "@fabtom/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
+import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
 import { Request } from "express"
-import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
 import { ModelUpdate, Type } from "../../shared/Cargo"
 import { getSessionData, hasSession } from "../session"
 import { getCn, getMediaEngine } from "../utils/dbUtils"
