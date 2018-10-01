@@ -1,5 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "mycn-with-sql-bricks"
-import * as path from "path"
+import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import stepMeta, { StepCreateFragment, StepFragment, StepIdFragment, StepUpdateFragment } from "../../../shared/meta/Step"
 import { WhoUseItem } from "../../../shared/transfers"

@@ -1,8 +1,8 @@
+import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import Joi = require("joi")
-import { QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
 import { deleteFrom, insert, select } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../backendConfig"

@@ -1,10 +1,10 @@
-import { DatabaseConnectionWithSqlBricks as DbCn, QueryRunnerWithSqlBricks } from "mycn-with-sql-bricks"
-import { deleteFrom, in as sqlIn, insertInto, isNotNull, like, or, select, update } from "sql-bricks"
+import { DatabaseConnectionWithSqlBricks as DbCn, QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
 import sqlVanilla = require("sql-bricks")
+import { deleteFrom, in as sqlIn, insertInto, like, or, select, update } from "sql-bricks"
 import { TaskCreateFragment, TaskFragment, TaskIdFragment, TaskSearchFragment, TaskUpdateFragment } from "../../../shared/meta/Task"
 import taskMeta from "../../../shared/meta/Task"
 import { WhoUseItem } from "../../../shared/transfers"
-import { intVal, toIntList, strVal } from "../../utils/dbUtils"
+import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { deleteMedias, fetchMedias } from "./queryMedia"
