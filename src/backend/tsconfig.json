@@ -7,7 +7,8 @@
     "module": "commonjs",
     "sourceMap": true,
     "lib": [
-      "es2017"
+      "es2017",
+      "esnext.asynciterable"
     ],
     "moduleResolution": "node",
     "outDir": "../../dist"
