@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import { SessionData } from "../../../session"
 import { BackendContext } from "../../../utils/serverUtils"
 import { MediaEngine } from "../../createMediaEngine"

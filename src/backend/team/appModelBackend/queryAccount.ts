@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
 import accountMeta, { AccountCreateFragment, AccountFragment, AccountIdFragment, AccountUpdateFragment } from "../../../shared/meta/Account"

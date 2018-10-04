@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import crypto = require("crypto")
 import { Request, Response } from "express"
 import Joi = require("joi")

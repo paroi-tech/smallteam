@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { DatabaseConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } from "sql-bricks"
 import sqlVanilla = require("sql-bricks")
 import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "../../../shared/meta/Project"

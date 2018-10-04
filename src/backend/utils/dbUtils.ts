@@ -1,6 +1,6 @@
-import { addSqlBricksToConnection, DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
-import { sqlite3ConnectionProvider } from "@ladc/sqlite3-adapter"
-import { createDatabaseConnection } from "ladc"
+import sqlBricksModifier, { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import sqlite3Adapter from "@ladc/sqlite3-adapter"
+import ladc from "ladc"
 import * as path from "path"
 import { config } from "../backendConfig"
 import { createMediaEngine, MediaEngine } from "../team/createMediaEngine"
@@ -65,9 +65,9 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
 
 async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
-  let cn = createDatabaseConnection({
-    provider: sqlite3ConnectionProvider({ fileName, logWarning: msg => log.warn(msg) }),
-    modifyConnection: addSqlBricksToConnection({
+  let cn = ladc({
+    adapter: sqlite3Adapter({ fileName, logWarning: msg => log.warn(msg) }),
+    modifier: sqlBricksModifier({
       toParamsOptions: { placeholder: "?%d" },
       // trace: (action, sqlBricks) => {
       //   let sql: string
@@ -79,7 +79,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
       //   log.trace("[SQL]", action, sql)
       // }
     }),
-    afterOpen: async cn => {
+    initConnection: async cn => {
       await cn.exec("PRAGMA busy_timeout = 50")
       await cn.exec("PRAGMA foreign_keys = ON")
       await cn.exec("PRAGMA journal_mode = WAL")

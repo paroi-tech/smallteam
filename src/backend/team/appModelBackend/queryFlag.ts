@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import flagMeta, { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "../../../shared/meta/Flag"
 import { WhoUseItem } from "../../../shared/transfers"

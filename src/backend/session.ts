@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"

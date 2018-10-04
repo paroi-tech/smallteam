@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-qb"
+import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
 import { select } from "sql-bricks"
 
 interface RegAccount {
