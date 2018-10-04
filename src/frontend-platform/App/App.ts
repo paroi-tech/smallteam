@@ -14,7 +14,7 @@ export default class App {
 
   constructor(private dash: AppDash<App>, private options: AppOptions = {}) {
     this.log = dash.log
-    this.baseUrl = document.documentElement.dataset.baseUrl || ""
+    this.baseUrl = document.documentElement!.dataset.baseUrl || ""
     this.teamDialog = this.dash.create(TeamCreationDialog)
     this.dash.listenTo<LogEvent>("log", data => {
       // tslint:disable-next-line:no-console
@@ -63,7 +63,7 @@ export default class App {
         return
       }
       // FIXME: redirect to home if there is no base URL.
-      document.location.href = `${data.teamUrl}`
+      document.location!.href = `${data.teamUrl}`
     } catch (error) {
       this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
     }

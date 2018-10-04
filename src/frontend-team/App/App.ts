@@ -15,7 +15,7 @@ export default class App {
 
   constructor(private dash: AppDash<App>) {
     this.log = dash.log
-    this.baseUrl = document.documentElement.dataset.baseUrl || ""
+    this.baseUrl = document.documentElement!.dataset.baseUrl || ""
 
     this.dash.listenTo<LogEvent>("log", data => {
       if (!console)
@@ -101,7 +101,7 @@ export default class App {
 
         if (result.done) {
           await this.navigate("") // This prevents the router to show current page at next login.
-          document.location.reload(false)
+          document.location!.reload(false)
         } else {
           await this.dash.create(InfoDialog).show("Unable to end session. Please try again.")
         }

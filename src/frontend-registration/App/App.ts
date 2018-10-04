@@ -15,7 +15,7 @@ export default class App {
 
   constructor(private dash: AppDash<App>, private params: AppParams) {
     this.log = dash.log
-    this.baseUrl = document.documentElement.dataset.baseUrl || ""
+    this.baseUrl = document.documentElement!.dataset.baseUrl || ""
     this.dash.listenTo<LogEvent>("log", data => {
       // tslint:disable-next-line:no-console
       console.log(`[${data.level}]`, ...data.messages)
