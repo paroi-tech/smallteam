@@ -139,7 +139,8 @@ export function startWebServer(): void {
   })
 
   // Scheduled task to remove password reset tokens each day.
-  setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000).unref()
+  // tslint:disable-next-line:align
+  ;(setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000) as any).unref()
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
