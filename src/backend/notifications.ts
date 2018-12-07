@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBConnection } from "@ladc/sql-bricks-modifier"
 import crypto = require("crypto")
 import { Request, Response } from "express"
 import Joi = require("joi")
@@ -230,7 +230,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   return "Webhook successfully processed..."
 }
 
-async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: string): Promise<string | undefined> {
+async function getActiveGithubHookSecret(cn: SBConnection, uuid: string): Promise<string | undefined> {
   let sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
   let res = await cn.singleRow(sql)
 
@@ -244,7 +244,7 @@ async function getActiveGithubHookSecret(cn: QueryRunnerWithSqlBricks, uuid: str
  *  - search for task codes in the commit message,
  *  - and attach commit to the tasks.
  */
-async function processCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: string) {
+async function processCommit(cn: SBConnection, commit, deliveryGuid?: string) {
   let id = await saveCommit(cn, commit, deliveryGuid)
   let codes = getTaskCodesInCommitMessage(commit.message)
 
@@ -256,7 +256,7 @@ async function processCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?
   }
 }
 
-async function saveCommit(cn: QueryRunnerWithSqlBricks, commit, deliveryGuid?: string) {
+async function saveCommit(cn: SBConnection, commit, deliveryGuid?: string) {
   let sql = insert("git_commit", {
     "external_id": commit.id,
     "message": commit.message,
@@ -288,14 +288,14 @@ function getTaskCodesInCommitMessage(message: string) {
 //     return arr[0]
 // }
 
-async function getTaskIdFromCode(cn: QueryRunnerWithSqlBricks, code: string): Promise<string | undefined> {
+async function getTaskIdFromCode(cn: SBConnection, code: string): Promise<string | undefined> {
   let sql = select("task_id").from("task").where({ code })
   let id = await cn.singleValue(sql)
   if (id)
     return strVal(id)
 }
 
-async function addCommitToTask(cn: QueryRunnerWithSqlBricks, taskId: string, commitId: string) {
+async function addCommitToTask(cn: SBConnection, taskId: string, commitId: string) {
   let sql = insert("git_commit_task", { "task_id": taskId, "commit_id": commitId })
 
   await cn.exec(sql)

@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { select } from "sql-bricks"
 
 interface RegAccount {
@@ -8,7 +8,7 @@ interface RegAccount {
   password: string
 }
 
-export async function getAccountById(cn: QueryRunnerWithSqlBricks, id: string) {
+export async function getAccountById(cn: SBConnection, id: string) {
   let sql = select("account_id, login, password, role").from("account").where("account_id", id)
   let row = await cn.singleRow(sql)
 
@@ -16,7 +16,7 @@ export async function getAccountById(cn: QueryRunnerWithSqlBricks, id: string) {
     return toAccount(row)
 }
 
-export async function getAccountByLogin(cn: QueryRunnerWithSqlBricks, login: string) {
+export async function getAccountByLogin(cn: SBConnection, login: string) {
   let sql = select("account_id, login, password, role").from("account").where("login", login)
   let row = await cn.singleRow(sql)
 
@@ -24,7 +24,7 @@ export async function getAccountByLogin(cn: QueryRunnerWithSqlBricks, login: str
     return toAccount(row)
 }
 
-export async function getAccountByEmail(cn: QueryRunnerWithSqlBricks, email: string) {
+export async function getAccountByEmail(cn: SBConnection, email: string) {
   let sql = select("account_id, login, password, role").from("account").where("email", email)
   let row = await cn.singleRow(sql)
 

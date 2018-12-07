@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { SessionData } from "../../../session"
 import { BackendContext } from "../../../utils/serverUtils"
 import { MediaEngine } from "../../createMediaEngine"
@@ -8,7 +8,7 @@ export { CargoLoader }
 
 export interface ModelContext extends BackendContext {
   readonly subdomain: string
-  readonly cn: DatabaseConnectionWithSqlBricks
+  readonly cn: SBMainConnection
   readonly mediaEngine: MediaEngine
   readonly sessionData: SessionData
   readonly loader: CargoLoader

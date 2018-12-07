@@ -1,4 +1,4 @@
-import sqlBricksModifier, { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import sqlBricksModifier, { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import sqlite3Adapter from "@ladc/sqlite3-adapter"
 import ladc from "ladc"
 import * as path from "path"
@@ -18,7 +18,7 @@ export function getSessionDbConf() {
   }
 }
 
-export let teamDbCn!: DatabaseConnectionWithSqlBricks
+export let teamDbCn!: SBMainConnection
 
 export async function initDbTeamCn() {
   let dbPath = path.join(config.dataDir, "platform.sqlite")
@@ -27,9 +27,9 @@ export async function initDbTeamCn() {
   teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
 
-let cnMap = new Map<string, DatabaseConnectionWithSqlBricks>()
+let cnMap = new Map<string, SBMainConnection>()
 
-export async function getCn(subdomain: string): Promise<DatabaseConnectionWithSqlBricks> {
+export async function getCn(subdomain: string): Promise<SBMainConnection> {
   let cn = cnMap.get(subdomain)
 
   if (!cn) {
@@ -68,7 +68,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
   let cn = ladc({
     adapter: sqlite3Adapter({ fileName, logWarning: msg => log.warn(msg) }),
     modifier: sqlBricksModifier({
-      toParamsOptions: { placeholder: "?%d" },
+      // toParamsOptions: { placeholder: "?%d" },
       // trace: (action, sqlBricks) => {
       //   let sql: string
       //   try {
@@ -122,7 +122,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
         }
       }
     }
-  }) as DatabaseConnectionWithSqlBricks
+  }) as SBMainConnection
 
   if (isNewDb && newDbScriptFileName)
     await cn.script(await readFile(newDbScriptFileName, "utf8"))

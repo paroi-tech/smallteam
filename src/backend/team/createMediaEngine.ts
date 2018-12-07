@@ -1,6 +1,6 @@
 import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaRef, MediaStorage, MulterFile } from "@fabtom/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { Request } from "express"
 import { ModelUpdate, Type } from "../../shared/Cargo"
 import { getSessionData, hasSession } from "../session"
@@ -18,7 +18,7 @@ export interface MediaEngine {
   uploadEngine: UploadEngine
 }
 
-export async function createMediaEngine(cn: DatabaseConnectionWithSqlBricks, execDdl: boolean): Promise<MediaEngine> {
+export async function createMediaEngine(cn: SBMainConnection, execDdl: boolean): Promise<MediaEngine> {
   let storage = await createMediaStorage({
     execInitScript: execDdl ? "sqlite" : undefined,
     cn,

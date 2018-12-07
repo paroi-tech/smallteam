@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks as DbCn, QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection as DbCn, SBConnection } from "@ladc/sql-bricks-modifier"
 import sqlVanilla = require("sql-bricks")
 import { deleteFrom, in as sqlIn, insertInto, like, or, select, update } from "sql-bricks"
 import { TaskCreateFragment, TaskFragment, TaskIdFragment, TaskSearchFragment, TaskUpdateFragment } from "../../../shared/meta/Task"
@@ -493,7 +493,7 @@ async function updateTaskFlags(cn: DbCn, taskId: number | string, flagIds: strin
 // -- Tools
 // --
 
-export async function updateTaskDescription(cn: QueryRunnerWithSqlBricks, taskId: number, description: string | null) {
+export async function updateTaskDescription(cn: SBConnection, taskId: number, description: string | null) {
   if (description === null) {
     let sql = deleteFrom("task_description")
       .where("task_id", taskId)

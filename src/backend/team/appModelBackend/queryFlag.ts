@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import flagMeta, { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "../../../shared/meta/Flag"
 import { WhoUseItem } from "../../../shared/transfers"
@@ -84,7 +84,7 @@ export async function createFlag(context: ModelContext, newFrag: FlagCreateFragm
   })
 }
 
-async function getDefaultOrderNum(cn: DatabaseConnectionWithSqlBricks) {
+async function getDefaultOrderNum(cn: SBMainConnection) {
   let sql = select("max(order_num)").from("flag")
   let max = await cn.singleValue<number>(sql)
   return (max || 0) + 1
@@ -151,12 +151,12 @@ export async function reorderFlags(context: ModelContext, idList: string[]) {
   context.loader.modelUpdate.markIdsAsReordered("Flag", idList)
 }
 
-async function updateOrderNum(cn: DatabaseConnectionWithSqlBricks, flagId: number, orderNum: number) {
+async function updateOrderNum(cn: SBMainConnection, flagId: number, orderNum: number) {
   let sql = update("flag", { "order_num": orderNum }).where("flag_id", flagId)
   await cn.exec(sql)
 }
 
-async function loadOrderNums(cn: DatabaseConnectionWithSqlBricks): Promise<Map<number, number>> {
+async function loadOrderNums(cn: SBMainConnection): Promise<Map<number, number>> {
   let sql = select("flag_id, order_num")
     .from("flag")
     .where(isNotNull("order_num"))

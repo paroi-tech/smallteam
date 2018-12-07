@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import stepMeta, { StepCreateFragment, StepFragment, StepIdFragment, StepUpdateFragment } from "../../../shared/meta/Step"
 import { WhoUseItem } from "../../../shared/transfers"
@@ -83,7 +83,7 @@ export async function createStep(context: ModelContext, newFrag: StepCreateFragm
   })
 }
 
-async function getDefaultOrderNum(cn: DatabaseConnectionWithSqlBricks) {
+async function getDefaultOrderNum(cn: SBMainConnection) {
   let sql = select("max(order_num)").from("step")
   let max = await cn.singleValue<number>(sql)
   return (max || 0) + 1
@@ -150,12 +150,12 @@ export async function reorderSteps(context: ModelContext, idList: string[]) {
   context.loader.modelUpdate.markIdsAsReordered("Step", idList)
 }
 
-async function updateOrderNum(cn: DatabaseConnectionWithSqlBricks, stepId: number, orderNum: number) {
+async function updateOrderNum(cn: SBMainConnection, stepId: number, orderNum: number) {
   let sql = update("step", { "order_num": orderNum }).where("step_id", stepId)
   await cn.exec(sql)
 }
 
-async function loadOrderNums(cn: DatabaseConnectionWithSqlBricks): Promise<Map<number, number>> {
+async function loadOrderNums(cn: SBMainConnection): Promise<Map<number, number>> {
   let sql = select("step_id, order_num")
     .from("step")
     .where(isNotNull("order_num"))

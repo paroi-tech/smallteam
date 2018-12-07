@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks, QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection, SBConnection } from "@ladc/sql-bricks-modifier"
 import { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } from "sql-bricks"
 import sqlVanilla = require("sql-bricks")
 import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "../../../shared/meta/Project"
@@ -8,7 +8,7 @@ import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
 
-type DbCn = DatabaseConnectionWithSqlBricks
+type DbCn = SBMainConnection
 
 // --
 // -- Read
@@ -113,7 +113,7 @@ async function addDependenciesTo(cn: DbCn, projectRows: any[]) {
     row["stepIds"] = stepMap.get(row["project_id"]) || []
 }
 
-async function fetchStepIdentifiers(cn: DatabaseConnectionWithSqlBricks, projectIdList: number[]): Promise<Map<number, number[]>> {
+async function fetchStepIdentifiers(cn: SBMainConnection, projectIdList: number[]): Promise<Map<number, number[]>> {
   let sql =
     select("pt.project_id, pt.step_id")
     .from("project_step pt")
@@ -272,14 +272,14 @@ export async function updateProject(context: ModelContext, updFrag: ProjectUpdat
   }
 }
 
-async function hasTasks(rn: QueryRunnerWithSqlBricks, projectId: number) {
+async function hasTasks(rn: SBConnection, projectId: number) {
   let count = await rn.singleValue(
     select("count(task_id)").from("task").where("project_id", projectId)
   ) as number
   return count > 0
 }
 
-async function getRootTaskId(rn: QueryRunnerWithSqlBricks, projectId: number) {
+async function getRootTaskId(rn: SBConnection, projectId: number) {
   let sql = select("task_id")
     .from("root_task")
     .where("project_id", projectId)
@@ -316,7 +316,7 @@ export async function deleteProject(context: ModelContext, frag: ProjectIdFragme
 // -- Dependencies
 // --
 
-async function insertProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: number | string, stepIds: string[]) {
+async function insertProjectSteps(cn: SBConnection, projectId: number | string, stepIds: string[]) {
   for (let stepId of stepIds) {
     let sql = insertInto("project_step")
       .values({
@@ -327,7 +327,7 @@ async function insertProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: numbe
   }
 }
 
-async function updateProjectSteps(cn: QueryRunnerWithSqlBricks, projectId: number | string, stepIds: string[]) {
+async function updateProjectSteps(cn: SBConnection, projectId: number | string, stepIds: string[]) {
   let rs = await cn.all(select("ps.step_id")
     .from("project_step ps")
     .innerJoin("step s").using("step_id")

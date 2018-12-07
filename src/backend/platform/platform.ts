@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
@@ -141,7 +141,7 @@ export async function routeCheckTeamSubdomain(data: any, sessionData?: SessionDa
   }
 }
 
-async function createTeam(cn: QueryRunnerWithSqlBricks, data) {
+async function createTeam(cn: SBConnection, data) {
   let sql = insert("team", {
     "team_name": data.teamName,
     "team_subdomain": data.subdomain,
@@ -153,7 +153,7 @@ async function createTeam(cn: QueryRunnerWithSqlBricks, data) {
   return teamId
 }
 
-async function storeTeamToken(cn: QueryRunnerWithSqlBricks, data, passwordHash: string, teamId: string, token: string) {
+async function storeTeamToken(cn: SBConnection, data, passwordHash: string, teamId: string, token: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + 3 * 24 * 3600 * 1000
   let sql = insert("reg_team", {
@@ -170,7 +170,7 @@ async function storeTeamToken(cn: QueryRunnerWithSqlBricks, data, passwordHash: 
   await cn.exec(sql)
 }
 
-async function removeTeamToken(cn: QueryRunnerWithSqlBricks, token: string) {
+async function removeTeamToken(cn: SBConnection, token: string) {
   await cn.exec(deleteFrom("reg_team").where("token", token))
 }
 
@@ -189,7 +189,7 @@ async function sendTeamCreationMail(token: string, to: string) {
   return res.done
 }
 
-async function storeFirstUser(cn: QueryRunnerWithSqlBricks, data) {
+async function storeFirstUser(cn: SBConnection, data) {
   // We need this because if team creation failed a first time, there would be a record in the account table.
   await cn.exec(deleteFrom("account"))
   await cn.exec(insert("account", {
@@ -202,7 +202,7 @@ async function storeFirstUser(cn: QueryRunnerWithSqlBricks, data) {
   )
 }
 
-async function setTeamAsActivated(cn: QueryRunnerWithSqlBricks, teamId: string) {
+async function setTeamAsActivated(cn: SBConnection, teamId: string) {
   let cmd = update("team").set({ "activated": 1 }).where("team_id", teamId)
 
   await cn.exec(cmd)

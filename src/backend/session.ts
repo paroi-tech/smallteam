@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
@@ -234,7 +234,7 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   return answer
 }
 
-export async function removeExpiredPasswordTokens(cn: QueryRunnerWithSqlBricks) {
+export async function removeExpiredPasswordTokens(cn: SBConnection) {
   try {
     await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {
@@ -280,7 +280,7 @@ export async function hasSessionForSubdomain(req: Request, subdomain: string) {
   return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
 }
 
-export async function hasAdminRights(subdomainCn: QueryRunnerWithSqlBricks, sessionData: SessionData) {
+export async function hasAdminRights(subdomainCn: SBConnection, sessionData: SessionData) {
   let account = await getAccountById(subdomainCn, sessionData.accountId)
 
   return (account !== undefined && account.role === "admin")
@@ -301,7 +301,7 @@ async function sendPasswordResetMail(context: BackendContext, token: string, acc
   return res.done
 }
 
-async function storePasswordResetToken(cn: QueryRunnerWithSqlBricks, token: string, accountId: string) {
+async function storePasswordResetToken(cn: SBConnection, token: string, accountId: string) {
   let currentTs = Math.floor(Date.now())
   let sql = insert("reg_pwd", {
     "account_id": accountId,
@@ -313,7 +313,7 @@ async function storePasswordResetToken(cn: QueryRunnerWithSqlBricks, token: stri
   await cn.exec(sql)
 }
 
-async function getPasswordUpdateObject(cn: QueryRunnerWithSqlBricks, token: string, accountId: string) {
+async function getPasswordUpdateObject(cn: SBConnection, token: string, accountId: string) {
   let sql = select().from("reg_pwd").where("token", token).and("account_id", accountId)
   let row = await cn.singleRow(sql)
 
@@ -331,13 +331,13 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
   }
 }
 
-function removePasswordToken(cn: QueryRunnerWithSqlBricks, token: string) {
+function removePasswordToken(cn: SBConnection, token: string) {
   let sql = deleteFrom("reg_pwd").where("token", token)
 
   return cn.exec(sql)
 }
 
-async function updateAccountPassword(cn: QueryRunnerWithSqlBricks, accountId: string, password: string) {
+async function updateAccountPassword(cn: SBConnection, accountId: string, password: string) {
   let passwordHash = await hash(password, BCRYPT_SALT_ROUNDS)
   let sql = update("account", { "password": passwordHash }).where("account_id", accountId)
 

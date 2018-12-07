@@ -1,4 +1,4 @@
-import { DatabaseConnectionWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
 import accountMeta, { AccountCreateFragment, AccountFragment, AccountIdFragment, AccountUpdateFragment } from "../../../shared/meta/Account"
@@ -9,7 +9,7 @@ import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { deleteMedias, fetchSingleMedia } from "./queryMedia"
 
-type DbCn = DatabaseConnectionWithSqlBricks
+type DbCn = SBMainConnection
 
 export async function fetchAccountsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)

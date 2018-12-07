@@ -1,4 +1,4 @@
-import { QueryRunnerWithSqlBricks } from "@ladc/sql-bricks-modifier"
+import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
@@ -226,7 +226,7 @@ function toInvitation(row) {
   }
 }
 
-async function storeAndSendInvitation(context: BackendContext, cn: QueryRunnerWithSqlBricks, token: string, email: string, validity: number, username?: string) {
+async function storeAndSendInvitation(context: BackendContext, cn: SBConnection, token: string, email: string, validity: number, username?: string) {
   try {
     let inv = await storeInvitation(cn, token, email, validity, username)
 
@@ -257,7 +257,7 @@ async function sendInvitationMail(context: BackendContext, token: string, to: st
   return result.done
 }
 
-async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, email: string, validity: number, username?: string) {
+async function storeInvitation(cn: SBConnection, token: string, email: string, validity: number, username?: string) {
   let currentTs = Math.floor(Date.now())
   let expireTs = currentTs + validity * 24 * 3600 * 1000
   let sql = insert("reg_new", {
@@ -279,26 +279,26 @@ async function storeInvitation(cn: QueryRunnerWithSqlBricks, token: string, emai
   }
 }
 
-async function removeInvitationWithId(cn: QueryRunnerWithSqlBricks, id: string) {
+async function removeInvitationWithId(cn: SBConnection, id: string) {
   let sql = deleteFrom("reg_new").where({ "reg_new_id": id })
 
   await cn.exec(sql)
 }
 
-async function removeInvitationWithToken(cn: QueryRunnerWithSqlBricks, token: string) {
+async function removeInvitationWithToken(cn: SBConnection, token: string) {
   let sql = deleteFrom("reg_new").where({ token })
 
   await cn.exec(sql)
 }
 
-async function existsInvitationWithToken(cn: QueryRunnerWithSqlBricks, token: string) {
+async function existsInvitationWithToken(cn: SBConnection, token: string) {
   let sql = select().from("reg_new").where({ token })
   let row = await cn.singleRow(sql)
 
   return row ? true : false
 }
 
-async function existsInvitationWithId(cn: QueryRunnerWithSqlBricks, id: string) {
+async function existsInvitationWithId(cn: SBConnection, id: string) {
   let sql = select().from("reg_new").where({ "reg_new_id": id })
   let row = await cn.singleRow(sql)
 
