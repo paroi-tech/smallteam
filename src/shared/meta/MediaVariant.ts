@@ -6,7 +6,7 @@ export interface MediaVariantFragment {
   mediaId: string
   code: string
   weightB: number
-  imType: string
+  mediaType: string
   url: string
   imgWidth?: number
   imgHeight?: number
@@ -30,7 +30,7 @@ const meta: FragmentMeta = {
     weightB: {
       dataType: "number"
     },
-    imType: {
+    mediaType: {
       dataType: "string"
     },
     url: {

@@ -2,7 +2,7 @@ import { render } from "@fabtom/lt-monkberry"
 import { Dash } from "bkb"
 import { MediaModel } from "../../AppModel/Models/MediaModel"
 import { MediaVariantModel } from "../../AppModel/Models/MediaVariantModel"
-import { closestImageVariant, getMediaType } from "../../libraries/mediaUtils"
+import { closestImageVariant, getMainMediaType } from "../../libraries/mediaUtils"
 
 const template = require("./FileThumbnail.monk")
 
@@ -43,14 +43,14 @@ export default class FileThumbnail {
   }
 
   private createThumbnail() {
-    let mtype = getMediaType(this.options.media)
+    let mtype = getMainMediaType(this.options.media)
     if (mtype === "image")
       this.displayImageThumbnail()
     else if (mtype === "video")
       makeVideoThumbnail(this.el)
     else if (mtype === "audio")
       makeAudioThumbnail(this.el)
-    else if (this.chosenVariant.imType === "application/pdf")
+    else if (this.chosenVariant.mediaType === "application/pdf")
       makePdfThumbnail(this.el)
     else
       makeDefaultThumbnail(this.el)

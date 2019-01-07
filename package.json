@@ -60,7 +60,7 @@
   },
   "homepage": "https://github.com/fabtom/smallteam#readme",
   "dependencies": {
-    "@fabtom/media-engine": "^0.4.9",
+    "@fabtom/media-engine": "^0.5.0",
     "@ladc/sql-bricks-modifier": "^0.20.1",
     "@ladc/sqlite3-adapter": "^0.20.1",
     "bcrypt": "^3.0.2",

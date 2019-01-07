@@ -82,7 +82,7 @@ function toMediaVariantFragment(mediaEngine: MediaEngine, variant: Variant, medi
     mediaId: media.id,
     code: variant.code,
     weightB: variant.weightB,
-    imType: variant.imType,
+    mediaType: variant.mediaType,
     url: mediaEngine.uploadEngine.getFileUrl(media, variant),
     imgWidth: variant.img ? variant.img.width : undefined,
     imgHeight: variant.img ? variant.img.height : undefined,

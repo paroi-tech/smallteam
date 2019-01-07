@@ -41,13 +41,13 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
       code: "34x34",
       width: 68,
       height: 68,
-      imType: "image/png"
+      mediaType: "image/png"
     },
     {
       code: "200x200",
       width: 200,
       height: 200,
-      imType: "image/jpeg"
+      mediaType: "image/jpeg"
     }
   ],
   "task": [
@@ -56,7 +56,7 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
       width: 200,
       height: 100,
       embed: true,
-      imType: "image/jpeg"
+      mediaType: "image/jpeg"
     }
   ]
 }
