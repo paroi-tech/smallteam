@@ -1,4 +1,4 @@
-import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../shared/meta/Flag"
 import { OwnDash } from "../../../App/OwnDash"

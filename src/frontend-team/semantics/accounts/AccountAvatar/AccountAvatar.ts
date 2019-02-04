@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"

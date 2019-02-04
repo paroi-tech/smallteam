@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { equal } from "../../../../sharedFrontend/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"

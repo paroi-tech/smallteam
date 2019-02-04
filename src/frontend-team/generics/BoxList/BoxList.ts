@@ -1,4 +1,4 @@
-import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import Sortable = require("sortablejs")
 

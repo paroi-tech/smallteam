@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import { removeAllChildren } from "../../../sharedFrontend/libraries/utils"
 import App from "../../App/App"

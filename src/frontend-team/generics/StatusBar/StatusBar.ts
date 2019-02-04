@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 
 const template = require("./StatusBar.monk")

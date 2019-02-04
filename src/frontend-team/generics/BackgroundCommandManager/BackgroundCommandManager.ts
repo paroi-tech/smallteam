@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../App/OwnDash"
 import { Model } from "../../AppModel/AppModel"
 import { BgCommand, BgCommandManager } from "../../AppModel/BgCommandManager"

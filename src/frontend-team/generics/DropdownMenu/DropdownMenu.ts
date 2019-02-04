@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import { catchAndLog } from "../../../sharedFrontend/libraries/utils"
 import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"

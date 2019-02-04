@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { addCssClass, catchAndLog } from "../../../../sharedFrontend/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel"

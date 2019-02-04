@@ -1,4 +1,4 @@
-import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../../shared/libraries/helpers"
 import { AccountCreateFragment, AccountUpdateFragment } from "../../../../shared/meta/Account"

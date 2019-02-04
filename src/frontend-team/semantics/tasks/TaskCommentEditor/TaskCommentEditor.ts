@@ -1,4 +1,4 @@
-import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { CommentCreateFragment } from "../../../../shared/meta/Comment"
 import { removeAllChildren } from "../../../../sharedFrontend/libraries/utils"

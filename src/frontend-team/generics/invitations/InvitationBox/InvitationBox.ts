@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { Box } from "../../../generics/BoxList/BoxList"
 import { Invitation } from "../InvitationWorkspace/InvitationWorkspace"

@@ -1,4 +1,4 @@
-import { declareRoutesMultiEngine } from "@fabtom/media-engine/upload"
+import { declareRoutesMultiEngine } from "@tomko/media-engine/upload"
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"

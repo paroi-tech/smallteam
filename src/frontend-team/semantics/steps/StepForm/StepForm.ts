@@ -1,4 +1,4 @@
-import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import InfoDialog from "../../../../sharedFrontend/modalDialogs/InfoDialog/InfoDialog"
 import { OwnDash } from "../../../App/OwnDash"

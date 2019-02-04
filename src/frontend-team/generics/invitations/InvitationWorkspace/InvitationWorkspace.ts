@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { Dash, Log } from "bkb"
 import { ErrorDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"
 import App from "../../../App/App"

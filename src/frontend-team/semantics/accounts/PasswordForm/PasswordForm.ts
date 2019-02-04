@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { whyNewPasswordIsInvalid } from "../../../../shared/libraries/helpers"
 import { ErrorDialog, InfoDialog } from "../../../../sharedFrontend/modalDialogs/modalDialogs"

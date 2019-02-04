@@ -1,5 +1,5 @@
-import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaRef, MediaStorage, MulterFile } from "@fabtom/media-engine"
-import { createUploadEngine, UploadEngine, UploadEngineManager } from "@fabtom/media-engine/upload"
+import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaRef, MediaStorage, MulterFile } from "@tomko/media-engine"
+import { createUploadEngine, UploadEngine, UploadEngineManager } from "@tomko/media-engine/upload"
 import { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { Request } from "express"
 import { ModelUpdate, Type } from "../../shared/Cargo"

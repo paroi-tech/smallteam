@@ -1,4 +1,4 @@
-import { ExternalRef, Media, Variant } from "@fabtom/media-engine"
+import { ExternalRef, Media, Variant } from "@tomko/media-engine"
 import { MediaFragment } from "../../../shared/meta/Media"
 import { MediaVariantFragment } from "../../../shared/meta/MediaVariant"
 import { MediaEngine } from "../createMediaEngine"

@@ -1,4 +1,4 @@
-import { render } from "@fabtom/lt-monkberry"
+import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"

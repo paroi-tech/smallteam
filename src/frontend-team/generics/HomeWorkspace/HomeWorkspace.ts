@@ -1,4 +1,4 @@
-import { LtMonkberryView, render } from "@fabtom/lt-monkberry"
+import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Dash, Log } from "bkb"
 import { Model } from "../../AppModel/modelDefinitions"
 import { ViewerController, Workspace } from "../WorkspaceViewer/WorkspaceViewer"
