@@ -17,7 +17,7 @@ module.exports = {
   entry: [join(__dirname, "src", "main.ts")],
   output: {
     filename: "platform.bundle.js",
-    path: resolve(__dirname, "dist"), // resolve(__dirname, "..", "backend", "public", "js"),
+    path: resolve(__dirname, "..", "backend", "public-platform"),
   },
   module: {
     rules: [

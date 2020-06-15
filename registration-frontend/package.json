@@ -8,6 +8,7 @@
   "scripts": {
     "build": "webpack",
     "watch": "webpack --watch",
+    "serve": "webpack-dev-server",
     "lint": "tslint -p src/frontend-registration/tsconfig.json -t verbose"
   },
   "dependencies": {

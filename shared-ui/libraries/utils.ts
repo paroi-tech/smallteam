@@ -12,7 +12,7 @@ export function equal<T>(a: T[], b: T[]): boolean {
  * @see{@link https://stackoverflow.com/questions/3955229/remove-all-child-elements-of-a-dom-node-in-javascript}
  * @param el
  */
-export function removeAllChildren(el: HTMLElement) {
+export function removeAllChildren(el: Element) {
   while (el.firstChild)
     el.removeChild(el.firstChild)
 }

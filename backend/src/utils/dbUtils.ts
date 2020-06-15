@@ -22,7 +22,7 @@ export let teamDbCn!: SBMainConnection
 
 export async function initDbTeamCn() {
   let dbPath = path.join(config.dataDir, "platform.sqlite")
-  let scriptPath = path.join(__dirname, "..", "..", "..", "sqlite-scripts", "platform.sql")
+  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
 
   teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
@@ -34,7 +34,7 @@ export async function getCn(subdomain: string): Promise<SBMainConnection> {
 
   if (!cn) {
     let dbPath = path.join(config.dataDir, subdomain, "team.sqlite")
-    let scriptPath = path.join(__dirname, "..", "..", "..", "sqlite-scripts", "team.sql")
+    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
     let up = subdomain.toUpperCase()
     let debug = `[${up}]`
 
@@ -95,14 +95,14 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
         let msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
         if (debug.error) {
           log.trace(
-            "========>", debugPrefix, "[DEBUG-MYCN-ERROR]", msg,
+            "========>", debugPrefix, "[DEBUG-LADC-ERROR]", msg,
             "\n  -- args --\n", cc.args,
             "\n  -- error --\n", debug.error,
             // "\n  -- connection --\n", cc.connection
           )
         } else {
           log.trace(
-            debugPrefix, "[DEBUG-MYCN]", msg,
+            debugPrefix, "[DEBUG-LADC]", msg,
             "\n  -- args --\n", cc.args,
             // "\n  -- result --\n", debug.result,
             // "\n  -- connection --\n", cc.connection
@@ -111,12 +111,12 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
       } else {
         if (debug.error) {
           log.trace(
-            "========>", debugPrefix, "[DEBUG-MYCN-ERROR] Open connection",
+            "========>", debugPrefix, "[DEBUG-LADC-ERROR] Open connection",
             "\n  -- error --\n", debug.error
           )
         } else {
           log.trace(
-            debugPrefix, "[DEBUG-MYCN] Open connection",
+            debugPrefix, "[DEBUG-LADC] Open connection",
             // "\n  -- result --\n", debug.result
           )
         }
@@ -130,7 +130,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
   return cn
 }
 
-export function toIntList(strList: Array<string | number>): number[] {
+export function toIntList(strList: (string | number)[]): number[] {
   return strList.map(val => typeof val === "number" ? val : parseInt(val, 10))
 }
 

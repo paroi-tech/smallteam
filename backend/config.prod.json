@@ -1,0 +1,28 @@
+{
+  "env": "local",
+  "log": [
+    {
+      "target": "console",
+      "minSeverity": "info"
+    },
+    {
+      "target": "file",
+      "minSeverity": "trace",
+      "file": "log-trace.log"
+    }
+  ],
+  "ssl": true,
+  "domain": "smallteam.paroi.tech",
+  "port": 3921,
+  "publicPort": 80,
+  "dataDir": "/path/to/site/data/folder",
+  "mode": "platform",
+  "singleTeam": {
+    "subdirUrl": ""
+  },
+  "platform": {
+  },
+  "mail": {
+    "from": "noreply@paroi.tech"
+  }
+}

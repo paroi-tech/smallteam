@@ -1,24 +1,24 @@
-# Create the `commit.team` service in systemd
+# Create the `smallteam.paroi.tech` service in systemd
 
 Create a file for the service in `/etc/systemd/system` with the right permissions:
 
 ```
-sudo touch /etc/systemd/system/commit.team.service
-sudo chmod 664 /etc/systemd/system/commit.team.service
-sudo vi /etc/systemd/system/commit.team.service
+sudo touch /etc/systemd/system/smallteam.paroi.tech.service
+sudo chmod 664 /etc/systemd/system/smallteam.paroi.tech.service
+sudo vi /etc/systemd/system/smallteam.paroi.tech.service
 ```
 
 Here is the content:
 
 ```
 [Unit]
-Description=Commit.team server service
+Description=SmallTeam server service
 After=network.target
 
 [Service]
-ExecStart=/usr/bin/node /home/committeam/commit.team/smallteam/dist/backend/index.js --config /home/committeam/commit.team/config.json
+ExecStart=/usr/bin/node /home/smallteam/smallteam.paroi.tech/smallteam/dist/backend/index.js --config /home/smallteam/smallteam.paroi.tech/config.json
 Type=simple
-User=committeam
+User=smallteam
 
 [Install]
 WantedBy=default.target
@@ -31,13 +31,13 @@ Then:
 sudo systemctl daemon-reload
 
 # Register the service at startup. Note that this does not start the service.
-sudo systemctl enable commit.team.service
+sudo systemctl enable smallteam.paroi.tech.service
 ```
 
 Start the service:
 
 ```bash
-sudo systemctl start commit.team.service
+sudo systemctl start smallteam.paroi.tech.service
 ```
 
 ## Sources
@@ -52,15 +52,15 @@ sudo systemctl start commit.team.service
 Show the logs:
 
 ```bash
-sudo journalctl -u commit.team
+sudo journalctl -u smallteam.paroi.tech
 ```
 
 Start the service:
 
 ```bash
-sudo systemctl start commit.team.service
+sudo systemctl start smallteam.paroi.tech.service
 # or?
-sudo service commit.team start
+sudo service smallteam.paroi.tech start
 ```
 
 
@@ -80,7 +80,7 @@ wget -O -  https://get.acme.sh | sh
 
 ```bash
 export GANDI_LIVEDNS_KEY="-here-the-api-key-"
-acme.sh --dns dns_gandi_livedns --issue --keylength 4096 -d commit.team -d *.commit.team
+acme.sh --dns dns_gandi_livedns --issue --keylength 4096 -d smallteam.paroi.tech -d *.smallteam.paroi.tech
 ```
 
 ```bash
@@ -89,19 +89,19 @@ cd /etc/ssl-acme.sh
 ```
 
 ```bash
-sudo mkdir /etc/ssl-acme.sh/commit.team
+sudo mkdir /etc/ssl-acme.sh/smallteam.paroi.tech
 
-acme.sh --install-cert -d commit.team --key-file /etc/ssl-acme.sh/commit.team/privkey.pem --fullchain-file /etc/ssl-acme.sh/commit.team/cert.pem --reloadcmd "service nginx force-reload"
+acme.sh --install-cert -d smallteam.paroi.tech --key-file /etc/ssl-acme.sh/smallteam.paroi.tech/privkey.pem --fullchain-file /etc/ssl-acme.sh/smallteam.paroi.tech/cert.pem --reloadcmd "service nginx force-reload"
 ```
 
 The configuration for `nginx` uses some files from certbot:
 
 ```nginx
 server {
-  server_name commit.team *.commit.team;
+  server_name smallteam.paroi.tech *.smallteam.paroi.tech;
 
   location / {
-    root /home/committeam/smallteam/dist/www;
+    root /home/smallteam/smallteam/dist/www;
     index index.html;
     try_files $uri @express;
   }
@@ -115,8 +115,8 @@ server {
   #listen [::]:80;
   listen [::]:443 ssl; #ipv6only=on
   listen 443 ssl;
-  ssl_certificate /etc/ssl-acme.sh/commit.team/cert.pem;
-  ssl_certificate_key /etc/ssl-acme.sh/commit.team/privkey.pem;
+  ssl_certificate /etc/ssl-acme.sh/smallteam.paroi.tech/cert.pem;
+  ssl_certificate_key /etc/ssl-acme.sh/smallteam.paroi.tech/privkey.pem;
   include /etc/letsencrypt/options-ssl-nginx.conf; # Use this config from certbot
   ssl_dhparam /etc/letsencrypt/ssl-dhparams.pem; # Use this config from certbot
 }
@@ -124,7 +124,7 @@ server {
 server {
   listen 80;
   listen [::]:80;
-  server_name commit.team *.commit.team;
+  server_name smallteam.paroi.tech *.smallteam.paroi.tech;
   return 301 https://$host$request_uri;
 }
 ```

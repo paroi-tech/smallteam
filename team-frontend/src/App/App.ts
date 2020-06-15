@@ -1,4 +1,5 @@
 import { AppDash, EventCallback, EventName, Log, LogEvent } from "bkb"
+import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 import { InfoDialog, WarningDialog } from "../../../shared-ui/modalDialogs/modalDialogs"
 import AppFrame from "../AppFrame/AppFrame"
 import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
@@ -126,6 +127,7 @@ export default class App {
     let appEl = document.querySelector(".js-app")
 
     if (appEl) {
+      removeAllChildren(appEl)
       this.appFrame = this.dash.create(AppFrame)
       appEl.appendChild(this.appFrame.el)
     }

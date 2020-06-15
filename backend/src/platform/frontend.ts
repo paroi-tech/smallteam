@@ -1,7 +1,7 @@
 import { appVersion } from "../backendConfig"
 import { getSubdirUrl } from "../utils/serverUtils"
 
-export function getNewTeamHtml() {
+export function getPlatformHtml() {
   let v = appVersion
   let subdirUrl = getSubdirUrl()
   return `<!DOCTYPE html>
@@ -12,8 +12,8 @@ export function getNewTeamHtml() {
   <title>Platform</title>
   <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
   <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
-  <link rel="stylesheet" media="all" href="bundle-platform.css?v=${v}">
-  <script src="bundle-platform.js?v=${v}" defer></script>
+  <link rel="stylesheet" media="all" href="css/platform.bundle.css?v=${v}">
+  <script src="js/platform.bundle.js?v=${v}" defer></script>
 </head>
 <body>
   <div class="js-app"></div>

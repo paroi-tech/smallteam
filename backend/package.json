@@ -8,14 +8,14 @@
   "scripts": {
     "clear": "rimraf dist",
     "tsc": "tsc",
-    "tsc:watch": "tsc --watch",
+    "tsc:watch": "tsc --watch --preserveWatchOutput",
     "_nodemon": "nodemon --watch dist --watch ../shared --watch config.json dist/ -- --config config.json",
     "_wait": "just-wait -p \"dist/index.js\" -d 500",
     "_wait-then-nodemon": "run-s _wait _nodemon",
     "lint": "tslint -t verbose",
     "start": "node dist/ --config config.json",
     "build": "run-s clear tsc",
-    "watch": "run-p tsc:watch _wait-then-nodemon"
+    "serve": "run-p tsc:watch _wait-then-nodemon"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",

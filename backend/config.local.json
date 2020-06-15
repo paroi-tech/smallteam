@@ -3,19 +3,24 @@
   "log": [
     {
       "target": "console",
-      "minSeverity": "info"
+      "minSeverity": "trace"
     },
     {
       "target": "file",
       "minSeverity": "trace",
       "file": "log-trace.log"
+    },
+    {
+      "target": "file",
+      "minSeverity": "info",
+      "file": "log-info.log"
     }
   ],
-  "ssl": true,
-  "domain": "commit.team",
+  "ssl": false,
+  "domain": "smallteam.paroi.local",
   "port": 3921,
-  "publicPort": 80,
-  "dataDir": "/path/to/site/data/folder",
+  "publicPort": 3921,
+  "dataDir": "../data",
   "mode": "platform",
   "singleTeam": {
     "subdirUrl": ""
@@ -23,6 +28,6 @@
   "platform": {
   },
   "mail": {
-    "from": "noreply@commit.team"
+    "from": "noreply@paroi.tech"
   }
 }

@@ -1,4 +1,5 @@
 import * as path from "path"
+import { packageDir } from "./context"
 import { readFile } from "./utils/fsUtils"
 
 export const BCRYPT_SALT_ROUNDS = 10
@@ -70,7 +71,7 @@ export async function loadServerConfig(): Promise<ServerConfiguration> {
 
 export async function readPackageVersion(): Promise<string> {
   try {
-    let data = JSON.parse((await readFile(path.join(__dirname, "..", "..", "package.json"))).toString("utf8"))
+    let data = JSON.parse((await readFile(path.join(packageDir, "package.json"))).toString("utf8"))
     return data.version || "0"
   } catch (err) {
     throw new Error(`Cannot load the package.json file: ${err.message}`)

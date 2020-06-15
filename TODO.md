@@ -293,7 +293,7 @@ the time, so I can't use JIRA.
 # August 2018 & old tasks - DONE
 
 - Update the definition for SqlBricks in DefinitelyTyped
-- Use systemd to run our Node application (using the user `committeam`!)
+- Use systemd to run our Node application (using the user `smallteam`!)
 - Add a SSL certificate - https://letsencrypt.org/
 - [NOT RELEVANT] Check if [the warning here](https://httpd.apache.org/docs/2.4/mod/mod_proxy.html) concerns us
 - Use true avatars

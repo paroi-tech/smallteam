@@ -30,7 +30,7 @@ async function startup() {
   }
   try {
     await initDbTeamCn()
-    startWebServer()
+    await startWebServer()
   } catch (err) {
     log.error(err)
   }

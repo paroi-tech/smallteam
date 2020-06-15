@@ -1,7 +1,7 @@
 import { appVersion } from "../backendConfig"
 import { getSubdirUrl } from "../utils/serverUtils"
 
-export function getMainHtml() {
+export function getTeamHtml() {
   let v = appVersion
   let subdirUrl = getSubdirUrl()
   return `<!DOCTYPE html>

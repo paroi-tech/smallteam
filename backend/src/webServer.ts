@@ -3,8 +3,9 @@ import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
 import { config } from "./backendConfig"
+import { packageDir } from "./context"
 import { routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification } from "./notifications"
-import { getNewTeamHtml } from "./platform/frontend"
+import { getPlatformHtml } from "./platform/frontend"
 import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./platform/platform"
 import { getRegistrationHtml } from "./registration/frontend"
 import { routeCancelInvitation, routeGetPendingInvitations, routeRegister, routeResendInvitation, routeSendInvitation } from "./registration/registration"
@@ -14,9 +15,10 @@ import {
 } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
 import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
-import { getMainHtml } from "./team/frontend"
+import { getTeamHtml } from "./team/frontend"
 import { wsEngineInit } from "./team/wsEngine"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
+import { readFile } from "./utils/fsUtils"
 import { log } from "./utils/log"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
@@ -31,7 +33,7 @@ function getSubdomainOffset(domain: string) {
   return (domain.match(/\./g) || []).length + 1
 }
 
-export function startWebServer(): void {
+export async function startWebServer() {
   let { port, domain } = config
 
   let app = express()
@@ -103,14 +105,20 @@ export function startWebServer(): void {
     write404(res)
   })
 
-  router.use(express.static(path.join(__dirname, "..", "www")))
+  // router.use(express.static(path.join(__dirname, "..", "www")))
   router.use(express.static(path.join(__dirname, "..", "..", "static")))
+
+  await configureGetRouteToFile(
+    router,
+    "platform.bundle.js",
+    path.join(packageDir, "public-platform", "platform.bundle.js")
+  )
 
   router.get("/", async (req, res) => {
     if (isMainDomain(req))
-      writeHtmlResponse(res, getNewTeamHtml())
+      writeHtmlResponse(res, getPlatformHtml())
     else if (await getConfirmedSubdomain(req))
-      writeHtmlResponse(res, getMainHtml())
+      writeHtmlResponse(res, getTeamHtml())
     else
       write404(res)
   })
@@ -123,7 +131,7 @@ export function startWebServer(): void {
     writeHtmlResponse(res, getRegistrationHtml())
   })
 
-  router.get("/new-team", (req, res) => writeHtmlResponse(res, getNewTeamHtml()))
+  router.get("/new-team", (req, res) => writeHtmlResponse(res, getPlatformHtml()))
 
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
@@ -222,6 +230,13 @@ function writeHtmlResponse(res: Response, html: string) {
   res.end()
 }
 
+function writeResponse(res: Response, content: string, mediaType: string) {
+  res.setHeader("Content-Type", mediaType)
+  res.status(200)
+  res.send(content)
+  res.end()
+}
+
 function write404(res: Response) {
   res.status(404)
   res.send("404 Not Found")
@@ -238,5 +253,12 @@ function waitForRequestBody(req: Request): Promise<string> {
     req.on("end", () => {
       resolve(body.join(""))
     })
+  })
+}
+
+async function configureGetRouteToFile(router: Router, relUrl: string, filePath: string) {
+  const content = await readFile(filePath, "utf8")
+  router.get(relUrl, async (req, res) => {
+    writeResponse(res, content, "text/javascript")
   })
 }
