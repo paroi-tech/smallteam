@@ -1,6 +1,3 @@
-.npmrc
 node_modules
-/dist
-/config.json
-
+.npmrc
 .ropeproject

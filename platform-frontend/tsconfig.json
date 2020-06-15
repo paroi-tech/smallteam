@@ -1,0 +1,26 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "target": "ES2018",
+    "module": "ES2020",
+    "outDir": "dist",
+    "sourceMap": true,
+    "lib": [
+      "ES2018",
+      "DOM"
+    ],
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+  },
+  "include": ["src"],
+  "references": [
+    {
+      "path": "../shared"
+    },
+    {
+      "path": "../shared-ui"
+    }
+  ]
+}

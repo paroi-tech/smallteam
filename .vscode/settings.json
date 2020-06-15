@@ -1,21 +1,54 @@
 {
-  "editor.tabSize": 2,
+  "[typescript]": {
+    "editor.codeActionsOnSave": {
+      "source.fixAll": true,
+      "source.organizeImports": true
+    },
+    "editor.defaultFormatter": "vscode.typescript-language-features",
+    "editor.formatOnSave": true
+  },
+  "antlr4.format": {
+    "continuationIndentWidth": 2,
+    "indentWidth": 2,
+    "tabWidth": 2,
+    "useTab": false
+  },
   "editor.insertSpaces": true,
-  "editor.wordWrapColumn": 132,
+  "editor.rulers": [100],
+  "editor.tabSize": 2,
   "editor.wordWrap": "wordWrapColumn",
-  "editor.rulers": [120],
+  "editor.wordWrapColumn": 100,
+  "files.encoding": "utf8",
   "files.trimTrailingWhitespace": true,
-  "files.associations": {
-    "*.monk": "html"
+  "javascript.format.semicolons": "remove",
+  "javascript.preferences.quoteStyle": "double",
+  "search.useIgnoreFiles": true,
+  "todo-tree.highlights.customHighlight": {
+    "TODO": {
+      "icon": "check",
+      "iconColour": "#cc4"
+    },
+    "FIXME": {
+      "background": "#fa4",
+      "opacity": 60,
+      "iconColour": "#f5a542"
+    }
   },
-  // "git.autofetch": false,
-  "typescript.tsdk": "./node_modules/typescript/lib",
-  "search.exclude": {
-    "**/*.map": true,
-    "**/node_modules": true,
-    "dist": true
+  "todo-tree.highlights.defaultHighlight": {
+    "icon": "alert",
+    "type": "text",
+    "foreground": "#632",
+    "background": "#dd8",
+    "opacity": 50
   },
-  // "search.useIgnoreFiles": false,
+  "todo-tree.highlights.highlightDelay": 50,
+  "tslint.configFile": "tslint.json",
+  "tslint.jsEnable": true,
   "typescript.locale": "en",
-  "workbench.editor.labelFormat": "short"
+  "typescript.format.semicolons": "remove",
+  "typescript.preferences.importModuleSpecifier": "relative",
+  "typescript.preferences.quoteStyle": "double",
+  "search.exclude": {
+    "/backend/public/js": true
+  }
 }

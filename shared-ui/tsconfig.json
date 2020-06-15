@@ -1,0 +1,28 @@
+{
+  "compilerOptions": {
+    "strict": true,
+    "noImplicitAny": false,
+    "noImplicitThis": false,
+    "target": "ES2018",
+    "module": "CommonJS",
+    "sourceMap": true,
+    "lib": [
+      "DOM",
+      "ES2018"
+    ],
+    "composite": true,
+    "declaration": true,
+    "baseUrl": ".",
+    // "paths": {
+    //   "@shared/*": [
+    //     "../../shared/"
+    //   ]
+    // }
+  },
+  "include": ["."],
+  "references": [
+    {
+      "path": "../shared"
+    }
+  ]
+}

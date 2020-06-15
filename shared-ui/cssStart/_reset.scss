@@ -1,0 +1,54 @@
+/*
+ * From the work of Eric Meyer
+ * http://meyerweb.com/eric/tools/css/reset/
+ */
+
+* {
+	border: 0;
+  box-sizing: border-box;
+	font: inherit;
+	font-size: 100%;
+	 margin: 0;
+	outline: none;
+	padding: 0;
+	vertical-align: baseline;
+}
+
+body {
+	line-height: 1;
+	position: relative;
+}
+
+ol, ul {
+	list-style: none;
+}
+
+blockquote, q {
+	quotes: none;
+}
+
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: "";
+	content: none;
+}
+
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+button, label, input, textarea {
+  font-family: inherit;
+}
+
+button {
+  background: none;
+	color: inherit;
+	text-align: left;
+}
+
+dialog {
+  background: none;
+	color: inherit;
+}

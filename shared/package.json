@@ -1,0 +1,16 @@
+{
+  "name": "@smallteam/shared",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Paroi",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "build": "tsc",
+    "lint": "tslint"
+  },
+  "devDependencies": {
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
+  }
+}

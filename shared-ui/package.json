@@ -1,0 +1,25 @@
+{
+  "name": "@smallteam/shared-ui",
+  "version": "0.0.0",
+  "description": "",
+  "author": "Paroi",
+  "license": "UNLICENSED",
+  "private": true,
+  "scripts": {
+    "build": "npm run clear && npm run tsc",
+    "tsc": "tsc",
+    "lint": "tslint"
+  },
+  "dependencies": {
+    "bkb": "^0.28.2",
+    "monkberry": "^4.0.8",
+    "monkberry-directives": "^4.0.8",
+    "monkberry-events": "^4.0.8",
+    "monkberry-loader": "^4.0.9"
+  },
+  "devDependencies": {
+    "@tomko/lt-monkberry": "^0.2.2",
+    "tslint": "^6.1.2",
+    "typescript": "^3.9.5"
+  }
+}
