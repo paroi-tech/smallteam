@@ -1,3 +1,4 @@
+import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
@@ -5,7 +6,7 @@ import { Request, Response } from "express"
 import * as path from "path"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../../shared/libraries/helpers"
-import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../backendConfig"
+import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { SessionData } from "../session"
 import { getCn, strVal, teamDbCn } from "../utils/dbUtils"
@@ -13,7 +14,6 @@ import { fileExists, mkdir } from "../utils/fsUtils"
 import validate from "../utils/joiUtils"
 import { log } from "../utils/log"
 import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
-import Joi = require("@hapi/joi")
 
 let joiSchemata = {
   routeCreateTeam: Joi.object().keys({

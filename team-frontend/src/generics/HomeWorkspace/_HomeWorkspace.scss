@@ -1,3 +1,5 @@
+@import "../shared-ui/definitions";
+
 .HomeWorkspace {
   align-items: center;
   display: flex;
@@ -11,7 +13,7 @@
   }
 
   &-divLogo {
-    background: url("logo-2x.png") no-repeat center center;
+    background: url("/logo-2x.png") no-repeat center center;
     background-size: contain;
     height: 91px;
     width: 342px;

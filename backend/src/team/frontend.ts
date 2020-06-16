@@ -1,4 +1,4 @@
-import { appVersion } from "../backendConfig"
+import { appVersion } from "../context"
 import { getSubdirUrl } from "../utils/serverUtils"
 
 export function getTeamHtml() {
@@ -12,8 +12,8 @@ export function getTeamHtml() {
   <title>Team App</title>
   <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
   <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
-  <link rel="stylesheet" media="all" href="bundle-team.css?v=${v}">
-  <script src="bundle-team.js?v=${v}" defer></script>
+  <link rel="stylesheet" media="all" href="team.bundle.css?v=${v}">
+  <script src="team.bundle.js?v=${v}" defer></script>
 </head>
 <body>
   <div class="js-app"></div>

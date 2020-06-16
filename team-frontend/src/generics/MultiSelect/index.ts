@@ -1,3 +1,4 @@
+require("./_MultiSelect.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import { removeAllChildren } from "../../../../shared-ui/libraries/utils"

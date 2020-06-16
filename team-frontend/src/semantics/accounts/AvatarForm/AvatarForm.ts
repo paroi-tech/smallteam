@@ -1,3 +1,4 @@
+require("./_AvatarForm.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"

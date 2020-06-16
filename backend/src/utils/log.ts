@@ -1,5 +1,5 @@
 import * as path from "path"
-import { ServerConfiguration } from "../backendConfig"
+import { ServerConfiguration } from "../context"
 
 let bristol = require("bristol")
 

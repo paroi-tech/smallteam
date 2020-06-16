@@ -1,3 +1,4 @@
+require("./_LoginDialog.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import Deferred from "../../../../shared-ui/libraries/Deferred"

@@ -1,3 +1,4 @@
+require("./_SearchWorkspace.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"

@@ -1,3 +1,4 @@
+require("./_FlagBox.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { FlagModel } from "../../../AppModel/AppModel"

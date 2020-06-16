@@ -1,3 +1,4 @@
+require("./_TaskBoard.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { TaskModel } from "../../../AppModel/AppModel"

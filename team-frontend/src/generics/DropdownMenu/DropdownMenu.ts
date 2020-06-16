@@ -1,3 +1,4 @@
+require("./_DropdownMenu.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import { catchAndLog } from "../../../../shared-ui/libraries/utils"

@@ -1,3 +1,4 @@
+require("./_PasswordResetDialog.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import ErrorDialog from "../../../shared-ui/modalDialogs/ErrorDialog/ErrorDialog"

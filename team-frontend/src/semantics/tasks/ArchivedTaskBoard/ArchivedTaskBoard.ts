@@ -1,3 +1,4 @@
+require("./_ArchivedTaskBoard.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { OwnDash } from "../../../App/OwnDash"

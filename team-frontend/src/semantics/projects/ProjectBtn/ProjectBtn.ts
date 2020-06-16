@@ -1,3 +1,4 @@
+require("./_ProjectBtn.scss")
 import { render } from "@tomko/lt-monkberry"
 import { addCssClass, catchAndLog } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"

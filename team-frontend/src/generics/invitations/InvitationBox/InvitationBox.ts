@@ -1,3 +1,4 @@
+require("./_InvitationBox.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { Box } from "../../../generics/BoxList/BoxList"

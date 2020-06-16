@@ -1,3 +1,4 @@
+require("./_StepBox.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { StepModel } from "../../../AppModel/AppModel"

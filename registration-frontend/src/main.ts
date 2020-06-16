@@ -1,3 +1,4 @@
+require("../../shared-ui/_start.scss")
 import { createApplication } from "bkb"
 import App from "./App/App"
 

@@ -1,3 +1,4 @@
+require("./_StepWorkspace.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { equal } from "../../../../../shared-ui/libraries/utils"

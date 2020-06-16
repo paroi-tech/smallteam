@@ -1,3 +1,4 @@
+require("./_BackgroundCommandManager.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../App/OwnDash"
 import { Model } from "../../AppModel/AppModel"

@@ -1,3 +1,4 @@
+require("./_FlagForm.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../../shared/meta/Flag"

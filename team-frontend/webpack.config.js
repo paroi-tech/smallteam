@@ -1,4 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin")
+// const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const { join, resolve } = require("path")
 
 module.exports = {
@@ -17,7 +18,7 @@ module.exports = {
   entry: [join(__dirname, "src", "main.ts")],
   output: {
     filename: "team.bundle.js",
-    path: resolve(__dirname, "dist"), // resolve(__dirname, "..", "backend", "public", "js"),
+    path: resolve(__dirname, "..", "backend", "static-bundles"),
   },
   module: {
     rules: [
@@ -50,7 +51,8 @@ module.exports = {
   },
   plugins: [
     new HtmlWebPackPlugin({
-      template: "./public/index.html"
+      template: join(__dirname, "public", "index.html"),
+      filename: "team.html"
     }),
     // new MiniCssExtractPlugin({})
   ]

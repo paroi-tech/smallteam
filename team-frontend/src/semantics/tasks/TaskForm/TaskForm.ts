@@ -1,3 +1,4 @@
+require("./_TaskForm.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"

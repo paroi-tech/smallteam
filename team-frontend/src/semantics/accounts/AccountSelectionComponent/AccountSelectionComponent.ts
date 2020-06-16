@@ -1,3 +1,4 @@
+require("./_AccountSelectionComponent.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"

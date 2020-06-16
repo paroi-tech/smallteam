@@ -1,5 +1,5 @@
 import { createTransport } from "nodemailer"
-import { config } from "./backendConfig"
+import { config } from "./context"
 import { log } from "./utils/log"
 
 export interface SendMail {

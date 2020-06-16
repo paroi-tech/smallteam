@@ -49,6 +49,7 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.preferences.quoteStyle": "double",
   "search.exclude": {
-    "/backend/public/js": true
+    "/backend/static-bundles": true,
+    "**/package-lock.json": true
   }
 }

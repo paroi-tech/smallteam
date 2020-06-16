@@ -1,17 +1,17 @@
+import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
-import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./backendConfig"
+import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./context"
 import { sendMail } from "./mail"
 import { getCn } from "./utils/dbUtils"
 import validate from "./utils/joiUtils"
 import { log } from "./utils/log"
 import { AuthorizationError, BackendContext, getConfirmedSubdomain, getTeamSiteUrl } from "./utils/serverUtils"
 import { getAccountByEmail, getAccountById, getAccountByLogin } from "./utils/userUtils"
-import Joi = require("@hapi/joi")
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
 

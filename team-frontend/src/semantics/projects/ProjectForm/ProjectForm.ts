@@ -1,3 +1,4 @@
+require("./_ProjectForm.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { WarningDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"

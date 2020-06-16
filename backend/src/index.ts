@@ -1,4 +1,4 @@
-import { loadServerConfig } from "./backendConfig"
+import { loadServerConfig } from "./context"
 import { initDbTeamCn } from "./utils/dbUtils"
 import { initLog, log } from "./utils/log"
 import { startWebServer } from "./webServer"

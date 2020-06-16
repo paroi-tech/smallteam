@@ -1,4 +1,4 @@
-import { appVersion } from "../backendConfig"
+import { appVersion } from "../context"
 import { getSubdirUrl } from "../utils/serverUtils"
 
 export function getRegistrationHtml() {
@@ -12,8 +12,8 @@ export function getRegistrationHtml() {
   <title>Registration</title>
   <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
   <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
-  <link rel="stylesheet" media="all" href="bundle-registration.css?v=${v}">
-  <script src="bundle-registration.js?v=${v}" defer></script>
+  <link rel="stylesheet" media="all" href="registration.bundle.css?v=${v}">
+  <script src="registration.bundle.js?v=${v}" defer></script>
 </head>
 <body>
   <div class="js-app"></div>

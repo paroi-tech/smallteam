@@ -1,10 +1,11 @@
+import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../shared/libraries/helpers"
-import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../backendConfig"
+import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { hasAdminRights, SessionData } from "../session"
 import { getCn } from "../utils/dbUtils"
@@ -12,7 +13,6 @@ import validate from "../utils/joiUtils"
 import { log } from "../utils/log"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { getAccountByLogin } from "../utils/userUtils"
-import Joi = require("@hapi/joi")
 
 let joiSchemata = {
   routeSendInvitation: Joi.object().keys({

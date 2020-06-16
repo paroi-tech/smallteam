@@ -1,3 +1,4 @@
+require("./_TaskBox.scss")
 import { render } from "@tomko/lt-monkberry"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"

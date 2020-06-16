@@ -6,8 +6,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "webpack",
-    "watch": "webpack --watch",
+    "build": "webpack --config webpack.config.prod.js",
+    "watch": "webpack --config webpack.config.prod.js --watch",
     "serve": "webpack-dev-server",
     "lint": "tslint -p src/frontend-registration/tsconfig.json -t verbose"
   },

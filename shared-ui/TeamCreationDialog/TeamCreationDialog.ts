@@ -1,3 +1,4 @@
+require("./_TeamCreationDialog.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"

@@ -2,8 +2,7 @@ import { declareRoutesMultiEngine } from "@paroi/media-engine/upload"
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
-import { config } from "./backendConfig"
-import { packageDir } from "./context"
+import { config, packageDir } from "./context"
 import { routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification } from "./notifications"
 import { getPlatformHtml } from "./platform/frontend"
 import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./platform/platform"
@@ -105,18 +104,18 @@ export async function startWebServer() {
     write404(res)
   })
 
-  // router.use(express.static(path.join(__dirname, "..", "www")))
-  router.use(express.static(path.join(__dirname, "..", "..", "static")))
+  router.use(express.static(path.join(packageDir, "static")))
+  router.use(express.static(path.join(packageDir, "static-bundles")))
 
-  await configureGetRouteToFile(
-    router,
-    "platform.bundle.js",
-    path.join(packageDir, "public-platform", "platform.bundle.js")
-  )
+  // await configureGetRouteToFile(
+  //   router,
+  //   "platform.bundle.js",
+  //   path.join(packageDir, "public-platform", "platform.bundle.js")
+  // )
 
   router.get("/", async (req, res) => {
     if (isMainDomain(req))
-      writeHtmlResponse(res, getPlatformHtml())
+      writeHtmlResponse(res, await getPlatformHtml())
     else if (await getConfirmedSubdomain(req))
       writeHtmlResponse(res, getTeamHtml())
     else
@@ -131,7 +130,7 @@ export async function startWebServer() {
     writeHtmlResponse(res, getRegistrationHtml())
   })
 
-  router.get("/new-team", (req, res) => writeHtmlResponse(res, getPlatformHtml()))
+  router.get("/new-team", async (req, res) => writeHtmlResponse(res, await getPlatformHtml()))
 
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))

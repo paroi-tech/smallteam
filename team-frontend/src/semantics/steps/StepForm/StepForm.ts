@@ -1,3 +1,4 @@
+require("./_StepForm.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import InfoDialog from "../../../../../shared-ui/modalDialogs/InfoDialog/InfoDialog"

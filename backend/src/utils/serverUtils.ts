@@ -1,6 +1,6 @@
 import { Request } from "express"
 import * as path from "path"
-import { config } from "../backendConfig"
+import { config } from "../context"
 import { fileExists } from "./fsUtils"
 
 export class ValidationError extends Error {

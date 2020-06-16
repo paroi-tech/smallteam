@@ -1,3 +1,4 @@
+require("./_BoxList.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import Sortable from "sortablejs"

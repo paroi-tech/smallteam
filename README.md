@@ -1,6 +1,15 @@
 # smallteam
 
 
+##
+
+```sh
+npm run build --prefix platform-frontend
+npm run build --prefix team-frontend
+npm run build --prefix registration-frontend
+
+```
+
 
 ```
 $ sudo vi /etc/hosts

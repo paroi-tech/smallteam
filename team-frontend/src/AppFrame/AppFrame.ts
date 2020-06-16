@@ -1,3 +1,4 @@
+require("./_AppFrame.scss")
 import { render } from "@tomko/lt-monkberry"
 import { OwnDash } from "../App/OwnDash"
 import { ProjectModel } from "../AppModel/AppModel"

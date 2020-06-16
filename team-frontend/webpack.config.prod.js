@@ -1,5 +1,5 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin")
-// const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const { join, resolve } = require("path")
 
 module.exports = {
@@ -17,7 +17,7 @@ module.exports = {
   },
   entry: [join(__dirname, "src", "main.ts")],
   output: {
-    filename: "platform.bundle.js",
+    filename: "team.bundle.js",
     path: resolve(__dirname, "..", "backend", "static-bundles"),
   },
   module: {
@@ -39,11 +39,8 @@ module.exports = {
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // Creates `style` nodes from JS strings
-          "style-loader",
-          // Translates CSS into CommonJS
+          MiniCssExtractPlugin.loader,
           "css-loader",
-          // Compiles Sass to CSS
           "sass-loader",
         ],
       }
@@ -52,8 +49,10 @@ module.exports = {
   plugins: [
     new HtmlWebPackPlugin({
       template: join(__dirname, "public", "index.html"),
-      filename: "platform.html"
+      filename: "team.html"
     }),
-    // new MiniCssExtractPlugin({})
+    new MiniCssExtractPlugin({
+      filename: "team.bundle.css"
+    })
   ]
 }

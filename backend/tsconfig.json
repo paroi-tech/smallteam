@@ -11,6 +11,7 @@
       "DOM"
     ],
     "moduleResolution": "node",
+    "esModuleInterop": true,
     "outDir": "dist"
   },
   "include": ["src"],

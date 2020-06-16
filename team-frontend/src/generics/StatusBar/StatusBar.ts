@@ -1,3 +1,4 @@
+require("./_StatusBar.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 

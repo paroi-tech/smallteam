@@ -1,3 +1,4 @@
+require("./_NavMenu.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import { addCssClass, catchAndLog } from "../../../../shared-ui/libraries/utils"

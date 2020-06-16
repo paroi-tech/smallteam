@@ -1,8 +1,8 @@
+require("../../shared-ui/_start.scss")
+require("./common.scss")
 import { createApplication } from "bkb"
 import App from "./App/App"
 import { wsClientInit } from "./AppModel/ModelEngine/WsClient"
-require("../../shared-ui/_start.scss")
-require("./common.scss")
 
 async function startup() {
   try {

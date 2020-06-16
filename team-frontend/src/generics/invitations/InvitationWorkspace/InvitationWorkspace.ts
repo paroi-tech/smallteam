@@ -1,3 +1,4 @@
+require("./_InvitationWorkspace.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash, Log } from "bkb"
 import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"

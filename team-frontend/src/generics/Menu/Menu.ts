@@ -1,3 +1,4 @@
+require("./_Menu.scss")
 import { Dash } from "bkb"
 import { render } from "monkberry"
 

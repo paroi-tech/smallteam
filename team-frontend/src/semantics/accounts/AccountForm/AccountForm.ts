@@ -1,3 +1,4 @@
+require("./_AccountForm.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { validateEmail } from "../../../../../shared-ui/libraries/utils"

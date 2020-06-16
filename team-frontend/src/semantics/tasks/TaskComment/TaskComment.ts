@@ -1,3 +1,4 @@
+require("./_TaskComment.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { Converter } from "showdown"

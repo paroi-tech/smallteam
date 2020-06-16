@@ -1,3 +1,4 @@
+require("./_TaskCommitViewer.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"

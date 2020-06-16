@@ -1,3 +1,4 @@
+require("./_HeaderBar.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import NavMenu from "../NavMenu/NavMenu"
@@ -14,7 +15,7 @@ export default class HeaderBar {
     let view = render(template)
     this.el = view.rootEl()
 
-    this.teamNameEl =  view.ref("teamName")
+    this.teamNameEl = view.ref("teamName")
 
     this.entries = dash.create(NavMenu)
     this.el.appendChild(this.entries.el)

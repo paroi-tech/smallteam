@@ -1,3 +1,4 @@
+require("./_ProjectWorkspace.scss")
 import { ErrorDialog, InfoDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, ProjectModel } from "../../../AppModel/AppModel"
