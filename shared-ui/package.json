@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "npm run clear && npm run tsc",
+    "build": "npm run tsc",
     "tsc": "tsc",
     "lint": "tslint"
   },
