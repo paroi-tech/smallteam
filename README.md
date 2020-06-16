@@ -38,6 +38,7 @@ $ sudo vi /etc/hosts
 Then, install and build all the subprojects:
 
 ```sh
+mkdir data
 cp backend/config.local.json backend/config.json
 
 npm i --prefix backend
