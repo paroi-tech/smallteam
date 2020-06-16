@@ -21,6 +21,12 @@ npm run watch --prefix platform-frontend
 npm run watch --prefix registration-frontend
 ```
 
+After a modification in `shared` or `shared-ui`:
+
+```sh
+npm run build --prefix shared
+npm run build --prefix shared-ui
+```
 
 ## Install a local development environment
 
@@ -40,6 +46,12 @@ Then, install and build all the subprojects:
 ```sh
 mkdir data
 cp backend/config.local.json backend/config.json
+
+npm i --prefix shared
+npm run build --prefix shared
+
+npm i --prefix shared-ui
+npm run build --prefix shared-ui
 
 npm i --prefix backend
 npm run build --prefix backend
