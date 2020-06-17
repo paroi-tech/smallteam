@@ -15,17 +15,17 @@ const template = handledom`
   <div class="FieldGroup" h="form">
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Project Name</span>
-      <input class="Field-input" type="text" h="name" value="{{ name }}">
+      <input class="Field-input" type="text" h="name" value={{ name }}>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Project Code</span>
-      <input class="Field-input" type="text" h="code" value="{{ code }}">
+      <input class="Field-input" type="text" h="code" value={{ code }}>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Description</span>
-      <textarea class="Field-input -textarea" h="description" value="{{ description }}"></textarea>
+      <textarea class="Field-input -textarea" h="description" value={{ description }}></textarea>
     </label>
 
     <div class="FieldGroup-item" h="steps"></div>

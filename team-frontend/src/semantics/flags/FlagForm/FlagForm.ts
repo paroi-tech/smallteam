@@ -10,17 +10,17 @@ const template = handledom`
   <fieldset class="FieldGroup" h="fieldset">
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Label</span>
-      <input class="Field-input" type="text" h="label" required value="{{ frag.label }}">
+      <input class="Field-input" type="text" h="label" required value={{ label }}>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Color</span>
-      <input class="Field-input" type="color" h="color" value="{{ frag.color }}">
+      <input class="Field-input" type="color" h="color" value={{ color }}>
     </label>
 
     <label class="FieldGroup-item Field">
       <span class="Field-lbl">Index</span>
-      <input class="Field-input" type="number" h="orderNum" disabled value="{{ frag.orderNum }}">
+      <input class="Field-input" type="number" h="orderNum" disabled value={{ orderNum }}>
     </label>
 
     <div class="FieldGroup-action">
@@ -43,12 +43,10 @@ export default class FlagForm {
   private spinnerEl: HTMLElement
 
   private update: (args: any) => void
-  private state = {
-    frag: {
-      label: "",
-      color: "#000",
-      orderNum: "",
-    }
+  private frag = {
+    label: "",
+    color: "#000",
+    orderNum: "",
   }
 
   private model: Model
@@ -103,10 +101,10 @@ export default class FlagForm {
 
   reset() {
     this.flag = undefined
-    this.state.frag.color = "#000000"
-    this.state.frag.label = ""
-    this.state.frag.orderNum = ""
-    this.update(this.state)
+    this.frag.color = "#000000"
+    this.frag.label = ""
+    this.frag.orderNum = ""
+    this.update(this.frag)
   }
 
   switchToCreationMode() {
@@ -121,10 +119,10 @@ export default class FlagForm {
   private updateView() {
     if (!this.flag)
       return
-    this.state.frag.color = this.flag.color
-    this.state.frag.label = this.flag.label
-    this.state.frag.orderNum = (this.flag.orderNum || "").toString()
-    this.update(this.state)
+    this.frag.color = this.flag.color
+    this.frag.label = this.flag.label
+    this.frag.orderNum = (this.flag.orderNum || "").toString()
+    this.update(this.frag)
   }
 
   // --

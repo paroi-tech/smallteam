@@ -18,7 +18,7 @@ const template = handledom`
     <fieldset class="FieldGroup" h="fieldset">
       <label class="FieldGroup-item Field">
         <span class="Field-lbl">Name</span>
-        <input class="Field-input" type="text" required value="{{ name }}" h="name">
+        <input class="Field-input" type="text" required value={{ name }} h="name">
       </label>
 
       <div class="FieldGroup-action">
