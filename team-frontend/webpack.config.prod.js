@@ -23,11 +23,14 @@ module.exports = {
   module: {
     rules: [
       {
+        test: /\.js$/,
+        exclude: /node_modules/,
+        use: ["@handledom/in-template-string-loader"]
+      },
+      {
         test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: "ts-loader"
-        }
+        use: ["@handledom/in-template-string-loader", "ts-loader"]
       },
       {
         test: /\.monk$/,
