@@ -1,13 +1,24 @@
 require("./_PasswordResetDialog.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import ErrorDialog from "../../../shared-ui/modalDialogs/ErrorDialog/ErrorDialog"
 import InfoDialog from "../../../shared-ui/modalDialogs/InfoDialog/InfoDialog"
 import PasswordEdit from "../../../shared-ui/PasswordEdit/PasswordEdit"
 import { whyNewPasswordIsInvalid } from "../../../shared/libraries/helpers"
 import App from "../App/App"
 
-const template = require("./PasswordResetDialog.monk")
+const template = handledom`
+<dialog class="PasswordResetDialog">
+  <header class="PasswordResetDialog-header">Password change</header>
+  <div h="container"></div>
+  <div class="PasswordResetDialog-div">
+    <button class="Btn WithLoader -right" type="button" h="submitBtn">
+      Submit
+      <span class="WithLoader-l" hidden h="spinner"></span>
+    </button>
+  </div>
+</dialog>
+`
 
 export interface PasswordResetDialogOptions {
   accountId: string
@@ -21,15 +32,15 @@ export default class PasswordResetDialog {
   private edit: PasswordEdit
 
   constructor(private dash: Dash<App>, private options: PasswordResetDialogOptions) {
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.spinnerEl = view.ref("spinner")
+    this.el = root as HTMLDialogElement
+    this.spinnerEl = ref("spinner")
 
     this.edit = this.dash.create(PasswordEdit)
-    view.ref("container").appendChild(this.edit.el)
+    ref("container").appendChild(this.edit.el)
 
-    let btnEl: HTMLButtonElement = view.ref("submitBtn")
+    let btnEl: HTMLButtonElement = ref("submitBtn")
 
     btnEl.addEventListener("click", () => this.onSubmit())
     this.el.addEventListener("keyup", (ev: KeyboardEvent) => {

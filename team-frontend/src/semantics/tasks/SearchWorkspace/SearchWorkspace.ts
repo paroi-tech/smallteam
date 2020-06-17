@@ -1,5 +1,5 @@
 require("./_SearchWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
@@ -7,7 +7,17 @@ import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/W
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
 
-const template = require("./SearchWorkspace.monk")
+const template = handledom`
+<div class="SearchWorkspace">
+  <div class="SearchWorkspace-searchDiv">
+    <input type="text" placeholder="Search tasks" class="SearchWorkspace-searchInput" h="input">
+  </div>
+  <div class="SearchWorkspace-body">
+    <div class="SearchWorkspace-bodyLeft" h="left"></div>
+    <div class="SearchWorkspace-bodyRight" h="right"></div>
+  </div>
+</div>
+`
 
 export default class SearchWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -21,19 +31,19 @@ export default class SearchWorkspace implements Workspace {
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.inputEl = view.ref("input")
+    this.el = root
+    this.inputEl = ref("input")
     this.inputEl.addEventListener("keypress", ev => this.onSearch(ev))
 
     this.boxList = this.dash.create(BoxList, {
       title: "Search results"
     })
-    view.ref("left").appendChild(this.boxList.el)
+    ref("left").appendChild(this.boxList.el)
 
     this.taskForm = this.dash.create(TaskForm)
-    view.ref("right").appendChild(this.taskForm.el)
+    ref("right").appendChild(this.taskForm.el)
 
     this.dash.listenTo("taskBoxSelected", task => {
       this.taskForm.setTask(task)

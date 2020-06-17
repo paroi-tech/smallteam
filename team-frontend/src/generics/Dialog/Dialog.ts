@@ -1,9 +1,21 @@
 require("./_Dialog.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 
-const template = require("./Dialog.monk")
+const template = handledom`
+<dialog class="Dialog" draggable="true">
+  <div class="Dialog-box">
+    <header class="Dialog-header">
+      <span class="Dialog-title">{{ title }}</span>
+      <button class="Dialog-closeBtn" title="Close" h="close">
+        <span class="fa fa-1x fa-times"></span>
+      </button>
+    </header>
+    <div h="body"></div>
+  </div>
+</dialog>
+`
 
 export type ComponentOrUndef = { el: HTMLElement } | undefined
 
@@ -16,7 +28,7 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
   readonly content: C
 
   private el: HTMLDialogElement
-  private view: LtMonkberryView
+  private update: (variables: { [name: string]: any }) => void
   private bodyEl: HTMLElement
   private resolveCb?: () => void
 
@@ -26,11 +38,13 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
     this.content = options.content! // 'C' can be undefined
     dash.exposeEvent("open", "close")
 
-    this.view = render(template)
-    this.el = this.view.rootEl()
-    this.bodyEl = this.view.ref("body")
+    const { root, ref, update } = template()
+    this.update = update
 
-    this.view.ref("close").addEventListener("click", () => this.close())
+    this.el = root as HTMLDialogElement
+    this.bodyEl = ref("body")
+
+    ref("close").addEventListener("click", () => this.close())
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
       this.close()
@@ -69,7 +83,7 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
     if (this.el.open || this.resolveCb)
       return Promise.resolve()
 
-    this.view.update({
+    this.update({
       title: options.title || this.options.title || ""
     })
 

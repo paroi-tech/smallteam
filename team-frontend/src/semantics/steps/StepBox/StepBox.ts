@@ -1,19 +1,24 @@
 require("./_StepBox.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { StepModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
 
-const template = require("./StepBox.monk")
+const template = handledom`
+<div class="LblSticker">
+  <span class="LblSticker-lbl" h="span"></span>
+  <button class="RightOpenBtn" type="button">▶</button>
+</div>
+`
 
 export default class StepBox implements Box {
   readonly el: HTMLElement
   private spanEl: HTMLElement
 
   constructor(private dash: OwnDash, readonly step: StepModel) {
-    let view = render(template)
-    this.el = view.rootEl()
-    this.spanEl = view.ref("span")
+    const { root, ref } = template()
+    this.el = root
+    this.spanEl = ref("span")
     this.spanEl.textContent = this.step.label
     this.el.addEventListener("click", () => this.dash.emit("stepBoxSelected", this.step))
 

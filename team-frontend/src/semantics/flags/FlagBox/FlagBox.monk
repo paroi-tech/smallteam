@@ -1,5 +1,0 @@
-<div class="FlagBox">
-  <span class="FlagBox-span">{{ label }}</span>
-  &nbsp;
-  <span class="fa fa-circle fa-1x" :ref="boxColor"></span>
-</div>

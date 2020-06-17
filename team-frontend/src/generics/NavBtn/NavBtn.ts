@@ -1,12 +1,14 @@
 require("./_NavBtn.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { addCssClass, catchAndLog } from "../../../../shared-ui/libraries/utils"
 
 const template = require("./NavBtn.monk")
-// const templateWithAlert = require("./NavBtn-withAlert.monk")
-// const templateWithInner = require("./NavBtn-withInner.monk")
-const templateWrapper = require("./DdMenuWrapper.monk")
+
+const templateWrapper = handledom`
+<div class="DdMenuWrapper"></div>
+`
 
 export interface NavBtnIcon {
   position: "left" | "right"
@@ -59,8 +61,7 @@ export default class NavBtn {
       this.btnEl.addEventListener("click", catchAndLog(options.onClick))
 
     if (options.withWrapper) {
-      let view = render(templateWrapper)
-      this.el = view.rootEl()
+      this.el = templateWrapper().root
       this.el.appendChild(this.btnEl)
     } else
       this.el = this.btnEl

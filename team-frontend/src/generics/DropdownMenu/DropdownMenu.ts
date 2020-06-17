@@ -1,11 +1,16 @@
 require("./_DropdownMenu.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { catchAndLog } from "../../../../shared-ui/libraries/utils"
 import NavMenu, { NavMenuOptions } from "../NavMenu/NavMenu"
 
-const template = require("./DropdownMenu.monk")
-const backdropTemplate = require("./Backdrop.monk")
+const template = handledom`
+<nav class="DropdownMenu" hidden></nav>
+`
+
+const backdropTemplate = handledom`
+<div class="Backdrop" hidden></div>
+`
 
 export interface DropdownMenuOptions {
   btnEl: HTMLElement
@@ -24,7 +29,7 @@ export class DropdownMenu {
   private isVisible = false
 
   constructor(private dash: Dash, private options: DropdownMenuOptions) {
-    this.el = render(template).rootEl()
+    this.el = template().root
     this.btnEl = options.btnEl
     this.entries = dash.create(NavMenu, makeNavMenuOptions(options))
     this.el.appendChild(this.entries.el)
@@ -85,7 +90,7 @@ export class DropdownMenu {
 
   private showBackdrop(show: boolean) {
     if (!this.backdropEl) {
-      this.backdropEl = render(backdropTemplate).rootEl<HTMLElement>()
+      this.backdropEl = backdropTemplate().root
       this.backdropEl.addEventListener("click", () => this.hide())
       this.el.parentElement!.appendChild(this.backdropEl)
     }

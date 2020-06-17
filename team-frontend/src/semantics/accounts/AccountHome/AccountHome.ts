@@ -1,6 +1,6 @@
 require("./_AccountHome.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model } from "../../../AppModel/AppModel"
@@ -9,7 +9,14 @@ import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/W
 import AccountForm from "../AccountForm/AccountForm"
 import PasswordForm from "../PasswordForm/PasswordForm"
 
-const template = require("./AccountHome.monk")
+const template = handledom`
+<div class="AccountHome">
+  <div h="formContainer"></div>
+  <div h="pwdArea"></div>
+  <h1 class="TitleBar">Change your profile picture</h1>
+  <div class="AccountHome-avatarArea" h="avatarArea"></div>
+</div>
+`
 
 export default class AccountHome implements Workspace {
   readonly el: HTMLElement
@@ -22,9 +29,9 @@ export default class AccountHome implements Workspace {
     this.log = this.dash.app.log
     this.model = this.dash.app.model
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
+    this.el = root
     this.picker = this.dash.create(ImagePicker, { width: 128, height: 128 })
     this.dash.listenTo(this.picker, "changed", data => this.onAvatarChange(data))
 
@@ -32,9 +39,9 @@ export default class AccountHome implements Workspace {
     let passwdForm = this.dash.create(PasswordForm, this.account)
 
     form.setAccount(this.account)
-    view.ref("formContainer").appendChild(form.el)
-    view.ref("pwdArea").appendChild(passwdForm.el)
-    view.ref("avatarArea").appendChild(this.picker.el)
+    ref("formContainer").appendChild(form.el)
+    ref("pwdArea").appendChild(passwdForm.el)
+    ref("avatarArea").appendChild(this.picker.el)
 
     this.setPickerToAccountAvatar()
   }

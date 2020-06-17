@@ -1,12 +1,28 @@
 require("./_BackgroundCommandManager.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../App/OwnDash"
 import { Model } from "../../AppModel/AppModel"
 import { BgCommand, BgCommandManager } from "../../AppModel/BgCommandManager"
 import { Dialog, DialogOptions } from "../Dialog/Dialog"
 
-const template = require("./BackgroundCommandManager.monk")
-const templateMenuBtn = require("./MenuBtn.monk")
+const template = handledom`
+<div class="BgCommandManager">
+  <table class="BgCommandManager-table" h="table">
+    <thead>
+      <tr>
+        <td>Label</td>
+        <td>Start date</td>
+        <td>In progress</td>
+        <td>Done</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+`
+const templateMenuBtn = handledom`
+<button class="BgCommandManagerBtn">Bg</button>
+`
 
 export default class BackgroundCommandManager {
   readonly buttonEl: HTMLButtonElement
@@ -21,10 +37,10 @@ export default class BackgroundCommandManager {
     this.model = this.dash.app.model
     this.bgCmdManager = this.dash.app.model.bgManager
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.tableEl = view.ref("table")
+    this.el = root
+    this.tableEl = ref("table")
     this.buttonEl = this.createHtmlMenuButtonElement()
 
     this.dialog = this.dash.create<Dialog<BackgroundCommandManager>, DialogOptions<BackgroundCommandManager>>(Dialog, {
@@ -40,8 +56,8 @@ export default class BackgroundCommandManager {
   // --
 
   private createHtmlMenuButtonElement(): HTMLButtonElement {
-    let view = render(templateMenuBtn)
-    let btnEl = view.rootEl() as HTMLButtonElement
+    const { root } = templateMenuBtn()
+    let btnEl = root as HTMLButtonElement
 
     btnEl.addEventListener("click", () => this.dialog.open())
 

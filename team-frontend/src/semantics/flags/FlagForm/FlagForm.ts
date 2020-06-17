@@ -1,11 +1,38 @@
 require("./_FlagForm.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { FlagCreateFragment, FlagUpdateFragment } from "../../../../../shared/meta/Flag"
 import { OwnDash } from "../../../App/OwnDash"
 import { FlagModel, Model } from "../../../AppModel/AppModel"
 
-const template = require("./FlagForm.monk")
+const template = handledom`
+<div class="FlagForm">
+  <fieldset class="FieldGroup" h="fieldset">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Label</span>
+      <input class="Field-input" type="text" h="label" required value="{{ frag.label }}">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Color</span>
+      <input class="Field-input" type="color" h="color" value="{{ frag.color }}">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Index</span>
+      <input class="Field-input" type="number" h="orderNum" disabled value="{{ frag.orderNum }}">
+    </label>
+
+    <div class="FieldGroup-action">
+      <button class="Btn" type="button" h="cancelBtn">Cancel</button>
+      <button class="Btn WithLoader -right" type="button" h="submitBtn">
+        Submit
+        <span class="WithLoader-l" hidden h="spinner"></span>
+      </button>
+    </div>
+  </fieldset>
+</div>
+`
 
 export default class FlagForm {
   readonly el: HTMLElement
@@ -15,7 +42,7 @@ export default class FlagForm {
   private orderNumEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private view: LtMonkberryView
+  private update: (args: any) => void
   private state = {
     frag: {
       label: "",
@@ -39,15 +66,16 @@ export default class FlagForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template)
-    this.el = this.view.rootEl()
-    this.fieldsetEl = this.view.ref("fieldset")
-    this.labelEl = this.view.ref("label")
-    this.colorEl = this.view.ref("color")
-    this.orderNumEl = this.view.ref("orderNum")
-    this.spinnerEl = this.view.ref("spinner")
+    const { root, ref, update } = template()
+    this.update = update
+    this.el = root
+    this.fieldsetEl = ref("fieldset")
+    this.labelEl = ref("label")
+    this.colorEl = ref("color")
+    this.orderNumEl = ref("orderNum")
+    this.spinnerEl = ref("spinner")
 
-    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
 
     this.dash.listenToModel("deleteFlag", data => {
       let id = data.id as string
@@ -78,7 +106,7 @@ export default class FlagForm {
     this.state.frag.color = "#000000"
     this.state.frag.label = ""
     this.state.frag.orderNum = ""
-    this.view.update(this.state)
+    this.update(this.state)
   }
 
   switchToCreationMode() {
@@ -96,7 +124,7 @@ export default class FlagForm {
     this.state.frag.color = this.flag.color
     this.state.frag.label = this.flag.label
     this.state.frag.orderNum = (this.flag.orderNum || "").toString()
-    this.view.update(this.state)
+    this.update(this.state)
   }
 
   // --

@@ -1,7 +1,19 @@
 require("./_PasswordEdit.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 
-const template = require("./PasswordEdit.monk")
+const template = handledom`
+<div class="PasswordEdit FieldGroup">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Password</span>
+      <input class="Field-input" type="password" h="primary">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Confirm password</span>
+      <input class="Field-input" type="password" h="confirm">
+    </label>
+</div>
+`
 
 export default class PasswordEdit {
   readonly el: HTMLDialogElement
@@ -9,11 +21,10 @@ export default class PasswordEdit {
   private confirmEl: HTMLInputElement
 
   constructor() {
-    let view = render(template)
-
-    this.el = view.rootEl()
-    this.primaryEl = view.ref("primary")
-    this.confirmEl = view.ref("confirm")
+    const { root, ref } = template()
+    this.el = root as HTMLDialogElement
+    this.primaryEl = ref("primary")
+    this.confirmEl = ref("confirm")
   }
 
   focus() {

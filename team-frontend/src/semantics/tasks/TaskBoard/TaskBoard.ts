@@ -1,12 +1,17 @@
 require("./_TaskBoard.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { TaskModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 import StepSwitcher from "../../steps/StepSwitcher/StepSwitcher"
 import TaskForm from "../TaskForm/TaskForm"
 
-const template = require("./TaskBoard.monk")
+const template = handledom`
+<div class="SelEditBoard">
+  <div class="SelEditBoard-sel" h="sel"></div>
+  <div class="SelEditBoard-edit" h="edit"></div>
+</div>
+`
 
 export interface TaskBoardOptions {
   rootTask: TaskModel
@@ -21,13 +26,13 @@ export default class TaskBoard {
   private stepSwitcherMap = new Map<string, StepSwitcher>()
 
   constructor(private dash: OwnDash, private options: TaskBoardOptions) {
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.selEl = view.ref("sel")
+    this.el = root
+    this.selEl = ref("sel")
 
     this.taskForm = this.dash.create(TaskForm)
-    view.ref("edit").appendChild(this.taskForm.el)
+    ref("edit").appendChild(this.taskForm.el)
 
     let rootTaskStepSwitcher = this.createStepSwitcher(options.rootTask, options.dropdownMenu)
 

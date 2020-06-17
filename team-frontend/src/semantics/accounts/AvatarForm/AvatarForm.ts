@@ -1,11 +1,22 @@
 require("./_AvatarForm.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model } from "../../../AppModel/AppModel"
 
-const template = require("./AvatarForm.monk")
+const template = handledom`
+<div class="AvatarForm">
+  <h1 class="TitleBar">Change your profile picture (PNG, JPEG or GIF)</h1>
+  <form action="" method="post" enctype="multipart/form-data" h="form">
+    <input name="f" type="file" class="AvatarForm-input" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" h="input">
+    <button class="Btn WithLoader -right" type="Submit" h="btn">
+      Submit
+      <span class="WithLoader-l" hidden h="spinner"></span>
+    </button>
+  </form>
+</div>
+`
 
 export default class AvatarForm {
   readonly el: HTMLElement
@@ -20,12 +31,12 @@ export default class AvatarForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.formEl = view.ref("form")
-    this.inputEl = view.ref("input")
-    this.spinnerEl = view.ref("spinner")
+    this.el = root
+    this.formEl = ref("form")
+    this.inputEl = ref("input")
+    this.spinnerEl = ref("spinner")
     this.formEl.addEventListener("submit", ev => {
       ev.preventDefault()
       this.onSubmit()

@@ -1,13 +1,38 @@
 require("./_StepForm.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import InfoDialog from "../../../../../shared-ui/modalDialogs/InfoDialog/InfoDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, StepModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspaceUtils"
 
-const template = require("./StepForm.monk")
+const template = handledom`
+<div class="StepForm">
+  <header class="StepForm-header BlockTitle">
+    <span>Step</span>
+    <div h="menu"></div>
+  </header>
+
+  <div h="form">
+    <fieldset class="FieldGroup" h="fieldset">
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Name</span>
+        <input class="Field-input" type="text" required value="{{ name }}" h="name">
+      </label>
+
+      <div class="FieldGroup-action">
+        <button class="Btn WithLoader -right" type="button" disabled h="submitBtn">
+          Submit
+          <span class="WithLoader-l" hidden h="spinner"></span>
+        </button>
+        &nbsp;
+        <button type="button" h="cancelBtn">Cancel</button>
+      </div>
+    </fieldset>
+  </div>
+</div>
+`
 
 export default class StepForm {
   readonly el: HTMLElement
@@ -16,7 +41,7 @@ export default class StepForm {
   private spinnerEl: HTMLElement
 
   private dropdownMenu: DropdownMenu
-  private view: LtMonkberryView
+  private update: (args: any) => void
 
   private step?: StepModel
   private model: Model
@@ -26,11 +51,12 @@ export default class StepForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template)
-    this.el = this.view.rootEl()
-    this.fieldsetEl = this.view.ref("fieldset")
-    this.nameEl = this.view.ref("name")
-    this.spinnerEl = this.view.ref("spinner")
+    const { root, ref, update } = template()
+    this.update = update
+    this.el = root
+    this.fieldsetEl = ref("fieldset")
+    this.nameEl = ref("name")
+    this.spinnerEl = ref("spinner")
 
     this.dropdownMenu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl()
@@ -39,9 +65,9 @@ export default class StepForm {
       label: "Delete step",
       onClick: () => this.deleteCurrentStep()
     })
-    this.view.ref("menu").appendChild(this.dropdownMenu.btnEl)
+    ref("menu").appendChild(this.dropdownMenu.btnEl)
 
-    let btnEl = this.view.ref("submitBtn") as HTMLButtonElement
+    let btnEl = ref("submitBtn") as HTMLButtonElement
 
     btnEl.addEventListener("click", () => {
       let name = this.nameEl.value.trim()
@@ -51,7 +77,7 @@ export default class StepForm {
       }
       this.updateStep(name)
     })
-    this.view.ref("cancelBtn").addEventListener("click", () => {
+    ref("cancelBtn").addEventListener("click", () => {
       this.clearContent()
       btnEl.setAttribute("disabled", "true")
       if (this.step)
@@ -140,14 +166,14 @@ export default class StepForm {
   private updateView() {
     if (!this.step)
       return
-    this.view.update({
+    this.update({
       name: this.step.label,
       orderNum: (this.step.orderNum || "").toString()
     })
   }
 
   private clearContent() {
-    this.view.update({ name: "", orderNum: "" })
+    this.update({ name: "", orderNum: "" })
   }
 
   private lockForm() {

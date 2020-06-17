@@ -1,11 +1,20 @@
 require("./_BoxList.scss")
 import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import Sortable from "sortablejs"
 
 const boxListTemplate = require("./BoxList.monk")
-const liTemplate = require("./li.monk")
-const inlineLiTemplate = require("./InlineLi.monk")
+
+const liTemplate = handledom`
+<li class="BoxList-li MovableBox">
+  <span class="MovableBox-content" h="content"></span>
+</li>
+`
+
+const inlineLiTemplate = handledom`
+<li class="BoxList-inlineLi"></li>
+`
 
 export interface Box {
   id: string
@@ -111,15 +120,15 @@ export default class BoxList<T extends Box> {
 
   addBox(box: T) {
     let tpl = this.options.inline ? inlineLiTemplate : liTemplate
-    let view = render(tpl)
-    let li: HTMLElement = view.rootEl()
+    const { root, ref } = tpl()
+    let li = root
 
     li.setAttribute("data-id", box.id)
 
     if (this.options.inline)
       li.appendChild(box.el)
     else
-      view.ref("content").appendChild(box.el)
+      ref("content").appendChild(box.el)
 
     this.ulEl.appendChild(li)
     this.boxes.set(box.id, li)

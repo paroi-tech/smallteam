@@ -1,9 +1,0 @@
-<div class="SearchWorkspace">
-  <div class="SearchWorkspace-searchDiv">
-    <input type="text" placeholder="Search tasks" class="SearchWorkspace-searchInput" :ref="input">
-  </div>
-  <div class="SearchWorkspace-body">
-    <div class="SearchWorkspace-bodyLeft" :ref="left"></div>
-    <div class="SearchWorkspace-bodyRight" :ref="right"></div>
-  </div>
-</div>

@@ -1,9 +1,20 @@
 require("./_Menu.scss")
 import { Dash } from "bkb"
-import { render } from "monkberry"
+import handledom from "handledom"
 
-const template = require("./Menu.monk")
-const liTemplate = require("./li.monk")
+const template = handledom`
+<nav class="Menu">
+  <fieldset h="fieldset">
+    <ul class="Menu-ul" h="ul"></ul>
+  </fieldset>
+</nav>
+`
+
+const liTemplate = handledom`
+<li>
+  <button class="MenuBtn" type="button" h="btn"></button>
+</li>
+`
 
 /**
  * Properties required by the Menu component for its items.
@@ -26,22 +37,19 @@ export class Menu {
 
   private items = new Map<string, HTMLElement[]>()
 
-  private view: MonkberryView
-
   constructor(private dash: Dash) {
-    this.view = render(template, document.createElement("div"))
-    this.el = this.view.nodes[0] as HTMLElement
-    this.fieldsetEl = this.el.querySelector("fieldset") as HTMLFieldSetElement
-    this.ul = this.el.querySelector("ul") as HTMLElement
+    const { root, ref } = template()
+    this.el = root
+    this.fieldsetEl = ref("fieldset")
+    this.ul = ref("ul")
   }
 
   addItem(item: MenuItem) {
     if (this.items.has(item.id))
       throw new Error(`Item with ID ${item.id} already exists`)
 
-    let view = render(liTemplate, document.createElement("div"))
-    let li = view.nodes[0] as HTMLLIElement
-    let btn = li.querySelector("button") as HTMLButtonElement
+    const { root: li, ref } = liTemplate()
+    let btn = ref<HTMLButtonElement>("btn")
     btn.textContent = item.label
     btn.addEventListener("click", () => this.dash.emit("select", item.id))
 

@@ -1,11 +1,13 @@
 require("./_FileThumbnail.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { MediaModel } from "../../AppModel/Models/MediaModel"
 import { MediaVariantModel } from "../../AppModel/Models/MediaVariantModel"
 import { closestImageVariant, getMainMediaType } from "../../libraries/mediaUtils"
 
-const template = require("./FileThumbnail.monk")
+const template = handledom`
+<span class="FileThumbnail"></span>
+`
 
 function makeVideoThumbnail(elt: HTMLElement) {
   elt.classList.add("fas", "fa-file-video")
@@ -34,8 +36,8 @@ export default class FileThumbnail {
   private chosenVariant: MediaVariantModel
 
   constructor(private dash: Dash, private options: FileThumbnailOptions) {
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root } = template()
+    this.el = root
     this.el.style.width = `${options.width}px`
     this.el.style.height = `${options.height}px`
 

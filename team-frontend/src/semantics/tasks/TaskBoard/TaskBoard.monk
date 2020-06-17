@@ -1,4 +1,0 @@
-<div class="SelEditBoard">
-  <div class="SelEditBoard-sel" :ref="sel"></div>
-  <div class="SelEditBoard-edit" :ref="edit"></div>
-</div>

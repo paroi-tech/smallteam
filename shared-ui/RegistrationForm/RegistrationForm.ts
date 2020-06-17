@@ -1,12 +1,61 @@
 require("./_RegistrationForm.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 
-const template = require("./RegistrationForm.monk")
+const template = handledom`
+<dialog class="RegistrationForm">
+  <div class="FieldGroup">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Name</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" h="name" type="text" placeholder="Name">
+      </span>
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Choose your username</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" h="username" type="text" placeholder="Username">
+      </span>
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Create a password</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" h="password" type="password" placeholder="Password">
+      </span>
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Confirm your password</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" h="confirm" type="password" placeholder="Password confirmation">
+      </span>
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Your email address</span>
+      <span class="Field-deco -leftBlue">
+        <input class="Field-input" h="email" type="email" placeholder="Email">
+      </span>
+    </label>
+
+    <div>
+      <button class="FieldGroup-action Btn WithLoader -right" h="submitBtn" type="button">
+        Submit
+        <span class="WithLoader-l" h="spinner"></span>
+      </button>
+      &nbsp;
+      <button class="Btn" h="cancelBtn" type="button">Cancel</button>
+    </div>
+  </div>
+</dialog>
+`
+
 export interface RegistrationFormOptions {
   token: string
   username?: string
@@ -23,18 +72,17 @@ export default class RegistrationForm {
   private curDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash<{ baseUrl: string }>, private options: RegistrationFormOptions) {
-    let view = render(template)
+    const { root, ref } = template()
+    this.el = root as HTMLDialogElement
+    this.nameEl = ref("name")
+    this.usernameEl = ref("username")
+    this.passwordEl = ref("password")
+    this.confirmEl = ref("confirm")
+    this.emailEl = ref("email")
+    // this.spinnerEl = ref("spinner")
 
-    this.el = view.rootEl()
-    this.nameEl = view.ref("name")
-    this.usernameEl = view.ref("username")
-    this.passwordEl = view.ref("password")
-    this.confirmEl = view.ref("confirm")
-    this.emailEl = view.ref("email")
-    // this.spinnerEl = view.ref("spinner")
-
-    view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
-    view.ref("cancelBtn").addEventListener("click", () => {
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    ref("cancelBtn").addEventListener("click", () => {
       if (this.curDfd) {
         this.curDfd.reject("Process canceled")
         this.curDfd = undefined

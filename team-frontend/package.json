@@ -14,7 +14,7 @@
   "dependencies": {
     "@smallteam/shared-ui": "file:../shared-ui",
     "bkb": "^0.28.2",
-    "handledom": "^0.1.4",
+    "handledom": "^0.1.5",
     "monkberry": "^4.0.8",
     "monkberry-directives": "^4.0.8",
     "monkberry-events": "^4.0.8",
@@ -23,7 +23,7 @@
     "sortablejs": "^1.10.2"
   },
   "devDependencies": {
-    "@handledom/in-template-string-loader": "^0.1.4",
+    "@handledom/in-template-string-loader": "^0.1.6",
     "@tomko/lt-monkberry": "^0.2.2",
     "@types/showdown": "^1.9.3",
     "@types/sortablejs": "^1.10.4",

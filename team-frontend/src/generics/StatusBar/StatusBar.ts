@@ -1,14 +1,16 @@
 require("./_StatusBar.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 
-const template = require("./StatusBar.monk")
+const template = handledom`
+<section class="StatusBar"></section>
+`
 
 export default class StatusBar {
   readonly el: HTMLElement
 
   constructor(private dash: Dash) {
-    this.el = render(template).rootEl()
+    this.el = template().root
   }
 
   addItem(el: HTMLElement) {

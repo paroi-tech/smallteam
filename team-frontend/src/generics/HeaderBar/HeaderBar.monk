@@ -1,5 +1,0 @@
-<section class="HeaderBar FlexBar">
-  <div class="Center" :ref="teamName">
-    <img src="logo.png" srcset="logo.png 1x, logo-2x.png 2x" width="150" height="40" alt="SmallTeam"/>
-  </div>
-</section>

@@ -1,10 +1,16 @@
 require("./_ProjectBtn.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { addCssClass, catchAndLog } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { ProjectModel, UpdateModelEvent } from "../../../AppModel/AppModel"
 
-const template = require("./ProjectBtn.monk")
+const template = handledom`
+<button class="ProjectBtn" type="button">
+  <i class="ProjectBtn-code">{{code}}</i>
+  –
+  <span class="ProjectBtn-name">{{name}}</span>
+</button>
+`
 
 export interface ProjectBtnOptions {
   project: ProjectModel
@@ -19,16 +25,16 @@ export default class ProjectBtn {
   constructor(private dash: OwnDash, options: ProjectBtnOptions) {
     this.project = options.project
 
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root, update } = template()
+    this.el = root as HTMLButtonElement
     addCssClass(this.el, options.cssClass)
 
     this.el.addEventListener("click", catchAndLog(() => { this.dash.app.navigate(`/prj-${this.project.id}`) }))
 
-    view.update(this.project)
+    update(this.project)
     dash.listenTo<UpdateModelEvent>(dash.app.model, "updateProject", evData => {
       if (evData.id === this.project.id)
-        view.update(this.project)
+        update(this.project)
     })
   }
 

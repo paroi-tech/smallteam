@@ -1,6 +1,6 @@
 require("./_ProjectForm.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { WarningDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
@@ -10,7 +10,35 @@ import { createCustomMenuBtnEl } from "../../../generics/WorkspaceViewer/workspa
 import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/WorkspaceViewer"
 import StepBox from "../../steps/StepBox/StepBox"
 
-const template = require("./ProjectForm.monk")
+const template = handledom`
+<div class="ProjectForm">
+  <div class="FieldGroup" h="form">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Project Name</span>
+      <input class="Field-input" type="text" h="name" value="{{ name }}">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Project Code</span>
+      <input class="Field-input" type="text" h="code" value="{{ code }}">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Description</span>
+      <textarea class="Field-input -textarea" h="description" value="{{ description }}"></textarea>
+    </label>
+
+    <div class="FieldGroup-item" h="steps"></div>
+
+    <div class="FieldGroup-action">
+      <button class="Btn WithLoader -right" type="button" h="submitBtn">
+        Submit
+        <span class="WithLoader-l" h="spinner" hidden></span>
+      </button>
+    </div>
+  </div>
+</div>
+`
 
 export default class ProjectForm implements Workspace {
   readonly el: HTMLElement
@@ -22,7 +50,7 @@ export default class ProjectForm implements Workspace {
   private stepSelector: MultiSelect<StepModel>
   private menu: DropdownMenu
 
-  private view: LtMonkberryView
+  private update: (args: any) => void
   private state = {
     code: "",
     name: "",
@@ -44,13 +72,14 @@ export default class ProjectForm implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template)
-    this.el = this.view.rootEl()
-    this.codeEl = this.view.ref("code")
-    this.nameEl = this.view.ref("name")
-    this.descriptionEl = this.view.ref("description")
-    this.spinnerEl = this.view.ref("spinner")
-    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    const { root, ref, update } = template()
+    this.update = update
+    this.el = root
+    this.codeEl = ref("code")
+    this.nameEl = ref("name")
+    this.descriptionEl = ref("description")
+    this.spinnerEl = ref("spinner")
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
 
     this.menu = this.createDropdownMenu()
 
@@ -68,7 +97,7 @@ export default class ProjectForm implements Workspace {
     })
     this.stepSelector.fillWith(this.model.global.steps)
 
-    this.view.ref("steps").appendChild(this.stepSelector.el)
+    ref("steps").appendChild(this.stepSelector.el)
 
     this.codeEl.addEventListener("input", () => this.generateCode = false)
     this.nameEl.addEventListener("input", () => {
@@ -83,14 +112,14 @@ export default class ProjectForm implements Workspace {
     this.state.code = this.project.code
     this.state.name = this.project.name
     this.state.description = this.project.description || ""
-    this.view.update(this.state)
+    this.update(this.state)
   }
 
   clearContent() {
     this.state.code = ""
     this.state.name = ""
     this.state.description = ""
-    this.view.update(this.state)
+    this.update(this.state)
   }
 
   hasProject(): boolean {

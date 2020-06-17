@@ -1,5 +1,5 @@
 require("./_AccountSelector.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model, TaskModel } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
@@ -7,8 +7,15 @@ import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"
 import AccountBox from "../AccountBox/AccountBox"
 import AccountSelectionComponent from "../AccountSelectionComponent/AccountSelectionComponent"
 
-const template = require("./AccountSelector.monk")
-// const itemTemplate = require("./label.monk")
+const template = handledom`
+<div class="AccountSelector">
+  <header class="AccountSelector-header">Affected to:</header>
+  <div h="boxlist"></div>
+  <button class="AccountSelector-button" h="btn">
+    Select accounts <span class="fa fa-eye fa-1x"></span>
+  </button>
+</div>
+`
 
 /**
  * The idea of a list of checkbox was found here:
@@ -25,10 +32,10 @@ export default class AccountSelector {
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
 
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root, ref } = template()
+    this.el = root
 
-    view.ref("btn").addEventListener("click", async () => {
+    ref("btn").addEventListener("click", async () => {
       if (!this.task)
         return
       this.dialog.content.selectAccounts(this.task.affectedTo || [])
@@ -42,7 +49,7 @@ export default class AccountSelector {
       inline: true,
       noHeader: true
     })
-    view.ref("boxlist").appendChild(this.boxList.el)
+    ref("boxlist").appendChild(this.boxList.el)
 
     this.dialog = this.dash.create<Dialog<AccountSelectionComponent>, DialogOptions<AccountSelectionComponent>>(Dialog, {
       content: this.dash.create(AccountSelectionComponent),

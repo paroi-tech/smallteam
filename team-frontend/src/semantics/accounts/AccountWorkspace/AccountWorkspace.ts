@@ -1,6 +1,6 @@
 require("./_AccountWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model } from "../../../AppModel/AppModel"
 import BoxList from "../../../generics/BoxList/BoxList"
@@ -11,7 +11,12 @@ import { ChildEasyRouter, createChildEasyRouter } from "../../../libraries/EasyR
 import AccountBox from "../AccountBox/AccountBox"
 import AccountForm from "../AccountForm/AccountForm"
 
-const template = require("./AccountWorkspace.monk")
+const template = handledom`
+<section class="AccountWorkspace">
+  <div h="list"></div>
+  <div h="form"></div>
+</section>
+`
 
 export default class AccountWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -32,17 +37,17 @@ export default class AccountWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
+    this.el = root
     this.form = this.dash.create(AccountForm)
-    view.ref("form").appendChild(this.form.el)
+    ref("form").appendChild(this.form.el)
     this.boxList = this.dash.create(BoxList, {
       id: "accountBoxList",
       title: "Accounts",
       sort: false
     })
-    view.ref("list").appendChild(this.boxList.el)
+    ref("list").appendChild(this.boxList.el)
     this.menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl() as HTMLElement,
       align: "left"

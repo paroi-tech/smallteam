@@ -1,11 +1,21 @@
 require("./_WorkspaceViewer.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 import App from "../../App/App"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../../libraries/EasyRouter"
 
-const template = require("./WorkspaceViewer.monk")
+const template = handledom`
+<section class="WorkspaceViewer">
+  <header class="WorkspaceViewer-title TitleBar" h="titleBar">
+    <div class="Row">
+      <h1 h="h1"></h1>
+      <span class="DropdownMenuWrapper -asSuffix" h="customMenu"></span>
+    </div>
+  </header>
+  <div class="WorkspaceViewer-body" h="body"></div>
+</section>
+`
 
 export interface Workspace {
   readonly childRouter?: ChildEasyRouter
@@ -44,11 +54,11 @@ export default class WorkspaceViewer {
   constructor(private dash: Dash<App>) {
     dash.exposeEvent("navigate")
 
-    let view = render(template)
-    this.el = view.rootEl()
-    this.h1El = view.ref("h1")
-    this.customMenuPlaceEl = view.ref("customMenu")
-    this.bodyEl = view.ref("body")
+    const { root, ref } = template()
+    this.el = root
+    this.h1El = ref("h1")
+    this.customMenuPlaceEl = ref("customMenu")
+    this.bodyEl = ref("body")
 
     this.router = createEasyRouter()
     this.router.addAsyncErrorListener(err => dash.log.error(err))

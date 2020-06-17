@@ -1,7 +1,9 @@
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 
-const template = require("./CustomMenuBtn.monk")
+const template = handledom`
+<button class="CustomMenuBtn" type="button">…</button>
+`
 
 export function createCustomMenuBtnEl(): HTMLElement {
-  return render(template).rootEl()
+  return template().root
 }

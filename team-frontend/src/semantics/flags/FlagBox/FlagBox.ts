@@ -1,28 +1,34 @@
 require("./_FlagBox.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { FlagModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
 
-const template = require("./FlagBox.monk")
+const template = handledom`
+<div class="FlagBox">
+  <span class="FlagBox-span">{{ label }}</span>
+  &nbsp;
+  <span class="fa fa-circle fa-1x" h="boxColor"></span>
+</div>
+`
 
 export default class FlagBox implements Box {
   readonly el: HTMLElement
 
   constructor(private dash: OwnDash, readonly flag: FlagModel) {
-    let view = render(template)
-    let colorEl = view.ref<HTMLElement>("boxColor")
+    const { root, ref, update } = template()
+    let colorEl = ref<HTMLElement>("boxColor")
 
-    this.el = view.rootEl()
+    this.el = root
     colorEl.style.color = this.flag.color
     this.el.addEventListener("click", () => this.dash.emit("flagBoxSelected", this.flag))
-    view.update(this.flag)
+    update(this.flag)
 
     this.dash.listenToModel("updateFlag", data => {
       let flag = data.model as FlagModel
 
       if (flag.id === this.flag.id) {
-        view.update(this.flag)
+        update(this.flag)
         colorEl.style.color = this.flag.color
       }
     })

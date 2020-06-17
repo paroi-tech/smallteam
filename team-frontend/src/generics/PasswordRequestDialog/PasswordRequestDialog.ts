@@ -1,11 +1,26 @@
 require("./_PasswordRequestDialog.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import Deferred from "../../../../shared-ui/libraries/Deferred"
 import { ErrorDialog, InfoDialog } from "../../../../shared-ui/modalDialogs/modalDialogs"
 import App from "../../App/App"
 
-const template = require("./PasswordRequestDialog.monk")
+const template = handledom`
+<dialog class="PasswordRequestDialog">
+  <p>
+    Please enter the email address you have been registered with.<br>
+    An email with a link to reset the password will be sent to that address.
+  </p>
+  <div>
+    <input type="email" h="email" required>
+    <button class="Btn WithLoader -right" type="button" h="submit">
+      Request email
+      <span class="WithLoader-l" hidden h="spinner"></span>
+    </button>
+    <button type="button" h="cancel">Cancel</button>
+  </div>
+</dialog>
+`
 
 export default class PasswordRequestDialog {
   private readonly el: HTMLDialogElement
@@ -15,16 +30,16 @@ export default class PasswordRequestDialog {
   private curDfd: Deferred<any> | undefined
 
   constructor(private dash: Dash<App>) {
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.emailEl = view.ref("email")
-    this.spinnerEl = view.ref("spinner")
+    this.el = root as HTMLDialogElement
+    this.emailEl = ref("email")
+    this.spinnerEl = ref("spinner")
 
-    let btnEl: HTMLButtonElement = view.ref("submit")
+    let btnEl: HTMLButtonElement = ref("submit")
 
     btnEl.addEventListener("click", () => this.onSubmit())
-    view.ref("cancel").addEventListener("click", () => this.onCancel())
+    ref("cancel").addEventListener("click", () => this.onCancel())
     this.el.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
         btnEl.click()

@@ -1,6 +1,6 @@
 require("./_WebhookWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { ErrorDialog } from "../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../App/OwnDash"
 import { ViewerController } from "../WorkspaceViewer/WorkspaceViewer"
@@ -14,7 +14,24 @@ export interface WebhookModel {
   inProcessing: boolean
 }
 
-const template = require("./WebhookWorkspace.monk")
+const template = handledom`
+<div class="HookWorkspace">
+  <table class="HookWorkspace-table" h="table">
+    <caption>Available hooks</caption>
+    <thead>
+      <tr>
+        <td>Provider</td>
+        <td>URL</td>
+        <td>Show secret</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+  <div>
+    <button h="add">Add hook</button>
+  </div>
+</div>
+`
 
 export default class WebhookWorkspace {
   readonly el: HTMLElement
@@ -31,11 +48,11 @@ export default class WebhookWorkspace {
   constructor(private dash: OwnDash) {
     this.log = this.dash.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.tableEl = view.ref("table")
-    this.btnEl = view.ref("add")
+    this.el = root
+    this.tableEl = ref("table")
+    this.btnEl = ref("add")
 
     this.btnEl.addEventListener("click", () => this.createWebhook())
     this.dash.listenTo("webhookDeleted", data => {

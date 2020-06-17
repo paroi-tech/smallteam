@@ -1,8 +1,13 @@
 require("./_EditableTextField.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 
-const template = require("./EditableTextField.monk")
+const template = handledom`
+<div class="EditableTextField">
+  <input class="EditableTextField-input" type="text" disabled h="input">
+  <button class="EditableTextField-button" type="button" h="btn"></button>
+</div>
+`
 
 export default class EditableTextField {
   readonly el: HTMLElement
@@ -10,10 +15,10 @@ export default class EditableTextField {
   private inputEl: HTMLInputElement
 
   constructor(private dash: Dash) {
-    let view = render(template)
-    this.el = view.rootEl()
-    this.btnEl = view.ref("btn")
-    this.inputEl = view.ref("input")
+    const { root, ref } = template()
+    this.el = root
+    this.btnEl = ref("btn")
+    this.inputEl = ref("input")
 
     this.btnEl.addEventListener("click", () => {
       this.inputEl.disabled = false

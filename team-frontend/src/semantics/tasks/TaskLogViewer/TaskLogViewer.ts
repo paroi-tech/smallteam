@@ -1,11 +1,30 @@
 require("./_TaskLogViewer.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskLogEntryModel, TaskModel } from "../../../AppModel/AppModel"
 
-const template = require("./TaskLogViewer.monk")
+const template = handledom`
+<div class="TaskLogViewer">
+  <div class="TaskLogViewerLoader" h="loader">
+    <p>Loading logs</p>
+    <div class="TaskLogViewerLoader-l LoaderBg"></div>
+  </div>
+
+  <table class="TaskLogViewer-table" h="table">
+    <thead>
+      <tr>
+        <td>ID</td>
+        <td>Date</td>
+        <td>Step</td>
+        <td>Account</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+`
 
 export default class TaskLogViewer {
   readonly el: HTMLElement
@@ -20,11 +39,11 @@ export default class TaskLogViewer {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.loadIndicatorEl = view.ref("loader")
-    this.tableEl = view.ref("table")
+    this.el = root
+    this.loadIndicatorEl = ref("loader")
+    this.tableEl = ref("table")
 
     this.dash.listenTo(this.model, "createTaskLogEntry", data => {
       let entry = data.model as TaskLogEntryModel

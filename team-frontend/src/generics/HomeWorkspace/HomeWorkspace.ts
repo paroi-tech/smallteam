@@ -1,10 +1,15 @@
 require("./_HomeWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash, Log } from "bkb"
+import handledom from "handledom"
 import { Model } from "../../AppModel/modelDefinitions"
 import { ViewerController, Workspace } from "../WorkspaceViewer/WorkspaceViewer"
 
-const template = require("./HomeWorkspace.monk")
+const template = handledom`
+<div class="HomeWorkspace">
+  <header class="HomeWorkspace-header">Welcome</header>
+  <div class="HomeWorkspace-divLogo"></div>
+</div>
+`
 
 export default class HomeWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -17,8 +22,8 @@ export default class HomeWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root } = template()
+    this.el = root
   }
 
   activate(ctrl: ViewerController) {
