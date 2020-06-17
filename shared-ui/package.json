@@ -6,12 +6,13 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "npm run tsc",
-    "tsc": "tsc",
+    "build": "tsc",
+    "watch": "tsc --watch",
     "lint": "tslint"
   },
   "dependencies": {
     "bkb": "^0.28.2",
+    "handledom": "^0.1.4",
     "monkberry": "^4.0.8",
     "monkberry-directives": "^4.0.8",
     "monkberry-events": "^4.0.8",

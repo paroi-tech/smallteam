@@ -1,12 +1,91 @@
 require("./_TeamCreationDialog.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 
-const template = require("./TeamCreationDialog.monk")
+const template = handledom`
+<dialog class="TeamCreationDialog">
+  <header class="TeamCreationDialog-header">
+    <img class="TeamCreationDialog-warning" src="svg/feather/alert-triangle.svg"/>
+    <p>This service is available for testing only.</p>
+  </header>
+
+  <div class="TeamCreationDialog-content">
+    <div class="FieldGroup">
+      <h1 class="FieldGroup-title">Your team</h1>
+
+      <div class="FieldGroup-multiItem">
+        <label class="FieldGroup-item Field">
+          <span class="Field-lbl">Subdomain</span>
+          <span class="Field-deco -leftBlue">
+            <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" h="subdomain">
+          </span>
+        </label>
+
+        <label class="FieldGroup-item Field">
+            <span class="Field-lbl">Team name</span>
+            <span class="Field-deco -leftBlue">
+              <input class="Field-input" type="text" spellcheck="false" h="teamName">
+            </span>
+          </label>
+      </div>
+    </div>
+
+    <div class="FieldGroup">
+      <h1 class="FieldGroup-title">Your account</h1>
+
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Your email address</span>
+        <span class="Field-deco -leftBlue">
+          <input class="Field-input" type="email" required spellcheck="false" h="email">
+        </span>
+      </label>
+
+      <div class="FieldGroup-multiItem">
+        <label class="FieldGroup-item Field">
+          <span class="Field-lbl">Login</span>
+          <span class="Field-deco -leftBlue">
+            <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" h="login">
+          </span>
+        </label>
+
+        <label class="FieldGroup-item Field">
+          <span class="Field-lbl">Name</span>
+          <span class="Field-deco -leftBlue">
+            <input class="Field-input" type="text" h="name">
+          </span>
+        </label>
+      </div>
+
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Password</span>
+        <span class="Field-deco -leftBlue">
+          <input class="Field-input" type="password" h="password">
+        </span>
+      </label>
+
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Confirm your password</span>
+        <span class="Field-deco -leftBlue">
+          <input class="Field-input" type="password" h="confirm">
+        </span>
+      </label>
+
+      <div>
+        <button class="FieldGroup-action Btn WithLoader -right" h="submitBtn" type="button">
+          Submit
+          <span class="WithLoader-l" hidden h="spinner"></span>
+        </button>
+        &nbsp;
+        <button class="Btn" type="button" h="cancelBtn">Cancel</button>
+      </div>
+    </div>
+  </div>
+</dialog>
+`
 
 export default class TeamCreationDialog {
   private readonly el: HTMLDialogElement
@@ -17,7 +96,7 @@ export default class TeamCreationDialog {
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
-  private spinnerEl: HTMLElement
+  // private spinnerEl: HTMLElement
 
   private canSetTeamName = true
   private canSetName = true
@@ -26,20 +105,20 @@ export default class TeamCreationDialog {
   private curDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash<{ baseUrl: string }>) {
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.subdomainEl = view.ref("subdomain")
-    this.teamNameEl = view.ref("teamName")
-    this.emailEl = view.ref("email")
-    this.loginEl = view.ref("login")
-    this.nameEl = view.ref("name")
-    this.passwordEl = view.ref("password")
-    this.confirmEl = view.ref("confirm")
-    this.spinnerEl = view.ref("spinner")
+    this.el = root as HTMLDialogElement
+    this.subdomainEl = ref("subdomain")
+    this.teamNameEl = ref("teamName")
+    this.emailEl = ref("email")
+    this.loginEl = ref("login")
+    this.nameEl = ref("name")
+    this.passwordEl = ref("password")
+    this.confirmEl = ref("confirm")
+    // this.spinnerEl = ref("spinner")
 
-    view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
-    view.ref("cancelBtn").addEventListener("click", () => {
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    ref("cancelBtn").addEventListener("click", () => {
       if (this.curDfd) {
         this.curDfd.reject("Process canceled")
         this.curDfd = undefined
