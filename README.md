@@ -48,21 +48,17 @@ mkdir data
 cp backend/config.local.json backend/config.json
 
 npm i --prefix shared
-npm run build --prefix shared
-
 npm i --prefix shared-ui
-npm run build --prefix shared-ui
-
-npm i --prefix backend
-npm run build --prefix backend
-
 npm i --prefix platform-frontend
-npm run build --prefix platform-frontend
-
 npm i --prefix team-frontend
-npm run build --prefix team-frontend
-
 npm i --prefix registration-frontend
+npm i --prefix backend
+
+npm run build --prefix shared
+npm run build --prefix shared-ui
+npm run build --prefix backend
+npm run build --prefix platform-frontend
+npm run build --prefix team-frontend
 npm run build --prefix registration-frontend
 ```
 
