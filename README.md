@@ -28,6 +28,15 @@ npm run build --prefix shared
 npm run build --prefix shared-ui
 ```
 
+Update all frontend dependencies:
+
+```sh
+npm upd --prefix shared-ui
+npm upd --prefix platform-frontend
+npm upd --prefix team-frontend
+npm upd --prefix registration-frontend
+```
+
 ## Install a local development environment
 
 Redirect `smallteam.paroi.local` to localhost. Create domains for `team1` and `team2`.
@@ -48,15 +57,15 @@ mkdir data
 cp backend/config.local.json backend/config.json
 
 npm i --prefix shared
+npm i --prefix backend
 npm i --prefix shared-ui
 npm i --prefix platform-frontend
 npm i --prefix team-frontend
 npm i --prefix registration-frontend
-npm i --prefix backend
 
 npm run build --prefix shared
-npm run build --prefix shared-ui
 npm run build --prefix backend
+npm run build --prefix shared-ui
 npm run build --prefix platform-frontend
 npm run build --prefix team-frontend
 npm run build --prefix registration-frontend

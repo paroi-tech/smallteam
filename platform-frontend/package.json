@@ -13,14 +13,14 @@
   },
   "dependencies": {
     "bkb": "^0.28.2",
-    "handledom": "0.0.7",
+    "handledom": "^0.1.4",
     "monkberry": "^4.0.8",
     "monkberry-directives": "^4.0.8",
     "monkberry-events": "^4.0.8",
     "monkberry-loader": "^4.0.9"
   },
   "devDependencies": {
-    "@handledom/in-template-string-loader": "0.0.3",
+    "@handledom/in-template-string-loader": "^0.1.4",
     "@tomko/lt-monkberry": "^0.2.2",
     "css-loader": "^3.5.3",
     "html-loader": "^1.1.0",

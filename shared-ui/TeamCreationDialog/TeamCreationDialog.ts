@@ -6,7 +6,7 @@ import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
 
-const template2 = handledom`
+const template = handledom`
 <dialog class="TeamCreationDialog">
   <header class="TeamCreationDialog-header">
     <img class="TeamCreationDialog-warning" src="svg/feather/alert-triangle.svg"/>
@@ -21,14 +21,14 @@ const template2 = handledom`
         <label class="FieldGroup-item Field">
           <span class="Field-lbl">Subdomain</span>
           <span class="Field-deco -leftBlue">
-            <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" :ref="subdomain">
+            <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" h="subdomain">
           </span>
         </label>
 
         <label class="FieldGroup-item Field">
             <span class="Field-lbl">Team name</span>
             <span class="Field-deco -leftBlue">
-              <input class="Field-input" type="text" spellcheck="false" :ref="teamName">
+              <input class="Field-input" type="text" spellcheck="false" h="teamName">
             </span>
           </label>
       </div>
@@ -40,7 +40,7 @@ const template2 = handledom`
       <label class="FieldGroup-item Field">
         <span class="Field-lbl">Your email address</span>
         <span class="Field-deco -leftBlue">
-          <input class="Field-input" type="email" required spellcheck="false" :ref="email">
+          <input class="Field-input" type="email" required spellcheck="false" h="email">
         </span>
       </label>
 
@@ -48,14 +48,14 @@ const template2 = handledom`
         <label class="FieldGroup-item Field">
           <span class="Field-lbl">Login</span>
           <span class="Field-deco -leftBlue">
-            <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" :ref="login">
+            <input class="Field-input" type="text" pattern="^[a-z][a-z0-9]+" spellcheck="false" h="login">
           </span>
         </label>
 
         <label class="FieldGroup-item Field">
           <span class="Field-lbl">Name</span>
           <span class="Field-deco -leftBlue">
-            <input class="Field-input" type="text" :ref="name">
+            <input class="Field-input" type="text" h="name">
           </span>
         </label>
       </div>
@@ -63,24 +63,24 @@ const template2 = handledom`
       <label class="FieldGroup-item Field">
         <span class="Field-lbl">Password</span>
         <span class="Field-deco -leftBlue">
-          <input class="Field-input" type="password" :ref="password">
+          <input class="Field-input" type="password" h="password">
         </span>
       </label>
 
       <label class="FieldGroup-item Field">
         <span class="Field-lbl">Confirm your password</span>
         <span class="Field-deco -leftBlue">
-          <input class="Field-input" type="password" :ref="confirm">
+          <input class="Field-input" type="password" h="confirm">
         </span>
       </label>
 
       <div>
-        <button class="FieldGroup-action Btn WithLoader -right" :ref="submitBtn" type="button">
+        <button class="FieldGroup-action Btn WithLoader -right" h="submitBtn" type="button">
           Submit
-          <span class="WithLoader-l" hidden :ref="spinner"></span>
+          <span class="WithLoader-l" hidden h="spinner"></span>
         </button>
         &nbsp;
-        <button class="Btn" type="button" :ref="cancelBtn">Cancel</button>
+        <button class="Btn" type="button" h="cancelBtn">Cancel</button>
       </div>
     </div>
   </div>
@@ -96,7 +96,7 @@ export default class TeamCreationDialog {
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private confirmEl: HTMLInputElement
-  private spinnerEl: HTMLElement
+  // private spinnerEl: HTMLElement
 
   private canSetTeamName = true
   private canSetName = true
@@ -105,22 +105,20 @@ export default class TeamCreationDialog {
   private curDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash<{ baseUrl: string }>) {
-    const { root, refs } = template2()
+    const { root, ref } = template()
 
     this.el = root as HTMLDialogElement
-    this.subdomainEl = refs.subdomain as HTMLInputElement
-    this.teamNameEl = refs.teamName as HTMLInputElement
-    this.emailEl = refs.email as HTMLInputElement
-    this.loginEl = refs.login as HTMLInputElement
-    this.nameEl = refs.name as HTMLInputElement
-    this.passwordEl = refs.password as HTMLInputElement
-    this.confirmEl = refs.confirm as HTMLInputElement
-    this.spinnerEl = refs.spinner as HTMLElement
+    this.subdomainEl = ref("subdomain")
+    this.teamNameEl = ref("teamName")
+    this.emailEl = ref("email")
+    this.loginEl = ref("login")
+    this.nameEl = ref("name")
+    this.passwordEl = ref("password")
+    this.confirmEl = ref("confirm")
+    // this.spinnerEl = ref("spinner")
 
-    const submitBtnEl = refs.submitBtn as HTMLElement
-    const cancelBtnEl = refs.cancelBtn as HTMLElement
-    submitBtnEl.addEventListener("click", () => this.onSubmit())
-    cancelBtnEl.addEventListener("click", () => {
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    ref("cancelBtn").addEventListener("click", () => {
       if (this.curDfd) {
         this.curDfd.reject("Process canceled")
         this.curDfd = undefined
