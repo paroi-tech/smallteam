@@ -14,6 +14,7 @@
   "dependencies": {
     "@smallteam/shared-ui": "file:../shared-ui",
     "bkb": "^0.28.2",
+    "dialog-polyfill": "^0.5.1",
     "handledom": "^0.1.5",
     "monkberry": "^4.0.8",
     "monkberry-directives": "^4.0.8",

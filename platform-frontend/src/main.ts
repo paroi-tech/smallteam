@@ -1,5 +1,6 @@
 require("../../shared-ui/_start.scss")
 import { createApplication } from "bkb"
+import "dialog-polyfill"
 import { removeAllChildren } from "../../shared-ui/libraries/utils"
 import App from "./App/App"
 
