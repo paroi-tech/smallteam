@@ -1,11 +1,16 @@
 require("./_NavMenu.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { addCssClass, catchAndLog } from "../../../../shared-ui/libraries/utils"
 import NavBtn, { NavBtnOptions } from "../NavBtn/NavBtn"
 
-const template = require("./NavMenu.monk")
-const liTemplate = require("./li.monk")
+const template = handledom`
+<ul class="NavMenu FlexBar"></ul>
+`
+
+const liTemplate = handledom`
+<li></li>
+`
 
 export type Direction = "row" | "column" | "rowReverse" | "columnReverse"
 
@@ -27,8 +32,8 @@ export default class NavMenu {
   readonly el: HTMLUListElement
 
   constructor(private dash: Dash, private options: NavMenuOptions = {}) {
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root } = template()
+    this.el = root as HTMLUListElement
     if (this.options.direction)
       this.el.classList.add(`-${this.options.direction}`)
     addCssClass(this.el, this.options.cssClass)
@@ -43,7 +48,7 @@ export default class NavMenu {
     for (let btn of buttons) {
       if (this.options.btnCssClass)
         btn.addCssClass(this.options.btnCssClass)
-      let li = render(liTemplate).rootEl()
+      let li = liTemplate().root
       li.appendChild(btn.el)
       this.el.appendChild(li)
     }

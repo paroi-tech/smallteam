@@ -50,12 +50,16 @@ $ sudo vi /etc/hosts
 127.0.0.1	team2.smallteam.paroi.local
 ```
 
-Then, install and build all the subprojects:
+Then, some configuration:
 
 ```sh
 mkdir data
 cp backend/config.local.json backend/config.json
+```
 
+Install and build all the subprojects:
+
+```sh
 npm i --prefix shared
 npm i --prefix backend
 npm i --prefix shared-ui

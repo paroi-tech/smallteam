@@ -1,6 +1,6 @@
 require("./_StepSwitcher.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, ProjectModel, ReorderModelEvent, StepModel, TaskModel } from "../../../AppModel/AppModel"
@@ -8,7 +8,32 @@ import BoxList, { BoxEvent, BoxListEvent } from "../../../generics/BoxList/BoxLi
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"
 import TaskBox from "../../tasks/TaskBox/TaskBox"
 
-const template = require("./StepSwitcher.monk")
+const template = handledom`
+<section class="StepSwitcher">
+  <header class="StepSwitcherHeader TitleBar Row -spaced">
+    <div class="Row">
+      <span h="title"></span>
+      <div class="DropdownMenuWrapper -asSuffix" h="menu"></div>
+    </div>
+    <div class="Row">
+      <span class="LoaderBg" hidden h="indicator"></span>
+      <button class="StepSwitcherHeader-btn" title="Fold/Unfold" h="toggleBtn"></button>
+      <button class="StepSwitcherHeader-btn" title="Close" h="closeBtn">X</button>
+    </div>
+  </header>
+
+  <div class="StepSwitcher-foldableContent" h="foldable">
+    <div class="AutoColumns" h="boxLists"></div>
+    <div class="StepSwitcher-bottom InputAndBtn" h="bottom">
+      <input class="InputAndBtn-input" type="text" maxlength="255" placeholder="Task name" h="taskName">
+      <button class="InputAndBtn-btn Btn WithLoader -right" type="button" h="addBtn">
+        Add task
+        <span class="WithLoader-l" hidden h="spinner"></span>
+      </button>
+    </div>
+  </div>
+</section>
+`
 
 const caretUp = "\u{25B2}"
 const caretDown = "\u{25BC}"
@@ -54,25 +79,25 @@ export default class StepSwitcher {
     this.parentTask = options.parentTask
     this.project = options.parentTask.project
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.foldableEl = view.ref("foldable")
-    this.listContainerEl = view.ref("boxLists")
-    this.taskNameEl = view.ref("taskName")
-    this.toggleBtnEl = view.ref("toggleBtn")
-    this.spinnerEl = view.ref("spinner")
-    this.busyIndicatorEl = view.ref("indicator")
-    this.bottomEl = view.ref("bottom")
+    this.el = root
+    this.foldableEl = ref("foldable")
+    this.listContainerEl = ref("boxLists")
+    this.taskNameEl = ref("taskName")
+    this.toggleBtnEl = ref("toggleBtn")
+    this.spinnerEl = ref("spinner")
+    this.busyIndicatorEl = ref("indicator")
+    this.bottomEl = ref("bottom")
 
     if (options.dropdownMenu)
-      view.ref("menu").appendChild(options.dropdownMenu.btnEl)
+      ref("menu").appendChild(options.dropdownMenu.btnEl)
 
     this.toggleBtnEl.textContent = caretUp
-    view.ref("title").textContent = options.parentTask.label
+    ref("title").textContent = options.parentTask.label
 
     let isRootTask = options.parentTask.id === this.project.rootTaskId
-    let closeBtnEl = view.ref("closeBtn") as HTMLElement
+    let closeBtnEl = ref("closeBtn") as HTMLElement
 
     if (options.parentTask.children && options.parentTask.children.length > 0)
       closeBtnEl.hidden = true
@@ -83,12 +108,12 @@ export default class StepSwitcher {
         this.setVisible(false)
     })
 
-    view.ref("addBtn").addEventListener("click", () => this.onAddtaskClick())
+    ref("addBtn").addEventListener("click", () => this.onAddtaskClick())
     this.taskNameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
         this.onAddtaskClick()
     })
-    view.ref("toggleBtn").addEventListener("click", () => this.toggleFoldableContent())
+    ref("toggleBtn").addEventListener("click", () => this.toggleFoldableContent())
 
     this.createBoxLists()
     this.fillBoxLists()

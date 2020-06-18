@@ -1,10 +1,18 @@
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { ErrorDialog, InfoDialog, QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { WebhookModel } from "../WebhookWorkspace"
 
-const template = require("./WebhookTableItem.monk")
+const template = handledom`
+<tr>
+  <td h="provider"></td>
+  <td h="url"></td>
+  <td> <button h="secret">Show secret</button> </td>
+  <td> <button h="toggle"></button> </td>
+  <td> <button h="delete">Delete</button> </td>
+</tr>
+`
 
 export default class WebhookTableItem {
   readonly el: HTMLElement
@@ -19,14 +27,14 @@ export default class WebhookTableItem {
   constructor(private dash: OwnDash, readonly webhook: WebhookModel) {
     this.log = this.dash.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.providerEl = view.ref("provider")
-    this.urlEl = view.ref("url")
-    this.btnSecretEl = view.ref("secret")
-    this.btnToggleEl = view.ref("toggle")
-    this.btnDeleteEl = view.ref("delete")
+    this.el = root
+    this.providerEl = ref("provider")
+    this.urlEl = ref("url")
+    this.btnSecretEl = ref("secret")
+    this.btnToggleEl = ref("toggle")
+    this.btnDeleteEl = ref("delete")
 
     this.providerEl.textContent = this.webhook.provider
     this.urlEl.textContent = this.webhook.url

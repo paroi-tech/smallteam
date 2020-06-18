@@ -1,3 +1,0 @@
-<li class="BoxList-li MovableBox">
-  <span class="MovableBox-content" :ref="content"></span>
-</li>

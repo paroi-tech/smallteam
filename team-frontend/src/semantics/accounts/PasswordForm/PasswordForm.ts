@@ -1,13 +1,34 @@
 require("./_PasswordForm.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { ErrorDialog, InfoDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import PasswordEdit from "../../../../../shared-ui/PasswordEdit/PasswordEdit"
 import { whyNewPasswordIsInvalid } from "../../../../../shared/libraries/helpers"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"
 
-const template = require("./PasswordForm.monk")
+const template = handledom`
+<div>
+  <h1 class="TitleBar">Change your password</h1>
+  <div class="FieldGroup">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Current password</span>
+      <input class="Field-input" type="password" h="currentPassword">
+    </label>
+
+    <div class="FieldGroup-item" h="field"></div>
+
+    <div class="FieldGroup-action" h="actions">
+      <button class="Btn" type="button" h="cancelBtn">Cancel</button>
+      &nbsp;
+      <button class="Btn WithLoader -right" type="button" h="submitBtn">
+        Submit
+        <span class="WithLoader-l" hidden h="spinner"></span>
+      </button>
+    </div>
+  </div>
+</div>
+`
 
 export default class PasswordForm {
   readonly el: HTMLElement
@@ -21,17 +42,17 @@ export default class PasswordForm {
   constructor(private dash: OwnDash, private account: AccountModel) {
     this.log = this.dash.app.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.currentPasswordEl = view.ref("currentPassword")
-    this.spinnerEl = view.ref("spinner")
+    this.el = root
+    this.currentPasswordEl = ref("currentPassword")
+    this.spinnerEl = ref("spinner")
 
     this.passwordEdit = this.dash.create(PasswordEdit)
-    view.ref("field").appendChild(this.passwordEdit.el)
+    ref("field").appendChild(this.passwordEdit.el)
 
-    view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
-    view.ref("cancelBtn").addEventListener("click", () => this.onCancel())
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    ref("cancelBtn").addEventListener("click", () => this.onCancel())
   }
 
   private async onSubmit() {

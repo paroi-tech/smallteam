@@ -1,6 +1,6 @@
 require("./_TaskAttachmentManager.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
@@ -8,8 +8,34 @@ import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
 import FileThumbnail from "../../../generics/FileThumbnail/FileThumbnail"
 
-const template = require("./TaskAttachmentManager.monk")
-const mediaTemplate = require("./media.monk")
+const template = handledom`
+<div class="TaskAttachmentManager">
+  <header class="TaskAttachmentManager-header">
+    <div class="TaskAttachmentManager-headerLeft">Attached files</div>
+    <div class="TaskAttachmentManager-headerRight"></div>
+  </header>
+
+  <ul class="TaskAttachementManager-ul" h="ul"></ul>
+
+  <form action="" method="post" enctype="multipart/form-data" h="form">
+    <input name="f" type="file" h="input">
+    <button class="TaskAttachmentManager-uploadButton" type="submit" h="upload">
+      Send file
+      <span class="fa fa-upload fa-1x" h="spinner"></span>
+    </button>
+  </form>
+</div>
+`
+
+const mediaTemplate = handledom`
+<li>
+  <span h="thumbnail"></span>
+  <button title="Click to download" h="download">{{ name }}</button> &nbsp;
+  <button style="color: red" title="Click to delete file" h="remove">
+    <span class="fa fa-times fa-1x"></span>
+  </button>
+</li>
+`
 
 export default class TaskAttachmentManager {
   readonly el: HTMLElement
@@ -26,13 +52,13 @@ export default class TaskAttachmentManager {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.listEl = view.ref("ul")
-    this.formEl = view.ref("form")
-    this.inputEl = view.ref("input")
-    this.spinnerEl = view.ref("spinner")
+    this.el = root
+    this.listEl = ref("ul")
+    this.formEl = ref("form")
+    this.inputEl = ref("input")
+    this.spinnerEl = ref("spinner")
     this.formEl.onsubmit = (ev) => {
       ev.preventDefault()
       this.onFormSubmit()
@@ -67,26 +93,25 @@ export default class TaskAttachmentManager {
   }
 
   private displayMedia(media: MediaModel) {
-    let view = render(mediaTemplate)
-    let el = view.rootEl()
+    const { root: el, ref, update } = mediaTemplate()
     let thumbnail = this.dash.create(FileThumbnail, {
       media,
       width: 24,
       height: 24
     })
 
-    view.ref("thumbnail").appendChild(thumbnail.el)
-    view.ref("download").addEventListener("click", () => {
+    ref("thumbnail").appendChild(thumbnail.el)
+    ref("download").addEventListener("click", () => {
       let orig = media.getVariant("orig")
       if (orig)
         window.open(`${orig.url}?download=1`)
     })
-    view.ref("remove").addEventListener("click", () => {
+    ref("remove").addEventListener("click", () => {
       let accountId = this.model.session.account.id
       if (media.ownerId === accountId && this.removeTaskAttachment(media.id))
         this.listEl.removeChild(el)
     })
-    view.update({ name: media.originalName || media.baseName })
+    update({ name: media.originalName || media.baseName })
     this.listEl.appendChild(el)
   }
 

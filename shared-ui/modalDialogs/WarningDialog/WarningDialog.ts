@@ -1,10 +1,34 @@
 require("./_WarningDialog.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import Deferred from "../../libraries/Deferred"
 import { makeOutsideClickHandlerFor } from "../../libraries/utils"
 
-const template = require("./WarningDialog.monk")
+const template = handledom`
+<dialog class="ModalDialog WarningDialog">
+  <header class="ModalDialog-header">
+    <div class="ModalDialog-headerLeft">
+      <span h="title"></span>
+    </div>
+    <div class="ModalDialog-headerRight">
+      <span class="fas fa-times fa-lg ModalDialogCloseItem" h="close"></span>
+    </div>
+  </header>
+
+  <div class="ModalDialog-content">
+    <div class="ModalDialog-contentLeft WarningDialog-contentLeft">
+      <span class="fas fa-3x fa-exclamation-triangle"></span>
+    </div>
+    <div class="ModalDialog-contentRight">
+      <p h="message"></p>
+    </div>
+  </div>
+
+  <div class="ModalDialog-bottom">
+    <button class="ModalDialogOkButton" h="button">OK</button>
+  </div>
+</dialog>
+`
 
 export default class WarningDialog {
   private readonly el: HTMLDialogElement
@@ -14,15 +38,15 @@ export default class WarningDialog {
   private currDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash) {
-    let view = render(template)
-    this.el = view.rootEl()
-    this.msgEl = view.ref("message")
-    this.titleEl = view.ref("title")
+    const { root, ref } = template()
+    this.el = root as HTMLDialogElement
+    this.msgEl = ref("message")
+    this.titleEl = ref("title")
 
     let closeCb = () => this.close()
 
-    view.ref("button").addEventListener("click", closeCb)
-    view.ref("close").addEventListener("click", closeCb)
+    ref("button").addEventListener("click", closeCb)
+    ref("close").addEventListener("click", closeCb)
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
       this.close()

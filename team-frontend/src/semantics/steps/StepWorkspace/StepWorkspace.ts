@@ -1,6 +1,6 @@
 require("./_StepWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { equal } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, StepModel } from "../../../AppModel/AppModel"
@@ -9,7 +9,21 @@ import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/W
 import StepBox from "../StepBox/StepBox"
 import StepForm from "../StepForm/StepForm"
 
-const template = require("./StepWorkspace.monk")
+const template = handledom`
+<div class="SelEditBoard">
+  <div class="SelEditBoard-sel">
+    <div h="sel"></div>
+    <div class="InputAndBtn" h="add">
+      <input class="InputAndBtn-input" type="text" h="input" required>
+      <button class="InputAndBtn-btn Btn WithLoader -right" type="button" h="btn">
+        Add
+        <span class="WithLoader-l" hidden h="spinner"></span>
+      </button>
+    </div>
+  </div>
+  <div class="SelEditBoard-edit" h="edit"></div>
+</div>
+`
 
 export default class StepWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -31,12 +45,12 @@ export default class StepWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
-    this.el = view.rootEl()
-    this.nameEl = view.ref("input")
-    this.spinnerEl = view.ref("spinner")
+    const { root, ref } = template()
+    this.el = root
+    this.nameEl = ref("input")
+    this.spinnerEl = ref("spinner")
 
-    let btnEl = view.ref("btn") as HTMLButtonElement
+    let btnEl = ref("btn") as HTMLButtonElement
     btnEl.addEventListener("click", () => this.onAdd())
     this.nameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
@@ -46,9 +60,9 @@ export default class StepWorkspace implements Workspace {
     this.boxList = this.dash.create(BoxList, {
       sort: true,
     })
-    view.ref("sel").appendChild(this.boxList.el)
+    ref("sel").appendChild(this.boxList.el)
     this.form = this.dash.create(StepForm)
-    view.ref("edit").appendChild(this.form.el)
+    ref("edit").appendChild(this.form.el)
     this.fillBoxList()
 
     this.dash.listenTo<StepModel>("stepBoxSelected", step => {

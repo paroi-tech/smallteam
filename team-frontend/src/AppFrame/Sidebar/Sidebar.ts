@@ -1,4 +1,4 @@
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../App/OwnDash"
 import { ProjectModel } from "../../AppModel/AppModel"
 import NavBtn from "../../generics/NavBtn/NavBtn"
@@ -6,7 +6,15 @@ import NavMenu from "../../generics/NavMenu/NavMenu"
 import { ERQuery } from "../../libraries/EasyRouter"
 import ProjectBtn from "../../semantics/projects/ProjectBtn/ProjectBtn"
 
-const template = require("./Sidebar.monk")
+const template = handledom`
+<section class="Sidebar FlexBar -column">
+  <div class="-grow">
+    <h1 class="Sidebar-h1">Dashboard</h1>
+    <div h="top"></div>
+  </div>
+  <div class="Sidebar-bottom" h="bottom"></div>
+</section>
+`
 
 export default class Sidebar {
   readonly el: Element
@@ -15,13 +23,13 @@ export default class Sidebar {
   private buttons = new Map<string, ProjectBtn>()
 
   constructor(private dash: OwnDash) {
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root, ref } = template()
+    this.el = root
 
     this.menu = dash.create(NavMenu, { direction: "column" })
-    view.ref("top").appendChild(this.menu.el)
+    ref("top").appendChild(this.menu.el)
 
-    view.ref("bottom").appendChild(dash.create(NavBtn, {
+    ref("bottom").appendChild(dash.create(NavBtn, {
       label: "New project",
       onClick: () => dash.app.navigate("/new-project"),
       cssClass: ["-newProject", "ProjectBtn"]

@@ -1,6 +1,6 @@
 require("./_OnHoldTaskBoard.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, ON_HOLD_STEP_ID, ProjectModel, TaskModel } from "../../../AppModel/AppModel"
 import { Collection } from "../../../AppModel/modelDefinitions"
@@ -8,7 +8,13 @@ import BoxList from "../../../generics/BoxList/BoxList"
 import TaskBox from "../TaskBox/TaskBox"
 import TaskForm from "../TaskForm/TaskForm"
 
-const template = require("./OnHoldTaskBoard.monk")
+const template = handledom`
+<div class="OnHoldTaskBoard">
+  <div class="OnHoldTaskBoard-left" h="left"></div>
+  <div class="OnHoldTaskBoard-right" h="right"></div>
+  <div class="OnHoldTaskBoardOverlay" h="overlay"></div>
+</div>
+`
 
 export default class OnHoldTaskBoard {
   readonly el: HTMLElement
@@ -24,19 +30,19 @@ export default class OnHoldTaskBoard {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
-    this.el = view.rootEl()
-    this.overlayEl = view.ref("overlay")
+    const { root, ref } = template()
+    this.el = root
+    this.overlayEl = ref("overlay")
 
     this.boxList = this.dash.create(BoxList, {
       id: "taskList",
       title: "Tasks",
       sort: false
     })
-    view.ref("left").appendChild(this.boxList.el)
+    ref("left").appendChild(this.boxList.el)
 
     this.taskForm = this.dash.create(TaskForm)
-    view.ref("right").appendChild(this.taskForm.el)
+    ref("right").appendChild(this.taskForm.el)
 
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
     this.dash.listenToModel("updateTask", data => {

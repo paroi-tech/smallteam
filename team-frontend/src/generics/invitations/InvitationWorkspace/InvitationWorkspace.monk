@@ -1,4 +1,0 @@
-<div class="InvitationWorkspace">
-  <div :ref="boxList"></div>
-  <div :ref="form"></div>
-</div>

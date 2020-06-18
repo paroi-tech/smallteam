@@ -1,5 +1,5 @@
 require("./_TaskBox.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
@@ -7,7 +7,21 @@ import { Box } from "../../../generics/BoxList/BoxList"
 import AccountAvatar from "../../accounts/AccountAvatar/AccountAvatar"
 import TaskFlag from "../TaskFlag/TaskFlag"
 
-const template = require("./TaskBox.monk")
+const template = handledom`
+<div class="TaskBox">
+  <div class="TaskBox-top">
+    <span h="lbl"></span>
+    <button class="TaskBox-openBtn RightOpenBtn" type="button" h="openBtn">▶</button>
+  </div>
+  <div class="TaskBox-bottom TaskBoxBottom">
+    <div class="TaskBoxBottom-col1" h="flags"></div>
+    <div class="TaskBoxBottom-col2">
+      <span class="TaskCommentCounter" title="Number of comments" h="comments"></span>
+    </div>
+    <div class="TaskBoxBottom-col3" h="avatars"></div>
+  </div>
+</div>
+`
 
 /**
  * Component used to show basic information about a task of a project.
@@ -30,19 +44,19 @@ export default class TaskBox implements Box {
   constructor(private dash: OwnDash, readonly task: TaskModel) {
     this.model = this.dash.app.model
 
-    let view = render(template)
-    let labelEl = view.ref("lbl")
+    const { root, ref } = template()
+    let labelEl = ref("lbl")
 
-    this.el = view.rootEl()
+    this.el = root
     labelEl.textContent = this.task.label
 
-    this.avatarsEl = view.ref("avatars")
+    this.avatarsEl = ref("avatars")
     this.addAccountAvatars()
 
-    this.flagsEl = view.ref("flags")
+    this.flagsEl = ref("flags")
     this.addTaskFlags()
 
-    let commentsEl = view.ref("comments")
+    let commentsEl = ref("comments")
     commentsEl.textContent = (this.task.commentCount || 0).toString()
 
     this.dash.listenToModel("updateTask", data => {
@@ -60,7 +74,7 @@ export default class TaskBox implements Box {
       this.addTaskFlags()
     })
 
-    view.ref("openBtn").addEventListener("click", () => this.dash.emit("taskBoxSelected", this.task))
+    ref("openBtn").addEventListener("click", () => this.dash.emit("taskBoxSelected", this.task))
   }
 
   get id() {

@@ -1,7 +1,0 @@
-<li>
-  <span :ref="thumbnail"></span>
-  <button title="Click to download" :ref="download">{{ name }}</button> &nbsp;
-  <button style="color: red" title="Click to delete file" :ref="remove">
-    <span class="fa fa-times fa-1x"></span>
-  </button>
-</li>

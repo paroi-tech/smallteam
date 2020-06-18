@@ -1,3 +1,0 @@
-<div class="AccountSelectionComponent">
-  <div :ref="selector"></div>
-</div>

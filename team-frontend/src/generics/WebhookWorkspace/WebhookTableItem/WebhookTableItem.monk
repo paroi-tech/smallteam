@@ -1,7 +1,0 @@
-<tr>
-  <td :ref="provider"></td>
-  <td :ref="url"></td>
-  <td> <button :ref="secret">Show secret</button> </td>
-  <td> <button :ref="toggle"></button> </td>
-  <td> <button :ref="delete">Delete</button> </td>
-</tr>

@@ -1,26 +1,52 @@
 require("./_InvitationBox.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { Box } from "../../../generics/BoxList/BoxList"
 import { Invitation } from "../InvitationWorkspace/InvitationWorkspace"
 
-const template = require("./InvitationBox.monk")
+const template = handledom`
+<div class="InvitationBox">
+  <div class="InvitationBox-top">
+    <section>
+      <span class="fas fa-envelope"></span>
+      <span class="InvitationBox-lbl" h="email"></span>
+    </section>
+    <section>
+      <span class="fas fa-user-ninja"></span>
+      <span class="InvitationBox-lbl" h="username"></span>
+    </section>
+    <section>
+      <span class="fa fas fa-calendar-check" style="color: green"></span>
+      <span class="InvitationBox-lbl" h="creation"></span>
+    </section>
+    <section>
+      <span class="fas fa-calendar-minus" style="color: red"></span>
+      <span class="InvitationBox-lbl" h="expiration"></span>
+    </section>
+  </div>
+
+  <div class="InvitationBox-bottom">
+    <span class="fas fa-redo fa-xs" title="Resend invitation" h="resend"></span>
+    <span class="fas fa-minus fa-xs" title="Cancel invitation" h="cancel"></span>
+  </div>
+</div>
+`
 
 export default class StepBox implements Box {
   readonly el: HTMLElement
 
   constructor(private dash: OwnDash, readonly invitation: Invitation) {
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
+    this.el = root
 
-    view.ref("email").textContent = this.invitation.email
-    view.ref("username").textContent = this.invitation.username || "<not defined>"
-    view.ref("creation").textContent = new Date(this.invitation.creationTs).toDateString()
-    view.ref("expiration").textContent = new Date(this.invitation.expirationTs).toDateString()
+    ref("email").textContent = this.invitation.email
+    ref("username").textContent = this.invitation.username || "<not defined>"
+    ref("creation").textContent = new Date(this.invitation.creationTs).toDateString()
+    ref("expiration").textContent = new Date(this.invitation.expirationTs).toDateString()
 
-    view.ref("resend").addEventListener("click", () => this.dash.emit("resendInvitation", this.invitation.id))
-    view.ref("cancel").addEventListener("click", () => this.dash.emit("cancelInvitation", this.invitation.id))
+    ref("resend").addEventListener("click", () => this.dash.emit("resendInvitation", this.invitation.id))
+    ref("cancel").addEventListener("click", () => this.dash.emit("cancelInvitation", this.invitation.id))
   }
 
   get id(): string {

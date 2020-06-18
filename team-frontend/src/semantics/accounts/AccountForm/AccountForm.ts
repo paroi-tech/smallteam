@@ -1,6 +1,6 @@
 require("./_AccountForm.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { validateEmail } from "../../../../../shared-ui/libraries/utils"
 import { WarningDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import PasswordEdit from "../../../../../shared-ui/PasswordEdit/PasswordEdit"
@@ -9,7 +9,43 @@ import { AccountCreateFragment, AccountUpdateFragment } from "../../../../../sha
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model } from "../../../AppModel/AppModel"
 
-const template = require("./AccountForm.monk")
+const template = handledom`
+<section class="AccountForm">
+  <h1 class="TitleBar" h="header">Account details</h1>
+  <fieldset class="FieldGroup" h="fieldset">
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Name</span>
+      <input class="Field-input" type="text" value={{ name }} h="name">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Login</span>
+      <input class="Field-input" type="text" value={{ login }} h="login">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Email</span>
+      <input class="Field-input" type="email" value={{ email }} placeholder="john.doe@example.com" h="email">
+    </label>
+
+    <label class="FieldGroup-item Field">
+      <span class="Field-lbl">Role</span>
+      <select class="Field-input" h="role">
+        <option value="admin">Admin</option>
+        <option value="contrib" selected="selected">Contributor</option>
+      </select>
+    </label>
+
+    <div class="FieldGroup-item" h="password"></div>
+
+    <div class="FieldGroup-action">
+      <button class="Btn WithLoader -right" type="button" h="submitBtn">
+        Save changes <span class="WithLoader-l" hidden h="submitSpinner"></span>
+      </button>
+    </div>
+  </fieldset>
+</section>
+`
 
 export default class AccountForm {
   readonly el: HTMLElement
@@ -22,7 +58,7 @@ export default class AccountForm {
 
   private passwordEdit: PasswordEdit
 
-  private view: LtMonkberryView
+  private update: (args: any) => void
   private state = {
     login: "",
     name: "",
@@ -44,21 +80,20 @@ export default class AccountForm {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template)
-    this.el = this.view.rootEl()
-    this.fieldsetEl = this.view.ref("fieldset")
-    this.nameEl = this.view.ref("name")
-    this.loginEl = this.view.ref("login")
-    this.emailEl = this.view.ref("email")
-    this.roleEl = this.view.ref("role")
-    this.submitSpinnerEl = this.view.ref("submitSpinner")
-    this.view.ref("submitBtn").addEventListener("click", () => this.onSubmit())
+    const { root, ref, update } = template(this.state)
+    this.update = update
+    this.el = root
+    this.fieldsetEl = ref("fieldset")
+    this.nameEl = ref("name")
+    this.loginEl = ref("login")
+    this.emailEl = ref("email")
+    this.roleEl = ref("role")
+    this.submitSpinnerEl = ref("submitSpinner")
+    ref("submitBtn").addEventListener("click", () => this.onSubmit())
 
     this.passwordEdit = this.dash.create(PasswordEdit)
     if (this.model.session.account.role === "admin" && showPasswordFields)
-      this.view.ref("password").appendChild(this.passwordEdit.el)
-
-    this.view.update(this.state)
+      ref("password").appendChild(this.passwordEdit.el)
 
     this.dash.listenToModel("updateAccount", data => this.onAccountUpdate(data.model))
     this.dash.listenToModel("endProcessingAccount", data => this.onEndProcessing(data.model))
@@ -68,7 +103,7 @@ export default class AccountForm {
   reset() {
     this.account = undefined
     this.resetState()
-    this.view.update(this.state)
+    this.update(this.state)
     this.unlockForm()
     this.nameEl.focus()
   }
@@ -86,7 +121,7 @@ export default class AccountForm {
 
     this.account = account
     this.state = account.updateTools.toFragment("update") as any
-    this.view.update(this.state)
+    this.update(this.state)
     this.roleEl.value = this.state.role
     this.passwordEdit.clear()
 
@@ -162,7 +197,7 @@ export default class AccountForm {
 
     this.canClearForm = false
     this.state = account.updateTools.toFragment("update") as any
-    this.view.update(this.state)
+    this.update(this.state)
     this.roleEl.value = this.state.role
     this.passwordEdit.clear()
   }

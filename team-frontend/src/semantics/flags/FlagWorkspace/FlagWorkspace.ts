@@ -1,6 +1,6 @@
 require("./_FlagWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { equal } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { FlagModel, Model } from "../../../AppModel/AppModel"
@@ -11,7 +11,12 @@ import { ViewerController, Workspace } from "../../../generics/WorkspaceViewer/W
 import FlagBox from "../FlagBox/FlagBox"
 import FlagForm from "../FlagForm/FlagForm"
 
-const template = require("./FlagWorkspace.monk")
+const template = handledom`
+<div class="FlagWorkspace">
+  <div h="list"></div>
+  <div h="form"></div>
+</div>
+`
 
 export default class FlagWorkspace implements Workspace {
   readonly el: HTMLElement
@@ -32,17 +37,17 @@ export default class FlagWorkspace implements Workspace {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root, ref } = template()
+    this.el = root
 
     this.boxList = this.dash.create(BoxList, {
       title: "Flags",
       sort: true
     })
-    view.ref("list").appendChild(this.boxList.el)
+    ref("list").appendChild(this.boxList.el)
 
     this.form = this.dash.create(FlagForm)
-    view.ref("form").appendChild(this.form.el)
+    ref("form").appendChild(this.form.el)
 
     this.menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl(),

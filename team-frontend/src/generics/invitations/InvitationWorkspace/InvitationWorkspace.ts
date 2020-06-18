@@ -1,6 +1,6 @@
 require("./_InvitationWorkspace.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash, Log } from "bkb"
+import handledom from "handledom"
 import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import App from "../../../App/App"
 import { Model } from "../../../AppModel/modelDefinitions"
@@ -9,7 +9,12 @@ import { ViewerController } from "../../WorkspaceViewer/WorkspaceViewer"
 import InvitationBox from "../InvitationBox/InvitationBox"
 import InvitationForm from "../InvitationForm/InvitationForm"
 
-const template = require("./InvitationWorkspace.monk")
+const template = handledom`
+<div class="InvitationWorkspace">
+  <div h="boxList"></div>
+  <div h="form"></div>
+</div>
+`
 
 export interface Invitation {
   id: string
@@ -42,11 +47,11 @@ export default class InvitationWorkspace {
       sort: false
     })
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    view.ref("form").appendChild(this.form.el)
-    view.ref("boxList").appendChild(this.boxList.el)
+    this.el = root
+    ref("form").appendChild(this.form.el)
+    ref("boxList").appendChild(this.boxList.el)
 
     this.fetchInvitations()
     this.dash.listenTo("invitationSent", invitation => this.addInvitation(invitation))

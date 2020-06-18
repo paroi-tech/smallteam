@@ -1,8 +1,13 @@
 require("./_ImagePicker.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../App/OwnDash"
 
-const template = require("./ImagePicker.monk")
+const template = handledom`
+<div class="ImagePicker" title="Click to change">
+  <input type="file" accept="image/png, image/jpeg, image/webp, image/gif, image/svg+xml" hidden h="input">
+  <!-- <button class="ImagePicker-btn" h="btn">Change</button> -->
+</div>
+`
 
 interface ImagePickerOptions {
   height: number
@@ -14,11 +19,11 @@ export default class ImagePicker {
   private inputEl: HTMLInputElement
 
   constructor(private dash: OwnDash, options: ImagePickerOptions) {
-    let view = render(template)
-    // let btn = view.ref("btn")
+    const { root, ref } = template()
+    // let btn = ref("btn")
 
-    this.el = view.rootEl()
-    this.inputEl = view.ref("input")
+    this.el = root
+    this.inputEl = ref("input")
     this.el.style.width = `${options.width}px`
     this.el.style.height = `${options.height}px`
 

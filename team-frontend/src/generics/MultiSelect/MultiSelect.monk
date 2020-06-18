@@ -1,6 +1,0 @@
-<section class="MultiSelect">
-  <h1 class="MultiSelect-h1">{{ title }}</h1>
-  <fieldset :ref="fieldset">
-    <ol class="MultiSelect-ol" :ref="ol"></ol>
-  </fieldset>
-</section>

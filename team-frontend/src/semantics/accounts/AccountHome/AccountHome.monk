@@ -1,6 +1,0 @@
-<div class="AccountHome">
-  <div :ref="formContainer"></div>
-  <div :ref="pwdArea"></div>
-  <h1 class="TitleBar">Change your profile picture</h1>
-  <div class="AccountHome-avatarArea" :ref="avatarArea"></div>
-</div>

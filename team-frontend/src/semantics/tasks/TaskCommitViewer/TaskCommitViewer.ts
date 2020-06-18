@@ -1,12 +1,26 @@
 require("./_TaskCommitViewer.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { TaskModel } from "../../../AppModel/AppModel"
 import { GitCommitModel } from "../../../AppModel/Models/GitCommitModel"
 
-const template = require("./TaskCommitViewer.monk")
+const template = handledom`
+<div class="TaskCommitViewer">
+  <table h="table">
+    <thead>
+      <tr>
+        <td>Author</td>
+        <td>Message</td>
+        <td>Date</td>
+        <td>URL</td>
+      </tr>
+    </thead>
+    <tbody></tbody>
+  </table>
+</div>
+`
 
 export default class TaskCommitViewer {
   readonly el: HTMLElement
@@ -19,10 +33,10 @@ export default class TaskCommitViewer {
   constructor(private dash: OwnDash) {
     this.log = this.dash.app.log
 
-    let view = render(template)
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
-    this.tableEl = view.ref("table")
+    this.el = root
+    this.tableEl = ref("table")
   }
 
   setTask(task?: TaskModel) {

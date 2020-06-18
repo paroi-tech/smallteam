@@ -1,19 +1,24 @@
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
-import { AccountModel, Model } from "../../../AppModel/AppModel"
+import { AccountModel } from "../../../AppModel/AppModel"
 import { Box } from "../../../generics/BoxList/BoxList"
 import AccountAvatar from "../AccountAvatar/AccountAvatar"
 
-const template = require("./AccountBox.monk")
+const template = handledom`
+<div class="AccountBox">
+  <span h="avatar"></span>
+  <span class="AccountBox-name">{{ name }}</span>
+</div>
+`
 
 export default class AccountBox implements Box {
   readonly el: HTMLElement
 
   constructor(private dash: OwnDash, readonly account: AccountModel) {
-    let view = render(template)
+    const { root, ref, update } = template()
 
-    view.update(this.account)
-    this.el = view.rootEl()
+    update(this.account)
+    this.el = root
     this.el.addEventListener("click", () => this.dash.emit("accountBoxSelected", this.account))
 
     let avatar = this.dash.create(AccountAvatar, {
@@ -21,13 +26,13 @@ export default class AccountBox implements Box {
       height: 16,
       width: 16
     })
-    view.ref("avatar").appendChild(avatar.el)
+    ref("avatar").appendChild(avatar.el)
 
     this.dash.listenToModel("updateAccount", data => {
       let account = data.model as AccountModel
 
       if (account.id === this.account.id)
-        view.update(this.account)
+        update(this.account)
     })
   }
 

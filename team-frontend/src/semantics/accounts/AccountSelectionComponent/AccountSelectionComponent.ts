@@ -1,11 +1,15 @@
 require("./_AccountSelectionComponent.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"
 import MultiSelect, { MultiSelectOptions } from "../../../generics/MultiSelect"
 import AccountBox from "../AccountBox/AccountBox"
 
-const template = require("./AccountSelectionComponent.monk")
+const template = handledom`
+<div class="AccountSelectionComponent">
+  <div h="selector"></div>
+</div>
+`
 
 export default class AccountSelectionComponent {
   readonly el: HTMLElement
@@ -13,8 +17,8 @@ export default class AccountSelectionComponent {
   private selector: MultiSelect<AccountModel>
 
   constructor(dash: OwnDash) {
-    let view = render(template)
-    this.el = view.rootEl()
+    const { root, ref } = template()
+    this.el = root
 
     this.selector = dash.create<MultiSelect<AccountModel>, MultiSelectOptions<AccountModel>>(
       MultiSelect,
@@ -28,7 +32,7 @@ export default class AccountSelectionComponent {
     dash.listenToModel("changeAccount", () => this.selector.fillWith(model.global.accounts))
     this.selector.fillWith(model.global.accounts)
 
-    view.ref("selector").appendChild(this.selector.el)
+    ref("selector").appendChild(this.selector.el)
   }
 
   selectAccounts(arr: AccountModel[]) {

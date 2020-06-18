@@ -1,12 +1,14 @@
 require("./_AccountAvatar.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"
 import { closestImageVariant } from "../../../libraries/mediaUtils"
 
-const template = require("./AccountAvatar.monk")
+const template = handledom`
+<span class="AccountAvatar"></span>
+`
 
 export interface AccountAvatarOptions {
   account: AccountModel
@@ -26,7 +28,7 @@ export default class AccountAvatar {
       height: options.height || 48
     }
 
-    this.el = render(template).rootEl()
+    this.el = template().root
 
     this.el.style.width = `${this.options.width}px`
     this.el.style.height = `${this.options.height}px`

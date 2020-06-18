@@ -1,4 +1,0 @@
-<section class="AccountWorkspace">
-  <div :ref="list"></div>
-  <div :ref="form"></div>
-</section>

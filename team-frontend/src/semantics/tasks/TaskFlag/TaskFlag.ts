@@ -1,15 +1,17 @@
 require("./_TaskFlag.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../../../App/OwnDash"
 import { FlagModel } from "../../../AppModel/AppModel"
 
-const template = require("./TaskFlag.monk")
+const template = handledom`
+<span class="TaskFlag WithTooltip" data-tooltip=""></span>
+`
 
 export default class TaskFlag {
   readonly el: HTMLElement
 
   constructor(private dash: OwnDash, readonly flag: FlagModel) {
-    this.el = render(template).rootEl()
+    this.el = template().root
     this.el.dataset.tooltip = flag.label
     this.el.style.backgroundColor = flag.color
 

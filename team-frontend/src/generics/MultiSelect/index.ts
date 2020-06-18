@@ -1,10 +1,23 @@
 require("./_MultiSelect.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 
-const template = require("./MultiSelect.monk")
-const liTemplate = require("./li.monk")
+const template = handledom`
+<section class="MultiSelect">
+  <h1 class="MultiSelect-h1">{{ title }}</h1>
+  <fieldset h="fieldset">
+    <ol class="MultiSelect-ol" h="ol"></ol>
+  </fieldset>
+</section>
+`
+
+const liTemplate = handledom`
+<li>
+  <input class="MultiSelect-input" h="checkbox" type="checkbox">
+  <div class="MultiSelect-itemContent"></div>
+</li>
+`
 
 export type CreateItem<M> = (data: M) => { readonly el: HTMLElement }
 
@@ -40,11 +53,10 @@ export default class MultiSelect<M = any> {
   constructor(private dash: Dash, { title, createItem }: MultiSelectOptions<any>) {
     this.createSticker = createItem
 
-    let view = render(template)
-    view.update({ title })
-    this.el = view.rootEl()
-    this.olEl = view.ref("ol")
-    this.fieldsetEl = view.ref("fieldset")
+    const { root, ref } = template({ title })
+    this.el = root
+    this.olEl = ref("ol")
+    this.fieldsetEl = ref("fieldset")
 
     this.olEl.addEventListener("change", ev => {
       let item = this.checkboxes.get(ev.target as any)
@@ -102,9 +114,9 @@ export default class MultiSelect<M = any> {
   // --
 
   private createItem(data: M) {
-    let view = render(liTemplate)
-    let listItemEl = view.rootEl<HTMLElement>()
-    let checkboxEl = view.ref<HTMLInputElement>("checkbox")
+    const { root, ref } = liTemplate()
+    let listItemEl = root
+    let checkboxEl = ref<HTMLInputElement>("checkbox")
     let comp = this.createSticker(data)
     let item: Item<M> = { listItemEl, checkboxEl, data, comp }
 

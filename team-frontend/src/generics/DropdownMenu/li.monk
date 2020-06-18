@@ -1,3 +1,0 @@
-<li>
-  <button class="DropdownMenu-itemBtn" type="button" :ref="btn"></button>
-</li>

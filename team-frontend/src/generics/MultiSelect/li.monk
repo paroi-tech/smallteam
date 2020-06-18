@@ -1,4 +1,0 @@
-<li>
-  <input class="MultiSelect-input" :ref="checkbox" type="checkbox">
-  <div class="MultiSelect-itemContent"></div>
-</li>
