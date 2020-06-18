@@ -16,8 +16,8 @@
   "editor.insertSpaces": true,
   "editor.rulers": [100],
   "editor.tabSize": 2,
-  "editor.wordWrap": "off",
-  "editor.wordWrapColumn": 100,
+  "editor.wordWrap": "wordWrapColumn",
+  "editor.wordWrapColumn": 120,
   "files.encoding": "utf8",
   "files.trimTrailingWhitespace": true,
   "javascript.format.semicolons": "remove",
@@ -42,6 +42,7 @@
     "opacity": 50
   },
   "todo-tree.highlights.highlightDelay": 50,
+  "todo-tree.filtering.excludeGlobs": [ "**/*.md" ],
   "tslint.configFile": "tslint.json",
   "tslint.jsEnable": true,
   "typescript.locale": "en",

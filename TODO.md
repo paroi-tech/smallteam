@@ -1,22 +1,44 @@
-I used this file to record ideas and things that I think useful. I don't have Internet connection all
-the time, so I can't use JIRA.
+# TODO
 
-# August 2018
+## June 2020
+
+### Thomas
+- [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
+- [ ] Change log system in backend. Remove all calls to `console.log()`.
+- [ ] At registration, show a warning that mentions that teams inactive for several months will be removed.
+      Paroi may change the terms and conditions of the service at anytime.
+      You can get your data stored on our server if you ask.
+- [ ] Try to use Rush. https://rushjs.io/
+- [ ] Remove webpack unused configs and generate bundles without map files for prod.
+
+### Lionel
+- [ ] Backend should notify frontend about updates so that frontend can refresh.
+      When a refresh is required, a notification is displayed to the user.
+- [ ] Configure team creation process so that for each new team, a default project named *First Project* is available.
+      Complete the database creation script with required `insert` statements.
+- [ ] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
+- [ ] Don't allow a contributor to change his own status.
+- [ ] [backend] Use Joi in backend/src/utils/joiUtils.ts.
+- [ ] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
+
+---
+
+## August 2018
 
 - Add HTTP headers for static resources, add versioning in URLs, automatically increment the versioning on deploy
-- logs:
+- Logs:
   - Add a log system (`bristol`?) and replace all the `console.log` on the backend
   - Remove all the `console.log()`, `console.warn()` etc, use `this.dash.app.log.warn()` etc. if necessary
 - Listen to commit events from model in `TaskCommitDialog`
 
-# To refactore
+### To refactore
 
-`onkeyup` ⇒ `addEventListener("input", )`
-`prop: smtg | undefined` ⇒ `prop?: smtg`
-`<button type="button"` ⇒ remove `type="button"`
-`&nbsp;` ⇒ remove
+- `onkeyup` ⇒ `addEventListener("input", )`
+- `prop: smtg | undefined` ⇒ `prop?: smtg`
+- `<button type="button"` ⇒ remove `type="button"`
+- `&nbsp;` ⇒ remove
 
-# Thomas
+### Thomas
 
 - TaskForm: create an event "change" when closing the dialog of accountSelector (with change)
 - CSS
@@ -26,23 +48,19 @@ the time, so I can't use JIRA.
 - Auto-save: remove 'submit' buttons
 - Routes for tasks
 
-# Lionel
+### Lionel
 
 - When an account change status, from admin to contributor, check that there is at least one admin in the team.
-
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
 - Replace ES5 `get` and `set` by methods if an exception can be thrown
-
 - Paste images in the task description
-- queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection
-  for user with no password.
-
+- queryAccount.ts => createAccount: fix default password problem. Set password to NULL and forbid connection for user with no password.
 - Show an animated loader on the background command button when there is something started
 - For each form:
   - Disable the submit button until there are any changes
   - Add a "Close" button
 
-# Not urgent
+### Not urgent
 
 - Deploy automatically
   - Create a detached `prod` branch in the Git repository, with a built version of our application
@@ -57,7 +75,7 @@ the time, so I can't use JIRA.
 - Internationalisation
 - On error 'Unable to disconnect user...', clear the session cookie and reload the page
 
-# Thomas - v2 - Not urgent
+### Thomas - v2 - Not urgent
 
 - Upload engine & co:
   - Implement multi-files upload
@@ -91,12 +109,12 @@ the time, so I can't use JIRA.
 
 ---
 
-# August 2018 - DONE
+## August 2018 - DONE
 
 - Configure and use SendMail on the server
 - Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part.
 
-# Lionel - DONE
+### Lionel - DONE
 
 - In TaskForm, when the user click on the "Archive" button, open a confirmation dialog.
 - Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
@@ -221,7 +239,7 @@ the time, so I can't use JIRA.
   - `StepTypeForm.setProject(stepType: StepTypeModel | null)`
   - `TaskForm.setTask(task: TaskModel)`
 
-# Thomas - DONE
+### Thomas - DONE
 
 - Sessions in the backend
   - Implement `session/current` Auto-login when a session is already opened
@@ -284,13 +302,15 @@ the time, so I can't use JIRA.
   - Keep `global` lists up-to-date
   - [CANCELED] Remove `StepFragment.name` => call `step.stepType.name`
 
-# Thomas or Lionel - DONE
+### Thomas or Lionel - DONE
 
 - Connection:
   - Chromium ask for saving password => find a solution
   - Use a session token
 
-# August 2018 & old tasks - DONE
+---
+
+## August 2018 & old tasks - DONE
 
 - Update the definition for SqlBricks in DefinitelyTyped
 - Use systemd to run our Node application (using the user `smallteam`!)
@@ -303,8 +323,9 @@ the time, so I can't use JIRA.
 - Multi-teams
 - Rename `contributor` to `account`
 
+---
 
-# DNS and proxy settings - DONE
+## DNS and proxy settings - DONE
 
 - https://www.digitalocean.com/community/tutorials/how-to-use-apache-http-server-as-reverse-proxy-using-mod_proxy-extension
 - https://webmasters.stackexchange.com/questions/76540/apache-wildcard-domains-restrict-number-of-subdomain-levels
