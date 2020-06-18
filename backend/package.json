@@ -29,10 +29,6 @@
     "express": "^4.17.1",
     "express-session": "^1.17.1",
     "ladc": "^0.22.9",
-    "monkberry": "^4.0.8",
-    "monkberry-directives": "^4.0.8",
-    "monkberry-events": "^4.0.8",
-    "monkberry-loader": "^4.0.9",
     "nodemailer": "^6.4.8",
     "sql-bricks": "^2.0.5",
     "sql-bricks-sqlite": "^0.1.0",
@@ -40,7 +36,6 @@
     "ws": "^7.3.0"
   },
   "devDependencies": {
-    "@tomko/lt-monkberry": "^0.2.2",
     "@types/express": "^4.17.6",
     "@types/express-session": "^1.17.0",
     "@types/hapi__joi": "^17.1.2",

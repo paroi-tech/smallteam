@@ -1,5 +1,5 @@
 require("./_AppFrame.scss")
-import { render } from "@tomko/lt-monkberry"
+import handledom from "handledom"
 import { OwnDash } from "../App/OwnDash"
 import { ProjectModel } from "../AppModel/AppModel"
 import { Model } from "../AppModel/modelDefinitions"
@@ -23,29 +23,43 @@ import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
 import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
 import Sidebar from "./Sidebar/Sidebar"
 
-const template = require("./AppFrame.monk")
+const template = handledom`
+<div class="AppFrame">
+  <div class="AppFrame-wrapper">
+    <div class="AppFrame-top" h="top"></div>
+    <div class="AppFrame-content" h="content"></div>
+    <div class="AppFrame-side" h="side"></div>
+    <div class="AppFrame-bottom" h="bottom"></div>
+  </div>
+</div>
+`
 
 export default class AppFrame {
   readonly el: Element
   readonly viewer: WorkspaceViewer
 
   private model: Model
-  private sidebar!: Sidebar
+  private sidebar: Sidebar
 
   constructor(private dash: OwnDash) {
     this.model = dash.app.model
 
-    let view = render(template, {
-      placeholders: {
-        top: () => this.createHeaderBar().el,
-        bottom: () => this.createStatusBar().el,
-        side: () => this.createSidebar().el,
-      }
-    })
+    const { root, ref } = template()
 
-    this.el = view.rootEl()
+    this.el = root
+    ref("top").appendChild(this.createHeaderBar().el)
+
+    let statusBar = this.dash.create(StatusBar)
+    // TODO: Fill with background tasks
+    let bgCommandManager = this.dash.create(BackgroundCommandManager)
+    statusBar.addItem(bgCommandManager.buttonEl)
+    ref("bottom").appendChild(statusBar.el)
+
+    this.sidebar = this.dash.create(Sidebar)
+    ref("side").appendChild(this.sidebar.el)
+
     this.viewer = this.createWorkspaceViewer()
-    view.ref("content").appendChild(this.viewer.el)
+    ref("content").appendChild(this.viewer.el)
   }
 
   private createWorkspaceViewer() {
@@ -205,20 +219,6 @@ export default class AppFrame {
     )
 
     return menuBtn
-  }
-
-  private createStatusBar() {
-    let bar = this.dash.create(StatusBar)
-    // TODO: Fill with background tasks
-    let bgCommandManager = this.dash.create(BackgroundCommandManager)
-    bar.addItem(bgCommandManager.buttonEl)
-    return bar
-  }
-
-  private createSidebar() {
-    let bar = this.dash.create(Sidebar)
-    this.sidebar = bar
-    return bar
   }
 }
 

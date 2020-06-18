@@ -1,6 +1,6 @@
 require("./_TaskForm.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { ARCHIVED_STEP_ID, Model, ON_HOLD_STEP_ID, TaskModel } from "../../../AppModel/AppModel"
@@ -13,7 +13,55 @@ import TaskCommentEditor from "../TaskCommentEditor/TaskCommentEditor"
 import TaskCommitViewer from "../TaskCommitViewer/TaskCommitViewer"
 import TaskLogViewer from "../TaskLogViewer/TaskLogViewer"
 
-const template = require("./TaskForm.monk")
+const template = handledom`
+<div class="TaskForm" hidden>
+  <fieldset h="fieldset">
+    <header class="TitleBar2">
+      {{ code }}
+      <span class="LoaderBg" hidden h="spinner"></span>
+    </header>
+
+    <div class="FieldGroup">
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Label</span>
+        <input class="Field-input" type="text" value={{ label }} h="label">
+      </label>
+
+      <label class="FieldGroup-item Field">
+        <span class="Field-lbl">Description</span>
+        <textarea class="Field-input -textarea" value={{ description }} rows="4" placeholder="Task description" h="description">
+        </textarea>
+      </label>
+
+      <div class="FieldGroup-item" h="flag"></div>
+      <div class="FieldGroup-item" h="account"></div>
+
+      <div class="FieldGroup-action">
+        <button class="Btn WithLoader -right" type="button" h="submit">
+          Submit <span class="WithLoader-l" hidden h="submitSpinner"></span>
+        </button>
+        <button class="Btn" type="button" h="archiveBtn">Archive task</button>
+        <button class="Btn" type="button" h="postponeBtn">{{ postponeLabel }}</button>
+      </div>
+
+      <div class="FieldGroup-item" h="comment"></div>
+      <div class="FieldGroup-item" h="attachment"></div>
+
+      <div class="FieldGroup-action">
+        <button class="Btn" h="toggleBtn">Show/Hide as parent</button>
+        <button class="Btn" h="logBtn">Show logs</button>
+        <button class="Btn" h="commitsBtn">Show commits</button>
+      </div>
+
+      <div class="FieldGroup-action">
+        <button class="Btn WithLoader -right" h="btnDelete">
+          Delete task <span class="WithLoader-l" hidden h="deleteSpinner"></span>
+        </button>
+      </div>
+    </div>
+  </fieldset>
+</div>
+`
 
 interface TaskFormOptions {
   noArchiveBtn?: boolean
@@ -26,8 +74,10 @@ export default class TaskForm {
   private labelEl: HTMLInputElement
   private descriptionEl: HTMLTextAreaElement
   private submitSpinnerEl: HTMLElement
+  private archiveBtnEl: HTMLElement
+  private postponeBtnEl: HTMLElement
 
-  private view: LtMonkberryView
+  private update: (args: any) => void
 
   private currentTask: TaskModel | undefined
   private model: Model
@@ -64,16 +114,20 @@ export default class TaskForm {
       logError: err => this.log.error(err)
     })
 
-    this.view = render(template)
+    const { root, ref, update } = template()
+    this.el = root
+    this.update = update
+    this.spinnerEl = ref("spinner")
+    this.labelEl = ref("label")
+    this.descriptionEl = ref("description")
+    this.submitSpinnerEl = ref("submitSpinner")
+    this.archiveBtnEl = ref("archiveBtn")
+    this.postponeBtnEl = ref("postponeBtn")
+
     this.updateView()
-    this.el = this.view.rootEl()
-    this.spinnerEl = this.view.ref("spinner")
-    this.labelEl = this.view.ref("label")
-    this.descriptionEl = this.view.ref("description")
-    this.submitSpinnerEl = this.view.ref("submitSpinner")
 
     if (!this.options.noPostponeBtn) {
-      this.view.ref("btnPostpone").addEventListener("click", () => {
+      this.postponeBtnEl.addEventListener("click", () => {
         if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
           return
         if (this.currentTask.curStepId === ON_HOLD_STEP_ID)
@@ -84,41 +138,41 @@ export default class TaskForm {
     }
 
     if (!this.options.noArchiveBtn)
-      this.view.ref("btnArchive").addEventListener("click", () => this.archiveTask())
+      this.archiveBtnEl.addEventListener("click", () => this.archiveTask())
 
-    this.view.ref("submit").addEventListener("click", () => this.updateTask())
+    ref("submit").addEventListener("click", () => this.updateTask())
 
-    this.view.ref("btnToggle").addEventListener("click", () => {
+    ref("toggleBtn").addEventListener("click", () => {
       if (this.currentTask)
         this.dash.emit("showStepSwitcher", this.currentTask)
     })
 
-    this.view.ref("btnLog").addEventListener("click", () => {
+    ref("logBtn").addEventListener("click", () => {
       if (this.currentTask)
         this.logViewer.open()
     })
 
-    this.view.ref("btnDelete").addEventListener("click", () => {
+    ref("btnDelete").addEventListener("click", () => {
       if (this.currentTask)
         this.deleteTask()
     })
 
-    this.view.ref("btnCommits").addEventListener("click", () => {
+    ref("commitsBtn").addEventListener("click", () => {
       if (this.currentTask)
         this.commitViewer.open()
     })
 
     this.flagSelector = this.dash.create(FlagSelector)
-    this.view.ref("flag").appendChild(this.flagSelector.el)
+    ref("flag").appendChild(this.flagSelector.el)
 
     this.accountSelector = this.dash.create(AccountSelector)
-    this.view.ref("account").appendChild(this.accountSelector.el)
+    ref("account").appendChild(this.accountSelector.el)
 
     this.commentEditor = this.dash.create(TaskCommentEditor)
-    this.view.ref("comment").appendChild(this.commentEditor.el)
+    ref("comment").appendChild(this.commentEditor.el)
 
     this.attachmentMgr = this.dash.create(TaskAttachmentManager)
-    this.view.ref("attachment").appendChild(this.attachmentMgr.el)
+    ref("attachment").appendChild(this.attachmentMgr.el)
 
     this.commitViewer = this.dash.create<Dialog<TaskCommitViewer>, DialogOptions<TaskCommitViewer>>(Dialog, {
       content: this.dash.create(TaskCommitViewer),
@@ -319,17 +373,19 @@ export default class TaskForm {
     let code = task ? task.code : ""
     let label = task ? task.label : ""
     let description = task && task.description ? task.description : ""
+    let postponeLabel = !task || task.curStepId !== ON_HOLD_STEP_ID ? "Postpone" : "Activate"
+
     let showArchiveBtn = !this.options.noArchiveBtn
     let showPostponeBtn = !this.options.noPostponeBtn
-    let activeTask = (!task || task.curStepId !== ON_HOLD_STEP_ID) ? "Postpone" : "Activate task"
 
-    this.view.update({
+    this.archiveBtnEl.hidden = !showArchiveBtn
+    this.postponeBtnEl.hidden = !showPostponeBtn
+
+    this.update({
       code,
       label,
       description,
-      showArchiveBtn,
-      showPostponeBtn,
-      activeTask
+      postponeLabel,
     })
   }
 }

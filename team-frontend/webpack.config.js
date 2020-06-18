@@ -30,13 +30,6 @@ module.exports = {
         }
       },
       {
-        test: /\.monk$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "monkberry-loader"
-        }
-      },
-      {
         test: /\.s[ac]ss$/i,
         use: [
           // Creates `style` nodes from JS strings

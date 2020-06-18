@@ -1,10 +1,23 @@
 require("./_NavBtn.scss")
-import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import handledom from "handledom"
 import { addCssClass, catchAndLog } from "../../../../shared-ui/libraries/utils"
 
-const template = require("./NavBtn.monk")
+const template = handledom`
+<button class="NavBtn" type="button"></button>
+`
+
+const innerTemplate = handledom`
+<span class="NavBtn-inner"></span>
+`
+
+const labelTemplate = handledom`
+<span class="NavBtn-lbl"></span>
+`
+
+const alertTemplate = handledom`
+<b class="NavBtn-alert" hidden></b>
+`
 
 const templateWrapper = handledom`
 <div class="DdMenuWrapper"></div>
@@ -40,17 +53,30 @@ export default class NavBtn {
 
   constructor(private dash: Dash, private options: NavBtnOptions) {
     let altMode = options.canHaveAlert ? "alert" : options.innerEl ? "inner" : undefined
-    let view = render(template)
-    view.update({ altMode })
+    this.btnEl = template().root as HTMLButtonElement
 
-    this.btnEl = view.rootEl()
-    this.labelEl = altMode ? view.ref("lbl") : this.btnEl
+    if (altMode) {
+      if (options.innerEl) {
+        this.innerEl = innerTemplate().root
+        this.innerEl!.classList.add(`-${options.innerEl.position}`)
+        if (options.innerEl.cssClass)
+          this.innerEl!.classList.add(options.innerEl.cssClass)
+        this.btnEl.classList.add(`-${options.innerEl.position}Inner`)
+        this.btnEl.appendChild(this.innerEl)
+      }
+      this.labelEl = labelTemplate().root
+      this.btnEl.appendChild(this.labelEl)
+      if (options.canHaveAlert) {
+        this.alertEl = alertTemplate().root
+        this.btnEl.appendChild(this.alertEl)
+      }
+    } else {
+      this.btnEl.classList.add("NavBtn-lbl")
+      this.labelEl = this.btnEl
+    }
 
     if (options.label)
       this.setLabel(options.label)
-
-    if (options.canHaveAlert)
-      this.alertEl = view.ref("alert") as HTMLElement
 
     if (options.icon22)
       this.btnEl.classList.add("-icon22", `-${options.icon22.position}`, options.icon22.cssClass)
@@ -65,14 +91,6 @@ export default class NavBtn {
       this.el.appendChild(this.btnEl)
     } else
       this.el = this.btnEl
-
-    if (options.innerEl) {
-      this.innerEl = view.ref("inner")
-      this.innerEl!.classList.add(`-${options.innerEl.position}`)
-      if (options.innerEl.cssClass)
-        this.innerEl!.classList.add(options.innerEl.cssClass)
-      this.btnEl.classList.add(`-${options.innerEl.position}Inner`)
-    }
   }
 
   setAlertCount(count: number) {

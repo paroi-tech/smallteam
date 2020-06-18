@@ -5,32 +5,6 @@ declare module "html-loader!*" {
   export default html
 }
 
-declare module "*.monk" {
-  let template: () => void
-  export = template
-}
-
-interface MonkberryView {
-  update(state: any): void
-  querySelector(query: string): HTMLElement | null
-  nodes: Node[]
-}
-
-declare module "monkberry" {
-  let obj: {
-    render(tpl: any, el: HTMLElement, opt?: any): MonkberryView
-  }
-  export = obj
-}
-
-declare module "monkberry-directives" {
-  let obj: any
-  export default obj
-}
-
-declare module "monkberry-events" {
-}
-
 /**
  * HTMLDialogELement
  * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement
@@ -41,11 +15,11 @@ interface HTMLDialogElement extends HTMLElement {
    * Reflects the open HTML attribute,
    * indicating that the dialog is available for interaction.
    */
-  open: boolean;
+  open: boolean
   /**
    * Gets/sets the return value for the dialog.
    */
-  returnValue: string;
+  returnValue: string
   /**
    * Closes the dialog. An optional DOMString may be passed as an argument,
    * updating the returnValue of the the dialog.

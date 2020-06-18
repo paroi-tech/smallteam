@@ -16,16 +16,11 @@
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",
     "handledom": "^0.1.5",
-    "monkberry": "^4.0.8",
-    "monkberry-directives": "^4.0.8",
-    "monkberry-events": "^4.0.8",
-    "monkberry-loader": "^4.0.9",
     "showdown": "^1.9.1",
     "sortablejs": "^1.10.2"
   },
   "devDependencies": {
     "@handledom/in-template-string-loader": "^0.1.6",
-    "@tomko/lt-monkberry": "^0.2.2",
     "@types/showdown": "^1.9.3",
     "@types/sortablejs": "^1.10.4",
     "css-loader": "^3.5.3",

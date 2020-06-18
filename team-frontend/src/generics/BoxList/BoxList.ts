@@ -1,10 +1,21 @@
 require("./_BoxList.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
 import handledom from "handledom"
 import Sortable from "sortablejs"
 
-const boxListTemplate = require("./BoxList.monk")
+const template = handledom`
+<div class="BoxList">
+  <div h="header"></div>
+  <ul class="BoxList-ul" h="ul"></ul>
+</div>
+`
+
+const headerTemplate = handledom`
+<header class="BoxList-header WithLoader -right">
+  <span>{{ title }}</span>
+  <span class="BoxList-spinner WithLoader-l" hidden h="busyIcon"></span>
+</header>
+`
 
 const liTemplate = handledom`
 <li class="BoxList-li MovableBox">
@@ -93,24 +104,25 @@ export interface BoxListEvent extends BoxEvent {
 export default class BoxList<T extends Box> {
   readonly el: HTMLElement
 
-  private view: LtMonkberryView
+  private update?: (args: any) => void
   private ulEl: HTMLElement
   private spinnerEl?: HTMLElement
   private sortable: Sortable
   private boxes = new Map<string, HTMLElement>()
 
   constructor(private dash: Dash, private options: BoxListOptions = {}) {
-    this.view = render(boxListTemplate)
-    this.view.update({
-      hasHeader: !options.noHeader,
-      title: options.title
-    })
+    const { root, ref } = template()
+    this.el = root
+    this.ulEl = ref("ul")
 
-    this.el = this.view.rootEl()
-    this.ulEl = this.view.ref("ul")
-
-    if (!options.noHeader)
-      this.spinnerEl = this.view.ref("busyIcon")
+    if (!options.noHeader) {
+      const { root: headerRoot, ref: headerRef, update } = headerTemplate({
+        title: options.title
+      })
+      this.update = update
+      this.spinnerEl = headerRef("busyIcon")
+      ref("header").appendChild(headerRoot)
+    }
 
     if (this.options.inline)
       this.el.classList.add("inline")
@@ -153,10 +165,11 @@ export default class BoxList<T extends Box> {
   }
 
   setTitle(title?: string) {
-    this.view.update({
-      hasHeader: !this.options.noHeader,
-      title: title || this.options.title || ""
-    })
+    if (this.update) {
+      this.update({
+        title: title || this.options.title || ""
+      })
+    }
   }
 
   /**

@@ -1,55 +1,63 @@
 require("./_TaskCommentEditor.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
 import { CommentCreateFragment } from "../../../../../shared/meta/Comment"
 import { OwnDash } from "../../../App/OwnDash"
 import { CommentModel, Model, TaskModel } from "../../../AppModel/AppModel"
-import { Show } from "../../../libraries/monkberryUtils"
 import TaskComment from "../TaskComment/TaskComment"
 
-const template = require("./TaskCommentEditor.monk")
+const template = handledom`
+<div class="TaskCommentEditor">
+  <header class="TaskCommentEditor-header">Comments</header>
+  <ul class="TaskCommentEditor-ul" h="ul"></ul>
+  <button class="Btn TaskCommentEditor-button" h="btnToggle">{{ btnLabel }}
+  </button>
+  <div h="showIfText">
+    <textarea class="TaskCommentEditor-textarea" rows="10" cols="25" h="textarea"></textarea>
+    <button class="TaskCommentEditor-button Btn WithLoader -right" type="button" h="btnAdd">
+      Save comment
+      <span class="WithLoader-l" hidden h="spinner"></span>
+    </button>
+  </div>
+</div>
+`
 
 export default class TaskCommentEditor {
   readonly el: HTMLElement
   private listEl: HTMLElement
   private textEl: HTMLTextAreaElement
   private spinnerEl: HTMLElement
+  private showIfTextEl: HTMLElement
 
-  private view: LtMonkberryView
-  private directives = {
-    show: Show
-  }
-
+  private update: (args: any) => void
   private listItems = new Map<string, HTMLElement>()
+  private showText = false
 
   private model: Model
   private task?: TaskModel
   private log: Log
 
-  private state = {
-    showText: false
-  }
-
   constructor(private dash: OwnDash) {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    this.view = render(template, { directives: this.directives })
-    this.view.update(this.state)
-    this.el = this.view.rootEl()
-    this.listEl = this.view.ref("ul")
-    this.textEl = this.view.ref("textarea")
-    this.spinnerEl = this.view.ref("spinner")
+    const { root, ref, update } = template()
+    this.el = root
+    this.update = update
 
-    this.view.ref("btnAdd").addEventListener("click", () => {
+    this.showIfTextEl = ref("showIfText")
+    this.listEl = ref("ul")
+    this.textEl = ref("textarea")
+    this.spinnerEl = ref("spinner")
+
+    ref("btnAdd").addEventListener("click", () => {
       if (this.task)
         this.onSubmit()
     })
 
-    this.view.ref("btnToggle").addEventListener("click", () => {
-      this.state.showText = !this.state.showText
-      this.view.update(this.state)
+    ref("btnToggle").addEventListener("click", () => {
+      this.setShowText(!this.showText)
     })
 
     this.dash.listenToModel("createComment", data => {
@@ -89,6 +97,14 @@ export default class TaskCommentEditor {
     this.textEl.value = ""
     removeAllChildren(this.listEl)
     this.loadComments()
+  }
+
+  private setShowText(showText: boolean) {
+    this.showText = showText
+    this.update({
+      btnLabel: showText ? "Hide ▴" : "Add comment ▾"
+    })
+    this.showIfTextEl.hidden = !showText
   }
 
   private async onSubmit() {

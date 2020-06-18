@@ -1,30 +1,47 @@
 require("./_TaskComment.scss")
-import { LtMonkberryView, render } from "@tomko/lt-monkberry"
 import { Log } from "bkb"
+import handledom from "handledom"
 import { Converter } from "showdown"
 import { QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
 import { OwnDash } from "../../../App/OwnDash"
 import { CommentModel, Model } from "../../../AppModel/AppModel"
-import { Show } from "../../../libraries/monkberryUtils"
 
-const template = require("./TaskComment.monk")
+const template = handledom`
+<div class="TaskComment">
+  <div class="TaskComment-left">
+    <div class="TaskComment-content">
+      <span>{{ author }}, {{ date }}</span>
+      <div h="markdown"></div>
+    </div>
+    <textarea class="TaskComment-textarea" h="text" value={{ text }}></textarea>
+  </div>
+
+  <div class="TaskComment-right" h="ifCanEdit">
+  </div>
+</div>
+`
+
+const buttonsTemplate = handledom`
+<span>
+  <button class="TaskComment-saveButton" title="Save changes" h="save"></button>
+  <button class="TaskComment-cancelButton" title="Undo changes " h="cancel"></button>
+  <button class="TaskComment-editButton" title="Edit comment" h="edit"></button>
+  <button class="TaskComment-deleteButton" title="Delete comment" h="delete"></button>
+</span>
+`
 
 export default class TaskComment {
   readonly el: HTMLElement
   private textareaEl: HTMLTextAreaElement
   private mdEl: HTMLElement
 
-  private view: LtMonkberryView
-  private directives = {
-    show: Show
-  }
   private state = {
     author: "",
     date: "",
     text: "",
-    canEdit: false,
-    editMode: false
   }
+  private showIfEditElements: HTMLElement[] = []
+  private showIfNotEditElements: HTMLElement[] = []
 
   private converter: Converter
 
@@ -38,21 +55,34 @@ export default class TaskComment {
     let currentAccountId = this.dash.app.model.session.account.id
     let date = new Date(this.comment.updateTs)
 
-    this.view = render(template, { directives: this.directives })
     this.state.author = this.comment.writtenBy.login
     this.state.date = `${date.toLocaleDateString()}@${date.toLocaleTimeString()}`
-    this.state.canEdit = currentAccountId === comment.writtenById
     this.state.text = comment.body
-    this.view.update(this.state)
 
-    this.el = this.view.rootEl()
-    this.textareaEl = this.view.ref("text")
-    this.mdEl = this.view.ref("markdown")
-    if (this.state.canEdit) {
-      this.view.ref("edit").addEventListener("click", () => this.onBtnEditClick())
-      this.view.ref("save").addEventListener("click", () => this.onBtnSaveClick())
-      this.view.ref("cancel").addEventListener("click", () => this.onBtnCancelClick())
-      this.view.ref("delete").addEventListener("click", () => this.onBtnDeleteClick())
+    const { root, ref, update } = template(this.state)
+    this.el = root
+    this.textareaEl = ref("text")
+    this.mdEl = ref("markdown")
+
+    this.showIfEditElements.push(this.textareaEl)
+
+    const canEdit = currentAccountId === comment.writtenById
+    if (canEdit) {
+      const { root: buttonsRoot, ref: buttonsRef } = buttonsTemplate()
+      ref("ifCanEdit").appendChild(buttonsRoot)
+
+      buttonsRef("edit").addEventListener("click", () => this.setEditMode(true))
+      buttonsRef("save").addEventListener("click", () => this.onBtnSaveClick())
+      buttonsRef("cancel").addEventListener("click", () => this.setEditMode(false))
+      buttonsRef("delete").addEventListener("click", () => this.onBtnDeleteClick())
+      this.showIfEditElements.push(
+        buttonsRef("save"),
+        buttonsRef("cancel"),
+      )
+      this.showIfNotEditElements.push(
+        buttonsRef("edit"),
+        buttonsRef("delete"),
+      )
     }
 
     this.converter = new Converter()
@@ -64,14 +94,14 @@ export default class TaskComment {
       let d = new Date(this.comment.updateTs)
       this.state.date = `${d.toLocaleDateString()}@${d.toLocaleTimeString()}`
       this.state.text = this.comment.body
-      this.view.update(this.state)
+      update(this.state)
       this.mdEl.innerHTML = this.converter.makeHtml(this.comment.body)
     })
   }
 
-  private async onBtnEditClick() {
-    this.state.editMode = true
-    this.view.update(this.state)
+  private setEditMode(editMode: boolean) {
+    this.showIfEditElements.forEach(el => el.hidden = !editMode)
+    this.showIfNotEditElements.forEach(el => el.hidden = editMode)
   }
 
   private async onBtnSaveClick() {
@@ -85,16 +115,10 @@ export default class TaskComment {
         id: this.comment.id,
         body: str
       })
-      this.state.editMode = false
-      this.view.update(this.state)
+      this.setEditMode(false)
     } catch (err) {
       this.log.error("Unable to update comment...")
     }
-  }
-
-  private onBtnCancelClick() {
-    this.state.editMode = false
-    this.view.update(this.state)
   }
 
   private async onBtnDeleteClick() {

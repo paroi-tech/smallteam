@@ -1,8 +1,0 @@
-<div class="AppFrame">
-  <div class="AppFrame-wrapper">
-    <div class="AppFrame-top" :placeholder="top"></div>
-    <div class="AppFrame-content" :ref="content"></div>
-    <div class="AppFrame-side" :placeholder="side"></div>
-    <div class="AppFrame-bottom" :placeholder="bottom"></div>
-  </div>
-</div>

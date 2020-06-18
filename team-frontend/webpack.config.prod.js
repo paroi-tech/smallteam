@@ -33,13 +33,6 @@ module.exports = {
         use: ["@handledom/in-template-string-loader", "ts-loader"]
       },
       {
-        test: /\.monk$/,
-        exclude: /node_modules/,
-        use: {
-          loader: "monkberry-loader"
-        }
-      },
-      {
         test: /\.s[ac]ss$/i,
         use: [
           MiniCssExtractPlugin.loader,
