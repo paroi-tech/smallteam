@@ -1,6 +1,7 @@
 require("./_LoginDialog.scss")
 import { render } from "@tomko/lt-monkberry"
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import Deferred from "../../../../shared-ui/libraries/Deferred"
 import { ErrorDialog, WarningDialog } from "../../../../shared-ui/modalDialogs/modalDialogs"
 import App from "../../App/App"
@@ -33,6 +34,7 @@ export default class LoginDialog {
     })
     view.ref("pwdReset").addEventListener("click", () => this.onPasswordReset())
 
+    dialogPolyfill.registerDialog(this.el)
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
 
