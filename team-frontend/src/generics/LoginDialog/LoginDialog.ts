@@ -1,5 +1,6 @@
 require("./_LoginDialog.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../../../../shared-ui/libraries/Deferred"
 import { ErrorDialog, WarningDialog } from "../../../../shared-ui/modalDialogs/modalDialogs"
@@ -63,6 +64,7 @@ export default class LoginDialog {
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
 
+    dialogPolyfill.registerDialog(this.el)
     document.body.appendChild(this.el)
   }
 
