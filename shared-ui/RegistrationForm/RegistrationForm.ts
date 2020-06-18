@@ -1,5 +1,6 @@
 require("./_RegistrationForm.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
@@ -80,6 +81,8 @@ export default class RegistrationForm {
     this.confirmEl = ref("confirm")
     this.emailEl = ref("email")
     // this.spinnerEl = ref("spinner")
+
+    dialogPolyfill.registerDialog(this.el)
 
     ref("submitBtn").addEventListener("click", () => this.onSubmit())
     ref("cancelBtn").addEventListener("click", () => {

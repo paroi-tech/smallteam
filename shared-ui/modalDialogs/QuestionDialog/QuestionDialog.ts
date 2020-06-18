@@ -1,5 +1,6 @@
 require("./_QuestionDialog.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../../libraries/Deferred"
 import { makeOutsideClickHandlerFor } from "../../libraries/utils"
@@ -45,6 +46,8 @@ export default class QuestionDialog {
     this.el = root as HTMLDialogElement
     this.msgEl = ref("message")
     this.titleEl = ref("title")
+
+    dialogPolyfill.registerDialog(this.el)
 
     ref("okBtn").addEventListener("click", () => this.close(true))
     ref("cancelBtn").addEventListener("click", () => this.close(false))

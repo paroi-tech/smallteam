@@ -16,13 +16,13 @@ const template = handledom`
 `
 
 export default class PasswordEdit {
-  readonly el: HTMLDialogElement
+  readonly el: HTMLDivElement
   private primaryEl: HTMLInputElement
   private confirmEl: HTMLInputElement
 
   constructor() {
     const { root, ref } = template()
-    this.el = root as HTMLDialogElement
+    this.el = root as HTMLDivElement
     this.primaryEl = ref("primary")
     this.confirmEl = ref("confirm")
   }

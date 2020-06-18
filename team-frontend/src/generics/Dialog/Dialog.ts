@@ -1,5 +1,6 @@
 require("./_Dialog.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 
@@ -43,6 +44,8 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
 
     this.el = root as HTMLDialogElement
     this.bodyEl = ref("body")
+
+    dialogPolyfill.registerDialog(this.el)
 
     ref("close").addEventListener("click", () => this.close())
     this.el.addEventListener("cancel", ev => {

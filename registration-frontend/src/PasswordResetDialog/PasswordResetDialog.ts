@@ -1,5 +1,6 @@
 require("./_PasswordResetDialog.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import ErrorDialog from "../../../shared-ui/modalDialogs/ErrorDialog/ErrorDialog"
 import InfoDialog from "../../../shared-ui/modalDialogs/InfoDialog/InfoDialog"
@@ -35,6 +36,7 @@ export default class PasswordResetDialog {
     const { root, ref } = template()
 
     this.el = root as HTMLDialogElement
+    dialogPolyfill.registerDialog(this.el)
     this.spinnerEl = ref("spinner")
 
     this.edit = this.dash.create(PasswordEdit)

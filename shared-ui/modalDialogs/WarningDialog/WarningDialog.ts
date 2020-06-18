@@ -1,5 +1,6 @@
 require("./_WarningDialog.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../../libraries/Deferred"
 import { makeOutsideClickHandlerFor } from "../../libraries/utils"
@@ -42,6 +43,8 @@ export default class WarningDialog {
     this.el = root as HTMLDialogElement
     this.msgEl = ref("message")
     this.titleEl = ref("title")
+
+    dialogPolyfill.registerDialog(this.el)
 
     let closeCb = () => this.close()
 

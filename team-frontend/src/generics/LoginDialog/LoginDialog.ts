@@ -52,6 +52,8 @@ export default class LoginDialog {
     this.passwordEl = ref("password") as HTMLInputElement
     this.spinnerEl = ref("spinner") as HTMLElement
 
+    dialogPolyfill.registerDialog(this.el)
+
     let btnEl: HTMLButtonElement = ref("submitBtn")
 
     btnEl.addEventListener("click", () => this.onSubmit())
@@ -64,7 +66,6 @@ export default class LoginDialog {
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
 
-    dialogPolyfill.registerDialog(this.el)
     document.body.appendChild(this.el)
   }
 

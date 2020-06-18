@@ -1,5 +1,6 @@
 require("./_TeamCreationDialog.scss")
 import { Dash } from "bkb"
+import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
@@ -116,6 +117,8 @@ export default class TeamCreationDialog {
     this.passwordEl = ref("password")
     this.confirmEl = ref("confirm")
     // this.spinnerEl = ref("spinner")
+
+    dialogPolyfill.registerDialog(this.el)
 
     ref("submitBtn").addEventListener("click", () => this.onSubmit())
     ref("cancelBtn").addEventListener("click", () => {
