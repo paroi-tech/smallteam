@@ -70,9 +70,9 @@ npm i --prefix team-frontend
 npm run build --prefix shared
 npm run build --prefix backend
 npm run build --prefix shared-ui
-npm run build --prefix platform-frontend
-npm run build --prefix registration-frontend
-npm run build --prefix team-frontend
+npm run build:dev --prefix platform-frontend
+npm run build:dev --prefix registration-frontend
+npm run build:dev --prefix team-frontend
 ```
 
 Now, start the backend:
