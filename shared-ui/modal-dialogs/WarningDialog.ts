@@ -1,9 +1,17 @@
-require("./_WarningDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import Deferred from "../../libraries/Deferred"
-import { makeOutsideClickHandlerFor } from "../../libraries/utils"
+import Deferred from "../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../libraries/utils"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.WarningDialog {
+  &-contentLeft {
+    color: #ffa500;
+  }
+}
+`
 
 const template = handledom`
 <dialog class="ModalDialog WarningDialog">

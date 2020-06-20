@@ -1,5 +1,6 @@
 require("./_ProjectWorkspace.scss")
-import { ErrorDialog, InfoDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import ErrorDialog from "../../../../../shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "../../../../../shared-ui/modal-dialogs/InfoDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, ProjectModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"

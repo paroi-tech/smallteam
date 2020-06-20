@@ -1,4 +1,4 @@
-require("../../shared-ui/_start.scss")
+require("../../shared-ui/theme.scss")
 require("./common.scss")
 import { createApplication } from "bkb"
 import "dialog-polyfill"

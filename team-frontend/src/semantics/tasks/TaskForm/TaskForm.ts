@@ -1,7 +1,7 @@
 require("./_TaskForm.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
-import { QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import QuestionDialog from "../../../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { ARCHIVED_STEP_ID, Model, ON_HOLD_STEP_ID, TaskModel } from "../../../AppModel/AppModel"
 import { Dialog, DialogOptions } from "../../../generics/Dialog/Dialog"

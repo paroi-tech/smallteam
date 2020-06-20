@@ -2,7 +2,7 @@ require("./_TaskComment.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
 import { Converter } from "showdown"
-import { QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import QuestionDialog from "../../../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { CommentModel, Model } from "../../../AppModel/AppModel"
 

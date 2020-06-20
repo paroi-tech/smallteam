@@ -1,6 +1,7 @@
 import { AppDash, EventCallback, EventName, Log, LogEvent } from "bkb"
 import { removeAllChildren } from "../../../shared-ui/libraries/utils"
-import { InfoDialog, WarningDialog } from "../../../shared-ui/modalDialogs/modalDialogs"
+import InfoDialog from "../../../shared-ui/modal-dialogs/InfoDialog"
+import WarningDialog from "../../../shared-ui/modal-dialogs/WarningDialog"
 import AppFrame from "../AppFrame/AppFrame"
 import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"

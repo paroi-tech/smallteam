@@ -3,7 +3,8 @@ import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../../../../shared-ui/libraries/Deferred"
-import { ErrorDialog, InfoDialog } from "../../../../shared-ui/modalDialogs/modalDialogs"
+import ErrorDialog from "../../../../shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "../../../../shared-ui/modal-dialogs/InfoDialog"
 import App from "../../App/App"
 
 const template = handledom`

@@ -1,5 +1,12 @@
-require("./_PasswordEdit.scss")
 import handledom from "handledom"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.PasswordEdit {
+  display: flex;
+  flex-direction: column;
+}
+`
 
 const template = handledom`
 <div class="PasswordEdit FieldGroup">

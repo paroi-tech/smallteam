@@ -1,9 +1,31 @@
-require("./_PromptDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import Deferred from "../../libraries/Deferred"
-import { makeOutsideClickHandlerFor } from "../../libraries/utils"
+import Deferred from "../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../libraries/utils"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.PromptDialog {
+  &-contentLeft {
+      color: #708090;
+  }
+
+  &-contentRight {
+      display: flex;
+      flex-direction: column;
+      justify-content: space-evenly;
+      padding-right: 5px;
+  }
+
+  &-input {
+    display: block;
+    border: 1px solid #2f4f4f;
+    padding: 3px;
+    width: 100%;
+  }
+}
+`
 
 const template = handledom`
 <dialog class="PromptDialog InfoDialog">

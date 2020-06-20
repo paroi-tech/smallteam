@@ -1,6 +1,7 @@
 import { AppDash, Log, LogEvent } from "bkb"
-import { ErrorDialog, InfoDialog } from "../../../shared-ui/modalDialogs/modalDialogs"
-import TeamCreationDialog from "../../../shared-ui/TeamCreationDialog/TeamCreationDialog"
+import TeamCreationDialog from "../../../shared-ui/components/TeamCreationDialog"
+import ErrorDialog from "../../../shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "../../../shared-ui/modal-dialogs/InfoDialog"
 
 export interface AppOptions {
   action?: string

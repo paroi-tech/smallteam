@@ -1,6 +1,7 @@
 import { Dash } from "bkb"
 import handledom from "handledom"
-import { ErrorDialog, WarningDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import ErrorDialog from "../../../../../shared-ui/modal-dialogs/ErrorDialog"
+import WarningDialog from "../../../../../shared-ui/modal-dialogs/WarningDialog"
 import App from "../../../App/App"
 
 const template = handledom`

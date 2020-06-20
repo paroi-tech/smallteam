@@ -1,6 +1,8 @@
 import { Log } from "bkb"
 import handledom from "handledom"
-import { ErrorDialog, InfoDialog, QuestionDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import ErrorDialog from "../../../../../shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "../../../../../shared-ui/modal-dialogs/InfoDialog"
+import QuestionDialog from "../../../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { WebhookModel } from "../WebhookWorkspace"
 

@@ -2,7 +2,7 @@ require("./_TaskAttachmentManager.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
 import { removeAllChildren } from "../../../../../shared-ui/libraries/utils"
-import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import ErrorDialog from "../../../../../shared-ui/modal-dialogs/ErrorDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, TaskModel } from "../../../AppModel/AppModel"
 import { MediaModel } from "../../../AppModel/Models/MediaModel"

@@ -1,7 +1,7 @@
 require("./_ProjectForm.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
-import { WarningDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import WarningDialog from "../../../../../shared-ui/modal-dialogs/WarningDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, ProjectModel, StepModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"

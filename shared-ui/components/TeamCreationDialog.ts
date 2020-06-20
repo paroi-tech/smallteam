@@ -4,7 +4,9 @@ import handledom from "handledom"
 import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
-import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
+import ErrorDialog from "../modal-dialogs/ErrorDialog"
+import InfoDialog from "../modal-dialogs/InfoDialog"
+import WarningDialog from "../modal-dialogs/WarningDialog"
 
 // tslint:disable-next-line: no-unused-expression
 scss`

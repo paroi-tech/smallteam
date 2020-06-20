@@ -1,7 +1,7 @@
 require("./_StepForm.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
-import InfoDialog from "../../../../../shared-ui/modalDialogs/InfoDialog/InfoDialog"
+import InfoDialog from "../../../../../shared-ui/modal-dialogs/InfoDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { Model, StepModel } from "../../../AppModel/AppModel"
 import { DropdownMenu } from "../../../generics/DropdownMenu/DropdownMenu"

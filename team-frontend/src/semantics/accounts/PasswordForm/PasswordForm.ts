@@ -1,8 +1,9 @@
 require("./_PasswordForm.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
-import { ErrorDialog, InfoDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
-import PasswordEdit from "../../../../../shared-ui/PasswordEdit/PasswordEdit"
+import PasswordEdit from "../../../../../shared-ui/components/PasswordEdit"
+import ErrorDialog from "../../../../../shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "../../../../../shared-ui/modal-dialogs/InfoDialog"
 import { whyNewPasswordIsInvalid } from "../../../../../shared/libraries/helpers"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel } from "../../../AppModel/AppModel"

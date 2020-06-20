@@ -1,11 +1,23 @@
-require("./_RegistrationForm.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../shared/libraries/helpers"
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
-import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
+import ErrorDialog from "../modal-dialogs/ErrorDialog"
+import InfoDialog from "../modal-dialogs/InfoDialog"
+import WarningDialog from "../modal-dialogs/WarningDialog"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.RegistrationForm {
+  border: 1px solid gray;
+  border-radius: 4px;
+  margin: auto;
+  padding: 8px;
+  width: 480px;
+}
+`
 
 const template = handledom`
 <dialog class="RegistrationForm">

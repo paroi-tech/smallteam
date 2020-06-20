@@ -2,9 +2,9 @@ require("./_PasswordResetDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import ErrorDialog from "../../../shared-ui/modalDialogs/ErrorDialog/ErrorDialog"
-import InfoDialog from "../../../shared-ui/modalDialogs/InfoDialog/InfoDialog"
-import PasswordEdit from "../../../shared-ui/PasswordEdit/PasswordEdit"
+import PasswordEdit from "../../../shared-ui/components/PasswordEdit"
+import ErrorDialog from "../../../shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "../../../shared-ui/modal-dialogs/InfoDialog"
 import { whyNewPasswordIsInvalid } from "../../../shared/libraries/helpers"
 import App from "../App/App"
 

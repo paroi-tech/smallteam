@@ -1,7 +1,7 @@
 require("./_AvatarForm.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
-import { ErrorDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
+import ErrorDialog from "../../../../../shared-ui/modal-dialogs/ErrorDialog"
 import { OwnDash } from "../../../App/OwnDash"
 import { AccountModel, Model } from "../../../AppModel/AppModel"
 

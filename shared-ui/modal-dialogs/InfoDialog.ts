@@ -1,24 +1,32 @@
-require("./_QuestionDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import Deferred from "../../libraries/Deferred"
-import { makeOutsideClickHandlerFor } from "../../libraries/utils"
+import Deferred from "../libraries/Deferred"
+import { makeOutsideClickHandlerFor } from "../libraries/utils"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.InfoDialog {
+  &-contentLeft {
+    color: #4169e1;
+  }
+}
+`
 
 const template = handledom`
-<dialog class="ModalDialog QuestionDialog">
+<dialog class="ModalDialog InfoDialog">
   <header class="ModalDialog-header">
     <div class="ModalDialog-headerLeft">
       <span h="title"></span>
     </div>
     <div class="ModalDialog-headerRight">
-        <span class="fas fa-times fa-1x ModalDialogCloseItem" h="close"></span>
+      <span class="fas fa-times fa-1x ModalDialogCloseItem" h="close"></span>
     </div>
   </header>
 
   <div class="ModalDialog-content">
     <div class="ModalDialog-contentLeft InfoDialog-contentLeft">
-      <span class="fas fa-3x fa-question-circle"></span>
+      <span class="fas fa-3x fa-info-circle"></span>
     </div>
     <div class="ModalDialog-contentRight">
       <p h="message"></p>
@@ -26,14 +34,12 @@ const template = handledom`
   </div>
 
   <div class="ModalDialog-bottom">
-    <button class="ModalDialogCancelButton" h="cancelBtn">No</button>
-    <pre>&nbsp;</pre>
-    <button class="ModalDialogOkButton" h="okBtn">Yes</button>
+    <button class="ModalDialogOkButton" h="button">OK</button>
   </div>
 </dialog>
 `
 
-export default class QuestionDialog {
+export default class InfoDialog {
   private readonly el: HTMLDialogElement
   private msgEl: HTMLElement
   private titleEl: HTMLElement
@@ -42,43 +48,44 @@ export default class QuestionDialog {
 
   constructor(private dash: Dash) {
     const { root, ref } = template()
-
     this.el = root as HTMLDialogElement
     this.msgEl = ref("message")
     this.titleEl = ref("title")
 
     dialogPolyfill.registerDialog(this.el)
 
-    ref("okBtn").addEventListener("click", () => this.close(true))
-    ref("cancelBtn").addEventListener("click", () => this.close(false))
-    ref("close").addEventListener("click", () => this.close(false))
+    let closeCb = () => this.close()
 
+    ref("button").addEventListener("click", closeCb)
+    ref("close").addEventListener("click", closeCb)
     this.el.addEventListener("cancel", ev => {
       ev.preventDefault()
-      this.close(false)
+      this.close()
     })
     this.el.addEventListener("keydown", ev => {
-      if (ev.key === "Enter")
-        this.close(true)
+      if (ev.key === "Enter") {
+        ev.stopPropagation()
+        this.close()
+      }
     })
 
   }
 
-  show(msg: string, title = "Question"): Promise<boolean> {
+  show(msg: string, title = "Information"): Promise<boolean> {
     this.currDfd = new Deferred()
     this.msgEl.textContent = msg
     this.titleEl.textContent = title
 
     document.body.appendChild(this.el)
-    makeOutsideClickHandlerFor(this.el, () => this.close(false))
+    makeOutsideClickHandlerFor(this.el, () => this.close())
     this.el.showModal()
 
     return this.currDfd.promise
   }
 
-  private close(b: boolean) {
+  private close() {
     if (this.currDfd)
-      this.currDfd.resolve(b)
+      this.currDfd.resolve(true)
     this.currDfd = undefined
     this.el.close()
     document.body.removeChild(this.el)

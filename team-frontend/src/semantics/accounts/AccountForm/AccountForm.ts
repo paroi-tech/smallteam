@@ -1,9 +1,9 @@
 require("./_AccountForm.scss")
 import { Log } from "bkb"
 import handledom from "handledom"
+import PasswordEdit from "../../../../../shared-ui/components/PasswordEdit"
 import { validateEmail } from "../../../../../shared-ui/libraries/utils"
-import { WarningDialog } from "../../../../../shared-ui/modalDialogs/modalDialogs"
-import PasswordEdit from "../../../../../shared-ui/PasswordEdit/PasswordEdit"
+import WarningDialog from "../../../../../shared-ui/modal-dialogs/WarningDialog"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../../../shared/libraries/helpers"
 import { AccountCreateFragment, AccountUpdateFragment } from "../../../../../shared/meta/Account"
 import { OwnDash } from "../../../App/OwnDash"
