@@ -1,27 +1,84 @@
-require("./_AppFrame.scss")
 import handledom from "handledom"
-import { OwnDash } from "../App/OwnDash"
 import { ProjectModel } from "../AppModel/AppModel"
 import { Model } from "../AppModel/modelDefinitions"
 import { AccountModel } from "../AppModel/Models/AccountModel"
-import BackgroundCommandManager from "../generics/BackgroundCommandManager/BackgroundCommandManager"
-import { DropdownMenu } from "../generics/DropdownMenu/DropdownMenu"
-import HeaderBar from "../generics/HeaderBar/HeaderBar"
-import HomeWorkspace from "../generics/HomeWorkspace/HomeWorkspace"
-import InvitationWorkspace from "../generics/invitations/InvitationWorkspace/InvitationWorkspace"
-import NavBtn from "../generics/NavBtn/NavBtn"
-import StatusBar from "../generics/StatusBar/StatusBar"
-import WebhookWorkspace from "../generics/WebhookWorkspace/WebhookWorkspace"
-import Workspace404 from "../generics/Workspace404/Workspace404"
-import WorkspaceViewer from "../generics/WorkspaceViewer/WorkspaceViewer"
-import AccountHome from "../semantics/accounts/AccountHome/AccountHome"
-import AccountWorkspace from "../semantics/accounts/AccountWorkspace/AccountWorkspace"
-import FlagWorkspace from "../semantics/flags/FlagWorkspace/FlagWorkspace"
-import ProjectForm from "../semantics/projects/ProjectForm/ProjectForm"
-import ProjectWorkspace from "../semantics/projects/ProjectWorkspace/ProjectWorkspace"
-import StepWorkspace from "../semantics/steps/StepWorkspace/StepWorkspace"
-import SearchWorkspace from "../semantics/tasks/SearchWorkspace/SearchWorkspace"
-import Sidebar from "./Sidebar/Sidebar"
+import BackgroundCommandManager from "../generics/BackgroundCommandManager"
+import { DropdownMenu } from "../generics/DropdownMenu"
+import HeaderBar from "../generics/HeaderBar"
+import HomeWorkspace from "../generics/HomeWorkspace"
+import InvitationWorkspace from "../generics/invitations/InvitationWorkspace"
+import NavBtn from "../generics/NavBtn"
+import StatusBar from "../generics/StatusBar"
+import WebhookWorkspace from "../generics/WebhookWorkspace"
+import Workspace404 from "../generics/Workspace404"
+import WorkspaceViewer from "../generics/WorkspaceViewer"
+import AccountHome from "../semantics/accounts/AccountHome"
+import AccountWorkspace from "../semantics/accounts/AccountWorkspace"
+import FlagWorkspace from "../semantics/flags/FlagWorkspace"
+import ProjectForm from "../semantics/projects/ProjectForm"
+import ProjectWorkspace from "../semantics/projects/ProjectWorkspace"
+import StepWorkspace from "../semantics/steps/StepWorkspace"
+import SearchWorkspace from "../semantics/tasks/SearchWorkspace"
+import { OwnDash } from "./OwnDash"
+import Sidebar from "./Sidebar"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+@import "../shared-ui/theme/definitions";
+
+.AppFrame {
+  height: 100%;
+  position: fixed;
+  width: 100%;
+
+  &-wrapper {
+    background-color: #fff;
+    display: grid;
+    grid-template-columns: repeat(15, 1fr) 0;
+    grid-column-gap: 24px;
+    grid-template-rows: 59px auto 25px;
+    height: 100%;
+    margin: 0 auto;
+    max-width: 1420px; // $c18
+  }
+
+  &-top {
+    grid-area: 1 / 1 / span 1 / span 16;
+  }
+
+  &-bottom {
+    background-color: #1c2e4b;
+    grid-area: 3 / 1 / span 1 / span 16;
+    //overflow-x: auto;
+  }
+
+  &-side {
+    grid-area: 2 / 1 / span 1 / span 3;
+  }
+
+  &-content {
+    grid-area: 2 / 4 / span 1 / span 12;
+    //min-height: 300px;
+    //overflow-y: auto;
+    padding: 13px 0;
+  }
+}
+
+.NavBtn.-icon22.-notif::before {
+  // background: url(sprite.png) no-repeat -1px -28px;
+  @include bgSprite(-1px, -28px);
+}
+
+.NavBtn.-icon22.-setting::before {
+  // background: url(sprite.png) no-repeat 0 -53px;
+  @include bgSprite(0, -53px);
+}
+
+.NavBtn.-icon22.-step::before {
+  // background: url(sprite.png) no-repeat -31px 1px;
+  @include bgSprite(-31px, 1px);
+}
+`
 
 const template = handledom`
 <div class="AppFrame">

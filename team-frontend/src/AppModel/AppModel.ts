@@ -1,5 +1,5 @@
 import { Identifier, ModelUpdate, Type } from "../../../shared/Cargo"
-import { OwnDash } from "../App/OwnDash"
+import { OwnDash } from "../AppFrame/OwnDash"
 import GenericBgCommandManager from "./BgCommandManager"
 import { GenericCommandBatch } from "./GenericCommandBatch"
 import { Collection, CommandBatch, GlobalModels, Model, Session, SessionData } from "./modelDefinitions"

@@ -2,7 +2,7 @@ require("../../shared-ui/theme.scss")
 require("./common.scss")
 import { createApplication } from "bkb"
 import "dialog-polyfill"
-import App from "./App/App"
+import App from "./AppFrame/App"
 import { wsClientInit } from "./AppModel/ModelEngine/WsClient"
 
 async function startup() {

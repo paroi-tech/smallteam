@@ -1,7 +1,7 @@
 require("../../shared-ui/theme.scss")
 import { createApplication } from "bkb"
 import "dialog-polyfill"
-import App from "./App/App"
+import App from "./App"
 
 document.addEventListener("DOMContentLoaded", () => {
   let url = new URL(window.location.href)
