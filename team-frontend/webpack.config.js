@@ -1,17 +1,10 @@
 const HtmlWebPackPlugin = require("html-webpack-plugin")
-// const MiniCssExtractPlugin = require("mini-css-extract-plugin")
+const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const { join, resolve } = require("path")
 
-module.exports = {
-  mode: "development",
-  devtool: "inline-source-map",
-  devServer: {
-    contentBase: "./dist",
-    hot: true,
-    inline: true,
-    host: "localhost",
-    port: 8080,
-  },
+module.exports = env => ({
+  mode: env === "development" ? "development" : "production",
+  devtool: env === "development" ? "inline-source-map" : undefined,
   resolve: {
     extensions: [".ts", ".js"],
   },
@@ -25,18 +18,26 @@ module.exports = {
       {
         test: /\.ts$/,
         exclude: /node_modules/,
-        use: {
-          loader: "ts-loader"
-        }
+        use: [
+          "@handledom/in-template-string-loader",
+          "ts-loader",
+          {
+            loader: "@enhancedjs/css-in-template-string-loader",
+            options: {
+              cssLoaders: [
+                MiniCssExtractPlugin.loader,
+                "css-loader",
+                "sass-loader"
+              ]
+            }
+          },
+        ]
       },
       {
         test: /\.s[ac]ss$/i,
         use: [
-          // Creates `style` nodes from JS strings
-          "style-loader",
-          // Translates CSS into CommonJS
+          MiniCssExtractPlugin.loader,
           "css-loader",
-          // Compiles Sass to CSS
           "sass-loader",
         ],
       }
@@ -47,6 +48,8 @@ module.exports = {
       template: join(__dirname, "public", "index.html"),
       filename: "team.html"
     }),
-    // new MiniCssExtractPlugin({})
+    new MiniCssExtractPlugin({
+      filename: "team.bundle.css"
+    })
   ]
-}
+})

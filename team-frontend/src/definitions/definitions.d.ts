@@ -1,10 +1,3 @@
-// declare function require(resource: string): any
-
-declare module "html-loader!*" {
-  let html: any
-  export default html
-}
-
 /**
  * HTMLDialogELement
  * @see https://developer.mozilla.org/en-US/docs/Web/API/HTMLDialogElement

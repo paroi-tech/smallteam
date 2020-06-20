@@ -14,7 +14,7 @@
     "useTab": false
   },
   "editor.insertSpaces": true,
-  "editor.rulers": [100],
+  "editor.rulers": [120],
   "editor.tabSize": 2,
   "editor.wordWrap": "wordWrapColumn",
   "editor.wordWrapColumn": 120,

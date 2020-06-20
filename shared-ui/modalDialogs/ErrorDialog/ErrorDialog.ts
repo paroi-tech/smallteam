@@ -1,9 +1,17 @@
-require("./_ErrorDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../../libraries/Deferred"
 import { makeOutsideClickHandlerFor } from "../../libraries/utils"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.ErrorDialog {
+  &-contentLeft {
+    color: #ff0000;
+  }
+}
+`
 
 const template = handledom`
 <dialog class="ErrorDialog ModalDialog">

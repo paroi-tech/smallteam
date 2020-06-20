@@ -1,9 +1,17 @@
-require("./_InfoDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../../libraries/Deferred"
 import { makeOutsideClickHandlerFor } from "../../libraries/utils"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.InfoDialog {
+  &-contentLeft {
+    color: #4169e1;
+  }
+}
+`;
 
 const template = handledom`
 <dialog class="ModalDialog InfoDialog">

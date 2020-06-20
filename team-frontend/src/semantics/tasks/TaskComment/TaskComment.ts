@@ -16,8 +16,7 @@ const template = handledom`
     <textarea class="TaskComment-textarea" h="text" value={{ text }}></textarea>
   </div>
 
-  <div class="TaskComment-right" h="ifCanEdit">
-  </div>
+  <div class="TaskComment-right" h="ifCanEdit"></div>
 </div>
 `
 

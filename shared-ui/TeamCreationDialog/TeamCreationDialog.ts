@@ -1,4 +1,3 @@
-require("./_TeamCreationDialog.scss")
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
@@ -6,6 +5,38 @@ import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUse
 import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import { ErrorDialog, InfoDialog, WarningDialog } from "../modalDialogs/modalDialogs"
+
+// tslint:disable-next-line: no-unused-expression
+scss`
+.TeamCreationDialog {
+  margin-left: auto;
+  margin-right: auto;
+  max-width: 420px;
+
+  &-header, &-content {
+    background-color: #fff;
+    border: 1px solid #808080;
+    padding: 8px;
+  }
+
+  &-header {
+    align-items: center;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    margin-bottom: 8px;
+  }
+
+  &-warning {
+    display: block;
+    flex-grow: 0;
+    height: 48px;
+    margin-bottom: 8px;
+    width: 48px;
+  }
+}
+`
 
 const template = handledom`
 <dialog class="TeamCreationDialog">
