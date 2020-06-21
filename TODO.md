@@ -18,7 +18,7 @@
       Complete the database creation script with required `insert` statements.
 - [*] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
 - [ ] Don't allow a contributor to change his own status.
-- [ ] [backend] Use Joi in backend/src/utils/joiUtils.ts.
+- [*] [backend] Use Joi in backend/src/utils/joiUtils.ts.
 - [ ] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
 
 ---
