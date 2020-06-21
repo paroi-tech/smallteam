@@ -11,7 +11,7 @@ import { sendMail } from "../mail"
 import { SessionData } from "../session"
 import { getCn, strVal, teamDbCn } from "../utils/dbUtils"
 import { fileExists, mkdir } from "../utils/fsUtils"
-import validate from "../utils/joiUtils"
+import { validate } from "../utils/joiUtils"
 import { log } from "../utils/log"
 import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
 

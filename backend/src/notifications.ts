@@ -7,7 +7,7 @@ import { v4 as uuidv4 } from "uuid"
 import { TOKEN_LENGTH } from "./context"
 import { hasAdminRights, SessionData } from "./session"
 import { getCn, strVal } from "./utils/dbUtils"
-import validate from "./utils/joiUtils"
+import { validate, validateWithOptions } from "./utils/joiUtils"
 import { log } from "./utils/log"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
 // tslint:disable-next-line: ordered-imports
@@ -212,7 +212,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
     return "Ping received..."
   }
 
-  let cleanData = await validate(data, pushDataSchema, { allowUnknown: true })
+  let cleanData = await validateWithOptions(data, pushDataSchema, { allowUnknown: true })
   let deliveryGuid = getDeliveryGuid(req)
   let tcn = await cn.beginTransaction()
 

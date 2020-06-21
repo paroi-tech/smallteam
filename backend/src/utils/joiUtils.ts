@@ -1,7 +1,7 @@
 import Joi from "@hapi/joi"
 import { ValidationError } from "./serverUtils"
 
-export default async function validate<T>(value: T, schema: Joi.ObjectSchema): Promise<T> {
+export async function validate<T>(value: T, schema: Joi.ObjectSchema): Promise<T> {
   let errorMsg: string | undefined
   let result: T | undefined
 
@@ -17,6 +17,23 @@ export default async function validate<T>(value: T, schema: Joi.ObjectSchema): P
   return result!
 }
 
+export async function validateWithOptions<T>(value: T, schema: Joi.ObjectSchema, options: Joi.ValidationOptions) {
+  let errorMsg: string | undefined
+  let result = {} as any
+
+  try {
+    result = await schema.validateAsync(value, options)
+  } catch (error) {
+    errorMsg = `Validation failed: '${error.details.context.key}' did not pass validation.`
+  }
+
+  if (errorMsg)
+    throw new ValidationError(errorMsg)
+
+  return options.debug || options["warnings"] ? result : result.value
+}
+
 export function isHexString(str: string): boolean {
-  return Joi.string().hex().validate(str).error !== null
+  let error = Joi.string().hex().validate(str).error
+  return error !== undefined && error !== undefined
 }
