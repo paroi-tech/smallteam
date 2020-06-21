@@ -4,6 +4,8 @@
 
 ### Not affected
 - [ ] When team activation failed, delete the folder and the database.
+- [ ] On team creation fail, show a message asking the user to gently send an email
+      if the he cannot activate team after several attempts.
 
 ### Thomas
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.

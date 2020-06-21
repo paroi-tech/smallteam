@@ -1,5 +1,5 @@
 import Joi from "@hapi/joi"
-import { SBConnection } from "@ladc/sql-bricks-modifier"
+import { SBConnection, SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request, Response } from "express"
@@ -10,7 +10,7 @@ import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { SessionData } from "../session"
 import { getCn, strVal, teamDbCn } from "../utils/dbUtils"
-import { fileExists, mkdir } from "../utils/fsUtils"
+import { fileExists, mkdir, readFile } from "../utils/fsUtils"
 import { validate } from "../utils/joiUtils"
 import { log } from "../utils/log"
 import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
@@ -89,7 +89,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   if (!rs) {
     return {
       done: false,
-      reason: "Token not found"
+      reason: "Token not found!"
     }
   }
 
@@ -101,7 +101,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   try {
     await mkdir(teamFolderPath, 0o755)
     await removeTeamToken(tcn, token)
-    await storeFirstUser(await getCn(subdomain), rs)
+    await insertTeamDefaultData(await getCn(subdomain), rs)
     await setTeamAsActivated(tcn, strVal(rs["team_id"]))
     await tcn.commit()
     answer.done = true
@@ -109,8 +109,10 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   } catch (err) {
     log.error("Cannot activate team", err.message, err)
   } finally {
-    if (tcn.inTransaction)
+    if (tcn.inTransaction) {
       await tcn.rollback()
+      answer.done = false
+    }
   }
 
   return answer
@@ -189,21 +191,31 @@ async function sendTeamCreationMail(token: string, to: string) {
   return res.done
 }
 
-async function storeFirstUser(cn: SBConnection, data) {
-  // We need this because if team creation failed a first time, there would be a record in the account table.
-  await cn.exec(deleteFrom("account"))
-  await cn.exec(insert("account", {
-    "name": data["user_name"],
-    "login": data["user_login"],
-    "password": data["user_password"],
-    "role": "admin",
-    "email": data["user_email"]
-  })
-  )
+async function insertTeamDefaultData(cn: SBMainConnection, data) {
+  let tcn = await cn.beginTransaction()
+
+  try {
+    let statement = insert("account", {
+      "name": data["user_name"],
+      "login": data["user_login"],
+      "password": data["user_password"],
+      "role": "admin",
+      "email": data["user_email"]
+    })
+    await tcn.exec(statement)
+
+    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team-default-project.sql")
+    let sql = await readFile(scriptPath, "utf8")
+    await tcn.script(sql)
+
+    await tcn.commit()
+  } finally {
+    if (tcn.inTransaction)
+      await tcn.rollback()
+  }
 }
 
 async function setTeamAsActivated(cn: SBConnection, teamId: string) {
   let cmd = update("team").set({ "activated": 1 }).where("team_id", teamId)
-
   await cn.exec(cmd)
 }
