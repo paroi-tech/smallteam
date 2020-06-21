@@ -6,6 +6,7 @@ import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
+// tslint:disable-next-line: ordered-imports
 import sqlVanilla = require("sql-bricks")
 
 type DbCn = SBMainConnection

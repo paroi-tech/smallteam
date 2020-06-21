@@ -2,6 +2,9 @@
 
 ## June 2020
 
+### Not affected
+- [ ] When team activation failed, delete the folder and the database.
+
 ### Thomas
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
 - [ ] Change log system in backend. Remove all calls to `console.log()`.

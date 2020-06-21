@@ -157,5 +157,17 @@ create table git_subscription (
     active tinyint not null default 1
 );
 
+-- Steps
 insert into step (label) values ('On Hold');
 insert into step (label) values ('Archived');
+
+-- Default project
+insert into project (code, task_seq) values ('KICKSTART', 0);
+insert into project_step (project_id, step_id) values (1, 1), (1, 2);
+-- The first user will be added after the execution of this script.
+-- So we need to disable foreign key constraints to insert a task created by that user.
+PRAGMA foreign_keys = OFF;
+insert into task (project_id, cur_step_id, code, created_by, label) values (1, 1, 'KICKSTART-0', 1, 'Kick-start project');
+PRAGMA foreign_keys = ON;
+insert into root_task (project_id, task_id) values (1, 1);
+insert into task_description (task_id, description) values (1, 'Kick-start project');
