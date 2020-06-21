@@ -1,0 +1,110 @@
+@import "./definitions";
+
+body {
+	background-color: #e9efff;
+  color: #222;
+  font-family: Lato, Roboto, Cantarell, sans-serif;
+}
+
+.Header {
+  background-color:$themeColor;
+  color: white;
+  padding: 8px 5px;
+  vertical-align: middle;
+}
+
+.LeftMargin {
+  margin-left: 10px;
+}
+
+.AutoColumns {
+  display: flex;
+  flex-direction: row;
+  align-items: stretch;
+  width: 100%;
+
+  & > * {
+    flex: 1 1 0;
+    margin-right: 10px;
+    &:last-child {
+      margin-right: 0;
+    }
+  }
+}
+
+.BgDark1 {
+  background-color: #051837;
+  color: #fff;
+}
+
+.Btn {
+  background-color: #5584ff;
+  color: white;
+  font-size: $f14;
+  padding: 10px 19px 10px 17px;
+}
+
+.WithLoader {
+  position: relative;
+  &.-right {
+    padding-right: 25px;
+  }
+  &-l {
+    background: url(/svg/loaders/circles.svg) no-repeat center center;
+    background-size: contain;
+    height: 16px;
+    position: absolute;
+    width: 16px;
+    &.-delaying {
+      filter: grayscale(100%);
+    }
+  }
+  &.-right &-l {
+    margin-top: -8px;
+    right: 5px;
+    top: 50%;
+  }
+}
+
+.LoaderBg {
+  align-self: center;
+  background: url(/svg/loaders/circles.svg) no-repeat center center;
+  background-size: contain;
+  height: 16px;
+  width: 16px;
+  &.-delaying {
+    filter: grayscale(100%);
+  }
+}
+
+.Row {
+  display: flex;
+  flex-direction: row;
+  &.-spaced {
+    justify-content: space-between;
+  }
+}
+
+.TitleBar {
+  background-color: #e9efff;
+  font-size: $f14;
+  line-height: 20px;
+  padding: 4px 5px 4px 10px;
+  position: relative;
+
+  // &-right {
+  //   margin-left: 10px;
+  //   // position: absolute;
+  //   // right: 10px;
+  //   // top: 0;
+  // }
+}
+
+.TitleBar2 {
+  background-color: $lightColor;
+  display: flex;
+  flex-direction: row;
+  font-size: $f14;
+  justify-content: space-between;
+  padding: 3px 5px;
+}
