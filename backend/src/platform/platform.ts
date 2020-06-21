@@ -94,12 +94,12 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   }
 
   let subdomain = rs["team_subdomain"] as string
-  let p = path.join(config.dataDir, subdomain)
+  let teamFolderPath = path.join(config.dataDir, subdomain)
   let answer = { done: false } as any
   let tcn = await teamDbCn.beginTransaction()
 
   try {
-    await mkdir(p, 0o755)
+    await mkdir(teamFolderPath, 0o755)
     await removeTeamToken(tcn, token)
     await storeFirstUser(await getCn(subdomain), rs)
     await setTeamAsActivated(tcn, strVal(rs["team_id"]))
