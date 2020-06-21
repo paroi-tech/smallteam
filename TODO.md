@@ -16,7 +16,7 @@
       When a refresh is required, a notification is displayed to the user.
 - [ ] Configure team creation process so that for each new team, a default project named *First Project* is available.
       Complete the database creation script with required `insert` statements.
-- [ ] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
+- [*] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
 - [ ] Don't allow a contributor to change his own status.
 - [ ] [backend] Use Joi in backend/src/utils/joiUtils.ts.
 - [ ] [plateform] After team creation, show a message that tells the user to check his email to complete validation.

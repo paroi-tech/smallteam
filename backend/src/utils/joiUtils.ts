@@ -1,16 +1,22 @@
 import Joi from "@hapi/joi"
+import { ValidationError } from "./serverUtils"
 
-export default async function validate<T>(value: T, schema: Joi.SchemaLike, options?: Joi.ValidationOptions): Promise<T> {
-  return value // FIXME Implement that with Joi
-  // try {
-  //   let result = await Joi.validate(value, schema, options || {})
-  //   return result
-  // } catch (error) {
-  //   let key = error.details?.[0]?.context?.key
-  //   throw new ValidationError(`Invalid data received: '${key}' did not pass validation.\n${value}`)
-  // }
+export default async function validate<T>(value: T, schema: Joi.ObjectSchema): Promise<T> {
+  let errorMsg: string | undefined
+  let result: T | undefined
+
+  try {
+    result = await schema.validateAsync(value)
+  } catch (error) {
+    errorMsg = `Validation failed: '${error.details.context.key}' did not pass validation.`
+  }
+
+  if (errorMsg)
+    throw new ValidationError(errorMsg)
+
+  return result!
 }
 
-// export function isHexString(str: string) {
-//   return Joi.validate(str, Joi.string().hex()).error === null
-// }
+export function isHexString(str: string): boolean {
+  return Joi.string().hex().validate(str).error !== null
+}
