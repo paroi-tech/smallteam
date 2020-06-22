@@ -8,7 +8,7 @@ export async function validate<T>(value: T, schema: Joi.ObjectSchema): Promise<T
   try {
     result = await schema.validateAsync(value)
   } catch (error) {
-    errorMsg = `Validation failed: '${error.details.context.key}' did not pass validation.`
+    errorMsg = `Validation failed: '${error.details[0].context.key}' did not pass validation.`
   }
 
   if (errorMsg)

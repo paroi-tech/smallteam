@@ -334,20 +334,20 @@ export default class TeamCreationDialog {
       })
 
       if (!response.ok) {
-        await this.dash.create(ErrorDialog).show("Cannot complete this task now. Try again in a moment.")
+        await this.dash.create(ErrorDialog).show("Something went wrong. We could not process your request.")
         return false
       }
 
       let answer = await response.json()
 
       if (answer.done) {
-        this.dash.create(InfoDialog).show("You have been successfully registred.")
+        this.dash.create(InfoDialog).show("You have been registered. You should receive an email with a link to activate your account.")
         return true
       }
-      this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
+      this.dash.create(ErrorDialog).show("Something went wrong. We could not process your request. Try again later.")
     } catch (error) {
       this.dash.log.error(error)
-      this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
+      this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server. Try again later.")
     }
 
     return false

@@ -1,6 +1,5 @@
 require("../../shared-ui/theme.scss")
 import { createApplication } from "bkb"
-import "dialog-polyfill"
 import App from "./App"
 
 document.addEventListener("DOMContentLoaded", () => {

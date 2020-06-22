@@ -3,9 +3,9 @@
 ## June 2020
 
 ### Not affected
-- [ ] When team activation failed, delete the folder and the database.
 - [ ] On team creation fail, show a message asking the user to gently send an email
       if the he cannot activate team after several attempts.
+- [ ] Create a dialog component that can be closed. Use it to display the final messge in `TeamCreationDialog`.
 
 ### Thomas
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
@@ -19,12 +19,12 @@
 ### Lionel
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
-- [ ] Configure team creation process so that for each new team, a default project named *First Project* is available.
+- [ ] Don't allow a contributor to change his own status.
+- [*] Configure team creation process so that for each new team, a default project named *First Project* is available.
       Complete the database creation script with required `insert` statements.
 - [*] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
-- [ ] Don't allow a contributor to change his own status.
 - [*] [backend] Use Joi in backend/src/utils/joiUtils.ts.
-- [ ] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
+- [*] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
 
 ---
 
