@@ -43,10 +43,10 @@ export function whyTeamSubdomainIsInvalid(subdomain: string): string | undefined
   if (subdomain.length < 2 || subdomain.length > 16)
     return "A team subdomain must have at least 2 characters and 16 characters at most"
 
-  let arr = subdomain.match(/[a-z0-9]{2,}/g)
+  let regex = /^[0-9a-zA-Z]+(\-[0-9a-zA-Z]+)*$/
 
-  if (!arr || arr.length === 0 || arr[0] !== subdomain)
-    return "A team subdomain should contain only lowercase alphanumeric characters and underscore."
+  if (!regex.test(subdomain))
+    return "A subdomain should only contains alphanumeric characters and dash and should not begin or end with dash."
 }
 
 export function whyUsernameIsInvalid(username: string): string | undefined {

@@ -10,7 +10,7 @@ import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { SessionData } from "../session"
 import { getCn, strVal, teamDbCn } from "../utils/dbUtils"
-import { fileExists, mkdir, readFile } from "../utils/fsUtils"
+import { createDir, fileExists, readFile } from "../utils/fsUtils"
 import { validate } from "../utils/joiUtils"
 import { log } from "../utils/log"
 import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
@@ -99,7 +99,8 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   let tcn = await teamDbCn.beginTransaction()
 
   try {
-    await mkdir(teamFolderPath, 0o755)
+    if (!await fileExists(teamFolderPath))
+      await createDir(teamFolderPath, 0o755)
     await removeTeamToken(tcn, token)
     await insertTeamDefaultData(await getCn(subdomain), rs)
     await setTeamAsActivated(tcn, strVal(rs["team_id"]))
