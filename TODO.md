@@ -5,7 +5,6 @@
 ### Not affected
 - [ ] On team creation fail, show a message asking the user to gently send an email
       if the he cannot activate team after several attempts.
-- [ ] Create a dialog component that can be closed. Use it to display the final messge in `TeamCreationDialog`.
 
 ### Thomas
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
@@ -17,6 +16,8 @@
 - [ ] Remove webpack unused configs and generate bundles without map files for prod.
 
 ### Lionel
+- [ ] Update modal dialogs to enable several row of text.
+- [ ] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
 - [ ] Don't allow a contributor to change his own status.
