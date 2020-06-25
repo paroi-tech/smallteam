@@ -6,6 +6,7 @@ import Deferred from "../libraries/Deferred"
 import { validateEmail } from "../libraries/utils"
 import ErrorDialog from "../modal-dialogs/ErrorDialog"
 import InfoDialog from "../modal-dialogs/InfoDialog"
+import UncloseableDialog from "../modal-dialogs/UncloseableDialog"
 import WarningDialog from "../modal-dialogs/WarningDialog"
 
 // tslint:disable-next-line: no-unused-expression
@@ -341,13 +342,19 @@ export default class TeamCreationDialog {
       let answer = await response.json()
 
       if (answer.done) {
-        this.dash.create(InfoDialog).show("You have been registered. You should receive an email with a link to activate your account.")
+        this.dash.create(UncloseableDialog).show([
+          "Your team is registered.", "You should get an email with a link to activate your account."
+        ])
         return true
       }
-      this.dash.create(ErrorDialog).show("Something went wrong. We could not process your request. Try again later.")
+      this.dash.create(ErrorDialog).show([
+        "Something went wrong. We could not process your request.", "Try again later."
+      ])
     } catch (error) {
       this.dash.log.error(error)
-      this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server. Try again later.")
+      this.dash.create(InfoDialog).show([
+        "Something went wrong. We can't reach server.", "Try again later."
+      ])
     }
 
     return false

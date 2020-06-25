@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import Deferred from "../libraries/Deferred"
-import { makeOutsideClickHandlerFor } from "../libraries/utils"
+import { makeOutsideClickHandlerFor, removeAllChildren } from "../libraries/utils"
 
 // tslint:disable-next-line: no-unused-expression
 scss`
@@ -43,8 +43,7 @@ const template = handledom`
       <span class="fas fa-3x fa-edit"></span>
     </div>
     <div class="PromptDialog-contentRight">
-      <p h="message"></p>
-      <pre><br></pre>
+      <div h="message"></div>
       <input type="text" class="PromptDialog-input" h="input">
     </div>
   </div>
@@ -93,10 +92,17 @@ export default class PromptDialog {
     })
   }
 
-  show(msg: string, title = "Prompt"): Promise<string> {
+  show(msg: string | string[], title = "Prompt"): Promise<string> {
     this.currDfd = new Deferred()
-    this.msgEl.textContent = msg
     this.titleEl.textContent = title
+
+    removeAllChildren(this.msgEl)
+    let arr = typeof msg === "string" ? [msg] : msg
+    for (let s of arr) {
+      let p = document.createElement("p")
+      p.textContent = s
+      this.msgEl.appendChild(p)
+    }
 
     document.body.appendChild(this.el)
     makeOutsideClickHandlerFor(this.el, () => this.close(""))
