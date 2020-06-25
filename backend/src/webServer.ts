@@ -140,9 +140,9 @@ export async function startWebServer() {
     log.info(`The server is listening on: ${getMainDomainUrl()}/`)
   })
 
-    // Scheduled task to remove password reset tokens each day.
-    // tslint:disable-next-line:align
-    ; (setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000) as any).unref()
+  // Scheduled task to remove password reset tokens each day.
+  let timer = setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000) as any
+  timer.unref()
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {

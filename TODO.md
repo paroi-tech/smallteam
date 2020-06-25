@@ -16,10 +16,10 @@
 - [ ] Remove webpack unused configs and generate bundles without map files for prod.
 
 ### Lionel
-- [ ] Update modal dialogs to enable several row of text.
-- [ ] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
+- [*] Update modal dialogs to enable several row of text.
+- [*] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
 - [ ] Don't allow a contributor to change his own status.
 - [*] Configure team creation process so that for each new team, a default project named *First Project* is available.
       Complete the database creation script with required `insert` statements.
