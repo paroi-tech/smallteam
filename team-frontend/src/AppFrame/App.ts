@@ -25,7 +25,7 @@ export default class App {
       if (data.level !== "trace" && console[data.level])
         console[data.level](...data.messages)
       else {
-        // tslint:disable-next-line:no-console
+        // eslint-disable-line no-console
         console.log(`[${data.level}]`, ...data.messages)
       }
     })

@@ -2,8 +2,8 @@ import { appVersion } from "../context"
 import { getSubdirUrl } from "../utils/serverUtils"
 
 export function getRegistrationHtml() {
-  let v = appVersion
-  let subdirUrl = getSubdirUrl()
+  const v = appVersion
+  const subdirUrl = getSubdirUrl()
   return `<!DOCTYPE html>
 <html data-ver="${v}"${subdirUrl ? ` data-base-url="${subdirUrl}"` : ""}>
 <head>

@@ -34,14 +34,14 @@ const backendMetaMap = new Map<string, BackendFragmentMeta>()
 
 export function addBackendFragmentMeta(fragMeta: FragmentMeta,
   columnProps: { [fieldName: string]: Partial<DbColumnMeta> }, tableName?: string) {
-  let columns = {},
-    fieldNames = {}
-  for (let fieldName of Object.keys(columnProps)) {
-    let fieldMeta = fragMeta.fields[fieldName]
+  const columns = {}
+  const fieldNames = {}
+  for (const fieldName of Object.keys(columnProps)) {
+    const fieldMeta = fragMeta.fields[fieldName]
     if (!fieldMeta)
       throw new Error(`Unknown field "${fieldName}" in type "${fragMeta.type}"`)
-    let colProps = columnProps[fieldName],
-      colName = colProps ? (colProps.column || camelToUnderscoredName(fieldName)) : camelToUnderscoredName(fieldName)
+    const colProps = columnProps[fieldName]
+    const colName = colProps ? (colProps.column || camelToUnderscoredName(fieldName)) : camelToUnderscoredName(fieldName)
     columns[fieldName] = {
       column: colName,
       columnType: toColumnType(fieldMeta, colProps)
@@ -82,17 +82,17 @@ function camelToUnderscoredName(camelName: string): string {
 // --
 
 export function getFieldName(type: Type | string, columnName: string): string {
-  let bm = backendMetaMap.get(type)
+  const bm = backendMetaMap.get(type)
   if (!bm)
     throw new Error(`Unknown type: ${type}`)
-  let fieldName = bm.fieldNames[columnName]
+  const fieldName = bm.fieldNames[columnName]
   if (fieldName === undefined)
     throw new Error(`Unknown column "${columnName}" in type: ${type}`)
   return fieldName
 }
 
 export function getDbColumnMeta(type: Type | string, fieldName: string): DbColumnMeta | null {
-  let bm = backendMetaMap.get(type)
+  const bm = backendMetaMap.get(type)
   if (!bm)
     throw new Error(`Unknown type: ${type}`)
   return bm.columns[fieldName] || null
@@ -103,16 +103,16 @@ export function getDbColumnMeta(type: Type | string, fieldName: string): DbColum
 // --
 
 export function toSqlValues(frag, meta: FragmentMeta, restrict?: "exceptId" | "onlyId"): any | null {
-  let result = {},
-    empty = true
-  for (let fieldName in meta.fields) {
+  const result = {}
+  let empty = true
+  for (const fieldName in meta.fields) {
     if (!meta.fields.hasOwnProperty(fieldName))
       continue
-    let fieldMeta = meta.fields[fieldName]
+    const fieldMeta = meta.fields[fieldName]
     if ((restrict === "exceptId" && fieldMeta.id) || (restrict === "onlyId" && !fieldMeta.id))
       continue
-    let colMeta = getDbColumnMeta(meta.type, fieldName),
-      val = frag[fieldName]
+    const colMeta = getDbColumnMeta(meta.type, fieldName)
+    const val = frag[fieldName]
     if (colMeta && val !== undefined) {
       result[colMeta.column] = toSqlValue(val, colMeta, fieldMeta)
       empty = false
@@ -129,7 +129,7 @@ export function toSqlValues(frag, meta: FragmentMeta, restrict?: "exceptId" | "o
 function toSqlValue(val, colMeta: DbColumnMeta, fieldMeta: FieldMeta) {
   if (val === null)
     return null
-  let colType = colMeta.columnType
+  const colType = colMeta.columnType
   if (colType === "timestamp" || colType === "datetime" || colType === "date") {
     if (typeof val === "number")
       return timestampToSqlValue(val, colType === "timestamp" ? "datetime" : colType)
@@ -165,7 +165,7 @@ function toSqlValue(val, colMeta: DbColumnMeta, fieldMeta: FieldMeta) {
 }
 
 function timestampToSqlValue(val: number, type: "datetime" | "date"): string {
-  let dt = new Date(val).toISOString()
+  const dt = new Date(val).toISOString()
   if (type === "datetime")
     return dt.slice(0, 10)
   return dt.slice(0, 19).replace("T", " ")

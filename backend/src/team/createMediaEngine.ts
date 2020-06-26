@@ -19,7 +19,7 @@ export interface MediaEngine {
 }
 
 export async function createMediaEngine(cn: SBMainConnection, execDdl: boolean): Promise<MediaEngine> {
-  let storage = await createMediaStorage({
+  const storage = await createMediaStorage({
     execInitScript: execDdl ? "sqlite" : undefined,
     cn,
     imagesConf: IMAGES_CONF,
@@ -64,7 +64,7 @@ const IMAGES_CONF: ImageVariantsConfiguration = {
 function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
   return {
     async canUpload(req: Request, externalRef: ExternalRef, overwrite: boolean, file: MulterFile) {
-      let sessionData = await getSessionData(req)
+      const sessionData = await getSessionData(req)
       if (!sessionData) {
         return {
           canUpload: false,
@@ -93,14 +93,14 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
     },
 
     async makeJsonResponseForUpload(req: Request, mediaId: string, overwritten: boolean) {
-      let media = await storage.findMedia({ mediaId })
+      const media = await storage.findMedia({ mediaId })
       let modelUpd: ModelUpdate | undefined
       if (media) {
-        let subdomain = await getConfirmedSubdomain(req)
+        const subdomain = await getConfirmedSubdomain(req)
         if (!subdomain)
-          throw new Error(`Cannot use a media engine outside a subdomain`)
-        let mediaEngine = await getMediaEngine(subdomain)
-        let loader = new CargoLoader()
+          throw new Error("Cannot use a media engine outside a subdomain")
+        const mediaEngine = await getMediaEngine(subdomain)
+        const loader = new CargoLoader()
         loader.startResponse("none")
         putMediasToCargoLoader(mediaEngine, loader, [media], overwritten ? "updated" : "created")
         await markExternalTypeAsUpdate(req, media, loader)
@@ -121,12 +121,12 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
     },
 
     async makeJsonResponseForDelete(req: Request, deletedMedia: Media) {
-      let loader = new CargoLoader()
+      const loader = new CargoLoader()
       // for (let variantCode of Object.keys(deletedMedia.variants))
       //   loader.modelUpdate.markFragmentAs("MediaVariant", deletedMedia.variants[variantCode].id, "deleted")
       loader.modelUpdate.markFragmentAs("Media", deletedMedia.id, "deleted")
       await markExternalTypeAsUpdate(req, deletedMedia, loader)
-      let modelUpd = loader.modelUpdate.toModelUpdate()
+      const modelUpd = loader.modelUpdate.toModelUpdate()
       return {
         done: true,
         modelUpd
@@ -137,18 +137,18 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
 
 async function markExternalTypeAsUpdate(req: Request, media: Media, loader: CargoLoader) {
   if (media.externalRef) {
-    let subdomain = await getConfirmedSubdomain(req)
-    let sessionData = await getSessionData(req)
+    const subdomain = await getConfirmedSubdomain(req)
+    const sessionData = await getSessionData(req)
     if (!subdomain || !sessionData || sessionData.subdomain !== subdomain)
-      throw new Error(`Cannot use a media engine outside a subdomain or without a session`)
-    let context: ModelContext = {
+      throw new Error("Cannot use a media engine outside a subdomain or without a session")
+    const context: ModelContext = {
       subdomain,
       cn: await getCn(subdomain),
       mediaEngine: await getMediaEngine(subdomain),
       sessionData,
       loader
     }
-    let updatedType = mediaExternalTypeToType(media.externalRef.type)
+    const updatedType = mediaExternalTypeToType(media.externalRef.type)
     context.loader.modelUpdate.addFragment(updatedType, media.externalRef.id)
     context.loader.modelUpdate.markFragmentAs(updatedType, media.externalRef.id, "updated")
     await completeCargo(context)

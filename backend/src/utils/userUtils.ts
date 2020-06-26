@@ -9,24 +9,24 @@ interface RegAccount {
 }
 
 export async function getAccountById(cn: SBConnection, id: string) {
-  let sql = select("account_id, login, password, role").from("account").where("account_id", id)
-  let row = await cn.singleRow(sql)
+  const sql = select("account_id, login, password, role").from("account").where("account_id", id)
+  const row = await cn.singleRow(sql)
 
   if (row)
     return toAccount(row)
 }
 
 export async function getAccountByLogin(cn: SBConnection, login: string) {
-  let sql = select("account_id, login, password, role").from("account").where("login", login)
-  let row = await cn.singleRow(sql)
+  const sql = select("account_id, login, password, role").from("account").where("login", login)
+  const row = await cn.singleRow(sql)
 
   if (row)
     return toAccount(row)
 }
 
 export async function getAccountByEmail(cn: SBConnection, email: string) {
-  let sql = select("account_id, login, password, role").from("account").where("email", email)
-  let row = await cn.singleRow(sql)
+  const sql = select("account_id, login, password, role").from("account").where("email", email)
+  const row = await cn.singleRow(sql)
 
   if (row)
     return toAccount(row)

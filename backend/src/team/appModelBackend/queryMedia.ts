@@ -9,14 +9,14 @@ import { ChangedType } from "./backendContext/ModelUpdateLoader"
 export type MainMetaCode = "accountAvatar" | "task"
 
 export async function fetchMedias(context: ModelContext, type: MainMetaCode, id: string): Promise<string[]> {
-  let medias = await context.mediaEngine.storage.findMedias({
+  const medias = await context.mediaEngine.storage.findMedias({
     externalRef: { type, id }
   })
   return putMediasToCargoLoader(context.mediaEngine, context.loader, medias)
 }
 
 export async function fetchSingleMedia(context: ModelContext, type: MainMetaCode, id: string): Promise<string | undefined> {
-  let media = await context.mediaEngine.storage.findMedia({
+  const media = await context.mediaEngine.storage.findMedia({
     externalRef: { type, id }
   })
   if (media) {
@@ -26,22 +26,22 @@ export async function fetchSingleMedia(context: ModelContext, type: MainMetaCode
 }
 
 export function putMediasToCargoLoader(mediaEngine: MediaEngine, loader: CargoLoader, medias: Media[], markAs?: ChangedType): string[] {
-  let { mediaFragments, variantFragments } = toMediaAndVariantFragments(mediaEngine, medias)
+  const { mediaFragments, variantFragments } = toMediaAndVariantFragments(mediaEngine, medias)
 
-  for (let frag of mediaFragments) {
+  for (const frag of mediaFragments) {
     loader.addFragment({ type: "Media", frag })
     if (markAs)
       loader.modelUpdate.markFragmentAs("Media", frag.id, markAs)
   }
-  for (let frag of variantFragments)
+  for (const frag of variantFragments)
     loader.addFragment({ type: "MediaVariant", frag })
 
   return mediaFragments.map(frag => frag.id)
 }
 
 export async function deleteMedias(context: ModelContext, externalRef: ExternalRef) {
-  let idList = await context.mediaEngine.storage.removeMedias({ externalRef })
-  for (let mediaId of idList)
+  const idList = await context.mediaEngine.storage.removeMedias({ externalRef })
+  for (const mediaId of idList)
     context.loader.modelUpdate.markFragmentAs("Media", mediaId, "deleted")
 }
 
@@ -51,11 +51,11 @@ interface MediaAndVariantFragments {
 }
 
 function toMediaAndVariantFragments(mediaEngine: MediaEngine, medias: Media[]): MediaAndVariantFragments {
-  let mediaFragments: MediaFragment[] = []
-  let variantFragments: MediaVariantFragment[] = []
-  for (let media of medias) {
+  const mediaFragments: MediaFragment[] = []
+  const variantFragments: MediaVariantFragment[] = []
+  for (const media of medias) {
     mediaFragments.push(toMediaFragment(media))
-    for (let variantCode of Object.keys(media.variants))
+    for (const variantCode of Object.keys(media.variants))
       variantFragments.push(toMediaVariantFragment(mediaEngine, media.variants[variantCode], media))
   }
   return {

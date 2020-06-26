@@ -12,26 +12,26 @@ import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
 // tslint:disable-next-line: ordered-imports
 import crypto = require("crypto")
 
-let commitSchema = Joi.object().keys({
+const commitSchema = Joi.object().keys({
   id: Joi.string().hex().required(),
   message: Joi.string().default(""),
   author: Joi.object().keys({
     name: Joi.string().required(),
     email: Joi.string().required(),
-    username: Joi.string().required(),
+    username: Joi.string().required()
   }),
   url: Joi.string().uri(),
   distinct: Joi.boolean().required(),
   timestamp: Joi.date().required()
 })
 
-let pushDataSchema = Joi.object().keys({
+const pushDataSchema = Joi.object().keys({
   ref: Joi.string().required(),
   before: Joi.string().required(),
   commits: Joi.array().items(commitSchema)
 })
 
-let schemaForSubscriptionId = Joi.object().keys({
+const schemaForSubscriptionId = Joi.object().keys({
   subscriptionId: Joi.string().regex(/\d+/).required()
 })
 
@@ -39,22 +39,22 @@ export async function routeCreateGithubWebhook(subdomain: string, data: any, ses
   if (!sessionData)
     throw new Error("Missing session data in 'routeCreateGithubWebhook'")
 
-  let cn = await getCn(subdomain)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let secret = crypto.randomBytes(TOKEN_LENGTH).toString("hex")
-  let uuid = uuidv4()
-  let sql = insert("git_subscription", {
-    "secret": secret,
+  const secret = crypto.randomBytes(TOKEN_LENGTH).toString("hex")
+  const uuid = uuidv4()
+  const sql = insert("git_subscription", {
+    secret,
     "provider": "Github",
     "subscription_uuid": uuid
   })
-  let execResult = await cn.exec(sql)
-  let subscriptionId = execResult.getInsertedIdAsString()
-  let teamSiteUrl = getTeamSiteUrl({ subdomain })
-  let webhook = {
+  const execResult = await cn.exec(sql)
+  const subscriptionId = execResult.getInsertedIdAsString()
+  const teamSiteUrl = getTeamSiteUrl({ subdomain })
+  const webhook = {
     id: subscriptionId,
     provider: "Github",
     active: true,
@@ -71,17 +71,17 @@ export async function routeGetGithubWebhookSecret(subdomain: string, data: any, 
   if (!sessionData)
     throw new Error("Missing session data in 'routeGetGithubWebhookSecret'")
 
-  let cleanData = await validate(data, schemaForSubscriptionId)
-  let cn = await getCn(subdomain)
+  const cleanData = await validate(data, schemaForSubscriptionId)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = select("secret").from("git_subscription").where({
+  const sql = select("secret").from("git_subscription").where({
     "provider": "Github",
     "subscription_id": cleanData.subscriptionId
   })
-  let secret = await cn.singleValue(sql)
+  const secret = await cn.singleValue(sql)
 
   return {
     done: true,
@@ -93,13 +93,13 @@ export async function routeActivateGithubWebhook(subdomain: string, data: any, s
   if (!sessionData)
     throw new Error("Missing session data in 'routeActivateGithubWebhook'")
 
-  let cleanData = await validate(data, schemaForSubscriptionId)
-  let cn = await getCn(subdomain)
+  const cleanData = await validate(data, schemaForSubscriptionId)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = update("git_subscription", { "active": 1 }).where({ "subscription_id": cleanData.subscriptionId })
+  const sql = update("git_subscription", { "active": 1 }).where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.exec(sql)
 
@@ -112,13 +112,13 @@ export async function routeDeactivateGithubWebhook(subdomain: string, data: any,
   if (!sessionData)
     throw new Error("Missing session data in 'routeDeactivateGithubWebhook'")
 
-  let cleanData = await validate(data, schemaForSubscriptionId)
-  let cn = await getCn(subdomain)
+  const cleanData = await validate(data, schemaForSubscriptionId)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = update("git_subscription", { "active": 0 }).where({ "subscription_id": cleanData.subscriptionId })
+  const sql = update("git_subscription", { "active": 0 }).where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.exec(sql)
 
@@ -131,13 +131,13 @@ export async function routeDeleteGithubWebhook(subdomain: string, data: any, ses
   if (!sessionData)
     throw new Error("Missing session data in 'routeDeleteGithubWebhook'")
 
-  let cleanData = await validate(data, schemaForSubscriptionId)
-  let cn = await getCn(subdomain)
+  const cleanData = await validate(data, schemaForSubscriptionId)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = deleteFrom("git_subscription").where({ "subscription_id": cleanData.subscriptionId })
+  const sql = deleteFrom("git_subscription").where({ "subscription_id": cleanData.subscriptionId })
 
   await cn.exec(sql)
 
@@ -150,17 +150,17 @@ export async function routeFetchGithubWebhooks(subdomain: string, data: any, ses
   if (!sessionData)
     throw new Error("Missing session data in 'routeFetchGithubWebhooks'")
 
-  let cn = await getCn(subdomain)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("Only admins are allowed to access this ressource.")
 
-  let sql = select().from("git_subscription").where({ "provider": "Github" }) // FIXME: create index on provider column?
-  let rs = await cn.all(sql)
-  let webhooks = [] as any[]
-  let teamSiteUrl = getTeamSiteUrl({ subdomain })
+  const sql = select().from("git_subscription").where({ "provider": "Github" }) // FIXME: create index on provider column?
+  const rs = await cn.all(sql)
+  const webhooks = [] as any[]
+  const teamSiteUrl = getTeamSiteUrl({ subdomain })
 
-  for (let row of rs) {
+  for (const row of rs) {
     webhooks.push({
       id: strVal(row["subscription_id"]),
       provider: row["provider"],
@@ -179,30 +179,30 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
   if (!req || !res)
     throw new Error("Missing request or response object in 'routeProcessGithubNotification'.")
 
-  let reqBody = req["rawBody"]
+  const reqBody = req["rawBody"]
   if (!reqBody || typeof reqBody !== "string")
     throw new Error("Missing 'rawBody' attribute in request.")
 
-  let event = req.headers["x-github-event"]
+  const event = req.headers["x-github-event"]
   if (!event || typeof event !== "string" || (event !== "push" && event !== "ping"))
     throw new Error("Unsupported hook event")
 
-  let uuid = req.params.uuid
+  const uuid = req.params.uuid
   if (!uuid)
     throw new Error("Invalid URL")
 
-  let cn = await getCn(subdomain)
-  let secret = await getActiveGithubHookSecret(cn, uuid)
+  const cn = await getCn(subdomain)
+  const secret = await getActiveGithubHookSecret(cn, uuid)
 
   if (!secret)
     throw new Error("No Github hook found") // FIXME: return 404 status code instead.
 
-  let reqDigest = req.headers["x-hub-signature"]
+  const reqDigest = req.headers["x-hub-signature"]
   if (!reqDigest || typeof reqDigest !== "string")
     throw new Error("Invalid digest")
 
-  let digest = crypto.createHmac("sha1", secret).update(reqBody).digest("hex")
-  let digestWithPrefix = "sha1=" + digest
+  const digest = crypto.createHmac("sha1", secret).update(reqBody).digest("hex")
+  const digestWithPrefix = "sha1=" + digest
   if (reqDigest !== digestWithPrefix)
     throw new Error("Invalid message digest")
 
@@ -211,12 +211,12 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
     return "Ping received..."
   }
 
-  let cleanData = await validateWithOptions(data, pushDataSchema, { allowUnknown: true })
-  let deliveryGuid = getDeliveryGuid(req)
-  let tcn = await cn.beginTransaction()
+  const cleanData = await validateWithOptions(data, pushDataSchema, { allowUnknown: true })
+  const deliveryGuid = getDeliveryGuid(req)
+  const tcn = await cn.beginTransaction()
 
   try {
-    for (let commit of cleanData.commits) {
+    for (const commit of cleanData.commits) {
       if (commit.distinct)
         await processCommit(tcn, commit, deliveryGuid)
     }
@@ -232,8 +232,8 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
 }
 
 async function getActiveGithubHookSecret(cn: SBConnection, uuid: string): Promise<string | undefined> {
-  let sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
-  let res = await cn.singleRow(sql)
+  const sql = select("active, secret").from("git_subscription").where({ "provider": "Github", "subscription_uuid": uuid })
+  const res = await cn.singleRow(sql)
 
   if (res && res["active"] !== 0)
     return res["secret"] as string
@@ -246,11 +246,11 @@ async function getActiveGithubHookSecret(cn: SBConnection, uuid: string): Promis
  *  - and attach commit to the tasks.
  */
 async function processCommit(cn: SBConnection, commit, deliveryGuid?: string) {
-  let id = await saveCommit(cn, commit, deliveryGuid)
-  let codes = getTaskCodesInCommitMessage(commit.message)
+  const id = await saveCommit(cn, commit, deliveryGuid)
+  const codes = getTaskCodesInCommitMessage(commit.message)
 
-  for (let code of codes) {
-    let taskId = await getTaskIdFromCode(cn, code)
+  for (const code of codes) {
+    const taskId = await getTaskIdFromCode(cn, code)
 
     if (taskId)
       await addCommitToTask(cn, taskId, id)
@@ -258,7 +258,7 @@ async function processCommit(cn: SBConnection, commit, deliveryGuid?: string) {
 }
 
 async function saveCommit(cn: SBConnection, commit, deliveryGuid?: string) {
-  let sql = insert("git_commit", {
+  const sql = insert("git_commit", {
     "external_id": commit.id,
     "message": commit.message,
     "author_name": commit.author.username,
@@ -266,13 +266,13 @@ async function saveCommit(cn: SBConnection, commit, deliveryGuid?: string) {
     "commit_url": commit.url,
     "notification_id": deliveryGuid || null
   })
-  let res = await cn.exec(sql)
+  const res = await cn.exec(sql)
 
   return res.getInsertedIdAsString()
 }
 
 function getDeliveryGuid(req) {
-  let guid = req.headers["x-github-delivery"]
+  const guid = req.headers["x-github-delivery"]
 
   if (guid && typeof guid === "string")
     return guid
@@ -290,14 +290,14 @@ function getTaskCodesInCommitMessage(message: string) {
 // }
 
 async function getTaskIdFromCode(cn: SBConnection, code: string): Promise<string | undefined> {
-  let sql = select("task_id").from("task").where({ code })
-  let id = await cn.singleValue(sql)
+  const sql = select("task_id").from("task").where({ code })
+  const id = await cn.singleValue(sql)
   if (id)
     return strVal(id)
 }
 
 async function addCommitToTask(cn: SBConnection, taskId: string, commitId: string) {
-  let sql = insert("git_commit_task", { "task_id": taskId, "commit_id": commitId })
+  const sql = insert("git_commit_task", { "task_id": taskId, "commit_id": commitId })
 
   await cn.exec(sql)
 }

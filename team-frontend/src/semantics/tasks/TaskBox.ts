@@ -6,7 +6,6 @@ import { Box } from "../../generics/BoxList"
 import AccountAvatar from "../accounts/AccountAvatar"
 import TaskFlag from "./TaskFlag"
 
-// tslint:disable-next-line: no-unused-expression
 scss`
 @import "../shared-ui/theme/definitions";
 

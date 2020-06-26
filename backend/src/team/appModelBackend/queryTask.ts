@@ -14,7 +14,7 @@ import sqlVanilla = require("sql-bricks")
 // --
 
 export async function fetchTasks(context: ModelContext, filters: TaskSearchFragment) {
-  let sql = selectFromTask()
+  const sql = selectFromTask()
 
   if (filters.projectId !== undefined)
     sql.where("t.project_id", intVal(filters.projectId))
@@ -40,10 +40,10 @@ export async function fetchTasks(context: ModelContext, filters: TaskSearchFragm
     ]))
   }
 
-  let rs = await context.cn.all(sql)
+  const rs = await context.cn.all(sql)
   await addDependenciesTo(context, rs)
-  for (let row of rs) {
-    let frag = await toTaskFragment(context, row)
+  for (const row of rs) {
+    const frag = await toTaskFragment(context, row)
     context.loader.addFragment({
       type: "Task",
       frag,
@@ -57,15 +57,15 @@ export async function fetchTasks(context: ModelContext, filters: TaskSearchFragm
 // }
 
 export async function fetchProjectTasks(context: ModelContext, projectIdList: number[]) {
-  let sql = selectFromTask()
+  const sql = selectFromTask()
 
   sql.where(sqlIn("t.project_id", projectIdList))
 
-  let rs = await context.cn.all(sql)
+  const rs = await context.cn.all(sql)
 
   await addDependenciesTo(context, rs)
-  for (let row of rs) {
-    let frag = await toTaskFragment(context, row)
+  for (const row of rs) {
+    const frag = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", frag.id, frag)
   }
 }
@@ -74,13 +74,13 @@ export async function fetchTasksByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
 
-  let sql = selectFromTask()
+  const sql = selectFromTask()
     .where(sqlIn("t.task_id", toIntList(idList)))
-  let rs = await context.cn.all(sql)
+  const rs = await context.cn.all(sql)
 
   await addDependenciesTo(context, rs)
-  for (let row of rs) {
-    let data = await toTaskFragment(context, row)
+  for (const row of rs) {
+    const data = await toTaskFragment(context, row)
     context.loader.modelUpdate.addFragment("Task", data.id, data)
   }
 }
@@ -95,7 +95,7 @@ function selectFromTask() {
 }
 
 async function toTaskFragment(context: ModelContext, row): Promise<TaskFragment> {
-  let frag: TaskFragment = {
+  const frag: TaskFragment = {
     id: row["task_id"].toString(),
     projectId: row["project_id"].toString(),
     curStepId: row["cur_step_id"].toString(),
@@ -119,7 +119,7 @@ async function toTaskFragment(context: ModelContext, row): Promise<TaskFragment>
   if (row["flagIds"])
     frag.flagIds = row["flagIds"].map(id => id.toString())
 
-  let mediaIdList = await fetchMedias(context, "task", frag.id)
+  const mediaIdList = await fetchMedias(context, "task", frag.id)
   if (mediaIdList.length > 0)
     frag.attachedMediaIds = mediaIdList
 
@@ -131,8 +131,8 @@ async function toTaskFragment(context: ModelContext, row): Promise<TaskFragment>
 // --
 
 export async function whoUseTask(context: ModelContext, id: string): Promise<WhoUseItem[]> {
-  let dbId = intVal(id)
-  let result: WhoUseItem[] = []
+  const dbId = intVal(id)
+  const result: WhoUseItem[] = []
 
   let count = await context.cn.singleValue<number>(select("count(1)")
     .from("task_child")
@@ -154,37 +154,37 @@ export async function whoUseTask(context: ModelContext, id: string): Promise<Who
 // --
 
 async function addDependenciesTo(context: ModelContext, taskRows: any[]) {
-  let taskIdList = taskRows.map(row => row["task_id"])
-  let accountMap = await fetchAffectedToIdentifiers(context.cn, taskIdList)
-  let flagMap = await fetchFlagIdentifiers(context.cn, taskIdList)
-  let gitCommitMap = await fetchGitCommitIdentifiers(context, taskIdList)
+  const taskIdList = taskRows.map(row => row["task_id"])
+  const accountMap = await fetchAffectedToIdentifiers(context.cn, taskIdList)
+  const flagMap = await fetchFlagIdentifiers(context.cn, taskIdList)
+  const gitCommitMap = await fetchGitCommitIdentifiers(context, taskIdList)
 
-  for (let row of taskRows) {
-    let accountIds = accountMap.get(row["task_id"])
+  for (const row of taskRows) {
+    const accountIds = accountMap.get(row["task_id"])
     if (accountIds)
       row["affectedToIds"] = accountIds
 
-    let flagIds = flagMap.get(row["task_id"])
+    const flagIds = flagMap.get(row["task_id"])
     if (flagIds)
       row["flagIds"] = flagIds
 
-    let gitCommitIds = gitCommitMap.get(row["task_id"])
+    const gitCommitIds = gitCommitMap.get(row["task_id"])
     if (gitCommitIds)
       row["gitCommitIds"] = gitCommitIds
   }
 }
 
 async function fetchAffectedToIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map<number, number[]>> {
-  let sql = select("a.task_id, a.account_id")
+  const sql = select("a.task_id, a.account_id")
     .from("task_affected_to a")
     .where(sqlIn("a.task_id", taskIdList))
     .orderBy("1, a.order_num")
-  let rs = await cn.all(sql)
-  let map = new Map<number, number[]>()
+  const rs = await cn.all(sql)
+  const map = new Map<number, number[]>()
   let curTaskId: number | undefined
   let curAccountIds: number[]
 
-  for (let row of rs) {
+  for (const row of rs) {
     if (row["task_id"] !== curTaskId) {
       curTaskId = row["task_id"] as number
       curAccountIds = []
@@ -197,17 +197,17 @@ async function fetchAffectedToIdentifiers(cn: DbCn, taskIdList: number[]): Promi
 }
 
 async function fetchFlagIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map<number, number[]>> {
-  let sql = select("tf.task_id, tf.flag_id")
+  const sql = select("tf.task_id, tf.flag_id")
     .from("task_flag tf")
     .innerJoin("flag f").on("tf.flag_id", "f.flag_id")
     .where(sqlIn("tf.task_id", taskIdList))
     .orderBy("1, f.order_num")
-  let rs = await cn.all(sql)
-  let map = new Map<number, number[]>()
+  const rs = await cn.all(sql)
+  const map = new Map<number, number[]>()
   let curTaskId: number | undefined
   let curFlagIds: number[]
 
-  for (let row of rs) {
+  for (const row of rs) {
     if (row["task_id"] !== curTaskId) {
       curTaskId = row["task_id"] as number
       curFlagIds = []
@@ -223,17 +223,17 @@ async function fetchFlagIdentifiers(cn: DbCn, taskIdList: number[]): Promise<Map
 }
 
 async function fetchGitCommitIdentifiers(context: ModelContext, taskIdList: number[]): Promise<Map<number, number[]>> {
-  let sql = select("ct.task_id, ct.commit_id")
+  const sql = select("ct.task_id, ct.commit_id")
     .from("git_commit_task ct")
     .innerJoin("git_commit c").on("ct.commit_id", "c.commit_id")
     .where(sqlIn("ct.task_id", taskIdList))
     .orderBy("1, c.ts")
-  let rs = await context.cn.all(sql)
-  let map = new Map<number, number[]>()
+  const rs = await context.cn.all(sql)
+  const map = new Map<number, number[]>()
   let curTaskId: number | undefined
   let curGitCommitIds: number[]
 
-  for (let row of rs) {
+  for (const row of rs) {
     if (row["task_id"] !== curTaskId) {
       curTaskId = row["task_id"] as number
       curGitCommitIds = []
@@ -256,20 +256,20 @@ export async function createTask(context: ModelContext, newFrag: TaskCreateFragm
     throw new Error(`Cannot create a task without a parent: ${JSON.stringify(newFrag)}`)
 
   // Task
-  let projectId = await fetchProjectIdFromTask(context.cn, newFrag.parentTaskId)
-  let values = toSqlValues(newFrag, taskMeta.create) || {}
+  const projectId = await fetchProjectIdFromTask(context.cn, newFrag.parentTaskId)
+  const values = toSqlValues(newFrag, taskMeta.create) || {}
 
   values["project_id"] = intVal(projectId)
   values["code"] = await findTaskCode(context.cn, projectId)
   values["created_by"] = intVal(context.sessionData.accountId)
 
   let sql = insertInto("task").values(values)
-  let res = await context.cn.exec(sql)
-  let taskId = res.getInsertedIdAsString()
+  const res = await context.cn.exec(sql)
+  const taskId = res.getInsertedIdAsString()
 
   // Task as child
-  let parentTaskId = intVal(newFrag.parentTaskId)
-  let orderNum = newFrag.orderNum === undefined ? await getDefaultOrderNum(context.cn, parentTaskId) : newFrag.orderNum
+  const parentTaskId = intVal(newFrag.parentTaskId)
+  const orderNum = newFrag.orderNum === undefined ? await getDefaultOrderNum(context.cn, parentTaskId) : newFrag.orderNum
 
   sql = insertInto("task_child")
     .values({
@@ -304,15 +304,15 @@ export async function createTask(context: ModelContext, newFrag: TaskCreateFragm
 }
 
 async function fetchProjectIdFromTask(cn: DbCn, taskId: string): Promise<string> {
-  let id = await cn.singleValue(select("project_id").from("task").where("task_id", taskId))
+  const id = await cn.singleValue(select("project_id").from("task").where("task_id", taskId))
   return strVal(id)
 }
 
 async function getDefaultOrderNum(cn: DbCn, parentTaskId: number) {
-  let sql = select("max(order_num)")
+  const sql = select("max(order_num)")
     .from("task_child")
     .where("parent_task_id", parentTaskId)
-  let max = await cn.singleValue<number>(sql)
+  const max = await cn.singleValue<number>(sql)
   return (max || 0) + 1
 }
 
@@ -321,14 +321,14 @@ async function getDefaultOrderNum(cn: DbCn, parentTaskId: number) {
 // --
 
 export async function updateTask(context: ModelContext, updFrag: TaskUpdateFragment) {
-  let taskId = intVal(updFrag.id)
-  let values = toSqlValues(updFrag, taskMeta.update, "exceptId")
+  const taskId = intVal(updFrag.id)
+  const values = toSqlValues(updFrag, taskMeta.update, "exceptId")
 
   if (values) {
     if (await hasStepChange(context, updFrag))
       await logStepChange(context, updFrag.id, updFrag.curStepId!)
 
-    let sql = update("task")
+    const sql = update("task")
       .set(values)
       .where("task_id", taskId)
 
@@ -356,13 +356,13 @@ async function hasStepChange(context: ModelContext, updFrag: TaskUpdateFragment)
   if (updFrag.curStepId === undefined)
     return false
 
-  let sql = select("cur_step_id").from("task").where("task_id", intVal(updFrag.id))
-  let rs = await context.cn.all(sql)
+  const sql = select("cur_step_id").from("task").where("task_id", intVal(updFrag.id))
+  const rs = await context.cn.all(sql)
 
   if (rs.length !== 1)
     return false
 
-  let prevStepId = rs[0]["cur_step_id"]
+  const prevStepId = rs[0]["cur_step_id"]
 
   return intVal(updFrag.curStepId) !== prevStepId
 }
@@ -372,7 +372,7 @@ async function hasStepChange(context: ModelContext, updFrag: TaskUpdateFragment)
 // --
 
 export async function deleteTask(context: ModelContext, frag: TaskIdFragment) {
-  let sql = deleteFrom("task")
+  const sql = deleteFrom("task")
     .where("task_id", intVal(frag.id))
 
   await context.cn.exec(sql)
@@ -387,13 +387,13 @@ export async function deleteTask(context: ModelContext, frag: TaskIdFragment) {
 // --
 
 export async function reorderChildTasks(context: ModelContext, idList: string[], parentIdStr: string) {
-  let parentId = intVal(parentIdStr)
-  let oldNums = await loadChildOrderNums(context.cn, parentId)
+  const parentId = intVal(parentIdStr)
+  const oldNums = await loadChildOrderNums(context.cn, parentId)
   let curNum = 0
 
-  for (let idStr of idList) {
-    let id = intVal(idStr)
-    let oldNum = oldNums.get(id)
+  for (const idStr of idList) {
+    const id = intVal(idStr)
+    const oldNum = oldNums.get(id)
 
     if (oldNum !== undefined && ++curNum !== oldNum) {
       await updateChildOrderNum(context.cn, id, parentId, curNum)
@@ -402,11 +402,11 @@ export async function reorderChildTasks(context: ModelContext, idList: string[],
     oldNums.delete(id)
   }
 
-  let remaining = Array.from(oldNums.keys())
+  const remaining = Array.from(oldNums.keys())
 
   remaining.sort((a, b) => a - b)
-  for (let id of remaining) {
-    let oldNum = oldNums.get(id)
+  for (const id of remaining) {
+    const oldNum = oldNums.get(id)
     if (++curNum !== oldNum) {
       await updateChildOrderNum(context.cn, id, parentId, curNum)
       context.loader.modelUpdate.addPartial("Task", { id: id.toString(), "orderNum": curNum })
@@ -416,7 +416,7 @@ export async function reorderChildTasks(context: ModelContext, idList: string[],
 }
 
 async function updateChildOrderNum(cn: DbCn, taskId: number, parentId: number, orderNum: number) {
-  let sql = update("task_child")
+  const sql = update("task_child")
     .set({
       "order_num": orderNum
     })
@@ -429,13 +429,13 @@ async function updateChildOrderNum(cn: DbCn, taskId: number, parentId: number, o
 }
 
 async function loadChildOrderNums(cn: DbCn, parentId: number): Promise<Map<number, number>> {
-  let sql = select("c.task_id, c.order_num")
+  const sql = select("c.task_id, c.order_num")
     .from("task_child c")
     .where("c.parent_task_id", parentId)
-  let rs = await cn.all(sql)
-  let orderNums = new Map<number, number>()
+  const rs = await cn.all(sql)
+  const orderNums = new Map<number, number>()
 
-  for (let row of rs)
+  for (const row of rs)
     orderNums.set(row["task_id"] as number, row["order_num"] as number)
 
   return orderNums
@@ -448,8 +448,8 @@ async function loadChildOrderNums(cn: DbCn, parentId: number): Promise<Map<numbe
 async function insertTaskAffectedToAccounts(cn: DbCn, taskId: number | string, accountIds: string[]) {
   let orderNum = 0
 
-  for (let accountId of accountIds) {
-    let sql = insertInto("task_affected_to")
+  for (const accountId of accountIds) {
+    const sql = insertInto("task_affected_to")
       .values({
         "task_id": intVal(taskId),
         "account_id": intVal(accountId),
@@ -461,7 +461,7 @@ async function insertTaskAffectedToAccounts(cn: DbCn, taskId: number | string, a
 }
 
 async function updateTaskAffectedToAccounts(cn: DbCn, taskId: number | string, accountIds: string[]) {
-  let sql = deleteFrom("task_affected_to")
+  const sql = deleteFrom("task_affected_to")
     .where("task_id", intVal(taskId))
 
   await cn.exec(sql)
@@ -469,8 +469,8 @@ async function updateTaskAffectedToAccounts(cn: DbCn, taskId: number | string, a
 }
 
 async function insertTaskFlags(cn: DbCn, taskId: number | string, flagIds: string[]) {
-  for (let flagId of flagIds) {
-    let sql = insertInto("task_flag")
+  for (const flagId of flagIds) {
+    const sql = insertInto("task_flag")
       .values({
         "task_id": intVal(taskId),
         "flag_id": intVal(flagId)
@@ -481,7 +481,7 @@ async function insertTaskFlags(cn: DbCn, taskId: number | string, flagIds: strin
 }
 
 async function updateTaskFlags(cn: DbCn, taskId: number | string, flagIds: string[]) {
-  let sql = deleteFrom("task_flag")
+  const sql = deleteFrom("task_flag")
     .where("task_id", intVal(taskId))
 
   await cn.exec(sql)
@@ -494,20 +494,20 @@ async function updateTaskFlags(cn: DbCn, taskId: number | string, flagIds: strin
 
 export async function updateTaskDescription(cn: SBConnection, taskId: number, description: string | null) {
   if (description === null) {
-    let sql = deleteFrom("task_description")
+    const sql = deleteFrom("task_description")
       .where("task_id", taskId)
 
     await cn.exec(sql)
   } else {
-    let sql = update("task_description")
+    const sql = update("task_description")
       .set({
         description
       })
       .where("task_id", taskId)
-    let res = await cn.exec(sql)
+    const res = await cn.exec(sql)
 
     if (res.affectedRows === 0) {
-      let sql = insertInto("task_description")
+      const sql = insertInto("task_description")
         .values({
           description,
           task_id: taskId
@@ -520,7 +520,7 @@ export async function updateTaskDescription(cn: SBConnection, taskId: number, de
 
 async function findTaskCode(cn: DbCn, projectId: string): Promise<string> {
   // Select project code
-  let code = await cn.singleValue(select("p.code").from("project p").where("project_id", projectId))
+  const code = await cn.singleValue(select("p.code").from("project p").where("project_id", projectId))
 
   // Update the sequence
   let res: /* sqlite.Statement */ any | undefined
@@ -532,17 +532,17 @@ async function findTaskCode(cn: DbCn, projectId: string): Promise<string> {
       throw new Error(`Cannot get a new sequence value for project "${projectId}, (last changes: ${res!.affectedRows})"`)
 
     // Select previous task_seq
-    let sql = select("task_seq")
+    const sql = select("task_seq")
       .from("project")
       .where("project_id", projectId)
-    let rs = await cn.all(sql)
+    const rs = await cn.all(sql)
 
     if (rs.length !== 1)
       throw new Error(`Cannot find the project "${projectId}"`)
     prevSeqVal = rs[0]["task_seq"] as number
 
     // Increment the task_seq
-    let upd = update("project")
+    const upd = update("project")
       .set({
         "task_seq": sqlVanilla("task_seq + 1")
       })

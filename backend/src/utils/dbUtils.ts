@@ -7,8 +7,8 @@ import { createMediaEngine, MediaEngine } from "../team/createMediaEngine"
 import { fileExists, readFile } from "./fsUtils"
 
 export function getSessionDbConf() {
-  let dir = dataDir
-  let file = "sessions.sqlite"
+  const dir = dataDir
+  const file = "sessions.sqlite"
 
   return {
     dir,
@@ -20,8 +20,8 @@ export function getSessionDbConf() {
 export let platformCn!: SBMainConnection
 
 export async function initPlatformCn() {
-  let dbPath = path.join(dataDir, "platform.sqlite")
-  let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
+  const dbPath = path.join(dataDir, "platform.sqlite")
+  const scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
 
   platformCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
@@ -42,10 +42,10 @@ export async function getCn(subdomain: string): Promise<SBMainConnection> {
   let cn = cnMap.get(subdomain)
 
   if (!cn) {
-    let dbPath = path.join(dataDir, subdomain, "team.sqlite")
-    let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
-    let up = subdomain.toUpperCase()
-    let debug = `[${up}]`
+    const dbPath = path.join(dataDir, subdomain, "team.sqlite")
+    const scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
+    const up = subdomain.toUpperCase()
+    const debug = `[${up}]`
 
     cn = await newSqliteCn(debug, dbPath, scriptPath)
     cnMap.set(subdomain, cn)
@@ -54,16 +54,16 @@ export async function getCn(subdomain: string): Promise<SBMainConnection> {
   return cn
 }
 
-let ngMap = new Map<string, MediaEngine>()
+const ngMap = new Map<string, MediaEngine>()
 
 export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
   let engine = ngMap.get(subdomain)
 
   if (!engine) {
-    let dbPath = path.join(dataDir, subdomain, "files.sqlite")
-    let execDdl = !await fileExists(dbPath)
-    let up = subdomain.toUpperCase()
-    let debug = `[F-${up}]`
+    const dbPath = path.join(dataDir, subdomain, "files.sqlite")
+    const execDdl = !await fileExists(dbPath)
+    const up = subdomain.toUpperCase()
+    const debug = `[F-${up}]`
 
     engine = await createMediaEngine(await newSqliteCn(debug, dbPath), execDdl)
     ngMap.set(subdomain, engine)
@@ -74,7 +74,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
 
 async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
-  let cn = ladc({
+  const cn = ladc({
     adapter: sqlite3Adapter({ fileName, logWarning: msg => appLog.warn(msg) }),
     modifier: sqlBricksModifier({
       // toParamsOptions: { placeholder: "?%d" },
@@ -100,19 +100,19 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
     logError: err => appLog.error(err),
     logDebug: debug => {
       if (debug.callingContext) {
-        let cc = debug.callingContext
-        let msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
+        const cc = debug.callingContext
+        const msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
         if (debug.error) {
           appLog.trace(
             "========>", debugPrefix, "[DEBUG-LADC-ERROR]", msg,
             "\n  -- args --\n", cc.args,
-            "\n  -- error --\n", debug.error,
+            "\n  -- error --\n", debug.error
             // "\n  -- connection --\n", cc.connection
           )
         } else {
           appLog.trace(
             debugPrefix, "[DEBUG-LADC]", msg,
-            "\n  -- args --\n", cc.args,
+            "\n  -- args --\n", cc.args
             // "\n  -- result --\n", debug.result,
             // "\n  -- connection --\n", cc.connection
           )
@@ -125,7 +125,7 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
           )
         } else {
           appLog.trace(
-            debugPrefix, "[DEBUG-LADC] Open connection",
+            debugPrefix, "[DEBUG-LADC] Open connection"
             // "\n  -- result --\n", debug.result
           )
         }
@@ -144,7 +144,7 @@ export function toIntList(strList: (string | number)[]): number[] {
 }
 
 export function intVal(val: unknown): number {
-  let type = typeof val
+  const type = typeof val
   switch (type) {
     case "number":
       return val as number
@@ -156,7 +156,7 @@ export function intVal(val: unknown): number {
 }
 
 export function strVal(val: unknown): string {
-  let type = typeof val
+  const type = typeof val
   switch (type) {
     case "string":
       return val as string

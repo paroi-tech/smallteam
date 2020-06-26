@@ -8,14 +8,14 @@ import { ModelContext } from "./backendContext/context"
 // --
 
 export async function fetchTaskLogEntries(context: ModelContext, filters: TaskLogEntrySearchFragment) {
-  let sql = selectFromTaskLogEntry()
+  const sql = selectFromTaskLogEntry()
     .where("task_id", intVal(filters.taskId))
     .orderBy("entry_ts")
   // Rows should be ordered by 'entry_ts' in reversed order. But SqlBricks does not support ASC and DESC
   // command on ORDER BY clause. So we reverse manually the rows.
-  let rs = await context.cn.all(sql)
+  const rs = await context.cn.all(sql)
   rs.reverse()
-  for (let row of rs) {
+  for (const row of rs) {
     context.loader.addFragment({
       type: "TaskLogEntry",
       frag: toTaskLogEntryFragment(row),
@@ -27,11 +27,11 @@ export async function fetchTaskLogEntries(context: ModelContext, filters: TaskLo
 export async function fetchTaskLogEntriesByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let sql = selectFromTaskLogEntry()
+  const sql = selectFromTaskLogEntry()
     .where(sqlIn("task_log_id", toIntList(idList)))
-  let rs = await context.cn.all(sql)
-  for (let row of rs) {
-    let data = toTaskLogEntryFragment(row)
+  const rs = await context.cn.all(sql)
+  for (const row of rs) {
+    const data = toTaskLogEntryFragment(row)
     context.loader.modelUpdate.addFragment("TaskLogEntry", data.id, data)
   }
 }
@@ -55,7 +55,7 @@ function toTaskLogEntryFragment(row): TaskLogEntryFragment {
 // --
 
 export async function logStepChange(context: ModelContext, taskId: string, stepId: string) {
-  let sql = insert("task_log", {
+  const sql = insert("task_log", {
     "task_id": intVal(taskId),
     "step_id": intVal(stepId),
     "account_id": intVal(context.sessionData.accountId)

@@ -34,6 +34,6 @@ export async function validateWithOptions<T>(value: T, schema: Joi.ObjectSchema,
 }
 
 export function isHexString(str: string): boolean {
-  let error = Joi.string().hex().validate(str).error
+  const error = Joi.string().hex().validate(str).error
   return error !== undefined && error !== undefined
 }

@@ -13,7 +13,7 @@ import { validate } from "../utils/joiUtils"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { getAccountByLogin } from "../utils/userUtils"
 
-let joiSchemata = {
+const joiSchemata = {
   routeSendInvitation: Joi.object().keys({
     username: Joi.string().trim().optional(),
     email: Joi.string().email().required(),
@@ -44,13 +44,13 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
   if (!sessionData)
     throw new Error("SessionData missing in 'routeSendInvitation'")
 
-  let context = { subdomain }
-  let cn = await getCn(subdomain)
+  const context = { subdomain }
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
-  let cleanData = await validate(data, joiSchemata.routeSendInvitation)
+  const cleanData = await validate(data, joiSchemata.routeSendInvitation)
 
   if (cleanData.username && whyUsernameIsInvalid(cleanData.username)) {
     return {
@@ -59,12 +59,12 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
     }
   }
 
-  let token = randomBytes(TOKEN_LENGTH).toString("hex")
-  let tcn = await cn.beginTransaction()
-  let answer = { done: false } as any
+  const token = randomBytes(TOKEN_LENGTH).toString("hex")
+  const tcn = await cn.beginTransaction()
+  const answer = { done: false } as any
 
   try {
-    let inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
+    const inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
 
     if (inv) {
       await tcn.commit()
@@ -82,13 +82,13 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
   if (!sessionData)
     throw new Error("SessionData missing in 'routeResendInvitation'")
 
-  let context = { subdomain }
-  let cn = await getCn(subdomain)
+  const context = { subdomain }
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to send invitation mails")
 
-  let cleanData = await validate(data, joiSchemata.routeResendInvitation)
+  const cleanData = await validate(data, joiSchemata.routeResendInvitation)
 
   if (cleanData.username && whyUsernameIsInvalid(cleanData.username)) {
     return {
@@ -104,14 +104,14 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
     }
   }
 
-  let answer = { done: false } as any
-  let token = randomBytes(TOKEN_LENGTH).toString("hex")
-  let tcn = await cn.beginTransaction()
+  const answer = { done: false } as any
+  const token = randomBytes(TOKEN_LENGTH).toString("hex")
+  const tcn = await cn.beginTransaction()
 
   try {
     await removeInvitationWithId(tcn, cleanData.invitationId)
 
-    let inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
+    const inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
 
     if (inv) {
       await tcn.commit()
@@ -129,12 +129,12 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
   if (!sessionData)
     throw new Error("SessionData missing in 'routeCancelInvitation'")
 
-  let cn = await getCn(subdomain)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to cancel invitations")
 
-  let cleanData = await validate(data, joiSchemata.routeCancelInvitation)
+  const cleanData = await validate(data, joiSchemata.routeCancelInvitation)
 
   if (await existsInvitationWithId(cn, cleanData.invitationId))
     await removeInvitationWithId(cn, cleanData.invitationId)
@@ -145,8 +145,8 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
 }
 
 export async function routeRegister(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
-  let cn = await getCn(subdomain)
-  let cleanData = await validate(data, joiSchemata.routeRegister)
+  const cn = await getCn(subdomain)
+  const cleanData = await validate(data, joiSchemata.routeRegister)
 
   if (whyUsernameIsInvalid(cleanData.login)) {
     return {
@@ -169,15 +169,15 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
     }
   }
 
-  let passwordHash = await hash(cleanData.password, BCRYPT_SALT_ROUNDS)
-  let sql = insert("account", {
+  const passwordHash = await hash(cleanData.password, BCRYPT_SALT_ROUNDS)
+  const sql = insert("account", {
     "name": cleanData.name,
     "login": cleanData.login,
     "email": cleanData.email,
     password: passwordHash
   })
 
-  let tcn = await cn.beginTransaction()
+  const tcn = await cn.beginTransaction()
 
   try {
     await tcn.exec(sql)
@@ -197,16 +197,16 @@ export async function routeGetPendingInvitations(subdomain: string, data: any, s
   if (!sessionData)
     throw new Error("SessionData missing in 'routeGetPendingInvitations'")
 
-  let cn = await getCn(subdomain)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to do this")
 
-  let arr = [] as any[]
-  let sql = select().from("reg_new")
-  let result = await cn.all(sql)
+  const arr = [] as any[]
+  const sql = select().from("reg_new")
+  const result = await cn.all(sql)
 
-  for (let row of result)
+  for (const row of result)
     arr.push(toInvitation(row))
 
   return {
@@ -227,7 +227,7 @@ function toInvitation(row) {
 
 async function storeAndSendInvitation(context: BackendContext, cn: SBConnection, token: string, email: string, validity: number, username?: string) {
   try {
-    let inv = await storeInvitation(cn, token, email, validity, username)
+    const inv = await storeInvitation(cn, token, email, validity, username)
 
     if (await sendInvitationMail(context, token, email, username))
       return Object.assign({}, inv, { username, email })
@@ -243,8 +243,8 @@ async function sendInvitationMail(context: BackendContext, token: string, to: st
   if (username)
     regUrl += `&username=${encodeURIComponent(username)}`
 
-  let html = `Please click <a href="${regUrl.toString()}">here</a> to create your account.`
-  let result = await sendMail({
+  const html = `Please click <a href="${regUrl.toString()}">here</a> to create your account.`
+  const result = await sendMail({
     to,
     subject: "Create your account",
     html
@@ -257,9 +257,9 @@ async function sendInvitationMail(context: BackendContext, token: string, to: st
 }
 
 async function storeInvitation(cn: SBConnection, token: string, email: string, validity: number, username?: string) {
-  let currentTs = Math.floor(Date.now())
-  let expireTs = currentTs + validity * 24 * 3600 * 1000
-  let sql = insert("reg_new", {
+  const currentTs = Math.floor(Date.now())
+  const expireTs = currentTs + validity * 24 * 3600 * 1000
+  const sql = insert("reg_new", {
     "user_email": email,
     "token": token,
     "create_ts": currentTs,
@@ -269,7 +269,7 @@ async function storeInvitation(cn: SBConnection, token: string, email: string, v
   if (username && !await getAccountByLogin(cn, username))
     sql.values({ "user_name": username })
 
-  let result = await cn.exec(sql)
+  const result = await cn.exec(sql)
 
   return {
     id: result.getInsertedIdAsString(),
@@ -279,27 +279,26 @@ async function storeInvitation(cn: SBConnection, token: string, email: string, v
 }
 
 async function removeInvitationWithId(cn: SBConnection, id: string) {
-  let sql = deleteFrom("reg_new").where({ "reg_new_id": id })
+  const sql = deleteFrom("reg_new").where({ "reg_new_id": id })
 
   await cn.exec(sql)
 }
 
-async function removeInvitationWithToken(cn: SBConnection, token: string) {
-  let sql = deleteFrom("reg_new").where({ token })
-
-  await cn.exec(sql)
-}
+// async function removeInvitationWithToken(cn: SBConnection, token: string) {
+//   let sql = deleteFrom("reg_new").where({ token })
+//   await cn.exec(sql)
+// }
 
 async function existsInvitationWithToken(cn: SBConnection, token: string) {
-  let sql = select().from("reg_new").where({ token })
-  let row = await cn.singleRow(sql)
+  const sql = select().from("reg_new").where({ token })
+  const row = await cn.singleRow(sql)
 
   return row ? true : false
 }
 
 async function existsInvitationWithId(cn: SBConnection, id: string) {
-  let sql = select().from("reg_new").where({ "reg_new_id": id })
-  let row = await cn.singleRow(sql)
+  const sql = select().from("reg_new").where({ "reg_new_id": id })
+  const row = await cn.singleRow(sql)
 
   return row ? true : false
 }

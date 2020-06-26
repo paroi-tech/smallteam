@@ -7,7 +7,7 @@ import InfoDialog from "../../shared-ui/modal-dialogs/InfoDialog"
 import { whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
 import App from "./App"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-line @typescript-eslint/no-unused-expressions
 scss`
 .PasswordResetDialog {
   border: 1px solid rgba(0, 0, 0, 0.3);

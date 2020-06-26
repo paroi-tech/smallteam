@@ -8,8 +8,8 @@ export async function getPlatformHtml() {
   //   content = await readFile(join(packageDir, "static-bundles", "platform.html"), "utf8")
   // return content
 
-  let v = appVersion
-  let subdirUrl = getSubdirUrl()
+  const v = appVersion
+  const subdirUrl = getSubdirUrl()
   return `<!DOCTYPE html>
   <html data-ver="${v}"${subdirUrl ? ` data-base-url="${subdirUrl}"` : ""}>
   <head>

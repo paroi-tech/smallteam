@@ -12,13 +12,13 @@ export interface SmallTeamConf {
   /**
    * Default is: `"singleTeam"`.
    */
-  mode?: "singleTeam" | "platform",
+  mode?: "singleTeam" | "platform"
   singleTeam?: {
     /**
      * For example: `"/my/sub/directory"` (optional).
      */
     subdirUrl?: string
-  },
+  }
   mail: {
     from: string
   }

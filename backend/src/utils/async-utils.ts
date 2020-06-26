@@ -16,7 +16,7 @@ export function promiseToHandle<T = any>(): PromiseToHandle<T> {
 }
 
 export function wait(ms: number): Promise<void> {
-  return new Promise<void>(resolve => setTimeout(resolve, ms));
+  return new Promise<void>(resolve => setTimeout(resolve, ms))
 }
 
 const locks = new Map<any, Promise<void>>()
@@ -42,7 +42,7 @@ export async function onceAtATime<T>(lock: any, task: () => Promise<T>): Promise
 
 export async function waitAfterOnceAtATime(uniqueKey: any) {
   while (true) {
-    let current = locks.get(uniqueKey)
+    const current = locks.get(uniqueKey)
     if (!current)
       break
     await current

@@ -2,15 +2,15 @@ import { createTransport } from "nodemailer"
 import { appLog, conf } from "./context"
 
 export interface SendMail {
-  done: boolean,
+  done: boolean
   errorMsg?: string
 }
 
 export interface MailOptions {
-  from?: string,
-  to: string,
-  subject: string,
-  html: string,
+  from?: string
+  to: string
+  subject: string
+  html: string
   text?: string
 }
 
@@ -28,7 +28,7 @@ ${options.text || htmlToText(options.html)}`)
   } else {
     try {
       // https://nodemailer.com/transports/sendmail/
-      let transporter = createTransport({
+      const transporter = createTransport({
         sendmail: true,
         newline: "unix",
         path: "/usr/sbin/sendmail"
@@ -61,8 +61,8 @@ const htmlToText = (function () {
   /**
    * Thanks to https://stackoverflow.com/a/430240/3786294
    */
-  let tagBody = `(?:[^"'>]|"[^"]*"|'[^']*')*`
-  let tagOrComment = new RegExp(
+  const tagBody = "(?:[^\"'>]|\"[^\"]*\"|'[^']*')*"
+  const tagOrComment = new RegExp(
     "<(?:"
     // Comment body.
     + "!--(?:(?:-*[^->])*--+|-?)"

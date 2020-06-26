@@ -16,7 +16,7 @@ import { fetchTaskLogEntries, fetchTaskLogEntriesByIds } from "./queryTaskLogEnt
 export async function routeFetch(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeFetch'")
-  let context: ModelContext = {
+  const context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
@@ -30,7 +30,7 @@ export async function routeFetch(subdomain: string, data, sessionData?: SessionD
 export async function routeExec(subdomain: string, data, sessionData?: SessionData): Promise<Cargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeExec'")
-  let context: ModelContext = {
+  const context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
@@ -44,17 +44,17 @@ export async function routeExec(subdomain: string, data, sessionData?: SessionDa
 export async function routeBatch(subdomain: string, list: any[], sessionData?: SessionData): Promise<BatchCargo> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeBatch'")
-  let context: ModelContext = {
+  const context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
     sessionData,
     loader: new CargoLoader(true)
   }
-  for (let data of list) {
-    let cmd = data.cmd
+  for (const data of list) {
+    const cmd = data.cmd
     if (!cmd)
-      throw new Error(`Missing command`)
+      throw new Error("Missing command")
     if (cmd === "fetch")
       await executeFetch(context, data)
     else
@@ -74,17 +74,17 @@ const whoUseCallbacks = {
 export async function routeWhoUse(subdomain: string, data, sessionData?: SessionData): Promise<object> {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeWhoUse'")
-  let cb = whoUseCallbacks[data.type]
+  const cb = whoUseCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid 'whoUse' type: "${data.type}"`)
-  let context: ModelContext = {
+  const context: ModelContext = {
     subdomain,
     cn: await getCn(subdomain),
     mediaEngine: await getMediaEngine(subdomain),
     sessionData,
     loader: new CargoLoader(true)
   }
-  let result: WhoUseItem[] | null = await cb(context, data.id)
+  const result: WhoUseItem[] | null = await cb(context, data.id)
   return {
     done: true,
     result
@@ -103,7 +103,7 @@ const fetchCallbacks = {
 
 async function executeFetch(context: ModelContext, data) {
   context.loader.startResponse("fragments")
-  let cb = fetchCallbacks[data.type]
+  const cb = fetchCallbacks[data.type]
   if (!cb)
     throw new Error(`Invalid fetch type: "${data.type}"`)
   await cb(context, data.filters || {})
@@ -123,7 +123,7 @@ async function executeCommand(context: ModelContext, data) {
   context.loader.startResponse(data.cmd === "reorder" || data.cmd === "delete" ? "none" : "fragment")
   if (data.dependencies)
     context.loader.addDependencies(data.dependencies)
-  let cb = commands[data.type]
+  const cb = commands[data.type]
   if (!cb)
     throw new Error(`Invalid type: "${data.type}"`)
   await cb(context, data)
@@ -205,7 +205,7 @@ async function executeCommandComment(context: ModelContext, data) {
 }
 
 export async function completeCargo(context: ModelContext) {
-  let upd = context.loader.modelUpdate
+  const upd = context.loader.modelUpdate
   let count = 0
   while (!upd.isFragmentsComplete()) {
     if (++count > 100)

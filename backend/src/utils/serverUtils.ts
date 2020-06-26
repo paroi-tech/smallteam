@@ -29,14 +29,14 @@ export function getRequestedSubdomain(req: Request) {
 }
 
 export async function getConfirmedSubdomain(req: Request) {
-  let subDomain = getRequestedSubdomain(req)
+  const subDomain = getRequestedSubdomain(req)
   if (subDomain && await fileExists(path.join(conf.dataDir, subDomain))) // TODO: Check it is a directory
     return subDomain
 }
 
 export function getSubdirUrl() {
   if (!conf.mode || conf.mode === "singleTeam") {
-    let subdirUrl = conf.singleTeam ? conf.singleTeam.subdirUrl : undefined
+    const subdirUrl = conf.singleTeam ? conf.singleTeam.subdirUrl : undefined
     return subdirUrl || ""
   }
   return ""
@@ -47,16 +47,16 @@ export interface BackendContext {
 }
 
 export function getTeamSiteUrl(context: BackendContext) {
-  let protocol = conf.ssl ? "https" : "http"
-  let publicPort = conf.publicPort || conf.port
-  let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  let domain = context.subdomain ? `${context.subdomain}.${conf.domain}` : conf.domain
+  const protocol = conf.ssl ? "https" : "http"
+  const publicPort = conf.publicPort || conf.port
+  const portSuffix = publicPort === 80 ? "" : `:${publicPort}`
+  const domain = context.subdomain ? `${context.subdomain}.${conf.domain}` : conf.domain
   return `${protocol}://${domain}${portSuffix}${getSubdirUrl()}`
 }
 
 export function getMainDomainUrl() {
-  let protocol = conf.ssl ? "https" : "http"
-  let publicPort = conf.publicPort || conf.port
-  let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
+  const protocol = conf.ssl ? "https" : "http"
+  const publicPort = conf.publicPort || conf.port
+  const portSuffix = publicPort === 80 ? "" : `:${publicPort}`
   return `${protocol}://${conf.domain}${portSuffix}${getSubdirUrl()}`
 }

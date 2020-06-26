@@ -28,9 +28,9 @@ async function stopAll(signal: string) {
     }, 30000).unref()
     await Promise.all([
       closeAllConnections(),
-      stopServer(),
+      stopServer()
     ])
-    appLog.info(`... ended.`)
+    appLog.info("... ended.")
   } catch (error) {
     appLog.error(error)
   }

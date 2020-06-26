@@ -17,7 +17,6 @@ import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
 import { getTeamHtml } from "./team/frontend"
 import { wsEngineInit } from "./team/wsEngine"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
-import { readFile } from "./utils/fsUtils"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
 import makeSQLiteExpressStore = require("connect-sqlite3")
@@ -34,17 +33,17 @@ function getSubdomainOffset(domain: string) {
 let server: http.Server | undefined
 
 export async function startWebServer() {
-  let { port, domain } = conf
+  const { port, domain } = conf
 
-  let app = express()
+  const app = express()
   app.set("subdomain offset", getSubdomainOffset(domain))
 
   server = http.createServer(app)
   // tslint:disable-next-line:variable-name
-  let SQLiteExpressStore = makeSQLiteExpressStore(session)
-  let { dir, file: db } = getSessionDbConf()
+  const SQLiteExpressStore = makeSQLiteExpressStore(session)
+  const { dir, file: db } = getSessionDbConf()
 
-  let store = new SQLiteExpressStore({
+  const store = new SQLiteExpressStore({
     table: "session",
     db,
     dir
@@ -62,7 +61,7 @@ export async function startWebServer() {
   })
   )
 
-  let router = Router()
+  const router = Router()
 
   router.post("/api/team/create", makeMainSiteRouteHandler(routeCreateTeam))
   router.post("/api/team/check-subdomain", makeMainSiteRouteHandler(routeCheckTeamSubdomain))
@@ -99,7 +98,7 @@ export async function startWebServer() {
   declareRoutesMultiEngine(router, {
     baseUrl: MEDIAS_BASE_URL
   }, async (req: Request, res: Response) => {
-    let subdomain = await getConfirmedSubdomain(req)
+    const subdomain = await getConfirmedSubdomain(req)
     if (subdomain)
       return (await getMediaEngine(subdomain)).uploadEngine
     write404(res)
@@ -137,12 +136,14 @@ export async function startWebServer() {
   app.get("*", (req, res) => write404(res))
 
   wsEngineInit(server)
-  server.listen(port, function () {
-    appLog.info(`The server is listening on: ${getMainDomainUrl()}/`)
+
+  await new Promise((resolve) => {
+    server!.listen(port, resolve)
   })
+  appLog.info(`The server is listening on: ${getMainDomainUrl()}/`)
 
   // Scheduled task to remove password reset tokens each day.
-  let timer = setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000) as any
+  const timer = setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000) as any
   timer.unref()
 }
 
@@ -163,7 +164,7 @@ export async function stopServer() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
-    let subdomain = await getConfirmedSubdomain(req)
+    const subdomain = await getConfirmedSubdomain(req)
 
     if (!subdomain) {
       write404(res)
@@ -214,7 +215,7 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
   appLog.error("[ERR]", err, err.stack, "Request body:", reqBody)
-  let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 404 : 500)
+  const statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 404 : 500)
   let errorMsg: string
   if (statusCode >= 500 && statusCode < 600)
     errorMsg = "Server internal error"
@@ -260,7 +261,7 @@ function write404(res: Response) {
 
 function waitForRequestBody(req: Request): Promise<string> {
   return new Promise<string>((resolve, reject) => {
-    let body: string[] = []
+    const body: string[] = []
     req.on("data", chunk => body.push(typeof chunk === "string" ? chunk : chunk.toString()))
     req.on("error", err => {
       reject(err)
@@ -271,9 +272,9 @@ function waitForRequestBody(req: Request): Promise<string> {
   })
 }
 
-async function configureGetRouteToFile(router: Router, relUrl: string, filePath: string) {
-  const content = await readFile(filePath, "utf8")
-  router.get(relUrl, async (req, res) => {
-    writeResponse(res, content, "text/javascript")
-  })
-}
+// async function configureGetRouteToFile(router: Router, relUrl: string, filePath: string) {
+//   const content = await readFile(filePath, "utf8")
+//   router.get(relUrl, async (req, res) => {
+//     writeResponse(res, content, "text/javascript")
+//   })
+// }

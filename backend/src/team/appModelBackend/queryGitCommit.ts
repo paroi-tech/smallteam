@@ -8,10 +8,10 @@ import { ModelContext } from "./backendContext/context"
 // --
 
 export async function fetchGitCommits(context: ModelContext) {
-  let sql = selectFromGitCommit()
-  let rs = await context.cn.all(sql)
-  for (let row of rs) {
-    let frag = toGitCommitFragment(row)
+  const sql = selectFromGitCommit()
+  const rs = await context.cn.all(sql)
+  for (const row of rs) {
+    const frag = toGitCommitFragment(row)
     context.loader.addFragment({
       type: "GitCommit",
       frag,
@@ -23,11 +23,11 @@ export async function fetchGitCommits(context: ModelContext) {
 export async function fetchGitCommitsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let sql = selectFromGitCommit()
+  const sql = selectFromGitCommit()
     .where(sqlIn("commit_id", toIntList(idList)))
-  let rs = await context.cn.all(sql)
-  for (let row of rs) {
-    let data = toGitCommitFragment(row)
+  const rs = await context.cn.all(sql)
+  for (const row of rs) {
+    const data = toGitCommitFragment(row)
     context.loader.modelUpdate.addFragment("GitCommit", data.id, data)
   }
 }

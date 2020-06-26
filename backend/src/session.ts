@@ -25,9 +25,9 @@ interface PasswordUpdateInfo {
   token: string
 }
 
-let numberRegex = /^[1-9][0-9]*$/
+const numberRegex = /^[1-9][0-9]*$/
 
-let joiSchemata = {
+const joiSchemata = {
   routeConnect: Joi.object().keys({
     login: Joi.string().trim().alphanum().required(),
     password: Joi.string().required()
@@ -58,9 +58,9 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
   if (!req)
     throw new Error("Request object missing 'routeConnect'")
 
-  let cn = await getCn(subdomain)
-  let cleanData = await validate(data, joiSchemata.routeConnect)
-  let account = await getAccountByLogin(cn, cleanData.login)
+  const cn = await getCn(subdomain)
+  const cleanData = await validate(data, joiSchemata.routeConnect)
+  const account = await getAccountByLogin(cn, cleanData.login)
 
   if (account && await compare(cleanData.password, account.password)) {
     req.session!.accountId = account.id
@@ -106,12 +106,12 @@ export async function routeSetPassword(subdomain: string, data: any, sessionData
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeSetPassword'")
 
-  let cn = await getCn(subdomain)
+  const cn = await getCn(subdomain)
 
   if (!await hasAdminRights(cn, sessionData))
     throw new AuthorizationError("You are not allowed to change passwords")
 
-  let cleanData = await validate(data, joiSchemata.routeSetPassword)
+  const cleanData = await validate(data, joiSchemata.routeSetPassword)
 
   if (whyNewPasswordIsInvalid(cleanData.password)) {
     return {
@@ -132,8 +132,8 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeChangePassword'")
 
-  let cn = await getCn(subdomain)
-  let cleanData = await validate(data, joiSchemata.routeChangePassword)
+  const cn = await getCn(subdomain)
+  const cleanData = await validate(data, joiSchemata.routeChangePassword)
 
   if (whyNewPasswordIsInvalid(cleanData.newPassword)) {
     return {
@@ -142,7 +142,7 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
     }
   }
 
-  let account = await getAccountById(cn, sessionData.accountId)
+  const account = await getAccountById(cn, sessionData.accountId)
 
   if (account && await compare(cleanData.currentPassword, account.password)) {
     await updateAccountPassword(cn, account.id, cleanData.newPassword)
@@ -162,11 +162,11 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
   if (!req)
     throw new Error("'Request parameter missing in 'routeResetPassword'")
 
-  let cn = await getCn(subdomain)
+  const cn = await getCn(subdomain)
 
   await destroySessionIfAny(req)
 
-  let cleanData = await validate(data, joiSchemata.routeResetPassword)
+  const cleanData = await validate(data, joiSchemata.routeResetPassword)
 
   if (whyNewPasswordIsInvalid(cleanData.password)) {
     return {
@@ -175,12 +175,12 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
     }
   }
 
-  let tcn = await cn.beginTransaction()
-  let answer = { done: false } as any
+  const tcn = await cn.beginTransaction()
+  const answer = { done: false } as any
 
   try {
-    let passwordInfo = await getPasswordUpdateObject(tcn, cleanData.token, cleanData.accountId)
-    let currentTs = Math.floor(Date.now())
+    const passwordInfo = await getPasswordUpdateObject(tcn, cleanData.token, cleanData.accountId)
+    const currentTs = Math.floor(Date.now())
 
     if (currentTs - passwordInfo.createTs > passwordResetTokenValidity)
       throw new Error("Token expired")
@@ -201,10 +201,10 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
 }
 
 export async function routeSendPasswordEmail(subdomain: string, data: any) {
-  let context = { subdomain }
-  let cn = await getCn(subdomain)
-  let cleanData = await validate(data, joiSchemata.routeSendPasswordEmail)
-  let account = await getAccountByEmail(cn, cleanData.email)
+  const context = { subdomain }
+  const cn = await getCn(subdomain)
+  const cleanData = await validate(data, joiSchemata.routeSendPasswordEmail)
+  const account = await getAccountByEmail(cn, cleanData.email)
 
   if (!account) {
     return {
@@ -213,9 +213,9 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
     }
   }
 
-  let token = randomBytes(TOKEN_LENGTH).toString("hex")
-  let tcn = await cn.beginTransaction()
-  let answer = { done: false } as any
+  const token = randomBytes(TOKEN_LENGTH).toString("hex")
+  const tcn = await cn.beginTransaction()
+  const answer = { done: false } as any
 
   try {
     await storePasswordResetToken(tcn, token, account.id)
@@ -250,7 +250,7 @@ export async function getSessionData(req: Request) {
 }
 
 export async function hasSession(req: Request) {
-  let subdomain = await getConfirmedSubdomain(req)
+  const subdomain = await getConfirmedSubdomain(req)
 
   if (!subdomain || !req.session || !req.session.accountId || !req.session.subdomain)
     return false
@@ -279,15 +279,15 @@ export async function hasSessionForSubdomain(req: Request, subdomain: string) {
 }
 
 export async function hasAdminRights(subdomainCn: SBConnection, sessionData: SessionData) {
-  let account = await getAccountById(subdomainCn, sessionData.accountId)
+  const account = await getAccountById(subdomainCn, sessionData.accountId)
 
   return (account !== undefined && account.role === "admin")
 }
 
 async function sendPasswordResetMail(context: BackendContext, token: string, accountId: string, to: string) {
-  let url = `${getTeamSiteUrl(context)}/registration?action=passwordreset&token=${token}&uid=${accountId}`
-  let html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
-  let res = await sendMail({
+  const url = `${getTeamSiteUrl(context)}/registration?action=passwordreset&token=${token}&uid=${accountId}`
+  const html = `Please click <a href="${url}">here</a> if you made a request to change your password.`
+  const res = await sendMail({
     to,
     subject: "SmallTeam password reset",
     html
@@ -300,8 +300,8 @@ async function sendPasswordResetMail(context: BackendContext, token: string, acc
 }
 
 async function storePasswordResetToken(cn: SBConnection, token: string, accountId: string) {
-  let currentTs = Math.floor(Date.now())
-  let sql = insert("reg_pwd", {
+  const currentTs = Math.floor(Date.now())
+  const sql = insert("reg_pwd", {
     "account_id": accountId,
     "token": token,
     "create_ts": currentTs,
@@ -312,8 +312,8 @@ async function storePasswordResetToken(cn: SBConnection, token: string, accountI
 }
 
 async function getPasswordUpdateObject(cn: SBConnection, token: string, accountId: string) {
-  let sql = select().from("reg_pwd").where("token", token).and("account_id", accountId)
-  let row = await cn.singleRow(sql)
+  const sql = select().from("reg_pwd").where("token", token).and("account_id", accountId)
+  const row = await cn.singleRow(sql)
 
   if (!row)
     throw new Error("Token not found")
@@ -330,14 +330,14 @@ function toPasswordUpdateInfo(row): PasswordUpdateInfo {
 }
 
 function removePasswordToken(cn: SBConnection, token: string) {
-  let sql = deleteFrom("reg_pwd").where("token", token)
+  const sql = deleteFrom("reg_pwd").where("token", token)
 
   return cn.exec(sql)
 }
 
 async function updateAccountPassword(cn: SBConnection, accountId: string, password: string) {
-  let passwordHash = await hash(password, BCRYPT_SALT_ROUNDS)
-  let sql = update("account", { "password": passwordHash }).where("account_id", accountId)
+  const passwordHash = await hash(password, BCRYPT_SALT_ROUNDS)
+  const sql = update("account", { "password": passwordHash }).where("account_id", accountId)
 
   await cn.exec(sql)
 
@@ -345,7 +345,7 @@ async function updateAccountPassword(cn: SBConnection, accountId: string, passwo
 }
 
 function destroySession(req: Request): Promise<boolean> {
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     req.session!.destroy(err => resolve(err ? false : true))
   })
 }

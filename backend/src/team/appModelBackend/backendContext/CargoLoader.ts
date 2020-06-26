@@ -15,9 +15,9 @@ export interface FragmentOptions {
 export default class CargoLoader {
 
   get response() {
-    let len = this.responses.length
+    const len = this.responses.length
     if (len === 0)
-      throw new Error(`Missing current response`)
+      throw new Error("Missing current response")
     return this.responses[len - 1]
   }
 
@@ -30,22 +30,22 @@ export default class CargoLoader {
 
   startResponse(resultType: ResultType) {
     if (this.ended)
-      throw new Error(`Invalid call to "startResponse": the Cargo is completed`)
+      throw new Error("Invalid call to \"startResponse\": the Cargo is completed")
     if (this.responses.length !== 0 && !this.isBatch)
-      throw new Error(`Cannot add a new response, the loader is not in batch mode`)
+      throw new Error("Cannot add a new response, the loader is not in batch mode")
     this.responses.push(new ResponseLoader(resultType))
   }
 
   addDependencies(dependencies: Dependencies[]) {
-    for (let dep of dependencies) {
-      for (let id of dep.idList)
+    for (const dep of dependencies) {
+      for (const id of dep.idList)
         this.modelUpdate.addFragment(dep.type, id)
     }
   }
 
   addFragment(opt: FragmentOptions) {
     if (this.ended)
-      throw new Error(`Invalid call to "addFragment": the Cargo is completed`)
+      throw new Error("Invalid call to \"addFragment\": the Cargo is completed")
     let id: Identifier
     if (opt.id === undefined) {
       if (opt.frag)
@@ -53,7 +53,7 @@ export default class CargoLoader {
       else if (opt.partialFrag)
         id = toIdentifier(opt.partialFrag, opt.type)
       else
-        throw new Error(`Canot evaluate the fragment identifier: missing "id" or "frag" or "partialFrag"`)
+        throw new Error("Canot evaluate the fragment identifier: missing \"id\" or \"frag\" or \"partialFrag\"")
     } else
       id = opt.id
 
@@ -73,18 +73,18 @@ export default class CargoLoader {
 
   toCargo(): Cargo {
     this.ended = true
-    let cargo: Cargo = this.response.toResponse()
-    let modelUpd = this.modelUpdate.toModelUpdate()
+    const cargo: Cargo = this.response.toResponse()
+    const modelUpd = this.modelUpdate.toModelUpdate()
     if (modelUpd)
       cargo.modelUpd = modelUpd
     return cargo
   }
 
   toBatchCargo(): BatchCargo {
-    let batchCargo: BatchCargo = {}
+    const batchCargo: BatchCargo = {}
     if (this.responses.length > 0)
       batchCargo.responses = this.responses.map(response => response.toResponse())
-    let modelUpd = this.modelUpdate.toModelUpdate()
+    const modelUpd = this.modelUpdate.toModelUpdate()
     if (modelUpd)
       batchCargo.modelUpd = modelUpd
     return batchCargo

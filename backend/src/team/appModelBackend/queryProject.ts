@@ -16,7 +16,7 @@ type DbCn = SBMainConnection
 // --
 
 export async function fetchProjects(context: ModelContext, filters: ProjectSearchFragment) {
-  let sql = selectFromProject()
+  const sql = selectFromProject()
   if (filters.archived !== undefined)
     sql.where("p.archived", filters.archived)
   if (filters.code)
@@ -27,11 +27,11 @@ export async function fetchProjects(context: ModelContext, filters: ProjectSearc
     sql.where(like("d.description", `%${filters.description}%`))
   //   if (filters.search) {
   //     sql.where(like("d.description", `%${filters.description}%`)) // TODO: build search criterion
-  let rs = await context.cn.all(sql)
+  const rs = await context.cn.all(sql)
   await addDependenciesTo(context.cn, rs)
-  let projectIdList: number[] = []
-  for (let row of rs) {
-    let frag = toProjectFragment(row)
+  const projectIdList: number[] = []
+  for (const row of rs) {
+    const frag = toProjectFragment(row)
     context.loader.addFragment({
       type: "Project",
       frag,
@@ -46,12 +46,12 @@ export async function fetchProjects(context: ModelContext, filters: ProjectSearc
 export async function fetchProjectsByIds(context: ModelContext, idList: string[]) {
   if (idList.length === 0)
     return
-  let sql = selectFromProject()
+  const sql = selectFromProject()
     .where(sqlIn("p.project_id", toIntList(idList)))
-  let rs = await context.cn.all(sql)
+  const rs = await context.cn.all(sql)
   await addDependenciesTo(context.cn, rs)
-  for (let row of rs) {
-    let frag = toProjectFragment(row)
+  for (const row of rs) {
+    const frag = toProjectFragment(row)
     context.loader.modelUpdate.addFragment("Project", frag.id, frag)
     context.loader.modelUpdate.addFragment("Task", frag.rootTaskId)
   }
@@ -66,7 +66,7 @@ function selectFromProject() {
 }
 
 function toProjectFragment(row): ProjectFragment {
-  let frag: ProjectFragment = {
+  const frag: ProjectFragment = {
     id: row["project_id"].toString(),
     code: row["code"],
     name: row["name"],
@@ -84,14 +84,14 @@ function toProjectFragment(row): ProjectFragment {
 // --
 
 export async function whoUseProject(context: ModelContext, id: string): Promise<WhoUseItem[]> {
-  let dbId = intVal(id)
-  let taskId = await context.cn.singleValue(select("task_id").from("root_task").where("project_id", dbId))
+  const dbId = intVal(id)
+  const taskId = await context.cn.singleValue(select("task_id").from("root_task").where("project_id", dbId))
   return whoUseTask(context, strVal(taskId))
 }
 
 export async function whoUseProjectStep(context: ModelContext, projectId: string, stepId: string): Promise<WhoUseItem[]> { // TODO: use this function
-  let result: WhoUseItem[] = []
-  let count = await context.cn.singleValue(
+  const result: WhoUseItem[] = []
+  const count = await context.cn.singleValue(
     select("count(1)")
       .from("task")
       .where({
@@ -109,24 +109,24 @@ export async function whoUseProjectStep(context: ModelContext, projectId: string
 // --
 
 async function addDependenciesTo(cn: DbCn, projectRows: any[]) {
-  let stepMap = await fetchStepIdentifiers(cn, projectRows.map(row => row["project_id"]))
-  for (let row of projectRows)
+  const stepMap = await fetchStepIdentifiers(cn, projectRows.map(row => row["project_id"]))
+  for (const row of projectRows)
     row["stepIds"] = stepMap.get(row["project_id"]) || []
 }
 
 async function fetchStepIdentifiers(cn: SBMainConnection, projectIdList: number[]): Promise<Map<number, number[]>> {
-  let sql =
+  const sql =
     select("pt.project_id, pt.step_id")
       .from("project_step pt")
       .innerJoin("step f").using("step_id")
       .where(sqlIn("pt.project_id", projectIdList))
       .orderBy("1, f.order_num")
-  let rs = await cn.all(sql)
+  const rs = await cn.all(sql)
 
-  let map = new Map<number, number[]>()
+  const map = new Map<number, number[]>()
   let curTaskId: number | undefined
   let curStepIds: number[]
-  for (let row of rs) {
+  for (const row of rs) {
     if (row["project_id"] !== curTaskId) {
       curTaskId = row["project_id"] as number
       curStepIds = []
@@ -143,7 +143,7 @@ async function fetchStepIdentifiers(cn: SBMainConnection, projectIdList: number[
 // --
 
 export async function createProject(context: ModelContext, newFrag: ProjectCreateFragment) {
-  let transCn = await context.cn.beginTransaction()
+  const transCn = await context.cn.beginTransaction()
 
   try {
     // Project
@@ -153,7 +153,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "task_seq": 0
       })
     let res = await transCn.exec(sql)
-    let projectId = res.getInsertedIdAsNumber()
+    const projectId = res.getInsertedIdAsNumber()
 
     // Step "Not Started"
     sql = insertInto("project_step")
@@ -181,7 +181,7 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
         "label": newFrag.name
       })
     res = await transCn.exec(sql)
-    let taskId = res.getInsertedIdAsNumber()
+    const taskId = res.getInsertedIdAsNumber()
 
     // Mark as root task
     sql = insertInto("root_task")
@@ -224,28 +224,28 @@ export async function createProject(context: ModelContext, newFrag: ProjectCreat
 // --
 
 export async function updateProject(context: ModelContext, updFrag: ProjectUpdateFragment) {
-  let transCn = await context.cn.beginTransaction()
+  const transCn = await context.cn.beginTransaction()
 
   try {
-    let projectId = parseInt(updFrag.id, 10)
+    const projectId = parseInt(updFrag.id, 10)
 
-    let valuesToUpd = toSqlValues(updFrag, projectMeta.update, "exceptId")
+    const valuesToUpd = toSqlValues(updFrag, projectMeta.update, "exceptId")
     if (valuesToUpd) {
       if (updFrag.code !== undefined && await hasTasks(context.cn, projectId))
         throw new Error(`Cannot update the project "${updFrag.id}" because it has tasks`)
-      let sql = update("project")
+      const sql = update("project")
         .set(valuesToUpd)
         .where(toSqlValues(updFrag, projectMeta.update, "onlyId"))
       await transCn.exec(sql)
     }
 
     if (updFrag.name !== undefined || updFrag.description !== undefined) {
-      let taskId = await getRootTaskId(transCn, projectId) as number
+      const taskId = await getRootTaskId(transCn, projectId) as number
 
       if (updFrag.description !== undefined)
         await updateTaskDescription(transCn, taskId, updFrag.description)
 
-      let sql = update("task")
+      const sql = update("task")
         .set({
           update_ts: sqlVanilla("current_timestamp")
         })
@@ -274,17 +274,17 @@ export async function updateProject(context: ModelContext, updFrag: ProjectUpdat
 }
 
 async function hasTasks(rn: SBConnection, projectId: number) {
-  let count = await rn.singleValue(
+  const count = await rn.singleValue(
     select("count(task_id)").from("task").where("project_id", projectId)
   ) as number
   return count > 0
 }
 
 async function getRootTaskId(rn: SBConnection, projectId: number) {
-  let sql = select("task_id")
+  const sql = select("task_id")
     .from("root_task")
     .where("project_id", projectId)
-  let rs = await rn.all(sql)
+  const rs = await rn.all(sql)
   if (rs.length !== 1)
     throw new Error(`Missing root task for the project "${projectId}"`)
   return rs[0]["task_id"]
@@ -295,12 +295,12 @@ async function getRootTaskId(rn: SBConnection, projectId: number) {
 // --
 
 export async function deleteProject(context: ModelContext, frag: ProjectIdFragment) {
-  let transCn = await context.cn.beginTransaction()
+  const transCn = await context.cn.beginTransaction()
 
   try {
-    let dbId = intVal(frag.id)
+    const dbId = intVal(frag.id)
 
-    let taskId = await transCn.singleValue(select("task_id").from("root_task").where("project_id", dbId))
+    const taskId = await transCn.singleValue(select("task_id").from("root_task").where("project_id", dbId))
     await transCn.exec(deleteFrom("root_task").where("project_id", dbId))
     await transCn.exec(deleteFrom("task").where("task_id", taskId))
     await transCn.exec(deleteFrom("project").where("project_id", dbId))
@@ -318,8 +318,8 @@ export async function deleteProject(context: ModelContext, frag: ProjectIdFragme
 // --
 
 async function insertProjectSteps(cn: SBConnection, projectId: number | string, stepIds: string[]) {
-  for (let stepId of stepIds) {
-    let sql = insertInto("project_step")
+  for (const stepId of stepIds) {
+    const sql = insertInto("project_step")
       .values({
         "project_id": intVal(projectId),
         "step_id": intVal(stepId)
@@ -329,19 +329,19 @@ async function insertProjectSteps(cn: SBConnection, projectId: number | string, 
 }
 
 async function updateProjectSteps(cn: SBConnection, projectId: number | string, stepIds: string[]) {
-  let rs = await cn.all(select("ps.step_id")
+  const rs = await cn.all(select("ps.step_id")
     .from("project_step ps")
     .innerJoin("step s").using("step_id")
     .where("ps.project_id", intVal(projectId))
     .where(isNotNull("s.order_num")) // the special steps are never updated (out of the scope)
   )
-  let prevArr = rs.map(row => strVal(row["step_id"])) as string[]
-  let prevSet = new Set<string>(prevArr)
-  let idsSet = new Set<string>(stepIds)
-  let toAdd = stepIds.filter(id => !prevSet.has(id))
-  let toDelete = prevArr.filter(id => !idsSet.has(id))
+  const prevArr = rs.map(row => strVal(row["step_id"])) as string[]
+  const prevSet = new Set<string>(prevArr)
+  const idsSet = new Set<string>(stepIds)
+  const toAdd = stepIds.filter(id => !prevSet.has(id))
+  const toDelete = prevArr.filter(id => !idsSet.has(id))
   if (toDelete.length > 0) {
-    let sql = deleteFrom("project_step")
+    const sql = deleteFrom("project_step")
       .where("project_id", intVal(projectId))
       .where(sqlIn("step_id", toIntList(toDelete)))
     await cn.exec(sql)

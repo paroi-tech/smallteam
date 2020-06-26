@@ -18,7 +18,7 @@ export const appLog = createAppLog({
 
 function readPackageVersionSync(): Promise<string> {
   try {
-    let data = JSON.parse((readFileSync(join(packageDir, "package.json"))).toString("utf8"))
+    const data = JSON.parse((readFileSync(join(packageDir, "package.json"))).toString("utf8"))
     return data.version || "0"
   } catch (err) {
     throw new Error(`Cannot load the package.json file: ${err.message}`)
