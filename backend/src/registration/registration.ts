@@ -5,12 +5,11 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../shared/libraries/helpers"
-import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../context"
+import { appLog, BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { hasAdminRights, SessionData } from "../session"
 import { getCn } from "../utils/dbUtils"
 import { validate } from "../utils/joiUtils"
-import { log } from "../utils/log"
 import { AuthorizationError, BackendContext, getTeamSiteUrl } from "../utils/serverUtils"
 import { getAccountByLogin } from "../utils/userUtils"
 
@@ -233,7 +232,7 @@ async function storeAndSendInvitation(context: BackendContext, cn: SBConnection,
     if (await sendInvitationMail(context, token, email, username))
       return Object.assign({}, inv, { username, email })
   } catch (error) {
-    log.error("Could not store invitation", error.message)
+    appLog.error("Could not store invitation", error.message)
   }
 
   return undefined
@@ -252,7 +251,7 @@ async function sendInvitationMail(context: BackendContext, token: string, to: st
   })
 
   if (!result.done)
-    log.error(`Could not send invitation mail: ${result.errorMsg}`)
+    appLog.error(`Could not send invitation mail: ${result.errorMsg}`)
 
   return result.done
 }

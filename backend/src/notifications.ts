@@ -4,11 +4,10 @@ import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { v4 as uuidv4 } from "uuid"
-import { TOKEN_LENGTH } from "./context"
+import { appLog, TOKEN_LENGTH } from "./context"
 import { hasAdminRights, SessionData } from "./session"
 import { getCn, strVal } from "./utils/dbUtils"
 import { validate, validateWithOptions } from "./utils/joiUtils"
-import { log } from "./utils/log"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
 // tslint:disable-next-line: ordered-imports
 import crypto = require("crypto")
@@ -208,7 +207,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
     throw new Error("Invalid message digest")
 
   if (event === "ping") {
-    log.info(`Received ping for Github Hook ${uuid} for subdomain ${subdomain}`, data)
+    appLog.info(`Received ping for Github Hook ${uuid} for subdomain ${subdomain}`, data)
     return "Ping received..."
   }
 
@@ -227,7 +226,7 @@ export async function routeProcessGithubNotification(subdomain: string, data: an
       await tcn.rollback()
   }
 
-  log.info(`Processed push event hook with uuid ${deliveryGuid}`)
+  appLog.info(`Processed push event hook with uuid ${deliveryGuid}`)
 
   return "Webhook successfully processed..."
 }

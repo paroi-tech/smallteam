@@ -1,39 +1,50 @@
-import { loadServerConfig } from "./context"
-import { initDbTeamCn } from "./utils/dbUtils"
-import { initLog, log } from "./utils/log"
-import { startWebServer } from "./webServer"
+import { appLog } from "./context"
+import { closeAllConnections, initPlatformCn } from "./utils/dbUtils"
+import { startWebServer, stopServer } from "./webServer"
 
-process.on("uncaughtException", err => {
-  // tslint:disable-next-line:no-console
-  console.error("uncaughtException", err)
+
+process.on("uncaughtException", error => {
+  appLog.error("uncaughtException", error)
+  appLog.flushSync()
   process.exit(1)
 })
 
-process.on("unhandledRejection", err => {
-  // tslint:disable-next-line:no-console
-  console.trace("unhandledRejection", err)
+process.on("unhandledRejection", error => {
+  appLog.error("unhandledRejection", error)
+  appLog.flushSync()
   process.exit(1)
 })
 
-async function loadConfiguration() {
-  let conf = await loadServerConfig()
-  initLog(conf)
+process.on("SIGINT", () => stopAll("SIGINT"))
+process.on("SIGTERM", () => stopAll("SIGTERM"))
+
+async function stopAll(signal: string) {
+  try {
+    appLog.info(`Caught ${signal} signal...`)
+    setTimeout(() => {
+      appLog.info("Application doesn't answer. Exit anyway.")
+      appLog.flushSync()
+      process.exit(1)
+    }, 30000).unref()
+    await Promise.all([
+      closeAllConnections(),
+      stopServer(),
+    ])
+    appLog.info(`... ended.`)
+  } catch (error) {
+    appLog.error(error)
+  }
+  appLog.flushSync()
+  process.exit()
 }
 
-async function startup() {
-  try {
-    await loadConfiguration()
-  } catch (err) {
-    // tslint:disable-next-line:no-console
-    console.error(err)
-    return
-  }
-  try {
-    await initDbTeamCn()
-    await startWebServer()
-  } catch (err) {
-    log.error(err)
-  }
+async function setup() {
+  await initPlatformCn()
+  await startWebServer()
 }
 
-startup()
+setup().catch(error => {
+  appLog.error(error)
+  appLog.flushSync()
+  process.exit(1)
+})

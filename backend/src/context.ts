@@ -1,81 +1,32 @@
-import * as path from "path"
-import { dirname } from "path"
-import { readFile } from "./utils/fsUtils"
+import { readFileSync } from "fs"
+import { dirname, join, resolve } from "path"
+import { createAppLog } from "./utils/app-log"
+import { readConfigFileSync } from "./utils/read-configuration"
 
 export const packageDir = dirname(__dirname)
 export const BCRYPT_SALT_ROUNDS = 10
 export const TOKEN_LENGTH = 16
 
-export type LogSeverity = "error" | "warn" | "info" | "debug" | "trace"
-export type LogTarget = "console" | "file"
-export type LogFormatter = "human" | "json" | "syslog" | "commonInfoModel"
+export const appVersion = readPackageVersionSync()
+export const conf = readConfigFileSync(packageDir)
 
-export interface TargetLogConf {
-  target: LogTarget
-  minSeverity: LogSeverity
-  /**
-   * Default value is: `"commonInfoModel"`.
-   */
-  formatter?: LogFormatter
-  /**
-   * Can be an absolute or a relative path. A relative path will be relative to the data directory.
-   *
-   * This option is required when `"target"` is set to `"file"`.
-   */
-  file?: string
-}
+export const dataDir = ensureFullPath(conf.dataDir, packageDir)
+export const appLog = createAppLog({
+  ...conf.log,
+  file: ensureFullPath(conf.log.file ?? undefined, dataDir)
+})
 
-export interface ServerConfiguration {
-  env: "prod" | "local"
-  log: TargetLogConf[]
-  ssl: boolean
-  /**
-   * In the `platform` mode, this is the main domain.
-   */
-  domain: string
-  port: number
-  publicPort?: number
-  dataDir: string
-  /**
-   * Default is: `"singleTeam"`.
-   */
-  mode?: "singleTeam" | "platform",
-  singleTeam?: {
-    /**
-     * For example: `"/my/sub/directory"` (optional).
-     */
-    subdirUrl?: string
-  },
-  platform?: {
-  },
-  mail: {
-    from: string
-  }
-}
-
-export let config!: ServerConfiguration
-export let appVersion!: string
-
-export async function loadServerConfig(): Promise<ServerConfiguration> {
-  let paramIndex = process.argv.indexOf("--config")
-  if (paramIndex === -1 || paramIndex + 1 >= process.argv.length)
-    throw new Error("Missing config parameter")
-  let confFile = process.argv[paramIndex + 1]
+function readPackageVersionSync(): Promise<string> {
   try {
-    config = JSON.parse((await readFile(confFile)).toString("utf8"))
-  } catch (err) {
-    throw new Error(`Cannot load the configuration file: ${err.message}`)
-  }
-  appVersion = await readPackageVersion()
-  return config
-}
-
-export async function readPackageVersion(): Promise<string> {
-  try {
-    let data = JSON.parse((await readFile(path.join(packageDir, "package.json"))).toString("utf8"))
+    let data = JSON.parse((readFileSync(join(packageDir, "package.json"))).toString("utf8"))
     return data.version || "0"
   } catch (err) {
     throw new Error(`Cannot load the package.json file: ${err.message}`)
   }
 }
 
+function ensureFullPath<T extends string | undefined>(path: T, defaultDir: string): T {
+  if (path === undefined || path.startsWith("/"))
+    return path
+  return resolve(defaultDir, path as string) as T
+}

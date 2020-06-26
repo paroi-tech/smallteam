@@ -1,6 +1,5 @@
 import { createTransport } from "nodemailer"
-import { config } from "./context"
-import { log } from "./utils/log"
+import { appLog, conf } from "./context"
 
 export interface SendMail {
   done: boolean,
@@ -16,8 +15,8 @@ export interface MailOptions {
 }
 
 export async function sendMail(options: MailOptions): Promise<SendMail> {
-  if (config.env === "local") {
-    log.info(`-----------------
+  if (conf.env === "local") {
+    appLog.info(`-----------------
 To: ${options.to}
 Subject: ${options.subject}
 ${options.html}
@@ -35,7 +34,7 @@ ${options.text || htmlToText(options.html)}`)
         path: "/usr/sbin/sendmail"
       })
       await transporter.sendMail({
-        from: options.from || config.mail.from,
+        from: options.from || conf.mail.from,
         to: options.to,
         subject: options.subject,
         text: options.text || htmlToText(options.html),

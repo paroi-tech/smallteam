@@ -6,13 +6,12 @@ import { Request, Response } from "express"
 import * as path from "path"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../../shared/libraries/helpers"
-import { BCRYPT_SALT_ROUNDS, config, TOKEN_LENGTH } from "../context"
+import { appLog, BCRYPT_SALT_ROUNDS, conf, dataDir, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { SessionData } from "../session"
-import { getCn, strVal, teamDbCn } from "../utils/dbUtils"
+import { getCn, platformCn, strVal } from "../utils/dbUtils"
 import { createDir, fileExists, readFile } from "../utils/fsUtils"
 import { validate } from "../utils/joiUtils"
-import { log } from "../utils/log"
 import { getMainDomainUrl, getTeamSiteUrl } from "../utils/serverUtils"
 
 let joiSchemata = {
@@ -57,7 +56,7 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
   }
 
   let token = randomBytes(TOKEN_LENGTH).toString("hex")
-  let tcn = await teamDbCn.beginTransaction()
+  let tcn = await platformCn.beginTransaction()
 
   try {
     let teamId = await createTeam(tcn, cleanData)
@@ -84,7 +83,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   sql.innerJoin("team").on("reg_team.team_id", "team.team_id")
   sql.where("reg_team.token", token)
 
-  let rs = await teamDbCn.singleRow(sql)
+  let rs = await platformCn.singleRow(sql)
 
   if (!rs) {
     return {
@@ -94,9 +93,9 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   }
 
   let subdomain = rs["team_subdomain"] as string
-  let teamFolderPath = path.join(config.dataDir, subdomain)
+  let teamFolderPath = path.join(dataDir, subdomain)
   let answer = { done: false } as any
-  let tcn = await teamDbCn.beginTransaction()
+  let tcn = await platformCn.beginTransaction()
 
   try {
     if (!await fileExists(teamFolderPath))
@@ -108,7 +107,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
     answer.done = true
     answer.teamUrl = getTeamSiteUrl({ subdomain })
   } catch (err) {
-    log.error("Cannot activate team", err.message, err)
+    appLog.error("Cannot activate team", err.message, err)
   } finally {
     if (tcn.inTransaction) {
       await tcn.rollback()
@@ -130,11 +129,11 @@ export async function routeCheckTeamSubdomain(data: any, sessionData?: SessionDa
   }
 
   let sql = select().from("team").where("team_subdomain", cleanData.subdomain)
-  let p = path.join(config.dataDir, cleanData.subdomain)
+  let p = path.join(conf.dataDir, cleanData.subdomain)
   let b = false
 
   if (!await fileExists(p)) {
-    let rs = await teamDbCn.all(sql)
+    let rs = await platformCn.all(sql)
     b = rs.length === 0
   }
 
@@ -187,7 +186,7 @@ async function sendTeamCreationMail(token: string, to: string) {
   })
 
   if (!res.done)
-    log.error("Unable to send team creation mail", res.errorMsg)
+    appLog.error("Unable to send team creation mail", res.errorMsg)
 
   return res.done
 }

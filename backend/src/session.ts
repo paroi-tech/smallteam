@@ -5,11 +5,10 @@ import { randomBytes } from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
-import { BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./context"
+import { appLog, BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./context"
 import { sendMail } from "./mail"
 import { getCn } from "./utils/dbUtils"
 import { validate } from "./utils/joiUtils"
-import { log } from "./utils/log"
 import { AuthorizationError, BackendContext, getConfirmedSubdomain, getTeamSiteUrl } from "./utils/serverUtils"
 import { getAccountByEmail, getAccountById, getAccountByLogin } from "./utils/userUtils"
 
@@ -192,7 +191,7 @@ export async function routeResetPassword(subdomain: string, data: any, sessionDa
     answer.done = true
   } catch (error) {
     answer.reason = "Cannot update password"
-    log.error("Error when resetting password", error.message)
+    appLog.error("Error when resetting password", error.message)
   } finally {
     if (tcn.inTransaction)
       await tcn.rollback()
@@ -237,7 +236,7 @@ export async function removeExpiredPasswordTokens(cn: SBConnection) {
   try {
     await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
   } catch (err) {
-    log.error("Error while removing expired account activation tokens", err)
+    appLog.error("Error while removing expired account activation tokens", err)
   }
 }
 
@@ -295,7 +294,7 @@ async function sendPasswordResetMail(context: BackendContext, token: string, acc
   })
 
   if (!res.done)
-    log.error(`Could not send password reset mail: ${res.errorMsg}`)
+    appLog.error(`Could not send password reset mail: ${res.errorMsg}`)
 
   return res.done
 }

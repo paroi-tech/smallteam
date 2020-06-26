@@ -2,13 +2,12 @@ import sqlBricksModifier, { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import sqlite3Adapter from "@ladc/sqlite3-adapter"
 import ladc from "ladc"
 import * as path from "path"
-import { config } from "../context"
+import { appLog, dataDir } from "../context"
 import { createMediaEngine, MediaEngine } from "../team/createMediaEngine"
 import { fileExists, readFile } from "./fsUtils"
-import { log } from "./log"
 
 export function getSessionDbConf() {
-  let dir = config.dataDir
+  let dir = dataDir
   let file = "sessions.sqlite"
 
   return {
@@ -18,22 +17,32 @@ export function getSessionDbConf() {
   }
 }
 
-export let teamDbCn!: SBMainConnection
+export let platformCn!: SBMainConnection
 
-export async function initDbTeamCn() {
-  let dbPath = path.join(config.dataDir, "platform.sqlite")
+export async function initPlatformCn() {
+  let dbPath = path.join(dataDir, "platform.sqlite")
   let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
 
-  teamDbCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
+  platformCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
 
-let cnMap = new Map<string, SBMainConnection>()
+export async function closeAllConnections() {
+  if (platformCn)
+    await platformCn.close()
+  for (const cn of cnMap.values())
+    await cn.close()
+  // for (const engine of ngMap.values())
+  //   await engine.uploadEngine..close()
+
+}
+
+const cnMap = new Map<string, SBMainConnection>()
 
 export async function getCn(subdomain: string): Promise<SBMainConnection> {
   let cn = cnMap.get(subdomain)
 
   if (!cn) {
-    let dbPath = path.join(config.dataDir, subdomain, "team.sqlite")
+    let dbPath = path.join(dataDir, subdomain, "team.sqlite")
     let scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
     let up = subdomain.toUpperCase()
     let debug = `[${up}]`
@@ -51,7 +60,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
   let engine = ngMap.get(subdomain)
 
   if (!engine) {
-    let dbPath = path.join(config.dataDir, subdomain, "files.sqlite")
+    let dbPath = path.join(dataDir, subdomain, "files.sqlite")
     let execDdl = !await fileExists(dbPath)
     let up = subdomain.toUpperCase()
     let debug = `[F-${up}]`
@@ -66,7 +75,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
 async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
   let cn = ladc({
-    adapter: sqlite3Adapter({ fileName, logWarning: msg => log.warn(msg) }),
+    adapter: sqlite3Adapter({ fileName, logWarning: msg => appLog.warn(msg) }),
     modifier: sqlBricksModifier({
       // toParamsOptions: { placeholder: "?%d" },
       // trace: (action, sqlBricks) => {
@@ -85,23 +94,23 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
       await cn.exec("PRAGMA journal_mode = WAL")
     },
     poolOptions: {
-      logMonitoring: m => log.trace(debugPrefix, "[MONITORING]", `[${m.id}]`, m.event),
+      logMonitoring: m => appLog.trace(debugPrefix, "[MONITORING]", `[${m.id}]`, m.event),
       connectionTtl: 30
     },
-    logError: err => log.error(err),
+    logError: err => appLog.error(err),
     logDebug: debug => {
       if (debug.callingContext) {
         let cc = debug.callingContext
         let msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
         if (debug.error) {
-          log.trace(
+          appLog.trace(
             "========>", debugPrefix, "[DEBUG-LADC-ERROR]", msg,
             "\n  -- args --\n", cc.args,
             "\n  -- error --\n", debug.error,
             // "\n  -- connection --\n", cc.connection
           )
         } else {
-          log.trace(
+          appLog.trace(
             debugPrefix, "[DEBUG-LADC]", msg,
             "\n  -- args --\n", cc.args,
             // "\n  -- result --\n", debug.result,
@@ -110,12 +119,12 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
         }
       } else {
         if (debug.error) {
-          log.trace(
+          appLog.trace(
             "========>", debugPrefix, "[DEBUG-LADC-ERROR] Open connection",
             "\n  -- error --\n", debug.error
           )
         } else {
-          log.trace(
+          appLog.trace(
             debugPrefix, "[DEBUG-LADC] Open connection",
             // "\n  -- result --\n", debug.result
           )

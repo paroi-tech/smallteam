@@ -1,6 +1,6 @@
 import * as fs from "fs"
 import { promisify } from "util"
-import { log } from "./log"
+import { appLog } from "../context"
 
 export function fileExists(path: string): Promise<boolean> {
   return new Promise(resolve => {
@@ -17,7 +17,7 @@ export async function createDir(path: string, mode?: number) {
     await mkdir(path, mode)
     b = true
   } catch (err) {
-    log.warn(`Unable to create directory ${path} with mode ${mode === undefined ? "default" : mode}`, err.message)
+    appLog.warn(`Unable to create directory ${path} with mode ${mode === undefined ? "default" : mode}`, err.message)
   }
 
   return b

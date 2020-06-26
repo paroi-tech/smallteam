@@ -1,16 +1,5 @@
 {
   "env": "local",
-  "log": [
-    {
-      "target": "console",
-      "minSeverity": "info"
-    },
-    {
-      "target": "file",
-      "minSeverity": "trace",
-      "file": "log-trace.log"
-    }
-  ],
   "ssl": true,
   "domain": "smallteam.paroi.tech",
   "port": 3921,
@@ -20,9 +9,12 @@
   "singleTeam": {
     "subdirUrl": ""
   },
-  "platform": {
-  },
   "mail": {
     "from": "noreply@paroi.tech"
+  },
+  "log": {
+    "level": "info",
+    "file": "smallteam.log",
+    "prettyPrint": true
   }
 }

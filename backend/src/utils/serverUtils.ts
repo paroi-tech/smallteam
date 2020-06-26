@@ -1,6 +1,6 @@
 import { Request } from "express"
 import * as path from "path"
-import { config } from "../context"
+import { conf } from "../context"
 import { fileExists } from "./fsUtils"
 
 export class ValidationError extends Error {
@@ -30,13 +30,13 @@ export function getRequestedSubdomain(req: Request) {
 
 export async function getConfirmedSubdomain(req: Request) {
   let subDomain = getRequestedSubdomain(req)
-  if (subDomain && await fileExists(path.join(config.dataDir, subDomain))) // TODO: Check it is a directory
+  if (subDomain && await fileExists(path.join(conf.dataDir, subDomain))) // TODO: Check it is a directory
     return subDomain
 }
 
 export function getSubdirUrl() {
-  if (!config.mode || config.mode === "singleTeam") {
-    let subdirUrl = config.singleTeam ? config.singleTeam.subdirUrl : undefined
+  if (!conf.mode || conf.mode === "singleTeam") {
+    let subdirUrl = conf.singleTeam ? conf.singleTeam.subdirUrl : undefined
     return subdirUrl || ""
   }
   return ""
@@ -47,16 +47,16 @@ export interface BackendContext {
 }
 
 export function getTeamSiteUrl(context: BackendContext) {
-  let protocol = config.ssl ? "https" : "http"
-  let publicPort = config.publicPort || config.port
+  let protocol = conf.ssl ? "https" : "http"
+  let publicPort = conf.publicPort || conf.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  let domain = context.subdomain ? `${context.subdomain}.${config.domain}` : config.domain
+  let domain = context.subdomain ? `${context.subdomain}.${conf.domain}` : conf.domain
   return `${protocol}://${domain}${portSuffix}${getSubdirUrl()}`
 }
 
 export function getMainDomainUrl() {
-  let protocol = config.ssl ? "https" : "http"
-  let publicPort = config.publicPort || config.port
+  let protocol = conf.ssl ? "https" : "http"
+  let publicPort = conf.publicPort || conf.port
   let portSuffix = publicPort === 80 ? "" : `:${publicPort}`
-  return `${protocol}://${config.domain}${portSuffix}${getSubdirUrl()}`
+  return `${protocol}://${conf.domain}${portSuffix}${getSubdirUrl()}`
 }

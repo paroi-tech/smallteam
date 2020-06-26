@@ -2,7 +2,7 @@ import { declareRoutesMultiEngine } from "@paroi/media-engine/upload"
 import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
-import { config, packageDir } from "./context"
+import { appLog, conf, packageDir } from "./context"
 import { routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification } from "./notifications"
 import { getPlatformHtml } from "./platform/frontend"
 import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./platform/platform"
@@ -18,7 +18,6 @@ import { getTeamHtml } from "./team/frontend"
 import { wsEngineInit } from "./team/wsEngine"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
 import { readFile } from "./utils/fsUtils"
-import { log } from "./utils/log"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
 import makeSQLiteExpressStore = require("connect-sqlite3")
@@ -32,13 +31,15 @@ function getSubdomainOffset(domain: string) {
   return (domain.match(/\./g) || []).length + 1
 }
 
+let server: http.Server | undefined
+
 export async function startWebServer() {
-  let { port, domain } = config
+  let { port, domain } = conf
 
   let app = express()
   app.set("subdomain offset", getSubdomainOffset(domain))
 
-  let server = http.createServer(app)
+  server = http.createServer(app)
   // tslint:disable-next-line:variable-name
   let SQLiteExpressStore = makeSQLiteExpressStore(session)
   let { dir, file: db } = getSessionDbConf()
@@ -137,12 +138,27 @@ export async function startWebServer() {
 
   wsEngineInit(server)
   server.listen(port, function () {
-    log.info(`The server is listening on: ${getMainDomainUrl()}/`)
+    appLog.info(`The server is listening on: ${getMainDomainUrl()}/`)
   })
 
   // Scheduled task to remove password reset tokens each day.
   let timer = setInterval(removeExpiredPasswordTokens, 3600 * 24 * 1000) as any
   timer.unref()
+}
+
+export async function stopServer() {
+  await new Promise((resolve, reject) => {
+    if (!server) {
+      resolve()
+      return
+    }
+    server.close(err => {
+      if (err)
+        reject(err)
+      else
+        resolve()
+    })
+  })
 }
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
@@ -197,7 +213,7 @@ function makeMainSiteRouteHandler(cb: MainSiteRouteCb) {
 }
 
 function writeServerResponseError(res: Response, err: Error, reqBody?: string) {
-  log.error("[ERR]", err, err.stack, "Request body:", reqBody)
+  appLog.error("[ERR]", err, err.stack, "Request body:", reqBody)
   let statusCode = err instanceof ValidationError ? 400 : (err instanceof AuthorizationError ? 404 : 500)
   let errorMsg: string
   if (statusCode >= 500 && statusCode < 600)

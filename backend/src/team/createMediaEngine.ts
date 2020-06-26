@@ -3,9 +3,9 @@ import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupporte
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@paroi/media-engine/upload"
 import { Request } from "express"
 import { ModelUpdate, Type } from "../../../shared/Cargo"
+import { appLog } from "../context"
 import { getSessionData, hasSession } from "../session"
 import { getCn, getMediaEngine } from "../utils/dbUtils"
-import { log } from "../utils/log"
 import { getConfirmedSubdomain, getSubdirUrl } from "../utils/serverUtils"
 import { completeCargo } from "./appModelBackend"
 import { CargoLoader, ModelContext } from "./appModelBackend/backendContext/context"
@@ -23,7 +23,7 @@ export async function createMediaEngine(cn: SBMainConnection, execDdl: boolean):
     execInitScript: execDdl ? "sqlite" : undefined,
     cn,
     imagesConf: IMAGES_CONF,
-    logWarning: message => log.warn(`[MediaStorage] ${message}`)
+    logWarning: message => appLog.warn(`[MediaStorage] ${message}`)
   })
   return {
     storage,
