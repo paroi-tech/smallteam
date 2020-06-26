@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 import pino, { DestinationObjectOptions, LoggerOptions } from "pino"
 import { promiseToHandle } from "./async-utils"
 
@@ -65,7 +66,7 @@ export function createAppLog({ file, level, prettyPrint }: AppLogOptions = {}): 
         if (!waitingMessages) {
           waitingMessages = []
           console.warn("There is something to log before the logger is ready")
-          untilReady.then(() => {
+          void untilReady.then(() => {
             if (waitingMessages) {
               if (file)
                 waitingMessages.forEach(messages => logger[level](messagesToString(messages)))

@@ -2,13 +2,11 @@ import Joi from "@hapi/joi"
 import { SBConnection, SBMainConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
-import { Request, Response } from "express"
 import * as path from "path"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "../../../shared/libraries/helpers"
 import { appLog, BCRYPT_SALT_ROUNDS, conf, dataDir, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
-import { SessionData } from "../session"
 import { getCn, platformCn, strVal } from "../utils/dbUtils"
 import { createDir, fileExists, readFile } from "../utils/fsUtils"
 import { validate } from "../utils/joiUtils"
@@ -31,7 +29,7 @@ const joiSchemata = {
   })
 }
 
-export async function routeCreateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCreateTeam(data: any) {
   const cleanData = await validate(data, joiSchemata.routeCreateTeam)
 
   if (whyUsernameIsInvalid(cleanData.username)) {
@@ -74,7 +72,7 @@ export async function routeCreateTeam(data: any, sessionData?: SessionData, req?
   return { done: true }
 }
 
-export async function routeActivateTeam(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeActivateTeam(data: any) {
   const cleanData = await validate(data, joiSchemata.routeActivateTeam)
   const token = cleanData.token
 
@@ -118,7 +116,7 @@ export async function routeActivateTeam(data: any, sessionData?: SessionData, re
   return answer
 }
 
-export async function routeCheckTeamSubdomain(data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCheckTeamSubdomain(data: any) {
   const cleanData = await validate(data, joiSchemata.routeCheckTeamSubdomain)
 
   if (whyTeamSubdomainIsInvalid(cleanData.subdomain)) {

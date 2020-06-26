@@ -1,5 +1,5 @@
 import { SBMainConnection } from "@ladc/sql-bricks-modifier"
-import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaRef, MediaStorage, MulterFile } from "@paroi/media-engine"
+import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaStorage, MulterFile } from "@paroi/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@paroi/media-engine/upload"
 import { Request } from "express"
 import { ModelUpdate, Type } from "../../../shared/Cargo"
@@ -112,11 +112,11 @@ function createUploadEngineManager(storage: MediaStorage): UploadEngineManager {
       }
     },
 
-    async canRead(req: Request, mediaRef: MediaRef) {
+    async canRead(req: Request) {
       return await hasSession(req)
     },
 
-    async canDelete(req: Request, mediaRef: MediaRef) {
+    async canDelete(req: Request) {
       return await hasSession(req)
     },
 

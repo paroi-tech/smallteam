@@ -125,7 +125,7 @@ export async function deleteAccount(context: ModelContext, frag: AccountIdFragme
 
   await context.cn.exec(sql)
   context.loader.modelUpdate.markFragmentAs("Account", frag.id, "deleted")
-  deleteMedias(context, { type: "accountAvatar", id: frag.id })
+  await deleteMedias(context, { type: "accountAvatar", id: frag.id })
 }
 
 // --

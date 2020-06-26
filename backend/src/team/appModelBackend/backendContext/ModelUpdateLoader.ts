@@ -84,8 +84,8 @@ export default class ModelUpdateLoader {
   }
 
   isFragmentsComplete(): boolean {
-    for (const [type, fragments] of this.fragmentsMap.entries()) {
-      for (const [id, frag] of fragments.entries()) {
+    for (const [, fragments] of this.fragmentsMap.entries()) {
+      for (const [, frag] of fragments.entries()) {
         if (frag === undefined)
           return false
       }
@@ -96,7 +96,7 @@ export default class ModelUpdateLoader {
   getMissingFragmentTypes(): string[] {
     const types: string[] = []
     for (const [type, fragments] of this.fragmentsMap.entries()) {
-      for (const [id, frag] of fragments.entries()) {
+      for (const [, frag] of fragments.entries()) {
         if (frag === undefined) {
           types.push(type)
           break
@@ -140,7 +140,8 @@ export default class ModelUpdateLoader {
           modelUpd.fragments = {}
         if (!modelUpd.fragments[type])
           modelUpd.fragments[type] = []
-          ; (modelUpd.fragments[type] as any[]).push(frag)
+        const tmp = modelUpd.fragments[type] as any[]
+        tmp.push(frag)
       }
     }
   }
@@ -149,7 +150,7 @@ export default class ModelUpdateLoader {
     if (this.partialMap.size === 0)
       return
     for (const [type, partial] of this.partialMap) {
-      for (const [id, partialFrag] of partial) {
+      for (const [, partialFrag] of partial) {
         if (partialFrag === undefined)
           throw new Error("Invalid call to \"toCargo()\", the loader is not completed")
         if (!modelUpd.partial)

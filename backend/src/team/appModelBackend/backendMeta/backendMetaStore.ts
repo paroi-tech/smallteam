@@ -114,7 +114,7 @@ export function toSqlValues(frag, meta: FragmentMeta, restrict?: "exceptId" | "o
     const colMeta = getDbColumnMeta(meta.type, fieldName)
     const val = frag[fieldName]
     if (colMeta && val !== undefined) {
-      result[colMeta.column] = toSqlValue(val, colMeta, fieldMeta)
+      result[colMeta.column] = toSqlValue(val, colMeta)
       empty = false
     }
   }
@@ -126,7 +126,7 @@ export function toSqlValues(frag, meta: FragmentMeta, restrict?: "exceptId" | "o
   return result
 }
 
-function toSqlValue(val, colMeta: DbColumnMeta, fieldMeta: FieldMeta) {
+function toSqlValue(val, colMeta: DbColumnMeta) {
   if (val === null)
     return null
   const colType = colMeta.columnType

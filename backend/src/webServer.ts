@@ -115,7 +115,7 @@ export async function startWebServer() {
 
   router.get("/", async (req, res) => {
     if (isMainDomain(req))
-      writeHtmlResponse(res, await getPlatformHtml())
+      writeHtmlResponse(res, getPlatformHtml())
     else if (await getConfirmedSubdomain(req))
       writeHtmlResponse(res, getTeamHtml())
     else
@@ -130,7 +130,7 @@ export async function startWebServer() {
     writeHtmlResponse(res, getRegistrationHtml())
   })
 
-  router.get("/new-team", async (req, res) => writeHtmlResponse(res, await getPlatformHtml()))
+  router.get("/new-team", (req, res) => writeHtmlResponse(res, getPlatformHtml()))
 
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
@@ -246,12 +246,12 @@ function writeHtmlResponse(res: Response, html: string) {
   res.end()
 }
 
-function writeResponse(res: Response, content: string, mediaType: string) {
-  res.setHeader("Content-Type", mediaType)
-  res.status(200)
-  res.send(content)
-  res.end()
-}
+// function writeResponse(res: Response, content: string, mediaType: string) {
+//   res.setHeader("Content-Type", mediaType)
+//   res.status(200)
+//   res.send(content)
+//   res.end()
+// }
 
 function write404(res: Response) {
   res.status(404)

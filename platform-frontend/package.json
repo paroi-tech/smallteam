@@ -9,7 +9,7 @@
     "build": "webpack",
     "build:dev": "webpack --env=development",
     "watch": "webpack --env=development --watch",
-    "lint": "eslint"
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "bkb": "^0.28.2",

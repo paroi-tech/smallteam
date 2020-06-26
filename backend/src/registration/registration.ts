@@ -2,7 +2,6 @@ import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
-import { Request, Response } from "express"
 import { deleteFrom, insert, select } from "sql-bricks"
 import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "../../../shared/libraries/helpers"
 import { appLog, BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "../context"
@@ -40,7 +39,7 @@ const joiSchemata = {
   })
 }
 
-export async function routeSendInvitation(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeSendInvitation(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeSendInvitation'")
 
@@ -78,7 +77,7 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
   return answer
 }
 
-export async function routeResendInvitation(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeResendInvitation(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeResendInvitation'")
 
@@ -125,7 +124,7 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
   return answer
 }
 
-export async function routeCancelInvitation(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCancelInvitation(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeCancelInvitation'")
 
@@ -144,7 +143,7 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
   }
 }
 
-export async function routeRegister(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeRegister(subdomain: string, data: any) {
   const cn = await getCn(subdomain)
   const cleanData = await validate(data, joiSchemata.routeRegister)
 
@@ -193,7 +192,7 @@ export async function routeRegister(subdomain: string, data: any, sessionData?: 
   }
 }
 
-export async function routeGetPendingInvitations(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeGetPendingInvitations(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeGetPendingInvitations'")
 

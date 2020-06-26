@@ -290,10 +290,10 @@ export async function createTask(context: ModelContext, newFrag: TaskCreateFragm
   }
 
   if (newFrag.affectedToIds)
-    insertTaskAffectedToAccounts(context.cn, taskId, newFrag.affectedToIds)
+    await insertTaskAffectedToAccounts(context.cn, taskId, newFrag.affectedToIds)
 
   if (newFrag.flagIds)
-    insertTaskFlags(context.cn, taskId, newFrag.flagIds)
+    await insertTaskFlags(context.cn, taskId, newFrag.flagIds)
 
   context.loader.addFragment({
     type: "Task",
@@ -379,7 +379,7 @@ export async function deleteTask(context: ModelContext, frag: TaskIdFragment) {
 
   context.loader.modelUpdate.markFragmentAs("Task", frag.id, "deleted")
 
-  deleteMedias(context, { type: "task", id: frag.id })
+  await deleteMedias(context, { type: "task", id: frag.id })
 }
 
 // --
@@ -509,8 +509,8 @@ export async function updateTaskDescription(cn: SBConnection, taskId: number, de
     if (res.affectedRows === 0) {
       const sql = insertInto("task_description")
         .values({
-          description,
-          task_id: taskId
+          "description": description,
+          "task_id": taskId
         })
 
       await cn.exec(sql)

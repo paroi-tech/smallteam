@@ -12,7 +12,7 @@
     "_nodemon": "nodemon --watch dist --watch ../shared --watch config.json dist/ -- --config config.json",
     "_wait": "just-wait -p \"dist/index.js\" -d 500",
     "_wait-then-nodemon": "run-s _wait _nodemon",
-    "lint": "eslint",
+    "lint": "eslint . --ext .ts",
     "start": "node dist/ --config config.json",
     "build": "run-s clear typeonly tsc",
     "serve": "run-s clear typeonly _serve",

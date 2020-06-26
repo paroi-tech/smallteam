@@ -1,8 +1,8 @@
 import { Server } from "http"
 import { v4 } from "uuid"
 import { Server as WsServer } from "ws"
+import { appLog } from "../context"
 import { hasSession } from "../session"
-import { log } from "../utils/log"
 import WebSocket = require("ws")
 
 interface WebSocketWithProperties extends WebSocket {
@@ -15,7 +15,7 @@ interface WSProperties {
   listenModel?: boolean
 }
 
-// tslint:disable-next-line: no-empty
+// eslint-disable-next-line @typescript-eslint/no-empty-function
 function noop() {
 }
 
@@ -28,14 +28,14 @@ export function wsEngineInit(server: Server) {
     try {
       accept = await hasSession(req)
     } catch (error) {
-      log.error("Error while checking user session.", error.message || undefined)
+      appLog.error("Error while checking user session.", error.message || undefined)
     } finally {
       if (!accept)
         socket.destroy()
     }
   })
 
-  wss.on("connection", function (ws: WebSocketWithProperties, req: any) {
+  wss.on("connection", function (ws: WebSocketWithProperties) {
     ws.attachedProperties = {
       socketId: v4(),
       isAlive: true

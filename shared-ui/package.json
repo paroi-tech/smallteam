@@ -8,7 +8,7 @@
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch",
-    "lint": "eslint"
+    "lint": "eslint . --ext .ts"
   },
   "dependencies": {
     "bkb": "^0.28.2",

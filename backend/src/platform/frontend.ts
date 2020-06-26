@@ -3,7 +3,7 @@ import { getSubdirUrl } from "../utils/serverUtils"
 
 // let content: string | undefined
 
-export async function getPlatformHtml() {
+export function getPlatformHtml() {
   // if (content === undefined)
   //   content = await readFile(join(packageDir, "static-bundles", "platform.html"), "utf8")
   // return content

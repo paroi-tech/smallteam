@@ -35,7 +35,7 @@ const schemaForSubscriptionId = Joi.object().keys({
   subscriptionId: Joi.string().regex(/\d+/).required()
 })
 
-export async function routeCreateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCreateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("Missing session data in 'routeCreateGithubWebhook'")
 
@@ -67,7 +67,7 @@ export async function routeCreateGithubWebhook(subdomain: string, data: any, ses
   }
 }
 
-export async function routeGetGithubWebhookSecret(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeGetGithubWebhookSecret(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("Missing session data in 'routeGetGithubWebhookSecret'")
 
@@ -89,7 +89,7 @@ export async function routeGetGithubWebhookSecret(subdomain: string, data: any, 
   }
 }
 
-export async function routeActivateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeActivateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("Missing session data in 'routeActivateGithubWebhook'")
 
@@ -108,7 +108,7 @@ export async function routeActivateGithubWebhook(subdomain: string, data: any, s
   }
 }
 
-export async function routeDeactivateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeDeactivateGithubWebhook(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("Missing session data in 'routeDeactivateGithubWebhook'")
 
@@ -127,7 +127,7 @@ export async function routeDeactivateGithubWebhook(subdomain: string, data: any,
   }
 }
 
-export async function routeDeleteGithubWebhook(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeDeleteGithubWebhook(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("Missing session data in 'routeDeleteGithubWebhook'")
 
@@ -146,7 +146,7 @@ export async function routeDeleteGithubWebhook(subdomain: string, data: any, ses
   }
 }
 
-export async function routeFetchGithubWebhooks(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeFetchGithubWebhooks(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("Missing session data in 'routeFetchGithubWebhooks'")
 

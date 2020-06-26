@@ -247,7 +247,7 @@ export async function updateProject(context: ModelContext, updFrag: ProjectUpdat
 
       const sql = update("task")
         .set({
-          update_ts: sqlVanilla("current_timestamp")
+          "update_ts": sqlVanilla("current_timestamp")
         })
         .where("task_id", taskId)
       if (updFrag.name !== undefined)
