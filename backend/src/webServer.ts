@@ -9,7 +9,7 @@ import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./p
 import { getRegistrationHtml } from "./registration/frontend"
 import { routeCancelInvitation, routeGetPendingInvitations, routeRegister, routeResendInvitation, routeSendInvitation } from "./registration/registration"
 import {
-  hasSessionForSubdomain, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession,
+  hasSession, removeExpiredPasswordTokens, routeChangePassword, routeConnect, routeCurrentSession, routeEndSession,
   routeResetPassword, routeSendPasswordEmail, routeSetPassword, SessionData
 } from "./session"
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
@@ -172,7 +172,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
     }
 
     try {
-      if (!isPublic && !await hasSessionForSubdomain(req, subdomain)) {
+      if (!isPublic && !await hasSession(req, subdomain)) {
         write404(res)
         return
       }

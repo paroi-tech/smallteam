@@ -1,6 +1,6 @@
 import { Request } from "express"
 import * as path from "path"
-import { conf } from "../context"
+import { conf, dataDir } from "../context"
 import { fileExists } from "./fsUtils"
 
 export class ValidationError extends Error {
@@ -30,7 +30,7 @@ export function getRequestedSubdomain(req: Request) {
 
 export async function getConfirmedSubdomain(req: Request) {
   const subDomain = getRequestedSubdomain(req)
-  if (subDomain && await fileExists(path.join(conf.dataDir, subDomain))) // TODO: Check it is a directory
+  if (subDomain && await fileExists(path.join(dataDir, subDomain)))
     return subDomain
 }
 

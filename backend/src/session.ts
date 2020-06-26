@@ -2,7 +2,7 @@ import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
-import { Request, Response } from "express"
+import { Request } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
 import { appLog, BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./context"
@@ -54,7 +54,7 @@ const joiSchemata = {
   })
 }
 
-export async function routeConnect(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeConnect(subdomain: string, data: any, sessionData?: SessionData, req?: Request) {
   if (!req)
     throw new Error("Request object missing 'routeConnect'")
 
@@ -77,10 +77,10 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
   }
 }
 
-export async function routeCurrentSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeCurrentSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request) {
   if (!req)
     throw new Error("Request object missing 'routeCurrentSession'")
-  if (await hasSessionForSubdomain(req, subdomain)) {
+  if (await hasSession(req, subdomain)) {
     return {
       done: true,
       accountId: req.session!.accountId
@@ -92,7 +92,7 @@ export async function routeCurrentSession(subdomain: string, data: any, sessionD
   }
 }
 
-export async function routeEndSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeEndSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request) {
   if (!req)
     throw new Error("Request object missing 'routeEndSession'")
 
@@ -102,7 +102,7 @@ export async function routeEndSession(subdomain: string, data: any, sessionData?
 }
 
 /** Used by the admins to set the password of any account. */
-export async function routeSetPassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeSetPassword(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeSetPassword'")
 
@@ -128,7 +128,7 @@ export async function routeSetPassword(subdomain: string, data: any, sessionData
 }
 
 /** Used by a account to change his password. */
-export async function routeChangePassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeChangePassword(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("'SessionData' missing in 'routeChangePassword'")
 
@@ -158,7 +158,7 @@ export async function routeChangePassword(subdomain: string, data: any, sessionD
 }
 
 /** Used by a account to reset his password after he received a password reset email. */
-export async function routeResetPassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+export async function routeResetPassword(subdomain: string, data: any, sessionData?: SessionData, req?: Request) {
   if (!req)
     throw new Error("'Request parameter missing in 'routeResetPassword'")
 
@@ -249,30 +249,13 @@ export async function getSessionData(req: Request) {
   }
 }
 
-export async function hasSession(req: Request) {
-  const subdomain = await getConfirmedSubdomain(req)
-
+export async function hasSession(req: Request, subdomain?: string) {
+  subdomain = subdomain ?? await getConfirmedSubdomain(req)
   if (!subdomain || !req.session || !req.session.accountId || !req.session.subdomain)
     return false
   if (typeof req.session.accountId !== "string" || typeof req.session.subdomain !== "string")
     return false
   if (subdomain !== req.session.subdomain)
-    return false
-
-  return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
-}
-
-/**
- * Note: the subdomain parameter should be the result of getConfirmedSubdomain()
- * with the request object as parameter. This function is used to avoid to call
- * getConfirmedSubdomain twice with the same request object.
- */
-export async function hasSessionForSubdomain(req: Request, subdomain: string) {
-  if (!req.session || !req.session.accountId || !req.session.subdomain)
-    return false
-  if (typeof req.session.accountId !== "string" || typeof req.session.subdomain !== "string")
-    return false
-  if (req.session.subdomain !== subdomain)
     return false
 
   return await getAccountById(await getCn(subdomain), req.session.accountId) !== undefined
