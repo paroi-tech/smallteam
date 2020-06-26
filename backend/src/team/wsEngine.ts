@@ -1,76 +1,72 @@
 import { Server } from "http"
+import { v4 } from "uuid"
+import { Server as WsServer } from "ws"
+import { hasSession } from "../session"
+import { log } from "../utils/log"
+import WebSocket = require("ws")
 
-// interface WebSocketWithProperties extends WebSocket {
-//   attachedProperties?: WSProperties
-// }
-
-// interface WSProperties {
-//   socketId: string
-//   isAlive: boolean
-//   listenModel?: boolean
-// }
-
-export function wsEngineInit(server: Server) {
-
-  // const wss = new WebSocket.Server({ server })
-
-  // wss.on("connection", function (ws: WebSocketWithProperties, req) {
-  //   // TODO: Check the session here
-  //   // if (!req.session) {
-  //   //   log.error("...........>> Missing session")
-  //   //   return
-  //   // }
-
-  //   ws.attachedProperties = {
-  //     socketId: uuid(),
-  //     isAlive: true
-  //   }
-
-  //   ws.on("pong", () => {
-  //     ws.attachedProperties!.isAlive = true
-  //   })
-  //   ws.on("listenModel", () => {
-  //     ws.attachedProperties!.listenModel = true
-  //   })
-
-  //   ws.send(JSON.stringify({
-  //     socketId: ws.attachedProperties.socketId
-  //   }))
-  // })
-
-
-  // const interval = setInterval(function ping() {
-  //   wss.clients.forEach((ws: WebSocketWithProperties) => {
-  //     if (!ws.attachedProperties)
-  //       return
-  //     if (!ws.attachedProperties.isAlive) {
-  //       ws.terminate()
-  //       return
-  //     }
-  //     ws.attachedProperties.isAlive = false
-  //     ws.ping(noop)
-  //   })
-  // }, 60000)
+interface WebSocketWithProperties extends WebSocket {
+  attachedProperties?: WSProperties
 }
 
-// function noop() {
-// }
+interface WSProperties {
+  socketId: string
+  isAlive: boolean
+  listenModel?: boolean
+}
 
-// function onMessage(message) {
-//   console.log("...........>> received: %s", message)
-// }
+// tslint:disable-next-line: no-empty
+function noop() {
+}
 
+export function wsEngineInit(server: Server) {
+  const wss = new WsServer({ server })
 
+  server.on("upgrade", async function upgrade(req, socket) {
+    let accept = false
 
-// const wss = new WebSocket.Server({ port: 8080 })
+    try {
+      accept = await hasSession(req)
+    } catch (error) {
+      log.error("Error while checking user session.", error.message || undefined)
+    } finally {
+      if (!accept)
+        socket.destroy()
+    }
+  })
 
-// wss.on("connection", function connection(ws) {
-//   ws.on("message", function incoming(message) {
-//     console.log("received: %s", message)
-//   })
+  wss.on("connection", function (ws: WebSocketWithProperties, req: any) {
+    ws.attachedProperties = {
+      socketId: v4(),
+      isAlive: true
+    }
 
-//   ws.send("something")
-// })
+    ws.on("pong", function (this: WebSocketWithProperties) {
+      if (!this.attachedProperties)
+        return
+      this.attachedProperties.isAlive = true
+    })
+
+    ws.send(JSON.stringify({
+      socketId: ws.attachedProperties.socketId
+    }))
+  })
+
+  const interval = setInterval(function ping() {
+    wss.clients.forEach((ws: WebSocketWithProperties) => {
+      if (!ws.attachedProperties)
+        return
+      if (!ws.attachedProperties.isAlive) {
+        ws.terminate()
+        return
+      }
+      ws.attachedProperties.isAlive = false
+      ws.ping(noop)
+    })
+  }, 60000)
+
+  wss.on("close", () => clearInterval(interval))
+}
 
 // // Broadcast to all.
 // wss.broadcast = function broadcast(data) {
@@ -80,14 +76,3 @@ export function wsEngineInit(server: Server) {
 //     }
 //   })
 // }
-
-// wss.on("connection", function connection(ws) {
-//   ws.on("message", function incoming(data) {
-//     // Broadcast to everyone else.
-//     wss.clients.forEach(function each(client) {
-//       if (client !== ws && client.readyState === WebSocket.OPEN) {
-//         client.send(data)
-//       }
-//     })
-//   })
-// })

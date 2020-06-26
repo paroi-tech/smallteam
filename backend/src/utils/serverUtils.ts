@@ -30,7 +30,7 @@ export function getRequestedSubdomain(req: Request) {
 
 export async function getConfirmedSubdomain(req: Request) {
   let subDomain = getRequestedSubdomain(req)
-  if (subDomain && await fileExists(path.join(config.dataDir, subDomain))) // TODO: Check it is a directory
+  if (subDomain && await fileExists(path.join(config.dataDir, subDomain))) // TODO: Check if it is a directory
     return subDomain
 }
 
