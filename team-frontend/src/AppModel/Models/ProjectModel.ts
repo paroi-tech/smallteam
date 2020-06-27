@@ -2,7 +2,7 @@ import { Type } from "../../../../shared/Cargo"
 import { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectUpdateFragment } from "../../../../shared/meta/Project"
 import { WhoUseItem } from "../../../../shared/transfers"
 import { Collection } from "../modelDefinitions"
-import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, OrderProperties, toCollection } from "../ModelEngine"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, toCollection } from "../ModelEngine"
 import { StepModel } from "./StepModel"
 import { TaskModel } from "./TaskModel"
 
@@ -32,24 +32,24 @@ export interface ProjectModel extends ProjectFragment {
 
 export function registerProject(engine: ModelEngine) {
   engine.registerType("Project", function (getFrag: () => ProjectFragment): ProjectModel {
-    let model = {
+    const model = {
       get rootTask() {
         return engine.getModel("Task", getFrag().rootTaskId)
       },
       get steps() {
-        let list = getFrag().stepIds
+        const list = getFrag().stepIds
           .map(stepId => engine.getModel<StepModel>("Step", stepId))
           .filter(step => step.orderNum !== null)
         return toCollection(list, "Step")
       },
       get specialSteps() {
-        let list = getFrag().stepIds
+        const list = getFrag().stepIds
           .map(stepId => engine.getModel<StepModel>("Step", stepId))
           .filter(step => step.orderNum === null)
         return toCollection(list, "Step")
       },
       get allSteps() {
-        let list = getFrag().stepIds
+        const list = getFrag().stepIds
           .map(stepId => engine.getModel<StepModel>("Step", stepId))
         return toCollection(list, "Step")
       },
@@ -57,13 +57,13 @@ export function registerProject(engine: ModelEngine) {
         return this.rootTask.children
       },
       getTask(taskId: string) {
-        let task: TaskModel = engine.getModel("Task", taskId)
+        const task: TaskModel = engine.getModel("Task", taskId)
         if (task.projectId !== getFrag().id)
           throw new Error(`The task ${taskId} is in the project ${task.projectId}, current project: ${getFrag().id}`)
         return task
       },
       hasTaskForStep(stepId: string): boolean {
-        let tasks = engine.getModels<TaskModel>({
+        const tasks = engine.getModels<TaskModel>({
           type: "Task",
           index: "projectId",
           key: {
@@ -83,7 +83,7 @@ export function registerProject(engine: ModelEngine) {
     return model as any
   })
 
-  engine.registerDependency("reorder", "Step", function (props: OrderProperties) {
+  engine.registerDependency("reorder", "Step", function () {
     return {
       type: "Project" as Type,
       idList: engine.getAllModels<ProjectModel>("Project").map(project => project.id)

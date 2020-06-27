@@ -56,7 +56,7 @@ export default class PasswordForm {
   }
 
   private async onSubmit() {
-    let cleanData = await this.checkUserInput()
+    const cleanData = await this.checkUserInput()
 
     if (!cleanData)
       return
@@ -66,8 +66,8 @@ export default class PasswordForm {
   }
 
   private async checkUserInput() {
-    let currentPassword = this.currentPasswordEl.value
-    let newPassword = this.passwordEdit.getPasswordIfMatch()
+    const currentPassword = this.currentPasswordEl.value
+    const newPassword = this.passwordEdit.getPasswordIfMatch()
 
     if (!newPassword) {
       await this.dash.create(InfoDialog).show("Passwords do not match.")
@@ -75,7 +75,7 @@ export default class PasswordForm {
       return undefined
     }
 
-    let checkMsg = whyNewPasswordIsInvalid(newPassword)
+    const checkMsg = whyNewPasswordIsInvalid(newPassword)
 
     if (checkMsg) {
       await this.dash.create(InfoDialog).show(checkMsg)
@@ -89,7 +89,7 @@ export default class PasswordForm {
 
   private async doPasswordUpdate(currentPassword: string, newPassword: string) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/change-password`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/registration/change-password`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -108,13 +108,13 @@ export default class PasswordForm {
         return
       }
 
-      let result = await response.json()
+      const result = await response.json()
 
       if (result.done) {
         this.clearFields()
         await this.dash.create(InfoDialog).show("Password successfully updated.")
       } else {
-        let msg = "Password was not changed. Maybe you mistyped your current password."
+        const msg = "Password was not changed. Maybe you mistyped your current password."
 
         await this.dash.create(InfoDialog).show(msg)
       }

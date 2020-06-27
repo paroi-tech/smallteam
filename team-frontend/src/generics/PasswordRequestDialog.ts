@@ -6,7 +6,7 @@ import ErrorDialog from "../../../shared-ui/modal-dialogs/ErrorDialog"
 import InfoDialog from "../../../shared-ui/modal-dialogs/InfoDialog"
 import App from "../AppFrame/App"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .PasswordRequestDialog {
   border: 1px solid saddlebrown;
@@ -48,7 +48,7 @@ export default class PasswordRequestDialog {
 
     dialogPolyfill.registerDialog(this.el)
 
-    let btnEl: HTMLButtonElement = ref("submit")
+    const btnEl: HTMLButtonElement = ref("submit")
 
     btnEl.addEventListener("click", () => this.onSubmit())
     ref("cancel").addEventListener("click", () => this.onCancel())
@@ -74,7 +74,7 @@ export default class PasswordRequestDialog {
     this.disable()
     this.showSpinner()
 
-    let address = this.emailEl.value
+    const address = this.emailEl.value
 
     if (address && await this.makeApiCall(address) && this.curDfd) {
       this.curDfd.resolve(undefined)
@@ -88,7 +88,7 @@ export default class PasswordRequestDialog {
 
   private async makeApiCall(address: string) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-password-reset-mail`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-password-reset-mail`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -103,10 +103,10 @@ export default class PasswordRequestDialog {
         return false
       }
 
-      let result = await response.json()
+      const result = await response.json()
 
       if (result.done) {
-        let msg = "Request received by server. Your should receive an email in order to complete the process."
+        const msg = "Request received by server. Your should receive an email in order to complete the process."
 
         await this.dash.create(InfoDialog).show(msg)
         return true

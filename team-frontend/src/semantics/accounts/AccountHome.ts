@@ -8,7 +8,7 @@ import { ViewerController, Workspace } from "../../generics/WorkspaceViewer"
 import AccountForm from "./AccountForm"
 import PasswordForm from "./PasswordForm"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .AccountHome {
   &-avatarArea {
@@ -45,8 +45,8 @@ export default class AccountHome implements Workspace {
     this.picker = this.dash.create(ImagePicker, { width: 128, height: 128 })
     this.dash.listenTo(this.picker, "changed", data => this.onAvatarChange(data))
 
-    let form = this.dash.create(AccountForm, false)
-    let passwdForm = this.dash.create(PasswordForm, this.account)
+    const form = this.dash.create(AccountForm, false)
+    const passwdForm = this.dash.create(PasswordForm, this.account)
 
     form.setAccount(this.account)
     ref("formContainer").appendChild(form.el)
@@ -64,30 +64,30 @@ export default class AccountHome implements Workspace {
   }
 
   private setPickerToAccountAvatar() {
-    let avatar = this.model.session.account.avatar
+    const avatar = this.model.session.account.avatar
 
     if (avatar) {
-      let variant = avatar.getVariant("orig")
+      const variant = avatar.getVariant("orig")
       if (variant)
         this.picker.setImage(`url(${variant.url})`)
     }
   }
 
   private async onAvatarChange(data) {
-    let accountId = this.dash.app.model.session.account.id
-    let meta = {
+    const accountId = this.dash.app.model.session.account.id
+    const meta = {
       ref: {
         type: "accountAvatar",
         id: accountId
       },
       overwrite: true
     }
-    let fd = new FormData()
+    const fd = new FormData()
 
     fd.append("f", data.f)
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -98,7 +98,7 @@ export default class AccountHome implements Workspace {
         this.log.error("Unable to change avatar", response.statusText)
         this.setPickerToAccountAvatar()
       } else {
-        let result = await response.json()
+        const result = await response.json()
 
         if (result.modelUpd)
           this.model.processModelUpdate(result.modelUpd)

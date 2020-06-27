@@ -4,7 +4,7 @@ import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, TaskLogEntryModel, TaskModel } from "../../AppModel/AppModel"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -80,7 +80,7 @@ export default class TaskLogViewer {
     this.tableEl = ref("table")
 
     this.dash.listenTo(this.model, "createTaskLogEntry", data => {
-      let entry = data.model as TaskLogEntryModel
+      const entry = data.model as TaskLogEntryModel
       if (!this.task || this.task.id !== entry.taskId)
         return
       this.addEntry(entry)
@@ -98,7 +98,7 @@ export default class TaskLogViewer {
   }
 
   private addEntry(entry: TaskLogEntryModel) {
-    let row = this.tableEl.tBodies[0].insertRow()
+    const row = this.tableEl.tBodies[0].insertRow()
 
     row.insertCell().textContent = entry.id
     row.insertCell().textContent = new Date(entry.entryTs).toLocaleTimeString()
@@ -111,8 +111,8 @@ export default class TaskLogViewer {
       return
     this.loadIndicatorEl.hidden = false
     try {
-      let entries = await this.task.getLogEntries()
-      for (let entry of entries)
+      const entries = await this.task.getLogEntries()
+      for (const entry of entries)
         this.addEntry(entry)
     } catch (err) {
       this.log.error(`Cannot get log entries for task ${this.task.id}`)

@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import handledom from "handledom"
 import { ViewerController, Workspace } from "./WorkspaceViewer"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 

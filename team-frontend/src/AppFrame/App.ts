@@ -22,10 +22,12 @@ export default class App {
     this.dash.listenTo<LogEvent>("log", data => {
       if (!console)
         return
-      if (data.level !== "trace" && console[data.level])
+      // eslint-disable-next-line no-console
+      if (data.level !== "trace" && console[data.level]) {
+        // eslint-disable-next-line no-console
         console[data.level](...data.messages)
-      else {
-        // eslint-disable-line no-console
+      } else {
+        // eslint-disable-next-line no-console
         console.log(`[${data.level}]`, ...data.messages)
       }
     })
@@ -58,7 +60,7 @@ export default class App {
   async connect(): Promise<string> {
     // First, we try to recover session, if there is one active...
     try {
-      let response = await fetch(`${this.baseUrl}/api/session/current`, {
+      const response = await fetch(`${this.baseUrl}/api/session/current`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -71,7 +73,7 @@ export default class App {
       if (!response.ok)
         this.log.warn("Unable to get a response from server while trying to recover session.")
       else {
-        let result = await response.json()
+        const result = await response.json()
         if (result.done)
           return result.accountId as string
       }
@@ -80,13 +82,13 @@ export default class App {
     }
 
     // Show login dialog if session recover failed.
-    let dialog = this.dash.create(LoginDialog)
+    const dialog = this.dash.create(LoginDialog)
     return await dialog.open()
   }
 
   async disconnect() {
     try {
-      let response = await fetch(`${this.baseUrl}/api/session/disconnect`, {
+      const response = await fetch(`${this.baseUrl}/api/session/disconnect`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -99,7 +101,7 @@ export default class App {
       if (!response.ok)
         this.log.error("Unable to get a response from server while trying to disconnect...")
       else {
-        let result = await response.json()
+        const result = await response.json()
 
         if (result.done) {
           await this.navigate("") // This prevents the router to show current page at next login.
@@ -114,7 +116,7 @@ export default class App {
   }
 
   async showPasswordResetDialog() {
-    let dialog = this.dash.create(PasswordRequestDialog)
+    const dialog = this.dash.create(PasswordRequestDialog)
     try {
       await dialog.open()
     } catch (error) {
@@ -125,7 +127,7 @@ export default class App {
   async start(sessionData: SessionData) {
     await this.initModel(sessionData)
 
-    let appEl = document.querySelector(".js-app")
+    const appEl = document.querySelector(".js-app")
 
     if (appEl) {
       removeAllChildren(appEl)
@@ -137,7 +139,7 @@ export default class App {
   private async initModel(sessionData: SessionData) {
     this._model = this.dash.create(ModelComp, sessionData)
 
-    let modelDash = this.dash.getPublicDashOf(this.model)
+    const modelDash = this.dash.getPublicDashOf(this.model)
 
     modelDash.unmanagedListeners.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
       if ("orderedIds" in data)

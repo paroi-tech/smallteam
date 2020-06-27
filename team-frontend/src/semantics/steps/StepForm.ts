@@ -6,7 +6,7 @@ import { Model, StepModel } from "../../AppModel/AppModel"
 import { DropdownMenu } from "../../generics/DropdownMenu"
 import { createCustomMenuBtnEl } from "../../generics/workspaceUtils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .StepForm {
   width: 400px;
@@ -83,10 +83,10 @@ export default class StepForm {
     })
     ref("menu").appendChild(this.dropdownMenu.btnEl)
 
-    let btnEl = ref("submitBtn") as HTMLButtonElement
+    const btnEl = ref("submitBtn") as HTMLButtonElement
 
     btnEl.addEventListener("click", () => {
-      let name = this.nameEl.value.trim()
+      const name = this.nameEl.value.trim()
       if (name.length === 0) {
         this.log.warn("The name of the step should contain more characters.")
         return
@@ -152,8 +152,8 @@ export default class StepForm {
     if (!this.step)
       return
 
-    let id = this.step.id
-    let frag = this.step.updateTools.getDiffToUpdate({ id, label: newName })
+    const id = this.step.id
+    const frag = this.step.updateTools.getDiffToUpdate({ id, label: newName })
 
     if (!frag || !(Object.keys(frag).length !== 0 || frag.constructor !== Object))
       return
@@ -164,7 +164,7 @@ export default class StepForm {
     if (!this.step)
       return
     try {
-      let w = await this.step.updateTools.whoUse()
+      const w = await this.step.updateTools.whoUse()
       if (w) {
         await this.dash.create(InfoDialog).show("Can't delete step.")
         return

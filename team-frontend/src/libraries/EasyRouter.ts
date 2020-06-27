@@ -1,4 +1,5 @@
-/*!
+/* eslint-disable */
+/* !
  * Public domain
  * © 2016 Paleo; Released under the CC0 License.
  * http://creativecommons.org/publicdomain/zero/1.0/
@@ -174,23 +175,23 @@ interface MatchingRoute {
 class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Initializer {
 
   private static makeCompletedQuery(query: ERQuery, compiledRoute: CompiledRoute, activator: ERRouteActivator): ERQuery | null {
-    let m = compiledRoute.regexp.exec(query.queryString!)
+    const m = compiledRoute.regexp.exec(query.queryString!)
     if (m === null)
       return null
-    let params: { [index: string]: string | undefined } = {},
-      pNamesLen = compiledRoute.pNames.length,
-      pName: string,
-      pVal: string,
-      index = 0
+    const params: { [index: string]: string | undefined } = {}
+    const pNamesLen = compiledRoute.pNames.length
+    let pName: string
+    let pVal: string
+    let index = 0
     while (index < pNamesLen) {
       pName = compiledRoute.pNames[index]
       pVal = m[++index]
       params[pName] = pVal === undefined ? undefined : decodeURIComponent(pVal)
     }
-    let lastIndex = m.length - 1
-    let remaining: string | null = lastIndex > pNamesLen ? m[lastIndex] : null,
-      processed = remaining ? query.queryString!.slice(0, -remaining.length) : query.queryString
-    let completed: ERQuery = {
+    const lastIndex = m.length - 1
+    const remaining: string | null = lastIndex > pNamesLen ? m[lastIndex] : null
+    const processed = remaining ? query.queryString!.slice(0, -remaining.length) : query.queryString
+    const completed: ERQuery = {
       queryString: query.queryString,
       queryHash: query.queryHash,
       queryParams: query.queryParams,
@@ -214,7 +215,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   private static makeFinalQuery(completedQuery: ERQuery, title: string | null): ERQuery {
     if (!title)
       return completedQuery
-    let finalQuery: ERQuery = {
+    const finalQuery: ERQuery = {
       queryString: completedQuery.queryString,
       queryHash: completedQuery.queryHash,
       queryParams: completedQuery.queryParams,
@@ -240,8 +241,8 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         hash = hash.slice(1)
       return hash
     }
-    let path = window.location.pathname
-    let baseLen = config.baseUrl.length
+    const path = window.location.pathname
+    const baseLen = config.baseUrl.length
     if (path.length <= baseLen)
       return ""
     if (path.slice(0, baseLen) !== config.baseUrl)
@@ -250,8 +251,8 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   }
 
   private static compileRoute(route: string): CompiledRoute {
-    let pNames: string[] = []
-    let withStar = route.length > 0 && route[route.length - 1] === "*"
+    const pNames: string[] = []
+    const withStar = route.length > 0 && route[route.length - 1] === "*"
     if (withStar)
       route = route.slice(0, -1)
     route = route
@@ -313,7 +314,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       this.rootBaseUrl += "#"
     // - History
     this.withHistory = !config.noHistory
-    let firstQueryString = window.history.state || config.firstQueryString || Router.getDefaultFirstQueryString(config)
+    const firstQueryString = window.history.state || config.firstQueryString || Router.getDefaultFirstQueryString(config)
     if (this.withHistory) {
       window.onpopstate = this.makeOnPopState()
       window.onhashchange = this.makeOnHashChange()
@@ -349,7 +350,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   }
 
   map(...activators: ERRouteActivator[]): this {
-    let ra, compiledRoute
+    let ra; let compiledRoute
     for (let i = 0, len = activators.length; i < len; ++i) {
       ra = activators[i]
       if (typeof ra.route === "string")
@@ -444,7 +445,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       return Promise.resolve<boolean>(true)
     if (level < 0)
       return Promise.resolve<boolean>(false)
-    let qs = this.rootQSStack[this.rootQSStack.length - level - 1]
+    const qs = this.rootQSStack[this.rootQSStack.length - level - 1]
     if (qs === undefined)
       return Promise.resolve(false)
     return this.doNavigate(qs, true)
@@ -488,21 +489,22 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
 
   fireErrorListeners(type: string, ...args: any[]) {
     // console.log(`...........${type}`)
-    let listeners = this.listeners[type]
+    const listeners = this.listeners[type]
     if (listeners === undefined) {
       if (this.parent)
         this.parent.fireErrorListeners(type, ...args)
       return
     }
-    for (let k in listeners) {
+    for (const k in listeners) {
       if (listeners.hasOwnProperty(k)) {
         try {
           listeners[k](...args)
         } catch (err) {
           if (type !== "asyncError")
             this.fireErrorListeners("asyncError", err)
-          else if (typeof console !== "undefined")
+          else if (typeof console !== "undefined") {
             console.log(err.message, err.stack)
+          }
         }
       }
     }
@@ -513,7 +515,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // --
 
   private doNavigate(queryString: string | null, changeHist: boolean, parentUrl: string | null = null,
-                     parentQuery: any = null, alreadyWorking = false): Promise<boolean> {
+    parentQuery: any = null, alreadyWorking = false): Promise<boolean> {
     if (!alreadyWorking) {
       if (this.working)
         return Promise.resolve<boolean>(false)
@@ -521,7 +523,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     }
     if (this.isRoot)
       this.rootQSStack.push(queryString!)
-    let query = this.makeQuery(queryString!, parentQuery)
+    const query = this.makeQuery(queryString!, parentQuery)
     if (this.curQuery && this.curQuery.queryString === query.queryString) {
       this.working = false
       return Promise.resolve<boolean>(true)
@@ -555,7 +557,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   }
 
   private canLeaveCurrent(): Promise<boolean> {
-    let promises: Array<Promise<boolean>> = []
+    const promises: Promise<boolean>[] = []
     if (this.curActivator && this.curActivator.canDeactivate) {
       let can: any
       try {
@@ -580,9 +582,9 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   }
 
   private doNavigateToMatching(matching: MatchingRoute, changeHist: boolean, parentUrl: string | null): Promise<boolean> {
-    let activator = matching.activator,
-      completed = matching.completedQuery,
-      p: Promise<boolean>
+    const activator = matching.activator
+    const completed = matching.completedQuery
+    let p: Promise<boolean>
     // - Case of a child router
     if (activator.child) {
       const child: ChildRouter = getSourceFromProxy<ChildRouter>(activator.child)
@@ -598,11 +600,11 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         if (!done)
           return false
         if (activator.activate) {
-          let activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
+          const activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
           // return activated ? activated.then(() => true) : true
         }
-        let parentUrl = this.toUrl(completed.processedQueryString, null),
-          childQS = completed.remainingQueryString
+        const parentUrl = this.toUrl(completed.processedQueryString, null)
+        const childQS = completed.remainingQueryString
         return child.childNavigate(childQS, changeHist, parentUrl, completed).then((done: boolean): any => {
           this.curChild = child
           if (done)
@@ -628,7 +630,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         title = activator.title as string
       else
         title = this.wrapUserCbOnErrorReject(activator.title, completed, completed)
-      let finalRoute = Router.makeFinalQuery(completed, title)
+      const finalRoute = Router.makeFinalQuery(completed, title)
       // - Call Unknown route CB
       if (activator === this.unknownActivator)
         this.callUnknownRouteCb(finalRoute)
@@ -638,7 +640,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
           this.pushState(this.curQuery!, parentUrl)
         // Sometimes, the router set the page title to `null`. This fixes the bug.
         document.title = this.curQuery!.title || "SmallTeam"
-        let activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
+        const activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
         return activated ? activated.then(() => true) : true
       })
     })
@@ -666,7 +668,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   private setNewQuery(query: ERQuery | null, activator: ERRouteActivator | null): Promise<void> {
     let p: Promise<void> | null = null
     if (this.curActivator && this.curActivator.deactivate) {
-      let deactivated: any = this.wrapUserCbOnErrorReject(this.curActivator.deactivate, query)
+      const deactivated: any = this.wrapUserCbOnErrorReject(this.curActivator.deactivate, query)
       if (deactivated)
         p = deactivated
     }
@@ -681,7 +683,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       })
     }
     // - Remove listeners
-    for (let k in this.onNavRmListeners) {
+    for (const k in this.onNavRmListeners) {
       if (this.onNavRmListeners.hasOwnProperty(k))
         this.removeListener(this.onNavRmListeners[k]["type"], this.onNavRmListeners[k]["handle"])
     }
@@ -693,13 +695,13 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
    */
   private searchRoute(query: ERQuery): Promise<MatchingRoute | null> {
     // - Make pending list
-    let pendingList: any[] = [],
-      r: Route,
-      matchArr,
-      can: any,
-      matching: MatchingRoute
+    const pendingList: any[] = []
+    let r: Route
+    let matchArr
+    let can: any
+    let matching: MatchingRoute
     if (query.queryString !== null) {
-      for (let k in this.routes) {
+      for (const k in this.routes) {
         if (!this.routes.hasOwnProperty(k))
           continue
         r = this.routes[k]
@@ -727,13 +729,13 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
       }
     }
     // - Wait promises
-    let makeThenCb = function (matching: MatchingRoute, deeper: Promise<MatchingRoute | null>) {
+    const makeThenCb = function (matching: MatchingRoute, deeper: Promise<MatchingRoute | null>) {
       return function (activated: boolean): any {
         return activated ? matching : deeper
       }
     }
-    let pending,
-      deeper = Promise.resolve<MatchingRoute | null>(null)
+    let pending
+    let deeper = Promise.resolve<MatchingRoute | null>(null)
     for (let i = pendingList.length - 1; i >= 0; --i) {
       pending = pendingList[i]
       deeper = pending[0].then(makeThenCb(pending[1], deeper))
@@ -749,14 +751,14 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         return [false]
     } else
       completed = query
-    let matching: MatchingRoute = {
+    const matching: MatchingRoute = {
       completedQuery: completed,
       activator,
       compiledRoute: cr
     }
     if (!activator.canActivate)
       return [true, matching]
-    let can = this.wrapUserCbOnErrorReject(activator.canActivate, completed, completed)
+    const can = this.wrapUserCbOnErrorReject(activator.canActivate, completed, completed)
     return [can, matching]
   }
 
@@ -765,8 +767,8 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   // --
 
   private makeQuery(queryString: string | null, parentQuery: any): ERQuery {
-    let hash: string | null,
-      params: { [index: string]: string } | null
+    let hash: string | null
+    let params: { [index: string]: string } | null
     if (queryString === null || queryString === undefined) {
       queryString = null
       hash = null
@@ -774,17 +776,17 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     } else {
       if (this.curQuery && this.curQuery.queryString === queryString)
         return this.curQuery
-      let hashPos = queryString.indexOf("#")
+      const hashPos = queryString.indexOf("#")
       hash = hashPos === -1 ? null : queryString.slice(hashPos + 1)
       if (hash === "")
         hash = null
-      let paramsPos = queryString.indexOf("?")
+      const paramsPos = queryString.indexOf("?")
       if (paramsPos === -1)
         params = null
       else {
-        let paramsStr = hashPos === -1 ? queryString.slice(paramsPos + 1) : queryString.slice(paramsPos + 1, hashPos),
-          pTokens = paramsStr.split("&"),
-          nameVal
+        const paramsStr = hashPos === -1 ? queryString.slice(paramsPos + 1) : queryString.slice(paramsPos + 1, hashPos)
+        const pTokens = paramsStr.split("&")
+        let nameVal
         params = {}
         for (let i = 0, len = pTokens.length; i < len; ++i) {
           nameVal = pTokens[i].split("=")
@@ -792,7 +794,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         }
       }
     }
-    let query: ERQuery = {
+    const query: ERQuery = {
       queryString: queryString!,
       queryHash: hash,
       queryParams: params
@@ -812,7 +814,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     let listeners = this.errListeners[type]
     if (listeners === undefined)
       listeners = this.listeners[type] = []
-    let handle = listeners.length
+    const handle = listeners.length
     listeners[handle] = cb
     return handle
   }
@@ -821,7 +823,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
     let listeners = this.listeners[type]
     if (listeners === undefined)
       listeners = this.listeners[type] = []
-    let handle = listeners.length
+    const handle = listeners.length
     listeners[handle] = cb
     if (onNavRm) {
       this.onNavRmListeners[type + "~" + handle] = {
@@ -833,21 +835,21 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
   }
 
   private removeListener(type: string, handle: number): void {
-    let listeners = this.listeners[type]
+    const listeners = this.listeners[type]
     if (listeners === undefined || listeners[handle] === undefined)
       throw Error(`Unknown listener "${type}": "${handle}"`)
     delete listeners[handle]
-    let k = type + "~" + handle
+    const k = type + "~" + handle
     if (this.onNavRmListeners[k])
       delete this.onNavRmListeners[k]
   }
 
   private fireListeners(type: string, arg: any, returnBoolean: boolean): Promise<any> {
-    let listeners = this.listeners[type]
+    const listeners = this.listeners[type]
     if (listeners === undefined)
       return returnBoolean ? Promise.resolve(true) : Promise.resolve()
-    let promArr: any[] = []
-    for (let k in listeners) {
+    const promArr: any[] = []
+    for (const k in listeners) {
       if (listeners.hasOwnProperty(k)) {
         promArr.push(arg === undefined ? listeners[k]() : listeners[k](arg))
       }

@@ -16,8 +16,8 @@ export type CommandType = "create" | "update" | "delete"
 type GetDependencies = (fragOrOrderProps: any | OrderProperties) => Dependencies | undefined  // FIXME: Why 'any' instead of 'object'?
 
 export interface OrderProperties {
-  idList: Identifier[],
-  groupName?: string,
+  idList: Identifier[]
+  groupName?: string
   groupId?: Identifier
 }
 
@@ -137,7 +137,7 @@ export default class ModelEngine {
   }
 
   registerDependency(cmd: CommandType | "reorder", dependOf: Type, getDependencies: GetDependencies) {
-    let depKey = JSON.stringify([cmd, dependOf])
+    const depKey = JSON.stringify([cmd, dependOf])
     let list = this.dependencies.get(depKey)
     if (!list)
       this.dependencies.set(depKey, list = [])
@@ -160,8 +160,8 @@ export default class ModelEngine {
 
   startBatchRecord(httpMethod?: HttpMethod) {
     if (this.batch)
-      throw new Error(`Invalid call to startBatchRecord: the engine is already in batch mode`)
-    let batch: Batch = this.batch = {
+      throw new Error("Invalid call to startBatchRecord: the engine is already in batch mode")
+    this.batch = {
       httpMethod,
       list: [],
       deferred: new Deferred()
@@ -170,8 +170,8 @@ export default class ModelEngine {
 
   async sendBatchRecord(): Promise<void> {
     if (!this.batch)
-      throw new Error(`Invalid call to sendBatchRecord: the engine is not in batch mode`)
-    let batch = this.batch
+      throw new Error("Invalid call to sendBatchRecord: the engine is not in batch mode")
+    const batch = this.batch
     this.batch = null
     if (batch.list.length > 0)
       await batch.deferred.pipeTo(httpSendJson(batch.httpMethod!, `${this.baseUrl}/api/model/batch`, batch.list))
@@ -179,7 +179,7 @@ export default class ModelEngine {
 
   cancelBatchRecord(err?: any) {
     if (this.batch) {
-      this.batch.deferred.reject(err || new Error(`Batch record is canceled`))
+      this.batch.deferred.reject(err || new Error("Batch record is canceled"))
       this.batch = null
     }
   }
@@ -197,12 +197,12 @@ export default class ModelEngine {
   }
 
   async doReorder(type: Type, orderedIds: OrderProperties): Promise<Identifier[]> {
-    let orderFieldName = getFragmentMeta(type).orderFieldName
+    const orderFieldName = getFragmentMeta(type).orderFieldName
     if (!orderFieldName)
       throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
     if (orderedIds.idList.length === 0)
       return []
-    let dependencies = this.getExecDependencies("reorder", type, orderedIds)
+    const dependencies = this.getExecDependencies("reorder", type, orderedIds)
     await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/exec`, { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
     return orderedIds.idList
       .map(id => ({ id, frag: this.getFragment({ id, type }) }))
@@ -215,17 +215,17 @@ export default class ModelEngine {
   }
 
   async doFetch(type: Type, filters?: any): Promise<Collection<any, Identifier>> {
-    let data: any = { cmd: "fetch", type }
+    const data: any = { cmd: "fetch", type }
     if (filters)
       data.filters = filters
-    let fragments: any[] = await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/query`, data, "fragments"),
-      fragMeta = getFragmentMeta(type)
+    const fragments: any[] = await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/query`, data, "fragments")
+    getFragmentMeta(type)
     return toCollection(fragments.map(frag => this.getModel(type, toIdentifier(frag, type))), type)
   }
 
   getModel<M = any>(type: Type, id: Identifier): M {
-    let storage = this.getTypeStorage(type),
-      entity = storage.entities.get(id)
+    const storage = this.getTypeStorage(type)
+    const entity = storage.entities.get(id)
     if (!entity)
       throw new Error(`Unknown ID "${id}" in type: ${type}`)
     if (!entity.model) {
@@ -239,14 +239,14 @@ export default class ModelEngine {
   }
 
   getModels<M = any>(query: ModelsQuery<M>, onEmptyVal: any = []): Collection<M, Identifier> {
-    let identifiers = this.findIdentifiersFromIndex(query)
-    let list: any[] = []
+    const identifiers = this.findIdentifiersFromIndex(query)
+    const list: any[] = []
     if (identifiers) {
-      for (let id of identifiers)
+      for (const id of identifiers)
         list.push(this.getModel(query.type, id))
 
       if (query.orderBy) {
-        let sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy
+        const sortFn = Array.isArray(query.orderBy) ? makeDefaultSortFn(query.orderBy) : query.orderBy
         list.sort(sortFn)
       }
     }
@@ -256,32 +256,32 @@ export default class ModelEngine {
   }
 
   getAllModels<M = any>(type: Type, orderBy?: [string, "asc" | "desc"] | ((a, b) => number)): M[] {
-    let storage = this.getTypeStorage(type),
-      identifiers = storage.entities.keys()
-    let list: any[] = []
-    for (let id of identifiers)
+    const storage = this.getTypeStorage(type)
+    const identifiers = storage.entities.keys()
+    const list: any[] = []
+    for (const id of identifiers)
       list.push(this.getModel(type, id))
     if (orderBy) {
-      let sortFn = Array.isArray(orderBy) ? makeDefaultSortFn(orderBy) : orderBy
+      const sortFn = Array.isArray(orderBy) ? makeDefaultSortFn(orderBy) : orderBy
       list.sort(sortFn)
     }
     return toCollection(list, type)
   }
 
   countModels(query: IndexQuery): number {
-    let identifiers = this.findIdentifiersFromIndex(query)
+    const identifiers = this.findIdentifiersFromIndex(query)
     return identifiers ? identifiers.size : 0
   }
 
   findSingleFromIndex(query: IndexQuery): any | undefined {
-    let identifiers = this.findIdentifiersFromIndex(query)
+    const identifiers = this.findIdentifiersFromIndex(query)
     // console.log(`  > findSingleFromIndex A`, query, identifiers)
     if (!identifiers)
       return undefined
     if (identifiers.size > 1)
       throw new Error(`Invalid call to "findSingleFromIndex", there are ${identifiers.size} results`)
     // console.log(`  > findSingleFromIndex B`, query, identifiers)
-    for (let id of identifiers)
+    for (const id of identifiers)
       return this.getModel(query.type, id)
     // console.log(`  > findSingleFromIndex C`, query, identifiers)
     return undefined
@@ -291,7 +291,7 @@ export default class ModelEngine {
    * Called by triggers. Remove dependencies from the store. No effect on the backend.
    */
   removeFrontendModels(query: ModelsQuery) {
-    let identifiers = this.findIdentifiersFromIndex(query)
+    const identifiers = this.findIdentifiersFromIndex(query)
     if (identifiers) {
       this.deleteFromStore({
         [query.type]: identifiers
@@ -304,9 +304,9 @@ export default class ModelEngine {
    */
   emitEvents(changed: Changed, cmd: CommandType) {
     const that = this
-    for (let [type, idList] of Object.entries<any>(changed)) {
-      let storage = this.getTypeStorage(type as Type)
-      for (let id of idList) {
+    for (const [type, idList] of Object.entries<any>(changed)) {
+      this.getTypeStorage(type as Type)
+      for (const id of idList) {
         this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
           type,
           cmd,
@@ -341,16 +341,16 @@ export default class ModelEngine {
   }
 
   private async doExec(cmd: CommandType, type: Type, frag: object): Promise<any | undefined> {
-    let dependencies = this.getExecDependencies(cmd, type, frag)
-    let del = cmd === "delete"
-    let processingKey: string | undefined,
-      id: Identifier | undefined
+    const dependencies = this.getExecDependencies(cmd, type, frag)
+    const del = cmd === "delete"
+    let processingKey: string | undefined
+    let id: Identifier | undefined
     if (cmd === "delete" || cmd === "update") {
       id = toIdentifier(frag, type)
       processingKey = this.startProcessing(type, cmd, id)
     }
     try {
-      let resultFrag = await this.httpSendAndUpdate(
+      const resultFrag = await this.httpSendAndUpdate(
         "POST",
         `${this.baseUrl}/api/model/exec`,
         { cmd, type, frag, dependencies },
@@ -365,7 +365,7 @@ export default class ModelEngine {
   }
 
   private endProcessing(type: Type, cmd: CommandType, id: Identifier, processingKey: string) {
-    let that = this
+    const that = this
     this.processing.delete(processingKey)
     this.dash.emit(["endProcessing", `endProcessing${type}`], {
       type, cmd, id,
@@ -376,8 +376,8 @@ export default class ModelEngine {
   }
 
   private startProcessing(type: Type, cmd: CommandType, id: Identifier): string {
-    let processingKey = JSON.stringify([type, id])
-    let that = this
+    const processingKey = JSON.stringify([type, id])
+    const that = this
     this.processing.add(processingKey)
     this.dash.emit(["processing", `processing${type}`], {
       type, cmd, id,
@@ -389,13 +389,13 @@ export default class ModelEngine {
   }
 
   private getExecDependencies(cmd: CommandType | "reorder", type: Type, data: object | OrderProperties): Dependencies[] | undefined {
-    let depKey = JSON.stringify([cmd, type])
-    let cbList = this.dependencies.get(depKey)
+    const depKey = JSON.stringify([cmd, type])
+    const cbList = this.dependencies.get(depKey)
     if (!cbList)
       return
-    let result: Dependencies[] = []
-    for (let cb of cbList) {
-      let dep = cb(data)
+    const result: Dependencies[] = []
+    for (const cb of cbList) {
+      const dep = cb(data)
       if (dep)
         result.push(dep)
     }
@@ -404,7 +404,7 @@ export default class ModelEngine {
 
   private findIdentifiersFromIndex({ type, index, key, indexCb }: IndexQuery): HKSet<Identifier> | undefined {
     index = cleanIndex(index, indexCb)
-    let storage = this.getTypeStorage(type)
+    const storage = this.getTypeStorage(type)
     let indexData = storage.indexes.get(index)
     // console.log("  > findIdentifiersFromIndex A", index, storage, indexData)
     if (!indexData) {
@@ -423,19 +423,19 @@ export default class ModelEngine {
   }
 
   private getTypeStorage(type: Type): TypeStorage {
-    let storage = this.store.get(type)
+    const storage = this.store.get(type)
     if (!storage)
       throw new Error(`Unknown type: ${type}`)
     return storage
   }
 
   private updateStore(fragments: Fragments) {
-    for (let [type, list] of Object.entries(fragments)) {
-      let storage = this.getTypeStorage(type as Type)
-      let fragMeta = getFragmentMeta(type as Type)
-      for (let frag of list) {
-        let id = toIdentifier(frag, type as Type),
-          prevEntity = storage.entities.get(id)
+    for (const [type, list] of Object.entries(fragments)) {
+      const storage = this.getTypeStorage(type as Type)
+      getFragmentMeta(type as Type)
+      for (const frag of list) {
+        const id = toIdentifier(frag, type as Type)
+        const prevEntity = storage.entities.get(id)
         if (prevEntity) {
           if (prevEntity.deleted)
             prevEntity.deleted = false
@@ -452,12 +452,12 @@ export default class ModelEngine {
   }
 
   private updateStoreFromPartial(partial: PartialFragments) {
-    for (let [type, list] of Object.entries(partial)) {
-      let storage = this.getTypeStorage(type as Type)
-      let fragMeta = getFragmentMeta(type as Type)
-      for (let partialFrag of list!) {
-        let id = toIdentifier(partialFrag, type as Type)
-        let entity = storage.entities.get(id)
+    for (const [type, list] of Object.entries(partial)) {
+      const storage = this.getTypeStorage(type as Type)
+      const fragMeta = getFragmentMeta(type as Type)
+      for (const partialFrag of list!) {
+        const id = toIdentifier(partialFrag, type as Type)
+        const entity = storage.entities.get(id)
         if (entity && !entity.deleted)
           updateEntityFromPartial(storage, id, partialFrag, entity, fragMeta)
       }
@@ -465,12 +465,12 @@ export default class ModelEngine {
   }
 
   private deleteFromStore(deleted: Changed) {
-    for (let [type, list] of Object.entries(deleted)) {
+    for (const [type, list] of Object.entries(deleted)) {
       if (!list)
         continue
-      let storage = this.getTypeStorage(type as Type)
-      for (let id of list) {
-        let entity = storage.entities.get(id)
+      const storage = this.getTypeStorage(type as Type)
+      for (const id of list) {
+        const entity = storage.entities.get(id)
         if (entity) {
           storage.entities.delete(id)
           entity.deleted = true
@@ -482,14 +482,14 @@ export default class ModelEngine {
   }
 
   private execTriggers(triggerType: "before" | "after", cmd: CommandType, changed: Changed) {
-    let map = this.triggers[triggerType]
-    for (let [type, list] of Object.entries(changed)) {
+    const map = this.triggers[triggerType]
+    for (const [type, list] of Object.entries(changed)) {
       if (!list)
         continue
-      let triggers = map.get(type as Type)
+      const triggers = map.get(type as Type)
       if (triggers) {
-        for (let trigger of triggers) {
-          for (let id of list)
+        for (const trigger of triggers) {
+          for (const id of list)
             trigger(cmd, id as string)
         }
       }
@@ -497,10 +497,9 @@ export default class ModelEngine {
   }
 
   private emitEventReordered(reordered: Changed) {
-    const that = this,
-      cmd = "reorder"
-    for (let [type, orderedIds] of Object.entries<any>(reordered)) {
-      let storage = this.getTypeStorage(type as Type)
+    const cmd = "reorder"
+    for (const [type, orderedIds] of Object.entries<any>(reordered)) {
+      this.getTypeStorage(type as Type)
       this.dash.emit(["change", `${cmd}`, `change${type}`, `${cmd}${type}`], {
         type,
         cmd,
@@ -510,18 +509,18 @@ export default class ModelEngine {
   }
 
   private getFragment(ref: FragmentRef) {
-    let storage = this.getTypeStorage(ref.type)
-    let entity = storage.entities.get(ref.id)
+    const storage = this.getTypeStorage(ref.type)
+    const entity = storage.entities.get(ref.id)
     if (!entity)
       throw new Error(`[${ref.type}] Missing data for: ${JSON.stringify(ref.id)}`)
     return entity.fragment
   }
 
   private getFragments(ref: FragmentsRef): any[] {
-    let storage = this.getTypeStorage(ref.type)
-    let list: any[] = []
-    for (let id of ref.list) {
-      let entity = storage.entities.get(id)
+    const storage = this.getTypeStorage(ref.type)
+    const list: any[] = []
+    for (const id of ref.list) {
+      const entity = storage.entities.get(id)
       if (!entity) {
         // console.log('=======>', Array.from(storage.entities.keys()))
         throw new Error(`[${ref.type}] Missing data for: ${JSON.stringify(id)}`)
@@ -532,10 +531,11 @@ export default class ModelEngine {
   }
 
   private async httpSendAndUpdate(method: HttpMethod, url, data, resultType?: "data" | "fragment" | "fragments" | "none"): Promise<any> {
-    let cargo = await this.httpSendOrBatch(method, url, data)
+    const cargo = await this.httpSendOrBatch(method, url, data)
     if (cargo.modelUpd)
       this.processModelUpdate(cargo.modelUpd)
     if (!cargo.done) {
+      // eslint-disable-next-line no-console
       console.log("Error on server", cargo.displayError, cargo.debugData)
       throw new Error("Error on server")
     }
@@ -547,7 +547,7 @@ export default class ModelEngine {
           return cargo.result.val
         case "fragment":
           if (!cargo.result.val)
-            throw new Error(`Missing fragment result for HTTP query`)
+            throw new Error("Missing fragment result for HTTP query")
           return this.getFragment(cargo.result.val)
         case "fragments":
           return cargo.result.val ? this.getFragments(cargo.result.val) : []
@@ -571,13 +571,13 @@ export default class ModelEngine {
       return httpSendJson(method, url, data)
     if (!this.batch.httpMethod || (this.batch.httpMethod === "GET" && method === "POST"))
       this.batch.httpMethod = method
-    let batchIndex = this.batch.list.length
+    const batchIndex = this.batch.list.length
     this.batch.list.push(data)
     return this.batch.deferred.promise.then(result => {
       if (batchIndex === 0 && result.modelUpd) // process modelUpd once (is there a better place?)
         this.processModelUpdate(result.modelUpd)
       if (!result.responses || result.responses.length <= batchIndex)
-        throw new Error(`The batch command is canceled due to a previous command error`)
+        throw new Error("The batch command is canceled due to a previous command error")
       // console.log(`.............${batchIndex} // `, result)
       return result.responses[batchIndex]
     })
@@ -589,8 +589,8 @@ export default class ModelEngine {
 // --
 
 export function appendGettersToModel(output: object, type: Type, getFrag: () => object) {
-  let fragMeta = getFragmentMeta(type)
-  for (let fieldName of Object.keys(fragMeta.fields)) {
+  const fragMeta = getFragmentMeta(type)
+  for (const fieldName of Object.keys(fragMeta.fields)) {
     Object.defineProperty(output, fieldName, {
       get() { return getFrag()[fieldName] },
       configurable: false
@@ -599,9 +599,9 @@ export function appendGettersToModel(output: object, type: Type, getFrag: () => 
 }
 
 export interface UpdateToolsOptions {
-  processing?: boolean,
-  whoUse?: boolean,
-  toFragment?: boolean,
+  processing?: boolean
+  whoUse?: boolean
+  toFragment?: boolean
   diffToUpdate?: boolean
 }
 
@@ -619,7 +619,7 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.whoUse) {
     output.updateTools.whoUse = () => engine.bgManager.add((async () => {
-      let fetched = await httpSendJson("POST", `${this.baseUrl}/api/model/who-use`, {
+      const fetched = await httpSendJson("POST", `${this.baseUrl}/api/model/who-use`, {
         type,
         id: toIdentifier(getFrag(), type)
       })
@@ -631,10 +631,10 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.toFragment) {
     output.updateTools.toFragment = (variant: TypeVariant) => {
-      let input = getFrag(),
-        result: any = {},
-        meta = getFragmentMeta(type, variant)
-      for (let fieldName of Object.keys(meta.fields))
+      const input = getFrag()
+      const result: any = {}
+      const meta = getFragmentMeta(type, variant)
+      for (const fieldName of Object.keys(meta.fields))
         result[fieldName] = input[fieldName]
       return result
     }
@@ -642,19 +642,19 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 
   if (opt.diffToUpdate) {
     output.updateTools.isModified = (updFrag: any) => {
-      let orig = getFrag(),
-        meta = getFragmentMeta(type, "update")
-      for (let fieldName of Object.keys(meta.fields)) {
+      const orig = getFrag()
+      const meta = getFragmentMeta(type, "update")
+      for (const fieldName of Object.keys(meta.fields)) {
         if (updFrag[fieldName] !== undefined && updFrag[fieldName] !== orig[fieldName])
           return true
       }
       return false
     }
     output.updateTools.getDiffToUpdate = (updFrag: any) => {
-      let orig = getFrag(),
-        diff: any = {},
-        meta = getFragmentMeta(type, "update")
-      for (let fieldName of Object.keys(meta.fields)) {
+      const orig = getFrag()
+      const diff: any = {}
+      const meta = getFragmentMeta(type, "update")
+      for (const fieldName of Object.keys(meta.fields)) {
         if (updFrag[fieldName] !== undefined && updFrag[fieldName] !== orig[fieldName])
           diff[fieldName] = updFrag[fieldName]
       }
@@ -668,13 +668,13 @@ export function appendUpdateToolsToModel(output: any, type: Type, getFrag: () =>
 // --
 
 function indexToFieldNames(index: Index, indexCallbacks?: IndexCallbacks) {
-  let names = typeof index === "string" ? [index] : index
+  const names = typeof index === "string" ? [index] : index
   return indexCallbacks ? names.filter(name => !indexCallbacks[name]) : names
 }
 
 function checkColumnsAreInMeta(type: Type, fieldNames: string[]) {
-  let fragMeta = getFragmentMeta(type)
-  for (let name of fieldNames) {
+  const fragMeta = getFragmentMeta(type)
+  for (const name of fieldNames) {
     if (!fragMeta.fields[name])
       throw new Error(`Unknown field ${name} in ${type}`)
   }
@@ -690,7 +690,7 @@ function cleanIndex(index: Index, indexCb?: IndexCallbacks): Index {
 
 function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
   // console.log("  ** fillIndex A", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
-  for (let [id, entity] of storage.entities)
+  for (const [id, entity] of storage.entities)
     tryToAddToIndex(index, indexData, id, entity.fragment)
   // console.log("  ** fillIndex B", index, toDebugStr(indexData.map)) // , toDebugStr(storage.entities)
 }
@@ -698,17 +698,17 @@ function fillIndex(storage: TypeStorage, index: Index, indexData: IndexData) {
 function addFragmentToIndexes(storage: TypeStorage, id: Identifier, frag: object, removeOld = false) {
   if (removeOld)
     rmFragmentFromIndexes(storage, [id])
-  for (let [index, indexData] of storage.indexes)
+  for (const [index, indexData] of storage.indexes)
     tryToAddToIndex(index, indexData, id, frag)
 }
 
 function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, frag: object) {
   if (indexData.indexCb && !canBeAddedToIndex(frag, indexData.indexCb))
     return
-  let fieldNames = indexToFieldNames(index, indexData.indexCb)
-  let key = {}
+  const fieldNames = indexToFieldNames(index, indexData.indexCb)
+  const key = {}
   // console.log("  && tryToAddToIndex a", fieldNames, index, id, frag)
-  for (let name of fieldNames)
+  for (const name of fieldNames)
     key[name] = frag[name]
   let identifiers = indexData.map.get(key)
   if (!identifiers)
@@ -718,7 +718,7 @@ function tryToAddToIndex(index: Index, indexData: IndexData, id: Identifier, fra
 }
 
 function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {
-  for (let name of Object.keys(indexCb)) {
+  for (const name of Object.keys(indexCb)) {
     if (indexCb.hasOwnProperty(name) && !indexCb[name](frag))
       return false
   }
@@ -726,16 +726,16 @@ function canBeAddedToIndex(frag: object, indexCb: IndexCallbacks) {
 }
 
 function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
-  for (let [index, indexMap] of storage.indexes) {
-    for (let identifiers of indexMap.map.values()) {
-      for (let id of idList)
+  for (const [, indexMap] of storage.indexes) {
+    for (const identifiers of indexMap.map.values()) {
+      for (const id of idList)
         identifiers.delete(id)
     }
   }
 }
 
 function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: object, entity: Entity, fragMeta: FragmentMeta) {
-  for (let fieldName of Object.keys(partialFrag)) {
+  for (const fieldName of Object.keys(partialFrag)) {
     if (partialFrag[fieldName] === null)
       delete entity.fragment[fieldName]
     else
@@ -747,18 +747,18 @@ function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFr
 function makeDefaultSortFn([fieldName, direction]: [string, "asc" | "desc"]) {
   // TODO: check that the fieldName is in meta
   return function (a, b) {
-    let diff = a[fieldName] - b[fieldName]
+    const diff = a[fieldName] - b[fieldName]
     return direction === "asc" ? diff : -diff
   }
 }
 
-function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
-  return !ref["list"]
-}
+// function isFragmentRef(ref: FragmentRef | FragmentsRef): ref is FragmentRef {
+//   return !ref["list"]
+// }
 
 export async function httpSendJson(method: HttpMethod, url: string, data: unknown): Promise<any> {
-  console.log(`>> ${method}`, url, data)
-  let response = await fetch(url, {
+  // console.log(`>> ${method}`, url, data)
+  const response = await fetch(url, {
     method,
     credentials: "same-origin",
     headers: new Headers({
@@ -766,23 +766,23 @@ export async function httpSendJson(method: HttpMethod, url: string, data: unknow
     }),
     body: data ? JSON.stringify(data) : undefined
   })
-  try {
-    let respData = await response.json()
-    console.log("  ... FETCHED:", respData)
-    return respData
-  } catch (err) {
-    console.log("Parsing failed", err)
-    throw err
-  }
+  // try {
+  const respData = await response.json()
+  // console.log("  ... FETCHED:", respData)
+  return respData
+  // } catch (err) {
+  //   console.log("Parsing failed", err)
+  //   throw err
+  // }
 }
 
 export function toCollection<M extends object, ID extends Identifier>(models: M[], type: Type): Collection<M, ID> {
-  let map: HKMap<ID, M>,
-    alias: any = models
+  let map: HKMap<ID, M>
+  const alias: any = models
   alias.get = id => {
     if (!map) {
       map = makeHKMap<ID, M>()
-      for (let model of models)
+      for (const model of models)
         map.set(toIdentifier(model, type) as ID, model)
     }
     return map.get(id)

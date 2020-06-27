@@ -48,9 +48,9 @@ export default class InvitationForm {
   }
 
   private async onSubmit() {
-    let username = this.usernameEl.value.trim()
-    let email = this.emailEl.value
-    let validity = this.validityEl.value
+    const username = this.usernameEl.value.trim()
+    const email = this.emailEl.value
+    const validity = this.validityEl.value
     if (!this.validate(username, email, validity)) {
       await this.dash.create(WarningDialog).show("Please check the values you type in the form.")
       return
@@ -60,7 +60,7 @@ export default class InvitationForm {
 
   private async doFetch(username: string | undefined, email: string, validity) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-invitation`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/registration/send-invitation`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -80,7 +80,7 @@ export default class InvitationForm {
 
   private async handleFetchResult(data) {
     if (!data.done) {
-      await this.dash.create(ErrorDialog).show(`The server does not fulfill your request for an unknown reason.`)
+      await this.dash.create(ErrorDialog).show("The server does not fulfill your request for an unknown reason.")
       return
     }
     this.clear()
@@ -93,7 +93,7 @@ export default class InvitationForm {
       return false
     if (email === "")
       return false
-    let n = parseInt(validity)
+    const n = parseInt(validity)
     if (n <= 0 || n > 30)
       return false
     return true

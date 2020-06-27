@@ -1,12 +1,11 @@
 import { GitCommitFragment } from "../../../../shared/meta/GitCommit"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 
-export interface GitCommitModel extends GitCommitFragment {
-}
+export type GitCommitModel = GitCommitFragment
 
 export function registerGitCommit(engine: ModelEngine) {
   engine.registerType("GitCommit", function (getFrag: () => GitCommitFragment): GitCommitModel {
-    let model = {}
+    const model = {}
     appendGettersToModel(model, "GitCommit", getFrag)
     return model as any
   })

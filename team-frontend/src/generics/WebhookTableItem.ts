@@ -67,7 +67,7 @@ export default class WebhookTableItem {
 
     this.webhook.inProcessing = true
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/get-webhook-secret`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/get-webhook-secret`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -80,7 +80,7 @@ export default class WebhookTableItem {
       if (!response.ok)
         this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
       else {
-        let data = await response.json()
+        const data = await response.json()
         if (!data.done)
           this.dash.create(ErrorDialog).show("Something went wrong. Hook secret can't be displayed. Try again later.")
         else
@@ -101,9 +101,9 @@ export default class WebhookTableItem {
 
     this.webhook.inProcessing = true
     try {
-      let action = this.webhook.active ? "deactivate-webhook" : "activate-webhook"
-      let route = `${this.dash.app.baseUrl}/api/notifications/github/${action}`
-      let response = await fetch(route, {
+      const action = this.webhook.active ? "deactivate-webhook" : "activate-webhook"
+      const route = `${this.dash.app.baseUrl}/api/notifications/github/${action}`
+      const response = await fetch(route, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -116,7 +116,7 @@ export default class WebhookTableItem {
       if (!response.ok)
         this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
       else {
-        let data = await response.json()
+        const data = await response.json()
         if (!data.done)
           this.dash.create(ErrorDialog).show("Something went wrong. Cannot perform this action now. Try again later.")
         else {
@@ -142,7 +142,7 @@ export default class WebhookTableItem {
 
     this.webhook.inProcessing = true
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/delete-webhook`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/delete-webhook`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -155,7 +155,7 @@ export default class WebhookTableItem {
       if (!response.ok)
         await this.dash.create(ErrorDialog).show("Something went wrong. Our server did not fulfill the request.")
       else {
-        let data = await response.json()
+        const data = await response.json()
         if (!data.done)
           this.dash.create(ErrorDialog).show("Something went wrong. Cannot remove hook. Try again later.")
         else {

@@ -6,7 +6,7 @@ import ErrorDialog from "../../../shared-ui/modal-dialogs/ErrorDialog"
 import WarningDialog from "../../../shared-ui/modal-dialogs/WarningDialog"
 import App from "../AppFrame/App"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -97,7 +97,7 @@ export default class LoginDialog {
 
     dialogPolyfill.registerDialog(this.el)
 
-    let btnEl: HTMLButtonElement = ref("submitBtn")
+    const btnEl: HTMLButtonElement = ref("submitBtn")
 
     btnEl.addEventListener("click", () => this.onSubmit())
     this.el.addEventListener("keyup", ev => {
@@ -129,9 +129,9 @@ export default class LoginDialog {
     this.removeWarnings()
     this.showSpinner()
 
-    let login = this.nameEl.value.trim()
-    let password = this.passwordEl.value
-    let accountId = await this.tryToLogin(login, password)
+    const login = this.nameEl.value.trim()
+    const password = this.passwordEl.value
+    const accountId = await this.tryToLogin(login, password)
 
     this.hideSpinner()
     if (accountId && this.curDfd) {
@@ -152,7 +152,7 @@ export default class LoginDialog {
 
   private async tryToLogin(login: string, password: string): Promise<string | undefined> {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -167,10 +167,10 @@ export default class LoginDialog {
         return undefined
       }
 
-      let result = await response.json()
+      const result = await response.json()
 
       if (result.done) {
-        let accountId = result.accountId as string
+        const accountId = result.accountId as string
         return accountId
       }
       await this.dash.create(WarningDialog).show("Wrong username or password.")
@@ -184,7 +184,7 @@ export default class LoginDialog {
 
   private async handleRequestError(response: Response) {
     if (response.status === 400) {
-      let data = await response.json()
+      const data = await response.json()
       await this.dash.create(WarningDialog).show(`Your request was not processed. ${data.error}`)
     } else if (response.status === 500)
       await this.dash.create(ErrorDialog).show("The server could not process your request.")

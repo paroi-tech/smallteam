@@ -3,7 +3,7 @@ import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import { removeAllChildren } from "../libraries/utils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .UncloseableDialog {
   &-content {

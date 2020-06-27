@@ -108,7 +108,7 @@ export default class TaskBox implements Box {
     this.model = this.dash.app.model
 
     const { root, ref } = template()
-    let labelEl = ref("lbl")
+    const labelEl = ref("lbl")
 
     this.el = root
     labelEl.textContent = this.task.label
@@ -119,7 +119,7 @@ export default class TaskBox implements Box {
     this.flagsEl = ref("flags")
     this.addTaskFlags()
 
-    let commentsEl = ref("comments")
+    const commentsEl = ref("comments")
     commentsEl.textContent = (this.task.commentCount || 0).toString()
 
     this.dash.listenToModel("updateTask", data => {
@@ -154,10 +154,10 @@ export default class TaskBox implements Box {
   private addAccountAvatars() {
     if (!this.task.affectedToIds)
       return
-    for (let accountId of this.task.affectedToIds) {
-      let account = this.model.global.accounts.get(accountId)
+    for (const accountId of this.task.affectedToIds) {
+      const account = this.model.global.accounts.get(accountId)
       if (account) {
-        let comp = this.dash.create(AccountAvatar, { account, width: 16, height: 16 })
+        const comp = this.dash.create(AccountAvatar, { account, width: 16, height: 16 })
         this.avatarsEl.appendChild(comp.el)
       }
     }
@@ -166,10 +166,10 @@ export default class TaskBox implements Box {
   private addTaskFlags() {
     if (!this.task.flagIds)
       return
-    for (let flagId of this.task.flagIds) {
-      let flag = this.model.global.flags.get(flagId)
+    for (const flagId of this.task.flagIds) {
+      const flag = this.model.global.flags.get(flagId)
       if (flag) {
-        let flagComp = this.dash.create(TaskFlag, flag)
+        const flagComp = this.dash.create(TaskFlag, flag)
         this.flagsEl.appendChild(flagComp.el)
       }
     }

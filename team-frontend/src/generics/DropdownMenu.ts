@@ -3,7 +3,7 @@ import handledom from "handledom"
 import { catchAndLog } from "../../../shared-ui/libraries/utils"
 import NavMenu, { NavMenuOptions } from "./NavMenu"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .Backdrop {
   bottom: 0;
@@ -123,7 +123,7 @@ export class DropdownMenu {
 
   private attachInDom() {
     this.detached = false
-    let parentEl = this.btnEl.parentElement
+    const parentEl = this.btnEl.parentElement
     if (!parentEl)
       throw new Error("The DropdownMenu cannot insert in the DOM, the button element is detached")
     parentEl.insertBefore(this.el, this.options.btnEl.nextSibling)

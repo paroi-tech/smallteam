@@ -5,7 +5,7 @@ import { AccountModel } from "../../AppModel/AppModel"
 import { MediaModel } from "../../AppModel/Models/MediaModel"
 import { closestImageVariant } from "../../libraries/mediaUtils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -52,15 +52,15 @@ export default class AccountAvatar {
     this.update()
 
     this.dash.listenToModel("updateAccount", data => {
-      let account = data.model as AccountModel
+      const account = data.model as AccountModel
       if (account.id === this.options.account.id)
         this.update()
     })
   }
 
   private update() {
-    let avatar = this.options.account.avatar
-    let variant = avatar ? this.findBestVariant(avatar) : undefined
+    const avatar = this.options.account.avatar
+    const variant = avatar ? this.findBestVariant(avatar) : undefined
 
     this.el.style.backgroundImage = ""
     removeAllChildren(this.el)

@@ -22,7 +22,7 @@ import SearchWorkspace from "../semantics/tasks/SearchWorkspace"
 import { OwnDash } from "./OwnDash"
 import Sidebar from "./Sidebar"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -106,9 +106,9 @@ export default class AppFrame {
     this.el = root
     ref("top").appendChild(this.createHeaderBar().el)
 
-    let statusBar = this.dash.create(StatusBar)
+    const statusBar = this.dash.create(StatusBar)
     // TODO: Fill with background tasks
-    let bgCommandManager = this.dash.create(BackgroundCommandManager)
+    const bgCommandManager = this.dash.create(BackgroundCommandManager)
     statusBar.addItem(bgCommandManager.buttonEl)
     ref("bottom").appendChild(statusBar.el)
 
@@ -120,7 +120,7 @@ export default class AppFrame {
   }
 
   private createWorkspaceViewer() {
-    let viewer = this.dash.create(WorkspaceViewer)
+    const viewer = this.dash.create(WorkspaceViewer)
     this.createWorkspaces(viewer)
     viewer.start()
     return viewer
@@ -140,11 +140,11 @@ export default class AppFrame {
       viewer.addWorkspace("/setting/webhooks", "dropdown", "Manage webhooks", this.dash.create(WebhookWorkspace))
     }
 
-    let w = this.dash.create(AccountHome, this.model.session.account)
+    const w = this.dash.create(AccountHome, this.model.session.account)
     viewer.addHomeWorkspace("Personal space", w, "/settings/my-profile")
 
-    let projects = this.model.global.projects
-    for (let p of projects)
+    const projects = this.model.global.projects
+    for (const p of projects)
       this.addProject(viewer, p)
 
     this.dash.listenToModel("createProject", data => this.addProject(viewer, data.model))
@@ -152,15 +152,15 @@ export default class AppFrame {
   }
 
   private addProject(viewer: WorkspaceViewer, p: ProjectModel) {
-    let path = `/prj-${p.id}`
+    const path = `/prj-${p.id}`
     viewer.addWorkspace(path, "main", p.code, this.dash.create(ProjectWorkspace, p))
     this.sidebar.addProject(p, path)
   }
 
   private createHeaderBar() {
-    let bar = this.dash.create(HeaderBar)
+    const bar = this.dash.create(HeaderBar)
 
-    let notifBtn = this.dash.create(NavBtn, {
+    const notifBtn = this.dash.create(NavBtn, {
       label: "Notifications",
       icon22: {
         position: "right",
@@ -168,7 +168,7 @@ export default class AppFrame {
       },
       canHaveAlert: true,
       onClick: () => {
-        console.log("Notifications to implement...") // TODO:
+        this.dash.log.debug("Notifications to implement...") // TODO:
       }
     })
     bar.entries.addItem(notifBtn)
@@ -181,7 +181,7 @@ export default class AppFrame {
   }
 
   private createSettingsMenu(): NavBtn {
-    let menuBtn = this.dash.create(NavBtn, {
+    const menuBtn = this.dash.create(NavBtn, {
       label: "Settings",
       icon22: {
         position: "right",
@@ -190,7 +190,7 @@ export default class AppFrame {
       withWrapper: true
     })
 
-    let ddMenu = this.dash.create(DropdownMenu, {
+    const ddMenu = this.dash.create(DropdownMenu, {
       btnEl: menuBtn.btnEl,
       align: "left"
     })
@@ -238,7 +238,7 @@ export default class AppFrame {
   }
 
   private createSessionMenu(): NavBtn {
-    let menuBtn = this.dash.create(NavBtn, {
+    const menuBtn = this.dash.create(NavBtn, {
       withWrapper: true,
       innerEl: {
         position: "left"
@@ -252,7 +252,7 @@ export default class AppFrame {
         updateSessionBtn(menuBtn, this.dash.app.model.session.account)
     })
 
-    let ddMenu = this.dash.create(DropdownMenu, {
+    const ddMenu = this.dash.create(DropdownMenu, {
       btnEl: menuBtn.btnEl,
       align: "right"
     })
@@ -272,7 +272,7 @@ export default class AppFrame {
           position: "left",
           cssClass: "-logout"
         }
-      },
+      }
     )
 
     return menuBtn
@@ -281,7 +281,7 @@ export default class AppFrame {
 
 function updateSessionBtn(menuBtn: NavBtn, account: AccountModel) {
   menuBtn.setLabel(account.name)
-  let variant = account.avatar && account.avatar.getVariant("34x34")
-  console.log(">> update btn", account.avatar, variant)
+  const variant = account.avatar && account.avatar.getVariant("34x34")
+  // console.log(">> update btn", account.avatar, variant)
   menuBtn.innerEl!.style.backgroundImage = account.avatar ? `url("${variant ? variant.url : undefined}")` : ""
 }

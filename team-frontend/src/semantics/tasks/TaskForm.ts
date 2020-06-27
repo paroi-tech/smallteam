@@ -235,7 +235,7 @@ export default class TaskForm {
     if (!this.currentTask || this.currentTask.currentStep.isSpecial)
       return
 
-    let label = this.labelEl.value.trim()
+    const label = this.labelEl.value.trim()
     if (label.length < 4) {
       this.log.info("Cannot update task with a label with less than 1 characters.")
       return
@@ -268,7 +268,7 @@ export default class TaskForm {
     if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
       return false
 
-    let msg = `Do you really want to archive task ${this.currentTask.code}?`
+    const msg = `Do you really want to archive task ${this.currentTask.code}?`
 
     if (!await this.dash.create(QuestionDialog).show(msg, "Confirm action"))
       return
@@ -298,7 +298,7 @@ export default class TaskForm {
     if (!this.currentTask || this.currentTask.currentStep.isSpecial)
       return false
 
-    let msg = `Do you really want to put task ${this.currentTask.code} on hold?`
+    const msg = `Do you really want to put task ${this.currentTask.code} on hold?`
 
     if (!await this.dash.create(QuestionDialog).show(msg, "Confirm action"))
       return
@@ -328,12 +328,12 @@ export default class TaskForm {
     if (!this.currentTask || this.currentTask.curStepId !== ON_HOLD_STEP_ID)
       return false
 
-    let msg = `Do you really want to activate task ${this.currentTask.code}?`
+    const msg = `Do you really want to activate task ${this.currentTask.code}?`
 
     if (!await this.dash.create(QuestionDialog).show(msg, "Confirm action"))
       return
 
-    let stepIds = this.currentTask.project.stepIds
+    const stepIds = this.currentTask.project.stepIds
 
     if (stepIds.length === 0) {
       return
@@ -368,14 +368,14 @@ export default class TaskForm {
   }
 
   private updateView() {
-    let task = this.currentTask
-    let code = task ? task.code : ""
-    let label = task ? task.label : ""
-    let description = task && task.description ? task.description : ""
-    let postponeLabel = !task || task.curStepId !== ON_HOLD_STEP_ID ? "Postpone" : "Activate"
+    const task = this.currentTask
+    const code = task ? task.code : ""
+    const label = task ? task.label : ""
+    const description = task && task.description ? task.description : ""
+    const postponeLabel = !task || task.curStepId !== ON_HOLD_STEP_ID ? "Postpone" : "Activate"
 
-    let showArchiveBtn = !this.options.noArchiveBtn
-    let showPostponeBtn = !this.options.noPostponeBtn
+    const showArchiveBtn = !this.options.noArchiveBtn
+    const showPostponeBtn = !this.options.noPostponeBtn
 
     this.archiveBtnEl.hidden = !showArchiveBtn
     this.postponeBtnEl.hidden = !showPostponeBtn
@@ -384,7 +384,7 @@ export default class TaskForm {
       code,
       label,
       description,
-      postponeLabel,
+      postponeLabel
     })
   }
 }

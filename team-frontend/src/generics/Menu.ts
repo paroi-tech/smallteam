@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import handledom from "handledom"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .Menu {
   line-height: 40px;
@@ -71,7 +71,7 @@ export class Menu {
       throw new Error(`Item with ID ${item.id} already exists`)
 
     const { root: li, ref } = liTemplate()
-    let btn = ref<HTMLButtonElement>("btn")
+    const btn = ref<HTMLButtonElement>("btn")
     btn.textContent = item.label
     btn.addEventListener("click", () => this.dash.emit("select", item.id))
 
@@ -80,12 +80,12 @@ export class Menu {
   }
 
   addItems(items: MenuItem[]) {
-    for (let i of items)
+    for (const i of items)
       this.addItem(i)
   }
 
   removeItem(itemId: string) {
-    let arr = this.items.get(itemId)
+    const arr = this.items.get(itemId)
 
     if (arr) {
       this.ul.removeChild(arr[0])
@@ -94,7 +94,7 @@ export class Menu {
   }
 
   setItemLabel(id: string, label: string) {
-    let arr = this.items.get(id)
+    const arr = this.items.get(id)
 
     if (!arr)
       throw new Error(`Unkown ID ${id}`)
@@ -110,17 +110,17 @@ export class Menu {
   }
 
   disableItem(itemId: string) {
-    let arr = this.items.get(itemId)
+    const arr = this.items.get(itemId)
     if (arr) {
-      let btn = arr[1] as HTMLButtonElement
+      const btn = arr[1] as HTMLButtonElement
       btn.disabled = true
     }
   }
 
   enableItem(itemId: string) {
-    let arr = this.items.get(itemId)
+    const arr = this.items.get(itemId)
     if (arr) {
-      let btn = arr[1] as HTMLButtonElement
+      const btn = arr[1] as HTMLButtonElement
       btn.disabled = false
     }
   }

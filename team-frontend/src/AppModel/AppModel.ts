@@ -86,7 +86,7 @@ export default class ModelComp implements Model {
   }
 
   findTaskByCode(code: string): TaskModel | undefined {
-    let models = this.engine.getModels({
+    const models = this.engine.getModels({
       type: "Task",
       index: "code",
       key: { code }
@@ -97,13 +97,13 @@ export default class ModelComp implements Model {
 }
 
 function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
-  let batch = new GenericCommandBatch(engine)
-  batch.fetch("Step")
-  batch.fetch("Flag")
-  batch.fetch("Account")
-  batch.fetch("Project", { archived: false })
+  const batch = new GenericCommandBatch(engine)
+  void batch.fetch("Step")
+  void batch.fetch("Flag")
+  void batch.fetch("Account")
+  void batch.fetch("Project", { archived: false })
   let isReady = false
-  let batchPromise = batch.sendAll().then(results => {
+  const batchPromise = batch.sendAll().then(() => {
     isReady = true
   })
 
@@ -134,25 +134,25 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
     }
   }
 
-  let cache = new Map(),
-    properties = {}
-  for (let [name, options] of Object.entries(collFactories)) {
+  const cache = new Map()
+  const properties = {}
+  for (const [name, options] of Object.entries(collFactories)) {
     properties[name] = {
       configurable: false,
       enumerable: true,
       get() {
         if (!isReady)
-          throw new Error(`Model "global" is not ready`)
+          throw new Error("Model \"global\" is not ready")
         let coll = cache.get(name)
         if (!coll)
           cache.set(name, coll = options.factory())
         return coll
       }
     }
-    dash.listenTo(`change${options.type}`, model => cache.delete(name))
+    dash.listenTo(`change${options.type}`, () => cache.delete(name))
   }
 
-  let obj = {
+  const obj = {
     isReady,
     loading: batchPromise
   }
@@ -160,16 +160,16 @@ function createGlobal(dash: OwnDash, engine: ModelEngine): GlobalModels {
   return obj as GlobalModels
 }
 
-/**
- * @param asyncCollections Will be filled after the call of this method
- */
-function makeGlobalProperties(propNames: string[], collFactories: object) {
-}
+// /**
+//  * @param asyncCollections Will be filled after the call of this method
+//  */
+// function makeGlobalProperties(propNames: string[], collFactories: object) {
+// }
 
 function createSession(global: GlobalModels, accountId: string): Session {
   return {
     get account() {
-      let account = global.accounts.get(accountId)
+      const account = global.accounts.get(accountId)
       if (!account)
         throw new Error(`Unknown session account "${accountId}"`)
       return account

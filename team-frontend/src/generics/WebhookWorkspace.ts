@@ -5,7 +5,7 @@ import { OwnDash } from "../AppFrame/OwnDash"
 import WebhookTableItem from "./WebhookTableItem"
 import { ViewerController } from "./WorkspaceViewer"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .HookWorkspace {
   &-table {
@@ -74,7 +74,7 @@ export default class WebhookWorkspace {
 
     this.btnEl.addEventListener("click", () => this.createWebhook())
     this.dash.listenTo("webhookDeleted", data => {
-      let item = this.itemMap.get(data)
+      const item = this.itemMap.get(data)
 
       if (item) {
         this.tableEl.tBodies[0].removeChild(item.el)
@@ -92,7 +92,7 @@ export default class WebhookWorkspace {
 
   private async fetchWebhooks() {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/fetch-webhooks`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/fetch-webhooks`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -107,7 +107,7 @@ export default class WebhookWorkspace {
         return false
       }
 
-      let data = await response.json()
+      const data = await response.json()
 
       if (!data.done) {
         this.dash.create(ErrorDialog).show("Something went wrong. We can not display hooks. Try again later.")
@@ -125,14 +125,14 @@ export default class WebhookWorkspace {
   }
 
   private processHooks(webhooks: WebhookModel[]) {
-    for (let w of webhooks) {
+    for (const w of webhooks) {
       w.inProcessing = false
       this.addHookToTable(w)
     }
   }
 
   private addHookToTable(webhook: WebhookModel) {
-    let item = this.dash.create(WebhookTableItem, webhook)
+    const item = this.dash.create(WebhookTableItem, webhook)
 
     this.itemMap.set(webhook.id, item)
     this.tableEl.tBodies[0].appendChild(item.el)
@@ -140,7 +140,7 @@ export default class WebhookWorkspace {
 
   private async createWebhook() {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/create-webhook`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/notifications/github/create-webhook`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -155,7 +155,7 @@ export default class WebhookWorkspace {
         return
       }
 
-      let data = await response.json()
+      const data = await response.json()
 
       if (!data.done) {
         this.log.error("Something went wrong. Cannot create webhook. Try again later.")

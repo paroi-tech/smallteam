@@ -7,7 +7,7 @@ import InfoDialog from "../../shared-ui/modal-dialogs/InfoDialog"
 import { whyNewPasswordIsInvalid } from "../../shared/libraries/helpers"
 import App from "./App"
 
-// eslint-disable-line @typescript-eslint/no-unused-expressions
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .PasswordResetDialog {
   border: 1px solid rgba(0, 0, 0, 0.3);
@@ -71,12 +71,12 @@ export default class PasswordResetDialog {
     this.edit = this.dash.create(PasswordEdit)
     ref("container").appendChild(this.edit.el)
 
-    let btnEl: HTMLButtonElement = ref("submitBtn")
+    const btnEl: HTMLButtonElement = ref("submitBtn")
 
     btnEl.addEventListener("click", () => this.onSubmit())
     this.el.addEventListener("keyup", (ev: KeyboardEvent) => {
       if (ev.key === "Enter")
-        this.onSubmit()
+        this.onSubmit().catch(err => this.dash.log.error(err))
     })
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
@@ -89,7 +89,7 @@ export default class PasswordResetDialog {
   }
 
   private async onSubmit() {
-    let password = this.edit.getPasswordIfMatch()
+    const password = this.edit.getPasswordIfMatch()
 
     if (password === undefined) {
       await this.dash.create(InfoDialog).show("Passwords do not match.")
@@ -97,7 +97,7 @@ export default class PasswordResetDialog {
       return
     }
 
-    let checkMsg = whyNewPasswordIsInvalid(password)
+    const checkMsg = whyNewPasswordIsInvalid(password)
 
     if (checkMsg) {
       await this.dash.create(InfoDialog).show(checkMsg)
@@ -113,7 +113,7 @@ export default class PasswordResetDialog {
   private async doPasswordChange(password: string) {
     try {
       if (await this.doFetch(password)) {
-        let fn = () => window.location.href = `${this.dash.app.baseUrl}/`
+        const fn = () => window.location.href = `${this.dash.app.baseUrl}/`
         setTimeout(fn, 4000)
         await this.dash.create(InfoDialog).show("Password changed. You will be redirected to the login page.")
       }
@@ -125,7 +125,7 @@ export default class PasswordResetDialog {
 
   private async doFetch(password: string) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/reset-password`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/registration/reset-password`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -144,7 +144,7 @@ export default class PasswordResetDialog {
         return false
       }
 
-      let data = await response.json()
+      const data = await response.json()
 
       if (!data.done) {
         await this.dash.create(InfoDialog).show(`Sorry. Impossible to change your password. ${data.reason}`)

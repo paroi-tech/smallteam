@@ -1,6 +1,6 @@
-import { Dash, EventName, EventCallback } from "bkb";
+import { Dash, EventCallback, EventName } from "bkb"
+import { AccountModel, FlagModel, ReorderModelEvent, TaskModel, UpdateModelEvent } from "../AppModel/AppModel"
 import App from "./App"
-import { UpdateModelEvent, ReorderModelEvent, TaskModel, FlagModel, AccountModel } from "../AppModel/AppModel";
 
 export interface OwnDash extends Dash<App> {
   listenToModel(eventName: "reorder", listener: EventCallback<ReorderModelEvent>, thisArg?: any): this

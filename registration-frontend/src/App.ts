@@ -17,7 +17,7 @@ export default class App {
     this.log = dash.log
     this.baseUrl = document.documentElement!.dataset.baseUrl || ""
     this.dash.listenTo<LogEvent>("log", data => {
-      // eslint-disable-line no-console
+      // eslint-disable-next-line no-console
       console.log(`[${data.level}]`, ...data.messages)
     })
   }
@@ -26,7 +26,7 @@ export default class App {
     if (this.params.action === "passwordreset")
       this.handlePasswordReset()
     else if (this.params.action === "registration")
-      this.handleUserRegistration()
+      void this.handleUserRegistration()
     else
       throw new Error(`Unknown action: ${this.params.action}`)
   }
@@ -34,7 +34,7 @@ export default class App {
   private handlePasswordReset() {
     if (!this.params.accountId)
       throw new Error("User ID not provided")
-    let dialog = this.dash.create(PasswordResetDialog, {
+    const dialog = this.dash.create(PasswordResetDialog, {
       accountId: this.params.accountId,
       token: this.params.token
     })
@@ -42,7 +42,7 @@ export default class App {
   }
 
   private async handleUserRegistration() {
-    let dialog = this.dash.create(RegistrationForm, {
+    const dialog = this.dash.create(RegistrationForm, {
       token: this.params.token,
       username: this.params.username
     })

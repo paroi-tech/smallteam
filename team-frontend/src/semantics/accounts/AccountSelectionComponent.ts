@@ -4,7 +4,7 @@ import { AccountModel } from "../../AppModel/AppModel"
 import MultiSelect, { MultiSelectOptions } from "../../generics/MultiSelect"
 import AccountBox from "./AccountBox"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .AccountSelectionComponent {
   background-color: white;
@@ -38,7 +38,7 @@ export default class AccountSelectionComponent {
       }
     )
 
-    let model = dash.app.model
+    const model = dash.app.model
     dash.listenToModel("changeAccount", () => this.selector.fillWith(model.global.accounts))
     this.selector.fillWith(model.global.accounts)
 

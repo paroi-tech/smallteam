@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import handledom from "handledom"
 import { addCssClass, catchAndLog } from "../../../shared-ui/libraries/utils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -134,7 +134,7 @@ export default class NavBtn {
   private alertEl?: HTMLElement
 
   constructor(private dash: Dash, private options: NavBtnOptions) {
-    let altMode = options.canHaveAlert ? "alert" : options.innerEl ? "inner" : undefined
+    const altMode = options.canHaveAlert ? "alert" : options.innerEl ? "inner" : undefined
     this.btnEl = template().root as HTMLButtonElement
 
     if (altMode) {

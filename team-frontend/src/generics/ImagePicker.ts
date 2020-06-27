@@ -1,7 +1,7 @@
 import handledom from "handledom"
 import { OwnDash } from "../AppFrame/OwnDash"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .ImagePicker {
   align-content: center;
@@ -51,17 +51,17 @@ export default class ImagePicker {
   }
 
   private onImageChange() {
-    let list = this.inputEl.files
+    const list = this.inputEl.files
 
     if (!list || list.length === 0)
       return
 
-    let f = list.item(0)
+    const f = list.item(0)
 
     if (!f)
       return
 
-    let imgURL = URL.createObjectURL(f)
+    const imgURL = URL.createObjectURL(f)
 
     this.el.style.backgroundImage = `url("${imgURL}")`
     this.dash.emit("changed", { imgURL, f })

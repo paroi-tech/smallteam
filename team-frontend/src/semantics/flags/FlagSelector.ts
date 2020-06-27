@@ -8,7 +8,7 @@ export default class FlagSelector {
   private selector: MultiSelect<FlagModel>
 
   constructor(private dash: OwnDash) {
-    let model = dash.app.model
+    const model = dash.app.model
 
     this.selector = dash.create<MultiSelect<FlagModel>, MultiSelectOptions<FlagModel>, OwnDash>(
       MultiSelect,

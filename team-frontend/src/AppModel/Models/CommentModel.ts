@@ -20,7 +20,7 @@ export interface CommentModel extends CommentFragment {
 
 export function registerComment(engine: ModelEngine) {
   engine.registerType("Comment", function (getFrag: () => CommentFragment): CommentModel {
-    let model = {
+    const model = {
       get task() {
         return engine.getModel("Task", getFrag().taskId)
       },

@@ -6,7 +6,7 @@ import { OwnDash } from "../../AppFrame/OwnDash"
 import { CommentModel, Model, TaskModel } from "../../AppModel/AppModel"
 import TaskComment from "./TaskComment"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .TaskCommentEditor {
   &-header {
@@ -90,7 +90,7 @@ export default class TaskCommentEditor {
     this.dash.listenToModel("createComment", data => {
       if (!this.task)
         return
-      let comment = data.model as CommentModel
+      const comment = data.model as CommentModel
       if (comment.taskId === this.task.id)
         this.addComment(comment)
     })
@@ -98,8 +98,8 @@ export default class TaskCommentEditor {
     this.dash.listenToModel("deleteComment", data => {
       if (!this.task)
         return
-      let commentId = data.id as string
-      let item = this.listItems.get(commentId)
+      const commentId = data.id as string
+      const item = this.listItems.get(commentId)
       if (item) {
         this.listEl.removeChild(item)
         this.listItems.delete(commentId)
@@ -108,7 +108,7 @@ export default class TaskCommentEditor {
   }
 
   addComment(comment: CommentModel) {
-    let li = document.createElement("li")
+    const li = document.createElement("li")
 
     this.listItems.set(comment.id, li)
     li.appendChild(this.dash.create(TaskComment, comment).el)
@@ -138,12 +138,12 @@ export default class TaskCommentEditor {
     if (!this.task)
       return
 
-    let text = this.textEl.value.trim()
+    const text = this.textEl.value.trim()
 
     if (text.length === 0)
       return
 
-    let frag: CommentCreateFragment = {
+    const frag: CommentCreateFragment = {
       body: text,
       taskId: this.task.id
     }
@@ -162,8 +162,8 @@ export default class TaskCommentEditor {
     if (!this.task)
       return
     try {
-      let comments = await this.task.getComments()
-      for (let comment of comments)
+      const comments = await this.task.getComments()
+      for (const comment of comments)
         this.addComment(comment)
     } catch (err) {
       this.log.error("Unable to get task comments...", err)

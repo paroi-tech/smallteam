@@ -8,7 +8,7 @@ import { AccountCreateFragment, AccountUpdateFragment } from "../../../../shared
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { AccountModel, Model } from "../../AppModel/AppModel"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .AccountForm {
   &-header {
@@ -149,7 +149,7 @@ export default class AccountForm {
   // --
 
   private async onSubmit() {
-    let data = this.checkUserInput()
+    const data = this.checkUserInput()
 
     if (!data)
       return
@@ -160,7 +160,7 @@ export default class AccountForm {
       return
     }
 
-    let user = this.model.session.account
+    const user = this.model.session.account
     if (user.role === "admin" && this.passwordEdit.hasPassword()) {
       if (!this.passwordEdit.passwordsMatch()) {
         await this.dash.create(WarningDialog).show("Passwords do not match.")
@@ -168,8 +168,8 @@ export default class AccountForm {
         return
       }
 
-      let password = this.passwordEdit.getPassword()
-      let checkMsg = whyNewPasswordIsInvalid(password)
+      const password = this.passwordEdit.getPassword()
+      const checkMsg = whyNewPasswordIsInvalid(password)
 
       if (checkMsg) {
         await this.dash.create(WarningDialog).show(checkMsg)
@@ -181,8 +181,8 @@ export default class AccountForm {
       this.passwordEdit.clear()
     }
 
-    let id = this.account.id
-    let frag = this.account.updateTools.getDiffToUpdate({ id, ...data })
+    const id = this.account.id
+    const frag = this.account.updateTools.getDiffToUpdate({ id, ...data })
     // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
     if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
       this.updateAccount({ ...frag, id })
@@ -236,14 +236,14 @@ export default class AccountForm {
     try {
       await this.model.exec("update", "Account", frag)
     } catch (err) {
-      this.log.error(`Unable to update account...`)
+      this.log.error("Unable to update account...")
     }
     this.unlockForm()
   }
 
   private async updatePassword(accountId: string, login: string, password: string) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/set-password`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/registration/set-password`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -261,7 +261,7 @@ export default class AccountForm {
         return
       }
 
-      let data = await response.json()
+      const data = await response.json()
 
       if (!data.done)
         this.dash.log.error("Password not changed.")
@@ -277,7 +277,7 @@ export default class AccountForm {
   // --
 
   private checkUserInput() {
-    let frag = {
+    const frag = {
       name: this.nameEl.value.trim(),
       login: this.loginEl.value.trim(),
       email: this.emailEl.value.trim(),
@@ -290,7 +290,7 @@ export default class AccountForm {
       return undefined
     }
 
-    let err = whyUsernameIsInvalid(frag.login)
+    const err = whyUsernameIsInvalid(frag.login)
     if (err) {
       this.log.warn(err)
       this.loginEl.focus()

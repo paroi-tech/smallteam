@@ -10,7 +10,7 @@ import { ChildEasyRouter, createChildEasyRouter } from "../../libraries/EasyRout
 import AccountBox from "./AccountBox"
 import AccountForm from "./AccountForm"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .AccountWorkspace {
   display: flex;
@@ -65,8 +65,8 @@ export default class AccountWorkspace implements Workspace {
     })
 
     this.dash.listenToModel("createAccount", data => {
-      let account = data.model as AccountModel
-      let box = this.createBoxFor(account)
+      const account = data.model as AccountModel
+      const box = this.createBoxFor(account)
 
       this.accounts.set(account.id, account)
       this.boxList.addBox(box)
@@ -96,7 +96,7 @@ export default class AccountWorkspace implements Workspace {
 
   private fillBoxList() {
     this.model.global.accounts.forEach(c => {
-      let box = this.createBoxFor(c)
+      const box = this.createBoxFor(c)
 
       this.accounts.set(c.id, c)
       this.boxList.addBox(box)
@@ -104,7 +104,7 @@ export default class AccountWorkspace implements Workspace {
   }
 
   private createBoxFor(account: AccountModel): AccountBox {
-    let box = this.dash.create(AccountBox, account)
+    const box = this.dash.create(AccountBox, account)
     this.boxes.set(account.id, box)
 
     return box

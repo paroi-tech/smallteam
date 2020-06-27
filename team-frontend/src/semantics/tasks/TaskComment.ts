@@ -5,7 +5,7 @@ import QuestionDialog from "../../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { CommentModel, Model } from "../../AppModel/AppModel"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .TaskComment {
   display: flex;
@@ -100,7 +100,7 @@ export default class TaskComment {
   private state = {
     author: "",
     date: "",
-    text: "",
+    text: ""
   }
   private showIfEditElements: HTMLElement[] = []
   private showIfNotEditElements: HTMLElement[] = []
@@ -114,8 +114,8 @@ export default class TaskComment {
     this.model = this.dash.app.model
     this.log = this.dash.app.log
 
-    let currentAccountId = this.dash.app.model.session.account.id
-    let date = new Date(this.comment.updateTs)
+    const currentAccountId = this.dash.app.model.session.account.id
+    const date = new Date(this.comment.updateTs)
 
     this.state.author = this.comment.writtenBy.login
     this.state.date = `${date.toLocaleDateString()}@${date.toLocaleTimeString()}`
@@ -139,11 +139,11 @@ export default class TaskComment {
       buttonsRef("delete").addEventListener("click", () => this.onBtnDeleteClick())
       this.showIfEditElements.push(
         buttonsRef("save"),
-        buttonsRef("cancel"),
+        buttonsRef("cancel")
       )
       this.showIfNotEditElements.push(
         buttonsRef("edit"),
-        buttonsRef("delete"),
+        buttonsRef("delete")
       )
     }
 
@@ -153,7 +153,7 @@ export default class TaskComment {
     this.dash.listenToModel("updateComment", data => {
       if (data.id !== this.comment.id)
         return
-      let d = new Date(this.comment.updateTs)
+      const d = new Date(this.comment.updateTs)
       this.state.date = `${d.toLocaleDateString()}@${d.toLocaleTimeString()}`
       this.state.text = this.comment.body
       update(this.state)
@@ -167,7 +167,7 @@ export default class TaskComment {
   }
 
   private async onBtnSaveClick() {
-    let str = this.textareaEl.value.trim()
+    const str = this.textareaEl.value.trim()
 
     if (str.length === 0)
       return

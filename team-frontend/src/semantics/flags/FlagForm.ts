@@ -45,7 +45,7 @@ export default class FlagForm {
   private frag = {
     label: "",
     color: "#000",
-    orderNum: "",
+    orderNum: ""
   }
 
   private model: Model
@@ -75,12 +75,12 @@ export default class FlagForm {
     ref("submitBtn").addEventListener("click", () => this.onSubmit())
 
     this.dash.listenToModel("deleteFlag", data => {
-      let id = data.id as string
+      const id = data.id as string
       if (this.flag && this.flag.id === id)
         this.reset()
     })
     this.dash.listenToModel("updateFlag", data => {
-      let id = data.id as string
+      const id = data.id as string
       if (this.flag && this.flag.id === id)
         this.updateView()
     })
@@ -141,8 +141,8 @@ export default class FlagForm {
   }
 
   private onSubmit() {
-    let label = this.labelEl.value.trim()
-    let color = this.colorEl.value.trim()
+    const label = this.labelEl.value.trim()
+    const color = this.colorEl.value.trim()
 
     if (!this.checkUserInput(label, color))
       return
@@ -151,8 +151,8 @@ export default class FlagForm {
       this.canClearForm = true
       this.createFlag({ label, color })
     } else {
-      let id = this.flag.id
-      let frag = this.flag.updateTools.getDiffToUpdate({ id, label, color })
+      const id = this.flag.id
+      const frag = this.flag.updateTools.getDiffToUpdate({ id, label, color })
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
         this.updateFlag({ ...frag, id })
     }
@@ -195,7 +195,7 @@ export default class FlagForm {
       this.flag = await this.model.exec("update", "Flag", frag)
       this.updateView()
     } catch (err) {
-      this.log.error(`Unable to update account...`)
+      this.log.error("Unable to update account...")
     }
     this.hideSpinner()
   }

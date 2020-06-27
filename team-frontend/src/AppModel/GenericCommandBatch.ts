@@ -16,7 +16,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
   }
 
   exec(...args): Promise<any> {
-    let deferred = new Deferred<any>()
+    const deferred = new Deferred<any>()
     this.commands.push({
       method: "exec",
       args,
@@ -26,7 +26,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
   }
 
   fetch(...args): Promise<Collection<any, Identifier>> {
-    let deferred = new Deferred<Collection<any, Identifier>>()
+    const deferred = new Deferred<Collection<any, Identifier>>()
     this.commands.push({
       method: "fetch",
       args,
@@ -36,7 +36,7 @@ export class GenericCommandBatch implements ModelCommandMethods {
   }
 
   reorder(type: Type, idList: Identifier[], groupId?: Identifier): Promise<any[]> {
-    let deferred = new Deferred<Identifier[]>()
+    const deferred = new Deferred<Identifier[]>()
     this.commands.push({
       method: "reorder",
       args: [type, { idList, groupId }],
@@ -46,19 +46,19 @@ export class GenericCommandBatch implements ModelCommandMethods {
   }
 
   async sendAll(): Promise<any[]> {
-    let count = this.commands.length
+    const count = this.commands.length
     try {
       this.engine.startBatchRecord()
-      let promises: Array<Promise<any>> = []
-      for (let c of this.commands)
+      const promises: Promise<any>[] = []
+      for (const c of this.commands)
         promises.push(this.engine[c.method](...c.args))
       await this.engine.sendBatchRecord()
       for (let i = 0; i < count; ++i)
-        this.commands[i].deferred.pipeTo(promises[i])
+        void this.commands[i].deferred.pipeTo(promises[i])
       return Promise.all(promises)
     } catch (err) {
       this.engine.cancelBatchRecord(err)
-      for (let c of this.commands)
+      for (const c of this.commands)
         c.deferred.reject(err)
       throw err
     }

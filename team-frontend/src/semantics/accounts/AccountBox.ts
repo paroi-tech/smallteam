@@ -21,7 +21,7 @@ export default class AccountBox implements Box {
     this.el = root
     this.el.addEventListener("click", () => this.dash.emit("accountBoxSelected", this.account))
 
-    let avatar = this.dash.create(AccountAvatar, {
+    const avatar = this.dash.create(AccountAvatar, {
       account: this.account,
       height: 16,
       width: 16
@@ -29,7 +29,7 @@ export default class AccountBox implements Box {
     ref("avatar").appendChild(avatar.el)
 
     this.dash.listenToModel("updateAccount", data => {
-      let account = data.model as AccountModel
+      const account = data.model as AccountModel
 
       if (account.id === this.account.id)
         update(this.account)

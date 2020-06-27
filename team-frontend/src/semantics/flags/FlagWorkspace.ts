@@ -63,8 +63,8 @@ export default class FlagWorkspace implements Workspace {
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleFlagReordering(data))
     this.dash.listenToModel("deleteFlag", data => this.boxList.removeBox(data.id as string))
     this.dash.listenToModel("createFlag", data => {
-      let flag = data.model as FlagModel
-      let box = this.dash.create(FlagBox, flag)
+      const flag = data.model as FlagModel
+      const box = this.dash.create(FlagBox, flag)
       this.boxList.addBox(box)
     })
   }
@@ -82,11 +82,11 @@ export default class FlagWorkspace implements Workspace {
   }
 
   private async doUpdate(ids: string[]): Promise<void> {
-    let currentOrder = this.boxList.getOrder()
+    const currentOrder = this.boxList.getOrder()
     this.boxList.disable(true)
 
     try {
-      let idList = await this.dash.app.model.reorder("Flag", ids)
+      const idList = await this.dash.app.model.reorder("Flag", ids)
       if (!equal(idList, ids)) {
         this.log.error("Sorry. Server rejected new order of flags...", idList, ids)
         this.boxList.sort(idList)

@@ -4,7 +4,7 @@ import { Model } from "../AppModel/AppModel"
 import { BgCommand, BgCommandManager } from "../AppModel/BgCommandManager"
 import { Dialog, DialogOptions } from "./Dialog"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -89,7 +89,7 @@ export default class BackgroundCommandManager {
 
   private createHtmlMenuButtonElement(): HTMLButtonElement {
     const { root } = templateMenuBtn()
-    let btnEl = root as HTMLButtonElement
+    const btnEl = root as HTMLButtonElement
 
     btnEl.addEventListener("click", () => this.dialog.open())
 
@@ -103,19 +103,19 @@ export default class BackgroundCommandManager {
   private onBgCommandError(cmd: BgCommand) {
     this.buttonEl.style.backgroundColor = "orange"
 
-    let row = this.tableEl.tBodies[0].insertRow()
+    const row = this.tableEl.tBodies[0].insertRow()
 
     row.insertCell().textContent = cmd.label
     row.insertCell().textContent = cmd.startDt.toLocaleTimeString()
 
-    let progressCheckBox = document.createElement("input")
+    const progressCheckBox = document.createElement("input")
 
     progressCheckBox.setAttribute("type", "checkbox")
     progressCheckBox.disabled = true
     progressCheckBox.checked = cmd.done ? true : false
     row.insertCell().appendChild(progressCheckBox)
 
-    let doneCheckBox = document.createElement("input")
+    const doneCheckBox = document.createElement("input")
 
     doneCheckBox.setAttribute("type", "checkbox")
     doneCheckBox.disabled = true

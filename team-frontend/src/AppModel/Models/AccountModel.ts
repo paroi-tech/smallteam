@@ -20,9 +20,9 @@ export interface AccountModel extends AccountFragment {
 
 export function registerAccount(engine: ModelEngine) {
   engine.registerType("Account", function (getFrag: () => AccountFragment): AccountModel {
-    let model = {
+    const model = {
       get avatar() {
-        let avatarId = getFrag().avatarId
+        const avatarId = getFrag().avatarId
         return avatarId === undefined ? undefined : engine.getModel("Media", avatarId)
       }
     }

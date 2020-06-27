@@ -8,7 +8,7 @@ export interface MediaVariantModel extends MediaVariantFragment {
 
 export function registerMediaVariant(engine: ModelEngine) {
   engine.registerType("MediaVariant", function (getFrag: () => MediaVariantFragment): MediaVariantModel {
-    let model = {
+    const model = {
       get media() {
         return engine.getModel("Media", getFrag().mediaId)
       }

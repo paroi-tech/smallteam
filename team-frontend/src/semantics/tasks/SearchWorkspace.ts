@@ -6,7 +6,7 @@ import { ViewerController, Workspace } from "../../generics/WorkspaceViewer"
 import TaskBox from "./TaskBox"
 import TaskForm from "./TaskForm"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -87,13 +87,13 @@ export default class SearchWorkspace implements Workspace {
     if (ev.key !== "Enter")
       return
 
-    let query = this.inputEl.value.trim()
+    const query = this.inputEl.value.trim()
 
     if (query.length !== 0) {
       this.boxList.clear()
       this.taskForm.setTask()
       try {
-        let arr = await this.model.fetch("Task", { search: query })
+        const arr = await this.model.fetch("Task", { search: query })
         this.fillBoxList(arr)
       } catch (err) {
         this.dash.log.error("Unable to get search results", err)
@@ -102,8 +102,8 @@ export default class SearchWorkspace implements Workspace {
   }
 
   private fillBoxList(arr: TaskModel[]) {
-    for (let task of arr) {
-      let box = this.dash.create(TaskBox, task)
+    for (const task of arr) {
+      const box = this.dash.create(TaskBox, task)
       this.boxList.addBox(box)
     }
   }

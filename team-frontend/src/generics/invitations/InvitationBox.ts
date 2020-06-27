@@ -3,7 +3,7 @@ import { OwnDash } from "../../AppFrame/OwnDash"
 import { Box } from "../../generics/BoxList"
 import { Invitation } from "./InvitationWorkspace"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .InvitationBox {
   width: 180px;

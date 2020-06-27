@@ -16,7 +16,7 @@ export default class FlagBox implements Box {
 
   constructor(private dash: OwnDash, readonly flag: FlagModel) {
     const { root, ref, update } = template()
-    let colorEl = ref<HTMLElement>("boxColor")
+    const colorEl = ref<HTMLElement>("boxColor")
 
     this.el = root
     colorEl.style.color = this.flag.color
@@ -24,7 +24,7 @@ export default class FlagBox implements Box {
     update(this.flag)
 
     this.dash.listenToModel("updateFlag", data => {
-      let flag = data.model as FlagModel
+      const flag = data.model as FlagModel
 
       if (flag.id === this.flag.id) {
         update(this.flag)

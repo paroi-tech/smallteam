@@ -4,7 +4,7 @@ import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 import App from "../AppFrame/App"
 import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../libraries/EasyRouter"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -112,7 +112,7 @@ export default class WorkspaceViewer {
   }
 
   addHomeWorkspace(title: string, w: Workspace, workspacePath?: string) {
-    let path = workspacePath || ""
+    const path = workspacePath || ""
     this.workspaces.set(path, {
       workspace: w,
       path,
@@ -161,7 +161,7 @@ export default class WorkspaceViewer {
   }
 
   removeWorkspace(path: string) {
-    let info = this.workspaces.get(path)
+    const info = this.workspaces.get(path)
     if (info) {
       this.workspaces.delete(path)
       if (info === this.currentWInfo)
@@ -170,7 +170,7 @@ export default class WorkspaceViewer {
   }
 
   private activateWorkspace(path: string | symbol, data?: any) {
-    let info = this.workspaces.get(path)
+    const info = this.workspaces.get(path)
     if (!info)
       throw new Error(`Unknown workspace path: ${typeof path === "string" ? path : "(symbol)"}`)
     if (this.currentWInfo) {
@@ -186,7 +186,7 @@ export default class WorkspaceViewer {
   }
 
   private createViewController(): ViewerController {
-    let obj: ViewerController = {
+    const obj: ViewerController = {
       showTitleBar: (show: boolean) => {
         this.showTitleBar(show)
         return obj

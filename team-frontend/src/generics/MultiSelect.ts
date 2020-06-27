@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import handledom from "handledom"
 import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .MultiSelect {
   border: 1px solid rgba(0, 0, 0, 0.3);
@@ -78,7 +78,7 @@ export default class MultiSelect<M = any> {
     this.fieldsetEl = ref("fieldset")
 
     this.olEl.addEventListener("change", ev => {
-      let item = this.checkboxes.get(ev.target as any)
+      const item = this.checkboxes.get(ev.target as any)
       if (item) {
         this.dash.emit("change", {
           type: "Flag",
@@ -89,20 +89,20 @@ export default class MultiSelect<M = any> {
     })
 
     dash.listenTo("destroy", () => {
-      for (let item of this.items.values())
+      for (const item of this.items.values())
         this.dash.getPublicDashOf(item.comp).destroy()
     })
   }
 
   fillWith(dataList: M[]) {
-    let dataSet = new Set(dataList)
+    const dataSet = new Set(dataList)
 
     Array.from(this.items.values())
       .filter(item => !dataSet.has(item.data))
       .forEach(item => this.removeItem(item))
     removeAllChildren(this.olEl)
 
-    for (let data of dataList) {
+    for (const data of dataList) {
       let item = this.items.get(data)
       if (!item)
         item = this.createItem(data)
@@ -111,9 +111,9 @@ export default class MultiSelect<M = any> {
   }
 
   selectItems(dataList: M[]) {
-    let selectSet = new Set(dataList)
+    const selectSet = new Set(dataList)
 
-    for (let [data, item] of this.items)
+    for (const [data, item] of this.items)
       item.checkboxEl.checked = selectSet.has(data)
   }
 
@@ -134,10 +134,10 @@ export default class MultiSelect<M = any> {
 
   private createItem(data: M) {
     const { root, ref } = liTemplate()
-    let listItemEl = root
-    let checkboxEl = ref<HTMLInputElement>("checkbox")
-    let comp = this.createSticker(data)
-    let item: Item<M> = { listItemEl, checkboxEl, data, comp }
+    const listItemEl = root
+    const checkboxEl = ref<HTMLInputElement>("checkbox")
+    const comp = this.createSticker(data)
+    const item: Item<M> = { listItemEl, checkboxEl, data, comp }
 
     listItemEl.appendChild(comp.el)
     this.olEl.appendChild(listItemEl)

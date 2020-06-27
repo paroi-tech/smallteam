@@ -4,7 +4,7 @@ import handledom from "handledom"
 import Deferred from "../libraries/Deferred"
 import { makeOutsideClickHandlerFor, removeAllChildren } from "../libraries/utils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .QuestionDialog {
   &-contentLeft {

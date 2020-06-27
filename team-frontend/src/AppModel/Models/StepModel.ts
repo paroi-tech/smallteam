@@ -19,7 +19,7 @@ export interface StepModel extends StepFragment {
 
 export function registerStep(engine: ModelEngine) {
   engine.registerType("Step", function (getFrag: () => StepFragment): StepModel {
-    let model = {
+    const model = {
       get isSpecial() {
         return getFrag().orderNum === null
       }

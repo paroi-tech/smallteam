@@ -1,7 +1,7 @@
 import { Dash } from "bkb"
 import handledom from "handledom"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .StatusBar {
   height: 100%;

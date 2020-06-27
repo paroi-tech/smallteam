@@ -3,7 +3,7 @@ import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
 import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .Dialog {
   &-box {
@@ -112,11 +112,11 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
       if (!this.lastDragStart)
         return
 
-      let dx = ev.clientX - this.lastDragStart.clientX
-      let dy = ev.clientY - this.lastDragStart.clientY
-      let rect = this.el.getBoundingClientRect()
-      let left = rect.left + dx
-      let top = rect.top + dy
+      const dx = ev.clientX - this.lastDragStart.clientX
+      const dy = ev.clientY - this.lastDragStart.clientY
+      const rect = this.el.getBoundingClientRect()
+      const left = rect.left + dx
+      const top = rect.top + dy
 
       this.el.style.position = "absolute"
       this.el.style.top = `${top}px`
@@ -154,14 +154,14 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
     this.el.close()
     if (!this.bodyContainsDefaultEl())
       removeAllChildren(this.bodyEl)
-    let resolveCb = this.resolveCb
+    const resolveCb = this.resolveCb
     this.resolveCb = undefined
     resolveCb()
     this.dash.emit("close")
   }
 
   private bodyContainsDefaultEl() {
-    let children = this.bodyEl.children
+    const children = this.bodyEl.children
     if (this.options.content)
       return children.length === 1 && children[0] === this.options.content.el
     else

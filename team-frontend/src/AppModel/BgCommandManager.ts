@@ -25,7 +25,7 @@ export default class GenericBgCommandManager implements BgCommandManager {
   }
 
   add<R>(promise: Promise<R>, label: string): BgCommand<R> {
-    let cmd = bgCommandFactory(promise, label)
+    const cmd = bgCommandFactory(promise, label)
     this.inProgressCommands.add(cmd)
     cmd.promise.then(() => {
       this.inProgressCommands.delete(cmd)
@@ -49,13 +49,13 @@ export default class GenericBgCommandManager implements BgCommandManager {
 }
 
 function bgCommandFactory<R>(original: Promise<R>, label: string): BgCommand {
-  let inProgress = true,
-    done: boolean | undefined,
-    errorMsg: string | undefined,
-    dfd = new Deferred<R>()
+  let inProgress = true
+  let done: boolean | undefined
+  let errorMsg: string | undefined
+  const dfd = new Deferred<R>()
 
   original.then(onDone, err => {
-    let msg = typeof err === "string" ? err : (err instanceof Error ? err.message : "Unexpected error")
+    const msg = typeof err === "string" ? err : (err instanceof Error ? err.message : "Unexpected error")
     onError(msg, err)
   })
 

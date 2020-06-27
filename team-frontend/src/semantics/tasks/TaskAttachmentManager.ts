@@ -7,7 +7,7 @@ import { Model, TaskModel } from "../../AppModel/AppModel"
 import { MediaModel } from "../../AppModel/Models/MediaModel"
 import FileThumbnail from "../../generics/FileThumbnail"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .TaskAttachmentManager {
   &-header {
@@ -108,13 +108,13 @@ export default class TaskAttachmentManager {
   private listAttachedMedias() {
     if (!this.currentTask || !this.currentTask.attachedMedias)
       return
-    for (let media of this.currentTask.attachedMedias)
+    for (const media of this.currentTask.attachedMedias)
       this.displayMedia(media)
   }
 
   private displayMedia(media: MediaModel) {
     const { root: el, ref, update } = mediaTemplate()
-    let thumbnail = this.dash.create(FileThumbnail, {
+    const thumbnail = this.dash.create(FileThumbnail, {
       media,
       width: 24,
       height: 24
@@ -122,12 +122,12 @@ export default class TaskAttachmentManager {
 
     ref("thumbnail").appendChild(thumbnail.el)
     ref("download").addEventListener("click", () => {
-      let orig = media.getVariant("orig")
+      const orig = media.getVariant("orig")
       if (orig)
         window.open(`${orig.url}?download=1`)
     })
     ref("remove").addEventListener("click", () => {
-      let accountId = this.model.session.account.id
+      const accountId = this.model.session.account.id
       if (media.ownerId === accountId && this.removeTaskAttachment(media.id))
         this.listEl.removeChild(el)
     })
@@ -147,17 +147,17 @@ export default class TaskAttachmentManager {
     if (!this.currentTask)
       return
 
-    let meta = {
+    const meta = {
       ref: {
         type: "task",
         id: this.currentTask.id
       }
     }
-    let fd = new FormData(this.formEl)
+    const fd = new FormData(this.formEl)
 
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -168,7 +168,7 @@ export default class TaskAttachmentManager {
         return
       }
 
-      let result = await response.json()
+      const result = await response.json()
 
       if (result.modelUpd)
         this.model.processModelUpdate(result.modelUpd)
@@ -189,7 +189,7 @@ export default class TaskAttachmentManager {
     let result = false
 
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/medias/delete`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/medias/delete`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -204,7 +204,7 @@ export default class TaskAttachmentManager {
         return false
       }
 
-      let data = await response.json()
+      const data = await response.json()
 
       if (data.modelUpd)
         this.model.processModelUpdate(data.modelUpd)

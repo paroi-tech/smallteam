@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import handledom from "handledom"
 import NavMenu from "./NavMenu"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .HeaderBar {
   background-color: #e9efff;

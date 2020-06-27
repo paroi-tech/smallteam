@@ -18,7 +18,7 @@ export interface FlagModel extends FlagFragment {
 
 export function registerFlag(engine: ModelEngine) {
   engine.registerType("Flag", function (getFrag: () => FlagFragment): FlagModel {
-    let model = {}
+    const model = {}
     appendGettersToModel(model, "Flag", getFrag)
     appendUpdateToolsToModel(model, "Flag", getFrag, engine, {
       processing: true,

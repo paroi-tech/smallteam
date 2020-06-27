@@ -41,7 +41,7 @@ export interface TaskModel extends TaskFragment {
 
 export function registerTask(engine: ModelEngine) {
   engine.registerType("Task", function (getFrag: () => TaskFragment): TaskModel {
-    let model = {
+    const model = {
       get project() {
         return engine.getModel("Project", getFrag().projectId)
       },
@@ -49,7 +49,7 @@ export function registerTask(engine: ModelEngine) {
         return engine.getModel("Step", getFrag().curStepId)
       },
       get parent() {
-        let parentId = getFrag().parentTaskId
+        const parentId = getFrag().parentTaskId
         if (parentId === undefined)
           return undefined
         return engine.getModel("Task", parentId)
@@ -68,17 +68,17 @@ export function registerTask(engine: ModelEngine) {
         return engine.getModel("Account", getFrag().createdById)
       },
       get affectedTo() {
-        let frag = getFrag()
+        const frag = getFrag()
         if (!frag.affectedToIds)
           return undefined
-        let list = frag.affectedToIds.map(accountId => engine.getModel("Account", accountId))
+        const list = frag.affectedToIds.map(accountId => engine.getModel("Account", accountId))
         return toCollection(list, "Account")
       },
       get flags() {
-        let flagIds = getFrag().flagIds
+        const flagIds = getFrag().flagIds
         if (!flagIds)
           return undefined
-        let list = flagIds.map(flagId => engine.getModel("Flag", flagId))
+        const list = flagIds.map(flagId => engine.getModel("Flag", flagId))
         return toCollection(list, "Flag")
       },
       getComments(): Promise<Collection<CommentModel, string>> {
@@ -92,17 +92,17 @@ export function registerTask(engine: ModelEngine) {
         } as TaskLogEntrySearchFragment)
       },
       get attachedMedias() {
-        let mediaIds = getFrag().attachedMediaIds
+        const mediaIds = getFrag().attachedMediaIds
         if (!mediaIds)
           return undefined
-        let list = mediaIds.map(mediaId => engine.getModel("Media", mediaId))
+        const list = mediaIds.map(mediaId => engine.getModel("Media", mediaId))
         return toCollection(list, "Media")
       },
       get gitCommits() {
-        let gitCommitIds = getFrag().gitCommitIds
+        const gitCommitIds = getFrag().gitCommitIds
         if (!gitCommitIds)
           return undefined
-        let list = gitCommitIds.map(gitCommitId => engine.getModel("GitCommit", gitCommitId))
+        const list = gitCommitIds.map(gitCommitId => engine.getModel("GitCommit", gitCommitId))
         return toCollection(list, "GitCommit")
       }
     } as Partial<TaskModel>

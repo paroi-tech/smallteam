@@ -3,7 +3,7 @@ import handledom from "handledom"
 import { addCssClass, catchAndLog } from "../../../shared-ui/libraries/utils"
 import NavBtn, { NavBtnOptions } from "./NavBtn"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -60,10 +60,10 @@ export default class NavMenu {
   }
 
   addItem(...buttons: NavMenuButton[]) {
-    for (let btn of buttons) {
+    for (const btn of buttons) {
       if (this.options.btnCssClass)
         btn.addCssClass(this.options.btnCssClass)
-      let li = liTemplate().root
+      const li = liTemplate().root
       li.appendChild(btn.el)
       this.el.appendChild(li)
     }

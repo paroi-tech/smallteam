@@ -42,7 +42,7 @@ export default class ArchivedTaskBoard {
 
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
     this.dash.listenToModel("updateTask", data => {
-      let task = data.model
+      const task = data.model
       if (task.projectId === this.project.id && task.curStepId === ARCHIVED_STEP_ID && !this.boxList.hasBox(task.id))
         this.addTaskBox(task)
     })
@@ -50,13 +50,13 @@ export default class ArchivedTaskBoard {
 
   async refresh() {
     this.boxList.clear()
-    let tasks = await this.fetchTasks()
+    const tasks = await this.fetchTasks()
     if (tasks)
       this.displayTasks(tasks)
   }
 
   private displayTasks(tasks: TaskModel[]) {
-    for (let t of tasks) {
+    for (const t of tasks) {
       if (t.id === t.project.rootTaskId)
         continue
       this.addTaskBox(t)
@@ -64,7 +64,7 @@ export default class ArchivedTaskBoard {
   }
 
   private addTaskBox(task: TaskModel) {
-    let box = this.dash.create(TaskBox, task)
+    const box = this.dash.create(TaskBox, task)
     this.boxList.addBox(box)
   }
 

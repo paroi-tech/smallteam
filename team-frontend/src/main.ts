@@ -6,12 +6,12 @@ import { wsClientInit } from "./AppModel/ModelEngine/WsClient"
 
 async function startup() {
   try {
-    let app = createApplication(App)
-    let value = await app.connect()
+    const app = createApplication(App)
+    const value = await app.connect()
     if (value === "resetPassword")
       await app.showPasswordResetDialog()
     else {
-      let sessionData = {
+      const sessionData = {
         accountId: value
       }
       wsClientInit()

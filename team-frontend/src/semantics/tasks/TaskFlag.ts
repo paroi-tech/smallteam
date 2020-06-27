@@ -2,7 +2,7 @@ import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { FlagModel } from "../../AppModel/AppModel"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 

@@ -106,6 +106,7 @@ module.exports = {
         "lib": "always"
       }
     ],
+    "@typescript-eslint/unbound-method": "off",
     "@typescript-eslint/unified-signatures": "warn",
     "arrow-parens": [
       "off",

@@ -6,7 +6,7 @@ import { ERQuery } from "../libraries/EasyRouter"
 import ProjectBtn from "../semantics/projects/ProjectBtn"
 import { OwnDash } from "./OwnDash"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -72,7 +72,7 @@ export default class Sidebar {
 
     dash.listenTo(dash.app, "navigate", (query: ERQuery) => {
       let qs = query.processedQueryString || ""
-      let lastCharIndex = qs.length - 1
+      const lastCharIndex = qs.length - 1
       if (lastCharIndex < 0)
         return
       if (qs.charAt(lastCharIndex) === "/")
@@ -80,14 +80,14 @@ export default class Sidebar {
       if (!qs)
         return
       Array.from(this.buttons.values()).forEach(btn => btn.el.classList.remove("-current"))
-      let btn = this.buttons.get(qs)
+      const btn = this.buttons.get(qs)
       if (btn)
         btn.el.classList.add("-current")
     })
   }
 
   addProject(project: ProjectModel, path: string) {
-    let btn = this.dash.create(ProjectBtn, { project })
+    const btn = this.dash.create(ProjectBtn, { project })
     this.buttons.set(path, btn)
     this.menu.addItem(btn)
   }

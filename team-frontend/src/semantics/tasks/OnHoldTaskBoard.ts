@@ -7,7 +7,7 @@ import BoxList from "../../generics/BoxList"
 import TaskBox from "./TaskBox"
 import TaskForm from "./TaskForm"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .OnHoldTaskBoard {
   position: relative;
@@ -64,7 +64,7 @@ export default class OnHoldTaskBoard {
 
     this.dash.listenTo<TaskModel>("taskBoxSelected", task => this.taskForm.setTask(task))
     this.dash.listenToModel("updateTask", data => {
-      let task = data.model
+      const task = data.model
       if (task.projectId === this.project.id && task.curStepId === ON_HOLD_STEP_ID && !this.boxList.hasBox(task.id))
         this.addTaskBox(task)
     })
@@ -74,7 +74,7 @@ export default class OnHoldTaskBoard {
     this.showOverlay()
     this.boxList.clear()
 
-    let tasks = await this.fetchTasks()
+    const tasks = await this.fetchTasks()
 
     if (tasks)
       this.displayTasks(tasks)
@@ -82,7 +82,7 @@ export default class OnHoldTaskBoard {
   }
 
   private displayTasks(tasks: TaskModel[]) {
-    for (let t of tasks) {
+    for (const t of tasks) {
       if (t.id === t.project.rootTaskId)
         continue
       this.addTaskBox(t)

@@ -11,7 +11,7 @@ import OnHoldTaskBoard from "../tasks/OnHoldTaskBoard"
 import TaskBoard from "../tasks/TaskBoard"
 import ProjectForm from "./ProjectForm"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .ProjectWorkspace {
   &-header {
@@ -60,8 +60,8 @@ export default class ProjectWorkspace implements Workspace {
     this.childRouter.map({
       route: ":task",
       activate: (query: ERQuery) => {
-        let taskCode = query.routeParams!.task!
-        let task = dash.app.model.findTaskByCode(taskCode)
+        const taskCode = query.routeParams!.task!
+        const task = dash.app.model.findTaskByCode(taskCode)
         if (task)
           this.taskBoard.setTask(task)
       },
@@ -94,7 +94,7 @@ export default class ProjectWorkspace implements Workspace {
   }
 
   private createDropdownMenu(): DropdownMenu {
-    let menu = this.dash.create(DropdownMenu, {
+    const menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl(),
       align: "left"
     })

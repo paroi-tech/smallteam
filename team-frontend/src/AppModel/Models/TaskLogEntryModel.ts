@@ -12,7 +12,7 @@ export interface TaskLogEntryModel extends TaskLogEntryFragment {
 
 export function registerTaskLogEntry(engine: ModelEngine) {
   engine.registerType("TaskLogEntry", function (getFrag: () => TaskLogEntryFragment): TaskLogEntryModel {
-    let model = {
+    const model = {
       get task() {
         return engine.getModel("Task", getFrag().taskId)
       },

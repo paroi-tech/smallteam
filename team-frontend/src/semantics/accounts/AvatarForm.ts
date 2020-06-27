@@ -4,7 +4,7 @@ import ErrorDialog from "../../../../shared-ui/modal-dialogs/ErrorDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { AccountModel, Model } from "../../AppModel/AppModel"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .AvatarForm {
   &-input {
@@ -67,7 +67,7 @@ export default class AvatarForm {
   }
 
   private async doUpload() {
-    let meta = {
+    const meta = {
       ref: {
         type: "accountAvatar",
         id: this.account.id
@@ -75,10 +75,10 @@ export default class AvatarForm {
       overwrite: true
     }
 
-    let fd = new FormData(this.formEl)
+    const fd = new FormData(this.formEl)
     fd.append("meta", JSON.stringify(meta))
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/medias/upload`, {
         method: "post",
         credentials: "same-origin",
         body: fd
@@ -89,7 +89,7 @@ export default class AvatarForm {
         return
       }
 
-      let result = await response.json()
+      const result = await response.json()
       if (result.modelUpd)
         this.model.processModelUpdate(result.modelUpd)
       if (result.done)

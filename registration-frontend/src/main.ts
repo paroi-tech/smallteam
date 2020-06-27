@@ -3,13 +3,13 @@ import { createApplication } from "bkb"
 import App from "./App"
 
 document.addEventListener("DOMContentLoaded", () => {
-  let url = new URL(window.location.href)
+  const url = new URL(window.location.href)
   // The method used to get URL was params found at:
   // https://stackoverflow.com/questions/979975/how-to-get-the-value-from-the-get-parameters
-  let action = url.searchParams.get("action")
+  const action = url.searchParams.get("action")
   if (!action)
     throw new Error("Missing parameter 'action'")
-  let token = url.searchParams.get("action")
+  const token = url.searchParams.get("action")
   if (!token)
     throw new Error("Missing parameter 'token'")
   createApplication(App, {

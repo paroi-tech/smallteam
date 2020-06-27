@@ -4,7 +4,7 @@ import { MediaModel } from "../AppModel/Models/MediaModel"
 import { MediaVariantModel } from "../AppModel/Models/MediaVariantModel"
 import { closestImageVariant, getMainMediaType } from "../libraries/mediaUtils"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .FileThumbnail {
   background-position: center;
@@ -56,7 +56,7 @@ export default class FileThumbnail {
   }
 
   private createThumbnail() {
-    let mtype = getMainMediaType(this.options.media)
+    const mtype = getMainMediaType(this.options.media)
     if (mtype === "image")
       this.displayImageThumbnail()
     else if (mtype === "video")

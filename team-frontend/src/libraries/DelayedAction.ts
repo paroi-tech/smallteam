@@ -52,7 +52,7 @@ export default class DelayedAction {
   }
 
   private delayFor(ms: number) {
-    let now = Date.now()
+    const now = Date.now()
     this.nextSaveTs = now + ms
     if (this.maxNextSaveTs)
       this.nextSaveTs = Math.min(this.nextSaveTs, this.maxNextSaveTs)
@@ -65,14 +65,14 @@ export default class DelayedAction {
     }
     this.opt.onChangeStatus("delaying")
     this.delaying = true
-    let waitId = ++this.waitSeq
+    const waitId = ++this.waitSeq
     // console.log(`.. [${waitId}] wait`, ms)
     wait(ms).then(() => {
       // console.log(`.. [${waitId}] wait-then`, waitId === this.waitSeq)
       if (waitId !== this.waitSeq || !this.nextSaveTs)
         return
       this.delaying = false
-      let now = Date.now()
+      const now = Date.now()
       if (now < this.nextSaveTs) {
         this.delayFor(this.nextSaveTs - now)
         return
@@ -83,7 +83,7 @@ export default class DelayedAction {
       }
       this.maxNextSaveTs = undefined
       this.running = true
-      let saveId = ++this.saveSeq
+      const saveId = ++this.saveSeq
       // console.log(`.. [${waitId}][${saveId}] save`)
       this.save().then(() => {
         // console.log(`.. [${waitId}][${saveId}] save-end`, saveId === this.saveSeq)

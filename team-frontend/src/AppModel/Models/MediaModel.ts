@@ -10,7 +10,7 @@ export interface MediaModel extends MediaFragment {
 
 export function registerMedia(engine: ModelEngine) {
   engine.registerType("Media", function (getFrag: () => MediaFragment): MediaModel {
-    let model = {
+    const model = {
       get variants() {
         return engine.getModels({
           type: "MediaVariant",
@@ -22,8 +22,8 @@ export function registerMedia(engine: ModelEngine) {
         }, [])
       },
       getVariant(code: string) {
-        let variants = this.variants as Collection<MediaVariantModel, string>
-        let found = variants.find(variant => variant.code === code)
+        const variants = this.variants as Collection<MediaVariantModel, string>
+        const found = variants.find(variant => variant.code === code)
         if (found)
           return found
         if (variants.length >= 1)

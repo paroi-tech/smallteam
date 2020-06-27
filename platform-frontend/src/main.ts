@@ -4,11 +4,11 @@ import { removeAllChildren } from "../../shared-ui/libraries/utils"
 import App from "./App"
 
 document.addEventListener("DOMContentLoaded", () => {
-  let url = new URL(window.location.href)
-  let action = url.searchParams.get("action") || undefined
-  let token = url.searchParams.get("token") || undefined
+  const url = new URL(window.location.href)
+  const action = url.searchParams.get("action") || undefined
+  const token = url.searchParams.get("token") || undefined
 
-  let appEl = document.querySelector(".js-app")
+  const appEl = document.querySelector(".js-app")
   if (appEl)
     removeAllChildren(appEl)
 

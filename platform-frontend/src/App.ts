@@ -18,19 +18,19 @@ export default class App {
     this.baseUrl = document.documentElement!.dataset.baseUrl || ""
     this.teamDialog = this.dash.create(TeamCreationDialog)
     this.dash.listenTo<LogEvent>("log", data => {
-      // eslint-disable-line no-console
+      // eslint-disable-next-line no-console
       console.log(`[${data.level}]`, ...data.messages)
     })
   }
 
   start() {
     if ((!this.options.action && !this.options.token) || (this.options.action === "register")) {
-      this.showTeamCreationDialog()
+      void this.showTeamCreationDialog()
       return
     }
 
     if (this.options.action === "activate") {
-      this.activateTeam()
+      void this.activateTeam()
       return
     }
 
@@ -42,7 +42,7 @@ export default class App {
       throw new Error("Token not found")
 
     try {
-      let response = await fetch(`${this.baseUrl}/api/team/activate`, {
+      const response = await fetch(`${this.baseUrl}/api/team/activate`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -57,16 +57,16 @@ export default class App {
         return
       }
 
-      let data = await response.json()
+      const data = await response.json()
 
       if (!data.done) {
-        this.dash.create(ErrorDialog).show("Team activation failed.")
+        void this.dash.create(ErrorDialog).show("Team activation failed.")
         return
       }
       // FIXME: redirect to home if there is no base URL.
       document.location!.href = `${data.teamUrl}`
     } catch (error) {
-      this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
+      void this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
     }
   }
 

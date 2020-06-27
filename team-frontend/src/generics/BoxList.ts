@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import handledom from "handledom"
 import Sortable from "sortablejs"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -195,9 +195,9 @@ export default class BoxList<T extends Box> {
   }
 
   addBox(box: T) {
-    let tpl = this.options.inline ? inlineLiTemplate : liTemplate
+    const tpl = this.options.inline ? inlineLiTemplate : liTemplate
     const { root, ref } = tpl()
-    let li = root
+    const li = root
 
     li.setAttribute("data-id", box.id)
 
@@ -215,7 +215,7 @@ export default class BoxList<T extends Box> {
   }
 
   removeBox(boxId: string) {
-    let liElt = this.boxes.get(boxId)
+    const liElt = this.boxes.get(boxId)
     if (!liElt)
       return false
     this.ulEl.removeChild(liElt)
@@ -224,7 +224,7 @@ export default class BoxList<T extends Box> {
   }
 
   clear() {
-    for (let key of this.boxes.keys())
+    for (const key of this.boxes.keys())
       this.removeBox(key)
   }
 
@@ -253,14 +253,14 @@ export default class BoxList<T extends Box> {
     return this.sortable.toArray()
   }
 
-  enable(hideBusyIcon: boolean = false) {
+  enable(hideBusyIcon = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "auto"
     this.el.style.opacity = "1.0"
     if (hideBusyIcon)
       this.showSpinner(false)
   }
 
-  disable(showBusyIcon: boolean = false) {
+  disable(showBusyIcon = false) {
     this.el.style.pointerEvents = this.el.style.pointerEvents = "none"
     this.el.style.opacity = "0.4"
     if (showBusyIcon)
@@ -274,7 +274,7 @@ export default class BoxList<T extends Box> {
    *       was set to true.
    * @param hideIcon - Indicate if the busy icon should be hidden
    */
-  enableSort(hideBusyIcon: boolean = false) {
+  enableSort(hideBusyIcon = false) {
     if (this.options.sort && this.sortable.option("disabled")) {
       this.sortable.option("disabled", false)
       if (hideBusyIcon)
@@ -289,7 +289,7 @@ export default class BoxList<T extends Box> {
    *       param was set to true.
    * @param showIcon - Indicate if the busy icon should be displayed
    */
-  disableSort(showBusyIcon: boolean = false) {
+  disableSort(showBusyIcon = false) {
     if (this.options.sort && !this.sortable.option("disabled")) {
       this.sortable.option("disabled", true)
       if (showBusyIcon)

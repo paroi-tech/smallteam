@@ -8,7 +8,7 @@ import ErrorDialog from "../modal-dialogs/ErrorDialog"
 import InfoDialog from "../modal-dialogs/InfoDialog"
 import WarningDialog from "../modal-dialogs/WarningDialog"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .RegistrationForm {
   border: 1px solid gray;

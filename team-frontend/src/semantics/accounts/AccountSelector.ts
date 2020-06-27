@@ -6,7 +6,7 @@ import { Dialog, DialogOptions } from "../../generics/Dialog"
 import AccountBox from "./AccountBox"
 import AccountSelectionComponent from "./AccountSelectionComponent"
 
-// tslint:disable-next-line: no-unused-expression
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .AccountSelector {
   &-button {
@@ -70,7 +70,7 @@ export default class AccountSelector {
     })
 
     this.dash.listenToModel("deleteAccount", data => {
-      let accountId = data.id as string
+      const accountId = data.id as string
       this.boxList.removeBox(accountId)
     })
   }
@@ -79,7 +79,7 @@ export default class AccountSelector {
     this.boxList.clear()
     if (!this.task || !this.task.affectedTo)
       return
-    for (let c of this.task.affectedTo)
+    for (const c of this.task.affectedTo)
       this.addBoxFor(c)
   }
 
@@ -98,7 +98,7 @@ export default class AccountSelector {
     if (!task || !task.affectedToIds)
       return
     task.affectedToIds.forEach(id => {
-      let account = this.model.global.accounts.get(id)
+      const account = this.model.global.accounts.get(id)
       if (account)
         this.addBoxFor(account)
     })
@@ -113,7 +113,7 @@ export default class AccountSelector {
   // --
 
   private addBoxFor(account: AccountModel) {
-    let box = this.dash.create(AccountBox, account)
+    const box = this.dash.create(AccountBox, account)
     this.boxList.addBox(box)
   }
 }

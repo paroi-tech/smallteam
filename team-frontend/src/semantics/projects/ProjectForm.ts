@@ -153,7 +153,7 @@ export default class ProjectForm implements Workspace {
   }
 
   private createDropdownMenu() {
-    let menu = this.dash.create(DropdownMenu, {
+    const menu = this.dash.create(DropdownMenu, {
       btnEl: createCustomMenuBtnEl()
     })
 
@@ -171,15 +171,15 @@ export default class ProjectForm implements Workspace {
   private async onSubmit() {
     this.spinnerEl.hidden = false
 
-    let code = this.codeEl.value.trim()
-    let name = this.nameEl.value.trim()
-    let description = this.descriptionEl.value.trim()
+    const code = this.codeEl.value.trim()
+    const name = this.nameEl.value.trim()
+    const description = this.descriptionEl.value.trim()
     if (code.length < 4 && name.length === 0) {
       this.spinnerEl.hidden = true
       return
     }
 
-    let stepIds = this.stepSelector.getSelected().map(step => step.id)
+    const stepIds = this.stepSelector.getSelected().map(step => step.id)
 
     if (!this.project)
       await this.createProject(code, name, description, stepIds)
@@ -191,7 +191,7 @@ export default class ProjectForm implements Workspace {
 
   private async createProject(code: string, name: string, description: string, stepIds: string[]) {
     try {
-      let p = await this.model.exec("create", "Project", { code, name, description, stepIds })
+      const p = await this.model.exec("create", "Project", { code, name, description, stepIds })
       this.project = p
     } catch (err) {
       await this.dash.create(WarningDialog).show("Unable to create new project.")

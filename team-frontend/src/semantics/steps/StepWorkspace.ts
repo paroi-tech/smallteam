@@ -49,7 +49,7 @@ export default class StepWorkspace implements Workspace {
     this.nameEl = ref("input")
     this.spinnerEl = ref("spinner")
 
-    let btnEl = ref("btn") as HTMLButtonElement
+    const btnEl = ref("btn") as HTMLButtonElement
     btnEl.addEventListener("click", () => this.onAdd())
     this.nameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
@@ -57,7 +57,7 @@ export default class StepWorkspace implements Workspace {
     })
 
     this.boxList = this.dash.create(BoxList, {
-      sort: true,
+      sort: true
     })
     ref("sel").appendChild(this.boxList.el)
     this.form = this.dash.create(StepForm)
@@ -70,8 +70,8 @@ export default class StepWorkspace implements Workspace {
     this.dash.listenTo<BoxListEvent>("boxListSortingUpdated", data => this.scheduleStepOrderUpdate(data))
 
     this.dash.listenToModel("createStep", data => {
-      let step = data.model as StepModel
-      let box = this.dash.create(StepBox, step)
+      const step = data.model as StepModel
+      const box = this.dash.create(StepBox, step)
       this.boxList.addBox(box)
     })
     this.dash.listenToModel("deleteStep", data => this.boxList.removeBox(data.id as string))
@@ -82,7 +82,7 @@ export default class StepWorkspace implements Workspace {
   }
 
   private onAdd() {
-    let name = this.nameEl.value.trim()
+    const name = this.nameEl.value.trim()
     if (name.length > 0)
       this.addStep(name)
     else {
@@ -100,11 +100,11 @@ export default class StepWorkspace implements Workspace {
   }
 
   private async doStepOrderUpdate(ids: string[]): Promise<void> {
-    let currentOrder = this.boxList.getOrder()
+    const currentOrder = this.boxList.getOrder()
 
     this.boxList.disable(true)
     try {
-      let arr = await this.dash.app.model.reorder("Step", ids)
+      const arr = await this.dash.app.model.reorder("Step", ids)
       if (!equal(arr, ids)) {
         console.error("Sorry. Server rejected new order of steps.", arr, ids)
         this.boxList.sort(arr)
@@ -118,7 +118,7 @@ export default class StepWorkspace implements Workspace {
   }
 
   private async fillBoxList() {
-    for (let step of this.model.global.steps) {
+    for (const step of this.model.global.steps) {
       if (!step.isSpecial)
         this.boxList.addBox(this.dash.create(StepBox, step))
     }
