@@ -94,6 +94,7 @@ export async function routeCurrentSession(subdomain: string, data: any, sessionD
 }
 
 export async function routeEndSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) {
+  // TODO: After deconnection, send close event to socket used for the user.
   if (!req)
     throw new Error("Request object missing 'routeEndSession'")
 
