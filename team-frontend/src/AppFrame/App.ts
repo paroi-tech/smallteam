@@ -58,7 +58,10 @@ export default class App {
   }
 
   async connect(): Promise<string> {
-    // First, we try to recover session, if there is one active...
+    let sessionAvailable = false
+    let accountId: string | undefined
+
+    // First, we try to recover session, if there is an active one.
     try {
       const response = await fetch(`${this.baseUrl}/api/session/current`, {
         method: "post",
@@ -70,20 +73,24 @@ export default class App {
         body: JSON.stringify({})
       })
 
-      if (!response.ok)
+      if (!response.ok) {
         this.log.warn("Unable to get a response from server while trying to recover session.")
-      else {
+      } else {
         const result = await response.json()
-        if (result.done)
-          return result.accountId as string
+        if (result.done) {
+          sessionAvailable = true
+          accountId = result.accountId as string
+        }
       }
     } catch (err) {
       this.log.warn(err)
     }
 
-    // Show login dialog if session recover failed.
-    const dialog = this.dash.create(LoginDialog)
-    return await dialog.open()
+    if (sessionAvailable)
+      return accountId!
+
+    // We show login dialog if session recovering failed.
+    return await this.dash.create(LoginDialog).open()
   }
 
   async disconnect() {
@@ -98,9 +105,9 @@ export default class App {
         body: JSON.stringify({})
       })
 
-      if (!response.ok)
+      if (!response.ok) {
         this.log.error("Unable to get a response from server while trying to disconnect...")
-      else {
+      } else {
         const result = await response.json()
 
         if (result.done) {
@@ -111,6 +118,7 @@ export default class App {
         }
       }
     } catch (err) {
+      // TODO: handle disconnection error.
       this.log.warn("Unable to disconnect user...")
     }
   }

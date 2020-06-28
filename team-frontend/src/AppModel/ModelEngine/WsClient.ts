@@ -1,31 +1,32 @@
+export async function wsClientInit() {
+  return new Promise((resolve, reject) => {
+    let socket = new WebSocket("ws://localhost:3921")
 
-export function wsClientInit() {
+    socket.addEventListener("error", () => reject("Unable to contact server via websocket"))
+    socket.addEventListener("open", () => resolve(true))
+    socket.addEventListener("message", handleWsMessage)
+  })
+}
 
-  // let socket = new WebSocket("ws://localhost:3921")
-  // // socket = new WebSocket("wss://localhost:3921") // HTTPS
+async function handleWsMessage(this: WebSocket, ev: MessageEvent) {
+  let data: any | undefined
 
-  // // Récupération des erreurs.
-  // // Si la connexion ne s'établie pas,
-  // // l'erreur sera émise ici.
-  // socket.onerror = function (error) {
-  //   console.error(error)
-  // }
+  try {
+    data = JSON.parse(ev.data)
+  } catch (error) {
+    // tslint:disable-next-line: no-console
+    console.error("Received bad JSON from server.")
+    return
+  }
 
-  // // Lorsque la connexion est établie.
-  // socket.onopen = function (event) {
-  //   console.log("Connexion établie.")
-
-  //   // Lorsque la connexion se termine.
-  //   this.onclose = function (event) {
-  //     console.log("Connexion terminé.")
-  //   }
-
-  //   // Lorsque le serveur envoi un message.
-  //   this.onmessage = function (event) {
-  //     console.log("Message:", event.data)
-  //   }
-
-  //   // Envoi d'un message vers le serveur.
-  //   this.send("Hello world!")
-  // }
+  switch (data.type) {
+    case "close":
+      this.close()
+      break
+    case "id":
+      // TODO: set socket connection ID here
+      break
+    default:
+      break
+  }
 }
