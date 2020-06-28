@@ -60,8 +60,8 @@ export default class AccountHome implements Workspace {
     ctrl.setTitle("Personal space").setContentEl(this.el)
   }
 
-  deactivate() {
-  }
+  // deactivate() {
+  // }
 
   private setPickerToAccountAvatar() {
     const avatar = this.model.session.account.avatar
@@ -94,7 +94,7 @@ export default class AccountHome implements Workspace {
       })
 
       if (!response.ok) {
-        this.dash.create(ErrorDialog).show("Something went wrong. Try to change avatar later.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. Try to change avatar later.")
         this.log.error("Unable to change avatar", response.statusText)
         this.setPickerToAccountAvatar()
       } else {
@@ -108,7 +108,7 @@ export default class AccountHome implements Workspace {
           this.log.error("Error while uploading image.")
       }
     } catch (err) {
-      this.dash.create(ErrorDialog).show("Unable to change avatar. Network error.")
+      void this.dash.create(ErrorDialog).show("Unable to change avatar. Network error.")
       this.log.error("Unable to change avatar", err)
     }
 

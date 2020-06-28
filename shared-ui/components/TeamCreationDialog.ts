@@ -184,9 +184,9 @@ export default class TeamCreationDialog {
         return
       }
 
-      let parts = this.emailEl.value.split("@")
-      let str = parts[0].toLocaleLowerCase()
-      let lowerStr = str.replace(/\W/g, "_")
+      const parts = this.emailEl.value.split("@")
+      const str = parts[0].toLocaleLowerCase()
+      const lowerStr = str.replace(/\W/g, "_")
 
       if (this.canSetLogin && !whyUsernameIsInvalid(lowerStr))
         this.loginEl.value = lowerStr
@@ -217,7 +217,7 @@ export default class TeamCreationDialog {
   private async onSubmit() {
     let checkMsg: string | undefined
 
-    let subdomain = this.subdomainEl.value.trim()
+    const subdomain = this.subdomainEl.value.trim()
 
     checkMsg = whyTeamSubdomainIsInvalid(subdomain)
     if (checkMsg) {
@@ -226,7 +226,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    let teamName = this.teamNameEl.value.trim()
+    const teamName = this.teamNameEl.value.trim()
 
     if (teamName.length === 0) {
       await this.dash.create(WarningDialog).show("Please enter a team name.")
@@ -234,7 +234,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    let name = this.nameEl.value.trim()
+    const name = this.nameEl.value.trim()
 
     if (name.length === 0) {
       await this.dash.create(WarningDialog).show("Please enter a name for the user.")
@@ -242,7 +242,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    let login = this.loginEl.value.trim()
+    const login = this.loginEl.value.trim()
 
     checkMsg = whyUsernameIsInvalid(login)
     if (checkMsg) {
@@ -251,7 +251,7 @@ export default class TeamCreationDialog {
       return
     }
 
-    let password = this.passwordEl.value
+    const password = this.passwordEl.value
 
     checkMsg = whyNewPasswordIsInvalid(password)
     if (checkMsg) {
@@ -266,18 +266,18 @@ export default class TeamCreationDialog {
       return
     }
 
-    let email = this.emailEl.value.trim()
+    const email = this.emailEl.value.trim()
 
     if (email.length === 0 || !validateEmail(email)) {
-      this.dash.create(WarningDialog).show("Please enter a valid email address.")
-      await this.emailEl.focus()
+      void this.dash.create(WarningDialog).show("Please enter a valid email address.")
+      this.emailEl.focus()
       return
     }
 
-    let data = await this.checkSubdomain(subdomain)
+    const data = await this.checkSubdomain(subdomain)
 
     if (!data.done) {
-      this.dash.create(WarningDialog).show("Something went wrong. We could not contact server for the moment.")
+      void this.dash.create(WarningDialog).show("Something went wrong. We could not contact server for the moment.")
       return
     }
 
@@ -295,13 +295,13 @@ export default class TeamCreationDialog {
   }
 
   private async checkSubdomain(subdomain: string) {
-    let outcome = {
+    const outcome = {
       done: false,
       answer: false
     }
 
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/team/check-subdomain`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/team/check-subdomain`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -324,7 +324,7 @@ export default class TeamCreationDialog {
 
   private async register(teamName: string, subdomain: string, name: string, username: string, password: string, email: string) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/team/create`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/team/create`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -339,7 +339,7 @@ export default class TeamCreationDialog {
         return false
       }
 
-      let answer = await response.json()
+      const answer = await response.json()
 
       if (answer.done) {
         this.dash.create(UncloseableDialog).show([
@@ -347,12 +347,12 @@ export default class TeamCreationDialog {
         ])
         return true
       }
-      this.dash.create(ErrorDialog).show([
+      void this.dash.create(ErrorDialog).show([
         "Something went wrong. We could not process your request.", "Try again later."
       ])
     } catch (error) {
       this.dash.log.error(error)
-      this.dash.create(InfoDialog).show([
+      void this.dash.create(InfoDialog).show([
         "Something went wrong. We can't reach server.", "Try again later."
       ])
     }

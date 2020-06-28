@@ -4,7 +4,7 @@ import { TaskCreateFragment, TaskFragment, TaskIdFragment, TaskUpdateFragment } 
 import { TaskLogEntrySearchFragment } from "../../../../shared/meta/TaskLogEntry"
 import { WhoUseItem } from "../../../../shared/transfers"
 import { Collection } from "../modelDefinitions"
-import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, OrderProperties, toCollection } from "../ModelEngine"
+import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel, toCollection } from "../ModelEngine"
 import { AccountModel } from "./AccountModel"
 import { CommentModel } from "./CommentModel"
 import { FlagModel } from "./FlagModel"
@@ -116,7 +116,7 @@ export function registerTask(engine: ModelEngine) {
     return model as any
   })
 
-  engine.registerDependency("reorder", "Flag", (props: OrderProperties) => {
+  engine.registerDependency("reorder", "Flag", () => {
     return {
       type: "Task" as Type,
       idList: engine.getAllModels<TaskModel>("Task").filter(task => !!task.flagIds).map(task => task.id)

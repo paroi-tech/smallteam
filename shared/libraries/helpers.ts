@@ -6,7 +6,7 @@ export function toDebugObj(entry?: Map<any, any> | Set<any>) {
   if (!entry)
     return entry
   if (entry[Symbol.toStringTag] === "Map") {
-    let list: any[] = ["MAP"]
+    const list: any[] = ["MAP"]
     for (let [key, val] of entry) {
       if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))
         val = toDebugObj(val)
@@ -15,7 +15,7 @@ export function toDebugObj(entry?: Map<any, any> | Set<any>) {
     return list
   } else {
     // console.log("+++", entry[Symbol.toStringTag], entry.values())
-    let list: any[] = ["SET"]
+    const list: any[] = ["SET"]
     for (let val of entry.values()) {
       if (val && (val[Symbol.toStringTag] === "Map" || val[Symbol.toStringTag] === "Set"))
         val = toDebugObj(val)
@@ -39,7 +39,7 @@ export function whyTeamSubdomainIsInvalid(subdomain: string): string | undefined
   if (subdomain.length < 2 || subdomain.length > 16)
     return "A team subdomain must have at least 2 characters and 16 characters at most"
 
-  let regex = /^[0-9a-zA-Z]+(\-[0-9a-zA-Z]+)*$/
+  const regex = /^[0-9a-zA-Z]+(-[0-9a-zA-Z]+)*$/
 
   if (!regex.test(subdomain))
     return "A subdomain should only contains alphanumeric characters and dash and should not begin or end with dash."

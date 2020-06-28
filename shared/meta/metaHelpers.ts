@@ -3,8 +3,8 @@ import { FieldMeta, FragmentMeta, TypeVariant } from "./index"
 export type PickUpdate<T, REQ extends keyof T, OPT extends keyof T> = {
   [Q in REQ]: T[Q]
 } & {
-    [P in OPT]?: T[P]
-  }
+  [P in OPT]?: T[P]
+}
 
 /**
  * Each filter can be of type: `value` or [op, value]. Example: [">=", value]
@@ -19,12 +19,12 @@ export type AsFilter<T> = {
 export type SearchPick<T, OPT extends keyof T> = {
   [P in OPT]?: T[P] // | [string, T[P]] // TODO: Implement in SQL92Builder
 } & {
-    search?: string // | [string, string] // TODO: Implement in SQL92Builder
-  }
+  search?: string // | [string, string] // TODO: Implement in SQL92Builder
+}
 
 export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, fieldNames: string[]): FragmentMeta {
-  let fields = {}
-  for (let name of fieldNames) {
+  const fields = {}
+  for (const name of fieldNames) {
     if (!base.fields[name])
       throw new Error(`Unknown field "${name}" in meta ${base.type}`)
     fields[name] = base.fields[name]
@@ -33,14 +33,14 @@ export function pickFragmentMeta(variant: TypeVariant, base: FragmentMeta, field
 }
 
 export function pickUpdateFragmentMeta(variant: "update", base: FragmentMeta, reqFieldNames: string[], optFieldNames: string[]): FragmentMeta {
-  let fields = {}
+  const fields = {}
   copyFields(fields, base, reqFieldNames)
   copyFields(fields, base, optFieldNames, true)
   return { type: base.type, variant, fields, orderFieldName: base.orderFieldName }
 }
 
 export function searchPickFragmentMeta(variant: "fetch", base: FragmentMeta, fieldNames: string[], withSearch = true): FragmentMeta {
-  let fields: any = {}
+  const fields: any = {}
   if (withSearch) {
     fields.search = {
       dataType: "string",
@@ -52,7 +52,7 @@ export function searchPickFragmentMeta(variant: "fetch", base: FragmentMeta, fie
 }
 
 function copyFields(to: object, base: FragmentMeta, fieldNames: string[], forceOptional = false) {
-  for (let name of fieldNames) {
+  for (const name of fieldNames) {
     if (!base.fields[name])
       throw new Error(`Unknown field "${name}" in meta ${base.type}`)
     if (to[name])

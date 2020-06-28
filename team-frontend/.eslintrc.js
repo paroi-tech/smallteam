@@ -165,17 +165,12 @@ module.exports = {
       "never"
     ],
     "prefer-arrow/prefer-arrow-functions": "off",
-    // "prefer-const": "off",
-    "quote-props": "off",
-    "radix": "warn",
-    "space-before-function-paren": [
-      "warn",
-      {
-        "anonymous": "always",
-        "named": "never",
-        "asyncArrow": "always"
-      }
+    "prefer-const": [
+      "error", { "destructuring": "all" }
     ],
+    "quote-props": "off",
+    "radix": "off",
+    "space-before-function-paren": "off",
     "spaced-comment": [
       "warn",
       "always",

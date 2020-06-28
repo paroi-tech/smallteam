@@ -6,6 +6,7 @@ import { Box } from "../../generics/BoxList"
 import AccountAvatar from "../accounts/AccountAvatar"
 import TaskFlag from "./TaskFlag"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
@@ -132,7 +133,7 @@ export default class TaskBox implements Box {
       }
     })
 
-    this.dash.listenToModel("reorderFlag", data => {
+    this.dash.listenToModel("reorderFlag", () => {
       removeAllChildren(this.flagsEl)
       this.addTaskFlags()
     })

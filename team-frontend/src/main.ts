@@ -18,7 +18,7 @@ async function startup() {
       await app.start(sessionData)
     }
   } catch (err) {
-    // tslint:disable-next-line:no-console
+    // eslint-disable-next-line no-console
     console.log(err)
   }
 }

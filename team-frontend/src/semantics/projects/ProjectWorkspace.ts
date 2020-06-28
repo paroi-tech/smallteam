@@ -127,9 +127,9 @@ export default class ProjectWorkspace implements Workspace {
         onClick: () => {
           if (!this.ctrl)
             return
-          this.onHoldTaskBoard.refresh()
           this.ctrl.setContentEl(this.onHoldTaskBoard.el)
           this.ctrl.setTitle(`${this.project.name}: on hold tasks`)
+          this.onHoldTaskBoard.refresh().catch(err => this.dash.log.error(err))
         }
       },
       {
@@ -137,9 +137,9 @@ export default class ProjectWorkspace implements Workspace {
         onClick: () => {
           if (!this.ctrl)
             return
-          this.archivedTaskBoard.refresh()
           this.ctrl.setContentEl(this.archivedTaskBoard.el)
           this.ctrl.setTitle(`${this.project.name}: archived tasks`)
+          this.archivedTaskBoard.refresh().catch(err => this.dash.log.error(err))
         }
       }
     )

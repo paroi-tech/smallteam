@@ -119,10 +119,10 @@ export default class RegistrationForm {
   }
 
   private async onSubmit() {
-    let dialog = this.dash.create(WarningDialog)
+    const dialog = this.dash.create(WarningDialog)
     let checkMsg: string | undefined
 
-    let name = this.nameEl.value.trim()
+    const name = this.nameEl.value.trim()
 
     if (name.length === 0) {
       await dialog.show("Please enter your name.")
@@ -131,7 +131,7 @@ export default class RegistrationForm {
       return
     }
 
-    let login = this.usernameEl.value.trim()
+    const login = this.usernameEl.value.trim()
 
     checkMsg = whyUsernameIsInvalid(login)
     if (checkMsg) {
@@ -141,7 +141,7 @@ export default class RegistrationForm {
       return
     }
 
-    let password = this.passwordEl.value
+    const password = this.passwordEl.value
 
     checkMsg = whyNewPasswordIsInvalid(password)
     if (checkMsg) {
@@ -157,7 +157,7 @@ export default class RegistrationForm {
       return
     }
 
-    let email = this.emailEl.value.trim()
+    const email = this.emailEl.value.trim()
 
     if (email.length === 0 || !validateEmail(email)) {
       await dialog.show("Please enter a valid email address.")
@@ -165,7 +165,7 @@ export default class RegistrationForm {
       return
     }
 
-    let b = await this.register(name, login, password, email)
+    const b = await this.register(name, login, password, email)
 
     if (b && this.curDfd) {
       this.curDfd.resolve(true)
@@ -176,7 +176,7 @@ export default class RegistrationForm {
 
   private async register(name: string, login: string, password: string, email: string) {
     try {
-      let response = await fetch(`${this.dash.app.baseUrl}/api/registration/register`, {
+      const response = await fetch(`${this.dash.app.baseUrl}/api/registration/register`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -189,17 +189,17 @@ export default class RegistrationForm {
       if (!response.ok)
         throw new Error("Our server did not process the request.")
 
-      let answer = await response.json()
+      const answer = await response.json()
 
       if (answer.done) {
-        this.dash.create(InfoDialog).show("You have been successfully registred.")
+        void this.dash.create(InfoDialog).show("You have been successfully registred.")
         return true
       } else {
-        this.dash.create(InfoDialog).show("Registration failed. Try again later or contact the admin.")
+        void this.dash.create(InfoDialog).show("Registration failed. Try again later or contact the admin.")
         return false
       }
     } catch (error) {
-      this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
+      void this.dash.create(ErrorDialog).show("Something went wrong. We are sorry for the inconvenience. Try again later.")
       this.dash.log.error(error)
     }
 

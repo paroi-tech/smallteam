@@ -130,9 +130,9 @@ export default class TaskForm {
         if (!this.currentTask || this.currentTask.curStepId === ARCHIVED_STEP_ID)
           return
         if (this.currentTask.curStepId === ON_HOLD_STEP_ID)
-          this.reactivateTask()
+          this.reactivateTask().catch(err => this.dash.log.error(err))
         else
-          this.putTaskOnHold()
+          this.putTaskOnHold().catch(err => this.dash.log.error(err))
       })
     }
 
@@ -148,17 +148,17 @@ export default class TaskForm {
 
     ref("logBtn").addEventListener("click", () => {
       if (this.currentTask)
-        this.logViewer.open()
+        this.logViewer.open().catch(err => this.dash.log.error(err))
     })
 
     ref("btnDelete").addEventListener("click", () => {
       if (this.currentTask)
-        this.deleteTask()
+        this.deleteTask().catch(err => this.dash.log.error(err))
     })
 
     ref("commitsBtn").addEventListener("click", () => {
       if (this.currentTask)
-        this.commitViewer.open()
+        this.commitViewer.open().catch(err => this.dash.log.error(err))
     })
 
     this.flagSelector = this.dash.create(FlagSelector)

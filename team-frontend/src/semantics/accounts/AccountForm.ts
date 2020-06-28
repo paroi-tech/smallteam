@@ -156,7 +156,7 @@ export default class AccountForm {
 
     if (!this.account) {
       this.canClearForm = true
-      this.createAccount(data)
+      await this.createAccount(data)
       return
     }
 
@@ -177,7 +177,7 @@ export default class AccountForm {
 
         return
       }
-      this.updatePassword(this.account.id, this.account.login, password)
+      await this.updatePassword(this.account.id, this.account.login, password)
       this.passwordEdit.clear()
     }
 
@@ -185,7 +185,7 @@ export default class AccountForm {
     const frag = this.account.updateTools.getDiffToUpdate({ id, ...data })
     // https://stackoverflow.com/questions/679915/how-do-i-test-for-an-empty-javascript-object
     if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
-      this.updateAccount({ ...frag, id })
+      await this.updateAccount({ ...frag, id })
   }
 
   private onProcessing(data: AccountModel) {

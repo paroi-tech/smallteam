@@ -188,7 +188,7 @@ export default class TaskComment {
     if (!await this.dash.create(QuestionDialog).show("Do you really want to remove this comment?"))
       return
     try {
-      this.model.exec("delete", "Comment", {
+      await this.model.exec("delete", "Comment", {
         id: this.comment.id
       })
     } catch (err) {

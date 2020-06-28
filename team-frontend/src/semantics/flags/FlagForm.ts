@@ -149,12 +149,12 @@ export default class FlagForm {
 
     if (!this.flag) {
       this.canClearForm = true
-      this.createFlag({ label, color })
+      this.createFlag({ label, color }).catch(err => this.dash.log.error(err))
     } else {
       const id = this.flag.id
       const frag = this.flag.updateTools.getDiffToUpdate({ id, label, color })
       if (frag && (Object.keys(frag).length !== 0 || frag.constructor !== Object))
-        this.updateFlag({ ...frag, id })
+        this.updateFlag({ ...frag, id }).catch(err => this.dash.log.error(err))
     }
   }
 

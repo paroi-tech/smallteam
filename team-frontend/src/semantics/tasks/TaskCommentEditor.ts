@@ -80,7 +80,7 @@ export default class TaskCommentEditor {
 
     ref("btnAdd").addEventListener("click", () => {
       if (this.task)
-        this.onSubmit()
+        this.onSubmit().catch(err => this.dash.log.error(err))
     })
 
     ref("btnToggle").addEventListener("click", () => {
@@ -123,7 +123,7 @@ export default class TaskCommentEditor {
     this.task = task
     this.textEl.value = ""
     removeAllChildren(this.listEl)
-    this.loadComments()
+    this.loadComments().catch(err => this.dash.log.error(err))
   }
 
   private setShowText(showText: boolean) {

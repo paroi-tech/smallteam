@@ -51,7 +51,7 @@ export default class AvatarForm {
     this.spinnerEl = ref("spinner")
     this.formEl.addEventListener("submit", ev => {
       ev.preventDefault()
-      this.onSubmit()
+      this.onSubmit().catch(err => this.dash.log.error(err))
     })
   }
 

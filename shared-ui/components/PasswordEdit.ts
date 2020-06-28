@@ -48,8 +48,8 @@ export default class PasswordEdit {
   }
 
   getPasswordIfMatch(): string | undefined {
-    let primary = this.primaryEl.value
-    let confirm = this.confirmEl.value
+    const primary = this.primaryEl.value
+    const confirm = this.confirmEl.value
 
     return primary === confirm ? primary : undefined
   }

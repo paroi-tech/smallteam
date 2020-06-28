@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import handledom from "handledom"
 import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 import App from "../AppFrame/App"
-import { ChildEasyRouter, createEasyRouter, EasyRouter, ERQuery } from "../libraries/EasyRouter"
+import { ChildEasyRouter, createEasyRouter, EasyRouter } from "../libraries/EasyRouter"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
@@ -103,7 +103,7 @@ export default class WorkspaceViewer {
   }
 
   start() {
-    this.router.start({
+    void this.router.start({
       baseUrl: `${this.dash.app.baseUrl}/`,
       hashMode: true,
       // noHistory: false,
@@ -120,7 +120,7 @@ export default class WorkspaceViewer {
     })
     this.router.map({
       route: path,
-      activate: (query: ERQuery) => {
+      activate: () => {
         this.activateWorkspace(path)
       }
     })
@@ -133,7 +133,7 @@ export default class WorkspaceViewer {
     })
     this.router.mapUnknownRoutes({
       useQueryString: "404",
-      activate: (query: ERQuery) => {
+      activate: () => {
         this.activateWorkspace(this.symb404)
       },
       title
@@ -144,7 +144,7 @@ export default class WorkspaceViewer {
     this.workspaces.set(path, { workspace: w, path, menu, defaultTitle: menuLabel })
     this.router.map({
       route: path,
-      activate: (query: ERQuery) => {
+      activate: () => {
         this.activateWorkspace(path)
       },
       title: menuLabel
@@ -153,7 +153,7 @@ export default class WorkspaceViewer {
       this.router.map({
         route: `${path}/*`,
         child: w.childRouter,
-        activate: (query: ERQuery) => {
+        activate: () => {
           this.activateWorkspace(path)
         }
       })
@@ -165,11 +165,11 @@ export default class WorkspaceViewer {
     if (info) {
       this.workspaces.delete(path)
       if (info === this.currentWInfo)
-        this.router.navigate("") // Home
+        void this.router.navigate("") // Home
     }
   }
 
-  private activateWorkspace(path: string | symbol, data?: any) {
+  private activateWorkspace(path: string | symbol) {
     const info = this.workspaces.get(path)
     if (!info)
       throw new Error(`Unknown workspace path: ${typeof path === "string" ? path : "(symbol)"}`)

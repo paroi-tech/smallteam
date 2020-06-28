@@ -1,5 +1,5 @@
 import { FragmentMeta } from "./index"
-import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta, SearchPick, searchPickFragmentMeta } from "./metaHelpers"
+import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta } from "./metaHelpers"
 
 export interface FlagFragment {
   readonly id: string

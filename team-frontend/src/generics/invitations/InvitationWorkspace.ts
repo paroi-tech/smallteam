@@ -59,7 +59,7 @@ export default class InvitationWorkspace {
     ref("form").appendChild(this.form.el)
     ref("boxList").appendChild(this.boxList.el)
 
-    this.fetchInvitations()
+    this.fetchInvitations().catch(err => this.dash.log.error(err))
     this.dash.listenTo("invitationSent", invitation => this.addInvitation(invitation))
     this.dash.listenTo("resendInvitation", invitationId => this.resendInvitation(invitationId))
     this.dash.listenTo("cancelInvitation", invitationId => this.cancelInvitation(invitationId))
@@ -68,8 +68,11 @@ export default class InvitationWorkspace {
   activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     ctrl.setContentEl(this.el).setTitle("Manage invitations")
-    if (!this.needFetch)
-      this.fetchInvitations().then(b => this.needFetch = b)
+    if (!this.needFetch) {
+      this.fetchInvitations()
+        .then(b => this.needFetch = b)
+        .catch(err => this.dash.log.error(err))
+    }
   }
 
   private async fetchInvitations() {
@@ -85,7 +88,7 @@ export default class InvitationWorkspace {
       })
 
       if (!response.ok) {
-        this.dash.create(ErrorDialog).show("Something went wrong. We can not get pending invitations from server.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. We can not get pending invitations from server.")
         return false
       }
 
@@ -95,7 +98,7 @@ export default class InvitationWorkspace {
         this.addInvitation(item)
       return true
     } catch (error) {
-      this.dash.create(ErrorDialog).show("We cannot reach our server. Check your internet connection.")
+      void this.dash.create(ErrorDialog).show("We cannot reach our server. Check your internet connection.")
     }
 
     return false

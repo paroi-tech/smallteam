@@ -86,8 +86,11 @@ export default class WebhookWorkspace {
   activate(ctrl: ViewerController) {
     this.ctrl = ctrl
     this.ctrl.setContentEl(this.el).setTitle("Github subscriptions")
-    if (this.needFetch)
-      this.fetchWebhooks().then(b => this.needFetch = b)
+    if (this.needFetch) {
+      this.fetchWebhooks()
+        .then(b => this.needFetch = b)
+        .catch(err => this.dash.log.error(err))
+    }
   }
 
   private async fetchWebhooks() {
@@ -103,14 +106,14 @@ export default class WebhookWorkspace {
       })
 
       if (!response.ok) {
-        this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
         return false
       }
 
       const data = await response.json()
 
       if (!data.done) {
-        this.dash.create(ErrorDialog).show("Something went wrong. We can not display hooks. Try again later.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. We can not display hooks. Try again later.")
         return false
       }
 
@@ -151,7 +154,7 @@ export default class WebhookWorkspace {
       })
 
       if (!response.ok) {
-        this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
         return
       }
 

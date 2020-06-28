@@ -84,7 +84,7 @@ export default class StepWorkspace implements Workspace {
   private onAdd() {
     const name = this.nameEl.value.trim()
     if (name.length > 0)
-      this.addStep(name)
+      this.addStep(name).catch(err => this.dash.log.error(err))
     else {
       this.log.warn("The name you entered for the step is invalid.")
       this.nameEl.focus()
@@ -95,7 +95,7 @@ export default class StepWorkspace implements Workspace {
     if (this.timer)
       clearTimeout(this.timer)
     this.timer = setTimeout(() => {
-      this.doStepOrderUpdate(ev.boxIds)
+      this.doStepOrderUpdate(ev.boxIds).catch(err => this.dash.log.error(err))
     }, 2000)
   }
 
@@ -106,7 +106,7 @@ export default class StepWorkspace implements Workspace {
     try {
       const arr = await this.dash.app.model.reorder("Step", ids)
       if (!equal(arr, ids)) {
-        console.error("Sorry. Server rejected new order of steps.", arr, ids)
+        this.log.error("Sorry. Server rejected new order of steps.", arr, ids)
         this.boxList.sort(arr)
       }
     } catch (err) {
@@ -117,7 +117,7 @@ export default class StepWorkspace implements Workspace {
     this.form.reset()
   }
 
-  private async fillBoxList() {
+  private fillBoxList() {
     for (const step of this.model.global.steps) {
       if (!step.isSpecial)
         this.boxList.addBox(this.dash.create(StepBox, step))

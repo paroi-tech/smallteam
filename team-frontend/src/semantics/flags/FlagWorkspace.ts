@@ -100,7 +100,7 @@ export default class FlagWorkspace implements Workspace {
     this.form.reset()
   }
 
-  private async fillBoxList() {
+  private fillBoxList() {
     this.model.global.flags.forEach(flag => this.boxList.addBox(this.dash.create(FlagBox, flag)))
   }
 }

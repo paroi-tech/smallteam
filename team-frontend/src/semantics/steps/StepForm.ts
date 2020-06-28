@@ -91,7 +91,7 @@ export default class StepForm {
         this.log.warn("The name of the step should contain more characters.")
         return
       }
-      this.updateStep(name)
+      this.updateStep(name).catch(err => this.dash.log.error(err))
     })
     ref("cancelBtn").addEventListener("click", () => {
       this.clearContent()

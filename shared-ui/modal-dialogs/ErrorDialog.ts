@@ -55,7 +55,7 @@ export default class ErrorDialog {
 
     dialogPolyfill.registerDialog(this.el)
 
-    let closeCb = () => this.close()
+    const closeCb = () => this.close()
 
     ref("button").addEventListener("click", closeCb)
     ref("close").addEventListener("click", closeCb)
@@ -75,9 +75,9 @@ export default class ErrorDialog {
     this.titleEl.textContent = title
 
     removeAllChildren(this.msgEl)
-    let arr = typeof msg === "string" ? [msg] : msg
-    for (let s of arr) {
-      let p = document.createElement("p")
+    const arr = typeof msg === "string" ? [msg] : msg
+    for (const s of arr) {
+      const p = document.createElement("p")
       p.textContent = s
       this.msgEl.appendChild(p)
     }

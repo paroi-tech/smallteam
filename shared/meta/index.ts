@@ -10,9 +10,9 @@ import stepMetaVariants from "./Step"
 import taskMetaVariants from "./Task"
 import taskLogEntryMetaVariants from "./TaskLogEntry"
 
-export let types: ReadonlyArray<Type> = Object.freeze([
+export const types: readonly Type[] = Object.freeze([
   "Comment", "Account", "Flag", "Project", "Step", "Task", "TaskLogEntry", "Media", "MediaVariant", "GitCommit"
-  ]) as any
+]) as any
 
 export type TypeVariant = "read" | "create" | "update" | "id" | "fetch"
 
@@ -43,7 +43,7 @@ export interface FieldMeta {
   values?: string[] | boolean[] | number[]
 }
 
-let allMeta: { [type: string]: MetaVariants } = {
+const allMeta: { [type: string]: MetaVariants } = {
   Comment: commentMetaVariants,
   Account: accountMetaVariants,
   Flag: flagMetaVariants,
@@ -57,20 +57,20 @@ let allMeta: { [type: string]: MetaVariants } = {
 }
 
 export function getFragmentMeta(type: Type, variant: TypeVariant = "read"): FragmentMeta {
-  let variants = allMeta[type]
+  const variants = allMeta[type]
   if (!variants)
     throw new Error(`Unknown type "${type}" for fragment meta`)
-  let result = variants[variant]
+  const result = variants[variant]
   if (!result)
     throw new Error(`Missing variant "${variant}" of fragment meta for type: ${type}`)
   return result
 }
 
 export function toIdentifier(frag: object, type: Type): Identifier {
-  let fragMeta = getFragmentMeta(type, "id")
-  let singleVal: string | undefined,
-    values: { [fieldName: string]: string } | undefined
-  for (let fieldName of Object.keys(fragMeta.fields)) {
+  const fragMeta = getFragmentMeta(type, "id")
+  let singleVal: string | undefined
+  let values: { [fieldName: string]: string } | undefined
+  for (const fieldName of Object.keys(fragMeta.fields)) {
     if (frag[fieldName] === undefined)
       throw new Error(`[${fragMeta.type}] Missing value for field: ${fieldName} in ${JSON.stringify(frag)}`)
     if (values)

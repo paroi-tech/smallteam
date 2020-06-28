@@ -2,7 +2,7 @@ import { Dash } from "bkb"
 import Deferred from "../../../shared-ui/libraries/Deferred"
 import { BatchCargo, Cargo, Changed, Dependencies, FragmentRef, Fragments, FragmentsRef, Identifier, ModelUpdate, PartialFragments, Type } from "../../../shared/Cargo"
 import { HKMap, HKSet, makeHKMap, makeHKSet } from "../../../shared/libraries/HKCollections"
-import { FragmentMeta, getFragmentMeta, toIdentifier, TypeVariant } from "../../../shared/meta"
+import { getFragmentMeta, toIdentifier, TypeVariant } from "../../../shared/meta"
 import { WhoUseItem } from "../../../shared/transfers"
 import GenericBgCommandManager from "./BgCommandManager"
 import { Collection } from "./modelDefinitions"
@@ -454,12 +454,12 @@ export default class ModelEngine {
   private updateStoreFromPartial(partial: PartialFragments) {
     for (const [type, list] of Object.entries(partial)) {
       const storage = this.getTypeStorage(type as Type)
-      const fragMeta = getFragmentMeta(type as Type)
+      // const fragMeta = getFragmentMeta(type as Type)
       for (const partialFrag of list!) {
         const id = toIdentifier(partialFrag, type as Type)
         const entity = storage.entities.get(id)
         if (entity && !entity.deleted)
-          updateEntityFromPartial(storage, id, partialFrag, entity, fragMeta)
+          updateEntityFromPartial(storage, id, partialFrag, entity)
       }
     }
   }
@@ -734,7 +734,7 @@ function rmFragmentFromIndexes(storage: TypeStorage, idList: Identifier[]) {
   }
 }
 
-function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: object, entity: Entity, fragMeta: FragmentMeta) {
+function updateEntityFromPartial(storage: TypeStorage, id: Identifier, partialFrag: object, entity: Entity) {
   for (const fieldName of Object.keys(partialFrag)) {
     if (partialFrag[fieldName] === null)
       delete entity.fragment[fieldName]

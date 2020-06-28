@@ -2,15 +2,13 @@
  * Hash Key Collections
  */
 
-export interface HKMap<K, V> extends Map<K, V> {
-}
+export type HKMap<K, V> = Map<K, V>
 
-export interface HKSet<T> extends Set<T> {
-}
+export type HKSet<T> = Set<T>
 
 export function makeHKMap<K, V>(iterable?: Iterable<[K, V]>): HKMap<K, V> {
-  let map = new Map<string, V>()
-  let jkMap = {
+  const map = new Map<string, V>()
+  const jkMap = {
     clear: () => map.clear(),
     delete: (key: K) => map.delete(stableJsonStringify(key)),
     forEach: (callbackfn: (value: V, key: K, map: HKMap<K, V>) => void, thisArg?: any) => {
@@ -34,15 +32,15 @@ export function makeHKMap<K, V>(iterable?: Iterable<[K, V]>): HKMap<K, V> {
     values: () => map.values()
   }
   if (iterable) {
-    for (let [key, val] of iterable)
+    for (const [key, val] of iterable)
       jkMap.set(key, val)
   }
   return jkMap
 }
 
 export function makeHKSet<T>(iterable?: Iterable<T>): HKSet<T> {
-  let set = new Set<string>()
-  let jkSet = {
+  const set = new Set<string>()
+  const jkSet = {
     clear: () => set.clear(),
     delete: (key: T) => set.delete(stableJsonStringify(key)),
     forEach: (callbackfn: (value: T, value2: T, set: HKSet<T>) => void, thisArg?: any) => {
@@ -65,18 +63,18 @@ export function makeHKSet<T>(iterable?: Iterable<T>): HKSet<T> {
     values: () => makeIterableIterator(() => set["keys"](), "key")
   }
   if (iterable) {
-    for (let key of iterable)
+    for (const key of iterable)
       jkSet.add(key)
   }
   return jkSet
 }
 
 function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" | "key" | "keyKey"): IterableIterator<any> {
-  let iter = makeIterator()
+  const iter = makeIterator()
   return {
     [Symbol.iterator]: () => makeIterableIterator(makeIterator, mode),
     next: (inputVal?) => {
-      let {done, value} = iter.next(inputVal)
+      const {done, value} = iter.next(inputVal)
       if (value === undefined || value === null)
         return { done, value }
       let valueAsV: any
@@ -84,12 +82,12 @@ function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" 
         // console.log("==>v", value)
         valueAsV = JSON.parse(value)
       } else {
-        let [key, val] = value
+        const [key, val] = value
         // console.log("==>k", key)
         if (mode === "keyVal")
           valueAsV = [JSON.parse(key), val]
         else {
-          let parsed = JSON.parse(key)
+          const parsed = JSON.parse(key)
           valueAsV = [parsed, parsed]
         }
       }
@@ -111,9 +109,9 @@ function makeIterableIterator(makeIterator: () => Iterator<any>, mode: "keyVal" 
  * Thanks to https://github.com/substack/json-stable-stringify
  */
 function stableJsonStringify(obj): string {
-  let seen: any[] = []
-  let res = (function stringify(parent: any, key: string | number, node: any) {
-    let colonSeparator = ":"
+  const seen: any[] = []
+  const res = (function stringify(parent: any, key: string | number, node: any) {
+    const colonSeparator = ":"
     if (node && node.toJSON && typeof node.toJSON === "function")
       node = node.toJSON()
     if (node === undefined)
@@ -121,7 +119,7 @@ function stableJsonStringify(obj): string {
     if (typeof node !== "object" || node === null)
       return JSON.stringify(node)
     if (Array.isArray(node)) {
-      let out: any[] = []
+      const out: any[] = []
       for (let i = 0; i < node.length; i++)
         out.push(stringify(node, i, node[i]) || JSON.stringify(null))
       return "[" + out.join(",") + "]"
@@ -129,10 +127,10 @@ function stableJsonStringify(obj): string {
       if (seen.indexOf(node) !== -1)
         throw new TypeError("Converting circular structure to JSON")
       seen.push(node)
-      let keys = Object.keys(node).sort()
-      let out: any[] = []
-      for (let key of keys) {
-        let value = stringify(node, key, node[key])
+      const keys = Object.keys(node).sort()
+      const out: any[] = []
+      for (const key of keys) {
+        const value = stringify(node, key, node[key])
         if (value === undefined)
           continue
         out.push(JSON.stringify(key) + colonSeparator + value)

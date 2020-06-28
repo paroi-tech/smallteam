@@ -94,7 +94,7 @@ export default class TaskLogViewer {
   setTask(task?: TaskModel) {
     this.task = task
     removeAllChildren(this.tableEl.tBodies[0])
-    this.loadTaskLogEntries()
+    this.loadTaskLogEntries().catch(err => this.dash.log.error(err))
   }
 
   private addEntry(entry: TaskLogEntryModel) {

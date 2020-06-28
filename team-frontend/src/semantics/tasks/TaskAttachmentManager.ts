@@ -81,7 +81,7 @@ export default class TaskAttachmentManager {
     this.spinnerEl = ref("spinner")
     this.formEl.onsubmit = (ev) => {
       ev.preventDefault()
-      this.onFormSubmit()
+      this.onFormSubmit().catch(err => this.dash.log.error(err))
     }
 
     this.dash.listenToModel("updateTask", task => {

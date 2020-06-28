@@ -1,4 +1,6 @@
-import { wait } from "../../../shared/libraries/helpers"
+export function wait(ms: number): Promise<void> {
+  return new Promise<void>(resolve => setTimeout(resolve, ms))
+}
 
 export type DelayedStatus = false | "delaying" | "running"
 
@@ -22,7 +24,9 @@ export default class DelayedAction {
   constructor({ onChangeStatus, action, delayMs, maxDelayMs, logError }: DelayedActionOptions) {
     this.opt = {
       action,
-      onChangeStatus: onChangeStatus || (() => { }),
+      onChangeStatus: onChangeStatus ?? (() => {
+        // Nothing to do.
+      }),
       logError,
       delayMs: delayMs || 2000, // 2000
       maxDelayMs: maxDelayMs || 10000 // 10000
@@ -67,7 +71,7 @@ export default class DelayedAction {
     this.delaying = true
     const waitId = ++this.waitSeq
     // console.log(`.. [${waitId}] wait`, ms)
-    wait(ms).then(() => {
+    void wait(ms).then(() => {
       // console.log(`.. [${waitId}] wait-then`, waitId === this.waitSeq)
       if (waitId !== this.waitSeq || !this.nextSaveTs)
         return
@@ -85,7 +89,7 @@ export default class DelayedAction {
       this.running = true
       const saveId = ++this.saveSeq
       // console.log(`.. [${waitId}][${saveId}] save`)
-      this.save().then(() => {
+      void this.save().then(() => {
         // console.log(`.. [${waitId}][${saveId}] save-end`, saveId === this.saveSeq)
         if (saveId === this.saveSeq)
           this.running = false

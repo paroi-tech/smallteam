@@ -145,7 +145,7 @@ export default class StepSwitcher {
     ref("addBtn").addEventListener("click", () => this.onAddtaskClick())
     this.taskNameEl.addEventListener("keyup", ev => {
       if (ev.key === "Enter")
-        this.onAddtaskClick()
+        this.onAddtaskClick().catch(err => this.dash.log.error(err))
     })
     ref("toggleBtn").addEventListener("click", () => this.toggleFoldableContent())
 
@@ -222,7 +222,7 @@ export default class StepSwitcher {
     // An alternative solution to sort the content of an HTML element using `data-sort` attribute
     // can be found at:
     // https://stackoverflow.com/questions/7831712/jquery-sort-divs-by-innerhtml-of-children
-    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", data => this.reset())
+    this.dash.listenTo<ReorderModelEvent>(this.model, "reorderStep", () => this.reset())
 
     // Task creation event.
     this.dash.listenToModel("createTask", data => {

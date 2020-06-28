@@ -1,6 +1,6 @@
 import { Type } from "./Cargo"
 
 export interface WhoUseItem {
-  type: Type,
+  type: Type
   count: number
 }

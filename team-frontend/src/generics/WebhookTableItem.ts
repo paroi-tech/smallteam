@@ -49,11 +49,11 @@ export default class WebhookTableItem {
 
   private dispatch(action: "showSecret" | "toggle" | "delete") {
     if (action === "showSecret")
-      this.showWebhookSecret()
+      this.showWebhookSecret().catch(err => this.dash.log.error(err))
     else if (action === "toggle")
-      this.toggleWebhook()
+      this.toggleWebhook().catch(err => this.dash.log.error(err))
     else if (action === "delete")
-      this.deleteWebhook()
+      this.deleteWebhook().catch(err => this.dash.log.error(err))
     else
       this.log.warn(`Unknown action: ${action}`)
   }
@@ -78,16 +78,16 @@ export default class WebhookTableItem {
       })
 
       if (!response.ok)
-        this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. Server did not fulfill our request.")
       else {
         const data = await response.json()
         if (!data.done)
-          this.dash.create(ErrorDialog).show("Something went wrong. Hook secret can't be displayed. Try again later.")
+          void this.dash.create(ErrorDialog).show("Something went wrong. Hook secret can't be displayed. Try again later.")
         else
-          this.dash.create(InfoDialog).show(data.secret, "Hook secret")
+          void this.dash.create(InfoDialog).show(data.secret, "Hook secret")
       }
     } catch (err) {
-      this.dash.create(ErrorDialog).show("Unable to reach server. Network error.")
+      void this.dash.create(ErrorDialog).show("Unable to reach server. Network error.")
     }
     this.webhook.inProcessing = false
   }
@@ -95,7 +95,7 @@ export default class WebhookTableItem {
   private async toggleWebhook() {
     if (this.webhook.inProcessing) {
       // There is no need to wait for user response.
-      this.dash.create(InfoDialog).show("Cannot perform this action now.")
+      void this.dash.create(InfoDialog).show("Cannot perform this action now.")
       return
     }
 
@@ -114,11 +114,11 @@ export default class WebhookTableItem {
       })
 
       if (!response.ok)
-        this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
+        void this.dash.create(ErrorDialog).show("Something went wrong. The server did not fulfill the request.")
       else {
         const data = await response.json()
         if (!data.done)
-          this.dash.create(ErrorDialog).show("Something went wrong. Cannot perform this action now. Try again later.")
+          void this.dash.create(ErrorDialog).show("Something went wrong. Cannot perform this action now. Try again later.")
         else {
           this.webhook.active = !this.webhook.active
           this.btnToggleEl.textContent = this.webhook.active ? "Deactivate" : "Activate"
@@ -136,7 +136,7 @@ export default class WebhookTableItem {
 
     if (this.webhook.inProcessing) {
       // There is no need to wait for user response.
-      this.dash.create(InfoDialog).show("Cannot perform this action now.")
+      void this.dash.create(InfoDialog).show("Cannot perform this action now.")
       return
     }
 
@@ -157,14 +157,14 @@ export default class WebhookTableItem {
       else {
         const data = await response.json()
         if (!data.done)
-          this.dash.create(ErrorDialog).show("Something went wrong. Cannot remove hook. Try again later.")
+          void this.dash.create(ErrorDialog).show("Something went wrong. Cannot remove hook. Try again later.")
         else {
           this.el.hidden = true
           this.dash.emit("webhookDeleted", this.webhook.id)
         }
       }
     } catch (err) {
-      this.dash.create(ErrorDialog).show("Unable to reach server. Network error.")
+      void this.dash.create(ErrorDialog).show("Unable to reach server. Network error.")
     }
     this.webhook.inProcessing = false
   }

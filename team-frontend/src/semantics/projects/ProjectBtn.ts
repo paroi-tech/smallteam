@@ -28,7 +28,7 @@ export default class ProjectBtn {
     this.el = root as HTMLButtonElement
     addCssClass(this.el, options.cssClass)
 
-    this.el.addEventListener("click", catchAndLog(() => { this.dash.app.navigate(`/prj-${this.project.id}`) }))
+    this.el.addEventListener("click", catchAndLog(() => { void this.dash.app.navigate(`/prj-${this.project.id}`) }))
 
     update(this.project)
     dash.listenTo<UpdateModelEvent>(dash.app.model, "updateProject", evData => {
