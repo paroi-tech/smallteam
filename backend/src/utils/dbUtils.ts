@@ -72,7 +72,7 @@ export async function getMediaEngine(subdomain: string): Promise<MediaEngine> {
   return engine
 }
 
-async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: string) {
+async function newSqliteCn(debugPrefix: string, fileName: string, newDbScriptFileName?: string) {
   const isNewDb = !await fileExists(fileName)
   const cn = ladc({
     adapter: sqlite3Adapter({ fileName, logWarning: msg => appLog.warn(msg) }),
@@ -94,43 +94,11 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
       await cn.exec("PRAGMA journal_mode = WAL")
     },
     poolOptions: {
-      logMonitoring: m => appLog.trace(debugPrefix, "[MONITORING]", `[${m.id}]`, m.event),
+      // logMonitoring: m => appLog.trace(debugPrefix, "[MONITORING]", `[${m.id}]`, m.event),
       connectionTtl: 30
     },
-    logError: err => appLog.error(err),
-    logDebug: debug => {
-      if (debug.callingContext) {
-        const cc = debug.callingContext
-        const msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
-        if (debug.error) {
-          appLog.trace(
-            "========>", debugPrefix, "[DEBUG-LADC-ERROR]", msg,
-            "\n  -- args --\n", cc.args,
-            "\n  -- error --\n", debug.error
-            // "\n  -- connection --\n", cc.connection
-          )
-        } else {
-          appLog.trace(
-            debugPrefix, "[DEBUG-LADC]", msg,
-            "\n  -- args --\n", cc.args
-            // "\n  -- result --\n", debug.result,
-            // "\n  -- connection --\n", cc.connection
-          )
-        }
-      } else {
-        if (debug.error) {
-          appLog.trace(
-            "========>", debugPrefix, "[DEBUG-LADC-ERROR] Open connection",
-            "\n  -- error --\n", debug.error
-          )
-        } else {
-          appLog.trace(
-            debugPrefix, "[DEBUG-LADC] Open connection"
-            // "\n  -- result --\n", debug.result
-          )
-        }
-      }
-    }
+    logError: err => appLog.error(err)
+    // logDebug: debug => logDebug(debug, debugPrefix)
   }) as SBMainConnection
 
   if (isNewDb && newDbScriptFileName)
@@ -138,6 +106,40 @@ async function newSqliteCn(debugPrefix, fileName: string, newDbScriptFileName?: 
 
   return cn
 }
+
+// function logDebug(debug: DebugEvent, debugPrefix: string) {
+//   if (debug.callingContext) {
+//     const cc = debug.callingContext
+//     const msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
+//     if (debug.error) {
+//       appLog.trace(
+//         "========>", debugPrefix, "[DEBUG-LADC-ERROR]", msg,
+//         "\n  -- args --\n", cc.args,
+//         "\n  -- error --\n", debug.error
+//         // "\n  -- connection --\n", cc.connection
+//       )
+//     } else {
+//       appLog.trace(
+//         debugPrefix, "[DEBUG-LADC]", msg,
+//         "\n  -- args --\n", cc.args
+//         // "\n  -- result --\n", debug.result,
+//         // "\n  -- connection --\n", cc.connection
+//       )
+//     }
+//   } else {
+//     if (debug.error) {
+//       appLog.trace(
+//         "========>", debugPrefix, "[DEBUG-LADC-ERROR] Open connection",
+//         "\n  -- error --\n", debug.error
+//       )
+//     } else {
+//       appLog.trace(
+//         debugPrefix, "[DEBUG-LADC] Open connection"
+//         // "\n  -- result --\n", debug.result
+//       )
+//     }
+//   }
+// }
 
 export function toIntList(strList: (string | number)[]): number[] {
   return strList.map(val => typeof val === "number" ? val : parseInt(val, 10))
