@@ -8,9 +8,9 @@
 
 ### Thomas
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
-- [ ] Change log system in backend. Remove all calls to `console.log()`.
-- [ ] Use typeonly to validate the config file.
-- [ ] Use ESLint & prettier instead of TSLint.
+- [*] Change log system in backend. Remove all calls to `console.log()`.
+- [*] Use typeonly to validate the config file.
+- [*] Use ESLint & prettier instead of TSLint.
 - [ ] At registration, show a warning that mentions that teams inactive for several months will be removed.
       Paroi may change the terms and conditions of the service at anytime.
       You can get your data stored on our server if you ask.
