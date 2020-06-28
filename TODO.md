@@ -8,26 +8,26 @@
 
 ### Thomas
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
-- [*] Change log system in backend. Remove all calls to `console.log()`.
-- [*] Use typeonly to validate the config file.
-- [*] Use ESLint & prettier instead of TSLint.
+- [x] Change log system in backend. Remove all calls to `console.log()`.
+- [x] Use typeonly to validate the config file.
+- [x] Use ESLint & prettier instead of TSLint.
 - [ ] At registration, show a warning that mentions that teams inactive for several months will be removed.
       Paroi may change the terms and conditions of the service at anytime.
       You can get your data stored on our server if you ask.
 - [ ] Try to use Rush. https://rushjs.io/
-- [*] Remove webpack unused configs and generate bundles without map files for prod.
+- [x] Remove webpack unused configs and generate bundles without map files for prod.
 
 ### Lionel
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
-- [*] Update modal dialogs to enable several row of text.
-- [*] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
+- [x] Update modal dialogs to enable several row of text.
+- [x] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
 - [ ] Don't allow a contributor to change his own status.
-- [*] Configure team creation process so that for each new team, a default project named *First Project* is available.
+- [x] Configure team creation process so that for each new team, a default project named *First Project* is available.
       Complete the database creation script with required `insert` statements.
-- [*] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
-- [*] [backend] Use Joi in backend/src/utils/joiUtils.ts.
-- [*] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
+- [x] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
+- [x] [backend] Use Joi in backend/src/utils/joiUtils.ts.
+- [x] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
 
 ---
 
