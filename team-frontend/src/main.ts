@@ -16,7 +16,8 @@ async function startup() {
       const sessionData = { accountId }
       // TODO: handle WS connection failure.
       await wsClientInit()
-      // console.log("WS connection successful")
+      // eslint-disable-next-line no-console
+      console.log("WS connection successful")
       await app.start(sessionData)
     }
   } catch (err) {
