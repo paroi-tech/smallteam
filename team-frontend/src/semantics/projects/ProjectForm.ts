@@ -1,6 +1,6 @@
+import WarningDialog from "@smallteam/shared-ui/modal-dialogs/WarningDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
-import WarningDialog from "../../../../shared-ui/modal-dialogs/WarningDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, ProjectModel, StepModel } from "../../AppModel/AppModel"
 import { DropdownMenu } from "../../generics/DropdownMenu"

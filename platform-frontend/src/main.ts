@@ -1,6 +1,6 @@
-require("../../shared-ui/theme.scss")
+require("@smallteam/shared-ui/theme.scss")
+import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
 import { createApplication } from "bkb"
-import { removeAllChildren } from "../../shared-ui/libraries/utils"
 import App from "./App"
 
 document.addEventListener("DOMContentLoaded", () => {

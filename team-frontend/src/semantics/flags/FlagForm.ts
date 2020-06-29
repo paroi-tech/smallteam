@@ -1,6 +1,6 @@
+import { FlagCreateFragment, FlagUpdateFragment } from "@smallteam/shared/meta/Flag"
 import { Log } from "bkb"
 import handledom from "handledom"
-import { FlagCreateFragment, FlagUpdateFragment } from "../../../../shared/meta/Flag"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { FlagModel, Model } from "../../AppModel/AppModel"
 

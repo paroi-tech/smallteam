@@ -1,4 +1,4 @@
-import { GitCommitFragment } from "../../../../shared/meta/GitCommit"
+import { GitCommitFragment } from "@smallteam/shared/meta/GitCommit"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 
 export type GitCommitModel = GitCommitFragment

@@ -1,6 +1,6 @@
+import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
 import { Dash } from "bkb"
 import handledom from "handledom"
-import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 import App from "../AppFrame/App"
 import { ChildEasyRouter, createEasyRouter, EasyRouter } from "../libraries/EasyRouter"
 

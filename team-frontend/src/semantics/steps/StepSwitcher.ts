@@ -1,6 +1,6 @@
+import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
 import { Log } from "bkb"
 import handledom from "handledom"
-import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, ProjectModel, ReorderModelEvent, StepModel, TaskModel } from "../../AppModel/AppModel"
 import BoxList, { BoxEvent, BoxListEvent } from "../../generics/BoxList"

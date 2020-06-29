@@ -7,12 +7,6 @@
     "editor.defaultFormatter": "vscode.typescript-language-features",
     "editor.formatOnSave": true
   },
-  "antlr4.format": {
-    "continuationIndentWidth": 2,
-    "indentWidth": 2,
-    "tabWidth": 2,
-    "useTab": false
-  },
   "editor.insertSpaces": true,
   "editor.rulers": [120],
   "editor.tabSize": 2,

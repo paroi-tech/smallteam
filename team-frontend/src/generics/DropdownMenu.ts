@@ -1,6 +1,6 @@
+import { catchAndLog } from "@smallteam/shared-ui/libraries/utils"
 import { Dash } from "bkb"
 import handledom from "handledom"
-import { catchAndLog } from "../../../shared-ui/libraries/utils"
 import NavMenu, { NavMenuOptions } from "./NavMenu"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions

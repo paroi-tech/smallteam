@@ -1,6 +1,6 @@
+import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
 import { Log } from "bkb"
 import handledom from "handledom"
-import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { TaskModel } from "../../AppModel/AppModel"
 import { GitCommitModel } from "../../AppModel/Models/GitCommitModel"

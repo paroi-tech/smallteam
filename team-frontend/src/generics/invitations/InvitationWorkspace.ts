@@ -1,6 +1,6 @@
+import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
 import { Dash, Log } from "bkb"
 import handledom from "handledom"
-import ErrorDialog from "../../../../shared-ui/modal-dialogs/ErrorDialog"
 import App from "../../AppFrame/App"
 import { Model } from "../../AppModel/modelDefinitions"
 import BoxList from "../BoxList"

@@ -1,8 +1,8 @@
+import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
+import QuestionDialog from "@smallteam/shared-ui/modal-dialogs/QuestionDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
-import ErrorDialog from "../../../shared-ui/modal-dialogs/ErrorDialog"
-import InfoDialog from "../../../shared-ui/modal-dialogs/InfoDialog"
-import QuestionDialog from "../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../AppFrame/OwnDash"
 import { WebhookModel } from "./WebhookWorkspace"
 

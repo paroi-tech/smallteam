@@ -1,6 +1,6 @@
+import QuestionDialog from "@smallteam/shared-ui/modal-dialogs/QuestionDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
-import QuestionDialog from "../../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { ARCHIVED_STEP_ID, Model, ON_HOLD_STEP_ID, TaskModel } from "../../AppModel/AppModel"
 import { Dialog, DialogOptions } from "../../generics/Dialog"

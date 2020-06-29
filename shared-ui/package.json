@@ -11,6 +11,7 @@
     "lint": "eslint . --ext .ts --ignore-path .gitignore"
   },
   "dependencies": {
+    "@smallteam/shared": "0.0.0",
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",
     "handledom": "^0.1.5"

@@ -1,5 +1,5 @@
+import commentMeta, { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentSearchFragment, CommentUpdateFragment } from "@smallteam/shared/meta/Comment"
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
-import commentMeta, { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentSearchFragment, CommentUpdateFragment } from "../../../../shared/meta/Comment"
 import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"

@@ -1,4 +1,4 @@
-require("../../shared-ui/theme.scss")
+require("@smallteam/shared-ui/theme.scss")
 require("./common.scss")
 
 import { createApplication } from "bkb"

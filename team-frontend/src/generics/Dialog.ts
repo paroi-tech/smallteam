@@ -1,7 +1,7 @@
+import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import { removeAllChildren } from "../../../shared-ui/libraries/utils"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
