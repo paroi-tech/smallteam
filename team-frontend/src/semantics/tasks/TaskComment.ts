@@ -1,7 +1,7 @@
+import QuestionDialog from "@smallteam/shared-ui/modal-dialogs/QuestionDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { Converter } from "showdown"
-import QuestionDialog from "../../../../shared-ui/modal-dialogs/QuestionDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { CommentModel, Model } from "../../AppModel/AppModel"
 

@@ -1,5 +1,5 @@
+import { GitCommitFragment } from "@smallteam/shared/meta/GitCommit"
 import { in as sqlIn, select } from "sql-bricks"
-import { GitCommitFragment } from "../../../../shared/meta/GitCommit"
 import { toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 

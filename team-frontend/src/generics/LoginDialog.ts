@@ -1,9 +1,9 @@
+import Deferred from "@smallteam/shared-ui/libraries/Deferred"
+import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
+import WarningDialog from "@smallteam/shared-ui/modal-dialogs/WarningDialog"
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import Deferred from "../../../shared-ui/libraries/Deferred"
-import ErrorDialog from "../../../shared-ui/modal-dialogs/ErrorDialog"
-import WarningDialog from "../../../shared-ui/modal-dialogs/WarningDialog"
 import App from "../AppFrame/App"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions

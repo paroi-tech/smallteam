@@ -1,5 +1,5 @@
 import { appLog } from "./context"
-import { closeAllConnections, initPlatformCn } from "./utils/dbUtils"
+import { initPlatformCn } from "./utils/dbUtils"
 import { startWebServer, stopServer } from "./webServer"
 
 
@@ -27,7 +27,7 @@ async function stopAll(signal: string) {
       process.exit(1)
     }, 30000).unref()
     await Promise.all([
-      closeAllConnections(),
+      // closeAllConnections(),
       stopServer()
     ])
     appLog.info("... ended.")

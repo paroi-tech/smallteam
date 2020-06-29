@@ -12,7 +12,8 @@
     "lint": "eslint . --ext .ts"
   },
   "dependencies": {
-    "@smallteam/shared-ui": "file:../shared-ui",
+    "@smallteam/shared": "0.0.0",
+    "@smallteam/shared-ui": "0.0.0",
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",
     "handledom": "^0.1.5",

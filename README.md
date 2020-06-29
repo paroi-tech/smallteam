@@ -5,36 +5,27 @@
 In a terminal:
 
 ```sh
-npm run serve --prefix backend
+(cd backend && rushx serve)
 ```
 
 In the vscode's terminal, run one of these commands:
 
 ```sh
 # Work on Team
-npm run watch --prefix team-frontend
+(cd team-frontend && rushx watch)
 
 # Work on Platform
-npm run watch --prefix platform-frontend
+(cd platform-frontend && rushx watch)
 
 # Work on Registration
-npm run watch --prefix registration-frontend
+(cd registration-frontend && rushx watch)
 ```
 
-After a modification in `shared` or `shared-ui`:
+After changing a `package.json` or a `git pull`:
 
 ```sh
-npm run build --prefix shared
-npm run build --prefix shared-ui
-```
-
-Update all frontend dependencies:
-
-```sh
-npm upd --prefix shared-ui
-npm upd --prefix platform-frontend
-npm upd --prefix team-frontend
-npm upd --prefix registration-frontend
+rush update
+rush rebuild
 ```
 
 ## Install a local development environment
@@ -57,28 +48,30 @@ mkdir data
 cp backend/config.local.json backend/config.json
 ```
 
+Install `@microsoft/rush` and `pnpm` globally:
+
+```sh
+sudo npm i pnpm @microsoft/rush -g
+```
+
+https://rushjs.io/pages/developer/modifying_package_json/
+https://rushjs.io/pages/developer/everyday_commands/
+
 Install and build all the subprojects:
 
 ```sh
-npm i --prefix shared
-npm i --prefix backend
-npm i --prefix shared-ui
-npm i --prefix platform-frontend
-npm i --prefix registration-frontend
-npm i --prefix team-frontend
+rush install
+rush build
 
-npm run build --prefix shared
-npm run build --prefix backend
-npm run build --prefix shared-ui
-npm run build:dev --prefix platform-frontend
-npm run build:dev --prefix registration-frontend
-npm run build:dev --prefix team-frontend
+(cd team-frontend && rushx build:dev)
+(cd platform-frontend && rushx build:dev)
+(cd registration-frontend && rushx build:dev)
 ```
 
 Now, start the backend:
 
 ```sh
-npm run serve --prefix backend
+(cd backend && rushx serve)
 ```
 
 Then, load the platform frontend: http://smallteam.paroi.local:3921/

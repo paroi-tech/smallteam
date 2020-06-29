@@ -1,5 +1,5 @@
+import Deferred from "@smallteam/shared-ui/libraries/Deferred"
 import { Dash } from "bkb"
-import Deferred from "../../../shared-ui/libraries/Deferred"
 
 export interface BgCommand<R = any> {
   readonly label: string

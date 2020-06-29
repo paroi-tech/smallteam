@@ -1,5 +1,5 @@
-import ErrorDialog from "../../../../shared-ui/modal-dialogs/ErrorDialog"
-import InfoDialog from "../../../../shared-ui/modal-dialogs/InfoDialog"
+import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, ProjectModel } from "../../AppModel/AppModel"
 import { DropdownMenu } from "../../generics/DropdownMenu"

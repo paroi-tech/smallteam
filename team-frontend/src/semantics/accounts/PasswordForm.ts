@@ -1,9 +1,9 @@
+import PasswordEdit from "@smallteam/shared-ui/components/PasswordEdit"
+import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
+import { whyNewPasswordIsInvalid } from "@smallteam/shared/libraries/helpers"
 import { Log } from "bkb"
 import handledom from "handledom"
-import PasswordEdit from "../../../../shared-ui/components/PasswordEdit"
-import ErrorDialog from "../../../../shared-ui/modal-dialogs/ErrorDialog"
-import InfoDialog from "../../../../shared-ui/modal-dialogs/InfoDialog"
-import { whyNewPasswordIsInvalid } from "../../../../shared/libraries/helpers"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { AccountModel } from "../../AppModel/AppModel"
 

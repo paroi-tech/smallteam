@@ -1,5 +1,5 @@
+import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
 import handledom from "handledom"
-import { removeAllChildren } from "../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, TaskModel } from "../../AppModel/AppModel"
 import { Box } from "../../generics/BoxList"

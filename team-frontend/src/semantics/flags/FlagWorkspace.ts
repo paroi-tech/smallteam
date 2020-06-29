@@ -1,6 +1,6 @@
+import { equal } from "@smallteam/shared-ui/libraries/utils"
 import { Log } from "bkb"
 import handledom from "handledom"
-import { equal } from "../../../../shared-ui/libraries/utils"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { FlagModel, Model } from "../../AppModel/AppModel"
 import BoxList, { BoxListEvent } from "../../generics/BoxList"

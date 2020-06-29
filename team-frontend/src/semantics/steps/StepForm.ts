@@ -1,6 +1,6 @@
+import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
-import InfoDialog from "../../../../shared-ui/modal-dialogs/InfoDialog"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, StepModel } from "../../AppModel/AppModel"
 import { DropdownMenu } from "../../generics/DropdownMenu"

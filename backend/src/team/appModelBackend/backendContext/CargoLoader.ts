@@ -1,5 +1,5 @@
-import { BatchCargo, Cargo, Dependencies, Identifier, ResultType, Type } from "../../../../../shared/Cargo"
-import { toIdentifier } from "../../../../../shared/meta"
+import { BatchCargo, Cargo, Dependencies, Identifier, ResultType, Type } from "@smallteam/shared/Cargo"
+import { toIdentifier } from "@smallteam/shared/meta"
 import ModelUpdateLoader, { ChangedType } from "./ModelUpdateLoader"
 import ResponseLoader from "./ResponseLoader"
 

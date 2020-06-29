@@ -1,5 +1,5 @@
-import { StepCreateFragment, StepFragment, StepIdFragment, StepUpdateFragment } from "../../../../shared/meta/Step"
-import { WhoUseItem } from "../../../../shared/transfers"
+import { StepCreateFragment, StepFragment, StepIdFragment, StepUpdateFragment } from "@smallteam/shared/meta/Step"
+import { WhoUseItem } from "@smallteam/shared/transfers"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 
 export interface StepUpdateTools {
