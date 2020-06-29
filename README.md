@@ -67,6 +67,14 @@ See also:
 
 Now, make sure you never use _npm_ directly on this monorepo. Use only **rush**.
 
+Warning: On Ubuntu, the snap version of Node.js is buggy. Here is how to reinstall Node using nodesource:
+
+```sh
+sudo bash
+snap remove node
+curl -sL https://deb.nodesource.com/setup_12.x | bash -
+```
+
 ### Installation, part 2
 
 Now, install and build all the subprojects:
