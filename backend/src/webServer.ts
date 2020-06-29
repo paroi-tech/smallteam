@@ -3,7 +3,10 @@ import { Request, Response, Router } from "express"
 import * as http from "http"
 import * as path from "path"
 import { appLog, conf, packageDir } from "./context"
-import { routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook, routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification } from "./notifications"
+import {
+  routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook,
+  routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification
+} from "./notifications"
 import { getPlatformHtml } from "./platform/frontend"
 import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./platform/platform"
 import { getRegistrationHtml } from "./registration/frontend"
@@ -49,7 +52,7 @@ export async function startWebServer() {
     dir
   })
 
-  app.use(session({
+  const sessionParser = session({
     secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",
     resave: false,
     saveUninitialized: false,
@@ -59,7 +62,7 @@ export async function startWebServer() {
       maxAge: 2 * 24 * 60 * 60 * 1000 // 2 days
     }
   })
-  )
+  app.use(sessionParser)
 
   const router = Router()
 
@@ -135,7 +138,7 @@ export async function startWebServer() {
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
 
-  wsEngineInit(server)
+  wsEngineInit(server, sessionParser)
 
   await new Promise((resolve) => {
     server!.listen(port, resolve)
@@ -162,6 +165,7 @@ export async function stopServer() {
   })
 }
 
+// TODO: add a parameter that tells if the callback is a model route and forward returned value to websockets.
 function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
   return async function (req: Request, res: Response) {
     const subdomain = await getConfirmedSubdomain(req)

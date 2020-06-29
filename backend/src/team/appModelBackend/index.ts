@@ -4,7 +4,10 @@ import { SessionData } from "../../session"
 import { getCn, getMediaEngine } from "../../utils/dbUtils"
 import { CargoLoader, ModelContext } from "./backendContext/context"
 import "./backendMeta/initBackendMeta"
-import { createAccount, deleteAccount, fetchAccounts, fetchAccountsByIds, reorderAffectedAccounts, updateAccount, whoUseAccount } from "./queryAccount"
+import {
+  createAccount, deleteAccount, fetchAccounts, fetchAccountsByIds, reorderAffectedAccounts,
+  updateAccount, whoUseAccount
+} from "./queryAccount"
 import { createComment, deleteComment, fetchComments, fetchCommentsByIds, updateComment } from "./queryComment"
 import { createFlag, deleteFlag, fetchFlags, fetchFlagsByIds, reorderFlags, updateFlag, whoUseFlag } from "./queryFlag"
 import { fetchGitCommitsByIds } from "./queryGitCommit"

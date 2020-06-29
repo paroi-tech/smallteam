@@ -1,8 +1,7 @@
+import { RequestHandler } from "express"
 import { Server } from "http"
 import { v4 } from "uuid"
 import { Server as WsServer } from "ws"
-import { appLog } from "../context"
-import { hasSession } from "../session"
 import WebSocket = require("ws")
 
 interface WebSocketWithProperties extends WebSocket {
@@ -13,32 +12,40 @@ interface WSProperties {
   socketId: string
   isAlive: boolean
   listenModel?: boolean
+  subdomain: string
+  accountId: string
 }
 
 // eslint-disable-next-line @typescript-eslint/no-empty-function
 function noop() {
 }
 
-export function wsEngineInit(server: Server) {
+export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
   const wss = new WsServer({ server })
 
-  server.on("upgrade", async function upgrade(req, socket) {
-    let accept = false
-
-    try {
-      accept = await hasSession(req)
-    } catch (error) {
-      appLog.error("Error while checking user session.", error.message || undefined)
-    } finally {
-      if (!accept)
+  server.on("upgrade", function upgrade(req, socket) {
+    sessionParser(req, {} as any, () => {
+      if (!req.session || !req.session.accountId || req.session.subdomain) {
         socket.destroy()
-    }
+        return
+      }
+    })
   })
 
-  wss.on("connection", function (ws: WebSocketWithProperties) {
+  wss.on("connection", function (ws: WebSocketWithProperties, req: any) {
+    const accountId = req.session?.accountId
+    const subdomain = req.session?.subdomain
+
+    if (!accountId || !subdomain) {
+      ws.terminate()
+      return
+    }
+
     ws.attachedProperties = {
       socketId: v4(),
-      isAlive: true
+      isAlive: true,
+      subdomain,
+      accountId
     }
 
     ws.on("pong", function (this: WebSocketWithProperties) {
@@ -48,6 +55,7 @@ export function wsEngineInit(server: Server) {
     })
 
     ws.send(JSON.stringify({
+      type: "id",
       socketId: ws.attachedProperties.socketId
     }))
   })
