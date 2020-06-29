@@ -30,6 +30,8 @@ rush rebuild
 
 ## Install a local development environment
 
+### Installation, part 1
+
 Redirect `smallteam.paroi.local` to localhost. Create domains for `team1` and `team2`.
 
 ```
@@ -48,21 +50,43 @@ mkdir data
 cp backend/config.local.json backend/config.json
 ```
 
+### Rush
+
 Install `@microsoft/rush` and `pnpm` globally:
 
 ```sh
 sudo npm i pnpm @microsoft/rush -g
 ```
 
-https://rushjs.io/pages/developer/modifying_package_json/
-https://rushjs.io/pages/developer/everyday_commands/
+See also:
 
-Install and build all the subprojects:
+* [Modifying package.json](https://rushjs.io/pages/developer/modifying_package_json/)
+* [Everyday commands](https://rushjs.io/pages/developer/everyday_commands/)
+* [Other helpful commands](https://rushjs.io/pages/developer/other_commands/)
+* [NPM vs PNPM vs Yarn](https://rushjs.io/pages/maintainer/package_managers/)
+
+Now, make sure you never use _npm_ directly on this monorepo. Use only **rush**.
+
+Warning: On Ubuntu, the snap version of Node.js is buggy. Here is how to reinstall Node using nodesource:
+
+```sh
+sudo bash
+snap remove node
+curl -sL https://deb.nodesource.com/setup_12.x | bash -
+```
+
+### Installation, part 2
+
+Now, install and build all the subprojects:
 
 ```sh
 rush install
 rush build
+```
 
+Optionally, rebuild the frontends in development mode:
+
+```sh
 (cd team-frontend && rushx build:dev)
 (cd platform-frontend && rushx build:dev)
 (cd registration-frontend && rushx build:dev)

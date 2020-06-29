@@ -14,7 +14,7 @@
 - [ ] At registration, show a warning that mentions that teams inactive for several months will be removed.
       Paroi may change the terms and conditions of the service at anytime.
       You can get your data stored on our server if you ask.
-- [ ] Try to use Rush. https://rushjs.io/
+- [x] Try to use Rush. https://rushjs.io/
 - [x] Remove webpack unused configs and generate bundles without map files for prod.
 
 ### Lionel
