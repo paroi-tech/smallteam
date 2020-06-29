@@ -33,21 +33,30 @@
   "search.useIgnoreFiles": true,
   "todo-tree.highlights.customHighlight": {
     "TODO": {
-      "icon": "check",
-      "iconColour": "#cc4"
+      "background": "#ffa500",
+      "fontWeight": "500",
+      "foreground": "#fff",
+      "icon": "checklist",
+      "iconColour": "#f5a542",
+      "opacity": 90,
     },
     "FIXME": {
-      "background": "#fa4",
-      "opacity": 60,
-      "iconColour": "#f5a542"
+      "background": "#cd5c5c",
+      "fontWeight": "500",
+      "foreground": "#fff",
+      "icon": "flame",
+      "iconColour": "#cd5c5c",
+      "opacity": 90
     }
   },
   "todo-tree.highlights.defaultHighlight": {
-    "icon": "alert",
-    "type": "text",
-    "foreground": "#632",
     "background": "#dd8",
-    "opacity": 50
+    "fontWeight": "500",
+    "foreground": "#632",
+    "icon": "tasklist",
+    "opacity": 90,
+    "type": "text",
+    "iconColour": "#1e90ff"
   },
   "todo-tree.highlights.highlightDelay": 50,
   "todo-tree.filtering.excludeGlobs": [ "**/*.md" ],
