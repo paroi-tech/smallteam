@@ -16,8 +16,8 @@
       You can get your data stored on our server if you ask.
 - [x] Try to use Rush. https://rushjs.io/
 - [x] Remove webpack unused configs and generate bundles without map files for prod.
-- [] Maybe separate source files and compiled files in `shared` and `shared-ui`.
-- [] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
+- [ ] Maybe separate source files and compiled files in `shared` and `shared-ui`.
+- [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
 
 ### Lionel
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
