@@ -18,7 +18,7 @@ import {
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
 import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
 import { getTeamHtml } from "./team/frontend"
-import { wsEngineInit } from "./team/wsEngine"
+import { broadcastModelUpdate, wsEngineInit } from "./team/wsEngine"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
@@ -86,8 +86,8 @@ export async function startWebServer() {
   router.post("/api/registration/reset-password", makeRouteHandler(routeResetPassword, true))
 
   router.post("/api/model/query", makeRouteHandler(routeFetch, false))
-  router.post("/api/model/exec", makeRouteHandler(routeExec, false))
-  router.post("/api/model/batch", makeRouteHandler(routeBatch, false))
+  router.post("/api/model/exec", makeRouteHandler(routeExec, false, true))
+  router.post("/api/model/batch", makeRouteHandler(routeBatch, false, true))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
   router.post("/api/notifications/github/fetch-webhooks", makeRouteHandler(routeFetchGithubWebhooks, false))
@@ -165,8 +165,7 @@ export async function stopServer() {
   })
 }
 
-// TODO: add a parameter that tells if the callback is a model route and forward returned value to websockets.
-function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
+function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
   return async function (req: Request, res: Response) {
     const subdomain = await getConfirmedSubdomain(req)
 
@@ -191,7 +190,12 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean) {
       // FIXME: route cb should be able to set response object status code. REALLY!!!
       body = await waitForRequestBody(req)
       req["rawBody"] = body
-      writeJsonResponse(res, 200, await cb(subdomain, JSON.parse(body), req.session as any, req, res))
+
+      const data = await cb(subdomain, JSON.parse(body), req.session as any, req, res)
+
+      writeJsonResponse(res, 200, data)
+      if (!isPublic && notifyWs)
+        broadcastModelUpdate(subdomain, data)
     } catch (err) {
       writeServerResponseError(res, err, body)
     }

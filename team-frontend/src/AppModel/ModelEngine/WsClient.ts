@@ -3,7 +3,11 @@ export async function wsClientInit() {
     const socket = new WebSocket("ws://localhost:3921")
 
     socket.addEventListener("error", () => reject("Unable to contact server via websocket"))
-    socket.addEventListener("open", () => resolve(true))
+    socket.addEventListener("open", () => {
+      // eslint-disable-next-line no-console
+      console.log("WS connection successful")
+      resolve(true)
+    })
     socket.addEventListener("message", handleWsMessage)
   })
 }
@@ -11,13 +15,18 @@ export async function wsClientInit() {
 function handleWsMessage(this: WebSocket, ev: MessageEvent) {
   let data: any | undefined
 
+  // eslint-disable-next-line no-console
+  console.log("received data via ws", ev.data)
+
   try {
     data = JSON.parse(ev.data)
   } catch (error) {
     // eslint-disable-next-line no-console
     console.error("Received bad JSON from server.")
-    return
   }
+
+  if (!data)
+    return
 
   switch (data.type) {
     case "close":

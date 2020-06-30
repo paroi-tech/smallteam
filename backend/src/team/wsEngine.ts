@@ -1,7 +1,8 @@
 import { RequestHandler } from "express"
 import { Server } from "http"
-import { v4 } from "uuid"
+import { v4 as uuid } from "uuid"
 import { Server as WsServer } from "ws"
+import { appLog } from "../context"
 import WebSocket = require("ws")
 
 interface WebSocketWithProperties extends WebSocket {
@@ -16,12 +17,11 @@ interface WSProperties {
   accountId: string
 }
 
-// eslint-disable-next-line @typescript-eslint/no-empty-function
-function noop() {
-}
+let wsServer: WsServer | undefined
+const wsClients = new Map<string, Map<string, WebSocketWithProperties>>()
 
 export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
-  const wss = new WsServer({ server })
+  wsServer = new WsServer({ server })
 
   server.on("upgrade", function upgrade(req, socket) {
     sessionParser(req, {} as any, () => {
@@ -32,21 +32,12 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
     })
   })
 
-  wss.on("connection", function (ws: WebSocketWithProperties, req: any) {
+  wsServer.on("connection", function (ws: WebSocketWithProperties, req: any) {
     const accountId = req.session?.accountId
     const subdomain = req.session?.subdomain
 
-    if (!accountId || !subdomain) {
-      ws.terminate()
+    if (!accountId || !subdomain)
       return
-    }
-
-    ws.attachedProperties = {
-      socketId: v4(),
-      isAlive: true,
-      subdomain,
-      accountId
-    }
 
     ws.on("pong", function (this: WebSocketWithProperties) {
       if (!this.attachedProperties)
@@ -54,33 +45,80 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
       this.attachedProperties.isAlive = true
     })
 
-    ws.send(JSON.stringify({
+    const socketId = uuid()
+    const data = JSON.stringify({
       type: "id",
-      socketId: ws.attachedProperties.socketId
-    }))
+      socketId
+    })
+
+    ws.send(data, (err) => {
+      if (err) {
+        // FIXME: what to do if id is not sent to client?
+        appLog.error("Unable to send identifier to a socket client.")
+        return
+      }
+
+      ws.attachedProperties = {
+        socketId,
+        accountId,
+        subdomain,
+        isAlive: true
+      }
+
+      let subdomainClients = wsClients.get(subdomain)
+      if (!subdomainClients) {
+        subdomainClients = new Map<string, WebSocketWithProperties>()
+        wsClients.set(subdomain, subdomainClients)
+      }
+      subdomainClients.set(ws.attachedProperties.socketId, ws)
+    })
   })
 
   const interval = setInterval(function ping() {
-    wss.clients.forEach((ws: WebSocketWithProperties) => {
+    if (!wsServer)
+      return
+    wsServer.clients.forEach((ws: WebSocketWithProperties) => {
       if (!ws.attachedProperties)
         return
       if (!ws.attachedProperties.isAlive) {
-        ws.terminate()
-        return
+        const { subdomain, socketId } = ws.attachedProperties
+        removeWebSocketFromClients(subdomain, socketId)
+        return ws.terminate()
       }
       ws.attachedProperties.isAlive = false
       ws.ping(noop)
     })
   }, 60000)
 
-  wss.on("close", () => clearInterval(interval))
+  wsServer.on("close", () => {
+    wsClients.clear()
+    clearInterval(interval)
+  })
 }
 
-// // Broadcast to all.
-// wss.broadcast = function broadcast(data) {
-//   wss.clients.forEach(function each(client) {
-//     if (client.readyState === WebSocket.OPEN) {
-//       client.send(data)
-//     }
-//   })
-// }
+export function broadcastModelUpdate(subdomain: string, data) {
+  appLog.trace("broadcasting", subdomain, data)
+  const subdomainClients = wsClients.get(subdomain)
+  if (!subdomainClients) {
+    appLog.trace("No clients")
+    return
+  }
+  for (const client of subdomainClients.values()) {
+    appLog.trace("First client")
+    if (client.readyState === WebSocket.OPEN) {
+      // TODO: handle error.
+      client.send(data)
+    }
+  }
+}
+
+// eslint-disable-next-line @typescript-eslint/no-empty-function
+function noop() {
+}
+
+function removeWebSocketFromClients(subdomain: string, socketId: string) {
+  const subdomainClients = wsClients.get(subdomain)
+  if (!subdomainClients)
+    return
+  subdomainClients.delete(socketId)
+}
