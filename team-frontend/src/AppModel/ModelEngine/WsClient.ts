@@ -1,42 +1,49 @@
 export async function wsClientInit() {
   return new Promise((resolve, reject) => {
-    const socket = new WebSocket(`ws://${window.location.hostname}:3921`)
+    const ws = new WebSocket(`ws://${window.location.hostname}:3921`)
 
-    socket.addEventListener("error", () => reject("Unable to contact server via websocket"))
-    socket.addEventListener("open", () => {
-      // FIXME: open event does not mean that the server has accepted the connection. See wss::upgrade.
-      // eslint-disable-next-line no-console
-      console.log("WS connection successful")
-      resolve(true)
+    setTimeout(() => reject(), 10000)
+    ws.addEventListener("error", () => {
+      reject()
+    }, { once: true })
+
+    ws.addEventListener("open", function () {
+      ws.addEventListener("message", function (ev: MessageEvent) {
+        const id = getWsId(ev.data)
+        if (id) {
+          this.addEventListener("message", ev => handleWsMessage(ev))
+          ws["attachedProperties"] = { socketId: id }
+          resolve(ws)
+        }
+        reject()
+      }, { once: true })
     })
-    socket.addEventListener("message", handleWsMessage)
   })
 }
 
-function handleWsMessage(this: WebSocket, ev: MessageEvent) {
-  let data: any | undefined
+// TODO: use application logger in these functions.
 
-  // eslint-disable-next-line no-console
-  console.log("Received data via ws", ev.data)
+function getWsId(payload: string) {
+  try {
+    return JSON.parse(payload).socketId
+  } catch (error) {
+    // eslint-disable-next-line no-console
+    console.log("Invalid Json received from ws server.")
+  }
+}
+
+function handleWsMessage(ev: MessageEvent) {
+  let data: any | undefined
 
   try {
     data = JSON.parse(ev.data)
   } catch (error) {
     // eslint-disable-next-line no-console
-    console.error("Received bad JSON from server.")
+    console.error("Received bad JSON from ws server.")
   }
 
-  if (!data)
-    return
-
-  switch (data.type) {
-    case "close":
-      this.close()
-      break
-    case "id":
-      // TODO: set socket connection ID here
-      break
-    default:
-      break
+  if (data) {
+    // eslint-disable-next-line no-console
+    console.log("Received data from ws server", data)
   }
 }
