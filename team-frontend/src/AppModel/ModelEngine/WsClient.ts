@@ -17,7 +17,7 @@ function handleWsMessage(this: WebSocket, ev: MessageEvent) {
   let data: any | undefined
 
   // eslint-disable-next-line no-console
-  console.log("received data via ws", ev.data)
+  console.log("Received data via ws", ev.data)
 
   try {
     data = JSON.parse(ev.data)
