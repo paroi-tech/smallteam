@@ -25,52 +25,39 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
 
   server.on("upgrade", function upgrade(req, socket) {
     sessionParser(req, {} as any, () => {
-      if (!req.session || !req.session.accountId || req.session.subdomain) {
+      if (!req.session?.accountId || !req.session?.subdomain)
         socket.destroy()
-        return
-      }
     })
   })
 
   wsServer.on("connection", function (ws: WebSocketWithProperties, req: any) {
-    const accountId = req.session?.accountId
-    const subdomain = req.session?.subdomain
-
-    if (!accountId || !subdomain)
-      return
-
-    ws.on("pong", function (this: WebSocketWithProperties) {
-      if (!this.attachedProperties)
-        return
-      this.attachedProperties.isAlive = true
-    })
-
-    const socketId = uuid()
-    const data = JSON.stringify({
-      type: "id",
-      socketId
-    })
-
-    ws.send(data, (err) => {
-      if (err) {
-        // FIXME: what to do if id is not sent to client?
-        appLog.error("Unable to send identifier to a socket client.")
-        return
+    sessionParser(req, {} as any, () => {
+      if (!req.session?.accountId || !req.session?.subdomain) {
+        appLog.trace("Rejecting ws connection due to missing session data.")
+        return ws.terminate()
       }
 
-      ws.attachedProperties = {
-        socketId,
-        accountId,
-        subdomain,
-        isAlive: true
-      }
+      const { accountId, subdomain } = req.session
+      appLog.trace(`Successfull ws connection for account ${accountId} on '${subdomain}' subdomain.`)
 
-      let subdomainClients = wsClients.get(subdomain)
-      if (!subdomainClients) {
-        subdomainClients = new Map<string, WebSocketWithProperties>()
-        wsClients.set(subdomain, subdomainClients)
-      }
-      subdomainClients.set(ws.attachedProperties.socketId, ws)
+      const socketId = uuid()
+      const data = JSON.stringify({
+        type: "id",
+        socketId
+      })
+
+      ws.send(data, (error) => {
+        if (error) {
+          appLog.error("Unable to send identifier to a ws. Closing the connection.")
+          return ws.terminate()
+        }
+        registerWsClient(ws, {
+          accountId,
+          subdomain,
+          socketId,
+          isAlive: true
+        })
+      })
     })
   })
 
@@ -82,7 +69,7 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
         return
       if (!ws.attachedProperties.isAlive) {
         const { subdomain, socketId } = ws.attachedProperties
-        removeWebSocketFromClients(subdomain, socketId)
+        unregisterWsClient(subdomain, socketId)
         return ws.terminate()
       }
       ws.attachedProperties.isAlive = false
@@ -96,19 +83,19 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
   })
 }
 
-export function broadcastModelUpdate(subdomain: string, data) {
-  appLog.trace("broadcasting", subdomain, data)
-  const subdomainClients = wsClients.get(subdomain)
-  if (!subdomainClients) {
-    appLog.trace("No clients")
+export function broadcastModelUpdate(subdomain: string, accountId: string, data) {
+  appLog.trace(`Broadcasting model update for '${subdomain}' subdomain clients.`)
+
+  const clients = wsClients.get(subdomain)
+  if (!clients) {
+    appLog.trace(`No client Map for '${subdomain}'...`)
     return
   }
-  for (const client of subdomainClients.values()) {
-    appLog.trace("First client")
-    if (client.readyState === WebSocket.OPEN) {
-      // TODO: handle error.
-      client.send(data)
-    }
+
+  const payload = JSON.stringify(data)
+  for (const client of clients.values()) {
+    if (client.readyState === WebSocket.OPEN)
+      client.send(payload, (error) => appLog.error("No error for you...", error))
   }
 }
 
@@ -116,9 +103,28 @@ export function broadcastModelUpdate(subdomain: string, data) {
 function noop() {
 }
 
-function removeWebSocketFromClients(subdomain: string, socketId: string) {
-  const subdomainClients = wsClients.get(subdomain)
-  if (!subdomainClients)
+function registerWsClient(ws: WebSocketWithProperties, props: WSProperties) {
+  ws.attachedProperties = props
+
+  let clients = wsClients.get(props.subdomain)
+  if (!clients) {
+    clients = new Map<string, WebSocketWithProperties>()
+    wsClients.set(props.subdomain, clients)
+  }
+  clients.set(props.socketId, ws)
+
+  ws.on("pong", function (this: WebSocketWithProperties) {
+    if (!this.attachedProperties)
+      return
+    this.attachedProperties.isAlive = true
+  })
+
+  ws.on("close", () => unregisterWsClient(props.subdomain, props.socketId))
+}
+
+function unregisterWsClient(subdomain: string, socketId: string) {
+  const clients = wsClients.get(subdomain)
+  if (!clients)
     return
-  subdomainClients.delete(socketId)
+  clients.delete(socketId)
 }

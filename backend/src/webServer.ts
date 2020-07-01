@@ -87,7 +87,7 @@ export async function startWebServer() {
 
   router.post("/api/model/query", makeRouteHandler(routeFetch, false))
   router.post("/api/model/exec", makeRouteHandler(routeExec, false, true))
-  router.post("/api/model/batch", makeRouteHandler(routeBatch, false, true))
+  router.post("/api/model/batch", makeRouteHandler(routeBatch, false, false))
   router.post("/api/model/who-use", makeRouteHandler(routeWhoUse, false))
 
   router.post("/api/notifications/github/fetch-webhooks", makeRouteHandler(routeFetchGithubWebhooks, false))
@@ -167,6 +167,7 @@ export async function stopServer() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
   return async function (req: Request, res: Response) {
+    const accountId = req.session?.accountId
     const subdomain = await getConfirmedSubdomain(req)
 
     if (!subdomain) {
@@ -195,7 +196,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
 
       writeJsonResponse(res, 200, data)
       if (!isPublic && notifyWs)
-        broadcastModelUpdate(subdomain, data)
+        broadcastModelUpdate(subdomain, accountId, data)
     } catch (err) {
       writeServerResponseError(res, err, body)
     }

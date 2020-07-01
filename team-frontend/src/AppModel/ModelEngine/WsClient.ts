@@ -1,9 +1,10 @@
 export async function wsClientInit() {
   return new Promise((resolve, reject) => {
-    const socket = new WebSocket("ws://localhost:3921")
+    const socket = new WebSocket(`ws://${window.location.hostname}:3921`)
 
     socket.addEventListener("error", () => reject("Unable to contact server via websocket"))
     socket.addEventListener("open", () => {
+      // FIXME: open event does not mean that the server has accepted the connection. See wss::upgrade.
       // eslint-disable-next-line no-console
       console.log("WS connection successful")
       resolve(true)
