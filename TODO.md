@@ -11,7 +11,7 @@
 - [x] Change log system in backend. Remove all calls to `console.log()`.
 - [x] Use typeonly to validate the config file.
 - [x] Use ESLint & prettier instead of TSLint.
-- [ ] At registration, show a warning that mentions that teams inactive for several months will be removed.
+- [x] At registration, show a warning that mentions that teams inactive for several months will be removed.
       Paroi may change the terms and conditions of the service at anytime.
       You can get your data stored on our server if you ask.
 - [x] Try to use Rush. https://rushjs.io/

@@ -27,7 +27,30 @@
 	p,
 	ul,
 	ol,
-	blockquote {
+	blockquote,
+  h1,
+  h2,
+  h3 {
+    line-height: 1.25;
 		margin: .25em 0;
 	}
+
+  h1 {
+    font-weight: bold;
+    margin: .5em 0;
+  }
+
+  ul,
+  ol {
+    padding-left: 30px;
+    & > li {
+      margin-bottom: .25em;
+    }
+  }
+  ul > li {
+    list-style-type: disc;
+  }
+  ol > li {
+    list-style-type: decimal;
+  }
 }
