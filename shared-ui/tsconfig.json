@@ -10,7 +10,6 @@
       "DOM",
       "ES2018"
     ],
-    "composite": true,
     "declaration": true,
     "baseUrl": ".",
     "outDir": "dist"
