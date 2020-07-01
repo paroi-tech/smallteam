@@ -6,7 +6,10 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "tsc",
+    "build": "",
+    "_build": "pnpm run clear && pnpm run tsc",
+    "clear": "rimraf dist/*",
+    "tsc": "tsc",
     "watch": "tsc --watch",
     "lint": "eslint . --ext .ts --ignore-path .gitignore"
   },
@@ -22,6 +25,7 @@
     "eslint": "^7.3.1",
     "eslint-config-prettier": "^6.11.0",
     "prettier": "^2.0.5",
+    "rimraf": "^3.0.2",
     "typescript": "^3.9.5"
   }
 }

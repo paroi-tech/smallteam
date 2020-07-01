@@ -6,7 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "clear": "rimraf dist",
+    "clear": "rimraf dist/*",
     "tsc": "tsc",
     "tsc:watch": "tsc --watch --preserveWatchOutput",
     "_nodemon": "nodemon --watch dist --watch ../shared --watch config.json dist/index.js -- --config config.json",

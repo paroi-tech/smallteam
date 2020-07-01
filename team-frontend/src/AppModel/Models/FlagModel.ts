@@ -1,5 +1,5 @@
-import { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "@smallteam/shared/meta/Flag"
-import { WhoUseItem } from "@smallteam/shared/transfers"
+import { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "@smallteam/shared/dist/meta/Flag"
+import { WhoUseItem } from "@smallteam/shared/dist/transfers"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 
 export interface FlagUpdateTools {

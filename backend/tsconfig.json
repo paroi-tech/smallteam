@@ -7,17 +7,12 @@
     "module": "CommonJS",
     "sourceMap": true,
     "lib": [
-      "ES2018",
-      "DOM"
+      "DOM",
+      "ES2018"
     ],
     "moduleResolution": "node",
     "esModuleInterop": true,
     "outDir": "dist"
   },
-  "include": ["src"],
-  "references": [
-    {
-      "path": "../shared"
-    }
-  ]
+  "include": ["src"]
 }

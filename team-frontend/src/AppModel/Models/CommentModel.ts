@@ -1,4 +1,4 @@
-import { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentUpdateFragment } from "@smallteam/shared/meta/Comment"
+import { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentUpdateFragment } from "@smallteam/shared/dist/meta/Comment"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { AccountModel } from "./AccountModel"
 import { TaskModel } from "./TaskModel"

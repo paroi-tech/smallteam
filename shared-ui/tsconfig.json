@@ -13,16 +13,7 @@
     "composite": true,
     "declaration": true,
     "baseUrl": ".",
-    // "paths": {
-    //   "@shared/*": [
-    //     "../../shared/"
-    //   ]
-    // }
+    "outDir": "dist"
   },
-  "include": ["."],
-  "references": [
-    {
-      "path": "../shared"
-    }
-  ]
+  "include": ["."]
 }

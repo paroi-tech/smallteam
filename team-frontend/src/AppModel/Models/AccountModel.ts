@@ -1,5 +1,5 @@
-import { AccountCreateFragment, AccountFragment, AccountIdFragment, AccountUpdateFragment } from "@smallteam/shared/meta/Account"
-import { WhoUseItem } from "@smallteam/shared/transfers"
+import { AccountCreateFragment, AccountFragment, AccountIdFragment, AccountUpdateFragment } from "@smallteam/shared/dist/meta/Account"
+import { WhoUseItem } from "@smallteam/shared/dist/transfers"
 import ModelEngine, { appendGettersToModel, appendUpdateToolsToModel } from "../ModelEngine"
 import { MediaModel } from "./MediaModel"
 

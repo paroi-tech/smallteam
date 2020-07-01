@@ -1,7 +1,2 @@
-*.js
-*.js.map
-*.d.ts
+dist
 tsconfig.tsbuildinfo
-
-!/*.d.ts
-!.eslintrc.js

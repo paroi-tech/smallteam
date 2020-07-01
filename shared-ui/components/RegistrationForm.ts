@@ -1,4 +1,4 @@
-import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "@smallteam/shared/libraries/helpers"
+import { whyNewPasswordIsInvalid, whyUsernameIsInvalid } from "@smallteam/shared/dist/libraries/helpers"
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"

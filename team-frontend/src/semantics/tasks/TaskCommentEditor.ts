@@ -1,5 +1,5 @@
 import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
-import { CommentCreateFragment } from "@smallteam/shared/meta/Comment"
+import { CommentCreateFragment } from "@smallteam/shared/dist/meta/Comment"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

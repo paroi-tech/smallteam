@@ -1,4 +1,4 @@
-import { FragmentMeta } from "."
+import { FragmentMeta } from "./index"
 import { pickFragmentMeta } from "./metaHelpers"
 
 export interface GitCommitFragment {

@@ -1,13 +1,13 @@
-import { CommentFragment } from "./meta/Comment"
-import { AccountFragment } from "./meta/Account"
-import { FlagFragment } from "./meta/Flag"
-import { ProjectFragment } from "./meta/Project"
-import { StepFragment } from "./meta/Step"
-import { TaskFragment } from "./meta/Task"
-import { TaskLogEntryFragment } from "./meta/TaskLogEntry"
-import { MediaFragment } from "./meta/Media"
-import { MediaVariantFragment } from "./meta/MediaVariant"
-import { GitCommitFragment } from "./meta/GitCommit"
+import type { AccountFragment } from "./meta/Account"
+import type { CommentFragment } from "./meta/Comment"
+import type { FlagFragment } from "./meta/Flag"
+import type { GitCommitFragment } from "./meta/GitCommit"
+import type { MediaFragment } from "./meta/Media"
+import type { MediaVariantFragment } from "./meta/MediaVariant"
+import type { ProjectFragment } from "./meta/Project"
+import type { StepFragment } from "./meta/Step"
+import type { TaskFragment } from "./meta/Task"
+import type { TaskLogEntryFragment } from "./meta/TaskLogEntry"
 
 export interface Fragments {
   Comment?: CommentFragment[]

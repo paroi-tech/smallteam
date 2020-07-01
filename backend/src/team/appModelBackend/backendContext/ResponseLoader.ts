@@ -1,4 +1,4 @@
-import { Cargo, CargoResponse, Identifier, Result, ResultType, Type } from "@smallteam/shared/Cargo"
+import { Cargo, CargoResponse, Identifier, Result, ResultType, Type } from "@smallteam/shared/dist/Cargo"
 
 export default class ResponseLoader {
   private displayError: string[] = []

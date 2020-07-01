@@ -1,6 +1,6 @@
 import { SBConnection, SBMainConnection as DbCn } from "@ladc/sql-bricks-modifier"
-import taskMeta, { TaskCreateFragment, TaskFragment, TaskIdFragment, TaskSearchFragment, TaskUpdateFragment } from "@smallteam/shared/meta/Task"
-import { WhoUseItem } from "@smallteam/shared/transfers"
+import taskMeta, { TaskCreateFragment, TaskFragment, TaskIdFragment, TaskSearchFragment, TaskUpdateFragment } from "@smallteam/shared/dist/meta/Task"
+import { WhoUseItem } from "@smallteam/shared/dist/transfers"
 import { deleteFrom, in as sqlIn, insertInto, like, or, select, update } from "sql-bricks"
 import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"

@@ -1,6 +1,6 @@
 import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
-import { whyNewPasswordIsInvalid } from "@smallteam/shared/libraries/helpers"
+import { whyNewPasswordIsInvalid } from "@smallteam/shared/dist/libraries/helpers"
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request } from "express"

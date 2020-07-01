@@ -1,4 +1,4 @@
-import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "@smallteam/shared/meta/TaskLogEntry"
+import { TaskLogEntryFragment, TaskLogEntrySearchFragment } from "@smallteam/shared/dist/meta/TaskLogEntry"
 import { in as sqlIn, insert, select } from "sql-bricks"
 import { intVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"

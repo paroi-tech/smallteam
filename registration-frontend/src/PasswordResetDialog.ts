@@ -1,7 +1,7 @@
 import PasswordEdit from "@smallteam/shared-ui/components/PasswordEdit"
 import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
 import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
-import { whyNewPasswordIsInvalid } from "@smallteam/shared/libraries/helpers"
+import { whyNewPasswordIsInvalid } from "@smallteam/shared/dist/libraries/helpers"
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"

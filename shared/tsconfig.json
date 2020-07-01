@@ -10,8 +10,10 @@
       "DOM",
       "ES2018"
     ],
-    "composite": true,
-    "declaration": true
+    "moduleResolution": "node",
+    "esModuleInterop": true,
+    "declaration": true,
+    "outDir": "dist"
   },
-  "include": ["."]
+  "include": ["src"]
 }

@@ -1,4 +1,4 @@
-import { FragmentMeta } from "."
+import { FragmentMeta } from "./index"
 import { pickFragmentMeta, PickUpdate, pickUpdateFragmentMeta, SearchPick, searchPickFragmentMeta } from "./metaHelpers"
 
 export interface AccountFragment {

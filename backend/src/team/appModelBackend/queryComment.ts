@@ -1,4 +1,4 @@
-import commentMeta, { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentSearchFragment, CommentUpdateFragment } from "@smallteam/shared/meta/Comment"
+import commentMeta, { CommentCreateFragment, CommentFragment, CommentIdFragment, CommentSearchFragment, CommentUpdateFragment } from "@smallteam/shared/dist/meta/Comment"
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
 import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
