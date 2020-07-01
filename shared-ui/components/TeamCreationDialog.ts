@@ -11,6 +11,8 @@ import WarningDialog from "../modal-dialogs/WarningDialog"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
+@import "../shared-ui/theme/definitions";
+
 .TeamCreationDialog {
   margin-left: auto;
   margin-right: auto;
@@ -25,8 +27,10 @@ scss`
   &-header {
     align-items: center;
     border-radius: 4px;
+    color: #333;
     display: flex;
     flex-direction: column;
+    font-size: $f14;
     justify-content: space-around;
     margin-bottom: 8px;
   }
@@ -43,9 +47,19 @@ scss`
 
 const template = handledom`
 <dialog class="TeamCreationDialog">
-  <header class="TeamCreationDialog-header">
-    <img class="TeamCreationDialog-warning" src="svg/feather/alert-triangle.svg"/>
-    <p>This service is available for testing only.</p>
+  <header class="TeamCreationDialog-header Text">
+    <h1>SmallTeam Terms of Use</h1>
+    <ol>
+      <li>This service is free.</li>
+      <li>Data from active teams will be provided to team administrators upon request, in the form of SQLite
+        databases.</li>
+      <li>Teams that have not been active for several months will be automatically destroyed.</li>
+      <li>Paroi reserves the right to change the conditions of access to the service at a later date.</li>
+      <li>SmallTeam software is open-source and will remain so.</li>
+    </ol>
+    <p><em>Note: This service is not intended to remain free. Our goal is to provide a simple, lightweight software,
+      adapted to small connections, at a very low cost. We are not ready. In the meantime, teams who wish to do so are
+      invited to use the service for free, which will also help us to test its robustness.</em></p>
   </header>
 
   <div class="TeamCreationDialog-content">
