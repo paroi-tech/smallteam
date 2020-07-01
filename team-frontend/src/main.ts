@@ -14,7 +14,7 @@ async function startup() {
       await app.showPasswordResetDialog()
     } else {
       const sessionData = { accountId }
-      // TODO: handle WS connection failure.
+      // FIXME: handle WS connection failure and close ws connection on logout.
       await wsClientInit()
       await app.start(sessionData)
     }
