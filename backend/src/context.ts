@@ -16,7 +16,7 @@ export const appLog = createAppLog({
   file: ensureFullPath(conf.log.file ?? undefined, dataDir)
 })
 
-function readPackageVersionSync(): Promise<string> {
+function readPackageVersionSync(): string {
   try {
     const data = JSON.parse((readFileSync(join(packageDir, "package.json"))).toString("utf8"))
     return data.version || "0"
