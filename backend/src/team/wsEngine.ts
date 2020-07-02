@@ -1,5 +1,6 @@
 import { RequestHandler } from "express"
 import { Server } from "http"
+import { Socket } from "net"
 import { v4 as uuid } from "uuid"
 import { Server as WsServer } from "ws"
 import { appLog } from "../context"
@@ -21,24 +22,37 @@ let wsServer: WsServer | undefined
 const wsClients = new Map<string, Map<string, WebSocketWithProperties>>()
 
 export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
-  const parseSession = async (req) => {
-    return new Promise((resolve) => {
-      sessionParser(req, {} as any, () => resolve(req))
+  wsServer = new WsServer({ server })
+
+  const handleUpgrade = wsServer.handleUpgrade.bind(wsServer)
+  wsServer.handleUpgrade = function (req: any, socket: Socket, head: Buffer, cb: (client: WebSocket) => void) {
+    sessionParser(req, {} as any, () => {
+      if (req.session?.subdomain && req.session?.accountId) {
+        handleUpgrade(req, socket, head, cb)
+      } else {
+        socket.destroy()
+        appLog.trace("Rejected ws connection request due to missing session data.")
+      }
     })
   }
 
-  wsServer = new WsServer({ server })
+  wsServer.on("connection", (ws: WebSocketWithProperties, req: any) => {
+    const socketId = uuid()
+    const data = JSON.stringify({ type: "id", socketId })
 
-  wsServer.on("connection", async function (ws: WebSocketWithProperties, req: any) {
-    // FIXME: find a better way to validate user session. Try to use session::hasSession.
-    await parseSession(req)
-    if (req.session?.subdomain && req.session?.accountId) {
-      const { accountId, subdomain } = req.session
-      handleWsClientRegistration(ws, subdomain, accountId)
-    } else {
-      appLog.info("Rejected ws client to due missing session data.")
-      ws.terminate()
-    }
+    ws.send(data, (error) => {
+      if (error) {
+        appLog.error("Unable to send identifier to a ws client. Closing the connection.")
+        return ws.close()
+      }
+      const props = {
+        subdomain: req.session.subdomain,
+        accountId: req.session.accountId,
+        isAlive: true,
+        socketId
+      }
+      registerWsClient(ws, props)
+    })
   })
 
   const interval = setInterval(function ping() {
@@ -83,29 +97,7 @@ export function broadcastModelUpdate(subdomain: string, accountId: string, data)
 function noop() {
 }
 
-function handleWsClientRegistration(ws: WebSocketWithProperties, subdomain: string, accountId: string) {
-  const socketId = uuid()
-  const data = JSON.stringify({
-    type: "id",
-    socketId
-  })
-
-  ws.send(data, (error) => {
-    if (error) {
-      appLog.error("Unable to send identifier to a ws. Closing the connection.")
-      return ws.close()
-    }
-
-    doWsClientRegistration(ws, {
-      accountId,
-      subdomain,
-      socketId,
-      isAlive: true
-    })
-  })
-}
-
-function doWsClientRegistration(ws: WebSocketWithProperties, props: WSProperties) {
+function registerWsClient(ws: WebSocketWithProperties, props: WSProperties) {
   ws.attachedProperties = props
 
   let clients = wsClients.get(props.subdomain)
