@@ -60,3 +60,16 @@ export function getMainDomainUrl() {
   const portSuffix = publicPort === 80 ? "" : `:${publicPort}`
   return `${protocol}://${conf.domain}${portSuffix}${getSubdirUrl()}`
 }
+
+/**
+ * This template tag does nothing. It is just here to enable IDE support of HTML.
+ */
+export function html(pieces: TemplateStringsArray, ...variables: unknown[]): string {
+  const result: unknown[] = []
+  pieces.forEach((piece, i) => {
+    result.push(piece)
+    if (variables[i])
+      result.push(variables[i])
+  })
+  return result.join("")
+}

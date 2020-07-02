@@ -7,7 +7,7 @@ import {
   routeActivateGithubWebhook, routeCreateGithubWebhook, routeDeactivateGithubWebhook,
   routeDeleteGithubWebhook, routeFetchGithubWebhooks, routeGetGithubWebhookSecret, routeProcessGithubNotification
 } from "./notifications"
-import { getPlatformHtml } from "./platform/frontend"
+import { getPlatformHtml, getPlatformSupportHtml } from "./platform/frontend"
 import { routeActivateTeam, routeCheckTeamSubdomain, routeCreateTeam } from "./platform/platform"
 import { getRegistrationHtml } from "./registration/frontend"
 import { routeCancelInvitation, routeGetPendingInvitations, routeRegister, routeResendInvitation, routeSendInvitation } from "./registration/registration"
@@ -125,15 +125,26 @@ export async function startWebServer() {
       write404(res)
   })
 
-  router.get("/registration", async (req, res) => {
-    if (!await getConfirmedSubdomain(req)) {
+  router.get("/support", (req, res) => {
+    if (isMainDomain(req))
+      writeHtmlResponse(res, getPlatformSupportHtml())
+    else
       write404(res)
-      return
-    }
-    writeHtmlResponse(res, getRegistrationHtml())
   })
 
-  router.get("/new-team", (req, res) => writeHtmlResponse(res, getPlatformHtml()))
+  router.get("/registration", async (req, res) => {
+    if (await getConfirmedSubdomain(req))
+      writeHtmlResponse(res, getRegistrationHtml())
+    else
+      write404(res)
+  })
+
+  router.get("/new-team", (req, res) => {
+    if (isMainDomain(req))
+      writeHtmlResponse(res, getPlatformHtml())
+    else
+      write404(res)
+  })
 
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
