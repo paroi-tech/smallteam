@@ -1,42 +1,21 @@
 // FIXME: find a better way to get server address in 'doWsClientInit'.
+// TODO: add a listener to track error on ws client and create a new one if needed.
 
-export async function wsClientInit() {
+export async function wsClientInit(): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
-    void doWsClientInit().then(value => {
-      if (!value.done) {
-        value.ws.close()
-        reject("Unable to successfully initiate ws connection.")
-      }
-      resolve(value.ws)
-    })
-  })
-}
-
-async function doWsClientInit(): Promise<{ done: boolean; ws: WebSocket }> {
-  return new Promise(resolve => {
     const ws = new WebSocket(`ws://${window.location.hostname}:3921`)
 
-    setTimeout(() => resolve({ done: false, ws }), 10000)
-    ws.addEventListener("error", () => resolve({ done: false, ws }), { once: true })
-
-    waitForWsId(ws)
-      .then((socketId) => {
-        ws.addEventListener("message", ev => handleWsMessage(ev))
+    ws.addEventListener("error", () => reject("Error when connecting to server via websockets."), { once: true })
+    ws.addEventListener("open", () => {
+      ws.addEventListener("message", ev => {
+        const socketId = getWsId(ev.data)
+        if (!socketId)
+          return reject("No credentials received via websockets.")
         ws["attachedProperties"] = { socketId }
-        resolve({ done: true, ws })
-      })
-      .catch(() => resolve({ done: false, ws }))
-  })
-}
-
-async function waitForWsId(ws: WebSocket): Promise<string> {
-  return new Promise((resolve, reject) => {
-    ws.addEventListener("message", function (ev: MessageEvent) {
-      const socketId = getWsId(ev.data)
-      if (!socketId)
-        reject()
-      resolve(socketId)
-    }, { once: true })
+        ws.addEventListener("message", ev => handleWsMessage(ev))
+        resolve(ws)
+      }, { once: true })
+    })
   })
 }
 
