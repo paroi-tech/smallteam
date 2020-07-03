@@ -1,11 +1,12 @@
 import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
-import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
+import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
 import WarningDialog from "@smallteam/shared-ui/modal-dialogs/WarningDialog"
 import { AppDash, EventCallback, EventName, Log, LogEvent } from "bkb"
 import AppFrame from "../AppFrame/AppFrame"
 import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
+import { closeWsClient } from "../AppModel/ModelEngine/WsClient"
 import LoginDialog from "../generics/LoginDialog"
 import PasswordRequestDialog from "../generics/PasswordRequestDialog"
 
@@ -14,6 +15,7 @@ export default class App {
   readonly baseUrl: string
   private _model!: Model
   private appFrame?: AppFrame
+  private wsClient?: WebSocket
 
   constructor(private dash: AppDash<App>) {
     this.log = dash.log
@@ -58,12 +60,11 @@ export default class App {
   }
 
   async connect(): Promise<string> {
-    let sessionAvailable = false
     let accountId: string | undefined
 
     // First, we try to recover session, if there is an active one.
     try {
-      const response = await fetch(`${this.baseUrl}/api/session/current`, {
+      const data = await fetch(`${this.baseUrl}/api/session/current`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -71,31 +72,23 @@ export default class App {
           "Content-Type": "application/json"
         }),
         body: JSON.stringify({})
+      }).then(response => {
+        if (!response.ok)
+          throw new Error("Unable to get information about user session.")
+        return response.json()
       })
-
-      if (!response.ok) {
-        this.log.warn("Unable to get a response from server while trying to recover session.")
-      } else {
-        const result = await response.json()
-        if (result.done) {
-          sessionAvailable = true
-          accountId = result.accountId as string
-        }
-      }
+      accountId = data.done ? data.accountId : undefined
     } catch (err) {
       this.log.warn(err)
     }
 
-    if (sessionAvailable)
-      return accountId!
-
     // We show login dialog if session recovering failed.
-    return await this.dash.create(LoginDialog).open()
+    return accountId ?? await this.dash.create(LoginDialog).open()
   }
 
   async disconnect() {
     try {
-      const response = await fetch(`${this.baseUrl}/api/session/disconnect`, {
+      await fetch(`${this.baseUrl}/api/session/disconnect`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -103,24 +96,30 @@ export default class App {
           "Content-Type": "application/json"
         }),
         body: JSON.stringify({})
+      }).then(response => {
+        if (!response.ok)
+          throw new Error("Unable to make a disconnection request.")
+        return response.json()
+      }).then(data => {
+        if (data.done)
+          throw new Error("Unable to end session.")
+        return true
       })
-
-      if (!response.ok) {
-        this.log.error("Unable to get a response from server while trying to disconnect...")
-      } else {
-        const result = await response.json()
-
-        if (result.done) {
-          await this.navigate("") // This prevents the router to show current page at next login.
-          document.location!.reload(false)
-        } else {
-          await this.dash.create(InfoDialog).show("Unable to end session. Please try again.")
-        }
-      }
+      await this.doCleanup()
     } catch (err) {
-      // TODO: handle disconnection error.
-      this.log.warn("Unable to disconnect user...")
+      const dialog = this.dash.create(ErrorDialog)
+      await dialog.show([
+        "Something went wrong. We could not disconnect you.",
+        "Please try again."
+      ])
     }
+  }
+
+  private async doCleanup() {
+    if (this.wsClient)
+      closeWsClient(this.wsClient)
+    await this.navigate("") // This prevents the router to show current page at next login.
+    document.location.reload(false)
   }
 
   async showPasswordResetDialog() {
@@ -132,7 +131,8 @@ export default class App {
     }
   }
 
-  async start(sessionData: SessionData) {
+  async start(sessionData: SessionData, ws: WebSocket) {
+    this.wsClient = ws
     await this.initModel(sessionData)
 
     const appEl = document.querySelector(".js-app")

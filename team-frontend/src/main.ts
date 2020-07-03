@@ -10,14 +10,10 @@ async function startup() {
     const app = createApplication(App)
     const accountId = await app.connect()
 
-    if (accountId === "resetPassword") {
+    if (accountId === "0")
       await app.showPasswordResetDialog()
-    } else {
-      const sessionData = { accountId }
-      // FIXME: handle WS connection failure and close ws connection on logout.
-      await wsClientInit()
-      await app.start(sessionData)
-    }
+    else
+      await app.start({ accountId }, await wsClientInit())
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err)

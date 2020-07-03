@@ -145,7 +145,7 @@ export default class LoginDialog {
   private onPasswordReset() {
     if (this.curDfd) {
       this.el.close()
-      this.curDfd.resolve("resetPassword")
+      this.curDfd.resolve("0")
       this.curDfd = undefined
     }
   }

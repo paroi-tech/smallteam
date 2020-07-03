@@ -23,6 +23,7 @@
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
 - [ ] Don't allow a contributor to change his own status.
+- [ ] In team frontend, track ws client state and restart a new one if it gets closed.
 - [ ] In `routeBatch`, handle the case when one of the commands fails.
 - [x] Update modal dialogs to enable several row of text.
 - [x] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.

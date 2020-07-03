@@ -1,8 +1,6 @@
-// FIXME: find a better way to get server address in 'doWsClientInit'.
-// TODO: add a listener to track error on ws client and create a new one if needed.
-
 export async function wsClientInit(): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
+    // FIXME: find a better way to get server address.
     const ws = new WebSocket(`ws://${window.location.hostname}:3921`)
 
     ws.addEventListener("error", () => reject("Error when connecting to server via websockets."), { once: true })
@@ -19,7 +17,15 @@ export async function wsClientInit(): Promise<WebSocket> {
   })
 }
 
-// TODO: use application logger in these functions.
+export function closeWsClient(ws: WebSocket) {
+  if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING)
+    return
+  const timer = setInterval(() => {
+    if (ws.bufferedAmount === 0)
+      ws.close()
+  }, 5000)
+  ws.addEventListener("close", () => clearInterval(timer), { once: true })
+}
 
 function getWsId(payload: string): string | undefined {
   try {
