@@ -125,21 +125,29 @@ export default class LoginDialog {
   }
 
   private async onSubmit() {
-    this.enabled = false
     this.removeWarnings()
-    this.showSpinner()
 
     const login = this.nameEl.value.trim()
     const password = this.passwordEl.value
-    const accountId = await this.tryToLogin(login, password)
+    if (login.length === 0) {
+      this.nameEl.focus()
+    } else if (password.length === 0) {
+      this.passwordEl.focus()
+    } else {
+      this.enabled = false
+      this.showSpinner()
 
-    this.hideSpinner()
-    if (accountId && this.curDfd) {
+      const accountId = await this.tryToLogin(login, password)
+
+      this.hideSpinner()
+      this.enabled = true
+      if (!accountId || !this.curDfd)
+        return
+
       this.el.close()
       this.curDfd.resolve(accountId)
       this.curDfd = undefined
     }
-    this.enabled = true
   }
 
   private onPasswordReset() {
@@ -152,7 +160,7 @@ export default class LoginDialog {
 
   private async tryToLogin(login: string, password: string): Promise<string | undefined> {
     try {
-      const response = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
+      const data = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
         method: "post",
         credentials: "same-origin",
         headers: new Headers({
@@ -160,36 +168,25 @@ export default class LoginDialog {
           "Content-Type": "application/json"
         }),
         body: JSON.stringify({ login, password })
+      }).then(response => {
+        if (!response.ok)
+          throw new Error("Unable to fulfill login request")
+        return response.json()
       })
 
-      if (!response.ok) {
-        await this.handleRequestError(response)
-        return undefined
+      if (data.done) {
+        return data.accountId
+      } else {
+        await this.dash.create(WarningDialog).show([
+          "Wrong username or password."
+        ])
       }
-
-      const result = await response.json()
-
-      if (result.done) {
-        const accountId = result.accountId as string
-        return accountId
-      }
-      await this.dash.create(WarningDialog).show("Wrong username or password.")
     } catch (err) {
-      await this.dash.create(ErrorDialog).show("There was an problem while processing your resquest.")
-      this.dash.log.error(err)
+      await this.dash.create(ErrorDialog).show([
+        "Something went wrong. We could not process fulfill your request.",
+        "Please, try again."
+      ])
     }
-
-    return undefined
-  }
-
-  private async handleRequestError(response: Response) {
-    if (response.status === 400) {
-      const data = await response.json()
-      await this.dash.create(WarningDialog).show(`Your request was not processed. ${data.error}`)
-    } else if (response.status === 500)
-      await this.dash.create(ErrorDialog).show("The server could not process your request.")
-    else
-      await this.dash.create(ErrorDialog).show("Unable to get a response from server.")
   }
 
   private showSpinner() {

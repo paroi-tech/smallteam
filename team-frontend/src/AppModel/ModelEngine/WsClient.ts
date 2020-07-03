@@ -10,7 +10,6 @@ export async function wsClientInit(): Promise<WebSocket> {
         if (!socketId)
           return reject("No credentials received via websockets.")
         ws["attachedProperties"] = { socketId }
-        ws.addEventListener("message", ev => handleWsMessage(ev))
         resolve(ws)
       }, { once: true })
     })
@@ -33,15 +32,5 @@ function getWsId(payload: string): string | undefined {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log("Invalid Json received from ws server.")
-  }
-}
-
-function handleWsMessage(ev: MessageEvent) {
-  try {
-    // eslint-disable-next-line no-console
-    console.log("Received data from ws server", JSON.parse(ev.data))
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Received bad JSON from ws server.")
   }
 }

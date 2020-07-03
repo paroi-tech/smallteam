@@ -132,8 +132,23 @@ export default class App {
   }
 
   async start(sessionData: SessionData, ws: WebSocket) {
-    this.wsClient = ws
     await this.initModel(sessionData)
+
+    this.wsClient = ws
+    ws.addEventListener("message", (ev) => {
+      try {
+        const data = JSON.parse(ev.data)
+        this.log.info("Received data via websockets.", data)
+        if (data.modelUpd)
+          this._model.processModelUpdate(data.modelUpd)
+      } catch (error) {
+        this.log.error("Received bad JSON from ws server.")
+      }
+    })
+    ws.addEventListener("error", ev => {
+      // TODO: handle error and refresh ws connection if needed.
+      this.log.error("Error with ws client...", ev)
+    })
 
     const appEl = document.querySelector(".js-app")
 

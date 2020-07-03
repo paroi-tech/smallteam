@@ -11,6 +11,7 @@ interface WebSocketWithProperties extends WebSocket {
 }
 
 interface WSProperties {
+  sessionId: string
   socketId: string
   isAlive: boolean
   listenModel?: boolean
@@ -46,6 +47,7 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
         return ws.close()
       }
       const props = {
+        sessionId: req.session.id,
         subdomain: req.session.subdomain,
         accountId: req.session.accountId,
         isAlive: true,
@@ -77,7 +79,7 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
   })
 }
 
-export function broadcastModelUpdate(subdomain: string, accountId: string, data) {
+export function broadcastModelUpdate(subdomain: string, sessionId: string, data) {
   appLog.trace(`Broadcasting model update for '${subdomain}' subdomain clients.`)
 
   const clients = wsClients.get(subdomain)
@@ -88,7 +90,7 @@ export function broadcastModelUpdate(subdomain: string, accountId: string, data)
 
   const payload = JSON.stringify(data)
   for (const client of clients.values()) {
-    if (client.readyState === WebSocket.OPEN)
+    if (client.readyState === WebSocket.OPEN && client.attachedProperties?.sessionId !== sessionId)
       client.send(payload)
   }
 }
