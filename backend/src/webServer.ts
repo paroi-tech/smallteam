@@ -204,9 +204,13 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
 
       const data = await cb(subdomain, JSON.parse(body), req.session as any, req, res)
 
+      if (notifyWs && !isPublic && req.session && data.modelUpd) {
+        const modelUpd = data.modelUpd
+        delete data.modelUpd
+        broadcastModelUpdate(subdomain, req.session.id, { modelUpd })
+      }
+
       writeJsonResponse(res, 200, data)
-      if (!isPublic && notifyWs && req.session)
-        broadcastModelUpdate(subdomain, req.session.id, data)
     } catch (err) {
       writeServerResponseError(res, err, body)
     }

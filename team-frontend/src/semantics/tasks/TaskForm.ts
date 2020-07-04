@@ -47,7 +47,7 @@ const template = handledom`
       <div class="FieldGroup-item" h="attachment"></div>
 
       <div class="FieldGroup-action">
-        <button class="Btn" h="toggleBtn">Show/Hide as parent</button>
+        <button class="Btn" h="toggleBtn">Sub-tasks</button>
         <button class="Btn" h="logBtn">Show logs</button>
         <button class="Btn" h="commitsBtn">Show commits</button>
       </div>
