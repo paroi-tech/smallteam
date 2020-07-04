@@ -140,7 +140,7 @@ export default class App {
         const data = JSON.parse(ev.data)
         this.log.info("Received data via websockets.", data)
         if (data.modelUpd)
-          this._model.processModelUpdate(data.modelUpd)
+          this.model.processModelUpdate(data.modelUpd)
       } catch (error) {
         this.log.error("Received bad JSON from ws server.")
       }
