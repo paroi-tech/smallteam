@@ -178,7 +178,6 @@ export async function stopServer() {
 
 function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
   return async function (req: Request, res: Response) {
-    const accountId = req.session?.accountId
     const subdomain = await getConfirmedSubdomain(req)
 
     if (!subdomain) {
@@ -206,8 +205,8 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
       const data = await cb(subdomain, JSON.parse(body), req.session as any, req, res)
 
       writeJsonResponse(res, 200, data)
-      if (!isPublic && notifyWs)
-        broadcastModelUpdate(subdomain, accountId, data)
+      if (!isPublic && notifyWs && req.session)
+        broadcastModelUpdate(subdomain, req.session.id, data)
     } catch (err) {
       writeServerResponseError(res, err, body)
     }

@@ -1,6 +1,3 @@
-// FIXME: find a better way to get server address in 'doWsClientInit'.
-// TODO: add a listener to track error on ws client and create a new one if needed.
-
 export async function wsClientInit(): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const ws = new WebSocket(`ws://${window.location.hostname}:3921/subscribe`)
@@ -12,14 +9,21 @@ export async function wsClientInit(): Promise<WebSocket> {
         if (!socketId)
           return reject("No credentials received via websockets.")
         ws["attachedProperties"] = { socketId }
-        ws.addEventListener("message", ev => handleWsMessage(ev))
         resolve(ws)
       }, { once: true })
     })
   })
 }
 
-// TODO: use application logger in these functions.
+export function closeWsClient(ws: WebSocket) {
+  if (ws.readyState === WebSocket.CLOSED || ws.readyState === WebSocket.CLOSING)
+    return
+  const timer = setInterval(() => {
+    if (ws.bufferedAmount === 0)
+      ws.close()
+  }, 5000)
+  ws.addEventListener("close", () => clearInterval(timer), { once: true })
+}
 
 function getWsId(payload: string): string | undefined {
   try {
@@ -27,15 +31,5 @@ function getWsId(payload: string): string | undefined {
   } catch (error) {
     // eslint-disable-next-line no-console
     console.log("Invalid Json received from ws server.")
-  }
-}
-
-function handleWsMessage(ev: MessageEvent) {
-  try {
-    // eslint-disable-next-line no-console
-    console.log("Received data from ws server", JSON.parse(ev.data))
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.error("Received bad JSON from ws server.")
   }
 }

@@ -11,6 +11,7 @@ interface WebSocketWithProperties extends WebSocket {
 }
 
 interface WSProperties {
+  sessionId: string
   socketId: string
   isAlive: boolean
   listenModel?: boolean
@@ -84,8 +85,8 @@ export function wsEngineInit(server: Server, sessionMiddleware: RequestHandler) 
       if (!ws.attachedProperties)
         return
       if (!ws.attachedProperties.isAlive) {
-        const { subdomain, socketId } = ws.attachedProperties
-        unregisterWsClient(subdomain, socketId)
+        const { subdomain, sessionId } = ws.attachedProperties
+        unregisterWsClient(subdomain, sessionId)
         return ws.terminate()
       }
       ws.attachedProperties.isAlive = false
@@ -121,7 +122,7 @@ export function broadcastModelUpdate(subdomain: string, accountId: string, data)
 
   const payload = JSON.stringify(data)
   for (const client of clients.values()) {
-    if (client.readyState === WebSocket.OPEN)
+    if (client.readyState === WebSocket.OPEN && client.attachedProperties?.sessionId !== sessionId)
       client.send(payload)
   }
 }
@@ -138,7 +139,7 @@ function registerWsClient(ws: WebSocketWithProperties, props: WSProperties) {
     clients = new Map<string, WebSocketWithProperties>()
     wsClients.set(props.subdomain, clients)
   }
-  clients.set(props.socketId, ws)
+  clients.set(props.sessionId, ws)
 
   ws.on("pong", function (this: WebSocketWithProperties) {
     if (!this.attachedProperties)
@@ -146,12 +147,12 @@ function registerWsClient(ws: WebSocketWithProperties, props: WSProperties) {
     this.attachedProperties.isAlive = true
   })
 
-  ws.on("close", () => unregisterWsClient(props.subdomain, props.socketId))
+  ws.on("close", () => unregisterWsClient(props.subdomain, props.sessionId))
 }
 
-function unregisterWsClient(subdomain: string, socketId: string) {
+function unregisterWsClient(subdomain: string, sessionId: string) {
   const clients = wsClients.get(subdomain)
   if (!clients)
     return
-  clients.delete(socketId)
+  clients.delete(sessionId)
 }

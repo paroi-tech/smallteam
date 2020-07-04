@@ -5,6 +5,7 @@
 ### Not affected
 - [ ] On team creation fail, show a message asking the user to gently send an email
       if the he cannot activate team after several attempts.
+- [ ] Fallback avatar for user menu ?
 
 ### Thomas
 - [ ]
@@ -24,6 +25,7 @@
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
 ### Lionel
+- [ ] In team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
 - [ ] Don't allow a contributor to change his own status.
