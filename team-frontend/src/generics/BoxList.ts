@@ -305,6 +305,7 @@ export default class BoxList<T extends Box> {
     return Sortable.create(this.ulEl, {
       filter: "button",
       group: this.options.group,
+      animation: 150,
       sort: this.options.sort,
       disabled: this.options.disabled ? true : false,
 
@@ -339,10 +340,10 @@ export default class BoxList<T extends Box> {
         })
       },
 
-      // Event when an item is moved inside a list ot between lists.
+      // Event when an item is moved inside a list or between lists.
       onMove: ev => {
         if (!this.options.obj || !this.options.onMove)
-          return false
+          return true
         const boxId = ev.dragged.dataset.id
         const boxListId = this.options.id
         if (boxId === undefined || boxListId === undefined)
