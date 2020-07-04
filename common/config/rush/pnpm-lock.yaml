@@ -1,6 +1,6 @@
 dependencies:
   '@enhancedjs/css-in-template-string-loader': 0.1.1
-  '@handledom/in-template-string-loader': 0.1.6
+  '@handledom/in-template-string-loader': 0.1.7
   '@hapi/joi': 17.1.1
   '@ladc/sql-bricks-modifier': 0.22.7_ladc@0.22.10+sql-bricks@2.0.5
   '@ladc/sqlite3-adapter': 0.22.8_ladc@0.22.10
@@ -83,13 +83,13 @@ packages:
     dev: false
     resolution:
       integrity: sha512-bcNBKb+PEDoHGJeh9NY7lP2fQVUgphnSGTXiBSHWJhiEOJ3hJQ+E3hxhUlIy+ydsz7gAszcR+Af/FiKjJG/HlA==
-  /@handledom/in-template-string-loader/0.1.6:
+  /@handledom/in-template-string-loader/0.1.7:
     dependencies:
-      handledom: 0.1.5
+      handledom: 0.1.7
       loader-utils: 2.0.0
     dev: false
     resolution:
-      integrity: sha512-WArDUdRli0Se9v/YXqEzFVUYBy6yQhKoqia5BVvADcpL2333LMUKxtRbzV+4IY+uiL4LZRdzbVmn/fxSInjH1A==
+      integrity: sha512-h9hIq7cyt8A4rmZ6mNVB/wLNPNQXHkCaW+RrG39DgErzKf0DAu8tJ6RicR7r/64I8eyY6VxOrOMciKKcQnD/ag==
   /@hapi/address/4.0.1:
     dependencies:
       '@hapi/hoek': 9.0.4
@@ -2670,6 +2670,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-rADmeuOc5hzrd5GkFQkXjX/jqWJhpsA9yCDALgVA2md1qjq+lnouJb2NlNz+Smf5vOfvL2crwo+3bN39YzrKOw==
+  /handledom/0.1.7:
+    dependencies:
+      antlr4: 4.8.0
+    dev: false
+    resolution:
+      integrity: sha512-GUHEEX1r7qGIQAvywnQOzlH84zfRC0xTr2lyUVZ15yBZB5T21sHC2FLaD0OatL5lUyETu31aB6qZT4kKGWScog==
   /has-ansi/2.0.0:
     dependencies:
       ansi-regex: 2.1.1
@@ -6307,7 +6313,7 @@ packages:
   'file:projects/platform-frontend.tgz':
     dependencies:
       '@enhancedjs/css-in-template-string-loader': 0.1.1
-      '@handledom/in-template-string-loader': 0.1.6
+      '@handledom/in-template-string-loader': 0.1.7
       '@typescript-eslint/eslint-plugin': 3.4.0_15ebbbb8363c75064fc079244e83c2c7
       '@typescript-eslint/parser': 3.4.0_eslint@7.3.1+typescript@3.9.5
       bkb: 0.28.2
@@ -6328,13 +6334,13 @@ packages:
     dev: false
     name: '@rush-temp/platform-frontend'
     resolution:
-      integrity: sha512-WOhMzk57RpMlWRyOUmVIGeYCT3Iax5RzVqPuWXbfSGXLBOl1q2LVn25RTUGh9osZRMzG7Kyu/xJwbKbl7em69g==
+      integrity: sha512-WoiginFcW9zMhiMmrpEhTPgPSDkfRPphou5QlUrN8VJzO0zJQppoHXvui5U5SsmXH6L3tVElu8x0jSpn8AmDRA==
       tarball: 'file:projects/platform-frontend.tgz'
     version: 0.0.0
   'file:projects/registration-frontend.tgz':
     dependencies:
       '@enhancedjs/css-in-template-string-loader': 0.1.1
-      '@handledom/in-template-string-loader': 0.1.6
+      '@handledom/in-template-string-loader': 0.1.7
       '@typescript-eslint/eslint-plugin': 3.4.0_15ebbbb8363c75064fc079244e83c2c7
       '@typescript-eslint/parser': 3.4.0_eslint@7.3.1+typescript@3.9.5
       bkb: 0.28.2
@@ -6355,7 +6361,7 @@ packages:
     dev: false
     name: '@rush-temp/registration-frontend'
     resolution:
-      integrity: sha512-NUvOJDkeMaQUTFmqz+8/uZ1dht/m6ZN/npEY+OfwSjMmNynIxQHEEMnpfxxF5G3HwluMRdvfbLcTDXXowN9ikQ==
+      integrity: sha512-VtvOMUFs5pQmHhphqHUTcNI6QJlCNPfisx9ME4ZdhE2prw2+phicbeQx2X1HGLKO1Qsp9H7NJ5cjYanClBQvFg==
       tarball: 'file:projects/registration-frontend.tgz'
     version: 0.0.0
   'file:projects/shared-ui.tgz':
@@ -6368,11 +6374,12 @@ packages:
       eslint-config-prettier: 6.11.0_eslint@7.3.1
       handledom: 0.1.5
       prettier: 2.0.5
+      rimraf: 3.0.2
       typescript: 3.9.5
     dev: false
     name: '@rush-temp/shared-ui'
     resolution:
-      integrity: sha512-VI8Z2Whx9jDduH8WQp1vsve2dVC9tu2uj11HbKORD0NKoxu5nbsp4BP9UhbD4Mj2swKJMfjpa+n5aJlcA3L9CQ==
+      integrity: sha512-NzG4iuulnTliQcaxstpLBJvXdamGP7YUG1Jdwjp3CeL+GM05NjWad4HtMRKdJ+vvJvk0qWslqx5J4NkvN3G5xA==
       tarball: 'file:projects/shared-ui.tgz'
     version: 0.0.0
   'file:projects/shared.tgz':
@@ -6382,11 +6389,12 @@ packages:
       eslint: 7.3.1
       eslint-config-prettier: 6.11.0_eslint@7.3.1
       prettier: 2.0.5
+      rimraf: 3.0.2
       typescript: 3.9.5
     dev: false
     name: '@rush-temp/shared'
     resolution:
-      integrity: sha512-Sld49QuIB7mbgtVPJAgKODgK7+qI5qEqvpkoDH8MedqPzangS3eIP64LVgK4Xnleq087BuXA4guFy6g0o5IU7g==
+      integrity: sha512-MEISWcf3AsjZ2gSMxSMmljwptPEWB4xVMJ6SiZmmkdd9xaWyGEbJ09E06eVgixv7JuNIyl1DaDXOVH42zoGE4g==
       tarball: 'file:projects/shared.tgz'
     version: 0.0.0
   'file:projects/smallteam.tgz':
@@ -6439,7 +6447,7 @@ packages:
   'file:projects/team-frontend.tgz':
     dependencies:
       '@enhancedjs/css-in-template-string-loader': 0.1.1
-      '@handledom/in-template-string-loader': 0.1.6
+      '@handledom/in-template-string-loader': 0.1.7
       '@types/showdown': 1.9.3
       '@types/sortablejs': 1.10.4
       '@typescript-eslint/eslint-plugin': 3.4.0_15ebbbb8363c75064fc079244e83c2c7
@@ -6464,13 +6472,13 @@ packages:
     dev: false
     name: '@rush-temp/team-frontend'
     resolution:
-      integrity: sha512-DDdX3Z6XnNrco9Hv8JyTTdfYIa1b3kGFnh5icIWQqNISxeWIfLNaFKPgWOuo4rStcaCpIh0TNshfrRJ5ce85ew==
+      integrity: sha512-t348hnSsFNRwqXsdYO+D4A6kOuxlJqfKDwPGnBm8/JF3NmdRVO1ZEMSfLCZn1DZkiMV/6DSmCjokVFYOD/6H3w==
       tarball: 'file:projects/team-frontend.tgz'
     version: 0.0.0
 registry: ''
 specifiers:
   '@enhancedjs/css-in-template-string-loader': ^0.1.1
-  '@handledom/in-template-string-loader': ^0.1.6
+  '@handledom/in-template-string-loader': ^0.1.7
   '@hapi/joi': ^17.1.1
   '@ladc/sql-bricks-modifier': ^0.22.7
   '@ladc/sqlite3-adapter': ^0.22.8

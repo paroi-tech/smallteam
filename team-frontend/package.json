@@ -22,7 +22,7 @@
   },
   "devDependencies": {
     "@enhancedjs/css-in-template-string-loader": "^0.1.1",
-    "@handledom/in-template-string-loader": "^0.1.6",
+    "@handledom/in-template-string-loader": "^0.1.7",
     "@types/showdown": "^1.9.3",
     "@types/sortablejs": "^1.10.4",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
