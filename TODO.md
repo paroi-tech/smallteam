@@ -25,6 +25,7 @@
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
 ### Lionel
+- Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
 - [ ] In team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
