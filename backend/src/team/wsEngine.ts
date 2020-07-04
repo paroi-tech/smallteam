@@ -1,10 +1,10 @@
-import { RequestHandler } from "express"
+import { Request, RequestHandler } from "express"
 import { Server } from "http"
-import { Socket } from "net"
+import { parse } from "url"
 import { v4 as uuid } from "uuid"
-import { Server as WsServer } from "ws"
+import WebSocket, { Server as WsServer } from "ws"
 import { appLog } from "../context"
-import WebSocket = require("ws")
+import { getConfirmedSubdomain } from "../utils/serverUtils"
 
 interface WebSocketWithProperties extends WebSocket {
   attachedProperties?: WSProperties
@@ -18,42 +18,64 @@ interface WSProperties {
   accountId: string
 }
 
-let wsServer: WsServer | undefined
+const wsServer = new WsServer({ noServer: true })
 const wsClients = new Map<string, Map<string, WebSocketWithProperties>>()
 
-export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
-  wsServer = new WsServer({ server })
+export function wsEngineInit(server: Server, sessionMiddleware: RequestHandler) {
+  server.on("upgrade", (req: Request, socket, head) => {
+    if (parse(req.url).pathname !== "/subscribe")
+      return
+    wsServer.handleUpgrade(req, socket, head, ws => {
+      // console.log(".........REQ", req)
+      sessionMiddleware(req, {} as any, async () => {
+        const subdomain = req.session?.subdomain
+        const accountId = req.session?.accountId
+        if (!subdomain || accountId === undefined) {
+          socket.destroy()
+          appLog.warn("Missing session data.")
+          return
+        }
+        if (!await getConfirmedSubdomain(subdomain)) {
+          socket.destroy()
+          appLog.warn("Invalid domain.")
+          return
+        }
+        wsServer.emit("connection", ws)
+        const socketId = uuid()
+        const data = JSON.stringify({ type: "id", socketId })
 
-  const handleUpgrade = wsServer.handleUpgrade.bind(wsServer)
-  wsServer.handleUpgrade = function (req: any, socket: Socket, head: Buffer, cb: (client: WebSocket) => void) {
-    sessionParser(req, {} as any, () => {
-      if (req.session?.subdomain && req.session?.accountId) {
-        handleUpgrade(req, socket, head, cb)
-      } else {
-        socket.destroy()
-        appLog.trace("Rejected ws connection request due to missing session data.")
-      }
-    })
-  }
-
-  wsServer.on("connection", (ws: WebSocketWithProperties, req: any) => {
-    const socketId = uuid()
-    const data = JSON.stringify({ type: "id", socketId })
-
-    ws.send(data, (error) => {
-      if (error) {
-        appLog.error("Unable to send identifier to a ws client. Closing the connection.")
-        return ws.close()
-      }
-      const props = {
-        subdomain: req.session.subdomain,
-        accountId: req.session.accountId,
-        isAlive: true,
-        socketId
-      }
-      registerWsClient(ws, props)
+        ws.send(data, (error) => {
+          if (error) {
+            appLog.error(error)
+            ws.close()
+            return
+          }
+          const props = {
+            subdomain,
+            accountId,
+            isAlive: true,
+            socketId
+          }
+          registerWsClient(ws, props)
+        })
+      })
     })
   })
+
+  // const handleUpgrade = wsServer.handleUpgrade.bind(wsServer)
+  // wsServer.handleUpgrade = function (req: any, socket: Socket, head: Buffer, cb: (client: WebSocket) => void) {
+  //   sessionMiddleware(req, {} as any, () => {
+  //     if (req.session?.subdomain && req.session?.accountId) {
+  //       handleUpgrade(req, socket, head, cb)
+  //     } else {
+  //       socket.destroy()
+  //       appLog.trace("Rejected ws connection request due to missing session data.")
+  //     }
+  //   })
+  // }
+
+  // wsServer.on("connection", (ws: WebSocketWithProperties) => {
+  // })
 
   const interval = setInterval(function ping() {
     if (!wsServer)
@@ -77,12 +99,23 @@ export function wsEngineInit(server: Server, sessionParser: RequestHandler) {
   })
 }
 
+export async function wsEngineClose() {
+  await new Promise((resolve, reject) => {
+    wsServer.close(err => {
+      if (err)
+        reject(err)
+      else
+        resolve()
+    })
+  })
+}
+
 export function broadcastModelUpdate(subdomain: string, accountId: string, data) {
-  appLog.trace(`Broadcasting model update for '${subdomain}' subdomain clients.`)
+  appLog.debug(`Broadcasting model update for '${subdomain}' subdomain clients.`)
 
   const clients = wsClients.get(subdomain)
   if (!clients) {
-    appLog.trace(`No client registred Map for '${subdomain}'`)
+    appLog.debug(`No client registred Map for '${subdomain}'`)
     return
   }
 

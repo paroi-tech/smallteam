@@ -1,5 +1,6 @@
 import { declareRoutesMultiEngine } from "@paroi/media-engine/upload"
-import { Request, Response, Router } from "express"
+import express, { Request, Response, Router } from "express"
+import session from "express-session"
 import * as http from "http"
 import * as path from "path"
 import { appLog, conf, packageDir } from "./context"
@@ -18,13 +19,11 @@ import {
 import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelBackend"
 import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
 import { getTeamHtml } from "./team/frontend"
-import { broadcastModelUpdate, wsEngineInit } from "./team/wsEngine"
+import { broadcastModelUpdate, wsEngineClose, wsEngineInit } from "./team/wsEngine"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
 import makeSQLiteExpressStore = require("connect-sqlite3")
-import express = require("express")
-import session = require("express-session")
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
@@ -52,7 +51,7 @@ export async function startWebServer() {
     dir
   })
 
-  const sessionParser = session({
+  const sessionMiddleware = session({
     secret: "eishu6chod0keeyuwoo9uf<ierai4iejail1zie`",
     resave: false,
     saveUninitialized: false,
@@ -62,7 +61,7 @@ export async function startWebServer() {
       maxAge: 2 * 24 * 60 * 60 * 1000 // 2 days
     }
   })
-  app.use(sessionParser)
+  app.use(sessionMiddleware)
 
   const router = Router()
 
@@ -125,33 +124,33 @@ export async function startWebServer() {
       write404(res)
   })
 
-  router.get("/support", (req, res) => {
+  router.get("/support", (req, res, next) => {
     if (isMainDomain(req))
       writeHtmlResponse(res, getPlatformSupportHtml())
     else
-      write404(res)
+      next()
   })
 
-  router.get("/registration", async (req, res) => {
+  router.get("/registration", async (req, res, next) => {
     if (await getConfirmedSubdomain(req))
       writeHtmlResponse(res, getRegistrationHtml())
     else
-      write404(res)
+      next()
   })
 
-  router.get("/new-team", (req, res) => {
+  router.get("/new-team", (req, res, next) => {
     if (isMainDomain(req))
       writeHtmlResponse(res, getPlatformHtml())
     else
-      write404(res)
+      next()
   })
 
   app.use(getSubdirUrl(), router)
   app.get("*", (req, res) => write404(res))
 
-  wsEngineInit(server, sessionParser)
+  wsEngineInit(server, sessionMiddleware)
 
-  await new Promise((resolve) => {
+  await new Promise(resolve => {
     server!.listen(port, resolve)
   })
   appLog.info(`The server is listening on: ${getMainDomainUrl()}/`)
@@ -162,6 +161,7 @@ export async function startWebServer() {
 }
 
 export async function stopServer() {
+  await wsEngineClose()
   await new Promise((resolve, reject) => {
     if (!server) {
       resolve()

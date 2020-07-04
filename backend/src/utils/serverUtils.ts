@@ -24,12 +24,12 @@ export function isMainDomain(req: Request) {
 }
 
 export function getRequestedSubdomain(req: Request) {
-  if (req.subdomains.length === 1)
+  if (req.subdomains?.length === 1)
     return req.subdomains[0].toLowerCase()
 }
 
-export async function getConfirmedSubdomain(req: Request) {
-  const subdomain = getRequestedSubdomain(req)
+export async function getConfirmedSubdomain(reqOrSubdomain: Request | string) {
+  const subdomain = typeof reqOrSubdomain === "string" ? reqOrSubdomain : getRequestedSubdomain(reqOrSubdomain)
   if (subdomain && await fileExists(path.join(dataDir, subdomain))) // TODO: Check if it is a directory
     return subdomain
 }

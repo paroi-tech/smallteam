@@ -12,12 +12,12 @@ import PasswordRequestDialog from "../generics/PasswordRequestDialog"
 export default class App {
   readonly log: Log
   readonly baseUrl: string
-  private _model!: Model
+  private _model?: Model
   private appFrame?: AppFrame
 
   constructor(private dash: AppDash<App>) {
     this.log = dash.log
-    this.baseUrl = document.documentElement!.dataset.baseUrl || ""
+    this.baseUrl = document.documentElement.dataset.baseUrl ?? ""
 
     this.dash.listenTo<LogEvent>("log", data => {
       if (!console)
@@ -35,7 +35,7 @@ export default class App {
     this.dash.addDashAugmentation(d => {
       return {
         listenToModel: (eventName: EventName, listener: EventCallback, thisArg?: any) => {
-          return d.listenTo(this._model, eventName, listener, thisArg)
+          return d.listenTo(this.model, eventName, listener, thisArg)
         }
       }
     })

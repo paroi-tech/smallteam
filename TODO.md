@@ -7,7 +7,12 @@
       if the he cannot activate team after several attempts.
 
 ### Thomas
+- [ ]
+- [ ] Add a `hostName` for security in the backend config.
+- [ ] Add a config in the frontend, with `ssl`, etc. And `platformUrl`. Use it to build the web socket URI.
+- [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
+- [ ] Deploy using Nginx with HTTPS and WSS.
 - [x] Change log system in backend. Remove all calls to `console.log()`.
 - [x] Use typeonly to validate the config file.
 - [x] Use ESLint & prettier instead of TSLint.
@@ -17,7 +22,6 @@
 - [x] Try to use Rush. https://rushjs.io/
 - [x] Remove webpack unused configs and generate bundles without map files for prod.
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
-- [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
 
 ### Lionel
 - [ ] Backend should notify frontend about updates so that frontend can refresh.

@@ -3,7 +3,7 @@
 
 export async function wsClientInit(): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
-    const ws = new WebSocket(`ws://${window.location.hostname}:3921`)
+    const ws = new WebSocket(`ws://${window.location.hostname}:3921/subscribe`)
 
     ws.addEventListener("error", () => reject("Error when connecting to server via websockets."), { once: true })
     ws.addEventListener("open", () => {
