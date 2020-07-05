@@ -1,4 +1,5 @@
 import { declareRoutesMultiEngine } from "@paroi/media-engine/upload"
+import makeSQLiteExpressStore from "connect-sqlite3"
 import express, { Request, Response, Router } from "express"
 import session from "express-session"
 import * as http from "http"
@@ -24,7 +25,6 @@ import { promiseToHandle } from "./utils/async-utils"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
-import makeSQLiteExpressStore = require("connect-sqlite3")
 
 type RouteCb = (subdomain: string, data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>
 type MainSiteRouteCb = (data: any, sessionData?: SessionData, req?: Request, res?: Response) => Promise<any>

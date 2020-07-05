@@ -1,13 +1,12 @@
 import { SBConnection, SBMainConnection } from "@ladc/sql-bricks-modifier"
 import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "@smallteam/shared/dist/meta/Project"
 import { WhoUseItem } from "@smallteam/shared/dist/transfers"
-import { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } from "sql-bricks"
+// tslint:disable-next-line: ordered-imports
+import sqlVanilla, { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } from "sql-bricks"
 import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { fetchProjectTasks, updateTaskDescription, whoUseTask } from "./queryTask"
-// tslint:disable-next-line: ordered-imports
-import sqlVanilla = require("sql-bricks")
 
 type DbCn = SBMainConnection
 

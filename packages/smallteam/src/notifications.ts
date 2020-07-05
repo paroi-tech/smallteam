@@ -1,6 +1,6 @@
-// tslint:disable-next-line: ordered-imports
 import Joi from "@hapi/joi"
 import { SBConnection } from "@ladc/sql-bricks-modifier"
+import crypto from "crypto"
 import { Request, Response } from "express"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { v4 as uuidv4 } from "uuid"
@@ -9,8 +9,6 @@ import { hasAdminRights, SessionData } from "./session"
 import { getCn, strVal } from "./utils/dbUtils"
 import { validate, validateWithOptions } from "./utils/joiUtils"
 import { AuthorizationError, getTeamSiteUrl } from "./utils/serverUtils"
-// tslint:disable-next-line: ordered-imports
-import crypto = require("crypto")
 
 const commitSchema = Joi.object().keys({
   id: Joi.string().hex().required(),

@@ -5,6 +5,7 @@ dependencies:
   '@ladc/sql-bricks-modifier': 0.22.7_ladc@0.22.10+sql-bricks@2.0.5
   '@ladc/sqlite3-adapter': 0.22.8_ladc@0.22.10
   '@paroi/media-engine': 0.5.4_0e8ef10b370a774bb8a510c37c1dd575
+  '@rollup/plugin-commonjs': 13.0.0_rollup@2.19.0
   '@rush-temp/platform-frontend': 'file:projects/platform-frontend.tgz'
   '@rush-temp/registration-frontend': 'file:projects/registration-frontend.tgz'
   '@rush-temp/shared': 'file:projects/shared.tgz'
@@ -46,7 +47,9 @@ dependencies:
   pino-pretty: 4.0.0
   prettier: 2.0.5
   rimraf: 3.0.2
-  sass-loader: 8.0.2_webpack@4.43.0
+  rollup: 2.19.0
+  sass: 1.26.9
+  sass-loader: 8.0.2_sass@1.26.9+webpack@4.43.0
   showdown: 1.9.1
   sortablejs: 1.10.2
   sql-bricks: 2.0.5
@@ -56,6 +59,7 @@ dependencies:
   typescript: 3.9.6
   uuid: 8.2.0
   webpack: 4.43.0_webpack@4.43.0
+  webpack-cli: 3.3.12_webpack@4.43.0
   ws: 7.3.1
 lockfileVersion: 5.1
 packages:
@@ -168,6 +172,36 @@ packages:
       ladc: '0.22'
     resolution:
       integrity: sha512-CMVUZ9N123SgVlip+RFvCpN9sfTyCLYxYYKJ8B4Wh2cukwgX7aSkzpskA8cSXwpHHKy4ovIUFfqLR6NXObZoPA==
+  /@rollup/plugin-commonjs/13.0.0_rollup@2.19.0:
+    dependencies:
+      '@rollup/pluginutils': 3.1.0_rollup@2.19.0
+      commondir: 1.0.1
+      estree-walker: 1.0.1
+      glob: 7.1.6
+      is-reference: 1.2.1
+      magic-string: 0.25.7
+      resolve: 1.17.0
+      rollup: 2.19.0
+    dev: false
+    engines:
+      node: '>= 8.0.0'
+    peerDependencies:
+      rollup: ^2.3.4
+    resolution:
+      integrity: sha512-Anxc3qgkAi7peAyesTqGYidG5GRim9jtg8xhmykNaZkImtvjA7Wsqep08D2mYsqw1IF7rA3lYfciLgzUSgRoqw==
+  /@rollup/pluginutils/3.1.0_rollup@2.19.0:
+    dependencies:
+      '@types/estree': 0.0.39
+      estree-walker: 1.0.1
+      picomatch: 2.2.2
+      rollup: 2.19.0
+    dev: false
+    engines:
+      node: '>= 8.0.0'
+    peerDependencies:
+      rollup: ^1.20.0||^2.0.0
+    resolution:
+      integrity: sha512-GksZ6pr6TpIjHm8h9lSQ8pi8BE9VeubNT0OMJ3B5uZJ8pz73NPiqOtCog/x2/QzM1ENChPKxMDhiQuRHsqc+lg==
   /@sindresorhus/is/0.14.0:
     dev: false
     engines:
@@ -217,6 +251,14 @@ packages:
     dev: false
     resolution:
       integrity: sha512-OCutwjDZ4aFS6PB1UZ988C4YgwlBHJd6wCeQqaLdmadZ/7e+w79+hbMUFC1QXDNCmdyoRfAFdm0RypzwR+Qpag==
+  /@types/estree/0.0.39:
+    dev: false
+    resolution:
+      integrity: sha512-EYNwp3bU+98cpU4lAWYYL7Zz+2gryWH1qbdDTidVd6hkiR6weksdbMadyXKXNPEkQFhXM+hVO9ZygomHXp+AIw==
+  /@types/estree/0.0.45:
+    dev: false
+    resolution:
+      integrity: sha512-jnqIUKDUqJbDIUxm0Uj7bnlMnRm1T/eZ9N+AVMqhPgzrba2GhGG5o/jCTwmdPK709nEZsGoMzXEDUjcXHa3W0g==
   /@types/express-serve-static-core/4.17.8:
     dependencies:
       '@types/node': 12.12.47
@@ -2138,6 +2180,10 @@ packages:
       node: '>=4.0'
     resolution:
       integrity: sha512-FyohXK+R0vE+y1nHLoBM7ZTyqRpqAlhdZHCWIWEviFLiGB8b04H6bQs8G+XTthacvT8VuwvteiP7RJSxMs8UEw==
+  /estree-walker/1.0.1:
+    dev: false
+    resolution:
+      integrity: sha512-1fMXF3YP4pZZVozF8j/ZLfvnR8NSIljt56UhbZ5PeeDmmGHpgpdwQt7ITlGvYaQukCvuBRMLEiKiYC+oeIg4cg==
   /esutils/2.0.3:
     dev: false
     engines:
@@ -3212,6 +3258,12 @@ packages:
       node: '>=0.10.0'
     resolution:
       integrity: sha512-h5PpgXkWitc38BBMYawTYMWJHFZJVnBquFE57xFpjB8pJFiF6gZ+bU+WyI/yqXiFR5mdLsgYNaPe8uao6Uv9Og==
+  /is-reference/1.2.1:
+    dependencies:
+      '@types/estree': 0.0.45
+    dev: false
+    resolution:
+      integrity: sha512-U82MsXXiFIrjCK4otLT+o2NA2Cd2g5MLoOVXUZjIOhLurrRxpEXzI8O0KZHr3IjLvlAH1kTPYSuqer5T9ZVBKQ==
   /is-regex/1.1.0:
     dependencies:
       has-symbols: 1.0.1
@@ -3481,6 +3533,12 @@ packages:
     dev: false
     resolution:
       integrity: sha512-KpNARQA3Iwv+jTA0utUVVbrh+Jlrr1Fv0e56GGzAFOXN7dk/FviaDW8LHmK52DlcH4WP2n6gI8vN1aesBFgo9w==
+  /magic-string/0.25.7:
+    dependencies:
+      sourcemap-codec: 1.4.8
+    dev: false
+    resolution:
+      integrity: sha512-4CrMT5DOHTDk4HYDlzmwu4FVCcIYI8gauveasrdCu2IKIFOJ3f0v/8MDGJCDL9oD2ppz/Av1b0Nj345H9M+XIA==
   /make-dir/2.1.0:
     dependencies:
       pify: 4.0.1
@@ -4923,6 +4981,15 @@ packages:
     dev: false
     resolution:
       integrity: sha512-ii4iagi25WusVoiC4B4lq7pbXfAp3D9v5CwfkY33vffw2+pkDjY1D8GaN7spsxvCSx8dkPqOZCEZyfxcmJG2IA==
+  /rollup/2.19.0:
+    dev: false
+    engines:
+      node: '>=10.0.0'
+    hasBin: true
+    optionalDependencies:
+      fsevents: 2.1.3
+    resolution:
+      integrity: sha512-nny5Vs4jwY3vbQAXgOyU4ZDZqLvMKm/umnsVry/demVL6ve8ke1XhdpYE0eiWencASmx/qFPw6pP8P7MLJl9XA==
   /run-queue/1.0.3:
     dependencies:
       aproba: 1.2.0
@@ -4957,31 +5024,6 @@ packages:
       loader-utils: 1.4.0
       neo-async: 2.6.1
       sass: 1.26.9
-      schema-utils: 2.7.0
-      semver: 6.3.0
-      webpack: 4.43.0_webpack@4.43.0
-    dev: false
-    engines:
-      node: '>= 8.9.0'
-    peerDependencies:
-      fibers: '>= 3.1.0'
-      node-sass: ^4.0.0
-      sass: ^1.3.0
-      webpack: ^4.36.0 || ^5.0.0
-    peerDependenciesMeta:
-      fibers:
-        optional: true
-      node-sass:
-        optional: true
-      sass:
-        optional: true
-    resolution:
-      integrity: sha512-7o4dbSK8/Ol2KflEmSco4jTjQoV988bM82P9CZdmo9hR3RLnvNc0ufMNdMrB0caq38JQ/FgF4/7RcbcfKzxoFQ==
-  /sass-loader/8.0.2_webpack@4.43.0:
-    dependencies:
-      clone-deep: 4.0.1
-      loader-utils: 1.4.0
-      neo-async: 2.6.1
       schema-utils: 2.7.0
       semver: 6.3.0
       webpack: 4.43.0_webpack@4.43.0
@@ -5327,6 +5369,10 @@ packages:
       node: '>= 8'
     resolution:
       integrity: sha512-CkCj6giN3S+n9qrYiBTX5gystlENnRW5jZeNLHpe6aue+SrHcG5VYwujhW9s4dY31mEGsxBDrHR6oI69fTXsaQ==
+  /sourcemap-codec/1.4.8:
+    dev: false
+    resolution:
+      integrity: sha512-9NykojV5Uih4lgo5So5dtw+f0JgJX30KCNI8gwhz2J9A15wD0Ml6tjHKwf6fTSa6fAdVBdZeNOs9eJ71qCk8vA==
   /spdx-correct/3.1.1:
     dependencies:
       spdx-expression-parse: 3.0.1
@@ -6353,7 +6399,7 @@ packages:
     dev: false
     name: '@rush-temp/platform-frontend'
     resolution:
-      integrity: sha512-WoiginFcW9zMhiMmrpEhTPgPSDkfRPphou5QlUrN8VJzO0zJQppoHXvui5U5SsmXH6L3tVElu8x0jSpn8AmDRA==
+      integrity: sha512-ZbSbKHAfugydeY/3lkWlg5d+L2ok16DgJgL1P0XZeU8FrKx9RZwWQTpLRjvsOjdRQ6BpFWchFfiLDu9wS9z4Cw==
       tarball: 'file:projects/platform-frontend.tgz'
     version: 0.0.0
   'file:projects/registration-frontend.tgz':
@@ -6380,7 +6426,7 @@ packages:
     dev: false
     name: '@rush-temp/registration-frontend'
     resolution:
-      integrity: sha512-VtvOMUFs5pQmHhphqHUTcNI6QJlCNPfisx9ME4ZdhE2prw2+phicbeQx2X1HGLKO1Qsp9H7NJ5cjYanClBQvFg==
+      integrity: sha512-2wlHQ5496TBGvbLbCoF9k1ZCvj6evRzSplB/E9CwLLP2m+Be4QGHM1IGB3H9WYZ+so+MdWZfJ6Lj+yOiLi58HQ==
       tarball: 'file:projects/registration-frontend.tgz'
     version: 0.0.0
   'file:projects/shared-ui.tgz':
@@ -6422,6 +6468,7 @@ packages:
       '@ladc/sql-bricks-modifier': 0.22.7_ladc@0.22.10+sql-bricks@2.0.5
       '@ladc/sqlite3-adapter': 0.22.8_ladc@0.22.10
       '@paroi/media-engine': 0.5.4_0e8ef10b370a774bb8a510c37c1dd575
+      '@rollup/plugin-commonjs': 13.0.0_rollup@2.19.0
       '@typeonly/validator': 0.5.1
       '@types/express': 4.17.6
       '@types/express-session': 1.17.0
@@ -6450,6 +6497,7 @@ packages:
       pino-pretty: 4.0.0
       prettier: 2.0.5
       rimraf: 3.0.2
+      rollup: 2.19.0
       sass: 1.26.9
       sql-bricks: 2.0.5
       sql-bricks-sqlite: 0.1.0
@@ -6460,7 +6508,7 @@ packages:
     dev: false
     name: '@rush-temp/smallteam'
     resolution:
-      integrity: sha512-OGmyd1EfTw3z9TrwEHrZgjA5p3V7cJ4Fu9JleQRRnvqdrLyFexxPFseEj9Csg3Dz5jAmCb7zsrty9Jl0DzyQSQ==
+      integrity: sha512-cyruwNZT1d+Mp3idHN0dmIcfzJLRP1qopxdxsZMYUK1e4147x8/ZdOK2dAggkUBgX72J/GQpH7XU5hvlfNnZ0w==
       tarball: 'file:projects/smallteam.tgz'
     version: 0.0.0
   'file:projects/team-frontend.tgz':
@@ -6491,7 +6539,7 @@ packages:
     dev: false
     name: '@rush-temp/team-frontend'
     resolution:
-      integrity: sha512-Z5XXTvPZZXJKjzGL/K+UWB0WmPGMa2e1ZPRJ1GooGoDsdRCtvZ0455LMpK9MVugddg4wZ/GYrV0+pWLI6LWMwg==
+      integrity: sha512-7dJDN3w5eGhENs5H1siSzIECEWz1WoKjgV0b02FSG58tKvFQF4Io+HBHLqVQBmy1F6RRRto69AGdvH18KviXXg==
       tarball: 'file:projects/team-frontend.tgz'
     version: 0.0.0
 registry: ''
@@ -6502,6 +6550,7 @@ specifiers:
   '@ladc/sql-bricks-modifier': ^0.22.7
   '@ladc/sqlite3-adapter': ^0.22.8
   '@paroi/media-engine': ^0.5.4
+  '@rollup/plugin-commonjs': ^13.0.0
   '@rush-temp/platform-frontend': 'file:./projects/platform-frontend.tgz'
   '@rush-temp/registration-frontend': 'file:./projects/registration-frontend.tgz'
   '@rush-temp/shared': 'file:./projects/shared.tgz'
@@ -6543,6 +6592,8 @@ specifiers:
   pino-pretty: ^4.0.0
   prettier: ^2.0.5
   rimraf: ^3.0.2
+  rollup: ^2.19.0
+  sass: ^1.26.9
   sass-loader: ^8.0.2
   showdown: ^1.9.1
   sortablejs: ^1.10.2
@@ -6553,4 +6604,5 @@ specifiers:
   typescript: ^3.9.5
   uuid: ^8.2.0
   webpack: ^4.43.0
+  webpack-cli: ^3.3.12
   ws: ^7.3.0

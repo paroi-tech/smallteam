@@ -1,13 +1,12 @@
 import { SBConnection, SBMainConnection as DbCn } from "@ladc/sql-bricks-modifier"
 import taskMeta, { TaskCreateFragment, TaskFragment, TaskIdFragment, TaskSearchFragment, TaskUpdateFragment } from "@smallteam/shared/dist/meta/Task"
 import { WhoUseItem } from "@smallteam/shared/dist/transfers"
-import { deleteFrom, in as sqlIn, insertInto, like, or, select, update } from "sql-bricks"
+import sqlVanilla, { deleteFrom, in as sqlIn, insertInto, like, or, select, update } from "sql-bricks"
 import { intVal, strVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { deleteMedias, fetchMedias } from "./queryMedia"
 import { logStepChange } from "./queryTaskLogEntry"
-import sqlVanilla = require("sql-bricks")
 
 // --
 // -- Read
