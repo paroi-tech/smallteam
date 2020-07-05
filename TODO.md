@@ -1,16 +1,13 @@
 # TODO
 
-## June 2020
-
-### Not affected
-- [ ] On team creation fail, show a message asking the user to gently send an email
-      if the he cannot activate team after several attempts.
-- [ ] Fallback avatar for user menu ?
+## June & July 2020
 
 ### Thomas
-- [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
 - [ ] Deploy using Nginx with HTTPS and WSS.
+- [ ] Use `rush publish` in order to publish a build with a snapshot of `shared`.
+- [ ] Add a links to support in registration and platform frontends.
+- [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
 - [x] Add a `hostName` for security in the backend config.
 - [x] Web socket URI with correct port and protocol.
 - [x] Change log system in backend. Remove all calls to `console.log()`.
@@ -24,7 +21,9 @@
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
 ### Lionel
-- Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
+- [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
+- [ ] Add a link to support in the team frontend.
+- [ ] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
 - [ ] In team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] Backend should notify frontend about updates so that frontend can refresh.
       When a refresh is required, a notification is displayed to the user.
@@ -37,6 +36,10 @@
 - [x] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
 - [x] [backend] Use Joi in backend/src/utils/joiUtils.ts.
 - [x] [plateform] After team creation, show a message that tells the user to check his email to complete validation.
+
+## On Hold
+
+- [ ] Fallback avatar for user menu?
 
 ---
 

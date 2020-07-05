@@ -34,15 +34,8 @@ On the local environment:
 
 ```sh
 rush build:prod
-```
 
-On the production environment:
-
-```sh
-cd smallteam
-npm i
-npm run build:prod
-npm run start
+(cd packages/smallteam && pnpm publish)
 ```
 
 ## Install a local development environment
