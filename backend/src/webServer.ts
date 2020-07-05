@@ -108,7 +108,7 @@ export async function startWebServer() {
   })
 
   router.use(express.static(path.join(packageDir, "static")))
-  router.use(express.static(path.join(packageDir, "static-bundles")))
+  router.use(express.static(path.join(packageDir, conf.env === "local" ? "static-bundles" : "static-bundles-prod")))
 
   // await configureGetRouteToFile(
   //   router,

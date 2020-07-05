@@ -11,7 +11,7 @@ module.exports = env => ({
   entry: [join(__dirname, "src", "main.ts")],
   output: {
     filename: "registration.bundle.js",
-    path: resolve(__dirname, "..", "backend", "static-bundles"),
+    path: resolve(__dirname, "..", "backend", env === "development" ? "static-bundles" : "static-bundles-prod"),
   },
   module: {
     rules: [

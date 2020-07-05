@@ -6,6 +6,7 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
+    "build:prod": "",
     "build": "",
     "_build": "pnpm run clear && pnpm run tsc",
     "clear": "rimraf dist/*",

@@ -28,6 +28,23 @@ rush update
 rush rebuild
 ```
 
+## Deploy
+
+On the local environment:
+
+```sh
+rush build:prod
+```
+
+On the production environment:
+
+```sh
+cd backend
+npm i
+npm run build:prod
+npm run start
+```
+
 ## Install a local development environment
 
 ### Installation, part 1
@@ -82,14 +99,6 @@ Now, install and build all the subprojects:
 ```sh
 rush install
 rush build
-```
-
-Optionally, rebuild the frontends in development mode:
-
-```sh
-(cd team-frontend && rushx build:dev)
-(cd platform-frontend && rushx build:dev)
-(cd registration-frontend && rushx build:dev)
 ```
 
 Now, start the backend:

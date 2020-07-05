@@ -6,8 +6,8 @@
   "license": "UNLICENSED",
   "private": true,
   "scripts": {
-    "build": "webpack",
-    "build:dev": "webpack --env=development",
+    "build:prod": "webpack",
+    "build": "webpack --env=development",
     "watch": "webpack --env=development --watch",
     "lint": "eslint . --ext .ts"
   },

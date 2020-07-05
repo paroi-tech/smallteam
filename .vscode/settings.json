@@ -60,6 +60,7 @@
   "typescript.preferences.quoteStyle": "double",
   "search.exclude": {
     "/backend/static-bundles": true,
+    "/backend/static-bundles-prod": true,
     "**/package-lock.json": true,
     "/common": true
   }
