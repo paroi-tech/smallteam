@@ -17,9 +17,22 @@ export default class App {
     this.log = dash.log
     this.baseUrl = document.documentElement!.dataset.baseUrl || ""
     this.teamDialog = this.dash.create(TeamCreationDialog)
+
+    const env = document.documentElement.dataset.env ?? "prod"
+
     this.dash.listenTo<LogEvent>("log", data => {
-      // eslint-disable-next-line no-console
-      console.log(`[${data.level}]`, ...data.messages)
+      if (!console)
+        return
+      if (env === "local" || data.level === "error" || data.level === "warn") {
+        // eslint-disable-next-line no-console
+        if (console[data.level]) {
+          // eslint-disable-next-line no-console
+          console[data.level](...data.messages)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log(`[${data.level}]`, ...data.messages)
+        }
+      }
     })
   }
 

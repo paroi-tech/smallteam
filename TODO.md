@@ -8,12 +8,11 @@
 - [ ] Fallback avatar for user menu ?
 
 ### Thomas
-- [ ]
-- [ ] Add a `hostName` for security in the backend config.
-- [ ] Add a config in the frontend, with `ssl`, etc. And `platformUrl`. Use it to build the web socket URI.
 - [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
 - [ ] Deploy using Nginx with HTTPS and WSS.
+- [x] Add a `hostName` for security in the backend config.
+- [x] Web socket URI with correct port and protocol.
 - [x] Change log system in backend. Remove all calls to `console.log()`.
 - [x] Use typeonly to validate the config file.
 - [x] Use ESLint & prettier instead of TSLint.

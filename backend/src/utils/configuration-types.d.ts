@@ -2,11 +2,12 @@ export interface SmallTeamConf {
   env: "prod" | "local"
   log: LogConf
   ssl: boolean
+  hostName: string | null
+  port: number
   /**
    * In the `platform` mode, this is the main domain.
    */
   domain: string
-  port: number
   publicPort?: number
   dataDir: string
   /**

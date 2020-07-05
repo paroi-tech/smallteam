@@ -1,10 +1,11 @@
 {
-  "env": "local",
+  "env": "prod",
   "ssl": true,
-  "domain": "smallteam.paroi.tech",
+  "hostName": "localhost",
   "port": 3921,
+  "domain": "smallteam.paroi.tech",
   "publicPort": 80,
-  "dataDir": "/path/to/site/data/folder",
+  "dataDir": "../data",
   "mode": "platform",
   "singleTeam": {
     "subdirUrl": ""

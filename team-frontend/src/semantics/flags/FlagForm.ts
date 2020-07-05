@@ -192,7 +192,7 @@ export default class FlagForm {
     if (!this.flag)
       return
     try {
-      this.flag = await this.model.exec("update", "Flag", frag)
+      await this.model.exec("update", "Flag", frag)
       this.updateView()
     } catch (err) {
       this.log.error("Unable to update account...")

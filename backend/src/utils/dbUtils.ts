@@ -85,7 +85,7 @@ async function newSqliteCn(debugPrefix: string, fileName: string, newDbScriptFil
       //   } catch {
       //     sql = sqlBricks.toParams().text
       //   }
-      //   log.trace("[SQL]", action, sql)
+      //   log.debug("[SQL]", action, sql)
       // }
     }),
     initConnection: async cn => {
@@ -94,7 +94,7 @@ async function newSqliteCn(debugPrefix: string, fileName: string, newDbScriptFil
       await cn.exec("PRAGMA journal_mode = WAL")
     },
     poolOptions: {
-      // logMonitoring: m => appLog.trace(debugPrefix, "[MONITORING]", `[${m.id}]`, m.event),
+      // logMonitoring: m => appLog.debug(debugPrefix, "[MONITORING]", `[${m.id}]`, m.event),
       connectionTtl: 30
     },
     logError: err => appLog.error(err)
@@ -112,14 +112,14 @@ async function newSqliteCn(debugPrefix: string, fileName: string, newDbScriptFil
 //     const cc = debug.callingContext
 //     const msg = `[${cc.idInPool}]${cc.inTransaction ? " [in transaction]" : ""} on calling "${cc.method}"`
 //     if (debug.error) {
-//       appLog.trace(
+//       appLog.debug(
 //         "========>", debugPrefix, "[DEBUG-LADC-ERROR]", msg,
 //         "\n  -- args --\n", cc.args,
 //         "\n  -- error --\n", debug.error
 //         // "\n  -- connection --\n", cc.connection
 //       )
 //     } else {
-//       appLog.trace(
+//       appLog.debug(
 //         debugPrefix, "[DEBUG-LADC]", msg,
 //         "\n  -- args --\n", cc.args
 //         // "\n  -- result --\n", debug.result,
@@ -128,12 +128,12 @@ async function newSqliteCn(debugPrefix: string, fileName: string, newDbScriptFil
 //     }
 //   } else {
 //     if (debug.error) {
-//       appLog.trace(
+//       appLog.debug(
 //         "========>", debugPrefix, "[DEBUG-LADC-ERROR] Open connection",
 //         "\n  -- error --\n", debug.error
 //       )
 //     } else {
-//       appLog.trace(
+//       appLog.debug(
 //         debugPrefix, "[DEBUG-LADC] Open connection"
 //         // "\n  -- result --\n", debug.result
 //       )

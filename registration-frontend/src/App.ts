@@ -16,9 +16,22 @@ export default class App {
   constructor(private dash: AppDash<App>, private params: AppParams) {
     this.log = dash.log
     this.baseUrl = document.documentElement!.dataset.baseUrl || ""
+
+    const env = document.documentElement.dataset.env ?? "prod"
+
     this.dash.listenTo<LogEvent>("log", data => {
-      // eslint-disable-next-line no-console
-      console.log(`[${data.level}]`, ...data.messages)
+      if (!console)
+        return
+      if (env === "local" || data.level === "error" || data.level === "warn") {
+        // eslint-disable-next-line no-console
+        if (console[data.level]) {
+          // eslint-disable-next-line no-console
+          console[data.level](...data.messages)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log(`[${data.level}]`, ...data.messages)
+        }
+      }
     })
   }
 

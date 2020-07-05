@@ -1,8 +1,9 @@
 {
   "env": "local",
   "ssl": false,
-  "domain": "smallteam.paroi.local",
+  "hostName": null,
   "port": 3921,
+  "domain": "smallteam.paroi.local",
   "publicPort": 3921,
   "dataDir": "../data",
   "mode": "platform",

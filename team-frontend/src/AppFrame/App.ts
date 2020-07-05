@@ -21,16 +21,20 @@ export default class App {
     this.log = dash.log
     this.baseUrl = document.documentElement.dataset.baseUrl ?? ""
 
+    const env = document.documentElement.dataset.env ?? "prod"
+
     this.dash.listenTo<LogEvent>("log", data => {
       if (!console)
         return
-      // eslint-disable-next-line no-console
-      if (data.level !== "trace" && console[data.level]) {
+      if (env === "local" || data.level === "error" || data.level === "warn") {
         // eslint-disable-next-line no-console
-        console[data.level](...data.messages)
-      } else {
-        // eslint-disable-next-line no-console
-        console.log(`[${data.level}]`, ...data.messages)
+        if (console[data.level]) {
+          // eslint-disable-next-line no-console
+          console[data.level](...data.messages)
+        } else {
+          // eslint-disable-next-line no-console
+          console.log(`[${data.level}]`, ...data.messages)
+        }
       }
     })
 
@@ -166,29 +170,29 @@ export default class App {
 
     modelDash.unmanagedListeners.on<UpdateModelEvent | ReorderModelEvent>("change", data => {
       if ("orderedIds" in data)
-        this.log.trace(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
+        this.log.debug(`[MODEL] ${data.cmd} ${data.type}`, data.orderedIds)
       else
-        this.log.trace(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
+        this.log.debug(`[MODEL] ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
     modelDash.unmanagedListeners.on<BgCommand>("bgCommandAdded", data => {
-      this.log.trace(`[BG] Add: ${data.label}`)
+      this.log.debug(`[BG] Add: ${data.label}`)
     })
 
     modelDash.unmanagedListeners.on<BgCommand>("bgCommandDone", data => {
-      this.log.trace(`[BG] Done: ${data.label}`)
+      this.log.debug(`[BG] Done: ${data.label}`)
     })
 
     modelDash.unmanagedListeners.on<BgCommand>("bgCommandError", data => {
-      this.log.trace(`[BG] Error: ${data.label}`, data.errorMessage)
+      this.log.debug(`[BG] Error: ${data.label}`, data.errorMessage)
     })
 
     modelDash.unmanagedListeners.on<UpdateModelEvent>("processing", data => {
-      this.log.trace(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
+      this.log.debug(`[PROCESSING] start ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
     modelDash.unmanagedListeners.on<UpdateModelEvent>("endProcessing", data => {
-      this.log.trace(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
+      this.log.debug(`[PROCESSING] end ${data.cmd} ${data.type} ${data.id}`, data.model)
     })
 
     await this.model.global.loading

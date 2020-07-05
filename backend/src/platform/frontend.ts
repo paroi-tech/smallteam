@@ -1,11 +1,12 @@
-import { appVersion } from "../context"
+import { appVersion, conf } from "../context"
 import { getSubdirUrl, html } from "../utils/serverUtils"
 
 export function getPlatformHtml() {
   const v = appVersion
   const subdirUrl = getSubdirUrl()
+  const local = conf.env === "local"
   return html`<!DOCTYPE html>
-  <html data-ver="${v}"${subdirUrl ? ` data-base-url="${subdirUrl}"` : ""}>
+  <html data-ver="${v}"${subdirUrl ? ` data-base-url="${subdirUrl}"` : ""}${local ? " data-env=\"local\"" : ""}>
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">

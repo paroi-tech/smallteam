@@ -20,6 +20,7 @@ import { routeBatch, routeExec, routeFetch, routeWhoUse } from "./team/appModelB
 import { MEDIAS_BASE_URL } from "./team/createMediaEngine"
 import { getTeamHtml } from "./team/frontend"
 import { broadcastModelUpdate, wsEngineClose, wsEngineInit } from "./team/wsEngine"
+import { promiseToHandle } from "./utils/async-utils"
 import { getMediaEngine, getSessionDbConf } from "./utils/dbUtils"
 import { AuthorizationError, getConfirmedSubdomain, getMainDomainUrl, getSubdirUrl, isMainDomain, ValidationError } from "./utils/serverUtils"
 
@@ -150,9 +151,12 @@ export async function startWebServer() {
 
   wsEngineInit(server, sessionMiddleware)
 
-  await new Promise(resolve => {
-    server!.listen(port, resolve)
-  })
+  const { resolve, promise } = promiseToHandle()
+  if (conf.hostName)
+    server.listen(port, conf.hostName, resolve)
+  else
+    server.listen(port, resolve)
+  await promise
   appLog.info(`The server is listening on: ${getMainDomainUrl()}/`)
 
   // Scheduled task to remove password reset tokens each day.

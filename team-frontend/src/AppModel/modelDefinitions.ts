@@ -7,33 +7,34 @@ import { StepCreateFragment, StepIdFragment, StepUpdateFragment } from "@smallte
 import { TaskCreateFragment, TaskIdFragment, TaskSearchFragment, TaskUpdateFragment } from "@smallteam/shared/dist/meta/Task"
 import { BgCommandManager } from "./BgCommandManager"
 import { AccountModel } from "./Models/AccountModel"
+import { CommentModel } from "./Models/CommentModel"
 import { FlagModel } from "./Models/FlagModel"
 import { ProjectModel } from "./Models/ProjectModel"
 import { StepModel } from "./Models/StepModel"
 import { TaskModel } from "./Models/TaskModel"
 
 export interface ModelCommandMethods {
-  exec(cmd: "create", type: "Account", frag: AccountCreateFragment): Promise<void>
+  exec(cmd: "create", type: "Account", frag: AccountCreateFragment): Promise<AccountModel>
   exec(cmd: "update", type: "Account", frag: AccountUpdateFragment): Promise<void>
   exec(cmd: "delete", type: "Account", frag: AccountIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Project", frag: ProjectCreateFragment): Promise<void>
+  exec(cmd: "create", type: "Project", frag: ProjectCreateFragment): Promise<ProjectModel>
   exec(cmd: "update", type: "Project", frag: ProjectUpdateFragment): Promise<void>
   exec(cmd: "delete", type: "Project", frag: ProjectIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Task", frag: TaskCreateFragment): Promise<void>
+  exec(cmd: "create", type: "Task", frag: TaskCreateFragment): Promise<TaskModel>
   exec(cmd: "update", type: "Task", frag: TaskUpdateFragment): Promise<void>
   exec(cmd: "delete", type: "Task", frag: TaskIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Step", frag: StepCreateFragment): Promise<void>
+  exec(cmd: "create", type: "Step", frag: StepCreateFragment): Promise<StepModel>
   exec(cmd: "update", type: "Step", frag: StepUpdateFragment): Promise<void>
   exec(cmd: "delete", type: "Step", frag: StepIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Flag", frag: FlagCreateFragment): Promise<void>
+  exec(cmd: "create", type: "Flag", frag: FlagCreateFragment): Promise<FlagModel>
   exec(cmd: "update", type: "Flag", frag: FlagUpdateFragment): Promise<void>
   exec(cmd: "delete", type: "Flag", frag: FlagIdFragment): Promise<void>
 
-  exec(cmd: "create", type: "Comment", frag: CommentCreateFragment): Promise<void>
+  exec(cmd: "create", type: "Comment", frag: CommentCreateFragment): Promise<CommentModel>
   exec(cmd: "update", type: "Comment", frag: CommentUpdateFragment): Promise<void>
   exec(cmd: "delete", type: "Comment", frag: CommentIdFragment): Promise<void>
 
