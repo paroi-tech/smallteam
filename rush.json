@@ -2,26 +2,26 @@
   "$schema": "https://developer.microsoft.com/json-schemas/rush/v5/rush.schema.json",
   "rushVersion": "5.27.0",
   "pnpmVersion": "5.2.6",
-  "pnpmOptions": {
-  },
-  "nodeSupportedVersionRange": ">=12.13.0 <13.0.0",
-  "gitPolicy": {
-  },
+  "pnpmOptions": {},
+  "nodeSupportedVersionRange": ">=12.13.0",
+  "gitPolicy": {},
   "repository": {
+    "url": "https://github.com/paroi-tech/smallteam",
+    "defaultBranch": "master",
+    "defaultRemote": "origin"
   },
   "eventHooks": {
-    "preRushInstall": [
-    ],
+    "preRushInstall": [],
     "postRushInstall": [],
     "preRushBuild": [],
     "postRushBuild": []
   },
-  "variants": [
-  ],
+  "variants": [],
   "projects": [
     {
       "packageName": "smallteam",
-      "projectFolder": "packages/smallteam"
+      "projectFolder": "packages/smallteam",
+      "shouldPublish": true
     },
     {
       "packageName": "@smallteam/shared",

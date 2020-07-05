@@ -2,7 +2,7 @@
 
 ## June & July 2020
 
-### Thomas
+### Paleo
 - [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
 - [ ] Deploy using Nginx with HTTPS and WSS.
 - [ ] Use `rush publish` in order to publish a build with a snapshot of `shared`.
@@ -20,7 +20,7 @@
 - [x] Remove webpack unused configs and generate bundles without map files for prod.
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
-### Lionel
+### kitihounel
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
 - [ ] Add a link to support in the team frontend.
 - [ ] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
@@ -58,7 +58,7 @@
 - `<button type="button"` ⇒ remove `type="button"`
 - `&nbsp;` ⇒ remove
 
-### Thomas
+### Paleo
 
 - TaskForm: create an event "change" when closing the dialog of accountSelector (with change)
 - CSS
@@ -68,7 +68,7 @@
 - Auto-save: remove 'submit' buttons
 - Routes for tasks
 
-### Lionel
+### kitihounel
 
 - When an account change status, from admin to contributor, check that there is at least one admin in the team.
 - Reuse CSS classes for each forms, fields EXCEPT in `TaskForm`
@@ -95,7 +95,7 @@
 - Internationalisation
 - On error 'Unable to disconnect user...', clear the session cookie and reload the page
 
-### Thomas - v2 - Not urgent
+### Paleo - v2 - Not urgent
 
 - Upload engine & co:
   - Implement multi-files upload
@@ -134,7 +134,7 @@
 - Configure and use SendMail on the server
 - Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part.
 
-### Lionel - DONE
+### kitihounel - DONE
 
 - In TaskForm, when the user click on the "Archive" button, open a confirmation dialog.
 - Fix Bug in PasswordResetDialog that display several modal when we press Enter key in InfoDialog
@@ -234,11 +234,11 @@
 - Create a workspace `FlagWorkspace`, to add, update, remove, reorder flags (NB: use a color picker in the form)
 - Do not hide any existing StepSwitcher by default
 - Account (form, management, backend queries)
-- Refactoring in WorkspaceViewer (with Thomas)
+- Refactoring in WorkspaceViewer (with Paleo)
 - Refactor Menu and DropDownMenu components
 - Add `disable` method to BoxList.
 - On each component form:
-  - Disable forms for the models during processing (see with Thomas for the events)
+  - Disable forms for the models during processing (see with Paleo for the events)
   - Use `itemModel.updateTools.isModified()` to check if there is something to save
   - Use `itemModel.updateTools.getDiffToUpdate()` to save only the modified data
   - Use `itemModel.updateTools.whoUse` to check if it is possible to delete
@@ -259,7 +259,7 @@
   - `StepTypeForm.setProject(stepType: StepTypeModel | null)`
   - `TaskForm.setTask(task: TaskModel)`
 
-### Thomas - DONE
+### Paleo - DONE
 
 - Sessions in the backend
   - Implement `session/current` Auto-login when a session is already opened
@@ -322,7 +322,7 @@
   - Keep `global` lists up-to-date
   - [CANCELED] Remove `StepFragment.name` => call `step.stepType.name`
 
-### Thomas or Lionel - DONE
+### Paleo or kitihounel - DONE
 
 - Connection:
   - Chromium ask for saving password => find a solution
