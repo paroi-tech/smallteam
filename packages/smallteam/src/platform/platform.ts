@@ -5,7 +5,7 @@ import { hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import * as path from "path"
 import { deleteFrom, insert, select, update } from "sql-bricks"
-import { appLog, BCRYPT_SALT_ROUNDS, conf, dataDir, TOKEN_LENGTH } from "../context"
+import { appLog, BCRYPT_SALT_ROUNDS, conf, dataDir, packageDir, TOKEN_LENGTH } from "../context"
 import { sendMail } from "../mail"
 import { getCn, platformCn, strVal } from "../utils/dbUtils"
 import { createDir, fileExists, readFile } from "../utils/fsUtils"
@@ -202,7 +202,7 @@ async function insertTeamDefaultData(cn: SBMainConnection, data) {
     })
     await tcn.exec(statement)
 
-    const scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team-default-project.sql")
+    const scriptPath = path.join(packageDir, "sql-scripts", "team-default-project.sql")
     const sql = await readFile(scriptPath, "utf8")
     await tcn.script(sql)
 

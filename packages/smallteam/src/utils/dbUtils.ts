@@ -2,7 +2,7 @@ import sqlBricksModifier, { SBMainConnection } from "@ladc/sql-bricks-modifier"
 import sqlite3Adapter from "@ladc/sqlite3-adapter"
 import ladc from "ladc"
 import * as path from "path"
-import { appLog, dataDir } from "../context"
+import { appLog, dataDir, packageDir } from "../context"
 import { createMediaEngine, MediaEngine } from "../team/createMediaEngine"
 import { fileExists, readFile } from "./fsUtils"
 
@@ -21,7 +21,7 @@ export let platformCn!: SBMainConnection
 
 export async function initPlatformCn() {
   const dbPath = path.join(dataDir, "platform.sqlite")
-  const scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "platform.sql")
+  const scriptPath = path.join(packageDir, "sql-scripts", "platform.sql")
 
   platformCn = await newSqliteCn("[TEAMS]", dbPath, scriptPath)
 }
@@ -43,7 +43,7 @@ export async function getCn(subdomain: string): Promise<SBMainConnection> {
 
   if (!cn) {
     const dbPath = path.join(dataDir, subdomain, "team.sqlite")
-    const scriptPath = path.join(__dirname, "..", "..", "sqlite-scripts", "team.sql")
+    const scriptPath = path.join(packageDir, "sql-scripts", "team.sql")
     const up = subdomain.toUpperCase()
     const debug = `[${up}]`
 
