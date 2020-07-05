@@ -5,20 +5,20 @@
 In a terminal:
 
 ```sh
-(cd backend && rushx serve)
+(cd packages/smallteam && rushx serve)
 ```
 
 In the vscode's terminal, run one of these commands:
 
 ```sh
 # Work on Team
-(cd team-frontend && rushx watch)
+(cd subprojects/team-frontend && rushx watch)
 
 # Work on Platform
-(cd platform-frontend && rushx watch)
+(cd subprojects/platform-frontend && rushx watch)
 
 # Work on Registration
-(cd registration-frontend && rushx watch)
+(cd subprojects/registration-frontend && rushx watch)
 ```
 
 After changing a `package.json` or a `git pull`:
@@ -39,7 +39,7 @@ rush build:prod
 On the production environment:
 
 ```sh
-cd backend
+cd smallteam
 npm i
 npm run build:prod
 npm run start
@@ -64,7 +64,7 @@ Then, some configuration:
 
 ```sh
 mkdir data
-cp backend/config.local.json backend/config.json
+cp smallteam/config.local.json smallteam/config.json
 ```
 
 ### Rush
@@ -104,7 +104,7 @@ rush build
 Now, start the backend:
 
 ```sh
-(cd backend && rushx serve)
+(cd packages/smallteam && rushx serve)
 ```
 
 Then, load the platform frontend: http://smallteam.paroi.local:3921/

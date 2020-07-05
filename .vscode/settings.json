@@ -13,12 +13,8 @@
   "editor.wordWrap": "off",
   "editor.wordWrapColumn": 120,
   "eslint.workingDirectories": [
-    { "pattern": "./backend/" },
-    { "pattern": "./platform-frontend/" },
-    { "pattern": "./registration-frontend/" },
-    { "pattern": "./shared/" },
-    { "pattern": "./shared-ui/" },
-    { "pattern": "./team-frontend/" },
+    { "pattern": "./packages/*/" },
+    { "pattern": "./subprojects/*" }
   ],
   "files.encoding": "utf8",
   "files.trimTrailingWhitespace": true,
@@ -59,8 +55,7 @@
   "typescript.preferences.importModuleSpecifier": "relative",
   "typescript.preferences.quoteStyle": "double",
   "search.exclude": {
-    "/backend/static-bundles": true,
-    "/backend/static-bundles-prod": true,
+    "/packages/smallteam/static-bundles*": true,
     "**/package-lock.json": true,
     "/common": true
   }

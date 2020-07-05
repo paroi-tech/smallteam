@@ -1,24 +1,17 @@
 {
-  "name": "@smallteam/shared-ui",
+  "name": "@smallteam/shared",
   "version": "0.0.0",
-  "description": "",
+  "description": "This is a subproject for the 'smallteam' package.",
   "author": "Paroi",
-  "license": "UNLICENSED",
+  "license": "CC0-1.0",
   "private": true,
   "scripts": {
-    "build:prod": "",
-    "build": "",
-    "_build": "pnpm run clear && pnpm run tsc",
+    "build:prod": "pnpm run build",
+    "build": "pnpm run clear && pnpm run tsc",
     "clear": "rimraf dist/*",
     "tsc": "tsc",
     "watch": "tsc --watch",
-    "lint": "eslint . --ext .ts --ignore-path .gitignore"
-  },
-  "dependencies": {
-    "@smallteam/shared": "0.0.0",
-    "bkb": "^0.28.2",
-    "dialog-polyfill": "^0.5.1",
-    "handledom": "^0.1.5"
+    "lint": "eslint src --ext .ts --ignore-path .gitignore"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.4.0",

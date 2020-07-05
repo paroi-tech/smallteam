@@ -1,9 +1,9 @@
 {
-  "name": "@smallteam/platform-frontend",
+  "name": "@smallteam/registration-frontend",
   "version": "0.0.0",
-  "description": "",
+  "description": "This is a subproject for the 'smallteam' package.",
   "author": "Paroi",
-  "license": "UNLICENSED",
+  "license": "CC0-1.0",
   "private": true,
   "scripts": {
     "build:prod": "webpack",
@@ -34,6 +34,6 @@
     "ts-loader": "^7.0.5",
     "typescript": "^3.9.5",
     "webpack": "^4.43.0",
-    "webpack-cli": "^3.3.12"
+    "webpack-cli": "^3.3.11"
   }
 }

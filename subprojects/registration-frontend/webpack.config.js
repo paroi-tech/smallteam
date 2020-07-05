@@ -2,6 +2,8 @@ const HtmlWebPackPlugin = require("html-webpack-plugin")
 const MiniCssExtractPlugin = require("mini-css-extract-plugin")
 const { join, resolve } = require("path")
 
+const realPackageDir = resolve(__dirname, "..", "..", "packages", "smallteam")
+
 module.exports = env => ({
   mode: env === "development" ? "development" : "production",
   devtool: env === "development" ? "inline-source-map" : undefined,
@@ -10,8 +12,8 @@ module.exports = env => ({
   },
   entry: [join(__dirname, "src", "main.ts")],
   output: {
-    filename: "team.bundle.js",
-    path: resolve(__dirname, "..", "backend", env === "development" ? "static-bundles" : "static-bundles-prod"),
+    filename: "registration.bundle.js",
+    path: join(realPackageDir, env === "development" ? "static-bundles" : "static-bundles-prod"),
   },
   module: {
     rules: [
@@ -46,10 +48,10 @@ module.exports = env => ({
   plugins: [
     new HtmlWebPackPlugin({
       template: join(__dirname, "public", "index.html"),
-      filename: "team.html"
+      filename: "registration.html"
     }),
     new MiniCssExtractPlugin({
-      filename: "team.bundle.css"
+      filename: "registration.bundle.css"
     })
   ]
 })

@@ -1,10 +1,20 @@
 {
   "name": "smallteam",
-  "version": "0.0.0",
-  "description": "",
+  "version": "0.0.1",
+  "license": "CC0-1.0",
+  "description": "A Task Management Software for Small Teams.",
   "author": "Paroi",
-  "license": "UNLICENSED",
-  "private": true,
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/paroi-tech/smallteam.git"
+  },
+  "homepage": "https://github.com/paroi-tech/smallteam",
+  "keywords": [
+    "dom",
+    "html",
+    "template",
+    "engine"
+  ],
   "scripts": {
     "start": "node dist/ --config config.json",
     "build:prod": "pnpm run build",

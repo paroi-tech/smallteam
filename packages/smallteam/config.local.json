@@ -5,7 +5,7 @@
   "port": 3921,
   "domain": "smallteam.paroi.local",
   "publicPort": 3921,
-  "dataDir": "../data",
+  "dataDir": "../../data",
   "mode": "platform",
   "singleTeam": {
     "subdirUrl": ""

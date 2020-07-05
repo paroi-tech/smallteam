@@ -1,9 +1,9 @@
 {
   "name": "@smallteam/team-frontend",
   "version": "0.0.0",
-  "description": "",
+  "description": "This is a subproject for the 'smallteam' package.",
   "author": "Paroi",
-  "license": "UNLICENSED",
+  "license": "CC0-1.0",
   "private": true,
   "scripts": {
     "build:prod": "webpack",
