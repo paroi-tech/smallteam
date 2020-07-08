@@ -211,7 +211,7 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
       if (notifyWs && !isPublic && req.session && data.modelUpd) {
         const modelUpd = data.modelUpd
         delete data.modelUpd
-        broadcastModelUpdate(subdomain, req.session.id, { modelUpd })
+        broadcastModelUpdate(subdomain, { modelUpd })
       }
 
       writeJsonResponse(res, 200, data)

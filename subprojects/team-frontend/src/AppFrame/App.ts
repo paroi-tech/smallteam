@@ -105,7 +105,7 @@ export default class App {
           throw new Error("Unable to make a disconnection request.")
         return response.json()
       }).then(data => {
-        if (data.done)
+        if (!data.done)
           throw new Error("Unable to end session.")
         return true
       })

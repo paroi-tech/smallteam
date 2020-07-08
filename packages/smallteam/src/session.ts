@@ -4,12 +4,13 @@ import { whyNewPasswordIsInvalid } from "@smallteam/shared/dist/libraries/helper
 import { compare, hash } from "bcrypt"
 import { randomBytes } from "crypto"
 import { Request } from "express"
+import { IncomingMessage } from "http"
 import { deleteFrom, insert, select, update } from "sql-bricks"
 import { appLog, BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./context"
 import { sendMail } from "./mail"
 import { getCn } from "./utils/dbUtils"
 import { validate } from "./utils/joiUtils"
-import { AuthorizationError, BackendContext, getConfirmedSubdomain, getTeamSiteUrl } from "./utils/serverUtils"
+import { AuthorizationError, BackendContext, getConfirmedSubdomain, getIncomingMessageSubdomain, getTeamSiteUrl } from "./utils/serverUtils"
 import { getAccountByEmail, getAccountById, getAccountByLogin } from "./utils/userUtils"
 
 const passwordResetTokenValidity = 3 * 24 * 3600 * 1000 /* 3 days */
@@ -250,9 +251,15 @@ export async function getSessionData(req: Request) {
   }
 }
 
+export async function checkIncomingMessageSession(req: IncomingMessage) {
+  const subdomain = getIncomingMessageSubdomain(req)
+  if (subdomain && await getConfirmedSubdomain(subdomain) && await hasSession(req as any, subdomain))
+    return true
+}
+
 export async function hasSession(req: Request, subdomain?: string) {
   subdomain = subdomain ?? await getConfirmedSubdomain(req)
-  if (!subdomain || !req.session || !req.session.accountId || !req.session.subdomain)
+  if (!subdomain || !req.session?.accountId || !req.session?.subdomain)
     return false
   if (typeof req.session.accountId !== "string" || typeof req.session.subdomain !== "string")
     return false

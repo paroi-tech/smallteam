@@ -1,4 +1,5 @@
 import { Request } from "express"
+import { IncomingMessage } from "http"
 import * as path from "path"
 import { conf, dataDir } from "../context"
 import { fileExists } from "./fsUtils"
@@ -23,6 +24,21 @@ export function isMainDomain(req: Request) {
   return req.subdomains.length === 0
 }
 
+export function getIncomingMessageSubdomain(req: IncomingMessage) {
+  if (!req.url)
+    return
+
+  const url = new URL(req.url, `http://${req.headers.host}`)
+  const i = url.hostname.indexOf(".")
+  if (i === -1)
+    return
+
+  const subdomain = url.hostname.substring(0, i)
+  const domain = url.hostname.substring(i + 1)
+  if (domain === conf.domain)
+    return subdomain.toLowerCase()
+}
+
 export function getRequestedSubdomain(req: Request) {
   if (req.subdomains?.length === 1)
     return req.subdomains[0].toLowerCase()
@@ -30,7 +46,7 @@ export function getRequestedSubdomain(req: Request) {
 
 export async function getConfirmedSubdomain(reqOrSubdomain: Request | string) {
   const subdomain = typeof reqOrSubdomain === "string" ? reqOrSubdomain : getRequestedSubdomain(reqOrSubdomain)
-  if (subdomain && await fileExists(path.join(dataDir, subdomain))) // TODO: Check if it is a directory
+  if (subdomain && await fileExists(path.join(dataDir, subdomain)))
     return subdomain
 }
 
