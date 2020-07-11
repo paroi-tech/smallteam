@@ -3,7 +3,7 @@ require("./common.scss")
 
 import { createApplication } from "bkb"
 import App from "./AppFrame/App"
-import { wsClientInit } from "./AppModel/ModelEngine/WsClient"
+import { initWsClient } from "./AppModel/ModelEngine/WsClient"
 
 async function startup() {
   try {
@@ -13,7 +13,7 @@ async function startup() {
     if (info.accountId === "0") {
       await app.showPasswordResetDialog()
     } else {
-      const ws = await wsClientInit(info.frontendId)
+      const ws = await initWsClient()
       await app.start(info, ws)
     }
   } catch (err) {

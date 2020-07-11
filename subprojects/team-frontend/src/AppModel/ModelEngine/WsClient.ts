@@ -1,14 +1,11 @@
-export async function wsClientInit(frontendId: string): Promise<WebSocket> {
+export async function initWsClient(): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const { host, protocol } = window.location
     const wsProtocol = protocol === "https:" ? "wss" : "ws"
     const ws = new WebSocket(`${wsProtocol}://${host}/subscribe`)
 
-    ws.addEventListener("error", () => reject("Error when creating websocket client."), { once: true })
-    ws.addEventListener("open", () => {
-      ws["attachedProperties"] = { frontendId }
-      resolve(ws)
-    })
+    ws.addEventListener("error", () => reject("Unable to create websocket client."), { once: true })
+    ws.addEventListener("open", () => resolve(ws))
   })
 }
 

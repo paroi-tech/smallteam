@@ -91,7 +91,7 @@ export function broadcastModelUpdate(subdomain: string, data) {
 
   const map = wsClients.get(subdomain)
   if (!map) {
-    appLog.debug(`No client registred Map for '${subdomain}'`)
+    appLog.debug(`No websocket client active for '${subdomain}' subdomain.`)
     return
   }
 
