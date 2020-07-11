@@ -1,4 +1,4 @@
-import { TaskLogEntryFragment } from "@smallteam/shared/dist/meta/TaskLogEntry"
+import { TaskLogEntryFragment } from "@local-packages/shared/dist/meta/TaskLogEntry"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 import { AccountModel } from "./AccountModel"
 import { StepModel } from "./StepModel"

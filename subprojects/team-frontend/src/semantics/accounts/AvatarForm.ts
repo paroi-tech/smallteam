@@ -1,4 +1,4 @@
-import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
+import ErrorDialog from "@local-packages/shared-ui/modal-dialogs/ErrorDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

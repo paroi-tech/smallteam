@@ -1,6 +1,6 @@
 import { SBConnection, SBMainConnection } from "@ladc/sql-bricks-modifier"
-import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "@smallteam/shared/dist/meta/Project"
-import { WhoUseItem } from "@smallteam/shared/dist/transfers"
+import projectMeta, { ProjectCreateFragment, ProjectFragment, ProjectIdFragment, ProjectSearchFragment, ProjectUpdateFragment } from "@local-packages/shared/dist/meta/Project"
+import { WhoUseItem } from "@local-packages/shared/dist/transfers"
 // tslint:disable-next-line: ordered-imports
 import sqlVanilla, { deleteFrom, in as sqlIn, insertInto, isNotNull, like, select, update } from "sql-bricks"
 import { intVal, strVal, toIntList } from "../../utils/dbUtils"

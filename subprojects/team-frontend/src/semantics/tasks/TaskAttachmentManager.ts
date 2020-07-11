@@ -1,5 +1,5 @@
-import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
-import ErrorDialog from "@smallteam/shared-ui/modal-dialogs/ErrorDialog"
+import { removeAllChildren } from "@local-packages/shared-ui/libraries/utils"
+import ErrorDialog from "@local-packages/shared-ui/modal-dialogs/ErrorDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

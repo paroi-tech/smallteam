@@ -1,6 +1,6 @@
 import { SBMainConnection } from "@ladc/sql-bricks-modifier"
-import accountMeta, { AccountCreateFragment, AccountFragment, AccountIdFragment, AccountUpdateFragment } from "@smallteam/shared/dist/meta/Account"
-import { WhoUseItem } from "@smallteam/shared/dist/transfers"
+import accountMeta, { AccountCreateFragment, AccountFragment, AccountIdFragment, AccountUpdateFragment } from "@local-packages/shared/dist/meta/Account"
+import { WhoUseItem } from "@local-packages/shared/dist/transfers"
 import { hash } from "bcrypt"
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
 import { BCRYPT_SALT_ROUNDS } from "../../context"

@@ -1,5 +1,5 @@
-require("@smallteam/shared-ui/theme.scss")
-import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
+require("@local-packages/shared-ui/theme.scss")
+import { removeAllChildren } from "@local-packages/shared-ui/libraries/utils"
 import { createApplication } from "bkb"
 import App from "./App"
 

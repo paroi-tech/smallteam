@@ -1,4 +1,4 @@
-import { removeAllChildren } from "@smallteam/shared-ui/libraries/utils"
+import { removeAllChildren } from "@local-packages/shared-ui/libraries/utils"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

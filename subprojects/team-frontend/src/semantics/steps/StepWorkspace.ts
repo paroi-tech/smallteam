@@ -1,4 +1,4 @@
-import { equal } from "@smallteam/shared-ui/libraries/utils"
+import { equal } from "@local-packages/shared-ui/libraries/utils"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

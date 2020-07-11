@@ -5,7 +5,6 @@ dependencies:
   '@ladc/sql-bricks-modifier': 0.22.7_ladc@0.22.10+sql-bricks@2.0.5
   '@ladc/sqlite3-adapter': 0.22.8_ladc@0.22.10
   '@paroi/media-engine': 0.5.4_0e8ef10b370a774bb8a510c37c1dd575
-  '@rollup/plugin-commonjs': 13.0.0_rollup@2.19.0
   '@rush-temp/platform-frontend': 'file:projects/platform-frontend.tgz'
   '@rush-temp/registration-frontend': 'file:projects/registration-frontend.tgz'
   '@rush-temp/shared': 'file:projects/shared.tgz'
@@ -47,7 +46,6 @@ dependencies:
   pino-pretty: 4.0.0
   prettier: 2.0.5
   rimraf: 3.0.2
-  rollup: 2.19.0
   sass: 1.26.9
   sass-loader: 8.0.2_sass@1.26.9+webpack@4.43.0
   showdown: 1.9.1
@@ -6399,7 +6397,7 @@ packages:
     dev: false
     name: '@rush-temp/platform-frontend'
     resolution:
-      integrity: sha512-ZbSbKHAfugydeY/3lkWlg5d+L2ok16DgJgL1P0XZeU8FrKx9RZwWQTpLRjvsOjdRQ6BpFWchFfiLDu9wS9z4Cw==
+      integrity: sha512-AH28f+cep6jm1aeTZS5LA5j9H88k4KEYfBqM5IPW1pjo1NO+x3IEkrDDoRJICZ7aBNxCeQZ97A6ftHF3FG1tbw==
       tarball: 'file:projects/platform-frontend.tgz'
     version: 0.0.0
   'file:projects/registration-frontend.tgz':
@@ -6426,7 +6424,7 @@ packages:
     dev: false
     name: '@rush-temp/registration-frontend'
     resolution:
-      integrity: sha512-2wlHQ5496TBGvbLbCoF9k1ZCvj6evRzSplB/E9CwLLP2m+Be4QGHM1IGB3H9WYZ+so+MdWZfJ6Lj+yOiLi58HQ==
+      integrity: sha512-AH6F8WyAt3KWiosp0rBG7CiyxQVjiFGaHVAxDsqA9Bvx4UP02uUwFFCDNY8TXV4LMCMGa5/861cxBufW5RpPOQ==
       tarball: 'file:projects/registration-frontend.tgz'
     version: 0.0.0
   'file:projects/shared-ui.tgz':
@@ -6444,7 +6442,7 @@ packages:
     dev: false
     name: '@rush-temp/shared-ui'
     resolution:
-      integrity: sha512-NzG4iuulnTliQcaxstpLBJvXdamGP7YUG1Jdwjp3CeL+GM05NjWad4HtMRKdJ+vvJvk0qWslqx5J4NkvN3G5xA==
+      integrity: sha512-VHKbs1HGMWwEX/C/E0zKZEIv715Onvslkg29PGPmxxL0errVG5nO43PcIdCmPBrr0DY+6STYo0sV/Jzf6rF/LA==
       tarball: 'file:projects/shared-ui.tgz'
     version: 0.0.0
   'file:projects/shared.tgz':
@@ -6508,7 +6506,7 @@ packages:
     dev: false
     name: '@rush-temp/smallteam'
     resolution:
-      integrity: sha512-cyruwNZT1d+Mp3idHN0dmIcfzJLRP1qopxdxsZMYUK1e4147x8/ZdOK2dAggkUBgX72J/GQpH7XU5hvlfNnZ0w==
+      integrity: sha512-cMkkOpSbyWHOu27AlA584LAfYyp7JER48mMGkqZwzLKFNiXmiGB+toOkcve03SL0si2Jn6OcDn2CY9UkJ1h2Jg==
       tarball: 'file:projects/smallteam.tgz'
     version: 0.0.0
   'file:projects/team-frontend.tgz':
@@ -6539,7 +6537,7 @@ packages:
     dev: false
     name: '@rush-temp/team-frontend'
     resolution:
-      integrity: sha512-7dJDN3w5eGhENs5H1siSzIECEWz1WoKjgV0b02FSG58tKvFQF4Io+HBHLqVQBmy1F6RRRto69AGdvH18KviXXg==
+      integrity: sha512-L8xfN13Csryy4Ibe0wbq7sPgaFWsMF9ZaQFqZQ6560U+chYN/pkCIR31NgOEdYJhQ7Vp56XAIAqY0mr8bdMyvw==
       tarball: 'file:projects/team-frontend.tgz'
     version: 0.0.0
 registry: ''
@@ -6550,7 +6548,6 @@ specifiers:
   '@ladc/sql-bricks-modifier': ^0.22.7
   '@ladc/sqlite3-adapter': ^0.22.8
   '@paroi/media-engine': ^0.5.4
-  '@rollup/plugin-commonjs': ^13.0.0
   '@rush-temp/platform-frontend': 'file:./projects/platform-frontend.tgz'
   '@rush-temp/registration-frontend': 'file:./projects/registration-frontend.tgz'
   '@rush-temp/shared': 'file:./projects/shared.tgz'
@@ -6592,7 +6589,6 @@ specifiers:
   pino-pretty: ^4.0.0
   prettier: ^2.0.5
   rimraf: ^3.0.2
-  rollup: ^2.19.0
   sass: ^1.26.9
   sass-loader: ^8.0.2
   showdown: ^1.9.1

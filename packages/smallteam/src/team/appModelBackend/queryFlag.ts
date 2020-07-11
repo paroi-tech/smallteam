@@ -1,6 +1,6 @@
 import { SBMainConnection } from "@ladc/sql-bricks-modifier"
-import flagMeta, { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "@smallteam/shared/dist/meta/Flag"
-import { WhoUseItem } from "@smallteam/shared/dist/transfers"
+import flagMeta, { FlagCreateFragment, FlagFragment, FlagIdFragment, FlagUpdateFragment } from "@local-packages/shared/dist/meta/Flag"
+import { WhoUseItem } from "@local-packages/shared/dist/transfers"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import { intVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"

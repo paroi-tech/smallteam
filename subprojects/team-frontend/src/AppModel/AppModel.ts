@@ -1,4 +1,4 @@
-import { Identifier, ModelUpdate, Type } from "@smallteam/shared/dist/Cargo"
+import { Identifier, ModelUpdate, Type } from "@local-packages/shared/dist/Cargo"
 import { OwnDash } from "../AppFrame/OwnDash"
 import GenericBgCommandManager from "./BgCommandManager"
 import { GenericCommandBatch } from "./GenericCommandBatch"

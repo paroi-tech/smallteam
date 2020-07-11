@@ -1,4 +1,4 @@
-import { MediaVariantFragment } from "@smallteam/shared/dist/meta/MediaVariant"
+import { MediaVariantFragment } from "@local-packages/shared/dist/meta/MediaVariant"
 import ModelEngine, { appendGettersToModel } from "../ModelEngine"
 import { MediaModel } from "./MediaModel"
 

@@ -1,7 +1,7 @@
 import { SBMainConnection } from "@ladc/sql-bricks-modifier"
+import { ModelUpdate, Type } from "@local-packages/shared/dist/Cargo"
 import { createMediaStorage, ExternalRef, ImageVariantsConfiguration, isSupportedImage, Media, MediaStorage, MulterFile } from "@paroi/media-engine"
 import { createUploadEngine, UploadEngine, UploadEngineManager } from "@paroi/media-engine/upload"
-import { ModelUpdate, Type } from "@smallteam/shared/dist/Cargo"
 import { Request } from "express"
 import { appLog } from "../context"
 import { getSessionData, hasSession } from "../session"

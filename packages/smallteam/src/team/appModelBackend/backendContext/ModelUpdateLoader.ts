@@ -1,6 +1,6 @@
-import { Identifier, ModelUpdate, Type } from "@smallteam/shared/dist/Cargo"
-import { HKMap, makeHKMap } from "@smallteam/shared/dist/libraries/HKCollections"
-import { toIdentifier } from "@smallteam/shared/dist/meta"
+import { Identifier, ModelUpdate, Type } from "@local-packages/shared/dist/Cargo"
+import { HKMap, makeHKMap } from "@local-packages/shared/dist/libraries/HKCollections"
+import { toIdentifier } from "@local-packages/shared/dist/meta"
 
 export type ChangedType = "created" | "updated" | "deleted"
 

@@ -1,4 +1,4 @@
-import QuestionDialog from "@smallteam/shared-ui/modal-dialogs/QuestionDialog"
+import QuestionDialog from "@local-packages/shared-ui/modal-dialogs/QuestionDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

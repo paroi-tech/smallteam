@@ -1,4 +1,4 @@
-import { catchAndLog } from "@smallteam/shared-ui/libraries/utils"
+import { catchAndLog } from "@local-packages/shared-ui/libraries/utils"
 import { Dash } from "bkb"
 import handledom from "handledom"
 import NavMenu, { NavMenuOptions } from "./NavMenu"

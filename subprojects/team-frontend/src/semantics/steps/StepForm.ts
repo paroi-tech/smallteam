@@ -1,4 +1,4 @@
-import InfoDialog from "@smallteam/shared-ui/modal-dialogs/InfoDialog"
+import InfoDialog from "@local-packages/shared-ui/modal-dialogs/InfoDialog"
 import { Log } from "bkb"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"

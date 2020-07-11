@@ -24,23 +24,23 @@
       "shouldPublish": true
     },
     {
-      "packageName": "@smallteam/shared",
+      "packageName": "@local-packages/shared",
       "projectFolder": "subprojects/shared"
     },
     {
-      "packageName": "@smallteam/shared-ui",
+      "packageName": "@local-packages/shared-ui",
       "projectFolder": "subprojects/shared-ui"
     },
     {
-      "packageName": "@smallteam/platform-frontend",
+      "packageName": "@local-packages/platform-frontend",
       "projectFolder": "subprojects/platform-frontend"
     },
     {
-      "packageName": "@smallteam/registration-frontend",
+      "packageName": "@local-packages/registration-frontend",
       "projectFolder": "subprojects/registration-frontend"
     },
     {
-      "packageName": "@smallteam/team-frontend",
+      "packageName": "@local-packages/team-frontend",
       "projectFolder": "subprojects/team-frontend"
     }
   ]
