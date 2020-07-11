@@ -6,7 +6,7 @@ let content = readFileSync(packageJsonFile, "utf8")
 
 const report = []
 
-const regex = /\"(@[a-zA-Z0-9-_]+-local\/[^"]+)\":\s*\"[a-zA-Z0-9-_]+-(0\.0\.0-bundled)\.tgz\"/g
+const regex = /\"(@[a-zA-Z0-9-_]+-local\/[^"]+)\":\s*\"[a-zA-Z0-9-_]+-([0-9]+\.[0-9]+\.[0-9]+-bundled)\.tgz\"/g
 content = content.replace(regex, (_, packageName, version) => {
   report.push(`Package "${packageName}" is switched to: "${version}"`)
   return `"${packageName}": "${version}"`

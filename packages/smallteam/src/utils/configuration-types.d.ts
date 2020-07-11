@@ -1,5 +1,8 @@
 export interface SmallTeamConf {
-  env: "prod" | "local"
+  /**
+   * Default is: `"prod"`.
+   */
+  env?: "prod" | "local"
   log: LogConf
   ssl: boolean
   hostName: string | null

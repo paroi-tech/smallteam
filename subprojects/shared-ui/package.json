@@ -15,7 +15,7 @@
     "lint": "eslint . --ext .ts --max-warnings=0"
   },
   "dependencies": {
-    "@smallteam-local/shared": "0.0.0-bundled",
+    "@smallteam-local/shared": "0.0.1-bundled",
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",
     "handledom": "^0.1.5"

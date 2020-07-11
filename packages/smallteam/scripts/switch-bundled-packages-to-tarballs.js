@@ -6,7 +6,7 @@ let content = readFileSync(packageJsonFile, "utf8")
 
 const report = []
 
-const regex = /\"(@[a-zA-Z0-9-_]+-local\/[^"]+)\":\s*\"(0\.0\.0-bundled)\"/g
+const regex = /\"(@[a-zA-Z0-9-_]+-local\/[^"]+)\":\s*\"([0-9]+\.[0-9]+\.[0-9]+-bundled)\"/g
 content = content.replace(regex, (_, packageName, version) => {
   let tarBallName = packageName.startsWith("@")
     ? packageName.substr(1).replace("/", "-")
