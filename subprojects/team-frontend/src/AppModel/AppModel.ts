@@ -41,7 +41,7 @@ export default class ModelComp implements Model {
   private engine: ModelEngine
 
   constructor(private dash: OwnDash, sessionData: SessionData) {
-    this.engine = new ModelEngine(dash, dash.app.baseUrl)
+    this.engine = new ModelEngine(dash, dash.app.baseUrl, sessionData.frontendId)
     this.bgManager = this.engine.bgManager
     registerAccount(this.engine)
     registerComment(this.engine)

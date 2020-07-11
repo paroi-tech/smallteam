@@ -119,7 +119,7 @@ export default class ModelEngine {
   private batch: Batch | null = null
   private processing = new Set<string>()
 
-  constructor(private dash: Dash, private baseUrl: string) {
+  constructor(private dash: Dash, private baseUrl: string, private frontendId: string) {
     this.dash.exposeEvent("change", "create", "update", "delete", "reorder", "processing", "endProcessing")
     this.bgManager = new GenericBgCommandManager(dash)
   }
@@ -202,8 +202,12 @@ export default class ModelEngine {
       throw new Error(`Cannot reorder type ${type}, missing orderFieldName in meta`)
     if (orderedIds.idList.length === 0)
       return []
+
     const dependencies = this.getExecDependencies("reorder", type, orderedIds)
-    await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/exec`, { cmd: "reorder", type, ...orderedIds, dependencies }, "none")
+    await this.httpSendAndUpdate("POST", `${this.baseUrl}/api/model/exec`, {
+      cmd: "reorder", type, ...orderedIds, dependencies, frontendId: this.frontendId
+    }, "none")
+
     return orderedIds.idList
       .map(id => ({ id, frag: this.getFragment({ id, type }) }))
       .sort((a, b) => a.frag[orderFieldName!] - b.frag[orderFieldName!])
@@ -353,7 +357,7 @@ export default class ModelEngine {
       const resultFrag = await this.httpSendAndUpdate(
         "POST",
         `${this.baseUrl}/api/model/exec`,
-        { cmd, type, frag, dependencies },
+        { cmd, type, frag, dependencies, frontendId: this.frontendId },
         del ? "none" : "fragment"
       )
       if (!del)

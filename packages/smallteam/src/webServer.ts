@@ -202,18 +202,19 @@ function makeRouteHandler(cb: RouteCb, isPublic: boolean, notifyWs = false) {
     let body: string | undefined
 
     try {
-      // FIXME: route cb should be able to set response object status code. REALLY!!!
+      // FIXME: route cb should be able to set response object status code. Really!!!
       body = await waitForRequestBody(req)
       req["rawBody"] = body
 
-      const data = await cb(subdomain, JSON.parse(body), req.session as any, req, res)
+      const reqData = JSON.parse(body)
+      const data = await cb(subdomain, reqData, req.session as any, req, res)
 
       if (notifyWs && !isPublic && req.session && data.modelUpd) {
-        const modelUpd = data.modelUpd
-        delete data.modelUpd
-        broadcastModelUpdate(subdomain, { modelUpd })
+        broadcastModelUpdate(subdomain, {
+          modelUpd: data.modelUpd,
+          frontendId: reqData.frontendId
+        })
       }
-
       writeJsonResponse(res, 200, data)
     } catch (err) {
       writeServerResponseError(res, err, body)

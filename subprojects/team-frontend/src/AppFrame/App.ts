@@ -6,7 +6,7 @@ import AppFrame from "../AppFrame/AppFrame"
 import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
-import { closeWsClient } from "../AppModel/ModelEngine/WsClient"
+import { closeWsClient, initWsClient } from "../AppModel/ModelEngine/WsClient"
 import LoginDialog from "../generics/LoginDialog"
 import PasswordRequestDialog from "../generics/PasswordRequestDialog"
 
@@ -15,7 +15,7 @@ export default class App {
   readonly baseUrl: string
   private _model?: Model
   private appFrame?: AppFrame
-  private wsClient?: WebSocket
+  private ws?: WebSocket
 
   constructor(private dash: AppDash<App>) {
     this.log = dash.log
@@ -63,8 +63,8 @@ export default class App {
     await this.appFrame.viewer.router.navigate(queryString)
   }
 
-  async connect(): Promise<string> {
-    let accountId: string | undefined
+  async connect(): Promise<any> {
+    let info: any
 
     // First, we try to recover session, if there is an active one.
     try {
@@ -81,13 +81,13 @@ export default class App {
           throw new Error("Unable to get information about user session.")
         return response.json()
       })
-      accountId = data.done ? data.accountId : undefined
+      info = data.done ? data.info : undefined
     } catch (err) {
       this.log.warn(err)
     }
 
     // We show login dialog if session recovering failed.
-    return accountId ?? await this.dash.create(LoginDialog).open()
+    return info ?? await this.dash.create(LoginDialog).open()
   }
 
   async disconnect() {
@@ -120,8 +120,8 @@ export default class App {
   }
 
   private async doCleanup() {
-    if (this.wsClient)
-      closeWsClient(this.wsClient)
+    if (this.ws)
+      closeWsClient(this.ws)
     await this.navigate("") // This prevents the router to show current page at next login.
     document.location.reload(false)
   }
@@ -136,23 +136,23 @@ export default class App {
   }
 
   async start(sessionData: SessionData, ws: WebSocket) {
+    const { frontendId } = sessionData
+
     await this.initModel(sessionData)
 
-    this.wsClient = ws
-    ws.addEventListener("message", (ev) => {
-      try {
-        const data = JSON.parse(ev.data)
-        this.log.info("Received data via websockets.", data)
-        if (data.modelUpd)
-          this.model.processModelUpdate(data.modelUpd)
-      } catch (error) {
-        this.log.error("Received bad JSON from ws server.")
-      }
-    })
+    this.registerWs(ws, sessionData.accountId)
+    // TODO: the 'error' event is not fired when the server is down. Use the close event and its code instead.
     ws.addEventListener("error", ev => {
-      // TODO: handle error and refresh ws connection if needed.
-      this.log.error("Error with ws client...", ev)
+      this.log.error("Error with websocket client:", ev)
+      initWsClient().then(newWs => {
+        this.log.debug("Websocket recreated with success.")
+        this.registerWs(newWs, frontendId)
+      }).catch(() => {
+        this.log.error("Error while attempting to recreate websocket.")
+        // TODO: add a flashing button beside BgManager that asks to refresh the page.
+      })
     })
+    ws.addEventListener("close", ev => console.log("ws closed", ev))
 
     const appEl = document.querySelector(".js-app")
 
@@ -161,6 +161,19 @@ export default class App {
       this.appFrame = this.dash.create(AppFrame)
       appEl.appendChild(this.appFrame.el)
     }
+  }
+
+  private registerWs(ws: WebSocket, frontendId: string) {
+    this.ws = ws
+    ws.addEventListener("message", (ev) => {
+      try {
+        const data = JSON.parse(ev.data)
+        if (data.modelUpd && data.frontendId !== frontendId)
+          this.model.processModelUpdate(data.modelUpd)
+      } catch (error) {
+        this.log.error("Received bad JSON from ws server:", ev.data)
+      }
+    })
   }
 
   private async initModel(sessionData: SessionData) {
