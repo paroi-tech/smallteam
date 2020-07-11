@@ -8,12 +8,14 @@ import { wsClientInit } from "./AppModel/ModelEngine/WsClient"
 async function startup() {
   try {
     const app = createApplication(App)
-    const accountId = await app.connect()
+    const info = await app.connect()
 
-    if (accountId === "0")
+    if (info.accountId === "0") {
       await app.showPasswordResetDialog()
-    else
-      await app.start({ accountId }, await wsClientInit())
+    } else {
+      const ws = await wsClientInit(info.frontendId)
+      await app.start(info, ws)
+    }
   } catch (err) {
     // eslint-disable-next-line no-console
     console.log(err)

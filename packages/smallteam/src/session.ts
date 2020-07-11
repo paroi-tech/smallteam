@@ -6,6 +6,7 @@ import { randomBytes } from "crypto"
 import { Request } from "express"
 import { IncomingMessage } from "http"
 import { deleteFrom, insert, select, update } from "sql-bricks"
+import { v4 as uuid } from "uuid"
 import { appLog, BCRYPT_SALT_ROUNDS, TOKEN_LENGTH } from "./context"
 import { sendMail } from "./mail"
 import { getCn } from "./utils/dbUtils"
@@ -67,10 +68,12 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
     req.session!.accountId = account.id
     req.session!.subdomain = subdomain
 
-    return {
-      done: true,
-      accountId: account.id
+    const info = {
+      accountId: req.session!.accountId,
+      frontendId: uuid()
     }
+
+    return { done: true, info }
   }
 
   return {
@@ -81,16 +84,16 @@ export async function routeConnect(subdomain: string, data: any, sessionData?: S
 export async function routeCurrentSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request) {
   if (!req)
     throw new Error("Request object missing 'routeCurrentSession'")
+
   if (await hasSession(req, subdomain)) {
-    return {
-      done: true,
-      accountId: req.session!.accountId
+    const info = {
+      accountId: req.session!.accountId,
+      frontendId: uuid()
     }
+    return { done: true, info }
   }
 
-  return {
-    done: false
-  }
+  return { done: false }
 }
 
 export async function routeEndSession(subdomain: string, data: any, sessionData?: SessionData, req?: Request) {

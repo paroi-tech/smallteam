@@ -21,14 +21,13 @@
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
 ### kitihounel
+- [ ] IMPORTANT: in team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
 - [ ] Add a link to support in the team frontend.
-- [ ] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
-- [ ] In team frontend, track ws client state and restart a new one if it gets closed in App.start().
-- [ ] Backend should notify frontend about updates so that frontend can refresh.
-      When a refresh is required, a notification is displayed to the user.
 - [ ] Don't allow a contributor to change his own status.
 - [ ] In `routeBatch`, handle the case when one of the commands fails.
+- [x] Backend should notify frontend about updates so that frontend can refresh. When a refresh is required, a notification is displayed to the user.
+- [x] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
 - [x] Update modal dialogs to enable several row of text.
 - [x] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
 - [x] Configure team creation process so that for each new team, a default project named *First Project* is available.

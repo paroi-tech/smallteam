@@ -1,18 +1,13 @@
-export async function wsClientInit(): Promise<WebSocket> {
+export async function wsClientInit(frontendId: string): Promise<WebSocket> {
   return new Promise((resolve, reject) => {
     const { host, protocol } = window.location
     const wsProtocol = protocol === "https:" ? "wss" : "ws"
     const ws = new WebSocket(`${wsProtocol}://${host}/subscribe`)
 
-    ws.addEventListener("error", () => reject("Error when connecting to server via websockets."), { once: true })
+    ws.addEventListener("error", () => reject("Error when creating websocket client."), { once: true })
     ws.addEventListener("open", () => {
-      ws.addEventListener("message", ev => {
-        const clientId = getWsId(ev.data)
-        if (!clientId)
-          return reject("No credentials received via websockets.")
-        ws["attachedProperties"] = { clientId }
-        resolve(ws)
-      }, { once: true })
+      ws["attachedProperties"] = { frontendId }
+      resolve(ws)
     })
   })
 }
@@ -25,13 +20,4 @@ export function closeWsClient(ws: WebSocket) {
       ws.close()
   }, 5000)
   ws.addEventListener("close", () => clearInterval(timer), { once: true })
-}
-
-function getWsId(payload: string): string | undefined {
-  try {
-    return JSON.parse(payload).clientId
-  } catch (error) {
-    // eslint-disable-next-line no-console
-    console.log("Invalid JSON received from ws server.")
-  }
 }

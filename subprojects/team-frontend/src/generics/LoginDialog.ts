@@ -78,13 +78,18 @@ const template = handledom`
 </dialog>
 `
 
+interface SessionInfo {
+  accountId: string
+  frontendId?: string
+}
+
 export default class LoginDialog {
   private readonly el: HTMLDialogElement
   private nameEl: HTMLInputElement
   private passwordEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private curDfd: Deferred<string> | undefined
+  private curDfd: Deferred<SessionInfo> | undefined
   private enabled = true
 
   constructor(private dash: Dash<App>) {
@@ -112,7 +117,7 @@ export default class LoginDialog {
     document.body.appendChild(this.el)
   }
 
-  open(): Promise<string> {
+  open(): Promise<SessionInfo> {
     this.el.showModal()
     this.curDfd = new Deferred()
 
@@ -137,15 +142,15 @@ export default class LoginDialog {
       this.enabled = false
       this.showSpinner()
 
-      const accountId = await this.tryToLogin(login, password)
+      const info = await this.tryToLogin(login, password)
 
       this.hideSpinner()
       this.enabled = true
-      if (!accountId || !this.curDfd)
+      if (!info || !this.curDfd)
         return
 
       this.el.close()
-      this.curDfd.resolve(accountId)
+      this.curDfd.resolve(info)
       this.curDfd = undefined
     }
   }
@@ -153,12 +158,12 @@ export default class LoginDialog {
   private onPasswordReset() {
     if (this.curDfd) {
       this.el.close()
-      this.curDfd.resolve("0")
+      this.curDfd.resolve({ accountId: "0" })
       this.curDfd = undefined
     }
   }
 
-  private async tryToLogin(login: string, password: string): Promise<string | undefined> {
+  private async tryToLogin(login: string, password: string): Promise<SessionInfo | undefined> {
     try {
       const data = await fetch(`${this.dash.app.baseUrl}/api/session/connect`, {
         method: "post",
@@ -175,7 +180,7 @@ export default class LoginDialog {
       })
 
       if (data.done) {
-        return data.accountId
+        return data.info
       } else {
         await this.dash.create(WarningDialog).show([
           "Wrong username or password."

@@ -76,6 +76,7 @@ export interface GlobalModels {
 
 export interface SessionData {
   readonly accountId: string
+  readonly frontendId: string
 }
 
 export interface Session {

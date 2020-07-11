@@ -63,8 +63,8 @@ export default class App {
     await this.appFrame.viewer.router.navigate(queryString)
   }
 
-  async connect(): Promise<string> {
-    let accountId: string | undefined
+  async connect(): Promise<any> {
+    let info: any
 
     // First, we try to recover session, if there is an active one.
     try {
@@ -81,13 +81,13 @@ export default class App {
           throw new Error("Unable to get information about user session.")
         return response.json()
       })
-      accountId = data.done ? data.accountId : undefined
+      info = data.done ? data.info : undefined
     } catch (err) {
       this.log.warn(err)
     }
 
     // We show login dialog if session recovering failed.
-    return accountId ?? await this.dash.create(LoginDialog).open()
+    return info ?? await this.dash.create(LoginDialog).open()
   }
 
   async disconnect() {
@@ -143,8 +143,10 @@ export default class App {
       try {
         const data = JSON.parse(ev.data)
         this.log.info("Received data via websockets.", data)
-        if (data.modelUpd)
+        if (data.modelUpd && data.frontendId !== sessionData.frontendId)
           this.model.processModelUpdate(data.modelUpd)
+        else
+          this.log.info("Data received via ws won't be handled...")
       } catch (error) {
         this.log.error("Received bad JSON from ws server.")
       }
