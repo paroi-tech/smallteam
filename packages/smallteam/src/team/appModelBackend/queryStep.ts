@@ -1,6 +1,6 @@
 import { SBMainConnection } from "@ladc/sql-bricks-modifier"
-import stepMeta, { StepCreateFragment, StepFragment, StepIdFragment, StepUpdateFragment } from "@local-packages/shared/dist/meta/Step"
-import { WhoUseItem } from "@local-packages/shared/dist/transfers"
+import stepMeta, { StepCreateFragment, StepFragment, StepIdFragment, StepUpdateFragment } from "@smallteam-local/shared/dist/meta/Step"
+import { WhoUseItem } from "@smallteam-local/shared/dist/transfers"
 import { deleteFrom, in as sqlIn, insert, isNotNull, select, update } from "sql-bricks"
 import { intVal, toIntList } from "../../utils/dbUtils"
 import { ModelContext } from "./backendContext/context"

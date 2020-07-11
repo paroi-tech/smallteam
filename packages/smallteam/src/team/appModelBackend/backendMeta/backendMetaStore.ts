@@ -1,5 +1,5 @@
-import { Type } from "@local-packages/shared/dist/Cargo"
-import { FieldMeta, FragmentMeta } from "@local-packages/shared/dist/meta/index"
+import { Type } from "@smallteam-local/shared/dist/Cargo"
+import { FieldMeta, FragmentMeta } from "@smallteam-local/shared/dist/meta/index"
 
 // --
 // -- Types

@@ -41,6 +41,9 @@ On the local environment:
 ```sh
 rush build:prod
 
+cd path/to/release
+pnpm pack path/to/packages/smallteam
+pnpm pack path/to/subprojects/shared
 (cd packages/smallteam && pnpm publish)
 ```
 

@@ -1,4 +1,4 @@
-import RegistrationForm from "@local-packages/shared-ui/components/RegistrationForm"
+import RegistrationForm from "@smallteam-local/shared-ui/components/RegistrationForm"
 import { AppDash, Log, LogEvent } from "bkb"
 import PasswordResetDialog from "./PasswordResetDialog"
 

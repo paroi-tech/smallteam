@@ -1,5 +1,5 @@
-import ErrorDialog from "@local-packages/shared-ui/modal-dialogs/ErrorDialog"
-import WarningDialog from "@local-packages/shared-ui/modal-dialogs/WarningDialog"
+import ErrorDialog from "@smallteam-local/shared-ui/modal-dialogs/ErrorDialog"
+import WarningDialog from "@smallteam-local/shared-ui/modal-dialogs/WarningDialog"
 import { Dash } from "bkb"
 import handledom from "handledom"
 import App from "../../AppFrame/App"

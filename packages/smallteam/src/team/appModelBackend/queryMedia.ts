@@ -1,6 +1,6 @@
-import { MediaFragment } from "@local-packages/shared/dist/meta/Media"
-import { MediaVariantFragment } from "@local-packages/shared/dist/meta/MediaVariant"
 import { ExternalRef, Media, Variant } from "@paroi/media-engine"
+import { MediaFragment } from "@smallteam-local/shared/dist/meta/Media"
+import { MediaVariantFragment } from "@smallteam-local/shared/dist/meta/MediaVariant"
 import { MediaEngine } from "../createMediaEngine"
 import CargoLoader from "./backendContext/CargoLoader"
 import { ModelContext } from "./backendContext/context"

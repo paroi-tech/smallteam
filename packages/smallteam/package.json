@@ -10,9 +10,10 @@
   },
   "homepage": "https://github.com/paroi-tech/smallteam",
   "scripts": {
-    "prepublishOnly": "pnpm run lint && pnpm run build:prod",
-    "start": "node dist/ --config config.json",
-    "build:prod": "pnpm run build",
+    "prepack": "pnpm run lint && pnpm run build:prod && node scripts/switch-bundled-packages-to-tarballs.js",
+    "postpack": "node scripts/switch-bundled-packages-to-versions.js",
+    "start": "node dist/",
+    "build:prod": "pnpm run clear && pnpm run typeonly && pnpm run tsc:prod",
     "build": "pnpm run clear && pnpm run typeonly && pnpm run tsc",
     "serve": "pnpm run clear && pnpm run typeonly && pnpm run _serve",
     "_serve": "run-p tsc:watch _wait-then-nodemon",
@@ -20,6 +21,7 @@
     "clear": "rimraf dist/*",
     "clear:prod": "rimraf static-bundles-prod/*",
     "tsc": "tsc",
+    "tsc:prod": "tsc --sourceMap false",
     "tsc:watch": "tsc --watch --preserveWatchOutput",
     "_nodemon": "nodemon --watch dist --watch ../shared --watch config.json dist/index.js -- --config config.json",
     "_wait": "just-wait -p \"dist/index.js\" -d 500",
@@ -31,7 +33,7 @@
     "@ladc/sql-bricks-modifier": "^0.22.7",
     "@ladc/sqlite3-adapter": "^0.22.8",
     "@paroi/media-engine": "^0.5.4",
-    "@local-packages/shared": "0.0.0",
+    "@smallteam-local/shared": "0.0.0-bundled",
     "@typeonly/validator": "^0.5.1",
     "bcrypt": "^5.0.0",
     "bkb": "^0.28.2",
@@ -70,6 +72,7 @@
     "typeonly": "^0.4.1",
     "typescript": "^3.9.5"
   },
+  "bin": "dist/index.js",
   "files": [
     "dist",
     "sql-scripts",

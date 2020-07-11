@@ -1,4 +1,4 @@
-import { addCssClass, catchAndLog } from "@local-packages/shared-ui/libraries/utils"
+import { addCssClass, catchAndLog } from "@smallteam-local/shared-ui/libraries/utils"
 import { Dash } from "bkb"
 import handledom from "handledom"
 import NavBtn, { NavBtnOptions } from "./NavBtn"

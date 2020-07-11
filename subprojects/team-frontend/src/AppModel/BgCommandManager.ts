@@ -1,4 +1,4 @@
-import Deferred from "@local-packages/shared-ui/libraries/Deferred"
+import Deferred from "@smallteam-local/shared-ui/libraries/Deferred"
 import { Dash } from "bkb"
 
 export interface BgCommand<R = any> {

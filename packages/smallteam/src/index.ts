@@ -1,7 +1,7 @@
+#!/usr/bin/env node
 import { appLog } from "./context"
 import { initPlatformCn } from "./utils/dbUtils"
 import { startWebServer, stopServer } from "./webServer"
-
 
 process.on("uncaughtException", error => {
   appLog.error("uncaughtException", error)

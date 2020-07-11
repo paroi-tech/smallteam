@@ -1,5 +1,5 @@
-import { BatchCargo, Cargo } from "@local-packages/shared/dist/Cargo"
-import { WhoUseItem } from "@local-packages/shared/dist/transfers"
+import { BatchCargo, Cargo } from "@smallteam-local/shared/dist/Cargo"
+import { WhoUseItem } from "@smallteam-local/shared/dist/transfers"
 import { SessionData } from "../../session"
 import { getCn, getMediaEngine } from "../../utils/dbUtils"
 import { CargoLoader, ModelContext } from "./backendContext/context"

@@ -1,4 +1,4 @@
-import { addCssClass, catchAndLog } from "@local-packages/shared-ui/libraries/utils"
+import { addCssClass, catchAndLog } from "@smallteam-local/shared-ui/libraries/utils"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { ProjectModel, UpdateModelEvent } from "../../AppModel/AppModel"

@@ -1,4 +1,4 @@
-import { removeAllChildren } from "@local-packages/shared-ui/libraries/utils"
+import { removeAllChildren } from "@smallteam-local/shared-ui/libraries/utils"
 import { Dash } from "bkb"
 import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"

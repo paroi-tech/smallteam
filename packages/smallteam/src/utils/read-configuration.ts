@@ -6,7 +6,7 @@ import { SmallTeamConf } from "./configuration-types"
 export function readConfigFileSync(packageDir: string): SmallTeamConf {
   const paramIndex = process.argv.indexOf("--config")
   const hasParam = paramIndex !== -1 && paramIndex + 1 < process.argv.length
-  const fileName = hasParam ? process.argv[paramIndex + 1] : join(packageDir, "config.json")
+  const fileName = hasParam ? process.argv[paramIndex + 1] : "config.json"
   let data: unknown
   try {
     data = JSON.parse(readFileSync(fileName, "utf8"))

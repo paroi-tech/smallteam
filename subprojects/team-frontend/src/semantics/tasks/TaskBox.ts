@@ -1,4 +1,4 @@
-import { removeAllChildren } from "@local-packages/shared-ui/libraries/utils"
+import { removeAllChildren } from "@smallteam-local/shared-ui/libraries/utils"
 import handledom from "handledom"
 import { OwnDash } from "../../AppFrame/OwnDash"
 import { Model, TaskModel } from "../../AppModel/AppModel"

@@ -1,12 +1,12 @@
 {
-  "name": "@local-packages/shared",
-  "version": "0.0.0",
+  "name": "@smallteam-local/shared",
+  "version": "0.0.0-bundled",
   "description": "This is a subproject for the 'smallteam' package.",
   "author": "Paroi",
   "license": "CC0-1.0",
   "private": true,
   "scripts": {
-    "prepublishOnly": "pnpm run lint && pnpm run build:prod",
+    "prepack": "pnpm run lint && pnpm run build:prod",
     "build:prod": "pnpm run build",
     "build": "pnpm run clear && pnpm run tsc",
     "clear": "rimraf dist/*",

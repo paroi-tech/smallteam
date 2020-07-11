@@ -1,5 +1,5 @@
-import Deferred from "@local-packages/shared-ui/libraries/Deferred"
-import { Identifier, Type } from "@local-packages/shared/dist/Cargo"
+import Deferred from "@smallteam-local/shared-ui/libraries/Deferred"
+import { Identifier, Type } from "@smallteam-local/shared/dist/Cargo"
 import { Collection, ModelCommandMethods } from "./modelDefinitions"
 import ModelEngine from "./ModelEngine"
 

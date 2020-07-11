@@ -1,6 +1,6 @@
-import TeamCreationDialog from "@local-packages/shared-ui/components/TeamCreationDialog"
-import ErrorDialog from "@local-packages/shared-ui/modal-dialogs/ErrorDialog"
-import InfoDialog from "@local-packages/shared-ui/modal-dialogs/InfoDialog"
+import TeamCreationDialog from "@smallteam-local/shared-ui/components/TeamCreationDialog"
+import ErrorDialog from "@smallteam-local/shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "@smallteam-local/shared-ui/modal-dialogs/InfoDialog"
 import { AppDash, Log, LogEvent } from "bkb"
 
 export interface AppOptions {
