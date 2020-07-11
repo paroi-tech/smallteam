@@ -24,7 +24,7 @@
     "_nodemon": "nodemon --watch dist --watch ../shared --watch config.json dist/index.js -- --config config.json",
     "_wait": "just-wait -p \"dist/index.js\" -d 500",
     "_wait-then-nodemon": "run-s _wait _nodemon",
-    "lint": "eslint . --ext .ts"
+    "lint": "eslint . --ext .ts --max-warnings=0"
   },
   "dependencies": {
     "@hapi/joi": "^17.1.1",

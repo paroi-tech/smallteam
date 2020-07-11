@@ -152,7 +152,7 @@ export default class App {
         // TODO: add a flashing button beside BgManager that asks to refresh the page.
       })
     })
-    ws.addEventListener("close", ev => console.log("ws closed", ev))
+    ws.addEventListener("close", ev => this.log.debug("ws closed", ev))
 
     const appEl = document.querySelector(".js-app")
 

@@ -16,6 +16,12 @@
       "name": "build:prod",
       "summary": "Build for production",
       "enableParallelism": false
+    },
+    {
+      "commandKind": "bulk",
+      "name": "lint",
+      "summary": "Lint",
+      "enableParallelism": false
     }
     // {
     //   /**

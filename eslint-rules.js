@@ -57,6 +57,7 @@ module.exports = {
     "@typescript-eslint/no-misused-promises": "off",
     "@typescript-eslint/no-namespace": "warn",
     "@typescript-eslint/no-parameter-properties": "off",
+    "@typescript-eslint/no-this-alias": "off",
     "@typescript-eslint/no-unnecessary-type-assertion": "off",
     "@typescript-eslint/no-unsafe-assignment": "off",
     "@typescript-eslint/no-unsafe-call": "off",
@@ -85,7 +86,8 @@ module.exports = {
         "lib": "always"
       }
     ],
-    "@typescript-eslint/unified-signatures": "warn",
+    "@typescript-eslint/unbound-method": "off",
+    "@typescript-eslint/unified-signatures": "off",
     "arrow-parens": [
       "off",
       "always"
@@ -132,7 +134,7 @@ module.exports = {
     "no-throw-literal": "warn",
     "no-trailing-spaces": "warn",
     "no-undef-init": "warn",
-    "no-underscore-dangle": "warn",
+    "no-underscore-dangle": "off",
     "no-unsafe-finally": "warn",
     "no-unused-labels": "warn",
     "no-var": "warn",
@@ -146,7 +148,7 @@ module.exports = {
       "error", { "destructuring": "all" }
     ],
     "quote-props": "off",
-    "radix": "warn",
+    "radix": "off",
     "space-before-function-paren": "off",
     "spaced-comment": [
       "warn",

@@ -28,6 +28,12 @@ rush update
 rush rebuild
 ```
 
+Run the linter everywhere:
+
+```sh
+rush lint
+```
+
 ## Deploy
 
 On the local environment:
