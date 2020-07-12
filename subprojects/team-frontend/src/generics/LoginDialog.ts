@@ -78,9 +78,11 @@ const template = handledom`
 </dialog>
 `
 
-interface SessionInfo {
+export type LoginResult = SessionInfo | "password-reset"
+
+export interface SessionInfo {
   accountId: string
-  frontendId?: string
+  frontendId: string
 }
 
 export default class LoginDialog {
@@ -89,7 +91,7 @@ export default class LoginDialog {
   private passwordEl: HTMLInputElement
   private spinnerEl: HTMLElement
 
-  private curDfd: Deferred<SessionInfo> | undefined
+  private curDfd: Deferred<LoginResult> | undefined
   private enabled = true
 
   constructor(private dash: Dash<App>) {
@@ -117,7 +119,7 @@ export default class LoginDialog {
     document.body.appendChild(this.el)
   }
 
-  open(): Promise<SessionInfo> {
+  open(): Promise<LoginResult> {
     this.el.showModal()
     this.curDfd = new Deferred()
 
@@ -158,7 +160,7 @@ export default class LoginDialog {
   private onPasswordReset() {
     if (this.curDfd) {
       this.el.close()
-      this.curDfd.resolve({ accountId: "0" })
+      this.curDfd.resolve("password-reset")
       this.curDfd = undefined
     }
   }

@@ -7,7 +7,7 @@ import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
 import { closeWsClient, initWsClient } from "../AppModel/ModelEngine/WsClient"
-import LoginDialog from "../generics/LoginDialog"
+import LoginDialog, { LoginResult, SessionInfo } from "../generics/LoginDialog"
 import PasswordRequestDialog from "../generics/PasswordRequestDialog"
 
 export default class App {
@@ -63,8 +63,8 @@ export default class App {
     await this.appFrame.viewer.router.navigate(queryString)
   }
 
-  async connect(): Promise<any> {
-    let info: any
+  async connect(): Promise<LoginResult> {
+    let info: SessionInfo | undefined
 
     // First, we try to recover session, if there is an active one.
     try {
@@ -140,7 +140,7 @@ export default class App {
 
     await this.initModel(sessionData)
 
-    this.registerWs(ws, sessionData.accountId)
+    this.registerWs(ws, frontendId)
     // TODO: the 'error' event is not fired when the server is down. Use the close event and its code instead.
     ws.addEventListener("error", ev => {
       this.log.error("Error with websocket client:", ev)
