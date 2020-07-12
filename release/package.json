@@ -1,5 +1,6 @@
 {
-  "name": "smallteam-paroi",
+  "name": "smallteam-release",
+  "version": "0.0.3",
   "private": true,
   "dependencies": {
     "@smallteam-local/shared": "smallteam-local-shared-0.0.1-bundled.tgz",

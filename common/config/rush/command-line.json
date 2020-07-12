@@ -22,6 +22,12 @@
       "name": "lint",
       "summary": "Lint",
       "enableParallelism": false
+    },
+    {
+      "commandKind": "global",
+      "name": "new-release",
+      "summary": "Bump versions and build a new release.",
+      "shellCommand": "node common/scripts/new-release.js"
     }
     // {
     //   /**

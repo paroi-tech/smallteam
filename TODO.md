@@ -3,11 +3,14 @@
 ## June & July 2020
 
 ### Paleo
-- [ ] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
-- [ ] Deploy using Nginx with HTTPS and WSS.
-- [ ] Use `rush publish` in order to publish a build with a snapshot of `shared`.
-- [ ] Add a links to support in registration and platform frontends.
-- [ ] Fix minor bugs, and improve the ergonomy in the `TaskForm`.
+- [ ] Review default inserts (steps, etc.).
+- [ ] In default inserts of a new team, add 2 flags: `Urgent` with color `#FF5555`, and `Easy` with color `#17CFCF`.
+- [ ] Add links to `platform-url/support` in registration and platform frontends.
+- [ ] Improve the ergonomy in the `TaskForm`.
+- [x] Fix minor bugs.
+- [x] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
+- [x] Deploy using Nginx with HTTPS and WSS.
+- [x] Use `rush publish` in order to publish a build with a snapshot of `shared`.
 - [x] Add a `hostName` for security in the backend config.
 - [x] Web socket URI with correct port and protocol.
 - [x] Change log system in backend. Remove all calls to `console.log()`.
@@ -23,9 +26,8 @@
 ### kitihounel
 - [ ] IMPORTANT: in team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
-- [ ] Add a link to support in the team frontend.
+- [ ] Add a link to `platform-url/support` in the team frontend.
 - [ ] Don't allow a contributor to change his own status.
-- [ ] In `routeBatch`, handle the case when one of the commands fails.
 - [x] Backend should notify frontend about updates so that frontend can refresh. When a refresh is required, a notification is displayed to the user.
 - [x] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
 - [x] Update modal dialogs to enable several row of text.
@@ -38,6 +40,7 @@
 
 ## On Hold
 
+- [ ] In `routeBatch`, handle the case when one of the commands fails.
 - [ ] Fallback avatar for user menu?
 
 ---

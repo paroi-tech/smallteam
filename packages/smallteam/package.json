@@ -77,7 +77,6 @@
     "dist",
     "sql-scripts",
     "static",
-    "static-bundles-prod",
-    "config.prod.json"
+    "static-bundles-prod"
   ]
 }
