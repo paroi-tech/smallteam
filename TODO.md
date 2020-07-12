@@ -24,7 +24,6 @@
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
 ### kitihounel
-- [ ] IMPORTANT: in team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
 - [ ] Add a link to `platform-url/support` in the team frontend.
 - [ ] Don't allow a contributor to change his own status.
@@ -40,6 +39,7 @@
 
 ## On Hold
 
+- [ ] In team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] In `routeBatch`, handle the case when one of the commands fails.
 - [ ] Fallback avatar for user menu?
 
