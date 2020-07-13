@@ -5,6 +5,7 @@ import { hash } from "bcrypt"
 import { deleteFrom, in as sqlIn, insert, select, update } from "sql-bricks"
 import { BCRYPT_SALT_ROUNDS } from "../../context"
 import { intVal, toIntList } from "../../utils/dbUtils"
+import { getAccountById } from "../../utils/userUtils"
 import { ModelContext } from "./backendContext/context"
 import { toSqlValues } from "./backendMeta/backendMetaStore"
 import { deleteMedias, fetchSingleMedia } from "./queryMedia"
@@ -99,12 +100,17 @@ export async function createAccount(context: ModelContext, newFrag: AccountCreat
 // --
 
 export async function updateAccount(context: ModelContext, updFrag: AccountUpdateFragment) {
-  const accountId = parseInt(updFrag.id, 10)
+  const account = await getAccountById(context.cn, updFrag.id)
+  if (context.sessionData.accountId === updFrag.id && updFrag.role && updFrag.role !== account?.role)
+    throw new Error("A user cannot change his rights")
 
+  const accountId = parseInt(updFrag.id, 10)
   const values = toSqlValues(updFrag, accountMeta.update, "exceptId")
   if (values === null)
     return
+
   const sql = update("account", values).where("account_id", accountId) // FIXME: Update this after fixing bug with with toSqlValues
+  await context.cn.exec(sql)
 
   context.loader.addFragment({
     type: "Account",
@@ -112,8 +118,6 @@ export async function updateAccount(context: ModelContext, updFrag: AccountUpdat
     asResult: "fragment",
     markAs: "updated"
   })
-
-  await context.cn.exec(sql)
 }
 
 // --

@@ -6,7 +6,7 @@ import AppFrame from "../AppFrame/AppFrame"
 import ModelComp, { Model, SessionData } from "../AppModel/AppModel"
 import { BgCommand } from "../AppModel/BgCommandManager"
 import { ReorderModelEvent, UpdateModelEvent } from "../AppModel/ModelEngine"
-import { closeWsClient, initWsClient } from "../AppModel/ModelEngine/WsClient"
+import { closeWsClient } from "../AppModel/ModelEngine/WsClient"
 import LoginDialog, { LoginResult, SessionInfo } from "../generics/LoginDialog"
 import PasswordRequestDialog from "../generics/PasswordRequestDialog"
 
@@ -136,23 +136,15 @@ export default class App {
   }
 
   async start(sessionData: SessionData, ws: WebSocket) {
-    const { frontendId } = sessionData
-
     await this.initModel(sessionData)
 
-    this.registerWs(ws, frontendId)
-    // TODO: the 'error' event is not fired when the server is down. Use the close event and its code instead.
-    ws.addEventListener("error", ev => {
-      this.log.error("Error with websocket client:", ev)
-      initWsClient().then(newWs => {
-        this.log.debug("Websocket recreated with success.")
-        this.registerWs(newWs, frontendId)
-      }).catch(() => {
-        this.log.error("Error while attempting to recreate websocket.")
-        // TODO: add a flashing button beside BgManager that asks to refresh the page.
-      })
+    this.registerWs(ws, sessionData.frontendId)
+    ws.addEventListener("close", ev => {
+      if (ev.wasClean)
+        return
+      // TODO: add a button beside BgManager that asks to refresh the page.
+      this.log.error(`Websocket unexpectably closed. Code: ${ev.code}, reason: ${ev.reason}`)
     })
-    ws.addEventListener("close", ev => this.log.debug("ws closed", ev))
 
     const appEl = document.querySelector(".js-app")
 
