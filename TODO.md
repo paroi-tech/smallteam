@@ -3,10 +3,10 @@
 ## June & July 2020
 
 ### Paleo
-- [ ] Review default inserts (steps, etc.).
-- [ ] In default inserts of a new team, add 2 flags: `Urgent` with color `#FF5555`, and `Easy` with color `#17CFCF`.
 - [ ] Add links to `platform-url/support` in registration and platform frontends.
 - [ ] Improve the ergonomy in the `TaskForm`.
+- [x] Review default inserts (steps, etc.).
+- [x] In default inserts of a new team, add 2 flags: `Urgent` with color `#FF5555`, and `Easy` with color `#17CFCF`.
 - [x] Fix minor bugs.
 - [x] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
 - [x] Deploy using Nginx with HTTPS and WSS.
