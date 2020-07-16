@@ -270,8 +270,14 @@ async function storeInvitation(cn: SBConnection, options: InvitationOptions) {
     "expire_ts": expireTs
   })
 
-  if (options.username && !await getAccountByLogin(cn, options.username))
-    sql.values({ "user_name": options.username })
+  if (options.username) {
+    // If username is already used, we don't use it again.
+    const account = await getAccountByLogin(cn, options.username)
+    if (account)
+      delete options.username
+    else
+      sql.values({ "user_name": options.username })
+  }
 
   const result = await cn.exec(sql)
 

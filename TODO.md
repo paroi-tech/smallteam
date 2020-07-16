@@ -26,6 +26,9 @@
 
 ### kitihounel
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
+- [ ] Improve `registration-frontend`
+- [ ] In frontend and backend, don't enable simple contributors to change accounts data.
+- [x] In InvitationWorkspace, check that default username is not used.
 - [x] Add a link to `platform-url/support` in the team frontend.
 - [x] Don't allow a contributor to change his own status.
 - [x] Backend should notify frontend about updates so that frontend can refresh. When a refresh is required, a notification is displayed to the user.

@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const action = url.searchParams.get("action")
   if (!action)
     throw new Error("Missing parameter 'action'")
-  const token = url.searchParams.get("action")
+  const token = url.searchParams.get("token")
   if (!token)
     throw new Error("Missing parameter 'token'")
   createApplication(App, {
