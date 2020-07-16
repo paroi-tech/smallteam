@@ -228,6 +228,11 @@ export default class AppFrame {
       })
     }
 
+    ddMenu.entries.createNavBtn({
+      label: "Support",
+      onClick: () => window.open("https://smallteam.paroi.tech/support")
+    })
+
     // viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
     // viewer.addWorkspace("/settings/steps", "dropdown", "Manage steps", this.dash.create(StepWorkspace))
     // viewer.addWorkspace("/settings/accounts", "dropdown", "Accounts", this.dash.create(AccountWorkspace))
