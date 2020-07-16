@@ -39,6 +39,13 @@ const joiSchemata = {
   })
 }
 
+interface InvitationOptions {
+  token: string
+  email: string
+  validity: number
+  username?: string
+}
+
 export async function routeSendInvitation(subdomain: string, data: any, sessionData?: SessionData) {
   if (!sessionData)
     throw new Error("SessionData missing in 'routeSendInvitation'")
@@ -63,11 +70,13 @@ export async function routeSendInvitation(subdomain: string, data: any, sessionD
   const answer = { done: false } as any
 
   try {
-    const inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
+    const options = Object.assign({ token }, cleanData)
+    const inv = await storeAndSendInvitation(context, tcn, options)
 
     if (inv) {
       await tcn.commit()
       answer.invitation = inv
+      answer.done = true
     }
   } finally {
     if (tcn.inTransaction)
@@ -109,12 +118,15 @@ export async function routeResendInvitation(subdomain: string, data: any, sessio
 
   try {
     await removeInvitationWithId(tcn, cleanData.invitationId)
+    delete cleanData.invitationId
 
-    const inv = await storeAndSendInvitation(context, tcn, token, cleanData.email, cleanData.validity, cleanData.username)
+    const options = Object.assign({ token }, cleanData)
+    const inv = await storeAndSendInvitation(context, tcn, options)
 
     if (inv) {
       await tcn.commit()
       answer.invitation = inv
+      answer.done = true
     }
   } finally {
     if (tcn.inTransaction)
@@ -138,9 +150,7 @@ export async function routeCancelInvitation(subdomain: string, data: any, sessio
   if (await existsInvitationWithId(cn, cleanData.invitationId))
     await removeInvitationWithId(cn, cleanData.invitationId)
 
-  return {
-    done: true
-  }
+  return { done: true }
 }
 
 export async function routeRegister(subdomain: string, data: any) {
@@ -187,9 +197,7 @@ export async function routeRegister(subdomain: string, data: any) {
       await tcn.rollback()
   }
 
-  return {
-    done: true
-  }
+  return { done: true }
 }
 
 export async function routeGetPendingInvitations(subdomain: string, data: any, sessionData?: SessionData) {
@@ -224,17 +232,14 @@ function toInvitation(row) {
   }
 }
 
-async function storeAndSendInvitation(context: BackendContext, cn: SBConnection, token: string, email: string, validity: number, username?: string) {
+async function storeAndSendInvitation(context: BackendContext, cn: SBConnection, options: InvitationOptions) {
   try {
-    const inv = await storeInvitation(cn, token, email, validity, username)
-
-    if (await sendInvitationMail(context, token, email, username))
-      return Object.assign({}, inv, { username, email })
+    const inv = await storeInvitation(cn, options)
+    if (await sendInvitationMail(context, options.token, options.email, options.username))
+      return Object.assign({}, inv, { username: options.username, email: options.email })
   } catch (error) {
     appLog.error("Could not store invitation", error.message)
   }
-
-  return undefined
 }
 
 async function sendInvitationMail(context: BackendContext, token: string, to: string, username?: string) {
@@ -255,18 +260,18 @@ async function sendInvitationMail(context: BackendContext, token: string, to: st
   return result.done
 }
 
-async function storeInvitation(cn: SBConnection, token: string, email: string, validity: number, username?: string) {
+async function storeInvitation(cn: SBConnection, options: InvitationOptions) {
   const currentTs = Math.floor(Date.now())
-  const expireTs = currentTs + validity * 24 * 3600 * 1000
+  const expireTs = currentTs + options.validity * 24 * 3600 * 1000
   const sql = insert("reg_new", {
-    "user_email": email,
-    "token": token,
+    "user_email": options.email,
+    "token": options.token,
     "create_ts": currentTs,
     "expire_ts": expireTs
   })
 
-  if (username && !await getAccountByLogin(cn, username))
-    sql.values({ "user_name": username })
+  if (options.username && !await getAccountByLogin(cn, options.username))
+    sql.values({ "user_name": options.username })
 
   const result = await cn.exec(sql)
 
