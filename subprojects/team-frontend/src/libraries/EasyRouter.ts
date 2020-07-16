@@ -639,7 +639,7 @@ class Router implements TopRouter, ParentRouter, ChildRouter, MinimalRouter, Ini
         if (changeHist)
           this.pushState(this.curQuery!, parentUrl)
         // Sometimes, the router set the page title to `null`. This fixes the bug.
-        document.title = this.curQuery!.title || "SmallTeam"
+        document.title = `${this.curQuery!.title ?? "Team"} - SmallTeam`
         const activated = this.wrapUserCbOnErrorReject(activator.activate, this.curQuery, this.curQuery)
         return activated ? activated.then(() => true) : true
       })

@@ -16,12 +16,14 @@ scss`
 .TeamCreationDialog {
   margin-left: auto;
   margin-right: auto;
-  max-width: 420px;
+  max-width: 600px;
 
-  &-header, &-content {
+  &-header,
+  &-content,
+  &-footer {
     background-color: #fff;
     border: 1px solid #808080;
-    padding: 8px;
+    padding: 30px;
   }
 
   &-header {
@@ -42,6 +44,17 @@ scss`
     margin-bottom: 8px;
     width: 48px;
   }
+
+  &-footer {
+    color: #333;
+    font-size: $f14;
+    margin: 8px 0 10px;
+    /* text-align: right; */
+  }
+
+  &.support &-header {
+    padding: 50px 30px;
+  }
 }
 `
 
@@ -53,7 +66,7 @@ const template = handledom`
       <li>This service is free.</li>
       <li>Data from active teams will be provided to team administrators upon request, in the form of SQLite
         databases.</li>
-      <li>Teams that have not been active for several months will be automatically destroyed.</li>
+      <li>Teams that have not been active for several months will be destroyed.</li>
       <li>Paroi reserves the right to change the conditions of access to the service at a later date.</li>
       <li>SmallTeam software is open-source and will remain so.</li>
     </ol>
@@ -133,6 +146,9 @@ const template = handledom`
       </div>
     </div>
   </div>
+  <footer class="TeamCreationDialog-footer">
+    <p><a href="https://smallteam.paroi.tech/support">Contact us</a></p>
+  </footer>
 </dialog>
 `
 

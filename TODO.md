@@ -3,8 +3,9 @@
 ## June & July 2020
 
 ### Paleo
-- [ ] Add links to `platform-url/support` in registration and platform frontends.
 - [ ] Improve the ergonomy in the `TaskForm`.
+- [x] Add a link to `platform-url/support` in the platform frontend.
+- [x] Add a link to `platform-url/support` in the team frontend.
 - [x] Review default inserts (steps, etc.).
 - [x] In default inserts of a new team, add 2 flags: `Urgent` with color `#FF5555`, and `Easy` with color `#17CFCF`.
 - [x] Fix minor bugs.
@@ -25,7 +26,6 @@
 
 ### kitihounel
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
-- [ ] Add a link to `platform-url/support` in the team frontend.
 - [ ] Don't allow a contributor to change his own status.
 - [x] Backend should notify frontend about updates so that frontend can refresh. When a refresh is required, a notification is displayed to the user.
 - [x] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.

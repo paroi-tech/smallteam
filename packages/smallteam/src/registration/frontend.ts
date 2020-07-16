@@ -10,7 +10,7 @@ export function getRegistrationHtml() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Registration</title>
+  <title>Registration - SmallTeam</title>
   <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
   <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
   <link rel="stylesheet" media="all" href="registration.bundle.css?v=${v}">

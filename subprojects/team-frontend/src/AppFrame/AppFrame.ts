@@ -226,6 +226,12 @@ export default class AppFrame {
         label: "Webhooks",
         onClick: () => this.dash.app.navigate("/setting/webhooks")
       })
+      ddMenu.entries.createNavBtn({
+        label: "Contact the support",
+        onClick: () => {
+          window.location.href = "https://smallteam.paroi.tech/support"
+        }
+      })
     }
 
     // viewer.addWorkspace("/new-project", "dropdown", "New project", this.dash.create(ProjectForm, true))
