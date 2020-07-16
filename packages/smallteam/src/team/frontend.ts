@@ -10,7 +10,7 @@ export function getTeamHtml() {
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Team App</title>
+  <title>Team - SmallTeam</title>
   <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
   <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
   <link rel="stylesheet" media="all" href="team.bundle.css?v=${v}">

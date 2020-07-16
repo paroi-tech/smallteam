@@ -10,7 +10,7 @@ export function getPlatformHtml() {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Platform</title>
+    <title>SmallTeam</title>
     <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
     <link rel="stylesheet" media="all" href="font-awesome/css/fontawesome-all.min.css?v=${v}">
     <link rel="stylesheet" media="all" href="platform.bundle.css?v=${v}">
@@ -40,12 +40,12 @@ export function getPlatformSupportHtml() {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Platform</title>
+    <title>Support - SmallTeam</title>
     <link rel="Shortcut Icon" href="/favicon.ico?v=${v}">
     <link rel="stylesheet" media="all" href="/platform.bundle.css?v=${v}">
   </head>
   <body>
-<main class="TeamCreationDialog Text">
+<main class="TeamCreationDialog Text support">
   <header class="TeamCreationDialog-header">
     <h1>SmallTeam Support</h1>
     <p>Contact-us on this address:</p>

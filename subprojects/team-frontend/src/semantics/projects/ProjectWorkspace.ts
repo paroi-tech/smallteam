@@ -65,7 +65,7 @@ export default class ProjectWorkspace implements Workspace {
         if (task)
           this.taskBoard.setTask(task)
       },
-      title: "My Profile"
+      title: "Task"
     })
   }
 

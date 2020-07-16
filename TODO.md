@@ -3,10 +3,11 @@
 ## June & July 2020
 
 ### Paleo
-- [ ] Review default inserts (steps, etc.).
-- [ ] In default inserts of a new team, add 2 flags: `Urgent` with color `#FF5555`, and `Easy` with color `#17CFCF`.
-- [ ] Add links to `platform-url/support` in registration and platform frontends.
 - [ ] Improve the ergonomy in the `TaskForm`.
+- [x] Add a link to `platform-url/support` in the platform frontend.
+- [x] Add a link to `platform-url/support` in the team frontend.
+- [x] Review default inserts (steps, etc.).
+- [x] In default inserts of a new team, add 2 flags: `Urgent` with color `#FF5555`, and `Easy` with color `#17CFCF`.
 - [x] Fix minor bugs.
 - [x] Configure Certbot to get a wildcard for the part of domain name (label) that represents team ID.
 - [x] Deploy using Nginx with HTTPS and WSS.
@@ -25,7 +26,7 @@
 
 ### kitihounel
 - [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
-- [ ] Add a link to `platform-url/support` in the team frontend.
+- [x] Add a link to `platform-url/support` in the team frontend.
 - [x] Don't allow a contributor to change his own status.
 - [x] Backend should notify frontend about updates so that frontend can refresh. When a refresh is required, a notification is displayed to the user.
 - [x] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
