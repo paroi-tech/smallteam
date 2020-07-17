@@ -34,7 +34,7 @@ const template = handledom`
       <span h="title"></span>
     </div>
     <div class="InfoDialog-headerRight">
-      <span class="fas fa-times fa-1x ModalDialogCloseItem" h="close"></span>
+      <span class="ModalDialogCloseItem" h="close">×</span>
     </div>
   </header>
 

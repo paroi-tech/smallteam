@@ -20,13 +20,13 @@ const template = handledom`
       <span h="title"></span>
     </div>
     <div class="ModalDialog-headerRight">
-      <span class="fas fa-times fa-lg ModalDialogCloseItem" h="close"></span>
+      <span class="ModalDialogCloseItem" h="close">×</span>
     </div>
   </header>
 
   <div class="ModalDialog-content">
     <div class="ModalDialog-contentLeft WarningDialog-contentLeft">
-      <span class="fas fa-3x fa-exclamation-triangle"></span>
+      <span class="CircleChar warn">!</span>
     </div>
     <div class="ModalDialog-contentRight">
       <div h="message"></div>

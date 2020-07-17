@@ -51,9 +51,7 @@ const mediaTemplate = handledom`
 <li>
   <span h="thumbnail"></span>
   <button title="Click to download" h="download">{{ name }}</button> &nbsp;
-  <button style="color: red" title="Click to delete file" h="remove">
-    <span class="fa fa-times fa-1x"></span>
-  </button>
+  <button style="color: red" title="Click to delete file" h="remove">×</button>
 </li>
 `
 

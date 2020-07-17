@@ -86,8 +86,31 @@
 
 .ModalDialogCloseItem {
   color: #000;
+  cursor: pointer;
 
   &:hover {
     color: darkgray;
+  }
+}
+
+.CircleChar {
+  border-radius: 2em;
+  background-color: #333;
+  color: #FFF;
+  display: inline-block;
+  font-size: $f24;
+  font-weight: bold;
+  height: 1.85em;
+  width: 1.85em;
+  text-align: center;
+  line-height: 1.85em;
+  &.warn {
+    background-color: rgb(245, 189, 84);
+  }
+  &.err {
+    background-color: rgb(243, 101, 101);
+  }
+  &.info {
+    background-color: #98e798;
   }
 }

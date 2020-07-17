@@ -53,9 +53,7 @@ const template = handledom`
   <div class="Dialog-box">
     <header class="Dialog-header">
       <span class="Dialog-title">{{ title }}</span>
-      <button class="Dialog-closeBtn" title="Close" h="close">
-        <span class="fa fa-1x fa-times"></span>
-      </button>
+      <button class="Dialog-closeBtn" title="Close" h="close">×</button>
     </header>
     <div h="body"></div>
   </div>
