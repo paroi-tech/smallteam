@@ -18,7 +18,7 @@
     "@smallteam-local/shared": "0.0.2-bundled",
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",
-    "handledom": "^0.1.5"
+    "handledom": "^0.1.8"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^3.4.0",

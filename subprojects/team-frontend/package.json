@@ -16,13 +16,13 @@
     "@smallteam-local/shared-ui": "0.0.0-bundled",
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",
-    "handledom": "^0.1.5",
+    "handledom": "^0.1.8",
     "showdown": "^1.9.1",
     "sortablejs": "^1.10.2"
   },
   "devDependencies": {
     "@enhancedjs/css-in-template-string-loader": "^0.1.1",
-    "@handledom/in-template-string-loader": "^0.1.7",
+    "@handledom/in-template-string-loader": "^0.1.8",
     "@types/showdown": "^1.9.3",
     "@types/sortablejs": "^1.10.4",
     "@typescript-eslint/eslint-plugin": "^3.4.0",
