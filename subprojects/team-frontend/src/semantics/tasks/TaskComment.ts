@@ -157,6 +157,7 @@ export default class TaskComment {
       this.state.date = `${d.toLocaleDateString()}@${d.toLocaleTimeString()}`
       this.state.text = this.comment.body
       update(this.state)
+      this.textareaEl.value = this.state.text
       this.mdEl.innerHTML = this.converter.makeHtml(this.comment.body)
     })
   }

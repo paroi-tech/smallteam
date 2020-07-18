@@ -112,6 +112,7 @@ export default class ProjectForm implements Workspace {
     this.state.name = this.project.name
     this.state.description = this.project.description || ""
     this.update(this.state)
+    this.descriptionEl.value = this.state.description
   }
 
   clearContent() {
@@ -119,6 +120,7 @@ export default class ProjectForm implements Workspace {
     this.state.name = ""
     this.state.description = ""
     this.update(this.state)
+    this.descriptionEl.value = ""
   }
 
   hasProject(): boolean {

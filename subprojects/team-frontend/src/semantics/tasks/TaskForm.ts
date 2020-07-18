@@ -386,5 +386,6 @@ export default class TaskForm {
       description,
       postponeLabel
     })
+    this.descriptionEl.value = description
   }
 }
