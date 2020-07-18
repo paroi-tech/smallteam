@@ -82,7 +82,15 @@ async function main() {
   const releaseArchiveName = `smallteam-release-${mainPackageVersion}.tar.xz`
   const releaseLogName = `smallteam-release-${mainPackageVersion}.log`
   appLog.info(`[release] Make archive: ${releaseArchiveName}`)
-  await execCommand(`tar -cJf ${releaseArchiveName} *.json *.md *.tgz`, { cwd: releaseDir })
+
+  const files = [
+    "config.sample.json",
+    "INSTALL.md",
+    "package.json",
+    sharedTarBallFileName,
+    mainPackageTarBallFileName
+  ]
+  await execCommand(`tar -cJf ${releaseArchiveName} ${files.join(" ")}`, { cwd: releaseDir })
   writeLogFileSync(join(releaseDir, releaseLogName))
 }
 
