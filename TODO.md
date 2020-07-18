@@ -46,6 +46,7 @@
 - [ ] In team frontend, track ws client state and restart a new one if it gets closed in App.start().
 - [ ] In `routeBatch`, handle the case when one of the commands fails.
 - [ ] Fallback avatar for user menu?
+- [ ] Rewrite the session mechanism. Tables `reg_new` and `reg_pwd`: put them in the common `sessions` DB.
 
 ---
 

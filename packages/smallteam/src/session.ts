@@ -237,12 +237,14 @@ export async function routeSendPasswordEmail(subdomain: string, data: any) {
   return answer
 }
 
-export async function removeExpiredPasswordTokens(cn: SBConnection) {
-  try {
-    await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
-  } catch (err) {
-    appLog.error("Error while removing expired account activation tokens", err)
-  }
+export async function removeExpiredPasswordTokens() {
+  // try {
+  //   // TODO reg_pwd List subdomains
+  //   const cn = await getCn(subdomain)
+  //   await cn.exec("delete from reg_pwd where create_ts >= expire_ts")
+  // } catch (err) {
+  //   appLog.error("Error while removing expired account activation tokens", err)
+  // }
 }
 
 export async function getSessionData(req: Request) {
