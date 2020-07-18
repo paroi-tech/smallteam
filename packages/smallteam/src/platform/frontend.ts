@@ -10,7 +10,7 @@ export function getPlatformHtml() {
   <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>SmallTeam</title>
+    <title>SmallTeam - Task Management Software</title>
     <link rel="Shortcut Icon" href="favicon.ico?v=${v}">
     <link rel="stylesheet" media="all" href="platform.bundle.css?v=${v}">
     <script src="platform.bundle.js?v=${v}" defer></script>

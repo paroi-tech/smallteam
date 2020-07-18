@@ -29,7 +29,6 @@ scss`
   }
 
   &-header {
-    align-items: center;
     border-radius: 4px;
     color: #333;
     display: flex;
@@ -37,6 +36,7 @@ scss`
     font-size: $f14;
     justify-content: space-around;
     margin-bottom: 8px;
+    text-align: justify;
   }
 
   &-version {
@@ -70,9 +70,11 @@ scss`
 
 const template = handledom`
 <dialog class="TeamCreationDialog">
-  <header class="TeamCreationDialog-header Text">
+  <header class="TeamCreationDialog-header Text centeredTitles">
     <span class="TeamCreationDialog-version">SmallTeam {{ version }}</span>
     <h1>SmallTeam</h1>
+    <p>SmallTeam is a task management software. Our goal is to provide a simple, lightweight software, adapted to small connections, at a very low cost. We are not ready. In the meantime, teams who wish to do so are
+      invited to use the service for free, which will also help us to test its robustness.</p>
     <h2>Terms of Use</h2>
     <ol>
       <li>This service is free.</li>
@@ -82,9 +84,6 @@ const template = handledom`
       <li>Paroi reserves the right to change the conditions of access to the service at a later date.</li>
       <li>SmallTeam software is open-source and will remain so.</li>
     </ol>
-    <p><em>Note: This service is not intended to remain free. Our goal is to provide a simple, lightweight software,
-      adapted to small connections, at a very low cost. We are not ready. In the meantime, teams who wish to do so are
-      invited to use the service for free, which will also help us to test its robustness.</em></p>
   </header>
 
   <div class="TeamCreationDialog-content">

@@ -33,20 +33,27 @@
   h1,
   h2,
   h3 {
-    line-height: 1.25;
+    line-height: 1.4;
 		margin: .25em 0;
 	}
 
   h1 {
     font-size: $f24;
     font-weight: bold;
-    margin: .5em 0;
+    margin: .5em 0 .35em;
   }
 
   h2 {
     font-size: $f16;
     font-weight: bold;
     margin: .5em 0;
+  }
+
+  &.centeredTitles {
+    h1,
+    h2 {
+      text-align: center;
+    }
   }
 
   ul,
