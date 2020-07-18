@@ -1,5 +1,9 @@
 # SmallTeam
 
+A rudimentary Task Management Software for Small Teams.
+
+This is the software of https://smallteam.paroi.tech/
+
 ## Daily use commmands on a local development environment
 
 In a terminal:
