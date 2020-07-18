@@ -82,7 +82,7 @@ const template = handledom`
         databases.</li>
       <li>Teams that have not been active for several months will be destroyed.</li>
       <li>Paroi reserves the right to change the conditions of access to the service at a later date.</li>
-      <li>SmallTeam software is open-source and will remain so.</li>
+      <li>The SmallTeam software is <a href="https://github.com/paroi-tech/smallteam">open-source</a> and will remain so.</li>
     </ol>
   </header>
 
@@ -111,7 +111,7 @@ const template = handledom`
       <h1 class="FieldGroup-title">Your account</h1>
 
       <label class="FieldGroup-item Field">
-        <span class="Field-lbl">Your email address</span>
+        <span class="Field-lbl">Your e-mail address (only used to provide access to your account)</span>
         <span class="Field-deco -leftBlue">
           <input class="Field-input" type="email" required spellcheck="false" h="email">
         </span>
@@ -157,7 +157,7 @@ const template = handledom`
       </div>
     </div>
   </div>
-  <footer class="TeamCreationDialog-footer">
+  <footer class="TeamCreationDialog-footer Text">
     <p>SmallTeam is provided by Paroi. <a href="https://smallteam.paroi.tech/support">Contact us</a></p>
   </footer>
 </dialog>

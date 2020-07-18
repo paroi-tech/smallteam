@@ -19,9 +19,8 @@
       color: #5584ff;
       text-decoration: none;
     }
-    &:focus
+    &:focus,
     &:hover {
-      color: #a1bcff;
       text-decoration: underline;
     }
   }
@@ -40,13 +39,13 @@
   h1 {
     font-size: $f24;
     font-weight: bold;
-    margin: .5em 0 .35em;
+    margin: 0 0 .45em;
   }
 
   h2 {
     font-size: $f16;
     font-weight: bold;
-    margin: .5em 0;
+    margin: 1em 0 .5em;
   }
 
   &.centeredTitles {
