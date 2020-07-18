@@ -1,6 +1,6 @@
 dependencies:
   '@enhancedjs/css-in-template-string-loader': 0.1.1
-  '@handledom/in-template-string-loader': 0.1.8
+  '@handledom/in-template-string-loader': 0.1.9_handledom@0.1.9
   '@hapi/joi': 17.1.1
   '@ladc/sql-bricks-modifier': 0.22.7_ladc@0.22.10+sql-bricks@2.0.5
   '@ladc/sqlite3-adapter': 0.22.8_ladc@0.22.10
@@ -34,7 +34,7 @@ dependencies:
   eslint-config-prettier: 6.11.0_eslint@7.4.0
   express: 4.17.1
   express-session: 1.17.1
-  handledom: 0.1.8
+  handledom: 0.1.9
   html-webpack-plugin: 4.3.0_webpack@4.43.0
   just-wait: 1.0.11
   ladc: 0.22.10
@@ -85,13 +85,15 @@ packages:
     dev: false
     resolution:
       integrity: sha512-bcNBKb+PEDoHGJeh9NY7lP2fQVUgphnSGTXiBSHWJhiEOJ3hJQ+E3hxhUlIy+ydsz7gAszcR+Af/FiKjJG/HlA==
-  /@handledom/in-template-string-loader/0.1.8:
+  /@handledom/in-template-string-loader/0.1.9_handledom@0.1.9:
     dependencies:
-      handledom: 0.1.8
+      handledom: 0.1.9
       loader-utils: 2.0.0
     dev: false
+    peerDependencies:
+      handledom: ^0.1.9
     resolution:
-      integrity: sha512-Xkdt3cLEf8O/k7icFS9xOvVpGki18Iq4Zsamv5gtoaBLDnv2+vAxa3+vF+vkGu126ujEwZdmRrjccHUSFya3Zg==
+      integrity: sha512-oSkxvQBhfBaOxLPpiHi/DiGnbLQ2IBH+F5ay8ldU03SvZreaGoVyOkX6HfVxLYcWRy1OrCPfSi+UYDFYTQV7/A==
   /@hapi/address/4.0.1:
     dependencies:
       '@hapi/hoek': 9.0.4
@@ -2727,12 +2729,12 @@ packages:
     dev: false
     resolution:
       integrity: sha1-TK+tdrxi8C+gObL5Tpo906ORpyU=
-  /handledom/0.1.8:
+  /handledom/0.1.9:
     dependencies:
       antlr4: 4.8.0
     dev: false
     resolution:
-      integrity: sha512-s4IxaSyhbKz6iiVJK+rOtukAToM8RpX6yinILmhtYO+xOvohTZ8lhvPBTDofdqGZmKVXDHBUh20tAWg/NhQOng==
+      integrity: sha512-0YvEqBQ0wvkEsYKg/+RDZAE793oKsOWHZ7L1wt/3fhN4+mx4zJMkqdNSkdBmOY4Nrz/kbZki6q0TDP+N8iYXlA==
   /has-ansi/2.0.0:
     dependencies:
       ansi-regex: 2.1.1
@@ -6377,7 +6379,7 @@ packages:
   'file:projects/platform-frontend.tgz':
     dependencies:
       '@enhancedjs/css-in-template-string-loader': 0.1.1
-      '@handledom/in-template-string-loader': 0.1.8
+      '@handledom/in-template-string-loader': 0.1.9_handledom@0.1.9
       '@typescript-eslint/eslint-plugin': 3.5.0_e6b9e0efb8888a683fd7e2e8057c1472
       '@typescript-eslint/parser': 3.5.0_eslint@7.4.0+typescript@3.9.6
       bkb: 0.28.2
@@ -6385,7 +6387,7 @@ packages:
       dialog-polyfill: 0.5.1
       eslint: 7.4.0
       eslint-config-prettier: 6.11.0_eslint@7.4.0
-      handledom: 0.1.8
+      handledom: 0.1.9
       html-webpack-plugin: 4.3.0_webpack@4.43.0
       mini-css-extract-plugin: 0.9.0_webpack@4.43.0
       prettier: 2.0.5
@@ -6398,13 +6400,13 @@ packages:
     dev: false
     name: '@rush-temp/platform-frontend'
     resolution:
-      integrity: sha512-S4CImn9ovT8dWVCsx6vHrZXkTuBeB5TjVxDxhAMGfxV84ftqiPEe0jjgvuDx4OaZ2yXIjyr9psq/GKcu51ErRg==
+      integrity: sha512-MeRbv1hm/LoGOAUIrn1tvdwYtaGPYgKncbu0gTqX7DCkMHWqP/lthCR0f72e8xcC/UINWKVwqOyzCtQQoP1XLA==
       tarball: 'file:projects/platform-frontend.tgz'
     version: 0.0.0
   'file:projects/registration-frontend.tgz':
     dependencies:
       '@enhancedjs/css-in-template-string-loader': 0.1.1
-      '@handledom/in-template-string-loader': 0.1.8
+      '@handledom/in-template-string-loader': 0.1.9_handledom@0.1.9
       '@typescript-eslint/eslint-plugin': 3.5.0_e6b9e0efb8888a683fd7e2e8057c1472
       '@typescript-eslint/parser': 3.5.0_eslint@7.4.0+typescript@3.9.6
       bkb: 0.28.2
@@ -6412,7 +6414,7 @@ packages:
       dialog-polyfill: 0.5.1
       eslint: 7.4.0
       eslint-config-prettier: 6.11.0_eslint@7.4.0
-      handledom: 0.1.8
+      handledom: 0.1.9
       html-webpack-plugin: 4.3.0_webpack@4.43.0
       mini-css-extract-plugin: 0.9.0_webpack@4.43.0
       prettier: 2.0.5
@@ -6425,7 +6427,7 @@ packages:
     dev: false
     name: '@rush-temp/registration-frontend'
     resolution:
-      integrity: sha512-/fNF3HNvxhkBAZOrUMIlXH+4f+gKjFJ1cVdww09QIoO308GtV5YbiuerqjkxIfe6idfM1FCGqNcTT0KeGFfIXQ==
+      integrity: sha512-lcIM/RcC0W46Sufbo5fyaTaIFJbEw81AXgdQD9hRwj3NQzwRETYWPBpbctO7iKhDwjVTR3NDdEob79bFmQEeBg==
       tarball: 'file:projects/registration-frontend.tgz'
     version: 0.0.0
   'file:projects/shared-ui.tgz':
@@ -6436,14 +6438,14 @@ packages:
       dialog-polyfill: 0.5.1
       eslint: 7.4.0
       eslint-config-prettier: 6.11.0_eslint@7.4.0
-      handledom: 0.1.8
+      handledom: 0.1.9
       prettier: 2.0.5
       rimraf: 3.0.2
       typescript: 3.9.6
     dev: false
     name: '@rush-temp/shared-ui'
     resolution:
-      integrity: sha512-SRBt6CcU0Z9Sgz5aBFA3rQGHfTBtBjJpxrMQ1R7x7hhtxvI2QJ//mGtxxd/qxcBA17GGUNhk8XuwMKodTm9KEw==
+      integrity: sha512-QrDVznYKWMhILDpGDZYczTZXULKc16SrxHiWDgG7tbtW68KZu6tW1VCQmiRpd4RudzoYPYgs8zLpx/L01PQw9Q==
       tarball: 'file:projects/shared-ui.tgz'
     version: 0.0.0
   'file:projects/shared.tgz':
@@ -6513,7 +6515,7 @@ packages:
   'file:projects/team-frontend.tgz':
     dependencies:
       '@enhancedjs/css-in-template-string-loader': 0.1.1
-      '@handledom/in-template-string-loader': 0.1.8
+      '@handledom/in-template-string-loader': 0.1.9_handledom@0.1.9
       '@types/showdown': 1.9.3
       '@types/sortablejs': 1.10.4
       '@typescript-eslint/eslint-plugin': 3.5.0_e6b9e0efb8888a683fd7e2e8057c1472
@@ -6523,7 +6525,7 @@ packages:
       dialog-polyfill: 0.5.1
       eslint: 7.4.0
       eslint-config-prettier: 6.11.0_eslint@7.4.0
-      handledom: 0.1.8
+      handledom: 0.1.9
       html-webpack-plugin: 4.3.0_webpack@4.43.0
       mini-css-extract-plugin: 0.9.0_webpack@4.43.0
       prettier: 2.0.5
@@ -6538,13 +6540,13 @@ packages:
     dev: false
     name: '@rush-temp/team-frontend'
     resolution:
-      integrity: sha512-AxwzkDIFWIEh3oA5p0DeZaf5DmHaPhXcxv/A87uwPY5VxaPQ2QiI9tr2FcUVJcnlrO969KgV+YClcFJF/xIIvg==
+      integrity: sha512-7A35WXLSg0ED/WARH9hBed31zjD3dUeJIF1HH04NCCqnhr+B+pIoAF9OFSjdCsxxGhMNrbODZVBw94UEVIjwww==
       tarball: 'file:projects/team-frontend.tgz'
     version: 0.0.0
 registry: ''
 specifiers:
   '@enhancedjs/css-in-template-string-loader': ^0.1.1
-  '@handledom/in-template-string-loader': ^0.1.8
+  '@handledom/in-template-string-loader': ^0.1.9
   '@hapi/joi': ^17.1.1
   '@ladc/sql-bricks-modifier': ^0.22.7
   '@ladc/sqlite3-adapter': ^0.22.8
@@ -6578,7 +6580,7 @@ specifiers:
   eslint-config-prettier: ^6.11.0
   express: ^4.17.1
   express-session: ^1.17.1
-  handledom: ^0.1.8
+  handledom: ^0.1.9
   html-webpack-plugin: ^4.3.0
   just-wait: ^1.0.11
   ladc: ^0.22.10
