@@ -1,3 +1,5 @@
+@import "./definitions";
+
 .Text {
 	em {
 		font-style: italic;
@@ -36,6 +38,13 @@
 	}
 
   h1 {
+    font-size: $f24;
+    font-weight: bold;
+    margin: .5em 0;
+  }
+
+  h2 {
+    font-size: $f16;
     font-weight: bold;
     margin: .5em 0;
   }

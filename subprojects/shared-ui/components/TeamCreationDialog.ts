@@ -24,6 +24,7 @@ scss`
     background-color: #fff;
     border: 1px solid #808080;
     padding: 30px;
+    position: relative;
   }
 
   &-header {
@@ -35,6 +36,14 @@ scss`
     font-size: $f14;
     justify-content: space-around;
     margin-bottom: 8px;
+  }
+
+  &-version {
+    color: #ccc;
+    font-size: $f13;
+    position: absolute;
+    right: 10px;
+    top: 5px;
   }
 
   &-warning {
@@ -61,7 +70,9 @@ scss`
 const template = handledom`
 <dialog class="TeamCreationDialog">
   <header class="TeamCreationDialog-header Text">
-    <h1>SmallTeam Terms of Use</h1>
+    <span class="TeamCreationDialog-version">SmallTeam {{ version }}</span>
+    <h1>SmallTeam</h1>
+    <h2>Terms of Use</h2>
     <ol>
       <li>This service is free.</li>
       <li>Data from active teams will be provided to team administrators upon request, in the form of SQLite
@@ -170,7 +181,9 @@ export default class TeamCreationDialog {
   private curDfd: Deferred<boolean> | undefined
 
   constructor(private dash: Dash<{ baseUrl: string }>) {
-    const { root, ref } = template()
+    const { root, ref } = template({
+      version: document.documentElement?.dataset.ver ?? "-unknown-"
+    })
 
     this.el = root as HTMLDialogElement
     this.subdomainEl = ref("subdomain")

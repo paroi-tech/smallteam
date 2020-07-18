@@ -36,6 +36,8 @@ rush lint
 
 ## Deploy
 
+Stop dev watchers for backend and frontends, then:
+
 ```sh
 rush new-release
 ```

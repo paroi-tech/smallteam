@@ -4,6 +4,7 @@
 
 ### Paleo
 - [ ] Improve the ergonomy in the `TaskForm`.
+- [x] Platform: show the deployed version.
 - [x] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
 - [x] Add a link to `platform-url/support` in the platform frontend.
 - [x] Add a link to `platform-url/support` in the team frontend.
