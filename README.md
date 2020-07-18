@@ -36,25 +36,8 @@ rush lint
 
 ## Deploy
 
-On the local environment:
-
 ```sh
-# 1. Bump versions of 'smallteam' and 'shared'.
-
-# 2. Build the release:
-
-rush update
-rush build:prod
-
-cd release
-pnpm pack ../packages/smallteam
-pnpm pack ../subprojects/shared
-
-# 3. Bump versions of 'smallteam' and 'shared' files in `release/package.json`.
-
-# 4. Make an archive of the new release.
-
-tar -cJf smallteam-release-0.0.3.tar.xz *.json *.md *.tgz
+rush new-release
 ```
 
 ## Install a local development environment
