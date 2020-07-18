@@ -1,6 +1,6 @@
 {
   "name": "@smallteam-local/shared",
-  "version": "0.0.1-bundled",
+  "version": "0.0.2-bundled",
   "description": "This is a subproject for the 'smallteam' package.",
   "author": "Paroi",
   "license": "CC0-1.0",
