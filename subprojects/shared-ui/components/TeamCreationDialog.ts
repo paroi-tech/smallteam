@@ -17,6 +17,7 @@ scss`
   margin-left: auto;
   margin-right: auto;
   max-width: 600px;
+  top: 0;
 
   &-header,
   &-content,
@@ -58,7 +59,7 @@ scss`
     color: #333;
     font-size: $f14;
     margin: 8px 0 10px;
-    /* text-align: right; */
+    text-align: center;
   }
 
   &.support &-header {
@@ -158,7 +159,7 @@ const template = handledom`
     </div>
   </div>
   <footer class="TeamCreationDialog-footer">
-    <p><a href="https://smallteam.paroi.tech/support">Contact us</a></p>
+    <p>SmallTeam is provided by Paroi. <a href="https://smallteam.paroi.tech/support">Contact us</a></p>
   </footer>
 </dialog>
 `
