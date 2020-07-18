@@ -52,19 +52,19 @@ scss`
   }
 
   &-editButton {
-    background-image: url(/svg/feather/edit.svg);
+    background-image: url(/svg/edit.svg);
   }
 
   &-cancelButton {
-    background-image: url(/svg/feather/x-circle.svg);
+    background-image: url(/svg/x-circle.svg);
   }
 
   &-saveButton {
-    background-image: url(/svg/feather/save.svg);
+    background-image: url(/svg/save.svg);
   }
 
   &-deleteButton {
-    background-image: url(/svg/feather/trash-2.svg);
+    background-image: url(/svg/trash-2.svg);
   }
 }
 `

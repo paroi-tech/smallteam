@@ -4,6 +4,7 @@
 
 ### Paleo
 - [ ] Improve the ergonomy in the `TaskForm`.
+- [x] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
 - [x] Add a link to `platform-url/support` in the platform frontend.
 - [x] Add a link to `platform-url/support` in the team frontend.
 - [x] Review default inserts (steps, etc.).
@@ -25,7 +26,6 @@
 - [x] Maybe separate source files and compiled files in `shared` and `shared-ui`.
 
 ### kitihounel
-- [ ] Remove fontawesome and all unused images in `packages/smallteam/static/svg/`.
 - [ ] Improve `registration-frontend`
 - [ ] In frontend and backend, don't enable simple contributors to change accounts data.
 - [x] In InvitationWorkspace, check that default username is not used.

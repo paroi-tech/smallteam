@@ -50,7 +50,7 @@ body {
     padding-right: 25px;
   }
   &-l {
-    background: url(/svg/loaders/circles.svg) no-repeat center center;
+    background: url(/svg/spinner.svg) no-repeat center center;
     background-size: contain;
     height: 16px;
     position: absolute;
@@ -68,7 +68,7 @@ body {
 
 .LoaderBg {
   align-self: center;
-  background: url(/svg/loaders/circles.svg) no-repeat center center;
+  background: url(/svg/spinner.svg) no-repeat center center;
   background-size: contain;
   height: 16px;
   width: 16px;
