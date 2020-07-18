@@ -27,26 +27,26 @@ const template = handledom`
 <div class="InvitationBox">
   <div class="InvitationBox-top">
     <section>
-      <span class="fas fa-envelope"></span>
+      <span>✉</span>
       <span class="InvitationBox-lbl" h="email"></span>
     </section>
     <section>
-      <span class="fas fa-user-ninja"></span>
+      <span>👤</span>
       <span class="InvitationBox-lbl" h="username"></span>
     </section>
     <section>
-      <span class="fa fas fa-calendar-check" style="color: green"></span>
+      <span style="color: green">🕐</span>
       <span class="InvitationBox-lbl" h="creation"></span>
     </section>
     <section>
-      <span class="fas fa-calendar-minus" style="color: red"></span>
+      <span style="color: red">🕐</span>
       <span class="InvitationBox-lbl" h="expiration"></span>
     </section>
   </div>
 
   <div class="InvitationBox-bottom">
-    <span class="fas fa-redo fa-xs" title="Resend invitation" h="resend"></span>
-    <span class="fas fa-minus fa-xs" title="Cancel invitation" h="cancel"></span>
+    <span title="Resend invitation" h="resend">🔁</span>
+    <span title="Cancel invitation" h="cancel">🗑</span>
   </div>
 </div>
 `

@@ -6,12 +6,20 @@ import { closestImageVariant, getMainMediaType } from "../libraries/mediaUtils"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
+@import "../shared-ui/theme/definitions";
+
 .FileThumbnail {
   background-position: center;
   background-size: cover;
   border-radius: 50%;
   display: inline-block;
+  font-size: 18px;
   text-align: center;
+  &.text {
+    background-color: #777;
+    color: #fff;
+    font-size: $f13;
+  }
 }
 `
 
@@ -19,20 +27,24 @@ const template = handledom`
 <span class="FileThumbnail"></span>
 `
 
-function makeVideoThumbnail(elt: HTMLElement) {
-  elt.classList.add("fas", "fa-file-video")
+function makeVideoThumbnail(el: HTMLElement) {
+  el.innerText = "🎞" // 📹
+  el.classList.remove("text")
 }
 
-function makeAudioThumbnail(elt: HTMLElement) {
-  elt.classList.add("fas", "fa-file-audio")
+function makeAudioThumbnail(el: HTMLElement) {
+  el.innerText = "🎵"
+  el.classList.remove("text")
 }
 
-function makePdfThumbnail(elt: HTMLElement) {
-  elt.classList.add("fas", "fa-file-pdf")
+function makePdfThumbnail(el: HTMLElement) {
+  el.innerText = "PDF"
+  el.classList.add("text")
 }
 
-function makeDefaultThumbnail(elt: HTMLElement) {
-  elt.classList.add("fas", "fa-file-alt")
+function makeDefaultThumbnail(el: HTMLElement) {
+  el.innerText = "📂"
+  el.classList.remove("text")
 }
 
 export interface FileThumbnailOptions {

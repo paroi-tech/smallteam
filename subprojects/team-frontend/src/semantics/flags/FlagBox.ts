@@ -3,11 +3,21 @@ import { OwnDash } from "../../AppFrame/OwnDash"
 import { FlagModel } from "../../AppModel/AppModel"
 import { Box } from "../../generics/BoxList"
 
+// eslint-disable-next-line @typescript-eslint/no-unused-expressions
+scss`
+.FlagColor {
+  border-radius: 16px;
+  display: inline-block;
+  height: 16px;
+  width: 16px;
+}
+`
+
 const template = handledom`
 <div class="FlagBox">
   <span class="FlagBox-span">{{ label }}</span>
   &nbsp;
-  <span class="fa fa-circle fa-1x" h="boxColor"></span>
+  <span class="FlagColor" h="boxColor"></span>
 </div>
 `
 
@@ -19,7 +29,7 @@ export default class FlagBox implements Box {
     const colorEl = ref<HTMLElement>("boxColor")
 
     this.el = root
-    colorEl.style.color = this.flag.color
+    colorEl.style.backgroundColor = this.flag.color
     this.el.addEventListener("click", () => this.dash.emit("flagBoxSelected", this.flag))
     update(this.flag)
 
@@ -28,7 +38,7 @@ export default class FlagBox implements Box {
 
       if (flag.id === this.flag.id) {
         update(this.flag)
-        colorEl.style.color = this.flag.color
+        colorEl.style.backgroundColor = this.flag.color
       }
     })
   }

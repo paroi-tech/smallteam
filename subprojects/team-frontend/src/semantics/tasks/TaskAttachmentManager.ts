@@ -39,9 +39,9 @@ const template = handledom`
 
   <form action="" method="post" enctype="multipart/form-data" h="form">
     <input name="f" type="file" h="input">
-    <button class="TaskAttachmentManager-uploadButton" type="submit" h="upload">
+    <button class="TaskAttachmentManager-uploadButton WithLoader -right" type="submit" h="upload">
       Send file
-      <span class="fa fa-upload fa-1x" h="spinner"></span>
+      <span class="WithLoader-l" hidden h="spinner"></span>
     </button>
   </form>
 </div>

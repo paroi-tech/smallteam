@@ -40,7 +40,7 @@ const template = handledom`
 
   <div class="ModalDialog-content">
     <div class="PromptDialog-contentLeft">
-      <span class="fas fa-3x fa-edit"></span>
+      <span class="CircleChar">✎</span>
     </div>
     <div class="PromptDialog-contentRight">
       <div h="message"></div>

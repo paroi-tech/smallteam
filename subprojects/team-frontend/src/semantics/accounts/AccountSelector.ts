@@ -24,9 +24,7 @@ const template = handledom`
 <div class="AccountSelector">
   <header class="AccountSelector-header">Affected to:</header>
   <div h="boxlist"></div>
-  <button class="AccountSelector-button" h="btn">
-    Select accounts <span class="fa fa-eye fa-1x"></span>
-  </button>
+  <button class="AccountSelector-button" h="btn">Select accounts</button>
 </div>
 `
 

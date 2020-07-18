@@ -26,7 +26,7 @@ scss`
 
 const template = handledom`
 <div class="Workspace404">
-  <span class="Workspace404-span"><i class="fa fa-frown-o fa-5x"></i></span>
+  <span class="Workspace404-span CircleChar grey">☹</span>
   <p class="Workspace404-p">404: Not Found</p>
 </div>
 `
