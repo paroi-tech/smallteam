@@ -1,4 +1,4 @@
 node_modules
 /dist
-/static-bundles
+/static-bundles*
 /config.json
