@@ -160,18 +160,18 @@ export default class AppFrame {
   private createHeaderBar() {
     const bar = this.dash.create(HeaderBar)
 
-    const notifBtn = this.dash.create(NavBtn, {
-      label: "Notifications",
-      icon22: {
-        position: "right",
-        cssClass: "-notif"
-      },
-      canHaveAlert: true,
-      onClick: () => {
-        this.dash.log.debug("Notifications to implement...") // TODO:
-      }
-    })
-    bar.entries.addItem(notifBtn)
+    // const notifBtn = this.dash.create(NavBtn, {
+    //   label: "Notifications",
+    //   icon22: {
+    //     position: "right",
+    //     cssClass: "-notif"
+    //   },
+    //   canHaveAlert: true,
+    //   onClick: () => {
+    //     this.dash.log.debug("Notifications to implement...") // TODO:
+    //   }
+    // })
+    // bar.entries.addItem(notifBtn)
 
 
     bar.entries.addItem(this.createSettingsMenu())

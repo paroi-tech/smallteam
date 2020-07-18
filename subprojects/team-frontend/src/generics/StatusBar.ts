@@ -5,6 +5,10 @@ import handledom from "handledom"
 scss`
 .StatusBar {
   height: 100%;
+  display: flex;
+  flex-direction: row;
+  justify-content: flex-end;
+  padding: 0 10px;
 }
 `
 

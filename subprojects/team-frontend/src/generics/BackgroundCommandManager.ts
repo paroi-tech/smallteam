@@ -9,8 +9,8 @@ scss`
 @import "../shared-ui/theme/definitions";
 
 .BgCommandManagerBtn {
-  color: #AAA;
-  font-weight: bold;
+  color: #7689AF;
+  font-size: $f13;
   padding: 5px;
 }
 
@@ -53,7 +53,7 @@ const template = handledom`
 </div>
 `
 const templateMenuBtn = handledom`
-<button class="BgCommandManagerBtn">Bg</button>
+<button class="BgCommandManagerBtn">Background tasks</button>
 `
 
 export default class BackgroundCommandManager {

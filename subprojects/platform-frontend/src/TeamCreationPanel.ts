@@ -68,7 +68,7 @@ const template = handledom`
     <span class="TeamCreationPanel-version">SmallTeam {{ version }}</span>
     <h1>SmallTeam</h1>
     <p>SmallTeam is a task management software. Our goal is to provide a simple, lightweight software, adapted to small connections, at a very low cost. We are not ready. In the meantime, teams who wish to do so are
-      invited to use the service for free, which will also help us to test its robustness.</p>
+      invited to use the service for free, which will also help us to work on its robustness.</p>
     <h2>Terms of Use</h2>
     <ol>
       <li>This service is free.</li>

@@ -24,6 +24,7 @@ scss`
 
 .DropdownMenu {
   border: 1px solid #fff;
+  display: block;
   min-width: 174px;
   position: absolute;
   z-index: 1001;
@@ -108,7 +109,7 @@ export class DropdownMenu {
     if (this.detached)
       this.attachInDom()
     this.isVisible = true
-    this.el.style.display = "block"
+    this.el.hidden = false
     this.el.focus()
     this.showBackdrop(true)
   }
@@ -117,7 +118,7 @@ export class DropdownMenu {
     if (!this.isVisible)
       return
     this.isVisible = false
-    this.el.style.display = "none"
+    this.el.hidden = true
     this.showBackdrop(false)
   }
 
