@@ -105,23 +105,23 @@ export class Dialog<C extends ComponentOrUndef = undefined> {
       document.body.removeChild(this.el)
     })
 
-    this.el.addEventListener("dragstart", ev => this.lastDragStart = ev)
-    this.el.addEventListener("dragend", ev => {
-      if (!this.lastDragStart)
-        return
+    // this.el.addEventListener("dragstart", ev => this.lastDragStart = ev)
+    // this.el.addEventListener("dragend", ev => {
+    //   if (!this.lastDragStart)
+    //     return
 
-      const dx = ev.clientX - this.lastDragStart.clientX
-      const dy = ev.clientY - this.lastDragStart.clientY
-      const rect = this.el.getBoundingClientRect()
-      const left = rect.left + dx
-      const top = rect.top + dy
+    //   const dx = ev.clientX - this.lastDragStart.clientX
+    //   const dy = ev.clientY - this.lastDragStart.clientY
+    //   const rect = this.el.getBoundingClientRect()
+    //   const left = rect.left + dx
+    //   const top = rect.top + dy
 
-      this.el.style.position = "absolute"
-      this.el.style.top = `${top}px`
-      this.el.style.left = `${left}px`
+    //   this.el.style.position = "absolute"
+    //   this.el.style.top = `${top}px`
+    //   this.el.style.left = `${left}px`
 
-      this.lastDragStart = undefined
-    })
+    //   this.lastDragStart = undefined
+    // })
   }
 
   open<OC extends ComponentOrUndef = C>(options: DialogOptions<OC> = {}): Promise<void> {

@@ -6,6 +6,8 @@ import { removeAllChildren } from "../libraries/utils"
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 .UncloseableDialog {
+  min-width: 40%;
+  padding: 50px;
   &-content {
     color: #4169e1;
   }
@@ -14,10 +16,8 @@ scss`
 
 const template = handledom`
 <dialog class="ModalDialog UncloseableDialog">
-  <header class="ModalDialog-header">
-    <span h="title"></span>
-  </header>
-  <div class="UncloseableDialog-content" h="message"></div>
+  <header class="ModalDialog-header" h="title"></header>
+  <div class="UncloseableDialog-content Text" h="message"></div>
 </dialog>
 `
 
@@ -38,6 +38,7 @@ export default class UncloseableDialog {
   }
 
   show(msg: string | string[], title = "") {
+    this.titleEl.hidden = !title
     this.titleEl.textContent = title
 
     removeAllChildren(this.msgEl)

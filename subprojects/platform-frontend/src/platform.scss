@@ -1,0 +1,12 @@
+@import "../shared-ui/theme/definitions";
+
+.SimplePage {
+  background-color: #fff;
+  color: #333;
+  font-size: $f14;
+  margin: 0 auto;
+  padding: 70px 50px;
+  text-align: center;
+  max-width: 100%;
+  width: 600px;
+}

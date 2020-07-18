@@ -35,7 +35,7 @@
 - [x] Backend should notify frontend about updates so that frontend can refresh. When a refresh is required, a notification is displayed to the user.
 - [x] Update `hasSession` function to also accept an Http.IncommingMessage as parameter.
 - [x] Update modal dialogs to enable several row of text.
-- [x] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationDialog`.
+- [x] Create a dialog component that can't be closed. Use it to display the success messge in `TeamCreationPanel`.
 - [x] Configure team creation process so that for each new team, a default project named *First Project* is available.
       Complete the database creation script with required `insert` statements.
 - [x] Compatibility with recent versions of Chrome, Firefox, Edge, Opera, and Safari.
@@ -140,7 +140,7 @@
 ## August 2018 - DONE
 
 - Configure and use SendMail on the server
-- Components `RegistrationForm` and `TeamCreationDialog` are used by several frontends, they should be in a common part.
+- Components `RegistrationForm` and `TeamCreationPanel` are used by several frontends, they should be in a common part.
 
 ### kitihounel - DONE
 

@@ -44,14 +44,11 @@ export function getPlatformSupportHtml() {
     <link rel="stylesheet" media="all" href="/platform.bundle.css?v=${v}">
   </head>
   <body>
-<main class="TeamCreationDialog Text support">
-  <header class="TeamCreationDialog-header">
-    <h1>SmallTeam Support</h1>
-    <p>Contact-us on this address:</p>
-    <p><b class="Addr"><img alt="" src="${pngUri}" class="Addr-img">paroi.tech</b>.</p>
-  </header>
-  </div>
-</main>
+    <main class="SimplePage Text">
+      <h1>SmallTeam Support</h1>
+      <p>Contact-us on this address:</p>
+      <p><b class="Addr"><img alt="" src="${pngUri}" class="Addr-img">paroi.tech</b>.</p>
+    </main>
   </body>
 </html>`
 }

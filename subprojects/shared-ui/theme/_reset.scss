@@ -51,4 +51,11 @@ button {
 dialog {
   background: none;
 	color: inherit;
+  position: fixed;
+  top: 50%;
+  transform: translate(0, -50%);
+}
+
+[hidden] {
+  display: none !important;
 }

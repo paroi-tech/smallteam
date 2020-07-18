@@ -1,7 +1,8 @@
-import TeamCreationDialog from "@smallteam-local/shared-ui/components/TeamCreationDialog"
+import { removeAllChildren } from "@smallteam-local/shared-ui/libraries/utils"
 import ErrorDialog from "@smallteam-local/shared-ui/modal-dialogs/ErrorDialog"
 import InfoDialog from "@smallteam-local/shared-ui/modal-dialogs/InfoDialog"
 import { AppDash, Log, LogEvent } from "bkb"
+import TeamCreationPanel from "./TeamCreationPanel"
 
 export interface AppOptions {
   action?: string
@@ -11,12 +12,12 @@ export interface AppOptions {
 export default class App {
   readonly log: Log
   readonly baseUrl: string
-  private teamDialog: TeamCreationDialog
+  private teamPanel: TeamCreationPanel
 
   constructor(private dash: AppDash<App>, private options: AppOptions = {}) {
     this.log = dash.log
     this.baseUrl = document.documentElement!.dataset.baseUrl || ""
-    this.teamDialog = this.dash.create(TeamCreationDialog)
+    this.teamPanel = this.dash.create(TeamCreationPanel)
 
     const env = document.documentElement.dataset.env ?? "prod"
 
@@ -37,8 +38,15 @@ export default class App {
   }
 
   start() {
+    const appEl = document.querySelector(".js-app")
+
+    if (!appEl)
+      throw new Error("Missing '.js-app' element.")
+
+    removeAllChildren(appEl)
     if ((!this.options.action && !this.options.token) || (this.options.action === "register")) {
-      void this.showTeamCreationDialog()
+      this.teamPanel = this.dash.create(TeamCreationPanel)
+      appEl.appendChild(this.teamPanel.el)
       return
     }
 
@@ -81,9 +89,5 @@ export default class App {
     } catch (error) {
       void this.dash.create(InfoDialog).show("Something went wrong. We cannot reach our server.")
     }
-  }
-
-  private async showTeamCreationDialog() {
-    await this.teamDialog.open()
   }
 }

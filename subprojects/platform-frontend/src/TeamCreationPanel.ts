@@ -1,19 +1,17 @@
+import { validateEmail } from "@smallteam-local/shared-ui/libraries/utils"
+import ErrorDialog from "@smallteam-local/shared-ui/modal-dialogs/ErrorDialog"
+import InfoDialog from "@smallteam-local/shared-ui/modal-dialogs/InfoDialog"
+import UncloseableDialog from "@smallteam-local/shared-ui/modal-dialogs/UncloseableDialog"
+import WarningDialog from "@smallteam-local/shared-ui/modal-dialogs/WarningDialog"
 import { toTitleCase, whyNewPasswordIsInvalid, whyTeamSubdomainIsInvalid, whyUsernameIsInvalid } from "@smallteam-local/shared/dist/libraries/helpers"
 import { Dash } from "bkb"
-import dialogPolyfill from "dialog-polyfill"
 import handledom from "handledom"
-import Deferred from "../libraries/Deferred"
-import { validateEmail } from "../libraries/utils"
-import ErrorDialog from "../modal-dialogs/ErrorDialog"
-import InfoDialog from "../modal-dialogs/InfoDialog"
-import UncloseableDialog from "../modal-dialogs/UncloseableDialog"
-import WarningDialog from "../modal-dialogs/WarningDialog"
 
 // eslint-disable-next-line @typescript-eslint/no-unused-expressions
 scss`
 @import "../shared-ui/theme/definitions";
 
-.TeamCreationDialog {
+.TeamCreationPanel {
   margin-left: auto;
   margin-right: auto;
   max-width: 600px;
@@ -61,17 +59,13 @@ scss`
     margin: 8px 0 10px;
     text-align: center;
   }
-
-  &.support &-header {
-    padding: 50px 30px;
-  }
 }
 `
 
 const template = handledom`
-<dialog class="TeamCreationDialog">
-  <header class="TeamCreationDialog-header Text centeredTitles">
-    <span class="TeamCreationDialog-version">SmallTeam {{ version }}</span>
+<div class="TeamCreationPanel">
+  <header class="TeamCreationPanel-header Text centeredTitles">
+    <span class="TeamCreationPanel-version">SmallTeam {{ version }}</span>
     <h1>SmallTeam</h1>
     <p>SmallTeam is a task management software. Our goal is to provide a simple, lightweight software, adapted to small connections, at a very low cost. We are not ready. In the meantime, teams who wish to do so are
       invited to use the service for free, which will also help us to test its robustness.</p>
@@ -86,7 +80,7 @@ const template = handledom`
     </ol>
   </header>
 
-  <div class="TeamCreationDialog-content">
+  <form class="TeamCreationPanel-content" h="form">
     <div class="FieldGroup">
       <h1 class="FieldGroup-title">Your team</h1>
 
@@ -156,15 +150,17 @@ const template = handledom`
         <button class="Btn" type="button" h="cancelBtn">Cancel</button>
       </div>
     </div>
-  </div>
-  <footer class="TeamCreationDialog-footer Text">
+  </form>
+  <footer class="TeamCreationPanel-footer Text">
     <p>SmallTeam is provided by Paroi. <a href="https://smallteam.paroi.tech/support">Contact us</a></p>
   </footer>
-</dialog>
+</div>
 `
 
-export default class TeamCreationDialog {
-  private readonly el: HTMLDialogElement
+export default class TeamCreationPanel {
+  readonly el: HTMLElement
+
+  private formEl: HTMLFormElement
   private subdomainEl: HTMLInputElement
   private teamNameEl: HTMLInputElement
   private emailEl: HTMLInputElement
@@ -178,14 +174,13 @@ export default class TeamCreationDialog {
   private canSetName = true
   private canSetLogin = true
 
-  private curDfd: Deferred<boolean> | undefined
-
   constructor(private dash: Dash<{ baseUrl: string }>) {
     const { root, ref } = template({
       version: document.documentElement?.dataset.ver ?? "-unknown-"
     })
 
-    this.el = root as HTMLDialogElement
+    this.el = root
+    this.formEl = ref("form")
     this.subdomainEl = ref("subdomain")
     this.teamNameEl = ref("teamName")
     this.emailEl = ref("email")
@@ -195,15 +190,9 @@ export default class TeamCreationDialog {
     this.confirmEl = ref("confirm")
     // this.spinnerEl = ref("spinner")
 
-    dialogPolyfill.registerDialog(this.el)
-
     ref("submitBtn").addEventListener("click", () => this.onSubmit())
     ref("cancelBtn").addEventListener("click", () => {
-      if (this.curDfd) {
-        this.curDfd.reject("Process canceled")
-        this.curDfd = undefined
-        this.el.close()
-      }
+      this.formEl.reset()
     })
 
     this.subdomainEl.addEventListener("input", () => {
@@ -247,14 +236,6 @@ export default class TeamCreationDialog {
 
     // By default, pressing the ESC key close the dialog. We have to prevent that.
     this.el.addEventListener("cancel", ev => ev.preventDefault())
-  }
-
-  async open() {
-    document.body.appendChild(this.el)
-    this.el.showModal()
-    this.curDfd = new Deferred()
-
-    return this.curDfd.promise
   }
 
   private async onSubmit() {
@@ -330,10 +311,8 @@ export default class TeamCreationDialog {
       return
     }
 
-    if (await this.register(teamName, subdomain, name, login, password, email) && this.curDfd) {
-      this.curDfd.resolve(true)
-      this.curDfd = undefined
-      this.el.close()
+    if (await this.register(teamName, subdomain, name, login, password, email)) {
+      this.el.hidden = true
     }
   }
 
