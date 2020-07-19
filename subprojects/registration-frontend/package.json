@@ -12,7 +12,7 @@
     "lint": "eslint . --ext .ts --max-warnings=0"
   },
   "dependencies": {
-    "@smallteam-local/shared": "0.0.2-bundled",
+    "@smallteam-local/shared": "0.1.0-bundled",
     "@smallteam-local/shared-ui": "0.0.0-bundled",
     "bkb": "^0.28.2",
     "dialog-polyfill": "^0.5.1",

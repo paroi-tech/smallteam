@@ -1,6 +1,6 @@
 {
   "name": "smallteam",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "license": "CC0-1.0",
   "description": "A rudimentary Task Management Software for Small Teams.",
   "author": "Paroi",
@@ -33,7 +33,7 @@
     "@ladc/sql-bricks-modifier": "^0.22.7",
     "@ladc/sqlite3-adapter": "^0.22.8",
     "@paroi/media-engine": "^0.5.4",
-    "@smallteam-local/shared": "0.0.2-bundled",
+    "@smallteam-local/shared": "0.1.0-bundled",
     "@typeonly/validator": "^0.5.1",
     "bcrypt": "^5.0.0",
     "bkb": "^0.28.2",

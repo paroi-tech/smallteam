@@ -149,7 +149,7 @@ function incrementSemanticVersion(version, versionBumpMode) {
   const regex = /^([0-9]+)\.([0-9]+)\.([0-9]+)(-[a-zA-Z0-9-_]+)?$/
   const found = version.match(regex)
   if (!found)
-    throw new Error(`Cannot increment version: "${version}"`)
+    throw new Error(`Cannot parse semantic version: "${version}"`)
   const [, num1Str, num2Str, num3Str, suffix] = found
   let num1 = parseInt(num1Str)
   let num2 = parseInt(num2Str)

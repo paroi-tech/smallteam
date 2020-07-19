@@ -1,10 +1,10 @@
 {
   "name": "smallteam-release",
-  "version": "0.0.4",
+  "version": "0.1.0",
   "private": true,
   "dependencies": {
-    "@smallteam-local/shared": "smallteam-local-shared-0.0.2-bundled.tgz",
-    "smallteam": "smallteam-0.0.4.tgz"
+    "@smallteam-local/shared": "smallteam-local-shared-0.1.0-bundled.tgz",
+    "smallteam": "smallteam-0.1.0.tgz"
   },
   "scripts": {
     "start": "smallteam"
