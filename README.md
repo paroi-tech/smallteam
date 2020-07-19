@@ -2,7 +2,7 @@
 
 [![Build Status](https://travis-ci.com/paroi-tech/smallteam.svg?branch=master)](https://travis-ci.com/paroi-tech/smallteam)
 
-A rudimentary Task Management Software for Small Teams.
+A rudimentary task management software for small teams.
 
 This is the software of https://smallteam.paroi.tech/
 
@@ -34,6 +34,12 @@ rush update
 rush rebuild
 ```
 
+After running a `npm` command by mistake, it is necessary to clean up all `node_modules` directories the Rush way:
+
+```sh
+rush update --recheck
+```
+
 Run the linter everywhere:
 
 ```sh
@@ -42,10 +48,17 @@ rush lint
 
 ## Deploy
 
-Stop dev watchers for backend and frontends, then:
+Stop dev watchers for backend and frontends, then, execute one of these commands:
 
 ```sh
+# Bump version's patch number
 rush new-release
+
+# Bump version's minor number
+rush new-release --minor
+
+# Bump version's major number
+rush new-release --major
 ```
 
 ## Install a local development environment

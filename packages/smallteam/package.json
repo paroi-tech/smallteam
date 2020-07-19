@@ -2,7 +2,7 @@
   "name": "smallteam",
   "version": "0.1.0",
   "license": "CC0-1.0",
-  "description": "A rudimentary Task Management Software for Small Teams.",
+  "description": "A rudimentary task management software for small teams.",
   "author": "Paroi",
   "repository": {
     "type": "git",
