@@ -1,5 +1,7 @@
 # SmallTeam
 
+[![Build Status](https://travis-ci.com/paroi-tech/smallteam.svg?branch=master)](https://travis-ci.com/paroi-tech/smallteam)
+
 A rudimentary Task Management Software for Small Teams.
 
 This is the software of https://smallteam.paroi.tech/
