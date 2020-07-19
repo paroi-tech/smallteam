@@ -10,6 +10,10 @@ const appLog = {
     logMessages.push(`\n============\n== [ERROR] ${message}`)
     console.error(message)
   },
+  warn(message) {
+    logMessages.push(`\n============\n== [WARN] ${message}`)
+    console.warn(message)
+  },
   info(message) {
     logMessages.push(`\n============\n== [INFO] ${message}`)
     console.info(message)
@@ -22,6 +26,12 @@ const appLog = {
 main().catch(err => appLog.error(err))
 
 async function main() {
+  const versionBumpMode = process.argv.indexOf("--major") !== -1 ? "major"
+    : process.argv.indexOf("--minor") !== -1 ? "minor"
+    : "patch"
+
+  appLog.info(`Version bump mode: ${versionBumpMode}`)
+
   const rootDir = dirname(dirname(__dirname))
   const releaseDir = join(rootDir, "release")
   const mainPackageDir = join(rootDir, "packages", "smallteam")
@@ -42,10 +52,10 @@ async function main() {
 
   if (releaseVersion === mainPackageVersion) {
     appLog.info("[main-package] Bump version")
-    mainPackageVersion = bumpPackageVersion(mainPackageDir)
+    mainPackageVersion = bumpPackageVersion(mainPackageDir, versionBumpMode)
 
     appLog.info("[shared] Bump version")
-    sharedVersion = bumpPackageVersion(sharedDir)
+    sharedVersion = bumpPackageVersion(sharedDir, versionBumpMode)
     setDependencyVersion(mainPackageDir, "@smallteam-local/shared", sharedVersion)
     setDependencyVersion(join(subprojectsDir, "shared-ui"), "@smallteam-local/shared", sharedVersion)
     for (const { dir } of frontendDirs)
@@ -54,7 +64,7 @@ async function main() {
     appLog.info("[global] rush update")
     await execCommand("rush update")
   } else {
-    appLog.info(`releaseVersion`)
+    appLog.warn(`Release version (${releaseVersion}) is not aligned to the package (${mainPackageVersion}). The release will use the package version.`)
   }
 
   for (const { dir, name } of frontendDirs) {
@@ -94,7 +104,7 @@ async function main() {
   writeLogFileSync(join(releaseDir, releaseLogName))
 }
 
-function bumpPackageVersion(packageDir) {
+function bumpPackageVersion(packageDir, versionBumpMode) {
   const jsonFile = join(packageDir, "package.json")
   let content = readFileSync(jsonFile, "utf8")
 
@@ -103,7 +113,7 @@ function bumpPackageVersion(packageDir) {
   const regex = /(\"version\"\s*:\s*)\"([a-zA-Z0-9-_\.]+)\"/
   content = content.replace(regex, (_, firstPart, ver) => {
     oldVersion = ver
-    newVersion = incrementMinorVersion(ver)
+    newVersion = incrementSemanticVersion(ver, versionBumpMode)
     return `${firstPart}"${newVersion}"`
   })
   if (!newVersion)
@@ -135,13 +145,27 @@ function setPackageVersion(packageDir, newVersion) {
 /**
  * @param version {string} "0.1.2-abc"
  */
-function incrementMinorVersion(version) {
+function incrementSemanticVersion(version, versionBumpMode) {
   const regex = /^([0-9]+)\.([0-9]+)\.([0-9]+)(-[a-zA-Z0-9-_]+)?$/
   const found = version.match(regex)
   if (!found)
     throw new Error(`Cannot increment version: "${version}"`)
-  const [, num1, num2, num3, suffix] = found
-  return `${num1}.${num2}.${parseInt(num3) + 1}${suffix || ""}`
+  const [, num1Str, num2Str, num3Str, suffix] = found
+  let num1 = parseInt(num1Str)
+  let num2 = parseInt(num2Str)
+  let num3 = parseInt(num3Str)
+  if (versionBumpMode === "patch")
+    ++num3
+  else if (versionBumpMode === "minor") {
+    ++num2
+    num3 = 0
+  }
+  else if (versionBumpMode === "major") {
+    ++num1
+    num2 = 0
+    num3 = 0
+  }
+  return `${num1}.${num2}.${num3}${suffix || ""}`
 }
 
 function setDependencyVersion(packageDir, dependencyName, newVersion) {
